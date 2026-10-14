@@ -115,7 +115,7 @@ export function CampamentosJudgesClient({
       >
         <div className="grid gap-4 rounded-[calc(1rem-0.125rem)] bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end sm:gap-6">
           <div className="space-y-2">
-            <Label className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <Label className="text-[11px] font-medium text-muted-foreground">
               {t("scopeLabel")}
             </Label>
             <Tabs value={scope} onValueChange={handleScopeChange}>
@@ -133,7 +133,7 @@ export function CampamentosJudgesClient({
           <div className="space-y-2">
             <Label
               htmlFor="camporee-select"
-              className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+              className="text-[11px] font-medium text-muted-foreground"
             >
               {t("camporeeLabel")}
             </Label>
@@ -172,7 +172,7 @@ export function CampamentosJudgesClient({
           {selectedCamporee ? (
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="min-w-0 space-y-1">
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                <p className="text-[11px] font-medium text-muted-foreground">
                   {scope === "union" ? t("scopeUnion") : t("scopeLocal")}
                 </p>
                 <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem] sm:leading-tight sm:tracking-[-0.02em]">

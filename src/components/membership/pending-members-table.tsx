@@ -153,19 +153,19 @@ export function PendingMembersTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_member")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_role")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_requested")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_expires")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
                   {t("table.col_actions")}
                 </TableHead>
               </TableRow>

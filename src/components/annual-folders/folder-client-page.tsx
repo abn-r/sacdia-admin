@@ -485,7 +485,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-muted-foreground">
             Secciones ({sortedSections.length})
           </h2>
           {sortedSections.map((section) => (

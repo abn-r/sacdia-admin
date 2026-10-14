@@ -116,12 +116,12 @@ function PermissionsPopover({ role }: { role: Role }) {
           <p className="text-sm text-muted-foreground">Sin permisos asignados.</p>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-muted-foreground">
               {permCount} permisos asignados
             </p>
             {grouped.map(({ id, title, permissions: perms }) => (
               <div key={id} className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                <p className="text-xs font-semibold text-foreground">
                   {title}
                 </p>
                 <div className="flex flex-wrap gap-1">
@@ -408,7 +408,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         Categoría
                       </SortableHeader>
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground hidden md:table-cell">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground hidden md:table-cell">
                       Descripción
                     </TableHead>
                     <TableHead
@@ -450,7 +450,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       </SortableHeader>
                     </TableHead>
                     {isSuperAdmin && (
-                      <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
+                      <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
                         Acciones
                       </TableHead>
                     )}

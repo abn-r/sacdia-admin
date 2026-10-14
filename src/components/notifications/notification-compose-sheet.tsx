@@ -234,7 +234,7 @@ export function NotificationComposeSheet({
 
         {showTypeSelector ? (
           <div className="shrink-0 border-b px-6 py-4">
-            <p className="mb-3 text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            <p className="mb-3 text-muted-foreground text-xs font-medium">
               {t("typeLabel")}
             </p>
             <ComposeTypeSelector

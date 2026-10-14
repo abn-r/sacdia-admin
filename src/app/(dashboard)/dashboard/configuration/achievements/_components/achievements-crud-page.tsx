@@ -389,7 +389,7 @@ export function AchievementsCrudPage({
                     <TableHead>{t("tableColScope")}</TableHead>
                     <TableHead>{t("tableColSecret")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium text-muted-foreground">
                       {t("tableColActions")}
                     </TableHead>
                   </TableRow>

@@ -60,7 +60,7 @@ export async function CamporeeDetailInfoTab({
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
         <Card className="rounded-xl border-border/60 bg-card px-4 py-3 shadow-xs">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-muted-foreground">
             <CalendarRange className="size-3.5" />
             {t("labelDatesKpi")}
           </div>
@@ -69,7 +69,7 @@ export async function CamporeeDetailInfoTab({
         </Card>
 
         <Card className="rounded-xl border-border/60 bg-card px-4 py-3 shadow-xs">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-muted-foreground">
             <MapPin className="size-3.5" />
             {t("labelCampLocationKpi")}
           </div>
@@ -82,7 +82,7 @@ export async function CamporeeDetailInfoTab({
         </Card>
 
         <Card className="rounded-xl border-border/60 bg-card px-4 py-3 shadow-xs">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-muted-foreground">
             <DollarSign className="size-3.5" />
             {t("labelCost")}
           </div>
@@ -95,7 +95,7 @@ export async function CamporeeDetailInfoTab({
         </Card>
 
         <Card className="rounded-xl border-border/60 bg-card px-4 py-3 shadow-xs">
-          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-muted-foreground">
             <Building2 className="size-3.5" />
             {orgCard.label}
           </div>
@@ -110,13 +110,13 @@ export async function CamporeeDetailInfoTab({
 
       <Card className="overflow-hidden rounded-xl border-border/60 bg-card shadow-xs">
         <div className="border-b border-border/60 bg-muted/30 px-5 py-3">
-          <div className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="text-[10.5px] font-semibold text-muted-foreground">
             {t("cardTitle")}
           </div>
         </div>
         <div className="space-y-4 px-5 py-4">
           <div>
-            <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="mb-1.5 text-[10.5px] font-semibold text-muted-foreground">
               {t("labelCampLocation")}
             </div>
             {campLocation ? (
@@ -145,7 +145,7 @@ export async function CamporeeDetailInfoTab({
           </div>
 
           <div>
-            <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="mb-1.5 text-[10.5px] font-semibold text-muted-foreground">
               {t("labelIncludes")}
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -168,7 +168,7 @@ export async function CamporeeDetailInfoTab({
 
           {camporee.description && (
             <div>
-              <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="mb-1.5 text-[10.5px] font-semibold text-muted-foreground">
                 {t("labelDescription")}
               </div>
               <p className="whitespace-pre-line text-[13px] leading-relaxed text-foreground">

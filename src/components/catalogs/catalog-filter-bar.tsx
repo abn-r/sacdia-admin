@@ -236,7 +236,7 @@ export function CatalogFilterBar({
           aria-label={t("activeFilters")}
           id={`${searchId}-status`}
         >
-          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span className="text-[11px] font-medium text-muted-foreground">
             {t("filtersLabel")}
           </span>
           {isSearchActive && (

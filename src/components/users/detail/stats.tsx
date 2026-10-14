@@ -23,7 +23,7 @@ export function UserDetailStats({ items }: { items: StatItem[] }) {
     >
       {items.map((it) => (
         <Card key={String(it.label)} className="gap-1 px-4 py-3.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="text-[11px] font-semibold text-muted-foreground">
             {it.label}
           </div>
           <div className="text-[22px] font-semibold tracking-tight text-foreground">

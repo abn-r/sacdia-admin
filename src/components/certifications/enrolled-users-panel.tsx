@@ -125,16 +125,16 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Usuario
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Inscripción
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Progreso
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Completado
               </TableHead>
               <TableHead className="h-9 w-12 px-3" />

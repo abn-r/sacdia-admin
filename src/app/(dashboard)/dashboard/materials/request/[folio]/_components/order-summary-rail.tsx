@@ -36,7 +36,7 @@ export function OrderSummaryRail({
         >
           <h3
             id="resumen-heading"
-            className="mb-3 text-xs uppercase tracking-wide text-muted-foreground"
+            className="mb-3 text-xs text-muted-foreground"
           >
             Resumen
           </h3>
@@ -76,7 +76,7 @@ export function OrderSummaryRail({
         >
           <h3
             id="acciones-heading"
-            className="mb-3 text-xs uppercase tracking-wide text-muted-foreground"
+            className="mb-3 text-xs text-muted-foreground"
           >
             Acciones
           </h3>

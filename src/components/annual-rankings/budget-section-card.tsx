@@ -161,7 +161,7 @@ export function BudgetSectionCard({
 
       <div className="mt-4 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             Subsecciones
           </p>
           {availableComponents.length > 0 ? (

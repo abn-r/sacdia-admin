@@ -97,7 +97,7 @@ function EnableMissingSectionSlot({
             <LayoutGrid className="size-5" />
           </span>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <h3 className="text-sm font-semibold text-muted-foreground">
               {typeName}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">{t("notCreated")}</p>
@@ -232,7 +232,7 @@ function OfficerRoleBlock({
 }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {heading}
       </p>
       {people.length > 0 ? (
@@ -319,7 +319,7 @@ function DesignationBlock({
 
   return (
     <div className="mt-4 space-y-2 rounded-xl border border-dashed border-border/70 bg-muted/10 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="text-[11px] font-semibold text-muted-foreground">
         {t("designatedHeading", { year: nextYearId })}
       </p>
 
@@ -428,7 +428,7 @@ function SectionCard({
         </Badge>
       }
     >
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="mb-3 text-[11px] font-semibold text-muted-foreground">
         {t("typeEyebrow")}
       </p>
 

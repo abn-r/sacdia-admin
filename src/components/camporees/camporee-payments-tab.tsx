@@ -148,7 +148,7 @@ export function CamporeePaymentsTab({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("eyebrow")}
           </p>
           <p className="text-sm text-muted-foreground">{t("description")}</p>

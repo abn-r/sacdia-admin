@@ -32,7 +32,7 @@ export function UserRolesOverview({ clubSections }: UserRolesOverviewProps) {
         ) : (
           <div className="overflow-hidden rounded-lg border border-border/70">
             <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+              <thead className="bg-muted/40 text-[11px] text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2 text-left font-semibold">{t("clubColumn")}</th>
                   <th className="px-3 py-2 text-left font-semibold">{t("sectionColumn")}</th>

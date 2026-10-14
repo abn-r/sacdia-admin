@@ -71,7 +71,7 @@ const COL_MID   = "px-4";
 const COL_LAST  = "pl-4 pr-6";
 
 // Header height + style shared by every <TableHead>
-const TH_BASE = "h-11 bg-muted/40 text-xs font-medium uppercase tracking-wider text-muted-foreground align-middle";
+const TH_BASE = "h-11 bg-muted/40 text-xs font-medium text-muted-foreground align-middle";
 
 // Row height — comfortable default; can be swapped to "h-10" for density
 const ROW_H = "h-14";

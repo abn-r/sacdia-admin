@@ -52,19 +52,19 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="h-9 w-[22%] px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 w-[22%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_name")}
             </TableHead>
-            <TableHead className="h-9 w-[28%] px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 w-[28%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_description")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_category")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_amount")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_status")}
             </TableHead>
             <TableHead className="h-9 w-32 px-3" />

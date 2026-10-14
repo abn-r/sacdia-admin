@@ -66,7 +66,7 @@ export const RULES = [
   },
   {
     id: "uppercase-tracking",
-    severity: "warn",
+    severity: "error",
     description: "Labels use sentence case: no uppercase + tracking-* (DESIGN-SYSTEM.md §3.2, antislop R-06)",
     test: (line) => UPPERCASE_RE.test(line) && TRACKING_RE.test(line),
     allow: isTestFile,

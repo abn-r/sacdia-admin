@@ -43,7 +43,7 @@ export async function NotificationStatsCards({
       {cards.map((card) => (
         <Card key={card.label} className="gap-2 py-4">
           <CardHeader className="pb-0">
-            <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
               {card.label}
             </CardTitle>
           </CardHeader>

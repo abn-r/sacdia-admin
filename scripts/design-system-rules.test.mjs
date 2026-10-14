@@ -27,8 +27,8 @@ describe("uppercase-tracking", () => {
     expect(r.allow("src/components/foo.tsx")).toBe(false);
   });
 
-  it("is a warning until the sentence-case migration lands", () => {
-    expect(r.severity).toBe("warn");
+  it("is an error", () => {
+    expect(r.severity).toBe("error");
   });
 });
 

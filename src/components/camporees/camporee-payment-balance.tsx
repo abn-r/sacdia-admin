@@ -544,7 +544,7 @@ export function CamporeePaymentBalance({
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {t("statEnrolled")}
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
@@ -558,7 +558,7 @@ export function CamporeePaymentBalance({
         </div>
 
         <div className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {t("statExpected")}
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
@@ -570,7 +570,7 @@ export function CamporeePaymentBalance({
         </div>
 
         <div className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {t("statCollected")}
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-emerald-700 dark:text-emerald-400">
@@ -591,7 +591,7 @@ export function CamporeePaymentBalance({
         </div>
 
         <div className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {t("statOutstanding")}
           </p>
           <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">

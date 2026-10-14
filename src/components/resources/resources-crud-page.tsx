@@ -1264,28 +1264,28 @@ export function ResourcesCrudPage({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="min-w-[200px] h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="min-w-[200px] h-9 px-3 text-xs font-medium text-muted-foreground">
                       Título
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       Tipo
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       Categoría
                     </TableHead>
-                    <TableHead className="min-w-[160px] h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="min-w-[160px] h-9 px-3 text-xs font-medium text-muted-foreground">
                       Alcance
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       Club
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       Subido por
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       Fecha
                     </TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium text-muted-foreground">
                       Acciones
                     </TableHead>
                   </TableRow>

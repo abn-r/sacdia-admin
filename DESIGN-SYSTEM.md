@@ -205,14 +205,14 @@ Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en
 |----------|-------|--------|------|----------|
 | Titulo de pagina (h1) | `text-2xl font-semibold tracking-tight sm:text-3xl` | 1.5rem / 1.875rem | 600 | tight |
 | Subtitulo / Card Title | `text-base font-semibold` | 1rem | 600 | - |
-| Nombre de seccion (sidebar) | `text-[10px] font-semibold uppercase tracking-widest` | 10px | 600 | widest |
+| Nombre de seccion (sidebar) | `text-xs font-medium text-muted-foreground` | 0.75rem | 500 | - |
 | Texto normal | `text-sm` | 0.875rem | 400 | - |
 | Texto auxiliar | `text-sm text-muted-foreground` | 0.875rem | 400 | - |
 | Descripcion corta | `text-[13px] text-muted-foreground` | 13px | 400 | - |
 | Label de formulario | `text-sm font-medium` | 0.875rem | 500 | - |
-| Label tipo tag | `text-xs font-medium uppercase tracking-wider` | 0.75rem | 500 | wider |
+| Label tipo tag | `text-xs font-medium` | 0.75rem | 500 | - |
 | Valores numericos | `tabular-nums` | - | - | - |
-| Table header | `text-xs font-medium uppercase tracking-wider text-muted-foreground` | 0.75rem | 500 | wider |
+| Table header | `text-xs font-medium text-muted-foreground` | 0.75rem | 500 | - |
 | Badge | `text-xs font-medium` | 0.75rem | 500 | - |
 | Micro texto | `text-[11px]` | 11px | - | - |
 | Footer de pagina | `text-sm text-muted-foreground` | 0.875rem | 400 | - |
@@ -225,6 +225,8 @@ Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en
 - Nunca usar `font-light` o `font-thin`
 - Valores numericos: siempre `tabular-nums` para alineacion consistente
 - Texto truncado: `truncate` con `max-w-*` definido
+- Labels, encabezados de tabla y nombres de sección en sentence case: nunca `uppercase` + `tracking-*` (regla `uppercase-tracking` del audit)
+- Nada por debajo de `text-[11px]`
 
 ---
 
@@ -449,7 +451,7 @@ La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio 
 </div>
 ```
 
-**Estilos de cabecera:** `h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground`
+**Estilos de cabecera:** `h-9 px-3 text-xs font-medium text-muted-foreground`
 **Estilos de celda:** `px-3 py-2.5 align-middle`
 **Hover en filas:** `hover:bg-muted/30`
 
@@ -1368,7 +1370,7 @@ Skeletons: `<Skeleton>` de `@/components/ui/skeleton`. Ver §7.3.
 - Oculto en mobile (`hidden md:block`)
 - Mobile: usa `Sheet` (panel lateral)
 - Brand: icono `h-8 w-8 rounded-lg` + nombre `text-lg font-bold`
-- Grupos separados por `Separator` y labels `text-[10px] uppercase`
+- Grupos separados por `Separator` y labels `text-xs font-medium text-muted-foreground`
 - Items activos: `bg-sidebar-accent text-sidebar-accent-foreground`
 - Items hover: `hover:bg-sidebar-accent/50`
 - Submenus: `Collapsible` con borde izquierdo `border-l border-sidebar-border`

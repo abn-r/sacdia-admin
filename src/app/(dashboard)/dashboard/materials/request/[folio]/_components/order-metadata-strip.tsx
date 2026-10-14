@@ -34,7 +34,7 @@ interface CellProps {
 function Cell({ label, children }: CellProps) {
   return (
     <div className="flex flex-col">
-      <span className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <span className="mb-1 text-xs font-medium text-muted-foreground">
         {label}
       </span>
       {children}

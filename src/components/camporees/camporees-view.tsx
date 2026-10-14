@@ -142,19 +142,19 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colName")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colStartDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colEndDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colPlace")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colStatus")}
                 </TableHead>
                 <TableHead className="h-9 w-28 px-3" />

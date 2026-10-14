@@ -490,7 +490,7 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
         className={`mb-4 rounded-md border p-3 ${modeCopy.panelClassName}`}
       >
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium text-muted-foreground">
             Modo de trabajo
           </p>
           <Badge

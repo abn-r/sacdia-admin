@@ -79,7 +79,7 @@ function InfoRow({
 }) {
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <span className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
         {Icon && <Icon className="size-3 shrink-0" />}
         {label}
       </span>

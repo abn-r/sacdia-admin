@@ -149,16 +149,16 @@ export default async function ComprobantesPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                     Folio
                   </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                     Director / Club
                   </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground text-right">
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
                     Total
                   </TableHead>
-                  <TableHead className="h-9 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                     Fecha aprobación
                   </TableHead>
                   <TableHead className="h-9 w-40 px-3" />

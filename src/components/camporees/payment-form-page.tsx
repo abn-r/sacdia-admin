@@ -664,7 +664,7 @@ export function PaymentFormPage({
             {/* Pending file preview (selected, not yet uploaded) */}
             {pendingFile && (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-                <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-primary">
+                <div className="flex items-center gap-2 text-xs font-medium text-primary">
                   {pendingFile.type.startsWith("image/") ? (
                     <ImageIcon className="size-3.5" />
                   ) : (

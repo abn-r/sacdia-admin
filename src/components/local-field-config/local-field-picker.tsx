@@ -48,7 +48,7 @@ export function LocalFieldPicker({
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
       <div className="space-y-1.5">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+        <Label className="text-xs text-muted-foreground">
           {label}
         </Label>
         <Select

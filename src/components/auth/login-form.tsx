@@ -70,13 +70,13 @@ export function LoginForm({ nextParam }: Props) {
           <div className="text-base font-bold tracking-tight text-foreground">
             SACDIA
           </div>
-          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="font-mono text-[11px] text-muted-foreground">
             {t("brand_subtitle")}
           </div>
         </div>
       </div>
 
-      <div className="mb-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+      <div className="mb-2.5 font-mono text-[11px] font-semibold text-primary">
         {t("eyebrow")}
       </div>
 

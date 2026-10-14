@@ -189,7 +189,7 @@ export function EventScoreEntryPanel({
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground">
           {t("eyebrow")}
         </p>
         <div className="space-y-1">
@@ -199,7 +199,7 @@ export function EventScoreEntryPanel({
       </header>
 
       <div className="space-y-3">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+        <Label className="text-xs text-muted-foreground">
           {t("eventLabel")}
         </Label>
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -252,7 +252,7 @@ export function EventScoreEntryPanel({
             key={stat.label}
             className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
           >
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-[11px] font-medium text-muted-foreground">
               {stat.label}
             </p>
             <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{stat.value}</p>

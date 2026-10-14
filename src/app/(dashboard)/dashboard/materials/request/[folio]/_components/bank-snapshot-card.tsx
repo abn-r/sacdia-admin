@@ -52,7 +52,7 @@ function FieldRow({
       className={fullWidth ? "sm:col-span-2 group flex items-start gap-3" : "group flex items-start gap-3"}
     >
       <div className="flex flex-1 flex-col">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="text-xs font-medium text-muted-foreground">
           {label}
         </span>
         <div className="text-sm text-foreground">{children}</div>
@@ -162,7 +162,7 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
         <Landmark className="size-5 text-muted-foreground" />
         <h2
           id="bank-snapshot-heading"
-          className="text-sm font-semibold uppercase tracking-wide"
+          className="text-sm font-semibold"
         >
           Datos de pago
         </h2>
