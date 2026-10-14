@@ -17,14 +17,14 @@ export async function DashboardVersionSwitch({ query, active }: DashboardVersion
 
   return (
     <div
-      className="inline-flex items-center rounded-4xl bg-muted p-[3px]"
+      className="inline-flex items-center rounded-lg bg-muted p-[3px]"
       role="group"
       aria-label={t("switchLabel")}
     >
       <Button
         variant={active === "v1" ? "default" : "ghost"}
         size="sm"
-        className="rounded-4xl"
+        className="rounded-md"
         asChild
       >
         <Link href={buildDashboardHref(query)} aria-current={active === "v1" ? "page" : undefined}>
@@ -34,7 +34,7 @@ export async function DashboardVersionSwitch({ query, active }: DashboardVersion
       <Button
         variant={active === "v2" ? "default" : "ghost"}
         size="sm"
-        className="rounded-4xl"
+        className="rounded-md"
         asChild
       >
         <Link href={buildDashboardV2Href(query)} aria-current={active === "v2" ? "page" : undefined}>
