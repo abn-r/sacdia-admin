@@ -13,6 +13,12 @@ vi.mock("next-intl/server", () => ({
   getRequestConfig: vi.fn((config: unknown) => config),
 }));
 
+// Partial catalog so the fallback path is exercised without relying on real
+// locale files drifting from es.json (parity is enforced in messages-parity.test.ts).
+vi.mock("../../messages/fr.json", () => ({
+  default: { dashboardHub: { roleChart: { title: "Répartition des rôles" } } },
+}));
+
 import esMessages from "../../messages/es.json";
 import requestConfig from "./request";
 
@@ -27,6 +33,7 @@ describe("i18n request config", () => {
     const result = await requestConfig({ requestLocale: Promise.resolve("fr") });
 
     expect(result.locale).toBe("fr");
+    expect(result.messages!.dashboardHub!.roleChart!.title).toBe("Répartition des rôles");
     expect(result.messages!.dashboardHub!.roleChart!.noRoleChip).toBe(
       esMessages.dashboardHub.roleChart.noRoleChip,
     );

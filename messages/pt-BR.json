@@ -1189,6 +1189,9 @@
       "update_section_failed": "Não foi possível atualizar a seção",
       "sync_section_failed": "Não foi possível sincronizar a seção",
       "create_role_assignment_failed": "Não foi possível criar a atribuição de papel",
+      "create_class_assignment_failed": "Não foi possível criar a atribuição de classe",
+      "update_class_assignment_failed": "Não foi possível atualizar a atribuição de classe",
+      "revoke_class_assignment_failed": "Não foi possível revogar a atribuição de classe",
       "update_role_failed": "Não foi possível atualizar o papel",
       "remove_assignment_failed": "Não foi possível remover a atribuição",
       "club_created_no_id": "Clube criado, mas não foi possível resolver o ID para continuar com as seções",
@@ -1222,6 +1225,9 @@
       "section_created_short": "Seção criada",
       "section_updated": "Seção atualizada com sucesso",
       "assignment_created": "Atribuição criada com sucesso",
+      "class_assignment_created": "Classe atribuída com sucesso",
+      "class_assignment_updated": "Atribuição de classe atualizada com sucesso",
+      "class_assignment_revoked": "Atribuição de classe revogada com sucesso",
       "assignment_removed": "Atribuição removida com sucesso",
       "role_updated": "Papel atualizado com sucesso",
       "retry_failed_sections": "Você pode continuar no detalhe do clube e tentar novamente as seções que falharam",
@@ -1705,7 +1711,8 @@
       "description": "Atribuições nos últimos 100 usuários",
       "noRolesFound": "Nenhuma função atribuída encontrada na amostra.",
       "basedOn": "Baseado nos últimos {count} usuários registrados",
-      "userCount": "{count, plural, one {{count} usuário} other {{count} usuários}} — {percentage}%"
+      "userCount": "{count, plural, one {{count} usuário} other {{count} usuários}} — {percentage}%",
+      "noRoleChip": "Sem função atribuída: {count, plural, one {{count} usuário} other {{count} usuários}} ({percentage}%)"
     },
     "quickLinks": {
       "title": "Acesso rápido",
@@ -3261,7 +3268,11 @@
       "unexpected": "Ocorreu um erro inesperado",
       "approve_member": "Não foi possível aprovar a inscrição do membro",
       "approve_payment": "Não foi possível aprovar o pagamento",
-      "enroll_club": "Não foi possível inscrever o clube"
+      "enroll_club": "Não foi possível inscrever o clube",
+      "create_failed": "Não foi possível criar o campori",
+      "update_failed": "Não foi possível atualizar o campori",
+      "register_member_failed": "Não foi possível registrar o membro",
+      "remove_member_failed": "Não foi possível remover o membro"
     },
     "clubRegistration": {
       "statusOpen": "Inscrição de clubes aberta",
@@ -3673,6 +3684,18 @@
     },
     "enrollDialog": {
       "title": "Inscrever clube",
+      "description": "Escolha um clube do campo local e a seção que participará.",
+      "labelClub": "Clube",
+      "placeholderClub": "Selecionar clube",
+      "loadingClubs": "Carregando clubes...",
+      "errorClubs": "Não foi possível carregar os clubes.",
+      "emptyClubs": "Nenhum clube registrado neste campo local.",
+      "labelSection": "Seção",
+      "placeholderSection": "Selecionar seção",
+      "placeholderSectionPickClub": "Escolha um clube primeiro",
+      "loadingSections": "Carregando seções...",
+      "errorSections": "Não foi possível carregar as seções.",
+      "emptySections": "Este clube não tem seções elegíveis para este campori.",
       "labelSectionId": "Seção",
       "placeholderSectionId": "Selecionar seção",
       "helpSectionId": "Selecione a seção do clube que deseja inscrever.",
@@ -3809,7 +3832,22 @@
       "coordinates_pair_required": "Informe latitude e longitude juntas",
       "local_field_required": "O campo local é obrigatório",
       "end_date_after_start": "A data de fim deve ser igual ou posterior à data de início",
-      "end_date_after_start_full": "A data de fim deve ser igual ou posterior à data de início"
+      "end_date_after_start_full": "A data de fim deve ser igual ou posterior à data de início",
+      "field_required": "O campo {field} é obrigatório",
+      "field_invalid": "O valor de {field} não é válido",
+      "dates_required": "As datas de início e fim são obrigatórias",
+      "no_changes": "Nenhuma alteração foi feita",
+      "user_id_required": "O usuário é obrigatório",
+      "camporee_type_invalid": "O tipo de campori não é válido",
+      "insurance_invalid": "O seguro selecionado não é válido",
+      "member_remove_not_identified": "Não foi possível identificar o membro a remover"
+    },
+    "fields": {
+      "local_field": "Campo local"
+    },
+    "success": {
+      "member_registered": "Membro registrado com sucesso",
+      "member_removed": "Membro removido com sucesso"
     }
   },
   "resources": {
@@ -4221,7 +4259,64 @@
         "description": "Gestão de usuários do sistema.",
         "cannotShow": "Não é possível exibir usuários",
         "emptyTitle": "Nenhum usuário encontrado",
-        "emptyDescription": "Tente ajustar os filtros de pesquisa."
+        "emptyDescription": "Tente ajustar os filtros de pesquisa.",
+        "actions": {
+          "addUser": "Adicionar usuário",
+          "bulkUpload": "Criação em massa"
+        }
+      },
+      "new": {
+        "title": "Adicionar usuário",
+        "description": "Criar um novo usuário e enviar um convite por e-mail.",
+        "breadcrumb": "Adicionar usuário",
+        "fields": {
+          "name": "Nome",
+          "paternal_last_name": "Sobrenome paterno",
+          "maternal_last_name": "Sobrenome materno",
+          "email": "E-mail",
+          "role": "Função",
+          "country": "País",
+          "union": "União",
+          "local_field": "Campo local"
+        },
+        "placeholders": {
+          "name": "Ex.: María",
+          "paternal_last_name": "Ex.: González",
+          "maternal_last_name": "Ex.: Pérez",
+          "email": "usuario@exemplo.com",
+          "role": "Selecione uma função",
+          "country": "Selecione um país",
+          "union": "Selecione uma união",
+          "local_field": "Selecione um campo local"
+        },
+        "help": {
+          "maternal_last_name": "Opcional. Deixe em branco se não se aplicar.",
+          "role": "Você só pode atribuir funções iguais ou inferiores à sua.",
+          "union": "Selecione primeiro um país.",
+          "local_field": "Selecione primeiro uma união."
+        },
+        "actions": {
+          "submit": "Criar usuário",
+          "cancel": "Cancelar",
+          "submitting": "Criando…"
+        },
+        "toast": {
+          "success": "Usuário criado. Convite enviado para {email}.",
+          "inviteNotSent": "Usuário criado, mas não foi possível enviar o e-mail de convite.",
+          "emailExists": "Já existe um usuário com esse e-mail.",
+          "forbidden": "Você não tem permissão para criar essa função.",
+          "validationFailed": "Revise os campos do formulário.",
+          "generic": "Não foi possível criar o usuário. Tente novamente."
+        },
+        "validation": {
+          "nameRequired": "O nome é obrigatório.",
+          "paternalRequired": "O sobrenome paterno é obrigatório.",
+          "emailRequired": "O e-mail é obrigatório.",
+          "emailInvalid": "Formato de e-mail inválido.",
+          "roleRequired": "Selecione uma função.",
+          "countryRequired": "Selecione um país.",
+          "unionRequired": "Selecione uma união."
+        }
       },
       "detail": {
         "title": "Detalhe do usuário",
@@ -4418,6 +4513,70 @@
           "sectionColumn": "Seção",
           "roleColumn": "Função",
           "noRoleAssigned": "Sem função atribuída"
+        }
+      },
+      "bulk": {
+        "title": "Criação em massa de usuários",
+        "description": "Crie vários usuários de uma vez enviando um arquivo Excel ou CSV com os dados necessários.",
+        "breadcrumb": "Criação em massa",
+        "downloadTemplate": "Baixar modelo",
+        "dropZone": {
+          "title": "Arraste e solte seu arquivo aqui",
+          "subtitle": "ou clique para selecionar no seu computador",
+          "browse": "Selecionar arquivo",
+          "accept": "Formatos aceitos: .xlsx, .csv. Máx. 5 MB e 500 linhas"
+        },
+        "preview": {
+          "title": "Pré-visualização do arquivo",
+          "subtitle": "As linhas restantes serão processadas no servidor.",
+          "showingRowsOf": "Mostrando {shown} de {total} linhas",
+          "moreColumns": "colunas a mais",
+          "headersOk": "Cabeçalhos corretos",
+          "headersInvalid": "O arquivo não contém a coluna 'email' obrigatória.",
+          "emptyFile": "O arquivo não contém linhas de dados.",
+          "tooManyRows": "O arquivo excede o máximo de 500 linhas."
+        },
+        "actions": {
+          "submit": "Processar envio",
+          "cancel": "Cancelar",
+          "uploadAnother": "Enviar outro arquivo",
+          "filterAll": "Todos",
+          "filterSuccess": "Com sucesso",
+          "filterError": "Com erros"
+        },
+        "results": {
+          "totalLabel": "Total",
+          "succeededLabel": "Com sucesso",
+          "failedLabel": "Com falha",
+          "inviteSent": "Convite enviado",
+          "inviteNotSent": "Usuário criado sem convite",
+          "createdHeader": "Criado",
+          "emailHeader": "E-mail",
+          "rowHeader": "Linha",
+          "detailHeader": "Detalhe",
+          "statusHeader": "Status"
+        },
+        "statusBadges": {
+          "success": "Criado",
+          "error": "Erro"
+        },
+        "errorCodes": {
+          "validationFailed": "Dados inválidos",
+          "duplicateInFile": "E-mail duplicado no arquivo",
+          "emailAlreadyInUse": "E-mail já registrado",
+          "invalidRole": "Função inválida",
+          "forbiddenRoleForActor": "Você não pode criar essa função",
+          "internalError": "Erro interno"
+        },
+        "toast": {
+          "success": "Todos os usuários foram criados com sucesso.",
+          "partialSuccess": "Envio concluído com alguns erros. Revise os resultados.",
+          "allFailed": "Nenhum usuário pôde ser criado. Verifique os dados do arquivo.",
+          "fileTooLarge": "Arquivo muito grande (máx. 5 MB).",
+          "fileTypeInvalid": "Formato de arquivo não suportado. Use .xlsx ou .csv.",
+          "fileEmpty": "O arquivo não contém dados.",
+          "tooManyRows": "O arquivo excede o limite de 500 linhas.",
+          "generic": "Ocorreu um erro ao processar o envio. Tente novamente."
         }
       }
     }
@@ -5465,7 +5624,8 @@
       "categories_load_failed": "Não foi possível carregar as categorias",
       "transaction_updated": "Movimento atualizado com sucesso",
       "transaction_created": "Movimento criado com sucesso",
-      "transaction_deleted": "Movimento excluído com sucesso"
+      "transaction_deleted": "Movimento excluído com sucesso",
+      "evidence_upload_failed": "Não foi possível enviar as evidências"
     },
     "validation": {
       "section_required": "Selecione uma seção do clube",
@@ -5481,7 +5641,8 @@
     "errors": {
       "delete_transaction_failed": "Não foi possível excluir o movimento",
       "update_transaction_failed": "Não foi possível atualizar o movimento",
-      "create_transaction_failed": "Não foi possível criar o movimento"
+      "create_transaction_failed": "Não foi possível criar o movimento",
+      "upload_evidence_failed": "Não foi possível enviar a evidência"
     },
     "dashboard": {
       "filtersLabel": "Filtros:",
