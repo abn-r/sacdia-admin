@@ -1773,8 +1773,8 @@
             "pending": "Pendientes"
           },
           "missingCount": "{count, plural, one {falta #} other {faltan #}}",
-          "emptyTitle": "Sin territorios en este alcance",
-          "emptyDescription": "Este nivel todavía no tiene territorios hijos registrados."
+          "emptyTitle": "{level, select, division {Sin divisiones en este alcance} union {Sin uniones en este alcance} local_field {Sin campos locales en este alcance} other {Sin clubes en este alcance}}",
+          "emptyDescription": "Este nivel todavía no tiene registros."
         },
         "pendingTitle": "Pendientes",
         "review": "Revisar",

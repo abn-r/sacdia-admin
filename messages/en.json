@@ -1767,8 +1767,8 @@
             "pending": "Pending"
           },
           "missingCount": "{count, plural, one {# missing} other {# missing}}",
-          "emptyTitle": "No territories in this scope",
-          "emptyDescription": "This level has no child territories registered yet."
+          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}",
+          "emptyDescription": "Nothing is registered at this level yet."
         },
         "pendingTitle": "Pending",
         "review": "Review",

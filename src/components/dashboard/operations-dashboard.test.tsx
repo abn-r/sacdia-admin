@@ -132,6 +132,13 @@ describe("dashboard home messages", () => {
     expect(translate("pt-BR", ptBR)("gapTable.missingCount", { count: 2 })).toBe("faltam 2");
   });
 
+  it("names the child level in the empty gap table", () => {
+    expect(translate("es", es)("gapTable.emptyTitle", { level: "club" })).toBe("Sin clubes en este alcance");
+    expect(translate("es", es)("gapTable.emptyTitle", { level: "local_field" })).toBe(
+      "Sin campos locales en este alcance",
+    );
+  });
+
   it("formats numbers in summary sentences", () => {
     const big = new Intl.NumberFormat("es").format(12345);
     const sections = translate("es", es)("summary.sectionsReported", { submitted: 12345, expected: 20000 });

@@ -1766,8 +1766,8 @@
             "pending": "En attente"
           },
           "missingCount": "{count, plural, one {# manquant} other {# manquants}}",
-          "emptyTitle": "Aucun territoire dans ce périmètre",
-          "emptyDescription": "Ce niveau n’a encore aucun territoire enfant enregistré."
+          "emptyTitle": "{level, select, division {Aucune division dans ce périmètre} union {Aucune union dans ce périmètre} local_field {Aucun champ local dans ce périmètre} other {Aucun club dans ce périmètre}}",
+          "emptyDescription": "Rien n’est encore enregistré à ce niveau."
         },
         "pendingTitle": "En attente",
         "review": "Examiner",

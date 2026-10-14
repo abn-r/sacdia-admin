@@ -190,7 +190,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
               pending: tHome("gapTable.columns.pending"),
             },
             empty: {
-              title: tHome("gapTable.emptyTitle"),
+              title: tHome("gapTable.emptyTitle", { level: childLevel }),
               description: tHome("gapTable.emptyDescription"),
             },
             rows: rankChildrenByGap(children, hasReportingMonth).map(
