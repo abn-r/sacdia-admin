@@ -1,31 +1,32 @@
-import { getTranslations, getLocale } from "next-intl/server";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { OperationsDashboardChrome } from "@/components/dashboard/operations-dashboard-chrome";
-import { OperationsKpiStrip } from "@/components/dashboard/operations-kpi-strip";
-import { OperationsWorkQueue } from "@/components/dashboard/operations-work-queue";
-import { OperationsCoverageCard } from "@/components/dashboard/operations-coverage-card";
-import { OperationsShortcuts } from "@/components/dashboard/operations-shortcuts";
-import { OperationsDataQuality } from "@/components/dashboard/operations-data-quality";
-import { TerritoryBreakdownTable } from "@/components/dashboard/territory-breakdown-table";
 import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
-import { OperationsStatRow } from "@/components/dashboard/operations-bento-tile";
+import { SupervisionHome } from "@/components/dashboard/operations-home-supervision";
+import { DispatchHome } from "@/components/dashboard/operations-home-dispatch";
+import type { OperationsGapRow } from "@/components/dashboard/operations-gap-table";
+import type { OperationsPeriodContextProps } from "@/components/dashboard/operations-period-context";
 import {
+  buildDashboardHref,
+  buildDrillDownQuery,
   formatMetricCount,
   formatMetricPercent,
+  type ChildLevel,
+  type OperationsDashboardChild,
   type OperationsDashboardData,
   type OperationsDashboardQuery,
 } from "@/lib/api/operations-dashboard";
 import {
-  buildWorkQueue,
+  dispatchSummary,
   firstAccessibleHref,
-  resolveAccessibleShortcuts,
-  resolveReportsHref,
-  type OperationsQueueId,
+  laggingClubs,
+  rankChildrenByGap,
+  resolveHomeMode,
+  supervisionSummary,
+  visibleWorkQueue,
+  type SummaryMessage,
 } from "@/lib/dashboard/operations-home";
 import type { AuthUser } from "@/lib/auth/types";
-import { getFormatNumber, formatDate } from "@/lib/format-locale";
+import { getFormatNumber } from "@/lib/format-locale";
 
 interface OperationsDashboardViewProps {
   data: OperationsDashboardData;
@@ -33,42 +34,108 @@ interface OperationsDashboardViewProps {
   user: AuthUser;
 }
 
-export async function OperationsDashboardView({
-  data,
-  query,
-  user,
-}: OperationsDashboardViewProps) {
+const CHILD_LEVEL_BY_SCOPE: Record<OperationsDashboardData["meta"]["scope"]["level"], ChildLevel> = {
+  all: "division",
+  division: "union",
+  union: "local_field",
+  local_field: "club",
+  coordinator: "club",
+};
+
+function childHref(child: OperationsDashboardChild, query: OperationsDashboardQuery): string {
+  return child.level === "club"
+    ? `/dashboard/clubs/${child.id}`
+    : buildDashboardHref(buildDrillDownQuery(child, query));
+}
+
+export async function OperationsDashboardView({ data, query, user }: OperationsDashboardViewProps) {
   const t = await getTranslations("dashboardHub.operations");
   const tHome = await getTranslations("dashboardHub.operations.home");
-  const tBento = await getTranslations("dashboardHub.operations.bento");
-  const locale = await getLocale();
   const formatNumber = await getFormatNumber();
   const { meta, summary, children, data_quality } = data;
-  const reportingMonth = meta.period.reporting_month;
+  const hasReportingMonth = meta.period.reporting_month !== null;
   const fmt = (value: number | null | undefined) => formatMetricCount(value, formatNumber);
   const pct = (value: number | null | undefined) => formatMetricPercent(value, formatNumber);
+  const mode = resolveHomeMode(meta.scope, query);
+  const childLevel = CHILD_LEVEL_BY_SCOPE[meta.scope.level];
 
-  const clubsHref = firstAccessibleHref(user, ["/dashboard/clubs"]);
-  const usersHref = firstAccessibleHref(user, ["/dashboard/users"]);
-  const reportsHref = resolveReportsHref(user);
-  const activitiesHref = firstAccessibleHref(user, ["/dashboard/clubs/activities"]);
-  const honorsHref = firstAccessibleHref(user, ["/dashboard/clubs/validations?tab=honors"]);
+  const sentence = (messages: SummaryMessage[]) =>
+    messages.map((message) => tHome(`summary.${message.key}`, message.values)).join(" ");
 
-  const workItems = buildWorkQueue(summary);
-  const accessibleQueueHrefs = Object.fromEntries(
-    workItems
-      .map((item) => [item.id, firstAccessibleHref(user, [item.href])] as const)
-      .filter((entry): entry is [OperationsQueueId, string] => Boolean(entry[1])),
-  ) as Partial<Record<OperationsQueueId, string>>;
-
-  const reportingMonthLabel = reportingMonth
-    ? formatDate(new Date(reportingMonth.year, reportingMonth.month - 1, 1), locale, {
-        month: "long",
-        year: "numeric",
-      })
-    : null;
+  const queueLabels = {
+    roles: t("attention.roleAssignments"),
+    transfers: t("attention.transfers"),
+    classes: t("attention.classValidations"),
+    honors: t("attention.honorsReview"),
+    folders: t("attention.annualFolders"),
+  };
+  const queueItems = visibleWorkQueue(summary, user);
 
   const honorsUnavailable = summary.honors.attribution === "unavailable";
+  const honorsHref = firstAccessibleHref(user, ["/dashboard/clubs/validations?tab=honors"]);
+  const activitiesHref = firstAccessibleHref(user, ["/dashboard/clubs/activities"]);
+  const context: OperationsPeriodContextProps = {
+    headingId: "operations-context",
+    title: tHome("periodContextTitle"),
+    groups: [
+      {
+        title: t("formation.title"),
+        description: t("formation.description", {
+          enrollments: fmt(summary.classes.total_enrollments),
+          people: fmt(summary.classes.distinct_people),
+        }),
+        children: (
+          <ClassEnrollmentsChart items={summary.classes.by_class} compact showTable={false} />
+        ),
+      },
+      {
+        title: t("honors.title"),
+        description: honorsUnavailable
+          ? t("honors.attribution.unavailable")
+          : t("honors.attribution.current_affiliation"),
+        rows: honorsUnavailable
+          ? []
+          : [
+              { label: t("honors.inProgress"), value: fmt(summary.honors.in_progress) },
+              {
+                label: t("honors.pendingReview"),
+                value: fmt(summary.honors.pending_review),
+                tone: (summary.honors.pending_review ?? 0) > 0 ? "warning" : "default",
+              },
+              { label: t("honors.approved"), value: fmt(summary.honors.approved) },
+            ],
+        action:
+          honorsHref && !honorsUnavailable
+            ? { href: honorsHref, label: tHome("honorsAction") }
+            : undefined,
+      },
+      {
+        title: t("activities.title"),
+        description: t("activities.description"),
+        rows: [
+          { label: t("activities.registered"), value: fmt(summary.activities.registered) },
+          { label: t("activities.jointRegistered"), value: fmt(summary.activities.joint_registered) },
+          {
+            label: t("activities.participatingSections"),
+            value: fmt(summary.activities.distinct_participating_sections),
+          },
+        ],
+        action: activitiesHref ? { href: activitiesHref, label: tHome("activitiesAction") } : undefined,
+      },
+    ],
+  };
+
+  const dataQuality = {
+    title: t("dataQuality.title"),
+    description: t("dataQuality.description"),
+    entries: data_quality,
+    statusLabels: {
+      exact: t("dataQuality.status.exact"),
+      current_affiliation: t("dataQuality.status.current_affiliation"),
+      unavailable: t("dataQuality.status.unavailable"),
+      not_applicable: t("dataQuality.status.not_applicable"),
+    },
+  };
 
   return (
     <div className="@container/main flex flex-col gap-6">
@@ -79,218 +146,80 @@ export async function OperationsDashboardView({
         description={tHome("description")}
       />
 
-      <OperationsWorkQueue
-        title={tHome("inboxTitle")}
-        description={tHome("inboxDescription")}
-        emptyTitle={tHome("inboxEmptyTitle")}
-        emptyDescription={tHome("inboxEmptyDescription")}
-        openLabel={tHome("openQueue")}
-        labels={{
-          roles: t("attention.roleAssignments"),
-          transfers: t("attention.transfers"),
-          classes: t("attention.classValidations"),
-          honors: t("attention.honorsReview"),
-          folders: t("attention.annualFolders"),
-        }}
-        items={workItems}
-        accessibleHrefs={accessibleQueueHrefs}
-      />
-
-      <OperationsKpiStrip
-        heading={t("kpis.sectionTitle")}
-        items={[
-          {
-            id: "operational",
-            label: tBento("stats.operationalClubs"),
-            value: fmt(summary.operations.operational_clubs),
-            hint: `${fmt(summary.operations.operational_sections)} ${tBento("stats.operationalSections")} · ${pct(summary.operations.operational_rate_pct)}`,
-            hintTone: "positive",
-            href: clubsHref,
-          },
-          {
-            id: "gap",
-            label: tBento("stats.nonOperationalClubs"),
-            value: fmt(summary.operations.non_operational_clubs),
-            hint: `${fmt(summary.administrative_clubs.total)} ${tBento("stats.adminTotal")}`,
-            hintTone: summary.operations.non_operational_clubs > 0 ? "warning" : "default",
-            href: clubsHref,
-          },
-          {
-            id: "reports",
-            label: tBento("groups.reports"),
-            value: reportingMonth ? pct(summary.monthly_reports.coverage_pct) : "—",
-            hint: reportingMonth
-              ? tBento("stats.monthlyCoverageDetail", {
-                  submitted: fmt(summary.monthly_reports.submitted_sections),
-                  expected: fmt(summary.monthly_reports.expected_sections),
-                })
-              : tBento("stats.noClosedMonth"),
-            hintTone:
-              reportingMonth && summary.monthly_reports.missing_sections > 0
-                ? "warning"
-                : "default",
-            href: reportsHref,
-          },
-          {
-            id: "people",
-            label: tBento("stats.institutionalActive"),
-            value: fmt(summary.people.institutionally_active),
-            hint: `${tBento("stats.platformActive")} ${fmt(summary.people.platform_accounts.active)} · ${tBento("stats.platformInactive")} ${fmt(summary.people.platform_accounts.inactive)}`,
-            href: usersHref,
-          },
-        ]}
-      />
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <OperationsCoverageCard
-          title={tHome("coverageTitle")}
-          description={
-            reportingMonthLabel
-              ? `${tBento("stats.monthlyCoverage")}: ${reportingMonthLabel}`
-              : tBento("groups.reportsNotApplicable")
-          }
-          coverageLabel={tBento("stats.monthlyCoverage")}
-          coverageValue={reportingMonth ? pct(summary.monthly_reports.coverage_pct) : "—"}
-          coveragePct={reportingMonth ? summary.monthly_reports.coverage_pct : null}
-          submittedLabel={tBento("charts.submitted")}
-          submittedValue={fmt(summary.monthly_reports.submitted_sections)}
-          missingLabel={tBento("charts.missing")}
-          missingValue={fmt(summary.monthly_reports.missing_sections)}
-          expectedLabel={tBento("charts.expected")}
-          expectedValue={fmt(summary.monthly_reports.expected_sections)}
-          notApplicable={!reportingMonth}
-          notApplicableLabel={tBento("stats.noClosedMonth")}
-          actionLabel={tHome("coverageAction")}
-          href={reportsHref}
-          hasMissing={Boolean(reportingMonth && summary.monthly_reports.missing_sections > 0)}
+      {mode === "dispatch" ? (
+        <DispatchHome
+          queue={{
+            headingId: "operations-queue",
+            title: tHome("dispatchTitle"),
+            reviewLabel: tHome("review"),
+            labels: queueLabels,
+            items: queueItems,
+            empty: {
+              title: tHome("dispatchEmptyTitle"),
+              description: tHome("dispatchEmptyDescription"),
+            },
+          }}
+          lagging={{
+            headingId: "operations-lagging",
+            title: tHome("laggingTitle"),
+            rows: laggingClubs(children, hasReportingMonth).map(({ child, reasons }) => ({
+              key: `${child.level}-${child.id}`,
+              name: child.name,
+              href: childHref(child, query),
+              reasons: reasons.map((reason) => ({
+                label: tHome(`lagReason.${reason}`),
+                tone: reason === "missingReport" ? ("danger" as const) : ("muted" as const),
+              })),
+            })),
+          }}
+          summary={sentence(dispatchSummary(summary, hasReportingMonth))}
+          context={context}
+          dataQuality={dataQuality}
         />
-
-        <Card size="sm" className="h-auto">
-          <CardHeader>
-            <CardTitle>{tBento("groups.formation")}</CardTitle>
-            <CardDescription>
-              {tBento("groups.formationDescription", {
-                enrollments: fmt(summary.classes.total_enrollments),
-                people: fmt(summary.classes.distinct_people),
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ClassEnrollmentsChart items={summary.classes.by_class} compact showTable={false} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>{tBento("groups.honors")}</CardTitle>
-            <CardDescription>
-              {honorsUnavailable
-                ? tBento("honorsAttribution.unavailable")
-                : t(`honors.attribution.${summary.honors.attribution}`)}
-            </CardDescription>
-            {honorsHref && !honorsUnavailable ? (
-              <CardAction>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={honorsHref}>{tHome("honorsAction")}</Link>
-                </Button>
-              </CardAction>
-            ) : null}
-          </CardHeader>
-          <CardContent className="space-y-1.5">
-            {honorsUnavailable ? null : (
-              <>
-                <OperationsStatRow
-                  label={tBento("stats.honorsInProgress")}
-                  value={fmt(summary.honors.in_progress)}
-                />
-                <OperationsStatRow
-                  label={tBento("stats.honorsPendingReview")}
-                  value={fmt(summary.honors.pending_review)}
-                  tone={(summary.honors.pending_review ?? 0) > 0 ? "warning" : "default"}
-                />
-                <OperationsStatRow
-                  label={tBento("stats.honorsApproved")}
-                  value={fmt(summary.honors.approved)}
-                />
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>{tBento("stats.activitiesRegistered")}</CardTitle>
-            <CardDescription>{tBento("groups.activitiesDescription")}</CardDescription>
-            {activitiesHref ? (
-              <CardAction>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={activitiesHref}>{tHome("activitiesAction")}</Link>
-                </Button>
-              </CardAction>
-            ) : null}
-          </CardHeader>
-          <CardContent className="space-y-1.5">
-            <OperationsStatRow
-              label={tBento("charts.registered")}
-              value={fmt(summary.activities.registered)}
-            />
-            <OperationsStatRow
-              label={tBento("stats.activitiesJoint")}
-              value={fmt(summary.activities.joint_registered)}
-            />
-            <OperationsStatRow
-              label={tBento("stats.activitiesSections")}
-              value={fmt(summary.activities.distinct_participating_sections)}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      <section aria-labelledby="operations-territory">
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle id="operations-territory">{t("territory.title")}</CardTitle>
-            <CardDescription>{t("territory.description")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TerritoryBreakdownTable
-              territoryChildren={children}
-              query={query}
-              reportingMonth={reportingMonth}
-            />
-          </CardContent>
-        </Card>
-      </section>
-
-      <OperationsShortcuts
-        title={tHome("shortcutsTitle")}
-        description={tHome("shortcutsDescription")}
-        labels={{
-          clubs: tHome("shortcuts.clubs"),
-          users: tHome("shortcuts.users"),
-          assignments: tHome("shortcuts.assignments"),
-          validations: tHome("shortcuts.validations"),
-          reports: tHome("shortcuts.reports"),
-          folders: tHome("shortcuts.folders"),
-          activities: tHome("shortcuts.activities"),
-          camporees: tHome("shortcuts.camporees"),
-        }}
-        items={resolveAccessibleShortcuts(user)}
-      />
-
-      <OperationsDataQuality
-        title={t("dataQuality.title")}
-        description={t("dataQuality.description")}
-        entries={data_quality}
-        statusLabels={{
-          exact: t("dataQuality.status.exact"),
-          current_affiliation: t("dataQuality.status.current_affiliation"),
-          unavailable: t("dataQuality.status.unavailable"),
-          not_applicable: t("dataQuality.status.not_applicable"),
-        }}
-      />
+      ) : (
+        <SupervisionHome
+          summary={sentence(supervisionSummary(children, childLevel, summary, hasReportingMonth))}
+          gapTable={{
+            headingId: "operations-gap",
+            title: tHome("gapTable.title", { level: childLevel }),
+            description: tHome("gapTable.description"),
+            columns: {
+              name: tHome("gapTable.columns.name"),
+              reports: tHome("gapTable.columns.reports"),
+              nonOperational: tHome("gapTable.columns.nonOperational"),
+              pending: tHome("gapTable.columns.pending"),
+            },
+            empty: {
+              title: tHome("gapTable.emptyTitle"),
+              description: tHome("gapTable.emptyDescription"),
+            },
+            rows: rankChildrenByGap(children, hasReportingMonth).map(
+              ({ child, gap }): OperationsGapRow => ({
+                key: `${child.level}-${child.id}`,
+                name: child.name,
+                href: childHref(child, query),
+                reports: hasReportingMonth ? pct(child.monthly_reports.coverage_pct) : "—",
+                missingLabel:
+                  gap.missingSections > 0
+                    ? tHome("gapTable.missingCount", { count: fmt(gap.missingSections) })
+                    : undefined,
+                nonOperational: fmt(gap.nonOperationalClubs),
+                pending: fmt(gap.pendingTotal),
+                hasGap: gap.hasGap,
+              }),
+            ),
+          }}
+          pending={{
+            headingId: "operations-pending",
+            title: tHome("pendingTitle"),
+            reviewLabel: tHome("review"),
+            labels: queueLabels,
+            items: queueItems,
+          }}
+          context={context}
+          dataQuality={dataQuality}
+        />
+      )}
     </div>
   );
 }
