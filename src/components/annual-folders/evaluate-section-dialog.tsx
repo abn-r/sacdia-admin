@@ -165,7 +165,7 @@ export function EvaluateSectionDialog({
               <div className="min-w-0">
                 <p className="text-sm font-medium">Evidencias subidas</p>
                 <p className="text-xs text-muted-foreground">
-                  Revisá estos archivos antes de asignar puntos.
+                  Revisa estos archivos antes de asignar puntos.
                 </p>
               </div>
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">

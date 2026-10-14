@@ -113,7 +113,7 @@ function CreateForm({ onSuccess }: { onSuccess: () => void }) {
                 <Input placeholder="ej. uniforme, insumos, libros" {...field} />
               </FormControl>
               <FormDescription>
-                Identificador URL-safe. Usá minúsculas y guiones.
+                Identificador URL-safe. Usa minúsculas y guiones.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -337,8 +337,8 @@ export function CategoryFormSheet({
           </SheetTitle>
           <SheetDescription>
             {mode === "create"
-              ? "Definí una categoría de materiales reutilizable por todos los campos."
-              : "Modificá el nombre, ícono, orden y estado de la categoría."}
+              ? "Define una categoría de materiales reutilizable por todos los campos."
+              : "Modifica el nombre, ícono, orden y estado de la categoría."}
           </SheetDescription>
         </SheetHeader>
 

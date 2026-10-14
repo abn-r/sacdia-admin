@@ -70,7 +70,7 @@ export function OrderStickyBar({
         disabled={!allResolved}
         disabledReason={
           !allResolved
-            ? `Resolvé ${pending} ${pending === 1 ? "partida" : "partidas"} antes de aprobar.`
+            ? `Resuelve ${pending} ${pending === 1 ? "partida" : "partidas"} antes de aprobar.`
             : undefined
         }
       />

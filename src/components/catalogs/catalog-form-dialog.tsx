@@ -144,7 +144,7 @@ export function CatalogFormDialog({
             </span>
           </DialogTitle>
           <DialogDescription>
-            {description ?? (isEdit ? "Modificá los campos necesarios" : "Completá los campos requeridos")}
+            {description ?? (isEdit ? "Modifica los campos necesarios" : "Completa los campos requeridos")}
           </DialogDescription>
         </DialogHeader>
 

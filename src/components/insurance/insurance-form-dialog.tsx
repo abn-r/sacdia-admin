@@ -186,8 +186,8 @@ export function InsuranceFormDialog({
             {member
               ? `Miembro: ${memberFullName(member)}`
               : isEdit
-                ? "Modificá los datos de la póliza de seguro."
-                : "Completá el formulario para registrar una nueva póliza de seguro."}
+                ? "Modifica los datos de la póliza de seguro."
+                : "Completa el formulario para registrar una nueva póliza de seguro."}
           </DialogDescription>
         </DialogHeader>
 

@@ -149,8 +149,8 @@ export function ScoringCategoryDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá el nombre y los puntos máximos de la categoría."
-              : "Completá el formulario para crear una nueva categoría de puntuación."}
+              ? "Modifica el nombre y los puntos máximos de la categoría."
+              : "Completa el formulario para crear una nueva categoría de puntuación."}
           </DialogDescription>
         </DialogHeader>
 

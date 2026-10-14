@@ -96,7 +96,7 @@ export function AnnualFolderEvidenceViewerDialog({
             )}
           </DialogTitle>
           <DialogDescription>
-            Revisá la evidencia sin salir del panel. Podés cambiar de archivo y
+            Revisa la evidencia sin salir del panel. Puedes cambiar de archivo y
             ajustar el zoom.
           </DialogDescription>
         </DialogHeader>
@@ -228,7 +228,7 @@ export function AnnualFolderEvidenceViewerDialog({
                     Vista previa no disponible para este tipo de archivo.
                   </p>
                   <p className="max-w-md text-sm text-muted-foreground">
-                    Podés abrirlo aparte o descargarlo para revisarlo con una
+                    Puedes abrirlo aparte o descargarlo para revisarlo con una
                     aplicación compatible.
                   </p>
                   <Button variant="outline" asChild>

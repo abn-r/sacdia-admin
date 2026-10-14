@@ -25,22 +25,22 @@ export const annualRankingConfigSchema = z
   .object({
     annual_ranking_config_id: z.string().uuid().optional(),
     scope_type: z.enum(["union", "local_field"], {
-      message: "Seleccioná si la configuración aplica a Unión o Campo Local",
+      message: "Selecciona si la configuración aplica a Unión o Campo Local",
     }),
     union_id: z
       .number()
       .int()
-      .positive("Seleccioná una unión")
+      .positive("Selecciona una unión")
       .nullable()
       .optional(),
     local_field_id: z
       .number()
       .int()
-      .positive("Seleccioná un campo local")
+      .positive("Selecciona un campo local")
       .nullable()
       .optional(),
-    ecclesiastical_year_id: z.number().int().positive("Seleccioná un año"),
-    club_type_id: z.number().int().positive("Seleccioná un tipo de club"),
+    ecclesiastical_year_id: z.number().int().positive("Selecciona un año"),
+    club_type_id: z.number().int().positive("Selecciona un tipo de club"),
     max_points: z
       .number({ message: "El total anual de puntos es requerido" })
       .int("El total anual debe ser un número entero")
@@ -52,7 +52,7 @@ export const annualRankingConfigSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["union_id"],
-        message: "Seleccioná una unión",
+        message: "Selecciona una unión",
       });
     }
 
@@ -60,7 +60,7 @@ export const annualRankingConfigSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["local_field_id"],
-        message: "Seleccioná un campo local",
+        message: "Selecciona un campo local",
       });
     }
 

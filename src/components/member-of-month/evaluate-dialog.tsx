@@ -104,7 +104,7 @@ export function EvaluateMemberOfMonthDialog({
             Evaluar Miembro del Mes
           </DialogTitle>
           <DialogDescription>
-            Calculá el miembro con mayor puntaje en{" "}
+            Calcula el miembro con mayor puntaje en{" "}
             <strong>{sectionName}</strong> para el período seleccionado.
           </DialogDescription>
         </DialogHeader>

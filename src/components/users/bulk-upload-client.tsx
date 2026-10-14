@@ -31,7 +31,7 @@ const ERROR_CODE_LABELS: Record<string, string> = {
   DUPLICATE_IN_FILE: "Email duplicado en el archivo",
   EMAIL_ALREADY_IN_USE: "Email ya registrado",
   INVALID_ROLE: "Rol inválido",
-  FORBIDDEN_ROLE_FOR_ACTOR: "No podés crear ese rol",
+  FORBIDDEN_ROLE_FOR_ACTOR: "No puedes crear ese rol",
   INTERNAL_ERROR: "Error interno",
 };
 
@@ -201,7 +201,7 @@ export function BulkUploadClient() {
         if (err.status === 400) {
           toast.error(err.message || t("toast.generic"));
         } else if (err.status === 403) {
-          toast.error("No tenés permisos para esta operación");
+          toast.error("No tienes permisos para esta operación");
         } else if (err.status === 413) {
           toast.error(t("toast.fileTooLarge"));
         } else {

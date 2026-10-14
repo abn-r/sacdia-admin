@@ -271,7 +271,7 @@ export function AnnualBudgetConfigForm({
                 {isEdit ? "Editar configuración" : "Nueva configuración"}
               </CardTitle>
               <CardDescription>
-                Definí el alcance, el puntaje máximo y cómo se distribuye entre
+                Define el alcance, el puntaje máximo y cómo se distribuye entre
                 secciones y subsecciones.
               </CardDescription>
             </CardHeader>
@@ -517,7 +517,7 @@ export function AnnualBudgetConfigForm({
                   Secciones y subsecciones
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Asigná puntos a cada subsección hasta completar el total de su
+                  Asigna puntos a cada subsección hasta completar el total de su
                   sección.
                 </p>
               </div>

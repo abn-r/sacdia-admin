@@ -443,7 +443,7 @@ export function EventFormPage({
               <Label>Tipo de evento</Label>
               <Select value={selectedEventTypeId} onValueChange={handleEventTypeChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccioná el tipo" />
+                  <SelectValue placeholder="Selecciona el tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   {eventTypes.map((type) => (
@@ -646,7 +646,7 @@ export function EventFormPage({
               <Label>Usuario responsable</Label>
               <Select value={leaderUserId} onValueChange={setLeaderUserId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccioná un usuario" />
+                  <SelectValue placeholder="Selecciona un usuario" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NO_LEADER_VALUE}>Sin responsable</SelectItem>

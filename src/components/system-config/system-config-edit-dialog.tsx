@@ -107,7 +107,7 @@ export function SystemConfigEditDialog({
           <DialogDescription>
             {config?.config_key && (
               <>
-                Modificá el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.config_key}</code>.
+                Modifica el valor de <code className="rounded bg-muted px-1 py-0.5 text-xs">{config.config_key}</code>.
                 {config.description && (
                   <span className="mt-1 block text-muted-foreground">{config.description}</span>
                 )}

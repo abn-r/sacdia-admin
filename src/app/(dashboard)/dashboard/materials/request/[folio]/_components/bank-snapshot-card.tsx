@@ -118,7 +118,7 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
               Datos bancarios no configurados
             </h2>
             <p className="text-sm text-warning-foreground/80">
-              Configurá la cuenta bancaria en{" "}
+              Configura la cuenta bancaria en{" "}
               <Link
                 href="/dashboard/configuration/local-field/payment-methods"
                 className="font-medium text-warning-foreground underline underline-offset-4"

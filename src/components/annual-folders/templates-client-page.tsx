@@ -369,7 +369,7 @@ export function TemplatesClientPage({
   function handleEditTemplate(template: FolderTemplate, e?: React.MouseEvent) {
     e?.stopPropagation();
     if (!isDraftTemplate(template)) {
-      toast.error("Esta plantilla ya está publicada. Copiala para crear un nuevo borrador.");
+      toast.error("Esta plantilla ya está publicada. Cópiala para crear un nuevo borrador.");
       return;
     }
     setEditingTemplate(template);
@@ -712,7 +712,7 @@ export function TemplatesClientPage({
                   title={
                     sectionPointsMatch
                       ? "Publicar plantilla"
-                      : "Primero ajustá las secciones al total requerido"
+                      : "Primero ajusta las secciones al total requerido"
                   }
                 >
                   <CheckCircle2 className="size-4" />
@@ -760,7 +760,7 @@ export function TemplatesClientPage({
           </div>
           <p className="mt-1 text-xs opacity-80">
             {requiredRankingPoints == null
-              ? "No existe una configuración de ranking aplicable para esta plantilla. Configurá primero el componente annual_evidence_folder."
+              ? "No existe una configuración de ranking aplicable para esta plantilla. Configura primero el componente annual_evidence_folder."
               : sectionPointsMatch
                 ? "La plantilla está alineada con el puntaje anual configurado."
                 : "No se podrá activar ni crear carpetas hasta que las secciones sumen exactamente el total requerido."}
@@ -789,7 +789,7 @@ export function TemplatesClientPage({
               </Button>
             ) : (
               <p className="mt-4 text-xs text-muted-foreground">
-                Las plantillas publicadas quedan bloqueadas. Copiala si necesitás cambios.
+                Las plantillas publicadas quedan bloqueadas. Cópiala si necesitas cambios.
               </p>
             )}
           </div>

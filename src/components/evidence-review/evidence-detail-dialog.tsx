@@ -55,7 +55,7 @@ function getHonorCompletionModeCopy(mode: HonorReviewPacket["completion_mode"]) 
       return {
         label: "Fuera de la app",
         description:
-          "El miembro completó la especialidad fuera de SACDIA. Validá el formato completado y las evidencias adjuntas.",
+          "El miembro completó la especialidad fuera de SACDIA. Valida el formato completado y las evidencias adjuntas.",
         badgeClassName: "bg-warning/15 text-warning-foreground border-warning/30",
         panelClassName: "border-warning/30 bg-warning/10",
       };
@@ -63,7 +63,7 @@ function getHonorCompletionModeCopy(mode: HonorReviewPacket["completion_mode"]) 
       return {
         label: "Dentro de la app",
         description:
-          "El miembro trabajó los requisitos dentro de SACDIA. Revisá respuestas y evidencias por requisito.",
+          "El miembro trabajó los requisitos dentro de SACDIA. Revisa respuestas y evidencias por requisito.",
         badgeClassName: "bg-success/15 text-success-foreground border-success/30",
         panelClassName: "border-success/30 bg-success/10",
       };
@@ -72,7 +72,7 @@ function getHonorCompletionModeCopy(mode: HonorReviewPacket["completion_mode"]) 
       return {
         label: "Sin modo definido",
         description:
-          "Este registro no tiene modo de trabajo confirmado. Revisá los archivos disponibles antes de decidir.",
+          "Este registro no tiene modo de trabajo confirmado. Revisa los archivos disponibles antes de decidir.",
         badgeClassName: "",
         panelClassName: "border-border bg-muted/30",
       };
@@ -461,7 +461,7 @@ function EvidenceFileViewerDialog({
                 No hay visor local para este tipo de archivo.
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
-                Descargalo para revisarlo con una aplicación compatible.
+                Descárgalo para revisarlo con una aplicación compatible.
               </p>
             </div>
           </div>
@@ -736,7 +736,7 @@ export function EvidenceDetailDialog({
               )}
             </DialogTitle>
             <DialogDescription>
-              Revisá los archivos y metadatos de la evidencia enviada por el miembro.
+              Revisa los archivos y metadatos de la evidencia enviada por el miembro.
             </DialogDescription>
           </DialogHeader>
 

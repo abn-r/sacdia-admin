@@ -208,7 +208,7 @@ export function RankingsClientPage({
 
   const handleSearch = useCallback(async () => {
     if (selectedLocalFieldId === undefined) {
-      toast.error("Seleccioná un campo local para consultar el ranking");
+      toast.error("Selecciona un campo local para consultar el ranking");
       return;
     }
 
@@ -429,7 +429,7 @@ export function RankingsClientPage({
             No hay rankings calculados
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            No hay datos para estos filtros. Revisá que exista configuración anual
+            No hay datos para estos filtros. Revisa que exista configuración anual
             de puntos y que el ranking base haya sido calculado.
           </p>
           <Button
