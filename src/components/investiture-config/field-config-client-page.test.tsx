@@ -156,7 +156,7 @@ describe("FieldConfigClientPage", () => {
 
     expect(
       screen.getByText(
-        "No hay ventana operativa para este año. Configurala para permitir presentar y autorizar.",
+        "No hay ventana operativa para este año. Configúrala para permitir presentar y autorizar.",
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(/inclusive, en la zona del Campo/)).not.toBeInTheDocument();

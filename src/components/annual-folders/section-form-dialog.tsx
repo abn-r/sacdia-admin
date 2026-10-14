@@ -160,8 +160,8 @@ export function SectionFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos de la sección de la plantilla."
-              : "Completá el formulario para agregar una nueva sección a la plantilla."}
+              ? "Modifica los datos de la sección de la plantilla."
+              : "Completa el formulario para agregar una nueva sección a la plantilla."}
           </DialogDescription>
         </DialogHeader>
 

@@ -17,7 +17,7 @@ export function PaymentSheetPrintButton({ orden }: PaymentSheetPrintButtonProps)
     const opened = openReceiptPrintWindow(buildPaymentSheetPrintDocument(orden));
     if (!opened) {
       window.alert(
-        "No se pudo abrir la vista de impresión. Revisá que el navegador permita ventanas emergentes.",
+        "No se pudo abrir la vista de impresión. Revisa que el navegador permita ventanas emergentes.",
       );
     }
   };

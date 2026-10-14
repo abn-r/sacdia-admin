@@ -4719,10 +4719,10 @@
       "submitEdit": "Guardar cambios",
       "submittingCreate": "Creando...",
       "submittingEdit": "Guardando...",
-      "descriptionDraft": "Guarda la plantilla como borrador. Después agrega secciones y publicala desde el detalle cuando esté completa.",
+      "descriptionDraft": "Guarda la plantilla como borrador. Después agrega secciones y publícala desde el detalle cuando esté completa.",
       "descriptionEdit": "Modifica los datos del borrador de Carpeta Anual de Evidencias.",
       "budgetTitle": "Presupuesto tomado del ranking",
-      "budgetMissing": "No hay configuración anual de ranking aplicable para esta combinación. Configurala antes de publicar.",
+      "budgetMissing": "No hay configuración anual de ranking aplicable para esta combinación. Configúrala antes de publicar.",
       "budgetResolved": "Carpeta Anual vale {points} pts según la configuración de ranking. Las secciones deben repartir exactamente ese total.",
       "budgetPending": "Selecciona tipo de club, año y propietario para resolver el presupuesto anual.",
       "submitDraft": "Guardar borrador",
@@ -7148,15 +7148,15 @@
         "viewHistory": "Ver historial"
       },
       "errors": {
-        "bullmqLoad": "No se pudieron cargar las colas. Verifica que el backend este disponible e intentalo de nuevo.",
-        "cronLoad": "No se pudieron cargar los cron jobs. Verifica que el backend este disponible e intentalo de nuevo."
+        "bullmqLoad": "No se pudieron cargar las colas. Verifica que el backend este disponible e inténtalo de nuevo.",
+        "cronLoad": "No se pudieron cargar los cron jobs. Verifica que el backend este disponible e inténtalo de nuevo."
       }
     },
     "pageHistory": {
       "title": "Historial de Cron Runs",
       "description": "Registro paginado de todas las ejecuciones de los jobs programados.",
       "back": "Volver",
-      "errorLoad": "No se pudo cargar el historial de cron runs. Verifica que el backend esté disponible e intentalo de nuevo."
+      "errorLoad": "No se pudo cargar el historial de cron runs. Verifica que el backend esté disponible e inténtalo de nuevo."
     },
     "cronRuns": {
       "cardTitle": "Cron Jobs",
@@ -8740,7 +8740,7 @@
         "title": "Ventana de solicitudes",
         "description": "Período en el que el Campo permite presentar y autorizar solicitudes de investidura.",
         "range": "Del {start} al {end}, inclusive, en la zona del Campo.",
-        "notOperational": "No hay ventana operativa para este año. Configurala para permitir presentar y autorizar.",
+        "notOperational": "No hay ventana operativa para este año. Configúrala para permitir presentar y autorizar.",
         "defaultNotice": "Todavía no se configuró: se usa la ventana por defecto del año.",
         "startLabel": "Inicio",
         "endLabel": "Fin",

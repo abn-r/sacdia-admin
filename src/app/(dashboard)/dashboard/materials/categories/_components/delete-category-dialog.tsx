@@ -63,7 +63,7 @@ export function DeleteCategoryDialog({
           <AlertDialogTitle>Eliminar categoría</AlertDialogTitle>
           <AlertDialogDescription>
             Vas a desactivar &quot;{categoria?.label}&quot;. Si la categoría
-            tiene productos asociados la operación fallará — debés reasignar o
+            tiene productos asociados la operación fallará — debes reasignar o
             eliminar esos productos primero.
           </AlertDialogDescription>
         </AlertDialogHeader>

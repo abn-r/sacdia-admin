@@ -820,7 +820,7 @@ export function EvaluationClientPage({
           <DialogHeader>
             <DialogTitle>Confirmar revisión de Unión</DialogTitle>
             <DialogDescription>
-              Registrá la decisión final para{" "}
+              Registra la decisión final para{" "}
               <strong>{unionConfirmingSection?.name}</strong>. Aprobar valida la
               sección; rechazar la marca como rechazada y no suma puntos.
             </DialogDescription>
@@ -880,7 +880,7 @@ export function EvaluationClientPage({
             <AlertDialogDescription>
               Esta acción eliminará la evaluación de{" "}
               <strong>{reopeningSection?.name}</strong> y dejará la sección
-              disponible para ser evaluada nuevamente. ¿Confirmás?
+              disponible para ser evaluada nuevamente. ¿Confirmas?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -23,7 +23,7 @@ export function LocalFieldPicker({
   currentLocalFieldId,
   localFields,
   label = "Campo local",
-  placeholder = "Seleccioná un campo local",
+  placeholder = "Selecciona un campo local",
 }: LocalFieldPickerProps) {
   const router = useRouter();
   const pathname = usePathname();

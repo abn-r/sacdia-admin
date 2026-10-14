@@ -59,7 +59,7 @@ export function OrderActions({
     if (!canApprove) {
       return (
         <p className="text-sm text-muted-foreground">
-          No tenés permisos para aprobar esta solicitud.
+          No tienes permisos para aprobar esta solicitud.
         </p>
       );
     }
@@ -71,7 +71,7 @@ export function OrderActions({
           disabled={!allResolved}
           disabledReason={
             !allResolved
-              ? `Resolvé ${pending} ${pending === 1 ? "partida" : "partidas"} antes de aprobar.`
+              ? `Resuelve ${pending} ${pending === 1 ? "partida" : "partidas"} antes de aprobar.`
               : undefined
           }
           fullWidth={fullWidth}
@@ -84,7 +84,7 @@ export function OrderActions({
         </CancelDialog>
         {!allResolved && (
           <p className="mt-1 text-xs text-muted-foreground">
-            Resolvé {pending} {pending === 1 ? "partida" : "partidas"} antes de aprobar.
+            Resuelve {pending} {pending === 1 ? "partida" : "partidas"} antes de aprobar.
           </p>
         )}
       </div>

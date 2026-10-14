@@ -160,8 +160,8 @@ export function InventoryFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Modificá los datos del ítem de inventario."
-              : "Completá el formulario para agregar un nuevo ítem al inventario del club."}
+              ? "Modifica los datos del ítem de inventario."
+              : "Completa el formulario para agregar un nuevo ítem al inventario del club."}
           </DialogDescription>
         </DialogHeader>
 

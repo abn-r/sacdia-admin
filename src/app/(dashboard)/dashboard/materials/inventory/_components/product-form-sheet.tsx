@@ -67,9 +67,9 @@ const createSchema = z.object({
   local_field_id: z.coerce
     .number()
     .int()
-    .min(1, "Seleccioná un campo local"),
-  club_type_id: z.coerce.number().int().min(1, "Seleccioná un programa"),
-  material_category_id: z.string().min(1, "Seleccioná una categoría"),
+    .min(1, "Selecciona un campo local"),
+  club_type_id: z.coerce.number().int().min(1, "Selecciona un programa"),
+  material_category_id: z.string().min(1, "Selecciona una categoría"),
   price_centavos: z.number().int().min(1, "El precio debe ser mayor a 0"),
   stock: z.coerce.number().int().min(0).optional(),
 });
@@ -152,7 +152,7 @@ function CreateForm({
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         form.setError("sku", {
-          message: "Este SKU ya está en uso. Usá uno diferente.",
+          message: "Este SKU ya está en uso. Usa uno diferente.",
         });
       } else {
         const message =
@@ -183,7 +183,7 @@ function CreateForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccioná un campo local" />
+                      <SelectValue placeholder="Selecciona un campo local" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -269,7 +269,7 @@ function CreateForm({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccioná un programa" />
+                    <SelectValue placeholder="Selecciona un programa" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -295,7 +295,7 @@ function CreateForm({
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccioná una categoría" />
+                    <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -553,8 +553,8 @@ export function ProductFormSheet({
           </SheetTitle>
           <SheetDescription>
             {mode === "create"
-              ? "Completá los datos para agregar un nuevo producto al inventario."
-              : "Modificá los campos del producto. El SKU no puede cambiarse."}
+              ? "Completa los datos para agregar un nuevo producto al inventario."
+              : "Modifica los campos del producto. El SKU no puede cambiarse."}
           </SheetDescription>
         </SheetHeader>
 
