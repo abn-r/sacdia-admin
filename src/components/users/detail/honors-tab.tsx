@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Award } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { formatDateLong } from "@/components/users/detail/helpers";
@@ -67,16 +67,7 @@ function HonorImageCell({ honor }: { honor: UserHonorRecord["honors"] }) {
   }
 
   return (
-    <div className="relative size-10 shrink-0">
-      <Image
-        src={imageUrl}
-        alt={name}
-        fill
-        className="object-contain"
-        sizes="40px"
-        unoptimized
-      />
-    </div>
+    <CatalogThumbnail src={imageUrl} alt={name} size={40} />
   );
 }
 

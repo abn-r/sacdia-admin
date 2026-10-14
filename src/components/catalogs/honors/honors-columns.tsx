@@ -5,6 +5,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,19 +61,7 @@ export function getHonorColumns({
 
         return (
           <div className="flex items-center gap-3">
-            {honor.honor_image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={honor.honor_image}
-                alt=""
-                className="max-h-10 max-w-10 shrink-0 object-contain"
-              />
-            ) : (
-              <div
-                className="size-10 shrink-0 rounded-md border bg-muted"
-                aria-hidden="true"
-              />
-            )}
+            <CatalogThumbnail src={honor.honor_image} size={40} />
             <span className="font-medium">{honor.name}</span>
           </div>
         );

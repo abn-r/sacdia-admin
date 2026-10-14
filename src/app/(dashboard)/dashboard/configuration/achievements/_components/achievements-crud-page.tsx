@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -59,6 +58,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { PageHeader } from "@/components/shared/page-header";
@@ -419,19 +419,17 @@ export function AchievementsCrudPage({
                                 : undefined
                             }
                           >
-                            {badgeUrl ? (
-                              <Image
-                                src={badgeUrl}
-                                alt={achName}
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="flex size-full items-center justify-center">
-                                <Trophy className="size-4 text-muted-foreground" />
-                              </div>
-                            )}
+                            <CatalogThumbnail
+                              src={badgeUrl}
+                              alt={achName}
+                              size={40}
+                              fit="cover"
+                              fallback={
+                                <div className="flex size-full items-center justify-center">
+                                  <Trophy className="size-4 text-muted-foreground" />
+                                </div>
+                              }
+                            />
                           </div>
                         </TableCell>
 

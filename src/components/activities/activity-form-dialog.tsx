@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -631,11 +632,10 @@ export function ActivityFormDialog({
                               )}
                             >
                               {item.asset_code ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
+                                <CatalogThumbnail
                                   src={`/img/logos-clases/${item.asset_code}.png`}
-                                  alt=""
-                                  className="size-8 shrink-0 object-contain"
+                                  size={32}
+                                  fallback={null}
                                 />
                               ) : null}
                               <span>{item.name}</span>
