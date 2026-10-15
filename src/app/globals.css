@@ -17,6 +17,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-solid: var(--primary-solid);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -116,6 +117,8 @@
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
   --primary: #0073ea;
+  /* Solid fills under white text (buttons, active steps, checked controls). */
+  --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f4;
   --secondary-foreground: #171717;
@@ -195,7 +198,10 @@
   --card-foreground: #ededed;
   --popover: #171717;
   --popover-foreground: #ededed;
-  --primary: #0073ea;
+  /* Text/links/borders on dark surfaces need a lighter blue (6.5:1 on cards). */
+  --primary: #4c9aff;
+  /* Solid fills under white text (buttons, active steps, checked controls). */
+  --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
   --secondary: #1f1f1f;
   --secondary-foreground: #ededed;
@@ -213,8 +219,8 @@
   --info-foreground: #0a0a0a;
   --border: #262626;
   --input: #2e2e2e;
-  --ring: color-mix(in srgb, #0073ea 55%, transparent);
-  --chart-1: #0073ea;
+  --ring: color-mix(in srgb, #4c9aff 55%, transparent);
+  --chart-1: #4c9aff;
   --chart-2: #f06151;
   --chart-3: #4fbf9f;
   --chart-4: #fbbd5e;
@@ -226,7 +232,7 @@
   --sidebar-accent: #1f1f1f;
   --sidebar-accent-foreground: #ededed;
   --sidebar-border: #262626;
-  --sidebar-ring: color-mix(in srgb, #0073ea 55%, transparent);
+  --sidebar-ring: color-mix(in srgb, #4c9aff 55%, transparent);
 
   --shadow-color: oklch(0 0 0 / 0.4);
   --shadow-card: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 2px 0 oklch(0 0 0 / 0.4);

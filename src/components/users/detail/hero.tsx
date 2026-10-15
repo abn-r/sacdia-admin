@@ -189,7 +189,7 @@ function MetaChip({
       {pulse ? (
         <span className="relative flex size-1.5 shrink-0">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/40 opacity-75" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
+          <span className="relative inline-flex size-1.5 rounded-full bg-primary-solid" />
         </span>
       ) : null}
       <span className="truncate">

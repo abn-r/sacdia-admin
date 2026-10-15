@@ -30,6 +30,7 @@
 
 > **Actualizado 2026-10-15 — Crisp redesign** (rama `feat/admin-redesign`). Dirección visual: crisp/minimal (estilo Linear/Vercel).
 > - Acento = azul del logo SACDIA `#0073EA` (contraste blanco ≈4.6:1). Solo en CTA primario, enlaces, foco y gráficas.
+> - Dos tokens de azul: `--primary` (texto, enlaces, bordes, foco, tintes `bg-primary/10`) y `--primary-solid` (rellenos bajo texto blanco: Button default, Badge default, checkbox/switch marcados, paso activo). En claro ambos `#0073EA`; en oscuro `--primary` = `#4C9AFF` (6.5:1 sobre tarjetas) y `--primary-solid` sigue `#0073EA`. Relleno sólido = `bg-primary-solid`, nunca `bg-primary`.
 > - Neutros puros (sin tinte slate): texto `#0A0A0A`, secundario `#666666`, bordes `#EBEBEB`. Dark: `#0A0A0A` / `#141414` / `#262626`.
 > - Hover y activo de navegación son **neutros** (`--accent`, `--sidebar-accent`), nunca azul tenue.
 > - `--secondary` pasa a neutro (`#F4F4F4`); el verde vive solo en `--success`.

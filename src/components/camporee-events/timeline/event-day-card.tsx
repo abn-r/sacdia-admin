@@ -47,7 +47,7 @@ function HeatBar({ events }: { events: CamporeeEvent[] }) {
                 v === 0 && "bg-muted",
                 intensity > 0 && intensity <= 0.33 && "bg-primary/40",
                 intensity > 0.33 && intensity <= 0.66 && "bg-primary/70",
-                intensity > 0.66 && "bg-primary",
+                intensity > 0.66 && "bg-primary-solid",
               )}
             />
           );
@@ -69,7 +69,7 @@ const SECTION_NAMES: Section[] = [
 
 function DayBadge({ day }: { day: CamporeeDay }) {
   return (
-    <div className="size-[52px] rounded-xl bg-primary text-primary-foreground grid place-items-center">
+    <div className="size-[52px] rounded-xl bg-primary-solid text-primary-foreground grid place-items-center">
       <div className="text-xs font-bold opacity-90 leading-none">
         Día
       </div>

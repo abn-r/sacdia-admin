@@ -227,7 +227,7 @@ export function EventRow({
         {/* Leader */}
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="size-7">
-            <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-bold">
+            <AvatarFallback className="text-[10px] bg-primary-solid text-primary-foreground font-bold">
               {initials(event.leaderName)}
             </AvatarFallback>
           </Avatar>

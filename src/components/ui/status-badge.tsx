@@ -37,7 +37,7 @@ const intentClasses: Partial<Record<StatusIntent, string>> = {
   info: NEUTRAL_PILL,
   success: NEUTRAL_PILL,
   warning: NEUTRAL_PILL,
-  primary: "border-transparent bg-primary text-primary-foreground",
+  primary: "border-transparent bg-primary-solid text-primary-foreground",
   "progress-1":
     "bg-[color-mix(in_srgb,var(--chart-1)_12%,transparent)] text-[var(--chart-1)] border-[color-mix(in_srgb,var(--chart-1)_25%,transparent)]",
   "progress-2":

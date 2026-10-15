@@ -530,7 +530,7 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-primary"
+            className="h-full rounded-full bg-primary-solid"
             style={{
               width: `${Math.min(Math.max(progressPercentage, 0), 100)}%`,
             }}
