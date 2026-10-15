@@ -115,7 +115,7 @@ export function UsersFilters({ scope, roles }: UsersFiltersProps) {
       </div>
 
       <Select value={currentRole} onValueChange={(v) => updateParam("role", v)}>
-        <SelectTrigger className="w-[200px]" aria-label={t("filters.rolePlaceholder")}>
+        <SelectTrigger className="w-full sm:w-[200px]" aria-label={t("filters.rolePlaceholder")}>
           <SelectValue placeholder={t("filters.rolePlaceholder")} />
         </SelectTrigger>
         <SelectContent>
@@ -144,7 +144,7 @@ export function UsersFilters({ scope, roles }: UsersFiltersProps) {
       </Select>
 
       <Select value={currentActive} onValueChange={(v) => updateParam("active", v)}>
-        <SelectTrigger className="w-[140px]" aria-label={t("filters.statusPlaceholder")}>
+        <SelectTrigger className="w-full sm:w-[140px]" aria-label={t("filters.statusPlaceholder")}>
           <SelectValue placeholder={t("filters.statusPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
