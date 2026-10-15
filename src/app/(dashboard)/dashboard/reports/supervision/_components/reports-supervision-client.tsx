@@ -312,7 +312,7 @@ export function ReportsSupervisionClient({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
           <Table>
             <TableHeader>
               <TableRow>

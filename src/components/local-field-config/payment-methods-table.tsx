@@ -89,7 +89,7 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>

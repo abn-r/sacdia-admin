@@ -75,7 +75,7 @@ function ReportStatusBadge({ status }: { status: ReportStatus }) {
 
 function ReportsTableSkeleton({ headers }: { headers: string[] }) {
   return (
-    <div className="rounded-md border">
+    <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
       <Table>
         <TableHeader>
           <TableRow>

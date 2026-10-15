@@ -142,14 +142,14 @@ export function PermissionsTable({
         <>
           {/* Desktop table */}
           <div className="hidden md:block">
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[60px]">{t("permissionsTable.colId")}</TableHead>
+                    <TableHead className="hidden w-[60px] 2xl:table-cell">{t("permissionsTable.colId")}</TableHead>
                     <TableHead>{t("permissionsTable.colName")}</TableHead>
                     <TableHead>{t("permissionsTable.colKey")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t("permissionsTable.colDescription")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("permissionsTable.colDescription")}</TableHead>
                     <TableHead>{t("permissionsTable.colStatus")}</TableHead>
                     <TableHead className="w-[100px]">{t("permissionsTable.colActions")}</TableHead>
                   </TableRow>
@@ -157,8 +157,8 @@ export function PermissionsTable({
                 <TableBody>
                   {items.map((perm) => (
                     <TableRow key={perm.permission_id}>
-                      <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden text-xs text-muted-foreground 2xl:table-cell">{perm.permission_id}</TableCell>
+                      <TableCell className="max-w-[260px] whitespace-normal break-words">
                         <span className="text-sm font-medium">
                           {getPermissionLabel(t, perm.permission_name)}
                         </span>
@@ -168,7 +168,7 @@ export function PermissionsTable({
                           {perm.permission_name}
                         </code>
                       </TableCell>
-                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      <TableCell className="hidden min-w-[220px] max-w-[360px] whitespace-normal text-sm text-muted-foreground xl:table-cell">
                         {getPermissionLabel(t, perm.permission_name) ===
                         perm.permission_name
                           ? (perm.description ?? "—")

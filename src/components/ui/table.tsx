@@ -4,11 +4,62 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+const EDGE_FADE = 24
+
+/**
+ * Tracks horizontal overflow of the table container so the clipped edge fades
+ * out — the only cue that more columns exist. Lives here (not in a wrapper) so
+ * every table gets it, whatever frames it.
+ */
+function useEdgeFade() {
+  const ref = React.useRef<HTMLDivElement | null>(null)
+  const [edges, setEdges] = React.useState<{ start: boolean; end: boolean }>({
+    start: false,
+    end: false,
+  })
+
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => {
+      const overflowing = el.scrollWidth > el.clientWidth + 1
+      const start = overflowing && el.scrollLeft > 0
+      const end = overflowing && el.scrollLeft + el.clientWidth < el.scrollWidth - 1
+      setEdges((prev) => (prev.start === start && prev.end === end ? prev : { start, end }))
+    }
+    update()
+    el.addEventListener("scroll", update, { passive: true })
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    if (el.firstElementChild) ro.observe(el.firstElementChild)
+    return () => {
+      el.removeEventListener("scroll", update)
+      ro.disconnect()
+    }
+  }, [])
+
+  const mask =
+    edges.start && edges.end
+      ? `linear-gradient(to right, transparent, black ${EDGE_FADE}px, black calc(100% - ${EDGE_FADE}px), transparent)`
+      : edges.end
+        ? `linear-gradient(to right, black calc(100% - ${EDGE_FADE}px), transparent)`
+        : edges.start
+          ? `linear-gradient(to right, transparent, black ${EDGE_FADE}px)`
+          : undefined
+
+  return { ref, edges, style: mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined }
+}
+
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  const fade = useEdgeFade()
   return (
     <div
+      ref={fade.ref}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      data-overflow-start={fade.edges.start || undefined}
+      data-overflow-end={fade.edges.end || undefined}
+      className="relative w-full overflow-x-auto overscroll-x-contain"
+      style={fade.style}
     >
       <table
         data-slot="table"

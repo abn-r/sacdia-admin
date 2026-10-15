@@ -251,13 +251,13 @@ export function ClubsListClient({
           />
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="pl-5">{tList("colName")}</TableHead>
-                    <TableHead>{tList("colLocalField")}</TableHead>
-                    <TableHead>{tList("colDistrict")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{tList("colLocalField")}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{tList("colDistrict")}</TableHead>
                     <TableHead>{tList("colChurch")}</TableHead>
                     <TableHead>{t("colSections")}</TableHead>
                     <TableHead>{tList("colStatus")}</TableHead>
@@ -296,10 +296,10 @@ export function ClubsListClient({
                             (club.name ?? "—")
                           )}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
                           {getClubLocalFieldName(club) ?? club.local_field_id ?? "—"}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                           {getClubDistrictName(club) ?? club.district_id ?? "—"}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">

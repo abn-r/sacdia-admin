@@ -367,7 +367,7 @@ export function ResourceCategoriesCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>

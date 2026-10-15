@@ -389,7 +389,7 @@ function PreviewView({ file, rows, total, onSubmit, onCancel, t }: PreviewViewPr
         </div>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -508,7 +508,7 @@ function ResultsView({ data, filter, onFilterChange, onReset, t }: ResultsViewPr
       </div>
 
       {/* Results table */}
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
