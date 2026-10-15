@@ -38,6 +38,9 @@
 > - Campos (Input, Textarea, Select, NativeSelect, InputGroup, Combobox chips): fondo `bg-background` + `shadow-2xs` (dark: `bg-input/30`), no relleno gris.
 > - `StatusBadge` `neutral`/`info`/`success`/`warning`: pill neutro con borde; el color vive solo en el ícono. `destructive`, `primary` y `progress-*` conservan tinte.
 > - En formularios de página, `SelectTrigger` lleva `className="w-full"` para alinear con los inputs.
+> - Estados booleanos (activo/inactivo, habilitado, completado) siempre con `StatusBadge intent={flagStatusIntent(bool)}`; nunca `Badge` `default`/`soft` (azul) para estados.
+> - Cuadros decorativos de íconos: `bg-muted` + ícono `text-foreground`. `bg-primary/10` solo para estados seleccionado/actual (ej. día de hoy, opción elegida).
+> - Detalle de entidad: `PageHeader` solo con breadcrumbs y el hero lleva el `h1` (nombre de la entidad). Sin botón "Volver" si hay breadcrumb.
 > - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
 
 > **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
