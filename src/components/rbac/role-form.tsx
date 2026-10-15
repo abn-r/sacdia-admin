@@ -33,6 +33,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  FormModalBody,
+  FormModalFooter,
+  FormModalSteps,
+  useFormModal,
+} from "@/components/shared/form-modal";
 import { PermissionPicker } from "@/components/rbac/permission-picker";
 import { pickerScreenIdForKey } from "@/lib/rbac/permission-picker-groups";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
@@ -48,7 +54,8 @@ interface CreateRoleFormProps {
 
 export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
   const t = useTranslations("rbac");
-  const router = useRouter();
+  const tModal = useTranslations("shared.formModal");
+  const modal = useFormModal(ROLES_PATH);
   const [isPending, startTransition] = useTransition();
 
   const [roleName, setRoleName] = useState("");
@@ -56,6 +63,11 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
   const [roleCategory, setRoleCategory] = useState<"GLOBAL" | "CLUB">("GLOBAL");
   const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+
+  const steps = [t("roleForm.generalInfo"), t("roleForm.permissions")];
+  const lastStep = steps.length - 1;
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
 
   // Client-side validation mirrors server-side
   function validate(): string | null {
@@ -75,11 +87,33 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
     return null;
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function goTo(next: number) {
+    setDirection(next < step ? "back" : "forward");
+    setStep(next);
+  }
+
+  // Every client-side rule belongs to the general step.
+  function goNext() {
     const validationError = validate();
     if (validationError) {
       setError(validationError);
+      return;
+    }
+    setError(null);
+    goTo(Math.min(step + 1, lastStep));
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    // Enter on an earlier step advances instead of submitting.
+    if (step < lastStep) {
+      goNext();
+      return;
+    }
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      goTo(0);
       return;
     }
     setError(null);
@@ -98,127 +132,117 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       }
 
       if (result?.ok) {
-        router.push(ROLES_PATH);
-        router.refresh();
+        modal.complete();
       }
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
+      <FormModalSteps steps={steps} current={step} />
+      <FormModalBody stepKey={step} direction={direction} className="space-y-5">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        )}
 
-      {/* Card: General info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("roleForm.generalInfo")}</CardTitle>
-          <CardDescription>
-            {t("roleForm.generalInfoDesc")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {/* role_name */}
-          <div className="space-y-2">
-            <Label htmlFor="role_name">
-              {t("roleForm.roleName")} <span className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="role_name"
-              value={roleName}
-              onChange={(e) => setRoleName(e.target.value)}
-              placeholder={t("roleForm.roleNamePlaceholder")}
-              pattern="^[a-z][a-z0-9-]{1,62}[a-z0-9]$"
-              title={t("roleForm.roleNameTitle")}
-              autoComplete="off"
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              {t("roleForm.roleNameHint")}
-            </p>
-          </div>
-
-          {/* role_category */}
-          <div className="space-y-2">
-            <Label htmlFor="role_category">
-              {t("roleForm.category")} <span className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Select
-              value={roleCategory}
-              onValueChange={(v) => setRoleCategory(v as "GLOBAL" | "CLUB")}
-            >
-              <SelectTrigger id="role_category" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GLOBAL">{t("roleForm.categoryGlobal")}</SelectItem>
-                <SelectItem value="CLUB">{t("roleForm.categoryClub")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* description */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="description">
-                {t("roleForm.description")} <span className="ml-0.5 text-destructive">*</span>
+        {step === 0 ? (
+          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+            {/* role_name */}
+            <div className="space-y-2">
+              <Label htmlFor="role_name">
+                {t("roleForm.roleName")} <span className="ml-0.5 text-destructive">*</span>
               </Label>
-              <span
-                className={`text-xs tabular-nums ${
-                  description.length > MAX_DESCRIPTION
-                    ? "text-destructive"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {description.length}/{MAX_DESCRIPTION}
-              </span>
+              <Input
+                id="role_name"
+                value={roleName}
+                onChange={(e) => setRoleName(e.target.value)}
+                placeholder={t("roleForm.roleNamePlaceholder")}
+                pattern="^[a-z][a-z0-9-]{1,62}[a-z0-9]$"
+                title={t("roleForm.roleNameTitle")}
+                autoComplete="off"
+                required
+              />
+              <p className="text-xs text-muted-foreground">{t("roleForm.roleNameHint")}</p>
             </div>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t("roleForm.descriptionPlaceholder")}
-              className="min-h-[100px] resize-none"
-              minLength={10}
-              maxLength={MAX_DESCRIPTION}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              {t("roleForm.descriptionHint")}
-            </p>
+
+            {/* role_category */}
+            <div className="space-y-2">
+              <Label htmlFor="role_category">
+                {t("roleForm.category")} <span className="ml-0.5 text-destructive">*</span>
+              </Label>
+              <Select
+                value={roleCategory}
+                onValueChange={(v) => setRoleCategory(v as "GLOBAL" | "CLUB")}
+              >
+                <SelectTrigger id="role_category" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GLOBAL">{t("roleForm.categoryGlobal")}</SelectItem>
+                  <SelectItem value="CLUB">{t("roleForm.categoryClub")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* description */}
+            <div className="space-y-2 sm:col-span-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="description">
+                  {t("roleForm.description")} <span className="ml-0.5 text-destructive">*</span>
+                </Label>
+                <span
+                  className={`text-xs tabular-nums ${
+                    description.length > MAX_DESCRIPTION
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {description.length}/{MAX_DESCRIPTION}
+                </span>
+              </div>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t("roleForm.descriptionPlaceholder")}
+                className="min-h-[100px] resize-none"
+                minLength={10}
+                maxLength={MAX_DESCRIPTION}
+                required
+              />
+              <p className="text-xs text-muted-foreground">{t("roleForm.descriptionHint")}</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        ) : (
+          <section className="space-y-3">
+            <p className="text-sm text-muted-foreground">{t("roleForm.permissionsDesc")}</p>
+            <PermissionPicker
+              permissions={allPermissions}
+              selected={selectedPerms}
+              onChange={setSelectedPerms}
+            />
+          </section>
+        )}
+      </FormModalBody>
 
-      {/* Card: Permissions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("roleForm.permissions")}</CardTitle>
-          <CardDescription>
-            {t("roleForm.permissionsDesc")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PermissionPicker
-            permissions={allPermissions}
-            selected={selectedPerms}
-            onChange={setSelectedPerms}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Sticky footer */}
-      <div className="sticky bottom-0 z-10 -mx-6 border-t border-border bg-background/95 px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-end gap-3">
-          <Button type="button" variant="outline" asChild>
-            <Link href={ROLES_PATH}>
-              <ArrowLeft className="size-4" />
-              {t("roleForm.cancel")}
-            </Link>
+      <FormModalFooter step={step} total={steps.length}>
+        {step === 0 ? (
+          <Button type="button" variant="outline" onClick={modal.close}>
+            {t("roleForm.cancel")}
           </Button>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => goTo(step - 1)} disabled={isPending}>
+            {tModal("back")}
+          </Button>
+        )}
+        {step < lastStep ? (
+          <Button type="submit">{tModal("continue")}</Button>
+        ) : (
           <Button type="submit" disabled={isPending}>
             {isPending ? (
               <>
@@ -232,8 +256,8 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
               </>
             )}
           </Button>
-        </div>
-      </div>
+        )}
+      </FormModalFooter>
     </form>
   );
 }

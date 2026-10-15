@@ -39,7 +39,7 @@ import {
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ParticipantsField } from "@/components/camporee-events/participants-field";
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
-import { useFormSteps } from "@/components/camporee-events/use-form-steps";
+import { useFormSteps } from "@/components/shared/use-form-steps";
 import type { CamporeeEventTemplate, PenaltyRule, ParticipantsByClass, ParticipantsMode, TemplateScope } from "@/lib/api/camporee-events";
 import type { CamporeeTemplateRubricInput } from "@/lib/api/camporee-scoring";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";

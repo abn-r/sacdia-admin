@@ -3517,6 +3517,12 @@
       "enroll": "Enroll club"
     },
     "paymentDialog": {
+      "descriptionCreate": "Record a payment for an enrolled member and attach its receipt.",
+      "descriptionEdit": "Update the payment details and its receipt.",
+      "steps": {
+        "details": "Payment details",
+        "voucher": "Receipt"
+      },
       "titleCreate": "Record payment",
       "titleEdit": "Edit payment",
       "labelMember": "Member",
@@ -4691,6 +4697,10 @@
       "emptyDescription": "Create the first configuration to define how annual points are distributed."
     },
     "budgetConfigForm": {
+      "steps": {
+        "scope": "Scope and total",
+        "sections": "Sections"
+      },
       "sectionsAllocationLabel": "Distribution across sections"
     },
     "budgetSectionCard": {
@@ -6262,7 +6272,8 @@
       "close": "Close",
       "stepOf": "Step {current} of {total}",
       "back": "Back",
-      "continue": "Continue"
+      "continue": "Continue",
+      "stepIncomplete": "Complete the required fields in this step."
     },
     "errors": {
       "unexpected": "Unexpected error",

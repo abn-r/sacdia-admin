@@ -51,7 +51,7 @@ import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
 import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
-import { useFormSteps } from "@/components/camporee-events/use-form-steps";
+import { useFormSteps } from "@/components/shared/use-form-steps";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,

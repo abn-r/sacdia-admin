@@ -3517,6 +3517,12 @@
       "enroll": "Inscrire le club"
     },
     "paymentDialog": {
+      "descriptionCreate": "Enregistrez le paiement d'un membre inscrit et joignez son justificatif.",
+      "descriptionEdit": "Mettez à jour les données du paiement et son justificatif.",
+      "steps": {
+        "details": "Données du paiement",
+        "voucher": "Justificatif"
+      },
       "titleCreate": "Enregistrer un paiement",
       "titleEdit": "Modifier le paiement",
       "labelMember": "Membre",
@@ -4691,6 +4697,10 @@
       "emptyDescription": "Créez la première configuration pour définir la répartition des points annuels."
     },
     "budgetConfigForm": {
+      "steps": {
+        "scope": "Portée et total",
+        "sections": "Sections"
+      },
       "sectionsAllocationLabel": "Répartition entre sections"
     },
     "budgetSectionCard": {
@@ -6262,7 +6272,8 @@
       "close": "Fermer",
       "stepOf": "Étape {current} sur {total}",
       "back": "Retour",
-      "continue": "Continuer"
+      "continue": "Continuer",
+      "stepIncomplete": "Remplissez les champs obligatoires de cette étape."
     },
     "errors": {
       "unexpected": "Erreur inattendue",

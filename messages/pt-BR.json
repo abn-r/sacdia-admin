@@ -3517,6 +3517,12 @@
       "enroll": "Inscrever clube"
     },
     "paymentDialog": {
+      "descriptionCreate": "Registre o pagamento de um membro inscrito e anexe o comprovante.",
+      "descriptionEdit": "Atualize os dados do pagamento e o comprovante.",
+      "steps": {
+        "details": "Dados do pagamento",
+        "voucher": "Comprovante"
+      },
       "titleCreate": "Registrar pagamento",
       "titleEdit": "Editar pagamento",
       "labelMember": "Membro",
@@ -4691,6 +4697,10 @@
       "emptyDescription": "Crie a primeira configuração para definir como os pontos anuais são distribuídos."
     },
     "budgetConfigForm": {
+      "steps": {
+        "scope": "Escopo e total",
+        "sections": "Seções"
+      },
       "sectionsAllocationLabel": "Distribuição entre seções"
     },
     "budgetSectionCard": {
@@ -6262,7 +6272,8 @@
       "close": "Fechar",
       "stepOf": "Etapa {current} de {total}",
       "back": "Voltar",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa."
     },
     "errors": {
       "unexpected": "Erro inesperado",

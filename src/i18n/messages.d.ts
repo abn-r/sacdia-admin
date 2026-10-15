@@ -3546,6 +3546,12 @@ export interface IntlMessages {
       enroll: string;
     };
     paymentDialog: {
+      descriptionCreate: string;
+      descriptionEdit: string;
+      steps: {
+        details: string;
+        voucher: string;
+      };
       titleCreate: string;
       titleEdit: string;
       labelMember: string;
@@ -4723,6 +4729,10 @@ export interface IntlMessages {
       emptyDescription: string;
     };
     budgetConfigForm: {
+      steps: {
+        scope: string;
+        sections: string;
+      };
       sectionsAllocationLabel: string;
     };
     budgetSectionCard: {
@@ -6295,6 +6305,7 @@ export interface IntlMessages {
       stepOf: string;
       back: string;
       continue: string;
+      stepIncomplete: string;
     };
     errors: {
       unexpected: string;

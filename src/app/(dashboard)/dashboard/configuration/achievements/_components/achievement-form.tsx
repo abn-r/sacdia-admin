@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  FormModalBody,
+  FormModalFooter,
+  FormModalSteps,
+  useFormModal,
+} from "@/components/shared/form-modal";
+import { useFormSteps } from "@/components/shared/use-form-steps";
 import { CriteriaEditor } from "@/app/(dashboard)/dashboard/configuration/achievements/_components/criteria-editor";
 import { BadgeImageUpload } from "@/app/(dashboard)/dashboard/configuration/achievements/_components/badge-image-upload";
 import { AchievementPreviewCard } from "@/app/(dashboard)/dashboard/configuration/achievements/_components/achievement-preview-card";
@@ -43,7 +48,7 @@ interface AchievementFormProps {
     formData: FormData,
   ) => Promise<AchievementActionState>;
   actionState: AchievementActionState;
-  /** href for the cancel button — defaults to /dashboard/configuration/achievements */
+  /** List the form returns to on cancel (full-page fallback) — defaults to /dashboard/configuration/achievements */
   cancelHref?: string;
 }
 
@@ -153,8 +158,36 @@ export function AchievementForm({
     parseCriteria(achievement?.criteria),
   );
 
+  const tModal = useTranslations("shared.formModal");
+  const modal = useFormModal(cancelHref);
+  // Badge upload needs a saved achievement, so create mode stops at criteria.
+  const steps = isEdit
+    ? [t("tabBasic"), t("tabCriteria"), t("tabMedia")]
+    : [t("tabBasic"), t("tabCriteria")];
+  const {
+    step,
+    direction,
+    lastStep,
+    stepIncomplete,
+    goTo,
+    goNext,
+    handleSubmit,
+    handleKeyDown,
+    stepRef,
+  } = useFormSteps(steps.length);
+
+  // Heavy editors mount on first visit and then stay mounted (hidden).
+  const [reached, setReached] = useState(0);
+  if (step > reached) setReached(step);
+
   return (
-    <form action={action} className="space-y-6">
+    <form
+      action={action}
+      onSubmit={handleSubmit}
+      onKeyDown={handleKeyDown}
+      noValidate
+      className="flex min-h-0 flex-1 flex-col"
+    >
       {/* Hidden fields */}
       {isEdit && resolvedAchievementId !== null && (
         <input type="hidden" name="id" value={String(resolvedAchievementId)} />
@@ -166,29 +199,33 @@ export function AchievementForm({
       <input type="hidden" name="secret" value={secret ? "on" : ""} />
       <input type="hidden" name="repeatable" value={repeatable ? "on" : ""} />
 
-      {state.error && (
-        <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
-          {state.error}
-        </p>
-      )}
+      <FormModalSteps steps={steps} current={step} />
+      <FormModalBody stepKey={step} direction={direction} className="space-y-5">
+        {state.error && (
+          <p
+            role="alert"
+            className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {state.error}
+          </p>
+        )}
 
-      <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger value="basic" className="flex-1">
-            {t("tabBasic")}
-          </TabsTrigger>
-          <TabsTrigger value="criteria" className="flex-1">
-            {t("tabCriteria")}
-          </TabsTrigger>
-          <TabsTrigger value="media" className="flex-1">
-            {t("tabMedia")}
-          </TabsTrigger>
-        </TabsList>
+        {stepIncomplete && (
+          <p role="alert" className="text-sm text-destructive">
+            {tModal("stepIncomplete")}
+          </p>
+        )}
 
-        {/* ── Tab: Basic Info ── */}
-        <TabsContent value="basic" className="mt-4 space-y-4">
+        {/* Steps stay mounted (hidden) so the server action receives every field. */}
+
+        {/* ── Step 1: Basic info ── */}
+        <div
+          ref={stepRef(0)}
+          hidden={step !== 0}
+          className="grid gap-x-4 gap-y-5 sm:grid-cols-2"
+        >
           {/* Name */}
-          <div className="space-y-2">
+          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="ach-name">
               {t("labelName")} <span className="ml-0.5 text-destructive">*</span>
             </Label>
@@ -203,7 +240,7 @@ export function AchievementForm({
           </div>
 
           {/* Description */}
-          <div className="space-y-2">
+          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="ach-description">{t("labelDescription")}</Label>
             <Textarea
               id="ach-description"
@@ -262,52 +299,51 @@ export function AchievementForm({
             </Select>
           </div>
 
-          {/* Tier + Points */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="ach-tier">
-                {t("labelTier")} <span className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Select
-                name="tier"
-                value={tier}
-                onValueChange={(v) => setTier(v as AchievementTier)}
-                required
-              >
-                <SelectTrigger id="ach-tier" className="w-full">
-                  <SelectValue placeholder={t("placeholderTier")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {ACHIEVEMENT_TIER_VALUES.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="inline-block size-3 rounded-full"
-                          style={{ backgroundColor: opt.color }}
-                          aria-hidden
-                        />
-                        {tPreview(`tierLabels.${opt.value}`)}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Tier */}
+          <div className="space-y-2">
+            <Label htmlFor="ach-tier">
+              {t("labelTier")} <span className="ml-0.5 text-destructive">*</span>
+            </Label>
+            <Select
+              name="tier"
+              value={tier}
+              onValueChange={(v) => setTier(v as AchievementTier)}
+              required
+            >
+              <SelectTrigger id="ach-tier" className="w-full">
+                <SelectValue placeholder={t("placeholderTier")} />
+              </SelectTrigger>
+              <SelectContent>
+                {ACHIEVEMENT_TIER_VALUES.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="inline-block size-3 rounded-full"
+                        style={{ backgroundColor: opt.color }}
+                        aria-hidden
+                      />
+                      {tPreview(`tierLabels.${opt.value}`)}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="ach-points">
-                {t("labelPoints")} <span className="ml-0.5 text-destructive">*</span>
-              </Label>
-              <Input
-                id="ach-points"
-                name="points"
-                type="number"
-                min={1}
-                value={points}
-                onChange={(e) => setPoints(Number(e.target.value))}
-                required
-              />
-            </div>
+          {/* Points */}
+          <div className="space-y-2">
+            <Label htmlFor="ach-points">
+              {t("labelPoints")} <span className="ml-0.5 text-destructive">*</span>
+            </Label>
+            <Input
+              id="ach-points"
+              name="points"
+              type="number"
+              min={1}
+              value={points}
+              onChange={(e) => setPoints(Number(e.target.value))}
+              required
+            />
           </div>
 
           {/* Scope */}
@@ -362,8 +398,8 @@ export function AchievementForm({
             </div>
           )}
 
-          {/* Flags row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Flags */}
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 sm:col-span-2">
             <div className="flex items-center gap-3">
               <Switch id="ach-secret" checked={secret} onCheckedChange={setSecret} />
               <Label htmlFor="ach-secret" className="cursor-pointer">
@@ -377,10 +413,7 @@ export function AchievementForm({
                 {t("labelActive")}
               </Label>
             </div>
-          </div>
 
-          {/* Repeatable */}
-          <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Switch
                 id="ach-repeatable"
@@ -391,27 +424,26 @@ export function AchievementForm({
                 {t("labelRepeatable")}
               </Label>
             </div>
-            {repeatable && (
-              <div className="space-y-2 pl-9">
-                <Label htmlFor="ach-max-repeats">{t("labelMaxRepeats")}</Label>
-                <Input
-                  id="ach-max-repeats"
-                  name="max_repeats"
-                  type="number"
-                  min={1}
-                  className="max-w-[120px]"
-                  value={maxRepeats}
-                  onChange={(e) => setMaxRepeats(Number(e.target.value))}
-                />
-              </div>
-            )}
           </div>
 
+          {repeatable && (
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="ach-max-repeats">{t("labelMaxRepeats")}</Label>
+              <Input
+                id="ach-max-repeats"
+                name="max_repeats"
+                type="number"
+                min={1}
+                className="max-w-[120px]"
+                value={maxRepeats}
+                onChange={(e) => setMaxRepeats(Number(e.target.value))}
+              />
+            </div>
+          )}
+
           {/* Live preview */}
-          <div className="pt-2">
-            <p className="mb-3 text-xs font-medium text-muted-foreground">
-              {t("labelPreview")}
-            </p>
+          <div className="space-y-3 sm:col-span-2">
+            <h3 className="text-sm font-medium">{t("labelPreview")}</h3>
             <AchievementPreviewCard
               name={name || tPreview("defaultName")}
               description={description}
@@ -423,42 +455,49 @@ export function AchievementForm({
               badgeImageUrl={badgeImageUrl || null}
             />
           </div>
-        </TabsContent>
+        </div>
 
-        {/* ── Tab: Criteria ── */}
-        <TabsContent value="criteria" className="mt-4">
-          <CriteriaEditor
-            type={type}
-            initialValue={criteria}
-            onChange={setCriteria}
-          />
-          {!criteria && (
-            <input type="hidden" name="criteria" value="{}" />
-          )}
-        </TabsContent>
+        {/* ── Step 2: Criteria ── */}
+        <div ref={stepRef(1)} hidden={step !== 1}>
+          {reached >= 1 ? (
+            <CriteriaEditor type={type} initialValue={criteria} onChange={setCriteria} />
+          ) : null}
+          {!criteria && <input type="hidden" name="criteria" value="{}" />}
+        </div>
 
-        {/* ── Tab: Media ── */}
-        <TabsContent value="media" className="mt-4">
-          <BadgeImageUpload
-            achievementId={resolvedAchievementId}
-            currentImageUrl={badgeImageUrl || null}
-            tier={tier}
-            onUploaded={(url) => setBadgeImageUrl(url)}
-          />
-          {/* Note: image upload requires an existing achievementId.
-              On create mode, BadgeImageUpload shows a toast guiding the
-              user to save first. This matches the pre-existing dialog
-              behaviour and no sub-Dialog is needed here. */}
-        </TabsContent>
-      </Tabs>
+        {/* ── Step 3: Media (edit only) ── */}
+        {isEdit ? (
+          <div ref={stepRef(2)} hidden={step !== 2}>
+            {reached >= 2 ? (
+              <BadgeImageUpload
+                achievementId={resolvedAchievementId}
+                currentImageUrl={badgeImageUrl || null}
+                tier={tier}
+                onUploaded={(url) => setBadgeImageUrl(url)}
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </FormModalBody>
 
-      {/* Form actions */}
-      <div className="flex items-center justify-end gap-3 border-t pt-4">
-        <Button type="button" variant="outline" asChild>
-          <Link href={cancelHref}>{t("cancelButton")}</Link>
-        </Button>
-        <SubmitButton label={isEdit ? t("submitEdit") : t("submitCreate")} />
-      </div>
+      <FormModalFooter step={step} total={steps.length}>
+        {step === 0 ? (
+          <Button type="button" variant="outline" onClick={modal.close}>
+            {t("cancelButton")}
+          </Button>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => goTo(step - 1)}>
+            {tModal("back")}
+          </Button>
+        )}
+        {step < lastStep ? (
+          <Button type="button" onClick={goNext}>
+            {tModal("continue")}
+          </Button>
+        ) : (
+          <SubmitButton label={isEdit ? t("submitEdit") : t("submitCreate")} />
+        )}
+      </FormModalFooter>
     </form>
   );
 }
