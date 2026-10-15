@@ -29,12 +29,13 @@ function useEdgeFade() {
     }
     update()
     el.addEventListener("scroll", update, { passive: true })
-    const ro = new ResizeObserver(update)
-    ro.observe(el)
-    if (el.firstElementChild) ro.observe(el.firstElementChild)
+    // Absent in jsdom and very old browsers: the fade then only tracks scroll.
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update)
+    ro?.observe(el)
+    if (el.firstElementChild) ro?.observe(el.firstElementChild)
     return () => {
       el.removeEventListener("scroll", update)
-      ro.disconnect()
+      ro?.disconnect()
     }
   }, [])
 
