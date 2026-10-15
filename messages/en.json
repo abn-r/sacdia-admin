@@ -6326,7 +6326,9 @@
     "uiPrimitives": {
       "close": "Close",
       "more": "More",
-      "toggleSidebar": "Toggle Sidebar"
+      "toggleSidebar": "Toggle Sidebar",
+      "sidebarTitle": "Menu",
+      "sidebarDescription": "Main panel navigation."
     }
   },
   "translations": {

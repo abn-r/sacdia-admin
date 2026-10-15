@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { flushSync } from "react-dom"
+import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -87,6 +89,12 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  const pathname = usePathname()
+
+  // Picking a destination in the mobile sheet must reveal the page: close on navigation.
+  React.useEffect(() => {
+    setOpenMobile(false)
+  }, [pathname])
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -191,6 +199,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const t = useTranslations("shared.uiPrimitives")
 
   if (collapsible === "none") {
     return (
@@ -224,8 +233,8 @@ function Sidebar({
           side={side}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+            <SheetTitle>{t("sidebarTitle")}</SheetTitle>
+            <SheetDescription>{t("sidebarDescription")}</SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
@@ -285,6 +294,7 @@ function SidebarTrigger({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar()
+  const t = useTranslations("shared.uiPrimitives")
 
   return (
     <Button
@@ -301,7 +311,7 @@ function SidebarTrigger({
       {...props}
     >
       <HugeiconsIcon icon={SidebarLeftIcon} strokeWidth={2} />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{t("toggleSidebar")}</span>
     </Button>
   )
 }
@@ -312,18 +322,19 @@ function SidebarRail({
   ...props
 }: React.ComponentProps<"button">) {
   const { toggleSidebar } = useSidebar()
+  const t = useTranslations("shared.uiPrimitives")
 
   return (
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label={t("toggleSidebar")}
       tabIndex={-1}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar({ instant: event.detail === 0 })
       }}
-      title="Toggle Sidebar"
+      title={t("toggleSidebar")}
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 transition-colors ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
@@ -410,7 +421,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-auto [--radius:var(--radius-xl)] group-data-[collapsible=icon]:overflow-hidden",
+        "no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-auto overscroll-contain [--radius:var(--radius-xl)] group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}

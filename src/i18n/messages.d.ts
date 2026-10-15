@@ -6359,6 +6359,8 @@ export interface IntlMessages {
       close: string;
       more: string;
       toggleSidebar: string;
+      sidebarTitle: string;
+      sidebarDescription: string;
     };
   };
   translations: {
