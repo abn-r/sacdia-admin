@@ -1190,7 +1190,7 @@ export function PhaseECatalogCrudPage({
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete || detailPathPrefix) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
+                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
                         {t("colActions")}
                       </TableHead>
                     )}
@@ -1279,7 +1279,7 @@ export function PhaseECatalogCrudPage({
                           <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete || detailPathPrefix) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
                             <div className="hidden gap-1 md:flex">
                               {detailPathPrefix && itemId ? (
                                 <Button variant="ghost" size="icon" className="size-8" asChild>

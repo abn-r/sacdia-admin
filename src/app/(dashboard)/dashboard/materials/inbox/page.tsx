@@ -163,7 +163,7 @@ export default async function InboxPage({
                     <TableHead>{t("colStatus")}</TableHead>
                     <TableHead className="text-right">{t("colTotal")}</TableHead>
                     <TableHead>{t("colDate")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[72px] border-l bg-background">
+                    <TableHead className="sticky right-0 z-20 w-[72px] border-l bg-card">
                       {t("colActions")}
                     </TableHead>
                   </TableRow>
@@ -197,7 +197,7 @@ export default async function InboxPage({
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(orden.created_at)}
                       </TableCell>
-                      <TableCell className="sticky right-0 z-10 border-l bg-background">
+                      <TableCell className="sticky right-0 z-10 border-l bg-card">
                         <Button variant="ghost" size="icon-sm" asChild>
                           <Link href={resolveDetailHref(orden)} prefetch={false}>
                             <Eye className="size-4" />

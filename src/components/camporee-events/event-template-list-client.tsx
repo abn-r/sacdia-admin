@@ -332,7 +332,7 @@ export function EventTemplateListClient({
                     <TableHead>{t("colParticipants")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
+                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
                         {t("colActions")}
                       </TableHead>
                     )}
@@ -367,7 +367,7 @@ export function EventTemplateListClient({
                           <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
                             <div className="hidden gap-1 md:flex">
                               {canEdit && itemId && (
                                 <Button

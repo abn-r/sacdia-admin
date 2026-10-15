@@ -262,7 +262,7 @@ export function ClubsListClient({
                     <TableHead>{t("colSections")}</TableHead>
                     <TableHead>{tList("colStatus")}</TableHead>
                     {canEdit && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
+                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
                         {tList("colActions")}
                       </TableHead>
                     )}
@@ -322,7 +322,7 @@ export function ClubsListClient({
                           />
                         </TableCell>
                         {canEdit && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
                             <div className="hidden gap-1 md:flex">
                               {clubId && (
                                 <Button

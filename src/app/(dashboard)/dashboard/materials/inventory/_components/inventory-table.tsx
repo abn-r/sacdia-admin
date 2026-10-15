@@ -60,7 +60,7 @@ export function InventoryTable({
               <TableHead className="text-right">{t("colPrice")}</TableHead>
               <TableHead className="text-right">{t("colStock")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
-              <TableHead className="sticky right-0 z-20 w-[88px] border-l bg-background">
+              <TableHead className="sticky right-0 z-20 w-[88px] border-l bg-card">
                 {t("colActions")}
               </TableHead>
             </TableRow>
@@ -114,7 +114,7 @@ export function InventoryTable({
                 <TableCell>
                   <StatusBadge intent={flagStatusIntent(product.active)} label={product.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
-                <TableCell className="sticky right-0 z-10 border-l bg-background">
+                <TableCell className="sticky right-0 z-10 border-l bg-card">
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"

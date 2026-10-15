@@ -100,7 +100,7 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
               <TableHead>{t("colHolder")}</TableHead>
               <TableHead>{t("colClabe")}</TableHead>
               <TableHead>{t("colUpdated")}</TableHead>
-              <TableHead className="sticky right-0 w-[1%] bg-background text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
+              <TableHead className="sticky right-0 w-[1%] bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                 {t("colActions")}
               </TableHead>
             </TableRow>
@@ -141,7 +141,7 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                   <TableCell className="text-sm text-muted-foreground">
                     {formatUpdatedAt(row.config?.updated_at)}
                   </TableCell>
-                  <TableCell className="sticky right-0 bg-background text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
+                  <TableCell className="sticky right-0 bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                     {row.canManage ? (
                       <div className="flex justify-end gap-1">
                         {row.configured ? (

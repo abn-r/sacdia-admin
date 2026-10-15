@@ -391,7 +391,7 @@ export function AchievementsCrudPage({
                     <TableHead>{t("tableColScope")}</TableHead>
                     <TableHead>{t("tableColSecret")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium text-muted-foreground">
+                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-card text-xs font-medium text-muted-foreground">
                       {t("tableColActions")}
                     </TableHead>
                   </TableRow>
@@ -492,7 +492,7 @@ export function AchievementsCrudPage({
                           <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
 
-                        <TableCell className="sticky right-0 z-10 border-l bg-background">
+                        <TableCell className="sticky right-0 z-10 border-l bg-card">
                           <div className="hidden gap-1 md:flex">
                             {achId ? (
                               <Button
