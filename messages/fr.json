@@ -6268,6 +6268,11 @@
     }
   },
   "shared": {
+    "notFound": {
+      "title": "Page introuvable",
+      "description": "Cette adresse n'existe pas ou n'est plus disponible.",
+      "backHome": "Aller à l'accueil"
+    },
     "formModal": {
       "close": "Fermer",
       "stepOf": "Étape {current} sur {total}",

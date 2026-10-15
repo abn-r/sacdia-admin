@@ -59,13 +59,13 @@ export default async function ConfigurationPage() {
         description={tRbac("description")}
         breadcrumbs={[{ label: tNav("configuration") }]}
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {sections.map((section) => (
           <Link key={section.href} href={section.href}>
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <section.icon className="size-5 text-primary" />
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <section.icon className="size-5 text-foreground" />
                 </div>
                 <div>
                   <CardTitle className="text-sm">{section.title}</CardTitle>

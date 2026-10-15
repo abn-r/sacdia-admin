@@ -6300,6 +6300,11 @@ export interface IntlMessages {
     };
   };
   shared: {
+    notFound: {
+      title: string;
+      description: string;
+      backHome: string;
+    };
     formModal: {
       close: string;
       stepOf: string;

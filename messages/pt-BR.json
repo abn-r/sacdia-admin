@@ -6268,6 +6268,11 @@
     }
   },
   "shared": {
+    "notFound": {
+      "title": "Não encontramos esta página",
+      "description": "O endereço não existe ou não está mais disponível.",
+      "backHome": "Ir para o início"
+    },
     "formModal": {
       "close": "Fechar",
       "stepOf": "Etapa {current} de {total}",

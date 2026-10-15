@@ -132,7 +132,10 @@ async function ReportsContent({
     const errorMessage = t(`errors.${result.errorCode}`);
     return (
       <div className="space-y-4">
-        <EndpointErrorBanner state="missing" detail={errorMessage} />
+        {/* "No enrollment" is an expected state, not an error: the empty state says it once. */}
+        {result.errorCode !== "no_active_enrollment" && (
+          <EndpointErrorBanner state="missing" detail={errorMessage} />
+        )}
         <EmptyState
           icon={FileText}
           title={t("page.empty_no_active_enrollment_title")}
