@@ -67,7 +67,7 @@ export function LoginForm({ nextParam }: Props) {
           priority
         />
         <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight text-foreground">
+          <div className="text-base font-semibold tracking-tight text-foreground">
             SACDIA
           </div>
           <div className="font-mono text-[11px] text-muted-foreground">
@@ -76,11 +76,11 @@ export function LoginForm({ nextParam }: Props) {
         </div>
       </div>
 
-      <div className="mb-2.5 font-mono text-[11px] font-semibold text-primary">
+      <div className="mb-2.5 font-mono text-[11px] font-medium text-muted-foreground">
         {t("eyebrow")}
       </div>
 
-      <h1 className="mb-2 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
+      <h1 className="mb-2 font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
         {t("welcome_title")}
       </h1>
       <p className="mb-8 text-sm leading-relaxed text-muted-foreground">

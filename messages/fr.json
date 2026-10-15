@@ -1147,7 +1147,7 @@
       "welcome_description": "Saisissez vos identifiants pour accéder au panneau de votre club.",
       "eyebrow": "Accès · Administrateur",
       "email_label": "Adresse e-mail",
-      "email_placeholder": "admin@sacdia.org",
+      "email_placeholder": "correo@sacdia.com",
       "password_label": "Mot de passe",
       "submit_idle": "Se connecter",
       "submit_loading": "Vérification…",

@@ -1146,7 +1146,7 @@
       "welcome_title": "Bem-vindo de volta",
       "welcome_description": "Insira suas credenciais para acessar o painel do seu clube.",
       "email_label": "E-mail",
-      "email_placeholder": "admin@sacdia.org",
+      "email_placeholder": "correo@sacdia.com",
       "password_label": "Senha",
       "submit_idle": "Entrar",
       "submit_loading": "Verificando…",
