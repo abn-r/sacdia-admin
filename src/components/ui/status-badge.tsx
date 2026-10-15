@@ -29,10 +29,14 @@ const intentToBadgeVariant: Record<StatusIntent, BadgeVariant> = {
   "progress-3": "outline",
 };
 
+// Crisp: frequent row-level states sit on a neutral pill; hue lives only in the icon.
+const NEUTRAL_PILL = "border-border bg-background text-foreground dark:bg-input/30";
+
 const intentClasses: Partial<Record<StatusIntent, string>> = {
-  info: "border-info/25 bg-info/10 text-info",
-  success: "border-success/25 bg-success/10 text-success-foreground dark:text-success",
-  warning: "border-warning/30 bg-warning/15 text-warning-foreground dark:text-warning",
+  neutral: `${NEUTRAL_PILL} text-muted-foreground`,
+  info: NEUTRAL_PILL,
+  success: NEUTRAL_PILL,
+  warning: NEUTRAL_PILL,
   primary: "border-transparent bg-primary text-primary-foreground",
   "progress-1":
     "bg-[color-mix(in_srgb,var(--chart-1)_12%,transparent)] text-[var(--chart-1)] border-[color-mix(in_srgb,var(--chart-1)_25%,transparent)]",
@@ -40,6 +44,12 @@ const intentClasses: Partial<Record<StatusIntent, string>> = {
     "bg-[color-mix(in_srgb,var(--chart-2)_12%,transparent)] text-[var(--chart-2)] border-[color-mix(in_srgb,var(--chart-2)_25%,transparent)]",
   "progress-3":
     "bg-[color-mix(in_srgb,var(--chart-3)_12%,transparent)] text-[var(--chart-3)] border-[color-mix(in_srgb,var(--chart-3)_25%,transparent)]",
+};
+
+const intentIconClasses: Partial<Record<StatusIntent, string>> = {
+  info: "text-info",
+  success: "text-[color-mix(in_oklch,var(--success),black_15%)] dark:text-success",
+  warning: "text-[color-mix(in_oklch,var(--warning),black_25%)] dark:text-warning",
 };
 
 // Default icons per intent — ensures WCAG 1.4.1 (not color-only distinction)
@@ -93,7 +103,7 @@ export function StatusBadge({
       )}
     >
       {ResolvedIcon && (
-        <ResolvedIcon className={cn(iconSizeClass, "shrink-0")} aria-hidden="true" />
+        <ResolvedIcon className={cn(iconSizeClass, "shrink-0", intentIconClasses[intent])} aria-hidden="true" />
       )}
       {label}
     </Badge>

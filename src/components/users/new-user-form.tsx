@@ -432,7 +432,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
                   value={field.value ?? ""}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder={t("placeholders.role")} />
                     </SelectTrigger>
                   </FormControl>
@@ -471,7 +471,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
                     disabled={geography?.lockCountry}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("placeholders.country")} />
                       </SelectTrigger>
                     </FormControl>
@@ -514,7 +514,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
                     }
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("placeholders.union")} />
                       </SelectTrigger>
                     </FormControl>
@@ -557,7 +557,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
                     }
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("placeholders.local_field")} />
                       </SelectTrigger>
                     </FormControl>
