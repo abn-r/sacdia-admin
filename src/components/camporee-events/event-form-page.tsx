@@ -442,7 +442,7 @@ export function EventFormPage({
             <div className="space-y-2">
               <Label>Tipo de evento</Label>
               <Select value={selectedEventTypeId} onValueChange={handleEventTypeChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecciona el tipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -645,7 +645,7 @@ export function EventFormPage({
             <div className="space-y-2">
               <Label>Usuario responsable</Label>
               <Select value={leaderUserId} onValueChange={setLeaderUserId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecciona un usuario" />
                 </SelectTrigger>
                 <SelectContent>
@@ -828,7 +828,7 @@ export function EventFormPage({
             <div className="space-y-2 max-w-xs">
               <Label>Estado del evento</Label>
               <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

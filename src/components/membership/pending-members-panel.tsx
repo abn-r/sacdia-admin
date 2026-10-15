@@ -94,7 +94,7 @@ export function PendingMembersPanel({ sections }: PendingMembersPanelProps) {
             value={String(selectedSectionId)}
             onValueChange={(value) => setSelectedSectionId(Number(value))}
           >
-            <SelectTrigger id="section-select">
+            <SelectTrigger id="section-select" className="w-full">
               <SelectValue placeholder={t("pending.section_placeholder")} />
             </SelectTrigger>
             <SelectContent>

@@ -244,6 +244,7 @@ export function CreateClubForm({
               }}
             >
               <SelectTrigger
+                className="w-full"
                 id="local_field_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("local_field_id")}
@@ -302,6 +303,7 @@ export function CreateClubForm({
               disabled={!selectedLocalFieldId}
             >
               <SelectTrigger
+                className="w-full"
                 id="district_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("district_id")}
@@ -349,6 +351,7 @@ export function CreateClubForm({
               disabled={!selectedDistrictId}
             >
               <SelectTrigger
+                className="w-full"
                 id="church_id"
                 aria-required="true"
                 aria-invalid={ariaInvalid("church_id")}

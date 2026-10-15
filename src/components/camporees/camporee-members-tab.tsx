@@ -174,7 +174,7 @@ export function CamporeeMembersTab({
               setFilters((current) => ({ ...current, club: value }))
             }
           >
-            <SelectTrigger id="camporee-members-filter-club">
+            <SelectTrigger id="camporee-members-filter-club" className="w-full">
               <SelectValue placeholder={t("filterClubAll")} />
             </SelectTrigger>
             <SelectContent>
@@ -199,7 +199,7 @@ export function CamporeeMembersTab({
               }))
             }
           >
-            <SelectTrigger id="camporee-members-filter-status">
+            <SelectTrigger id="camporee-members-filter-status" className="w-full">
               <SelectValue placeholder={t("filterStatusAll")} />
             </SelectTrigger>
             <SelectContent>
@@ -224,7 +224,7 @@ export function CamporeeMembersTab({
               }))
             }
           >
-            <SelectTrigger id="camporee-members-filter-insurance">
+            <SelectTrigger id="camporee-members-filter-insurance" className="w-full">
               <SelectValue placeholder={t("filterInsuranceAll")} />
             </SelectTrigger>
             <SelectContent>

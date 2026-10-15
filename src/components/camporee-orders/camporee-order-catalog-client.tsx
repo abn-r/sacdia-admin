@@ -351,6 +351,7 @@ export function CamporeeOrderCatalogClient() {
                 }
               >
                 <SelectTrigger
+                  className="w-full"
                   id="product-size-scheme"
                   aria-label={t("catalog.fieldSizeScheme")}
                 >
@@ -379,6 +380,7 @@ export function CamporeeOrderCatalogClient() {
                     }}
                   >
                     <SelectTrigger
+                      className="w-full"
                       id="product-owner-scope"
                       aria-label={t("catalog.fieldOwnerScope")}
                     >
@@ -402,6 +404,7 @@ export function CamporeeOrderCatalogClient() {
                     onValueChange={(value) => setOwnerId(Number(value))}
                   >
                     <SelectTrigger
+                      className="w-full"
                       id="product-owner-territory"
                       aria-label={t("catalog.fieldOwnerTerritory")}
                     >

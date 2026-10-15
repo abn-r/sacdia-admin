@@ -658,6 +658,7 @@ export function ClubNotificationForm({
           </Label>
           <Select name="instance_target" required>
             <SelectTrigger
+              className="w-full"
               id="club_instance_target"
               aria-invalid={ariaInvalid("instance_id")}
               aria-describedby={describedBy("instance_id")}

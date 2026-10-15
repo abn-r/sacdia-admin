@@ -200,7 +200,7 @@ export function CertificationEligibilityRulesEditor({
                     updateRule(index, { rule_type: value as CertificationEligibilityRuleType })
                   }
                 >
-                  <SelectTrigger id={`rule-type-${rule._key}`}>
+                  <SelectTrigger id={`rule-type-${rule._key}`} className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -143,7 +143,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.action")}</Label>
           <Select value={action} onValueChange={setAction}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +157,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.result")}</Label>
           <Select value={result} onValueChange={setResult}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -170,7 +170,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.source")}</Label>
           <Select value={source} onValueChange={setSource}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

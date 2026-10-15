@@ -520,7 +520,7 @@ export function MasterHonorRulesEditor({
                         }
                       }}
                     >
-                      <SelectTrigger className="bg-background">
+                      <SelectTrigger className="bg-background w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -627,7 +627,7 @@ export function MasterHonorRulesEditor({
                         });
                       }}
                     >
-                      <SelectTrigger id={`group-category-${groupIndex}`} className="bg-background">
+                      <SelectTrigger id={`group-category-`} className="bg-background w-full">
                         <SelectValue placeholder={t("fieldHonorCategoryPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>

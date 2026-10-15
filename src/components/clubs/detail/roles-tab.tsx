@@ -270,7 +270,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("sectionLabel")}</Label>
                 <Select value={sectionId} onValueChange={setSectionId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("sectionLabel")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -286,7 +286,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("memberLabel")}</Label>
                 <Select value={roleUserId} onValueChange={setRoleUserId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("memberLabel")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -302,7 +302,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("roleLabel")}</Label>
                 <Select value={roleId} onValueChange={setRoleId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("roleLabel")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -415,7 +415,7 @@ export function RolesTab({ data }: RolesTabProps) {
                 <div className="space-y-1">
                   <Label>{t("sectionLabel")}</Label>
                   <Select value={counselorSectionId} onValueChange={setCounselorSectionId}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder={t("sectionLabel")} />
                     </SelectTrigger>
                     <SelectContent>
@@ -440,7 +440,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("classLabel")}</Label>
                 <Select value={counselorClassId} onValueChange={setCounselorClassId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("classLabel")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -456,7 +456,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("memberLabel")}</Label>
                 <Select value={counselorUserId} onValueChange={setCounselorUserId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("memberLabel")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -472,7 +472,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("responsibilityLabel")}</Label>
                 <Select value={responsibilityType} onValueChange={setResponsibilityType}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -499,7 +499,7 @@ export function RolesTab({ data }: RolesTabProps) {
               <div className="space-y-1">
                 <Label>{t("sectionLabel")}</Label>
                 <Select value={counselorSectionId} onValueChange={setCounselorSectionId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("sectionLabel")} />
                   </SelectTrigger>
                   <SelectContent>

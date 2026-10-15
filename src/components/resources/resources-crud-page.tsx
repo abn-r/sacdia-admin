@@ -464,7 +464,7 @@ function ResourceFormFields({
             disabled={isEdit}
             required
           >
-            <SelectTrigger id="res-type">
+            <SelectTrigger id="res-type" className="w-full">
               <SelectValue placeholder={t("placeholders.selectType")} />
             </SelectTrigger>
             <SelectContent>
@@ -494,7 +494,7 @@ function ResourceFormFields({
               "none"
             }
           >
-            <SelectTrigger id="res-category">
+            <SelectTrigger id="res-category" className="w-full">
               <SelectValue placeholder={t("placeholders.selectCategory")} />
             </SelectTrigger>
             <SelectContent>
@@ -518,7 +518,7 @@ function ResourceFormFields({
             name="club_type_id"
             defaultValue={pickClubTypeIdValue(item)}
           >
-            <SelectTrigger id="res-club-type">
+            <SelectTrigger id="res-club-type" className="w-full">
               <SelectValue placeholder={t("placeholders.selectClubType")} />
             </SelectTrigger>
             <SelectContent>
@@ -546,7 +546,7 @@ function ResourceFormFields({
             onValueChange={(v) => setScopeLevel(v as ScopeLevel)}
             disabled={isEdit || scopeLevelLocked}
           >
-            <SelectTrigger id="res-scope-level">
+            <SelectTrigger id="res-scope-level" className="w-full">
               <SelectValue placeholder={t("placeholders.selectScope")} />
             </SelectTrigger>
             <SelectContent>
@@ -615,7 +615,7 @@ function ResourceFormFields({
                 defaultValue={currentScopeIdValue || undefined}
                 required
               >
-                <SelectTrigger id="res-scope-id">
+                <SelectTrigger id="res-scope-id" className="w-full">
                   <SelectValue placeholder={t("placeholders.selectUnion")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -643,7 +643,7 @@ function ResourceFormFields({
               defaultValue={currentScopeIdValue || undefined}
               required
             >
-              <SelectTrigger id="res-scope-id">
+              <SelectTrigger id="res-scope-id" className="w-full">
                 <SelectValue placeholder={t("placeholders.selectLocalField")} />
               </SelectTrigger>
               <SelectContent>

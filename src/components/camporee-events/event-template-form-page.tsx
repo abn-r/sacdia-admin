@@ -227,7 +227,7 @@ export function EventTemplateFormPage({
                 setSelectedLocalFieldId("");
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("fieldScopePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
@@ -250,7 +250,7 @@ export function EventTemplateFormPage({
                 {t("fieldUnion")} <span className="text-destructive">*</span>
               </Label>
               <Select value={selectedUnionId} onValueChange={setSelectedUnionId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("fieldUnionPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -271,7 +271,7 @@ export function EventTemplateFormPage({
                 {t("fieldLocalField")} <span className="text-destructive">*</span>
               </Label>
               <Select value={selectedLocalFieldId} onValueChange={setSelectedLocalFieldId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("fieldLocalFieldPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -291,7 +291,7 @@ export function EventTemplateFormPage({
               {t("fieldEventType")} <span className="text-destructive">*</span>
             </Label>
             <Select value={selectedEventTypeId} onValueChange={setSelectedEventTypeId}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("fieldEventTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>

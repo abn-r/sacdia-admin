@@ -118,7 +118,7 @@ export function EvaluateMemberOfMonthDialog({
                 value={String(month)}
                 onValueChange={(val) => setMonth(Number(val))}
               >
-                <SelectTrigger id="eval_month">
+                <SelectTrigger id="eval_month" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,7 +138,7 @@ export function EvaluateMemberOfMonthDialog({
                 value={String(year)}
                 onValueChange={(val) => setYear(Number(val))}
               >
-                <SelectTrigger id="eval_year">
+                <SelectTrigger id="eval_year" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

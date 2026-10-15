@@ -197,6 +197,7 @@ export function CatalogFormDialog({
                     required={field.required}
                   >
                     <SelectTrigger
+                      className="w-full"
                       aria-invalid={ariaInvalid(field.name)}
                       aria-describedby={describedBy(field.name)}
                     >

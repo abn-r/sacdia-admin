@@ -224,7 +224,7 @@ export function AchievementForm({
                 name="category_id"
                 defaultValue={selectedCategoryId ? String(selectedCategoryId) : undefined}
               >
-                <SelectTrigger id="ach-category">
+                <SelectTrigger id="ach-category" className="w-full">
                   <SelectValue placeholder={t("placeholderCategory")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -249,7 +249,7 @@ export function AchievementForm({
               onValueChange={(v) => setType(v as AchievementType)}
               required
             >
-              <SelectTrigger id="ach-type">
+              <SelectTrigger id="ach-type" className="w-full">
                 <SelectValue placeholder={t("placeholderType")} />
               </SelectTrigger>
               <SelectContent>
@@ -274,7 +274,7 @@ export function AchievementForm({
                 onValueChange={(v) => setTier(v as AchievementTier)}
                 required
               >
-                <SelectTrigger id="ach-tier">
+                <SelectTrigger id="ach-tier" className="w-full">
                   <SelectValue placeholder={t("placeholderTier")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -321,7 +321,7 @@ export function AchievementForm({
               onValueChange={(v) => setScope(v as AchievementScope)}
               required
             >
-              <SelectTrigger id="ach-scope">
+              <SelectTrigger id="ach-scope" className="w-full">
                 <SelectValue placeholder={t("placeholderScope")} />
               </SelectTrigger>
               <SelectContent>
@@ -346,7 +346,7 @@ export function AchievementForm({
                     : undefined
                 }
               >
-                <SelectTrigger id="ach-prerequisite">
+                <SelectTrigger id="ach-prerequisite" className="w-full">
                   <SelectValue placeholder={t("placeholderPrerequisite")} />
                 </SelectTrigger>
                 <SelectContent>

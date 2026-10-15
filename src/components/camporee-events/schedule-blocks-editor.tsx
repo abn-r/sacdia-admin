@@ -182,7 +182,7 @@ export function ScheduleBlocksEditor({
                       updateBlock(index, { day_number: Number(day) })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecciona el día" />
                     </SelectTrigger>
                     <SelectContent>
@@ -248,7 +248,7 @@ export function ScheduleBlocksEditor({
                           })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Sin sede" />
                         </SelectTrigger>
                         <SelectContent>
