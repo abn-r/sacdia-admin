@@ -41,7 +41,7 @@
 > - En formularios de página, `SelectTrigger` lleva `className="w-full"` para alinear con los inputs.
 > - Estados booleanos (activo/inactivo, habilitado, completado) siempre con `StatusBadge intent={flagStatusIntent(bool)}`; nunca `Badge` `default`/`soft` (azul) para estados.
 > - Cuadros decorativos de íconos: `bg-muted` + ícono `text-foreground`. `bg-primary/10` solo para estados seleccionado/actual (ej. día de hoy, opción elegida).
-> - Tablas: el scroll horizontal y su difuminado de borde viven en `<Table>`; el marco es `DataTableShell` (o `overflow-hidden rounded-xl border-transparent bg-card shadow-card`). Columnas secundarias se ocultan con `hidden lg|xl:table-cell` para caber a ~1200px con sidebar abierto; textos largos con `whitespace-normal` + `max-w-*`.
+> - Tablas: el scroll horizontal y su difuminado de borde viven en `<Table>`; el marco es `DataTableShell` (o `overflow-hidden rounded-xl border-transparent bg-card shadow-card`). Columnas secundarias se ocultan con `hidden lg|xl:table-cell` para caber a ~1200px con sidebar abierto; textos largos con `whitespace-normal` + `max-w-*`. En tablas TanStack, la clase va en `meta: { className }` de la columna y la página la aplica a `TableHead` y `TableCell` (tipado en `src/types/tanstack-table.d.ts`).
 > - Detalle de entidad: `PageHeader` solo con breadcrumbs y el hero lleva el `h1` (nombre de la entidad). Sin botón "Volver" si hay breadcrumb.
 > - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
 

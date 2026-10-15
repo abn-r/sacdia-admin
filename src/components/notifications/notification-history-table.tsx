@@ -133,9 +133,9 @@ export async function NotificationHistoryTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("col_title")}</TableHead>
+                <TableHead className="min-w-[200px]">{t("col_title")}</TableHead>
                 <TableHead>{t("col_type")}</TableHead>
-                <TableHead>{t("col_target")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("col_target")}</TableHead>
                 <TableHead className="text-center">{t("col_sent")}</TableHead>
                 <TableHead className="text-center">{t("col_failed")}</TableHead>
                 <TableHead className="hidden xl:table-cell">{t("col_sent_by")}</TableHead>
@@ -158,7 +158,7 @@ export async function NotificationHistoryTable({
                         {typeLabelKey ? t(typeLabelKey as Parameters<typeof t>[0]) : log.type}
                       </Badge>
                     </TableCell>
-                    <TableCell>{renderTargetCell(log)}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{renderTargetCell(log)}</TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center gap-1 text-sm text-success">
                         <CheckCircle2 className="size-3.5" />

@@ -57,6 +57,7 @@ export function getHonorColumns({
     {
       accessorKey: "name",
       header: () => labels.name,
+      meta: { className: "min-w-[220px] max-w-[320px] whitespace-normal" },
       cell: ({ row }) => {
         const honor = row.original;
 
@@ -78,10 +79,12 @@ export function getHonorColumns({
     {
       accessorKey: "club_type_name",
       header: () => labels.clubType,
+      meta: { className: "hidden xl:table-cell" },
     },
     {
       accessorKey: "skill_level",
       header: () => labels.skillLevel,
+      meta: { className: "hidden xl:table-cell" },
       cell: ({ row }) => {
         const level = row.original.skill_level;
         if (level == null) return "—";

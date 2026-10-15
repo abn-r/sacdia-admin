@@ -215,8 +215,8 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">{t("colQueue")}</TableHead>
-                <TableHead>{t("colJob")}</TableHead>
+                <TableHead className="hidden pl-6 xl:table-cell">{t("colQueue")}</TableHead>
+                <TableHead className="pl-6 xl:pl-2">{t("colJob")}</TableHead>
                 <TableHead>{t("colReason")}</TableHead>
                 <TableHead className="text-center">{t("colAttempts")}</TableHead>
                 <TableHead>{t("colDate")}</TableHead>
@@ -226,7 +226,7 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
             <TableBody>
               {jobs.map((job, index) => (
                 <TableRow key={`${job.queue}-${job.job_id ?? index}`}>
-                  <TableCell className="pl-6">
+                  <TableCell className="hidden pl-6 xl:table-cell">
                     {job.queue === 'background-jobs' ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -244,8 +244,8 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm font-medium">{job.name}</TableCell>
-                  <TableCell className="max-w-[280px]">
+                  <TableCell className="pl-6 text-sm font-medium xl:pl-2">{job.name}</TableCell>
+                  <TableCell className="max-w-[280px] whitespace-normal">
                     {job.failed_reason ? (
                       <Tooltip>
                         <TooltipTrigger asChild>

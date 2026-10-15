@@ -183,15 +183,15 @@ export function CertificationsAdminPanel({
                 const isCreatingDraft = creatingDraftForId === certification.certification_id;
                 return (
                   <TableRow key={certification.certification_id} className="hover:bg-muted/30">
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="min-w-[220px] max-w-[360px] whitespace-normal px-3 py-2.5 align-middle">
                       <span className="font-medium">{certification.name}</span>
                       {certification.description && (
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
                           {certification.description}
                         </p>
                       )}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="whitespace-normal px-3 py-2.5 align-middle">
                       {certification.certification_versions.length === 0 ? (
                         <span className="text-xs text-muted-foreground">
                           {t("table.noVersions")}

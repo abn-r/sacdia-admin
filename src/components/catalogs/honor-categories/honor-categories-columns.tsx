@@ -53,13 +53,15 @@ export function getHonorCategoryColumns({
     {
       accessorKey: "name",
       header: () => labels.name,
+      meta: { className: "max-w-[280px] whitespace-normal" },
       cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
     },
     {
       accessorKey: "description",
       header: () => labels.description,
+      meta: { className: "min-w-[200px] max-w-[420px] whitespace-normal" },
       cell: ({ row }) => (
-        <span className="line-clamp-1 text-muted-foreground text-sm">
+        <span className="line-clamp-2 text-muted-foreground text-sm">
           {row.original.description ?? "—"}
         </span>
       ),
