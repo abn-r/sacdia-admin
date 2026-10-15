@@ -3300,7 +3300,14 @@
       "descriptionEdit": "Atualize os dados do evento. As alterações aparecerão na agenda do campori.",
       "backToEvents": "Voltar aos eventos",
       "descriptionPlaceholder": "Breve descrição do evento para os participantes",
-      "capacityPlaceholder": "Sem limite"
+      "capacityPlaceholder": "Sem limite",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa para continuar.",
+      "steps": {
+        "general": "Dados gerais",
+        "schedule": "Horário e local",
+        "leader": "Responsável e preparação",
+        "scoring": "Pontos e status"
+      }
     },
     "unionList": {
       "countSingular": "campori",
@@ -7437,6 +7444,7 @@
       "deleteConfirmTitle": "Excluir modelo?",
       "deleteConfirmDesc": "O modelo \"{name}\" será excluído. As instâncias existentes não serão afetadas.",
       "backToList": "Voltar aos modelos",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa para continuar.",
       "loadError": "Não foi possível carregar os modelos de evento.",
       "filterScope": "Escopo",
       "filterEventType": "Tipo de evento",

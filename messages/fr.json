@@ -3300,7 +3300,14 @@
       "descriptionEdit": "Modifiez les données de l'événement. Les changements seront visibles dans le programme du camporée.",
       "backToEvents": "Retour aux événements",
       "descriptionPlaceholder": "Brève description de l'événement pour les participants",
-      "capacityPlaceholder": "Sans limite"
+      "capacityPlaceholder": "Sans limite",
+      "stepIncomplete": "Complétez les champs obligatoires de cette étape pour continuer.",
+      "steps": {
+        "general": "Informations générales",
+        "schedule": "Horaire et lieu",
+        "leader": "Responsable et préparation",
+        "scoring": "Points et statut"
+      }
     },
     "unionList": {
       "countSingular": "camporée",
@@ -7363,6 +7370,7 @@
       "deleteConfirmTitle": "Supprimer le modèle ?",
       "deleteConfirmDesc": "Le modèle \"{name}\" sera supprimé. Les instances existantes ne seront pas affectées.",
       "backToList": "Retour aux modèles",
+      "stepIncomplete": "Complétez les champs obligatoires de cette étape pour continuer.",
       "loadError": "Impossible de charger les modèles d'événements.",
       "filterScope": "Portée",
       "filterEventType": "Type d'événement",

@@ -893,6 +893,35 @@ export async function updateCamporeeAgendaEventAction(
   redirect("/dashboard/campamentos");
 }
 
+/** Route ids bound server-side to the agenda event form (see `.bind` in event-form-data). */
+export type CamporeeAgendaEventBinding = {
+  camporeeId: number;
+  eventId?: number;
+  isUnion: boolean;
+};
+
+/**
+ * Agenda event submit with the route ids bound on the server, so the form's
+ * hidden `camporee_id` / `id` / `is_union` inputs cannot redirect the write.
+ */
+export async function submitBoundCamporeeAgendaEventAction(
+  binding: CamporeeAgendaEventBinding,
+  prev: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  formData.set("camporee_id", String(binding.camporeeId));
+  if (binding.isUnion) formData.set("is_union", "true");
+
+  if (binding.eventId) {
+    formData.set("id", String(binding.eventId));
+    return updateCamporeeAgendaEventAction(prev, formData);
+  }
+
+  return binding.isUnion
+    ? createUnionCamporeeAgendaEventAction(prev, formData)
+    : createCamporeeAgendaEventAction(prev, formData);
+}
+
 /** Cancel an event (sets status = 'cancelado'). Requires AlertDialog confirm on the caller side. */
 export async function cancelCamporeeEventAction(
   _: CamporeeEventActionState,

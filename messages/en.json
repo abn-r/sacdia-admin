@@ -3300,7 +3300,14 @@
       "descriptionEdit": "Update the event details. Changes will appear on the camporee schedule.",
       "backToEvents": "Back to events",
       "descriptionPlaceholder": "Brief event description for participants",
-      "capacityPlaceholder": "No limit"
+      "capacityPlaceholder": "No limit",
+      "stepIncomplete": "Complete the required fields in this step to continue.",
+      "steps": {
+        "general": "General details",
+        "schedule": "Schedule & venue",
+        "leader": "Lead & preparation",
+        "scoring": "Points & status"
+      }
     },
     "unionList": {
       "countSingular": "camporee",
@@ -7437,6 +7444,7 @@
       "deleteConfirmTitle": "Delete template?",
       "deleteConfirmDesc": "Template \"{name}\" will be deleted. Existing instances are not affected.",
       "backToList": "Back to templates",
+      "stepIncomplete": "Complete the required fields in this step to continue.",
       "loadError": "Could not load event templates.",
       "filterScope": "Scope",
       "filterEventType": "Event type",

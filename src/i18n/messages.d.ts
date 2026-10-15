@@ -3330,6 +3330,13 @@ export interface IntlMessages {
       backToEvents: string;
       descriptionPlaceholder: string;
       capacityPlaceholder: string;
+      stepIncomplete: string;
+      steps: {
+        general: string;
+        schedule: string;
+        leader: string;
+        scoring: string;
+      };
     };
     unionList: {
       countSingular: string;
@@ -7484,6 +7491,7 @@ export interface IntlMessages {
       deleteConfirmTitle: string;
       deleteConfirmDesc: string;
       backToList: string;
+      stepIncomplete: string;
       loadError: string;
       filterScope: string;
       filterEventType: string;

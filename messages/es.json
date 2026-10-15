@@ -3300,7 +3300,14 @@
       "descriptionEdit": "Modifica los datos del evento. Los cambios se reflejarán en la agenda del camporee.",
       "backToEvents": "Volver a eventos",
       "descriptionPlaceholder": "Breve descripción del evento para los participantes",
-      "capacityPlaceholder": "Sin límite"
+      "capacityPlaceholder": "Sin límite",
+      "stepIncomplete": "Completa los campos obligatorios de este paso para continuar.",
+      "steps": {
+        "general": "Datos generales",
+        "schedule": "Horario y sede",
+        "leader": "Responsable y preparación",
+        "scoring": "Puntos y estado"
+      }
     },
     "unionList": {
       "countSingular": "camporee",
@@ -7437,6 +7444,7 @@
       "deleteConfirmTitle": "¿Eliminar template?",
       "deleteConfirmDesc": "Se eliminará el template \"{name}\". Las instancias existentes no se verán afectadas.",
       "backToList": "Volver a templates",
+      "stepIncomplete": "Completa los campos obligatorios de este paso para continuar.",
       "loadError": "No se pudieron cargar los templates.",
       "filterScope": "Alcance",
       "filterEventType": "Tipo de evento",
