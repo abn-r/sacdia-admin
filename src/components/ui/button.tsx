@@ -2,6 +2,8 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
+import { Loader2 } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
@@ -46,21 +48,53 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  loading = false,
+  disabled,
+  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /**
+     * Pending async action: disables the button, sets aria-busy and swaps the
+     * button's own icon for a spinner so the width does not jump. Ignored with
+     * `asChild` (Slot needs a single child).
+     */
+    loading?: boolean
   }) {
   const Comp = asChild ? Slot.Root : "button"
+  const isLoading = loading && !asChild
 
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-loading={isLoading || undefined}
+      aria-busy={isLoading || undefined}
+      disabled={asChild ? disabled : disabled || isLoading}
+      className={cn(
+        buttonVariants({ variant, size, className }),
+        // The spinner replaces any icon the button already renders.
+        "data-loading:disabled:opacity-100 data-loading:[&>svg:not([data-slot=button-spinner])]:hidden"
+      )}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <>
+          <Loader2
+            data-slot="button-spinner"
+            data-icon="inline-start"
+            className="animate-spin"
+            aria-hidden="true"
+          />
+          {children}
+        </>
+      ) : (
+        // Pass children untouched: Slot (asChild) requires exactly one child.
+        children
+      )}
+    </Comp>
   )
 }
 
