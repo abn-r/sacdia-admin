@@ -50,7 +50,8 @@ describe("InsuranceTable status colors", () => {
 
     const status = screen.getByText(messages.insurance.table.status_active);
 
-    expect(status).toHaveClass("text-success-foreground");
+    // Crisp StatusBadge: neutral pill, the success hue lives on the icon.
+    expect(status.querySelector("svg")?.getAttribute("class")).toContain("success");
     expect(status).not.toHaveClass("bg-primary");
   });
 
