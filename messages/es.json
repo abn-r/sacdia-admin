@@ -1259,6 +1259,8 @@
     },
     "create": {
       "cardTitle": "Datos del club",
+      "cancel": "Cancelar",
+      "stepIncomplete": "Completa los campos obligatorios para continuar.",
       "submitButton": "Crear club",
       "placeholderName": "Nombre del club",
       "placeholderDescription": "Descripción opcional",
@@ -1623,6 +1625,7 @@
       },
       "new": {
         "title": "Crear club",
+        "description": "Registra un club y elige sus secciones.",
         "back": "Volver"
       },
       "v2": {

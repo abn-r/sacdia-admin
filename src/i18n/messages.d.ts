@@ -1288,6 +1288,8 @@ export interface IntlMessages {
     };
     create: {
       cardTitle: string;
+      cancel: string;
+      stepIncomplete: string;
       submitButton: string;
       placeholderName: string;
       placeholderDescription: string;
@@ -1652,6 +1654,7 @@ export interface IntlMessages {
       };
       new: {
         title: string;
+        description: string;
         back: string;
       };
       v2: {

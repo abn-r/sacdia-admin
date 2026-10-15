@@ -1,17 +1,16 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  FormModalBody,
+  FormModalFooter,
+  FormModalSteps,
+  useFormModal,
+} from "@/components/shared/form-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +66,16 @@ function clubGapCopy(
       };
   }
 }
+
+const LIST_HREF = "/dashboard/clubs";
+
+/** Server field errors → the step that owns the field, so a failed submit lands where the problem is. */
+const STEP_FIELDS: ReadonlyArray<ReadonlyArray<string>> = [
+  ["name", "description", "local_field_id", "district_id", "church_id", "address"],
+  ["sections"],
+  ["coordinates"],
+];
+const LAST_STEP = STEP_FIELDS.length - 1;
 
 function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
@@ -156,14 +165,71 @@ export function CreateClubForm({
     [createGaps, subject, tPrereq],
   );
 
+  const tModal = useTranslations("shared.formModal");
+  const modal = useFormModal(LIST_HREF);
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
+  // The map only initializes once its step is visible; keep it mounted afterwards.
+  const [mapVisited, setMapVisited] = useState(false);
+  const [stepIncomplete, setStepIncomplete] = useState(false);
+  const stepRefs = useRef<Array<HTMLDivElement | null>>([]);
+
   const fieldErrors = state.fieldErrors ?? {};
+
+  useEffect(() => {
+    const errored = Object.keys(state.fieldErrors ?? {});
+    if (errored.length === 0) return;
+    const target = STEP_FIELDS.findIndex((fields) => fields.some((field) => errored.includes(field)));
+    if (target >= 0) {
+      setDirection(target < step ? "back" : "forward");
+      setStep(target);
+    }
+    // Only react to a new server response, not to local step changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  function goTo(next: number) {
+    setStepIncomplete(false);
+    setDirection(next < step ? "back" : "forward");
+    setStep(next);
+    if (next === LAST_STEP) setMapVisited(true);
+  }
+
+  function goNext() {
+    const container = stepRefs.current[step];
+    const invalid = container
+      ? Array.from(container.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+          "input[required], select[required], textarea[required]",
+        )).filter((element) => !element.disabled && !element.value.trim())
+      : [];
+    if (invalid.length > 0) {
+      setStepIncomplete(true);
+      const firstVisible = invalid.find((element) => element.type !== "hidden" && element.getAttribute("aria-hidden") !== "true");
+      firstVisible?.focus();
+      return;
+    }
+    goTo(Math.min(step + 1, LAST_STEP));
+  }
+
+  // Enter on an earlier step advances instead of submitting a half-filled club.
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (step < LAST_STEP) {
+      event.preventDefault();
+      goNext();
+    }
+  }
   const ariaInvalid = (field: string) =>
     fieldErrors[field] ? true : undefined;
   const describedBy = (field: string) =>
     fieldErrors[field] ? `${field}-error` : undefined;
 
   return (
-    <form action={action} className="space-y-6" noValidate>
+    <form action={action} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
+      <FormModalSteps
+        steps={[t("create.cardTitle"), t("create.sectionsTitle"), t("form.coordinatesTitle")]}
+        current={step}
+      />
+      <FormModalBody stepKey={step} direction={direction} className="space-y-5">
       {state.error && (
         <div
           role="alert"
@@ -180,11 +246,20 @@ export function CreateClubForm({
         contactAdminLabel={tPrereq("contactAdmin")}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("create.cardTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
+      {stepIncomplete && (
+        <p role="alert" className="text-sm text-destructive">
+          {t("create.stepIncomplete")}
+        </p>
+      )}
+
+      {/* Steps stay mounted (hidden) so the server action receives every field. */}
+      <div
+        ref={(element) => {
+          stepRefs.current[0] = element;
+        }}
+        hidden={step !== 0}
+        className="grid gap-x-4 gap-y-5 sm:grid-cols-2"
+      >
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="name">
               {t("form.labelName")}{" "}
@@ -392,15 +467,18 @@ export function CreateClubForm({
               placeholder={t("create.placeholderAddress")}
             />
           </div>
-        </CardContent>
-      </Card>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("create.sectionsTitle")}</CardTitle>
-          <CardDescription>{t("create.sectionsDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
+      <div
+        ref={(element) => {
+          stepRefs.current[1] = element;
+        }}
+        hidden={step !== 1}
+        className="grid gap-3 sm:grid-cols-2"
+      >
+          <p className="text-sm text-muted-foreground sm:col-span-2">
+            {t("create.sectionsDescription")}
+          </p>
           {fieldErrors.sections && (
             <p
               role="alert"
@@ -456,15 +534,17 @@ export function CreateClubForm({
               );
             })
           )}
-        </CardContent>
-      </Card>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("form.coordinatesTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LocationPicker apiKey={googleMapsApiKey} mapsMapId={googleMapsMapId} />
+      <div
+        ref={(element) => {
+          stepRefs.current[2] = element;
+        }}
+        hidden={step !== 2}
+      >
+          {mapVisited || step === LAST_STEP ? (
+            <LocationPicker apiKey={googleMapsApiKey} mapsMapId={googleMapsMapId} />
+          ) : null}
           {fieldErrors.coordinates && (
             <p
               id="coordinates-error"
@@ -474,12 +554,27 @@ export function CreateClubForm({
               {fieldErrors.coordinates}
             </p>
           )}
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <SubmitButton disabled={createGaps.length > 0} />
       </div>
+      </FormModalBody>
+
+      <FormModalFooter step={step} total={STEP_FIELDS.length}>
+        {step === 0 ? (
+          <Button type="button" variant="outline" onClick={modal.close}>
+            {t("create.cancel")}
+          </Button>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => goTo(step - 1)}>
+            {tModal("back")}
+          </Button>
+        )}
+        {step < LAST_STEP ? (
+          <Button type="button" onClick={goNext}>
+            {tModal("continue")}
+          </Button>
+        ) : (
+          <SubmitButton disabled={createGaps.length > 0} />
+        )}
+      </FormModalFooter>
     </form>
   );
 }
