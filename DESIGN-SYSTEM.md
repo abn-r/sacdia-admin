@@ -696,38 +696,45 @@ Los siguientes componentes estan instalados en `src/components/ui/` pero se usan
 
 ## 6. Patrones de CRUD
 
-### 6.1 Crear / Editar -> Flujo por paginas (obligatorio)
+### 6.1 Crear / Editar -> Modal sobre el listado (intercepting routes)
 
-**REGLA**: Crear y Editar usan paginas dedicadas (`/new` y `/[id]`).  
-No usar `Dialog` como patron principal de CRUD.
+> **Actualizado 2026-10-15.** Reemplaza la regla anterior de "pagina dedicada obligatoria".
 
-```tsx
-// Listado -> alta
-<Link href={`${routeBase}/new`}>
-  <Button>
-    <Plus className="mr-2 h-4 w-4" />
-    Nuevo elemento
-  </Button>
-</Link>
+**REGLA**: Crear y Editar abren un **modal sobre el listado** usando *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se puede compartir, Back cierra el modal y una navegacion directa o recarga muestra el mismo formulario como pagina (`FormPageFrame`).
 
-// Listado -> edicion
-<Link href={`${routeBase}/${itemId}`}>
-  <Button variant="ghost" size="icon" className="h-8 w-8">
-    <Pencil className="h-3.5 w-3.5" />
-  </Button>
-</Link>
+**Piezas** (`src/components/shared/form-modal.tsx`):
+
+| Pieza | Uso |
+|-------|-----|
+| `RouteFormModal` | Envoltorio de la ruta interceptada. Cierre (Esc, overlay, X, Cancelar) anima la salida y hace `router.back()`. |
+| `FormPageFrame` | Mismo marco como tarjeta centrada para la navegacion directa. |
+| `FormModalSteps` | Tira de pasos numerados bajo el encabezado. Solo etiquetas; la navegacion vive en el footer. |
+| `FormModalBody` | Cuerpo con scroll (`overscroll-contain`). `stepKey` + `direction` animan el cambio de paso. |
+| `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha. |
+| `useFormModal(listHref)` | `close()` en Cancelar, `complete()` al guardar (cierra y refresca). Funciona igual en modal y en pagina. |
+
+**Estructura de rutas** (slot `@modal` en `src/app/(dashboard)/`):
+
+```
+src/app/(dashboard)/
+├── layout.tsx                         ← recibe { children, modal }
+├── @modal/default.tsx                 ← null
+├── @modal/[...catchAll]/page.tsx      ← null (limpia el slot al navegar)
+├── @modal/(.)dashboard/users/new/page.tsx   ← RouteFormModal + form
+└── dashboard/users/new/page.tsx             ← FormPageFrame + form
 ```
 
-**Comportamiento esperado del flujo por paginas:**
-- Crear (`/new`): submit -> POST -> `toast.success` -> redirect al listado.
-- Editar (`/[id]`): submit -> PUT/PATCH -> `toast.success` -> redirect al listado.
-- Mantener `PageHeader`, boton "Volver" y estado loading del submit.
+La carga de datos se extrae a un loader compartido (`src/lib/<dominio>/*-form-data.ts`) que usan ambas rutas; devuelve `null` si el actor no tiene permiso.
+
+**Pasos**: formularios con más de ~6 campos o con grupos claros se dividen en pasos (máx. 3–4). "Continuar" valida solo los campos del paso actual; Enter en un paso intermedio avanza en vez de enviar. Con server actions, todos los pasos quedan montados (`hidden`) para que el `FormData` lleve todo, y los `fieldErrors` del servidor regresan al paso que los contiene. Componentes pesados (mapa) se montan al visitar su paso.
+
+**Motion**: entrada 200ms `--ease-out-expo` (fade + `zoom-in-95`), salida 150ms. Overlay `bg-black/40` (dark `/60`), sin blur. Cambio de paso: fade + desplazamiento de 8px desde el lado de origen; con reduced motion solo fade.
+
+**Referencias**: `users/new` (react-hook-form, 2 pasos) y `clubs/new` (server action + mapa, 3 pasos).
 
 ### 6.1.1 Dialog — Excepciones Permitidas
 
-**Regla rapida (auditoria 2026-05-11):**
-- `Dialog` OK: ≤4 campos planos, sin relaciones complejas, sin uploads, sin tabs.
-- Pagina dedicada obligatoria: >4 campos, O cualquier relacion entre entidades, O imagen/upload, O tabs dentro del formulario.
+> **Nota 2026-10-15**: las reglas de abajo sobre "pagina dedicada" quedan superadas por §6.1. Los `Dialog` de esta seccion siguen siendo validos para acciones secundarias que no tienen ruta propia.
 
 La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
 
