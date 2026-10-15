@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Medal, Save } from "lucide-react";
+import { Medal, Save } from "lucide-react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -130,16 +130,12 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
+                    loading={savingTierId === tier.ranking_tier_id}
                     size="sm"
                     variant="outline"
-                    disabled={savingTierId === tier.ranking_tier_id}
                     onClick={() => handleSaveTier(tier)}
                   >
-                    {savingTierId === tier.ranking_tier_id ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      <Save />
-                    )}
+                    <Save />
                     Guardar
                   </Button>
                 </TableCell>

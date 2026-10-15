@@ -228,17 +228,13 @@ export function CamporeeOrderCatalogClient() {
           <span />
         )}
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("tray.refresh")}
         </Button>
       </div>
@@ -434,13 +430,11 @@ export function CamporeeOrderCatalogClient() {
               {t("detail.cancel")}
             </Button>
             <Button
+              loading={saving}
               type="button"
-              disabled={
-                !title.trim() || saving || (!editProduct && !createOwnerFields)
-              }
+              disabled={!title.trim() || (!editProduct && !createOwnerFields)}
               onClick={() => void saveProduct()}
             >
-              {saving ? <Loader2 className="size-4 animate-spin" /> : null}
               {t("catalog.save")}
             </Button>
           </DialogFooter>

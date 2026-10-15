@@ -140,13 +140,13 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
       {notice ? <p className="text-xs text-primary">{notice}</p> : null}
 
       <Button
+        loading={submitting}
         type="button"
         size="sm"
         className="w-full"
-        disabled={submitting || selected.size === 0}
+        disabled={selected.size === 0}
         onClick={() => void submit()}
       >
-        {submitting ? <Loader2 className="size-3.5 animate-spin" /> : null}
         {t("continuationsSubmit")}
       </Button>
     </div>

@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -72,6 +72,7 @@ export function ApproveButton({
   const isDisabled = disabled || isPending;
   const button = (
     <Button
+      loading={isPending}
       variant="default"
       size="sm"
       disabled={isDisabled}
@@ -80,7 +81,6 @@ export function ApproveButton({
     >
       {isPending ? (
         <>
-          <Loader2 className="size-4 animate-spin" />
           Aprobando…
         </>
       ) : (

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Lock,
-  Loader2,
   Save,
   ArrowLeft,
 } from "lucide-react";
@@ -243,13 +242,8 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
         {step < lastStep ? (
           <Button type="submit">{tModal("continue")}</Button>
         ) : (
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                {t("roleForm.creating")}
-              </>
-            ) : (
+          <Button loading={isPending} type="submit">
+            {isPending ? t("roleForm.creating") : (
               <>
                 <Save className="size-4" />
                 {t("roleForm.createRole")}
@@ -440,13 +434,8 @@ export function EditRoleForm({ role, allPermissions }: EditRoleFormProps) {
               {t("roleForm.cancel")}
             </Link>
           </Button>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                {t("roleForm.saving")}
-              </>
-            ) : (
+          <Button loading={isPending} type="submit">
+            {isPending ? t("roleForm.saving") : (
               <>
                 <Save className="size-4" />
                 {t("roleForm.saveChanges")}

@@ -179,17 +179,13 @@ export function FinalReviewTray() {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("tray.refresh")}
         </Button>
       </div>
@@ -236,11 +232,11 @@ export function FinalReviewTray() {
                     <td className="px-3 py-2">
                       {item.closeout_evidence ? (
                         <Button
+                          loading={busyId === item.enrollment_id}
                           type="button"
                           size="sm"
                           variant="outline"
                           aria-label={`${t("final.viewEvidence")} ${evidenceName}`}
-                          disabled={busyId === item.enrollment_id}
                           onClick={() =>
                             void handleViewEvidence(
                               item.enrollment_id,
@@ -248,11 +244,7 @@ export function FinalReviewTray() {
                             )
                           }
                         >
-                          {busyId === item.enrollment_id ? (
-                            <Loader2 className="size-3.5 animate-spin" />
-                          ) : (
-                            <ExternalLink className="size-3.5" />
-                          )}
+                          <ExternalLink className="size-3.5" />
                           {t("final.viewEvidence")}
                         </Button>
                       ) : (

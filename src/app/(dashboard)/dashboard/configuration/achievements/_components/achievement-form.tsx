@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,8 +101,7 @@ function parseCriteria(value: unknown): AchievementCriteria | null {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );

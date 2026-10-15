@@ -292,12 +292,11 @@ export function AuditLogsViewer() {
       {nextCursor ? (
         <div className="flex justify-center">
           <Button
+            loading={loadingMore}
             variant="outline"
             size="sm"
-            disabled={loadingMore}
             onClick={() => void loadPage(nextCursor, true)}
           >
-            {loadingMore ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("loadMore")}
           </Button>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -165,10 +165,9 @@ export function EvaluateMemberOfMonthDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button loading={isSubmitting} type="submit">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" />
                   Evaluando...
                 </>
               ) : (

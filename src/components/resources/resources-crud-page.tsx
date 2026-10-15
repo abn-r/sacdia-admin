@@ -8,7 +8,6 @@ import {
   Download,
   ExternalLink,
   FileText,
-  Loader2,
   MoreHorizontal,
   Radio,
   Pencil,
@@ -282,11 +281,10 @@ function DeleteButton() {
   const { pending } = useFormStatus();
   return (
     <Button
+      loading={pending}
       type="submit"
       variant="destructive"
-      disabled={pending}
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -1519,12 +1517,10 @@ export function ResourcesCrudPage({
                   Cancelar
                 </Button>
                 <Button
+                  loading={(createSubmitting || createActionPending)}
                   type="submit"
                   disabled={createSubmitting || createActionPending || !!createFileSizeError}
                 >
-                  {(createSubmitting || createActionPending) && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
                   Subir recurso
                 </Button>
               </DialogFooter>
@@ -1580,12 +1576,10 @@ export function ResourcesCrudPage({
                   Cancelar
                 </Button>
                 <Button
+                  loading={(editSubmitting || updateActionPending)}
                   type="submit"
                   disabled={editSubmitting || updateActionPending || !!editFileSizeError}
                 >
-                  {(editSubmitting || updateActionPending) && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
                   Guardar cambios
                 </Button>
               </DialogFooter>

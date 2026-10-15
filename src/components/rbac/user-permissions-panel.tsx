@@ -268,11 +268,11 @@ export function UserPermissionsPanel({
               {t("userPermissionsPanel.cancelButton")}
             </Button>
             <Button
+              loading={isPending}
               type="button"
               onClick={handleAssign}
-              disabled={isPending || !selectedPermId}
+              disabled={!selectedPermId}
             >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("userPermissionsPanel.assignButton")}
             </Button>
           </DialogFooter>

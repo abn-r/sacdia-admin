@@ -242,11 +242,10 @@ export function CertificateBulkImportActionDialog({
                 {t("cancel")}
               </Button>
               <Button
+                loading={isSubmitting}
                 type="submit"
                 variant={isReject ? "destructive" : "default"}
-                disabled={isSubmitting}
               >
-                {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
                 {isReject ? t("reject") : reconciliation ? t("reconcileApprove") : t("approve")}
               </Button>
             </DialogFooter>

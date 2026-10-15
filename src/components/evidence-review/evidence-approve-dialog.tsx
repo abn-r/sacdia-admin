@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -103,11 +103,10 @@ export function EvidenceApproveDialog({
             Cancelar
           </Button>
           <Button
+            loading={isSubmitting}
             onClick={handleApprove}
-            disabled={isSubmitting}
             className="bg-success hover:bg-success/90 text-success-foreground"
           >
-            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
             Aprobar
           </Button>
         </DialogFooter>

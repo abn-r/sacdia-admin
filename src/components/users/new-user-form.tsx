@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   FormModalBody,
@@ -633,8 +632,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
           {step < LAST_STEP ? (
             <Button type="submit">{tModal("continue")}</Button>
           ) : (
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+            <Button loading={isSubmitting} type="submit">
               {isSubmitting ? t("actions.submitting") : t("actions.submit")}
             </Button>
           )}

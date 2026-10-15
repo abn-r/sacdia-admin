@@ -8,7 +8,6 @@ import {
   ChevronRight,
   FileText,
   Download,
-  Loader2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -356,16 +355,12 @@ export function ReportsSupervisionClient({
                       </Button>
                       {item.status !== "draft" && (
                         <Button
+                          loading={downloadingReportId === item.monthly_report_id}
                           variant="outline"
                           size="sm"
                           onClick={() => handleDownloadPdf(item)}
-                          disabled={downloadingReportId === item.monthly_report_id}
                         >
-                          {downloadingReportId === item.monthly_report_id ? (
-                            <Loader2 className="mr-1 size-3.5 animate-spin" />
-                          ) : (
-                            <Download className="mr-1 size-3.5" />
-                          )}
+                          <Download className="mr-1 size-3.5" />
                           {t("actionPdf")}
                         </Button>
                       )}

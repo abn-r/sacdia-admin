@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import {
   FolderOpen,
-  Loader2,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -113,8 +112,7 @@ function getDefaultActive(item?: CategoryRecord | null): boolean {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );
@@ -125,11 +123,10 @@ function DeleteButton() {
   const t = useTranslations("resources.categoriesCrud");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("delete")}
     </Button>
   );

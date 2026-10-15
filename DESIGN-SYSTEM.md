@@ -36,6 +36,7 @@
 > - `--secondary` pasa a neutro (`#F4F4F4`); el verde vive solo en `--success`.
 > - Elevación por sombra: `shadow-card` (anillo 1px + contacto) en Card en lugar de `ring`/borde. Sombras `--shadow-*` con anillo hairline.
 > - `--radius: 0.5rem` (8px). Button y Select trigger press `scale(0.96)`.
+> - Carga en botones: `<Button loading={pending}>` (deshabilita, `aria-busy`, spinner en lugar del ícono, sin atenuar). Nunca `{pending && <Loader2/>}` dentro de un Button. `AlertDialogAction` y spinners fuera de botones siguen con `Loader2`.
 > - Foco: `--ring` es el azul pleno (claro `#0073EA`, oscuro `#4C9AFF`) para que el borde de foco supere 3:1; el halo usa `ring-ring/50`. `Skeleton` usa `rounded-md` por defecto. En oscuro `--accent` `#2A2A2A` y `--muted` `#232323` para que el resaltado de menús y los skeletons se distingan de popover/tarjeta.
 > - Campos (Input, Textarea, Select, NativeSelect, InputGroup, Combobox chips): fondo `bg-background` + `shadow-2xs` (dark: `bg-input/30`), no relleno gris.
 > - `StatusBadge` `neutral`/`info`/`success`/`warning`: pill neutro con borde; el color vive solo en el ícono. `destructive`, `primary` y `progress-*` conservan tinte.

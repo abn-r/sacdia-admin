@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -230,8 +229,7 @@ export function CamporeeOrderSettingsPanel({
         )}
       </div>
 
-      <Button type="button" disabled={saving} onClick={() => void saveAll()}>
-        {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+      <Button loading={saving} type="button" onClick={() => void saveAll()}>
         {t("settings.save")}
       </Button>
     </div>

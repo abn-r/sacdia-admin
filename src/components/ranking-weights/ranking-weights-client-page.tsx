@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -160,16 +160,11 @@ function OverrideRowActions({
               {t("cancelButton")}
             </AlertDialogCancel>
             <Button
+              loading={isDeleting}
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
             >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  {t("deletingLabel")}
-                </>
-              ) : (
+              {isDeleting ? t("deletingLabel") : (
                 t("deleteButton")
               )}
             </Button>

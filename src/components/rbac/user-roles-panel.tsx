@@ -279,11 +279,11 @@ export function UserRolesPanel({
               {t("userRolesPanel.cancel")}
             </Button>
             <Button
+              loading={isPending}
               type="button"
               onClick={handleAssign}
-              disabled={isPending || !selectedRoleId}
+              disabled={!selectedRoleId}
             >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("userRolesPanel.assignRole")}
             </Button>
           </DialogFooter>

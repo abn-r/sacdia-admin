@@ -252,8 +252,7 @@ function AssignPastorForm({
         <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
           {t("cancel")}
         </Button>
-        <Button type="button" onClick={handleAssign} disabled={!selected || isSubmitting}>
-          {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
+        <Button loading={isSubmitting} type="button" onClick={handleAssign} disabled={!selected}>
           {isSubmitting ? t("assigning") : t("assign")}
         </Button>
       </DialogFooter>

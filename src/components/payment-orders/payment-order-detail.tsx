@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { AlertTriangle, Download, ExternalLink, Loader2 } from "lucide-react";
+import { AlertTriangle, Download, ExternalLink } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -190,17 +190,13 @@ export function PaymentOrderDetail({
           ) : (
             <div className="space-y-5 px-4 pb-6">
               <Button
+                loading={downloadingPdf}
                 type="button"
                 size="sm"
                 variant="outline"
                 onClick={() => void downloadPdf()}
-                disabled={downloadingPdf}
               >
-                {downloadingPdf ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Download className="size-4" />
-                )}
+                <Download className="size-4" />
                 {t("detail.downloadPdf")}
               </Button>
               <div className="grid grid-cols-2 gap-3 text-sm">
@@ -349,11 +345,11 @@ export function PaymentOrderDetail({
               {canReview && (
                 <div className="flex gap-2">
                   <Button
+                    loading={acting}
                     type="button"
                     onClick={() => void approve()}
-                    disabled={acting || isMakerChecker}
+                    disabled={isMakerChecker}
                   >
-                    {acting && <Loader2 className="size-4 animate-spin" />}
                     {t("detail.approve")}
                   </Button>
                   <Button
@@ -396,12 +392,12 @@ export function PaymentOrderDetail({
               {t("detail.cancel")}
             </Button>
             <Button
+              loading={acting}
               type="button"
               variant="destructive"
               onClick={() => void reject()}
-              disabled={acting || !rejectReason.trim()}
+              disabled={!rejectReason.trim()}
             >
-              {acting && <Loader2 className="size-4 animate-spin" />}
               {t("detail.confirmReject")}
             </Button>
           </DialogFooter>

@@ -15,7 +15,6 @@ import {
   Plus,
   RefreshCw,
   Filter,
-  Loader2,
   FileText,
   ChevronRight,
 } from "lucide-react";
@@ -353,15 +352,11 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           </Select>
 
           <Button
+            loading={createMutation.isPending}
             size="sm"
             onClick={() => createMutation.mutate()}
-            disabled={createMutation.isPending}
           >
-            {createMutation.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Plus className="size-4" />
-            )}
+            <Plus className="size-4" />
             {t("list.newReport")}
           </Button>
         </div>
@@ -429,48 +424,39 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                             {!isSubmitted && (
                               <Button
+                                loading={loadingAction === "generate"}
                                 variant="ghost"
                                 size="xs"
                                 onClick={() => generateMutation.mutate(report)}
                                 disabled={isDisabled}
                               >
-                                {loadingAction === "generate" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Zap className="size-3" />
-                                )}
+                                <Zap className="size-3" />
                                 {t("list.actionGenerate")}
                               </Button>
                             )}
 
                             {isGenerated && (
                               <Button
+                                loading={loadingAction === "submit"}
                                 variant="ghost"
                                 size="xs"
                                 onClick={() => submitMutation.mutate(report)}
                                 disabled={isDisabled}
                               >
-                                {loadingAction === "submit" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Send className="size-3" />
-                                )}
+                                <Send className="size-3" />
                                 {t("list.actionSend")}
                               </Button>
                             )}
 
                             {(isGenerated || isSubmitted) && (
                               <Button
+                                loading={loadingAction === "pdf"}
                                 variant="ghost"
                                 size="xs"
                                 onClick={() => handleDownloadPdf(report)}
                                 disabled={isDisabled}
                               >
-                                {loadingAction === "pdf" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Download className="size-3" />
-                                )}
+                                <Download className="size-3" />
                                 {t("list.actionPdf")}
                               </Button>
                             )}
@@ -549,48 +535,39 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                       {!isSubmitted && (
                         <Button
+                          loading={loadingAction === "generate"}
                           variant="outline"
                           size="xs"
                           onClick={() => generateMutation.mutate(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "generate" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Zap className="size-3" />
-                          )}
+                          <Zap className="size-3" />
                           {t("list.actionGenerate")}
                         </Button>
                       )}
 
                       {isGenerated && (
                         <Button
+                          loading={loadingAction === "submit"}
                           variant="outline"
                           size="xs"
                           onClick={() => submitMutation.mutate(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "submit" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Send className="size-3" />
-                          )}
+                          <Send className="size-3" />
                           {t("list.actionSend")}
                         </Button>
                       )}
 
                       {(isGenerated || isSubmitted) && (
                         <Button
+                          loading={loadingAction === "pdf"}
                           variant="outline"
                           size="xs"
                           onClick={() => handleDownloadPdf(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "pdf" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Download className="size-3" />
-                          )}
+                          <Download className="size-3" />
                           {t("list.actionPdf")}
                         </Button>
                       )}

@@ -19,7 +19,6 @@ import {
   Search,
   Pencil,
   Trash2,
-  Loader2,
   MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -120,11 +119,10 @@ function DeleteButton() {
   const t = useTranslations("camporeeEvents.templates");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("buttonDelete")}
     </Button>
   );

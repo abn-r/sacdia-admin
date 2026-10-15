@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import {
   Eye,
   EyeOff,
-  Loader2,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -135,12 +134,11 @@ function DeleteButton({ label }: { label: string }) {
   const [pending, setPending] = useState(false);
   return (
     <Button
+      loading={pending}
       type="submit"
       variant="destructive"
       onClick={() => setPending(true)}
-      disabled={pending}
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );

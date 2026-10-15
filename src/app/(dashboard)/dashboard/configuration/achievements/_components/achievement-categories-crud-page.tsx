@@ -5,7 +5,6 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
-  Loader2,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -95,12 +94,11 @@ function DeleteButton({ label }: { label: string }) {
   const [pending, setPending] = useState(false);
   return (
     <Button
+      loading={pending}
       type="submit"
       variant="destructive"
       onClick={() => setPending(true)}
-      disabled={pending}
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );

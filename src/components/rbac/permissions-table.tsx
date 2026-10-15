@@ -46,8 +46,7 @@ import type { Permission, RbacActionState } from "@/lib/rbac/types";
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );

@@ -20,7 +20,6 @@ import {
 } from "react";
 import {
   Eye,
-  Loader2,
   MoreHorizontal,
   RefreshCcw,
   Pencil,
@@ -187,8 +186,7 @@ export interface PhaseECatalogCrudPageProps {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );
@@ -199,11 +197,10 @@ function DeleteButton() {
   const t = useTranslations("catalogs.phaseE");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("delete")}
     </Button>
   );

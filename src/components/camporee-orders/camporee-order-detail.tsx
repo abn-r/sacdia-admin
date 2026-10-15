@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { AlertTriangle, Download, ExternalLink, Loader2 } from "lucide-react";
+import { AlertTriangle, Download, ExternalLink } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -217,17 +217,13 @@ export function CamporeeOrderDetail({
           ) : (
             <div className="space-y-5 px-4 pb-6">
               <Button
+                loading={downloadingPdf}
                 type="button"
                 size="sm"
                 variant="outline"
                 onClick={() => void downloadPdf()}
-                disabled={downloadingPdf}
               >
-                {downloadingPdf ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Download className="size-4" />
-                )}
+                <Download className="size-4" />
                 {t("detail.downloadPdf")}
               </Button>
 
@@ -394,8 +390,7 @@ export function CamporeeOrderDetail({
 
               {showReviewActions && canReviewPerm && canApproveProof && (
                 <div className="flex flex-wrap gap-2 border-t pt-4">
-                  <Button type="button" onClick={() => void approve()} disabled={acting}>
-                    {acting ? <Loader2 className="size-4 animate-spin" /> : null}
+                  <Button loading={acting} type="button" onClick={() => void approve()}>
                     {t("detail.approve")}
                   </Button>
                   <Button
@@ -421,8 +416,7 @@ export function CamporeeOrderDetail({
 
               {showDeliver && (
                 <div className="border-t pt-4">
-                  <Button type="button" onClick={() => void deliver()} disabled={acting}>
-                    {acting ? <Loader2 className="size-4 animate-spin" /> : null}
+                  <Button loading={acting} type="button" onClick={() => void deliver()}>
                     {t("detail.deliverToSection")}
                   </Button>
                 </div>

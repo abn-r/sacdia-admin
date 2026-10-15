@@ -8,7 +8,6 @@ import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -141,8 +140,7 @@ export function PaymentMethodsForm({
         </fieldset>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+          <Button loading={isPending} type="submit">
             {t("save")}
           </Button>
         </div>

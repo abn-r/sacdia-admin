@@ -663,18 +663,15 @@ export function PaymentFormPage({
                         {tV("replace")}
                       </Button>
                       <Button
+                        loading={isRemoving}
                         type="button"
                         variant="outline"
                         size="sm"
                         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => setRemoveDialogOpen(true)}
-                        disabled={isSubmitting || isRemoving}
+                        disabled={isSubmitting}
                       >
-                        {isRemoving ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="size-4" />
-                        )}
+                        <Trash2 className="size-4" />
                         {tV("remove")}
                       </Button>
                     </div>
@@ -766,8 +763,7 @@ export function PaymentFormPage({
             {step < LAST_STEP ? (
               <Button type="submit">{tModal("continue")}</Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              <Button loading={isSubmitting} type="submit">
                 {submitLabel}
               </Button>
             )}

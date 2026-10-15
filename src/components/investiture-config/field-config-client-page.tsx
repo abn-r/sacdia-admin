@@ -335,8 +335,7 @@ function WindowCard({ localFieldId, yearId, window: initial, yearStart, yearEnd 
           </CardContent>
           {view.can_edit && (
             <CardFooter className="justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
+              <Button loading={isSubmitting} type="submit">
                 {isSubmitting ? t("saving") : t("save")}
               </Button>
             </CardFooter>
@@ -438,8 +437,7 @@ function ThresholdCard({ localFieldId, yearId, threshold: initial }: ThresholdCa
           </CardContent>
           {view.can_edit && (
             <CardFooter className="justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
+              <Button loading={isSubmitting} type="submit">
                 {isSubmitting ? t("saving") : t("save")}
               </Button>
             </CardFooter>

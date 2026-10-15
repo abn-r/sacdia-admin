@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,8 +80,7 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
   const t = useTranslations("clubs");
   return (
-    <Button type="submit" disabled={pending || disabled}>
-      {pending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+    <Button loading={pending} type="submit" disabled={disabled}>
       {t("create.submitButton")}
     </Button>
   );

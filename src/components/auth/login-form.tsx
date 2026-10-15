@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
-import { Loader2, Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { loginAction } from "@/lib/auth/actions";
 import type { AuthActionState } from "@/lib/auth/types";
@@ -20,17 +20,12 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
       size="lg"
       className="group w-full gap-2 text-sm font-semibold"
     >
-      {pending ? (
-        <>
-          <Loader2 className="size-4 animate-spin" />
-          {t("submit_loading")}
-        </>
-      ) : (
+      {pending ? t("submit_loading") : (
         <>
           {t("submit_idle")}
           <ArrowRight className="size-4 transition-transform motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-0.5" />

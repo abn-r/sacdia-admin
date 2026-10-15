@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { Copy, Loader2 } from "lucide-react";
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -210,8 +210,7 @@ export function CopyRolePermissionsDialog({
           >
             {t("cancel")}
           </Button>
-          <Button type="button" onClick={handleCopy} disabled={!canSubmit}>
-            {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+          <Button loading={isPending} type="button" onClick={handleCopy} disabled={!canSubmit}>
             {isPending ? t("copying") : t("confirm")}
           </Button>
         </DialogFooter>

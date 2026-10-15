@@ -287,18 +287,14 @@ export function CamporeeMembersPanel({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
+                                loading={isApproving}
                                 variant="ghost"
                                 size="icon-sm"
                                 className="text-success hover:bg-success/10 hover:text-success"
                                 onClick={() => handleApprove(member)}
-                                disabled={isApproving}
                                 aria-label={t("membersPanel.approveLabel")}
                               >
-                                {isApproving ? (
-                                  <Loader2 className="size-4 animate-spin" />
-                                ) : (
-                                  <CheckCircle2 className="size-4" />
-                                )}
+                                <CheckCircle2 className="size-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>{t("membersPanel.approveLabel")}</TooltipContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, User, Loader2 } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -129,12 +129,8 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
                 className="pl-8 text-sm"
               />
             </div>
-            <Button onClick={handleSearch} disabled={isSearching || !query.trim()}>
-              {isSearching ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Search className="size-4" />
-              )}
+            <Button loading={isSearching} onClick={handleSearch} disabled={!query.trim()}>
+              <Search className="size-4" />
               Buscar
             </Button>
           </div>

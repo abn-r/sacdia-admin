@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -171,11 +171,10 @@ export function ValidationReviewDialog({
                 Cancelar
               </Button>
               <Button
+                loading={isPending}
                 type="submit"
                 variant={isApprove ? "default" : "destructive"}
-                disabled={isPending}
               >
-                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {isApprove ? "Aprobar" : "Rechazar"}
               </Button>
             </DialogFooter>

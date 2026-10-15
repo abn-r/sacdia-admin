@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -222,11 +222,10 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
               {t("cancel")}
             </AlertDialogCancel>
             <Button
+              loading={isDeleting}
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
             >
-              {isDeleting && <Loader2 className="mr-2 size-4 animate-spin" />}
               {t("actionDelete")}
             </Button>
           </AlertDialogFooter>

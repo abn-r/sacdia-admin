@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Building2,
   CalendarDays,
-  Loader2,
   MapPin,
   Plus,
   Save,
@@ -635,8 +634,8 @@ export function AnnualBudgetConfigForm({
             {step === 0 ? (
               <Button type="submit">{tModal("continue")}</Button>
             ) : (
-              <Button type="submit" disabled={savingConfig}>
-                {savingConfig ? <Loader2 className="animate-spin" /> : <Save />}
+              <Button loading={savingConfig} type="submit">
+                <Save />
                 {isEdit ? "Guardar cambios" : "Crear configuración"}
               </Button>
             )}
@@ -713,12 +712,8 @@ export function AnnualBudgetConfigForm({
               <Button type="button" variant="outline" asChild>
                 <a href={ROUTE_BASE}>Cancelar</a>
               </Button>
-              <Button type="submit" disabled={savingConfig}>
-                {savingConfig ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <Save />
-                )}
+              <Button loading={savingConfig} type="submit">
+                <Save />
                 {isEdit ? "Guardar cambios" : "Crear configuración"}
               </Button>
             </div>

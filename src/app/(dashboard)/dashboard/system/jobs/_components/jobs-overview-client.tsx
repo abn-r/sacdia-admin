@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
-import { RefreshCw, RotateCcw, Loader2 } from "lucide-react";
+import { RefreshCw, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -128,16 +128,13 @@ function RetryActionButton({ job, isPendingRow, onConfirm }: RetryButtonProps) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
+          loading={isPendingRow}
           variant="outline"
           size="xs"
           disabled={isDisabled}
           className="gap-1.5"
         >
-          {isPendingRow ? (
-            <Loader2 className="size-3 animate-spin" />
-          ) : (
-            <RotateCcw className="size-3" />
-          )}
+          <RotateCcw className="size-3" />
           {isPendingRow ? t("retryLoading") : t("retryButton")}
         </Button>
       </AlertDialogTrigger>

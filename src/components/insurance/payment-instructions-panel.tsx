@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -296,11 +295,11 @@ export function PaymentInstructionsPanel({
           )}
 
           <Button
+            loading={saving}
             type="button"
             onClick={() => void save()}
-            disabled={saving || (!hasBank && !hasCash) || localFieldMissing}
+            disabled={(!hasBank && !hasCash) || localFieldMissing}
           >
-            {saving && <Loader2 className="size-4 animate-spin" />}
             {t("config.save")}
           </Button>
         </>

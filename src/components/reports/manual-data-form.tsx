@@ -7,7 +7,7 @@ import type { Control, FieldPath, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -336,12 +336,8 @@ export function ManualDataForm({
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={disabled || saving || !isDirty} size="sm">
-            {saving ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Save className="size-4" aria-hidden="true" />
-            )}
+          <Button type="submit" loading={saving} disabled={disabled || !isDirty} size="sm">
+            <Save className="size-4" aria-hidden="true" />
             {t("manualData.saveButton")}
           </Button>
         </div>

@@ -8,7 +8,6 @@ import {
   XCircle,
   History,
   Eye,
-  Loader2,
   FileSearch,
 } from "lucide-react";
 import {
@@ -132,18 +131,14 @@ function RowActions({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              loading={isApproving}
               variant="ghost"
               size="icon-sm"
               className="text-success hover:bg-success/10 hover:text-success"
               onClick={onApprove}
-              disabled={isApproving}
               aria-label={t("action_approve")}
             >
-              {isApproving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="size-4" />
-              )}
+              <CheckCircle2 className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>{t("action_approve")}</TooltipContent>

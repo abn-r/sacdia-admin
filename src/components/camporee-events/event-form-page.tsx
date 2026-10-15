@@ -18,7 +18,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
-import { Loader2, Check, UserRound } from "lucide-react";
+import { Check, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -129,8 +129,8 @@ const NO_LEADER_VALUE = "__no_leader__";
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+    <Button loading={pending} type="submit">
+      <Check className="size-4" />
       {label}
     </Button>
   );

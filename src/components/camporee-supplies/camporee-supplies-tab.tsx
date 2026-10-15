@@ -227,17 +227,13 @@ export function CamporeeSuppliesTab({
     <div className="space-y-8">
       <div className="flex justify-end">
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("actions.refresh")}
         </Button>
       </div>

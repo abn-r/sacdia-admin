@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2, Plus, Pencil, Check, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Check, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,13 +32,8 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
   const { pending } = useFormStatus();
   const t = useTranslations("catalogs.crudPage");
   return (
-    <Button type="submit" variant="default" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="size-4 animate-spin" />
-          {t("saving")}
-        </>
-      ) : (
+    <Button loading={pending} type="submit" variant="default">
+      {pending ? t("saving") : (
         <>
           {isEdit ? <Check className="size-4" /> : <Plus className="size-4" />}
           {isEdit ? "Guardar cambios" : "Crear"}

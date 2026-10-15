@@ -347,14 +347,10 @@ function IdleView({
           variant="outline"
           size="sm"
           onClick={onDownloadTemplate}
-          disabled={isDownloading}
+          loading={isDownloading}
           className="gap-2"
         >
-          {isDownloading ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <Download className="size-4" aria-hidden="true" />
-          )}
+          <Download className="size-4" aria-hidden="true" />
           {t("downloadTemplate")}
         </Button>
       </div>

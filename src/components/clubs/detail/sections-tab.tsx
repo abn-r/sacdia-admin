@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { LayoutGrid, Loader2 } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -61,8 +61,7 @@ function findSectionForType(
 function EnableMissingButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+    <Button loading={pending} type="submit" className="w-full">
       {label}
     </Button>
   );
@@ -276,8 +275,7 @@ const OFFICER_BLOCK_ORDER: Array<{
 function DesignationSubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="sm" variant="outline" className="w-full" disabled={pending}>
-      {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}
+    <Button loading={pending} type="submit" size="sm" variant="outline" className="w-full">
       {label}
     </Button>
   );

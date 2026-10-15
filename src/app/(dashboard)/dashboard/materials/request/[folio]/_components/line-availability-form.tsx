@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toneBadgeProps } from "@/components/materials/badge-tones";
 import { Button } from "@/components/ui/button";
@@ -222,15 +222,14 @@ export function LineAvailabilityCell({
                 Cancelar
               </Button>
               <Button
+                loading={isPending}
                 type="button"
                 variant="default"
                 size="sm"
                 onClick={submit}
-                disabled={isPending}
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="size-3.5 animate-spin" />
                     Guardando…
                   </>
                 ) : (

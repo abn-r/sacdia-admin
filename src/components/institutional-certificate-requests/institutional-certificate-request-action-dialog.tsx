@@ -227,11 +227,10 @@ export function InstitutionalCertificateRequestActionDialog({
                 {t("cancel")}
               </Button>
               <Button
+                loading={isSubmitting}
                 type="submit"
                 variant={isReject ? "destructive" : "default"}
-                disabled={isSubmitting}
               >
-                {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
                 {isReject ? t("reject") : t("approve")}
               </Button>
             </DialogFooter>

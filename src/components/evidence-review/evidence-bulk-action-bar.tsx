@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, XCircle, X, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -227,11 +227,10 @@ export function EvidenceBulkActionBar({
               Cancelar
             </Button>
             <Button
+              loading={isApproving}
               onClick={handleConfirmApprove}
-              disabled={isApproving}
               className="bg-success hover:bg-success/90 text-success-foreground"
             >
-              {isApproving && <Loader2 className="size-4 animate-spin" />}
               Confirmar aprobación
             </Button>
           </DialogFooter>
@@ -282,10 +281,7 @@ export function EvidenceBulkActionBar({
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" variant="destructive" disabled={isRejecting}>
-                  {isRejecting && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
+                <Button loading={isRejecting} type="submit" variant="destructive">
                   Rechazar
                 </Button>
               </DialogFooter>

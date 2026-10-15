@@ -124,17 +124,14 @@ function OverrideButton({
   return (
     <>
       <Button
+        loading={isPending}
         size="sm"
         variant="outline"
-        disabled={disabled || isPending}
+        disabled={disabled}
         onClick={() => setOpen(true)}
         className="mt-3"
       >
-        {isPending ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <ShieldAlert className="size-4" />
-        )}
+        <ShieldAlert className="size-4" />
         {t("postRegistration.force_complete_button")}
       </Button>
 
