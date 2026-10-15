@@ -700,14 +700,13 @@ Los siguientes componentes estan instalados en `src/components/ui/` pero se usan
 
 > **Actualizado 2026-10-15.** Reemplaza la regla anterior de "pagina dedicada obligatoria".
 
-**REGLA**: Crear y Editar abren un **modal sobre el listado** usando *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se puede compartir, Back cierra el modal y una navegacion directa o recarga muestra el mismo formulario como pagina (`FormPageFrame`).
+**REGLA**: Crear y Editar abren un **modal sobre el listado** usando *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se puede compartir y Back cierra el modal. Una navegacion directa o recarga **tambien** abre el modal, con el listado renderizado debajo; nunca se muestra como pagina suelta.
 
 **Piezas** (`src/components/shared/form-modal.tsx`):
 
 | Pieza | Uso |
 |-------|-----|
-| `RouteFormModal` | Envoltorio de la ruta interceptada. Cierre (Esc, overlay, X, Cancelar) anima la salida y hace `router.back()`. |
-| `FormPageFrame` | Mismo marco como tarjeta centrada para la navegacion directa. |
+| `RouteFormModal` | Dialog del formulario. Cierre (Esc, overlay, X, Cancelar) anima la salida y hace `router.back()`; con `dismissHref` (carga directa) hace `router.replace(dismissHref)`. |
 | `FormModalSteps` | Tira de pasos numerados bajo el encabezado. Solo etiquetas; la navegacion vive en el footer. |
 | `FormModalBody` | Cuerpo con scroll (`overscroll-contain`). `stepKey` + `direction` animan el cambio de paso. |
 | `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha. |
@@ -721,7 +720,7 @@ src/app/(dashboard)/
 ├── @modal/default.tsx                 ← null
 ├── @modal/[...catchAll]/page.tsx      ← null (limpia el slot al navegar)
 ├── @modal/(.)dashboard/users/new/page.tsx   ← RouteFormModal + form
-└── dashboard/users/new/page.tsx             ← FormPageFrame + form
+└── dashboard/users/new/page.tsx             ← <UsersPage /> debajo + RouteFormModal dismissHref="/dashboard/users"
 ```
 
 La carga de datos se extrae a un loader compartido (`src/lib/<dominio>/*-form-data.ts`) que usan ambas rutas; devuelve `null` si el actor no tiene permiso.

@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
@@ -50,31 +59,42 @@ type FrameProps = {
 };
 
 /**
- * Intercepted-route wrapper: renders the form in a dialog over the list.
- * Closing (Esc, overlay, X, Cancel) plays the exit animation, then `router.back()`.
+ * Renders a create/edit form in a dialog over its list.
+ * - Intercepted route (client navigation): closing plays the exit animation, then `router.back()`.
+ * - Direct load / refresh: the page renders the list underneath and passes `dismissHref`,
+ *   so closing replaces the URL with the list instead of leaving the app.
  */
 export function RouteFormModal({
   title,
   description,
   children,
   className,
-}: FrameProps & { className?: string }) {
+  dismissHref,
+}: FrameProps & { className?: string; dismissHref?: string }) {
   const router = useRouter();
   const t = useTranslations("shared.formModal");
   const [open, setOpen] = useState(true);
 
+  const leave = useCallback(() => {
+    if (dismissHref) {
+      router.replace(dismissHref);
+    } else {
+      router.back();
+    }
+  }, [router, dismissHref]);
+
   const close = useCallback(() => {
     setOpen(false);
-    window.setTimeout(() => router.back(), EXIT_MS);
-  }, [router]);
+    window.setTimeout(leave, EXIT_MS);
+  }, [leave]);
 
   const complete = useCallback(() => {
     setOpen(false);
     window.setTimeout(() => {
-      router.back();
+      leave();
       router.refresh();
     }, EXIT_MS);
-  }, [router]);
+  }, [leave, router]);
 
   const value = useMemo(() => ({ inModal: true, close, complete }), [close, complete]);
 
@@ -99,22 +119,6 @@ export function RouteFormModal({
         <FormModalContext.Provider value={value}>{children}</FormModalContext.Provider>
       </DialogContent>
     </Dialog>
-  );
-}
-
-/**
- * Full-page fallback (hard navigation / refresh on `/new`): same frame as the
- * modal, centered as a card so both entry points look identical.
- */
-export function FormPageFrame({ title, description, children }: FrameProps) {
-  return (
-    <div className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-transparent bg-card shadow-card">
-      <header className="px-6 pt-5 pb-4">
-        <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-        {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
-      </header>
-      {children}
-    </div>
   );
 }
 
@@ -159,7 +163,9 @@ export function FormModalSteps({ steps, current }: { steps: string[]; current: n
 
 /**
  * Scrollable form body. Pass `stepKey` + `direction` so a step change slides in
- * from the side it came from; reduced motion keeps only the fade.
+ * from the side it came from; reduced motion keeps only the fade. The enter
+ * animation is replayed in place (no remount), so uncontrolled inputs in
+ * hidden steps keep their values for FormData submits.
  */
 export function FormModalBody({
   children,
@@ -172,10 +178,26 @@ export function FormModalBody({
   stepKey?: string | number;
   direction?: "forward" | "back";
 }) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const mounted = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    const element = contentRef.current;
+    if (!element || typeof element.getAnimations !== "function") return;
+    for (const animation of element.getAnimations()) {
+      animation.cancel();
+      animation.play();
+    }
+  }, [stepKey, direction]);
+
   return (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t px-6 py-5 [ol+&]:border-t-0">
       <div
-        key={stepKey}
+        ref={contentRef}
         className={cn(
           stepKey !== undefined &&
             "animate-in fade-in-0 duration-200 [animation-timing-function:var(--ease-out-expo)]",
