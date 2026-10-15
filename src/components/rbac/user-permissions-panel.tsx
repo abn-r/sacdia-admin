@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, X, ShieldCheck, Loader2, Search } from "lucide-react";
+import { Plus, X, ShieldCheck, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -305,10 +305,9 @@ export function UserPermissionsPanel({
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRemove}
-                disabled={isPending}
+                loading={isPending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {t("userPermissionsPanel.removeConfirm")}
               </AlertDialogAction>
             </AlertDialogFooter>

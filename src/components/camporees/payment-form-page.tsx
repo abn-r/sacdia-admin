@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import {
   FileText,
   Image as ImageIcon,
-  Loader2,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -789,10 +788,9 @@ export function PaymentFormPage({
                 e.preventDefault();
                 void handleRemoveVoucher();
               }}
-              disabled={isRemoving}
+              loading={isRemoving}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isRemoving && <Loader2 className="size-4 animate-spin" />}
               {tV("removeConfirmAction")}
             </AlertDialogAction>
           </AlertDialogFooter>

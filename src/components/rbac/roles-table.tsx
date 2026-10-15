@@ -10,7 +10,6 @@ import {
   Search,
   AlertTriangle,
   UserX,
-  Loader2,
   ShieldCheck,
   Users,
   ChevronRight,
@@ -234,20 +233,13 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           {!isBlocked ? (
             <AlertDialogAction
               variant="destructive"
-              disabled={loading}
+              loading={loading}
               onClick={(e) => {
                 e.preventDefault();
                 void handleDeactivate();
               }}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                "Desactivar"
-              )}
+              {loading ? "Procesando..." : "Desactivar"}
             </AlertDialogAction>
           ) : null}
         </AlertDialogFooter>

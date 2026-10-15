@@ -6,6 +6,7 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 import { SURFACE_MOTION_CLASSES } from "@/lib/animations"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 function AlertDialog({
   ...props
@@ -154,16 +155,34 @@ function AlertDialogAction({
   className,
   variant = "default",
   size = "default",
+  loading = false,
+  disabled,
+  children,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
-  Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  Pick<React.ComponentProps<typeof Button>, "variant" | "size" | "loading">) {
+  // Button is asChild here, so it can't inject the spinner; the Action does,
+  // with the same data-loading hooks Button's classes key off.
   return (
     <Button variant={variant} size={size} asChild>
       <AlertDialogPrimitive.Action
         data-slot="alert-dialog-action"
+        data-loading={loading || undefined}
+        aria-busy={loading || undefined}
+        disabled={disabled || loading}
         className={cn(className)}
         {...props}
-      />
+      >
+        {loading ? (
+          <Loader2
+            data-slot="button-spinner"
+            data-icon="inline-start"
+            className="animate-spin"
+            aria-hidden="true"
+          />
+        ) : null}
+        {children}
+      </AlertDialogPrimitive.Action>
     </Button>
   )
 }

@@ -6,7 +6,6 @@ import {
   Image as ImageIcon,
   User,
   Building2,
-  Loader2,
   ShieldAlert,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -156,10 +155,9 @@ function OverrideButton({
               {t("postRegistration.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              disabled={isPending}
+              loading={isPending}
               onClick={handleConfirm}
             >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("postRegistration.force_confirming")}
             </AlertDialogAction>
           </AlertDialogFooter>

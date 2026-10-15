@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, MapPin, Landmark, UserMinus, UserPlus } from "lucide-react";
+import { MapPin, Landmark, UserMinus, UserPlus } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { PageHeader } from "@/components/shared/page-header";
@@ -229,14 +229,13 @@ export function PastorsClientPage({
             <AlertDialogCancel disabled={isRemoving}>{t("removeDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
-              disabled={isRemoving}
+              loading={isRemoving}
               onClick={(event) => {
                 // Keep the dialog open until the request settles.
                 event.preventDefault();
                 void confirmRemoval();
               }}
             >
-              {isRemoving && <Loader2 className="animate-spin" aria-hidden="true" />}
               {isRemoving ? t("removeDialog.removing") : t("removeDialog.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

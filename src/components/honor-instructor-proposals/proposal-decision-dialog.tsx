@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Loader2, ShieldAlert, XCircle } from "lucide-react";
+import { CheckCircle2, ShieldAlert, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -162,13 +162,12 @@ export function ProposalDecisionDialog({ proposal, action, onClose }: ProposalDe
           ) : (
             <AlertDialogAction
               variant={isReject ? "destructive" : "default"}
-              disabled={isPending}
+              loading={isPending}
               onClick={(event) => {
                 event.preventDefault();
                 void submit();
               }}
             >
-              {isPending && <Loader2 className="animate-spin" aria-hidden="true" />}
               {isReject ? t("reject.confirm") : t("approve.confirm")}
             </AlertDialogAction>
           )}

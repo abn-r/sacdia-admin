@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Key, Loader2, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Key, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -358,14 +358,13 @@ export function PermissionsTable({
             <AlertDialogFooter>
               <AlertDialogCancel disabled={deletePending}>{t("permissionsTable.cancel")}</AlertDialogCancel>
               <AlertDialogAction
-                disabled={deletePending}
+                loading={deletePending}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={(event) => {
                   event.preventDefault();
                   handleDelete();
                 }}
               >
-                {deletePending ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("permissionsTable.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>

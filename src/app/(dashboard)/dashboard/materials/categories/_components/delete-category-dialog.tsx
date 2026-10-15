@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,10 +73,9 @@ export function DeleteCategoryDialog({
               e.preventDefault();
               confirm();
             }}
-            disabled={busy}
+            loading={busy}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
             Eliminar
           </AlertDialogAction>
         </AlertDialogFooter>
