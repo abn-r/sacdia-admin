@@ -136,7 +136,8 @@
   --info-foreground: #0a0a0a;
   --border: #ebebeb;
   --input: #e3e3e3;
-  --ring: color-mix(in srgb, #0073ea 45%, transparent);
+  /* Full-strength so the focus border clears 3:1 non-text contrast; halos use ring/50. */
+  --ring: #0073ea;
   --chart-1: #0073ea;
   --chart-2: #f06151;
   --chart-3: #4fbf9f;
@@ -149,7 +150,7 @@
   --sidebar-accent: #ededed;
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #ebebeb;
-  --sidebar-ring: color-mix(in srgb, #0073ea 45%, transparent);
+  --sidebar-ring: #0073ea;
 
   /* Crisp elevation: hairline ring + soft contact shadow instead of borders */
   --shadow-color: oklch(0 0 0 / 0.06);
@@ -205,9 +206,10 @@
   --primary-foreground: #ffffff;
   --secondary: #1f1f1f;
   --secondary-foreground: #ededed;
-  --muted: #1c1c1c;
+  --muted: #232323;
   --muted-foreground: #a1a1a1;
-  --accent: #1f1f1f;
+  /* Menu highlight must read against popover #171717. */
+  --accent: #2a2a2a;
   --accent-foreground: #ededed;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
@@ -219,7 +221,7 @@
   --info-foreground: #0a0a0a;
   --border: #262626;
   --input: #2e2e2e;
-  --ring: color-mix(in srgb, #4c9aff 55%, transparent);
+  --ring: #4c9aff;
   --chart-1: #4c9aff;
   --chart-2: #f06151;
   --chart-3: #4fbf9f;
@@ -232,7 +234,7 @@
   --sidebar-accent: #1f1f1f;
   --sidebar-accent-foreground: #ededed;
   --sidebar-border: #262626;
-  --sidebar-ring: color-mix(in srgb, #4c9aff 55%, transparent);
+  --sidebar-ring: #4c9aff;
 
   --shadow-color: oklch(0 0 0 / 0.4);
   --shadow-card: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 2px 0 oklch(0 0 0 / 0.4);
