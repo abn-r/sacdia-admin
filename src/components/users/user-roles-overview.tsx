@@ -17,8 +17,8 @@ export function UserRolesOverview({ clubSections }: UserRolesOverviewProps) {
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-            <ShieldAlert className="size-4 text-primary" />
+          <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+            <ShieldAlert className="size-4 text-foreground" />
           </div>
           <div>
             <CardTitle className="text-base">{t("clubSectionsTitle")}</CardTitle>

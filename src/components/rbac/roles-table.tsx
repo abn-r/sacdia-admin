@@ -26,6 +26,8 @@ import {
 } from "@/lib/auth/screen-catalog/screen-title";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -512,9 +514,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
                         {/* active status */}
                         <TableCell className="px-3 py-2.5 align-middle">
-                          <Badge variant={role.active !== false ? "soft-success" : "outline"}>
-                            {role.active !== false ? "Activo" : "Inactivo"}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} />
                         </TableCell>
 
                         {/* actions — super-admin only */}
@@ -641,9 +641,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={role.active !== false ? "soft-success" : "outline"} className="text-xs">
-                        {role.active !== false ? "Activo" : "Inactivo"}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} size="sm" />
                       <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"} className="text-xs">
                         {role.role_category}
                       </Badge>

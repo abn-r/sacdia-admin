@@ -317,8 +317,8 @@ function IdleView({
             : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50",
         )}
       >
-        <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
-          <Upload className="size-7 text-primary" aria-hidden="true" />
+        <div className="flex size-14 items-center justify-center rounded-full bg-muted">
+          <Upload className="size-7 text-foreground" aria-hidden="true" />
         </div>
 
         <div className="space-y-1">

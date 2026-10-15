@@ -6,6 +6,8 @@ import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Table,
@@ -460,12 +462,7 @@ export function AwardCategoriesClientPage({
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge
-                                variant={cat.active ? "success" : "secondary"}
-                                className="text-xs"
-                              >
-                                {cat.active ? "Activa" : "Inactiva"}
-                              </Badge>
+                              <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? "Activa" : "Inactiva"} size="sm" />
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
@@ -550,12 +547,7 @@ export function AwardCategoriesClientPage({
                           </div>
 
                           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                            <Badge
-                              variant={cat.active ? "success" : "secondary"}
-                              className="text-xs"
-                            >
-                              {cat.active ? "Activa" : "Inactiva"}
-                            </Badge>
+                            <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? "Activa" : "Inactiva"} size="sm" />
                             {cat.tier !== null && (
                               <Badge
                                 variant={TIER_BADGE_VARIANT[cat.tier]}

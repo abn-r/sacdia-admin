@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -113,9 +115,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                   {platformLabel}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={activity.active !== false ? "soft-success" : "outline"}>
-                    {activity.active !== false ? t("table.statusActive") : t("table.statusInactive")}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(activity.active !== false)} label={activity.active !== false ? t("table.statusActive") : t("table.statusInactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <div className="flex items-center gap-1">

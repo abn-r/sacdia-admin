@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ChevronRight, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Table,
   TableBody,
@@ -89,9 +90,7 @@ export function CertificationsList({
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Badge variant={cert.active !== false ? "default" : "outline"}>
-                  {cert.active !== false ? t("status_active") : t("status_inactive")}
-                </Badge>
+                <StatusBadge intent={flagStatusIntent(cert.active !== false)} label={cert.active !== false ? t("status_active") : t("status_inactive")} />
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
                 <Button variant="ghost" size="icon-sm" asChild>

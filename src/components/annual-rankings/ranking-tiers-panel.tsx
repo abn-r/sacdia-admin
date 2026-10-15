@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Loader2, Medal, Save } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -81,8 +82,8 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-            <Medal className="size-[18px] text-primary" />
+          <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
+            <Medal className="size-[18px] text-foreground" />
           </div>
           <div>
             <CardTitle>Rangos globales de reconocimiento</CardTitle>
@@ -125,9 +126,7 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={tier.active ? "secondary" : "outline"}>
-                    {tier.active ? "Activo" : "Inactivo"}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(tier.active)} label={tier.active ? "Activo" : "Inactivo"} />
                 </TableCell>
                 <TableCell className="text-right">
                   <Button

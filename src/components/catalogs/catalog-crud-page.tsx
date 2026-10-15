@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Table,
   TableBody,
@@ -323,12 +325,7 @@ export function CatalogCrudPage({
                           <TableCell
                             className={lastColIsActions ? COL_MID : COL_LAST}
                           >
-                            <Badge
-                              variant={item.active !== false ? "success" : "secondary"}
-                              className="text-xs"
-                            >
-                              {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                            </Badge>
+                            <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
                           </TableCell>
 
                           {/* Acciones — last column */}
@@ -424,12 +421,7 @@ export function CatalogCrudPage({
 
                     {/* Status badge */}
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge
-                        variant={item.active !== false ? "success" : "secondary"}
-                        className="text-xs"
-                      >
-                        {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
                     </div>
 
                     {/* Secondary data fields */}

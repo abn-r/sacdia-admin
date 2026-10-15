@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight, BookOpen, FileText, ListChecks } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ClassModule, ClassSection } from "@/lib/api/classes";
@@ -41,9 +43,7 @@ function SectionNode({ section }: SectionNodeProps) {
         )}
       </div>
       {section.active === false && (
-        <Badge variant="outline" className="shrink-0 text-xs">
-          {t("status_inactive")}
-        </Badge>
+        <StatusBadge intent={flagStatusIntent(false)} label={t("status_inactive")} size="sm" className="shrink-0" />
       )}
     </li>
   );
@@ -69,8 +69,8 @@ function ModuleNode({ mod, honors, defaultOpen = false }: ModuleNodeProps) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/30"
         onClick={() => setOpen((prev) => !prev)}
       >
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <BookOpen className="size-4 text-primary" />
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <BookOpen className="size-4 text-foreground" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{title}</p>

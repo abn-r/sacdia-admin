@@ -496,8 +496,8 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                 <li key={report.report_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="size-5 text-primary" aria-hidden="true" />
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <FileText className="size-5 text-foreground" aria-hidden="true" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">

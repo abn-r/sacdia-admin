@@ -13,7 +13,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -396,12 +397,7 @@ export function ResourceCategoriesCrudPage({
                           {description}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "default" : "outline"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">

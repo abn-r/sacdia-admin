@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { LayoutGrid, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -423,9 +424,7 @@ function SectionCard({
       num={String(index + 1).padStart(2, "0")}
       title={typeName}
       action={
-        <Badge variant={isActive ? "soft" : "outline"}>
-          {isActive ? t("active") : t("inactive")}
-        </Badge>
+        <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("active") : t("inactive")} />
       }
     >
       <p className="mb-3 text-[11px] font-semibold text-muted-foreground">

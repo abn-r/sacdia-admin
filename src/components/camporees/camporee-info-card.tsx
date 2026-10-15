@@ -1,6 +1,8 @@
 import { Tent, CalendarRange, MapPin, DollarSign, Lock, LockOpen } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Camporee } from "@/lib/api/camporees";
 import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
@@ -51,8 +53,8 @@ export async function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
       <CardContent className="pt-6">
         <div className="flex flex-wrap items-start gap-6">
           {/* Icon */}
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <Tent className="size-6 text-primary" />
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
+            <Tent className="size-6 text-foreground" />
           </div>
 
           {/* Main info */}
@@ -95,9 +97,7 @@ export async function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
 
           {/* Status badges */}
           <div className="flex flex-col items-end gap-1.5">
-            <Badge variant={camporee.active !== false ? "soft-success" : "outline"}>
-              {camporee.active !== false ? "Activo" : "Inactivo"}
-            </Badge>
+            <StatusBadge intent={flagStatusIntent(camporee.active !== false)} label={camporee.active !== false ? "Activo" : "Inactivo"} />
             <Badge
               variant={clubRegistrationClosed ? "outline" : "secondary"}
               className="h-auto max-w-[12rem] whitespace-normal py-1 text-right"

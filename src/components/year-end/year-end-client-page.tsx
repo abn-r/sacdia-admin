@@ -40,8 +40,8 @@ interface ImpactCardProps {
 function ImpactCard({ icon: Icon, label, count, description }: ImpactCardProps) {
   return (
     <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
-        <Icon className="size-4 text-primary" />
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+        <Icon className="size-4 text-foreground" />
       </div>
       <div>
         <p className="text-2xl font-bold tabular-nums">{count}</p>

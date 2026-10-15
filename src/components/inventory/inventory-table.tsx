@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -98,9 +100,7 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                   {item.amount}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-center align-middle">
-                  <Badge variant={item.active !== false ? "default" : "outline"}>
-                    {item.active !== false ? t("status.active") : t("status.inactive")}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("status.active") : t("status.inactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <div className="flex items-center gap-1">

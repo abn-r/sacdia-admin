@@ -5,7 +5,8 @@ import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, RefreshCw, Tent, Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -199,12 +200,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge
-                        variant={camporee.active !== false ? "soft-success" : "outline"}
-                        className="text-xs"
-                      >
-                        {camporee.active !== false ? t("unionList.statusActive") : t("unionList.statusInactive")}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(camporee.active !== false)} label={camporee.active !== false ? t("unionList.statusActive") : t("unionList.statusInactive")} size="sm" />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <div className="flex items-center gap-1">

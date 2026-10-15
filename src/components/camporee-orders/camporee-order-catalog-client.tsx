@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { BookOpen, Loader2, Plus, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -283,7 +285,7 @@ export function CamporeeOrderCatalogClient() {
                         <Badge variant="secondary">{t("catalog.readOnly")}</Badge>
                       )}
                       {!product.active && (
-                        <Badge variant="outline">{t("catalog.inactive")}</Badge>
+                        <StatusBadge intent={flagStatusIntent(false)} label={t("catalog.inactive")} />
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">

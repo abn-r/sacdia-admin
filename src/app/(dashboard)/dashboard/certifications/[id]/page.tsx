@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -230,8 +232,8 @@ export default async function CertificationDetailPage({ params }: { params: Para
       {/* Summary card */}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 pt-6">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <ShieldCheck className="size-6 text-primary" />
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
+            <ShieldCheck className="size-6 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold">{name}</h2>
@@ -239,9 +241,7 @@ export default async function CertificationDetailPage({ params }: { params: Para
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             )}
           </div>
-          <Badge variant={isActive ? "default" : "outline"}>
-            {isActive ? t("statusActive") : t("statusInactive")}
-          </Badge>
+          <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("statusActive") : t("statusInactive")} />
         </CardContent>
       </Card>
 

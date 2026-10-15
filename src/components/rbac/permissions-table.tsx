@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Key, Loader2, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -174,9 +175,7 @@ export function PermissionsTable({
                           : "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
-                          {perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")}
-                        </Badge>
+                        <StatusBadge intent={flagStatusIntent(perm.active !== false)} label={perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")} size="sm" />
                       </TableCell>
                       <TableCell>
                         {canWrite ? (
@@ -228,9 +227,7 @@ export function PermissionsTable({
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                    <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
-                      {perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")}
-                    </Badge>
+                    <StatusBadge intent={flagStatusIntent(perm.active !== false)} label={perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")} size="sm" />
                   </div>
 
                   {perm.description && (

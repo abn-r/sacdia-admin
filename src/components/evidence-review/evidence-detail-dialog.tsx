@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -558,12 +560,7 @@ function HonorReviewPacketSection({ packet }: HonorReviewPacketSectionProps) {
                     <p className="text-sm font-medium">
                       {requirement.display_label ?? requirement.requirement_number}
                     </p>
-                    <Badge
-                      variant={requirement.completed ? "default" : "outline"}
-                      className="text-xs"
-                    >
-                      {requirement.completed ? "Completado" : "Pendiente"}
-                    </Badge>
+                    <StatusBadge intent={flagStatusIntent(requirement.completed)} label={requirement.completed ? "Completado" : "Pendiente"} size="sm" />
                     {requirement.requires_evidence && (
                       <Badge variant="secondary" className="text-xs">
                         Requiere evidencia

@@ -3,7 +3,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -95,9 +96,7 @@ export function getClubIdealColumns({
       accessorKey: "active",
       header: () => labels.status,
       cell: ({ row }) => (
-        <Badge variant={row.original.active ? "default" : "secondary"}>
-          {row.original.active ? labels.active : labels.inactive}
-        </Badge>
+        <StatusBadge intent={flagStatusIntent(row.original.active)} label={row.original.active ? labels.active : labels.inactive} />
       ),
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;

@@ -11,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { toneBadgeProps } from "@/components/materials/badge-tones";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { MoneyFormat } from "@/components/materials/money-format";
 import { ProductFormSheet } from "./product-form-sheet";
@@ -112,11 +112,7 @@ export function InventoryTable({
 
                 {/* Estado */}
                 <TableCell>
-                  {product.active ? (
-                    <Badge {...toneBadgeProps("success")}>{t("statusActive")}</Badge>
-                  ) : (
-                    <Badge variant="secondary">{t("statusInactive")}</Badge>
-                  )}
+                  <StatusBadge intent={flagStatusIntent(product.active)} label={product.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
                 <TableCell className="sticky right-0 z-10 border-l bg-background">
                   <div className="flex items-center gap-1">

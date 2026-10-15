@@ -26,6 +26,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Select,
   SelectContent,
@@ -362,12 +364,7 @@ export function EventTemplateListClient({
                           {participantsSummary(item)}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "soft-success" : "outline"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-background">
