@@ -15,8 +15,8 @@ export const THEME_PRESET_OPTIONS = [
     label: "Scout Vibrante",
     value: "default",
     primary: {
-      light: "#F06151",
-      dark: "#F06151",
+      light: "#0073ea",
+      dark: "#0073ea",
     },
   },
 ] as const;

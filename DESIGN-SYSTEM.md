@@ -21,12 +21,24 @@
 
 > **Actualizado 2026-06-24 — Alineación con SACDIA App**. Paleta desde `sacdia-app/lib/core/theme/app_colors.dart`:
 
-> - **Primary** SACDIA Red `#F06151` para botones principales, AppBar, enlaces y navegación.
+> - **Primary** SACDIA Blue `#0073EA` para botones principales, AppBar, enlaces y navegación.
 > - **Secondary/Success** SACDIA Green `#4FBF9F` para completado, progreso y estados positivos.
 > - **Accent/Warning** SACDIA Yellow `#FBBD5E` para logros, recompensas y estados en progreso.
 > - **Light mode** usa superficies blancas/slate de la app (`#FFFFFF`, `#F8FAFC`, `#E2E8F0`).
 > - **Dark mode** usa true black/OLED de la app (`#000000`, `#1A1A1A`, `#252525`, `#303030`).
 > - Los valores de marca son exactos; los `*-foreground` del panel se ajustan cuando hace falta para mantener contraste legible en web.
+
+> **Actualizado 2026-10-15 — Crisp redesign** (rama `feat/admin-redesign`). Dirección visual: crisp/minimal (estilo Linear/Vercel).
+> - Acento = azul del logo SACDIA `#0073EA` (contraste blanco ≈4.6:1). Solo en CTA primario, enlaces, foco y gráficas.
+> - Neutros puros (sin tinte slate): texto `#0A0A0A`, secundario `#666666`, bordes `#EBEBEB`. Dark: `#0A0A0A` / `#141414` / `#262626`.
+> - Hover y activo de navegación son **neutros** (`--accent`, `--sidebar-accent`), nunca azul tenue.
+> - `--secondary` pasa a neutro (`#F4F4F4`); el verde vive solo en `--success`.
+> - Elevación por sombra: `shadow-card` (anillo 1px + contacto) en Card en lugar de `ring`/borde. Sombras `--shadow-*` con anillo hairline.
+> - `--radius: 0.5rem` (8px). Button y Select trigger press `scale(0.96)`.
+> - Campos (Input, Textarea, Select, NativeSelect, InputGroup, Combobox chips): fondo `bg-background` + `shadow-2xs` (dark: `bg-input/30`), no relleno gris.
+> - `StatusBadge` `neutral`/`info`/`success`/`warning`: pill neutro con borde; el color vive solo en el ícono. `destructive`, `primary` y `progress-*` conservan tinte.
+> - En formularios de página, `SelectTrigger` lleva `className="w-full"` para alinear con los inputs.
+> - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
 
 > **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
 
@@ -85,10 +97,10 @@ El sistema usa CSS custom properties expuestas a Tailwind v4 desde `src/app/glob
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--brand-primary` | `#F06151` | SACDIA Red: botones principales, AppBar, enlaces, navegación |
-| `--brand-primary-light` | `#FDE8E6` | Badges/chips/selecciones suaves |
-| `--brand-primary-dark` | `#D94A3B` | Énfasis y pressed states |
-| `--brand-primary-surface` | `#FFF1EF` | Hover y selecciones muy sutiles |
+| `--brand-primary` | `#0073EA` | SACDIA Blue: botones principales, AppBar, enlaces, navegación |
+| `--brand-primary-light` | `#E0EFFF` | Badges/chips/selecciones suaves |
+| `--brand-primary-dark` | `#005CC0` | Énfasis y pressed states |
+| `--brand-primary-surface` | `#EEF6FF` | Hover y selecciones muy sutiles |
 | `--brand-secondary` | `#4FBF9F` | SACDIA Green: éxito, completado, progreso |
 | `--brand-secondary-light` | `#E0F5EF` | Fondos success suaves |
 | `--brand-secondary-dark` | `#2D8A70` | Texto success |
@@ -104,22 +116,22 @@ Estos tokens también están expuestos como clases Tailwind `brand-*` (`bg-brand
 
 | Token | Light Mode | Dark Mode | Uso |
 |-------|-----------|-----------|-----|
-| `--background` | `#FFFFFF` | `#000000` | Fondo general |
-| `--foreground` | `#0F172A` | `#F2F2F2` | Texto principal |
-| `--card` | `#FFFFFF` | `#1A1A1A` | Cards, modales, bottom sheets |
-| `--card-foreground` | `#0F172A` | `#F2F2F2` | Texto en tarjetas |
-| `--popover` | `#FFFFFF` | `#1A1A1A` | Popovers/menus |
-| `--muted` | `#F8FAFC` | `#252525` | Superficies secundarias |
-| `--muted-foreground` | `#64748B` | `#8C8C8C` | Texto secundario/auxiliar |
-| `--accent` | `#FFF1EF` | `#252525` | Hover backgrounds / selección sutil |
-| `--secondary` | `#E0F5EF` | `color-mix(... #4FBF9F 20%, #1A1A1A)` | Botones/badges secundarios con tono green SACDIA |
+| `--background` | `#FFFFFF` | `#0A0A0A` | Fondo general |
+| `--foreground` | `#0A0A0A` | `#EDEDED` | Texto principal |
+| `--card` | `#FFFFFF` | `#141414` | Cards, modales, bottom sheets |
+| `--card-foreground` | `#0A0A0A` | `#EDEDED` | Texto en tarjetas |
+| `--popover` | `#FFFFFF` | `#171717` | Popovers/menus |
+| `--muted` | `#F5F5F5` | `#1C1C1C` | Superficies secundarias |
+| `--muted-foreground` | `#666666` | `#A1A1A1` | Texto secundario/auxiliar |
+| `--accent` | `#F4F4F4` | `#1F1F1F` | Hover backgrounds / selección sutil (neutro) |
+| `--secondary` | `#F4F4F4` | `#1F1F1F` | Botones/badges secundarios neutros |
 
 ### 2.3 Colores Semánticos
 
 | Token | Light | Dark | Clase Tailwind | Uso |
 |-------|-------|------|----------------|-----|
-| `--primary` | `#F06151` | `#F06151` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
-| `--secondary` | `#E0F5EF` | green tint sobre `#1A1A1A` | `text-secondary`, `bg-secondary` | Acción secundaria/chips con tono green suave |
+| `--primary` | `#0073EA` | `#0073EA` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
+| `--secondary` | `#F4F4F4` | `#1F1F1F` | `text-secondary`, `bg-secondary` | Acción secundaria/chips neutros |
 | `--destructive` | `#DC2626` | `#DC2626` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
 | `--success` | `#4FBF9F` | `#4FBF9F` | `text-success`, `bg-success` | Estados activos/completados |
 | `--warning` | `#FBBD5E` | `#FBBD5E` | `text-warning`, `bg-warning` | Advertencias, pendientes, logros |
@@ -131,9 +143,9 @@ Cada semántico mantiene un `*-foreground` pareado para texto sobre fondo pleno.
 
 | Token | Light | Dark |
 |-------|-------|------|
-| `--border` | `#E2E8F0` | `#303030` |
-| `--input` | `#E2E8F0` | `#303030` |
-| `--ring` | `color-mix(in srgb, #F06151 45%, transparent)` | `color-mix(in srgb, #F06151 55%, transparent)` |
+| `--border` | `#EBEBEB` | `#262626` |
+| `--input` | `#E3E3E3` | `#2E2E2E` |
+| `--ring` | `color-mix(in srgb, #0073EA 45%, transparent)` | `color-mix(in srgb, #0073EA 55%, transparent)` |
 | `--disabled-bg` | `#F1F5F9` | `#252525` |
 | `--disabled-foreground` | `#94A3B8` | `#5C5C5C` |
 
@@ -143,24 +155,24 @@ Los 5 chart tokens forman la paleta ordenada para `StatusBadge progress-*`, dash
 
 | Token | Valor | Uso semántico |
 |-------|-------|---------------|
-| `--chart-1` | `#F06151` | Primary / etapa 1 |
-| `--chart-2` | `#2EA0DA` | Info / etapa 2 |
+| `--chart-1` | `#0073EA` | Primary / etapa 1 |
+| `--chart-2` | `#F06151` | Coral / etapa 2 |
 | `--chart-3` | `#4FBF9F` | Success / etapa 3 |
 | `--chart-4` | `#FBBD5E` | Warning / recompensa |
 | `--chart-5` | `#AE69BA` | Morado complementario (clase Viajero) |
 
 ### 2.6 Colores de Sidebar
 
-El sidebar mantiene el patrón de navegación con pill activo, ahora con SACDIA Red.
+El sidebar es neutro: el ítem activo usa fondo gris (`--sidebar-accent`) y texto fuerte, sin azul.
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--sidebar` | `#FFFFFF` | `#1A1A1A` | Fondo del sidebar |
-| `--sidebar-foreground` | `#64748B` | `#8C8C8C` | Texto normal |
-| `--sidebar-primary` | `#F06151` | `#F06151` | Item activo |
-| `--sidebar-primary-foreground` | `#0F172A` | `#0F172A` | Texto sobre item activo |
-| `--sidebar-accent` | `#FFF1EF` | `#252525` | Hover de items inactivos |
-| `--sidebar-border` | `#E2E8F0` | `#303030` | Divider/borde |
+| `--sidebar` | `#FAFAFA` | `#0A0A0A` | Fondo del sidebar |
+| `--sidebar-foreground` | `#5C5C5C` | `#A1A1A1` | Texto normal |
+| `--sidebar-primary` | `#0073EA` | `#0073EA` | Item activo |
+| `--sidebar-primary-foreground` | `#FFFFFF` | `#FFFFFF` | Texto sobre `sidebar-primary` |
+| `--sidebar-accent` | `#EDEDED` | `#1F1F1F` | Hover e ítem activo |
+| `--sidebar-border` | `#EBEBEB` | `#262626` | Divider/borde |
 
 ### 2.7 Reglas de Uso de Color
 
@@ -234,7 +246,7 @@ Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en
 
 ### 4.1 Radios de Borde
 
-Base `0.625rem` (10px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
+Base `0.5rem` (8px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
 
 | Rol | Clase | Componentes |
 |-----|-------|-------------|
