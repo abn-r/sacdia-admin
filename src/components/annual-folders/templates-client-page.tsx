@@ -1195,12 +1195,12 @@ export function TemplatesClientPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("templates.tableColName")}</TableHead>
-                  <TableHead>{t("templates.tableColClubType")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">{t("templates.tableColClubType")}</TableHead>
                   <TableHead>
                     {t("templates.tableColEcclesiasticalYear")}
                   </TableHead>
                   <TableHead>{t("templates.tableColOwner")}</TableHead>
-                  <TableHead className="w-24 text-center">
+                  <TableHead className="hidden w-24 text-center xl:table-cell">
                     {t("templates.tableColSections")}
                   </TableHead>
                   <TableHead className="w-16 text-center">
@@ -1218,10 +1218,10 @@ export function TemplatesClientPage({
                     className="cursor-pointer"
                     onClick={() => handleOpenTemplate(template)}
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="max-w-[300px] whitespace-normal font-medium">
                       {template.name}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="hidden text-muted-foreground xl:table-cell">
                       {template.club_type?.name ??
                         `Tipo ${template.club_type_id}`}
                     </TableCell>
@@ -1246,7 +1246,7 @@ export function TemplatesClientPage({
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden text-center xl:table-cell">
                       <span className="text-sm text-muted-foreground">
                         {template.sections?.length ?? "—"}
                       </span>

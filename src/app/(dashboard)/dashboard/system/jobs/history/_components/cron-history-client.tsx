@@ -388,8 +388,8 @@ export function CronHistoryClient({
                       <TableHead>{t("colStart")}</TableHead>
                       <TableHead>{t("colStatus")}</TableHead>
                       <TableHead>{t("colDuration")}</TableHead>
-                      <TableHead className="text-right">{t("colItems")}</TableHead>
-                      <TableHead className="max-w-[200px]">{t("colError")}</TableHead>
+                      <TableHead className="hidden text-right xl:table-cell">{t("colItems")}</TableHead>
+                      <TableHead className="hidden max-w-[200px] xl:table-cell">{t("colError")}</TableHead>
                       <TableHead className="pr-6 text-right">{t("colDetails")}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -422,14 +422,14 @@ export function CronHistoryClient({
                         </TableCell>
 
                         {/* Items */}
-                        <TableCell className="text-right tabular-nums text-sm">
+                        <TableCell className="hidden text-right tabular-nums text-sm xl:table-cell">
                           {item.items_processed !== null
                             ? formatNumber(item.items_processed)
                             : "—"}
                         </TableCell>
 
                         {/* Error truncated */}
-                        <TableCell className="max-w-[200px]">
+                        <TableCell className="hidden max-w-[200px] xl:table-cell">
                           {item.error_message ? (
                             <Tooltip>
                               <TooltipTrigger asChild>

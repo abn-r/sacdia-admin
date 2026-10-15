@@ -241,13 +241,13 @@ export function CamporeePaymentsPanel({
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colAmount")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colType")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colStatus")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colReference")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -306,13 +306,13 @@ export function CamporeePaymentsPanel({
                         {formatCurrency(parseAmount(payment.amount))}
                       </span>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                       <PaymentTypeBadge type={payment.payment_type} t={t} />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       <PaymentStatusBadge status={payment.status} t={t} />
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                       {payment.reference ?? "—"}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">

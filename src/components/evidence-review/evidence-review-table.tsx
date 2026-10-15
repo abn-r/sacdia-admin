@@ -265,22 +265,22 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_member")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_type")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_entity")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_section")}
               </TableHead>
               <TableHead className="h-9 min-w-48 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_description")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_files")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_submitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -319,7 +319,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     <span className="font-medium">{item.member_name}</span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                     <EvidenceTypeBadge type={item.type} />
                   </TableCell>
 
@@ -327,7 +327,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     <span className="font-medium">{getEvidenceEntityName(item)}</span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {getEvidenceSectionName(item)}
                   </TableCell>
 
@@ -337,11 +337,11 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     </span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
                     {item.file_count}
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
                     {item.submitted_at ? formatDate(item.submitted_at) : "—"}
                   </TableCell>
 

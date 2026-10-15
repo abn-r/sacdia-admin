@@ -33,13 +33,13 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 Slug
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Nombre
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 Ícono
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
@@ -57,7 +57,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
           <TableBody>
             {categorias.map((cat) => (
               <TableRow key={cat.id} className="hover:bg-muted/30">
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   <span className="font-mono text-xs text-muted-foreground">
                     {cat.slug}
                   </span>
@@ -65,7 +65,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                 <TableCell className="px-3 py-2.5 align-middle text-sm font-medium">
                   {cat.label}
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                   {cat.icon ?? "—"}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-right tabular-nums text-sm">

@@ -84,13 +84,13 @@ export function SectionRankingsTable({
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("colComposite")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("colActiveMembers")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("colCategory")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("colCalculated")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
@@ -133,7 +133,7 @@ export function SectionRankingsTable({
                   </TableCell>
 
                   {/* Active member count */}
-                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
                     {item.active_enrollment_count}
                   </TableCell>
 
@@ -143,7 +143,7 @@ export function SectionRankingsTable({
                   </TableCell>
 
                   {/* Calculated at */}
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {calculatedAt}
                   </TableCell>
 

@@ -61,7 +61,7 @@ export function CertificationsList({
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_duration")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -76,8 +76,8 @@ export function CertificationsList({
               <TableCell className="px-3 py-2.5 align-middle">
                 <span className="font-medium">{cert.name}</span>
               </TableCell>
-              <TableCell className="max-w-xs px-3 py-2.5 align-middle">
-                <span className="truncate text-sm text-muted-foreground">
+              <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
+                <span className="line-clamp-3 text-sm text-muted-foreground">
                   {cert.description ?? "—"}
                 </span>
               </TableCell>
@@ -86,7 +86,7 @@ export function CertificationsList({
                   ? t("duration_weeks", { count: cert.duration_weeks })
                   : "—"}
               </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+              <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">

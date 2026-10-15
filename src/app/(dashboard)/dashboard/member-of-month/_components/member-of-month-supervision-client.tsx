@@ -248,9 +248,9 @@ export function MemberOfMonthSupervisionClient({
               <TableRow>
                 <TableHead>{t("tableColMember")}</TableHead>
                 <TableHead>{t("tableColSection")}</TableHead>
-                <TableHead>{t("tableColClubType")}</TableHead>
-                <TableHead>{t("tableColClub")}</TableHead>
-                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColClubType")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColClub")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColLocalField")}</TableHead>
                 <TableHead>{t("tableColPeriod")}</TableHead>
                 <TableHead className="text-right">{t("tableColPoints")}</TableHead>
                 <TableHead>{t("tableColNotified")}</TableHead>
@@ -279,9 +279,9 @@ export function MemberOfMonthSupervisionClient({
                     </div>
                   </TableCell>
                   <TableCell>{item.section_name ?? "—"}</TableCell>
-                  <TableCell>{item.club_type ?? "—"}</TableCell>
-                  <TableCell>{item.club_name ?? "—"}</TableCell>
-                  <TableCell>{item.local_field ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_name ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
                     {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>

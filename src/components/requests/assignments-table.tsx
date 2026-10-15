@@ -84,13 +84,13 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("assignments.table.columns.roleToAssign")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("assignments.table.columns.requestedBy")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("assignments.table.columns.status")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("assignments.table.columns.date")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
@@ -112,13 +112,13 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {req.role_to_assign ?? "—"}
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {getUserName(req.requested_by)}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
                     <RequestStatusBadge status={req.status} />
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
                     {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">

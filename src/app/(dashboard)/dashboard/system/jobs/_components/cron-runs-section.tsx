@@ -178,11 +178,11 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                 <TableHead>{t("colLastRun")}</TableHead>
                 <TableHead>{t("colStatus")}</TableHead>
                 <TableHead>{t("colDuration")}</TableHead>
-                <TableHead className="text-right">{t("colItems")}</TableHead>
-                <TableHead>{t("colLastSuccess")}</TableHead>
-                <TableHead>{t("colLastFailure")}</TableHead>
+                <TableHead className="hidden text-right xl:table-cell">{t("colItems")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("colLastSuccess")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("colLastFailure")}</TableHead>
                 <TableHead className="text-right">{t("colFailureRate")}</TableHead>
-                <TableHead className="text-right pr-6">{t("colRuns7d")}</TableHead>
+                <TableHead className="hidden text-right pr-6 xl:table-cell">{t("colRuns7d")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,19 +220,19 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                     </TableCell>
 
                     {/* Items processed */}
-                    <TableCell className="text-right tabular-nums text-sm">
+                    <TableCell className="hidden text-right tabular-nums text-sm xl:table-cell">
                       {run?.items_processed !== undefined && run.items_processed !== null
                         ? formatNumber(run.items_processed)
                         : "—"}
                     </TableCell>
 
                     {/* Last success */}
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                    <TableCell className="hidden text-sm text-muted-foreground whitespace-nowrap xl:table-cell">
                       {formatDate(stats?.last_success ?? null)}
                     </TableCell>
 
                     {/* Last failure */}
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                    <TableCell className="hidden text-sm text-muted-foreground whitespace-nowrap xl:table-cell">
                       {formatDate(stats?.last_failure ?? null)}
                     </TableCell>
 
@@ -242,7 +242,7 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                     </TableCell>
 
                     {/* Runs 7d */}
-                    <TableCell className="text-right tabular-nums text-sm pr-6">
+                    <TableCell className="hidden text-right tabular-nums text-sm pr-6 xl:table-cell">
                       {stats !== null ? formatNumber(stats.total_runs_7d) : "—"}
                     </TableCell>
                   </TableRow>

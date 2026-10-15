@@ -327,9 +327,9 @@ export function EventTemplateListClient({
                   <TableRow>
                     <TableHead>{t("colTitle")}</TableHead>
                     <TableHead>{t("colScope")}</TableHead>
-                    <TableHead>{t("colEventType")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("colEventType")}</TableHead>
                     <TableHead className="w-[100px]">{t("colMaxPoints")}</TableHead>
-                    <TableHead>{t("colParticipants")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("colParticipants")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
                       <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
@@ -352,15 +352,15 @@ export function EventTemplateListClient({
 
                     return (
                       <TableRow key={rowKey}>
-                        <TableCell className="font-medium">{titleText}</TableCell>
+                        <TableCell className="max-w-[300px] whitespace-normal font-medium">{titleText}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
                             {scopeLabel(item.scope)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{eventTypeName}</TableCell>
+                        <TableCell className="hidden xl:table-cell">{eventTypeName}</TableCell>
                         <TableCell>{String(item.max_points ?? "—")}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                           {participantsSummary(item)}
                         </TableCell>
                         <TableCell>

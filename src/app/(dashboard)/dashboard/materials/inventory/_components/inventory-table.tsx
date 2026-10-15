@@ -52,10 +52,10 @@ export function InventoryTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-5">SKU</TableHead>
+              <TableHead className="pl-5 hidden xl:table-cell">SKU</TableHead>
               <TableHead>{t("colProduct")}</TableHead>
-              {showLocalFieldColumn && <TableHead>{t("colLocalField")}</TableHead>}
-              <TableHead>{t("colProgram")}</TableHead>
+              {showLocalFieldColumn && <TableHead className="hidden xl:table-cell">{t("colLocalField")}</TableHead>}
+              <TableHead className="hidden xl:table-cell">{t("colProgram")}</TableHead>
               <TableHead>{t("colCategory")}</TableHead>
               <TableHead className="text-right">{t("colPrice")}</TableHead>
               <TableHead className="text-right">{t("colStock")}</TableHead>
@@ -68,7 +68,7 @@ export function InventoryTable({
           <TableBody>
             {products.map((product) => (
               <TableRow key={product.id}>
-                <TableCell className="pl-5">
+                <TableCell className="pl-5 hidden xl:table-cell">
                   <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
                 </TableCell>
                 <TableCell>
@@ -84,14 +84,14 @@ export function InventoryTable({
 
                 {/* Local field (admin merged view only) */}
                 {showLocalFieldColumn && (
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                     {lfNameById.get(product.local_field_id) ??
                       `LF-${product.local_field_id}`}
                   </TableCell>
                 )}
 
                 {/* Programa */}
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                   {product.programa?.label ?? "—"}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">

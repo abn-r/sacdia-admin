@@ -95,11 +95,11 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
             <TableRow>
               <TableHead>{t("colLocalField")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
-              <TableHead>{t("colMethod")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colMethod")}</TableHead>
               <TableHead>{t("colBank")}</TableHead>
-              <TableHead>{t("colHolder")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colHolder")}</TableHead>
               <TableHead>{t("colClabe")}</TableHead>
-              <TableHead>{t("colUpdated")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colUpdated")}</TableHead>
               <TableHead className="sticky right-0 w-[1%] bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                 {t("colActions")}
               </TableHead>
@@ -126,11 +126,11 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                       {row.configured ? t("statusConfigured") : t("statusMissing")}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden xl:table-cell">
                     {row.configured ? t("methodTransfer") : "—"}
                   </TableCell>
                   <TableCell>{row.config?.bank_name?.trim() || "—"}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden xl:table-cell">
                     {row.config?.account_holder?.trim() || "—"}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
@@ -138,7 +138,7 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                       ? maskClabe(row.config?.bank_account_clabe)
                       : "—"}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                     {formatUpdatedAt(row.config?.updated_at)}
                   </TableCell>
                   <TableCell className="sticky right-0 bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">

@@ -159,7 +159,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colName")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colUnion")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -168,7 +168,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colEndDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colPlace")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -182,10 +182,10 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 const id = camporee.union_camporee_id ?? camporee.id ?? 0;
                 return (
                   <TableRow key={id} className="hover:bg-muted/30">
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="max-w-[300px] whitespace-normal px-3 py-2.5 align-middle">
                       <span className="font-medium">{camporee.name}</span>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                       {camporee.union_name ?? "—"}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
@@ -194,7 +194,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                       {formatDate(camporee.end_date, locale)}
                     </TableCell>
-                    <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
+                    <TableCell className="hidden xl:table-cell max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">
                         {camporee.union_camporee_place ?? camporee.place ?? "—"}
                       </span>

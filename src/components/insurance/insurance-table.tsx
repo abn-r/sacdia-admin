@@ -183,11 +183,11 @@ export function InsuranceTable({
                 {t("table.col_type")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_policy")}
             </TableHead>
             <TableHead
-              className="h-9 px-3"
+              className="hidden xl:table-cell h-9 px-3"
               aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
               <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
@@ -244,12 +244,12 @@ export function InsuranceTable({
                 </TableCell>
 
                 {/* Policy number */}
-                <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
                   {ins?.policy_number ?? "—"}
                 </TableCell>
 
                 {/* Provider */}
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   <span
                     className="block max-w-[140px] truncate text-sm text-muted-foreground"
                     title={ins?.provider ?? undefined}

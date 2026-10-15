@@ -1179,14 +1179,14 @@ export function PhaseECatalogCrudPage({
                     <TableHead>{t("colName")}</TableHead>
                     {showClassSectionModule && <TableHead>{t("colModule")}</TableHead>}
                     {(showClassModuleParent || showClassSectionModule) && (
-                      <TableHead>{t("colClass")}</TableHead>
+                      <TableHead className={showClassSectionModule ? "hidden xl:table-cell" : undefined}>{t("colClass")}</TableHead>
                     )}
-                    {showClubType && <TableHead>{t("colClubType")}</TableHead>}
+                    {showClubType && <TableHead className="hidden xl:table-cell">{t("colClubType")}</TableHead>}
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
-                    {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
-                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
+                    {showClassConfig && <TableHead className="hidden xl:table-cell">{t("colDuration")}</TableHead>}
+                    {showClassConfig && <TableHead className="hidden xl:table-cell">{t("colAvailability")}</TableHead>}
                     {isMasterHonorsCrud && (
-                      <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
+                      <TableHead className="hidden xl:table-cell">{masterHonorsT("colRulesSummary")}</TableHead>
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete || detailPathPrefix) && (
@@ -1204,7 +1204,7 @@ export function PhaseECatalogCrudPage({
 
                     return (
                       <TableRow key={rowKey}>
-                        <TableCell className="font-medium">
+                        <TableCell className="max-w-[280px] whitespace-normal font-medium">
                           {detailPathPrefix && itemId ? (
                             <Link
                               href={`${detailPathPrefix}/${itemId}`}
@@ -1222,12 +1222,12 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {(showClassModuleParent || showClassSectionModule) && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className={showClassSectionModule ? "hidden text-sm text-muted-foreground xl:table-cell" : "text-sm text-muted-foreground"}>
                             {resolveClassName(item)}
                           </TableCell>
                         )}
                         {showClubType && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
                             {(() => {
                               const clubTypeId = resolveClubTypeId(item);
                               if (!clubTypeId) return "—";
@@ -1239,12 +1239,12 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {includeDescription && (
-                          <TableCell className="max-w-[380px] text-sm text-muted-foreground">
+                          <TableCell className="min-w-[200px] max-w-[380px] whitespace-normal text-sm text-muted-foreground">
                             {toText(item.description) ?? "—"}
                           </TableCell>
                         )}
                         {showClassConfig && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
                             {formatClassDurationRange(
                               toPositiveInt(item.min_duration_years) ?? 1,
                               toPositiveInt(item.max_duration_years) ?? 1,
@@ -1253,7 +1253,7 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {showClassConfig && (
-                          <TableCell className="max-w-[260px] text-sm text-muted-foreground">
+                          <TableCell className="hidden min-w-[160px] max-w-[260px] whitespace-normal text-sm text-muted-foreground xl:table-cell">
                             {formatClassAvailabilityUntil(
                               toPositiveInt(item.available_until_year_id),
                               displayLabels,
@@ -1262,7 +1262,7 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {isMasterHonorsCrud ? (
-                          <TableCell className="max-w-[260px] whitespace-pre-line text-sm text-muted-foreground">
+                          <TableCell className="hidden max-w-[260px] whitespace-pre-line text-sm text-muted-foreground xl:table-cell">
                             {(() => {
                               const summary = getMasterHonorsSummary(item);
                               if (summary.kind === "empty") {

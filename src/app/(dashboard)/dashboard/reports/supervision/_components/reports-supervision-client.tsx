@@ -317,11 +317,11 @@ export function ReportsSupervisionClient({
             <TableHeader>
               <TableRow>
                 <TableHead>{t("tableColClub")}</TableHead>
-                <TableHead>{t("tableColType")}</TableHead>
-                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColLocalField")}</TableHead>
                 <TableHead>{t("tableColPeriod")}</TableHead>
                 <TableHead>{t("tableColStatus")}</TableHead>
-                <TableHead>{t("tableColGenerated")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColGenerated")}</TableHead>
                 <TableHead>{t("tableColSubmitted")}</TableHead>
                 <TableHead className="text-right">{t("tableColActions")}</TableHead>
               </TableRow>
@@ -337,15 +337,15 @@ export function ReportsSupervisionClient({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell>{item.club_type ?? "—"}</TableCell>
-                  <TableCell>{item.local_field ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
                     {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell>
                     <ReportStatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell>{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
                   <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-2">

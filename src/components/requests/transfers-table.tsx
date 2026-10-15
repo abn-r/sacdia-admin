@@ -84,13 +84,13 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.to")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.reason")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.status")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.date")}
               </TableHead>
               <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
@@ -112,7 +112,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                   <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {req.to_section?.name ?? "—"}
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle max-w-48">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle max-w-48">
                     <span className="line-clamp-2 text-sm text-muted-foreground">
                       {req.reason ?? "—"}
                     </span>
@@ -120,7 +120,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                   <TableCell className="px-3 py-2.5 align-middle">
                     <RequestStatusBadge status={req.status} />
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
                     {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">

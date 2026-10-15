@@ -385,11 +385,11 @@ export function AchievementsCrudPage({
                   <TableRow>
                     <TableHead>{t("tableColBadge")}</TableHead>
                     <TableHead>{t("tableColName")}</TableHead>
-                    <TableHead>{t("tableColType")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
                     <TableHead>{t("tableColTier")}</TableHead>
                     <TableHead>{t("tableColPoints")}</TableHead>
-                    <TableHead>{t("tableColScope")}</TableHead>
-                    <TableHead>{t("tableColSecret")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColScope")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColSecret")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
                     <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-card text-xs font-medium text-muted-foreground">
                       {t("tableColActions")}
@@ -435,9 +435,9 @@ export function AchievementsCrudPage({
                           </div>
                         </TableCell>
 
-                        <TableCell className="font-medium">{achName}</TableCell>
+                        <TableCell className="max-w-[280px] whitespace-normal font-medium">{achName}</TableCell>
 
-                        <TableCell>
+                        <TableCell className="hidden xl:table-cell">
                           {type ? (
                             <Badge variant="secondary" className="text-xs">
                               {tPreview(`typeLabels.${type}`)}
@@ -473,11 +473,11 @@ export function AchievementsCrudPage({
                           {item.points != null ? String(item.points) : "—"}
                         </TableCell>
 
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                           {toText(item.scope) ?? "—"}
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell className="hidden xl:table-cell">
                           {item.secret ? (
                             <EyeOff className="size-4 text-muted-foreground" aria-label={t("ariaSecret")} />
                           ) : (

@@ -138,7 +138,7 @@ export async function NotificationHistoryTable({
                 <TableHead>{t("col_target")}</TableHead>
                 <TableHead className="text-center">{t("col_sent")}</TableHead>
                 <TableHead className="text-center">{t("col_failed")}</TableHead>
-                <TableHead>{t("col_sent_by")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("col_sent_by")}</TableHead>
                 <TableHead>{t("col_date")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -148,7 +148,7 @@ export async function NotificationHistoryTable({
                 return (
                   <TableRow key={log.log_id}>
                     <TableCell>
-                      <div className="max-w-[200px]">
+                      <div className="max-w-[260px]">
                         <p className="truncate font-medium text-sm">{log.title}</p>
                         <p className="truncate text-muted-foreground text-xs">{log.body}</p>
                       </div>
@@ -171,7 +171,7 @@ export async function NotificationHistoryTable({
                         {log.tokens_failed}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell">
                       <span className="text-sm">{senderName(log)}</span>
                     </TableCell>
                     <TableCell>

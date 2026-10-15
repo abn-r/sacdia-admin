@@ -1276,13 +1276,13 @@ export function ResourcesCrudPage({
                     <TableHead className="min-w-[160px] h-9 px-3 text-xs font-medium text-muted-foreground">
                       Alcance
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Club
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Subido por
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Fecha
                     </TableHead>
                     <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -1307,7 +1307,7 @@ export function ResourcesCrudPage({
 
                     return (
                       <TableRow key={rowKey} className="transition-colors hover:bg-muted/30">
-                        <TableCell className="px-3 py-2.5 align-middle">
+                        <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
                           <div className="flex flex-col gap-0.5">
                             <span className="font-medium text-sm">{title}</span>
                             {fileSize && (
@@ -1329,13 +1329,13 @@ export function ResourcesCrudPage({
                             localFields={localFields}
                           />
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {clubTypeLabel}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {uploader}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {formatDate(item.created_at)}
                         </TableCell>
                         <TableCell className="sticky right-0 z-10 border-l bg-card px-3 py-2.5 align-middle">

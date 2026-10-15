@@ -63,10 +63,10 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPlace")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colAudience")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colMode")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -88,7 +88,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
 
             return (
               <TableRow key={activity.activity_id} className="hover:bg-muted/30">
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
                   <span className="font-medium">{activity.name}</span>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -102,7 +102,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                     {activity.activity_place ?? "—"}
                   </span>
                 </TableCell>
-                <TableCell className="max-w-[220px] px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell max-w-[220px] px-3 py-2.5 align-middle">
                   <span className="line-clamp-2 text-sm text-muted-foreground">
                     {activityAudienceText(activity, {
                       all: t("audience.all"),
@@ -111,7 +111,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                     })}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm">
                   {platformLabel}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">

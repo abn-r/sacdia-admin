@@ -468,7 +468,7 @@ export function RankingsClientPage({
                       Club
                     </SortableHeader>
                   </TableHead>
-                  <TableHead className="h-9 w-36 px-3 text-center">
+                  <TableHead className="hidden xl:table-cell h-9 w-36 px-3 text-center">
                     Tipo
                   </TableHead>
                   <TableHead className="h-9 w-36 px-3 text-right">
@@ -502,7 +502,7 @@ export function RankingsClientPage({
                       Rango
                     </SortableHeader>
                   </TableHead>
-                  <TableHead className="h-9 min-w-56 px-3">
+                  <TableHead className="hidden xl:table-cell h-9 min-w-56 px-3">
                     Componentes
                   </TableHead>
                   <TableHead className="h-9 w-24 px-3 text-center">
@@ -528,7 +528,7 @@ export function RankingsClientPage({
                         {item.club_name}
                       </span>
                     </TableCell>
-                    <TableCell className="text-center text-sm text-muted-foreground">
+                    <TableCell className="hidden xl:table-cell text-center text-sm text-muted-foreground">
                       {activeClubType?.name ?? item.club_type_id}
                     </TableCell>
                     <TableCell className="text-right text-sm font-medium tabular-nums">
@@ -551,7 +551,7 @@ export function RankingsClientPage({
                     <TableCell>
                       <RecognitionBadge row={item} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell">
                       <ComponentSummary components={item.components} />
                     </TableCell>
                     <TableCell className="text-center">

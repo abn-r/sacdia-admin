@@ -359,7 +359,7 @@ export function AwardCategoriesClientPage({
                               Nombre
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">Tipo club</TableHead>
+                          <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">Tipo club</TableHead>
                           <TableHead
                             className="h-9 w-24 px-3 text-center"
                             aria-sort={sortField === "min_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -377,10 +377,10 @@ export function AwardCategoriesClientPage({
                             </SortableHeader>
                           </TableHead>
                           {/* 8.4-C composite % columns */}
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center xl:table-cell text-xs font-medium text-muted-foreground">
                             % Min
                           </TableHead>
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center xl:table-cell text-xs font-medium text-muted-foreground">
                             % Max
                           </TableHead>
                           {/* 8.4-C Phase C tier column */}
@@ -426,7 +426,7 @@ export function AwardCategoriesClientPage({
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="hidden xl:table-cell text-sm text-muted-foreground">
                               {clubTypeLabel(cat.club_type_id, clubTypes)}
                             </TableCell>
                             <TableCell className="text-center text-sm">
@@ -442,10 +442,10 @@ export function AwardCategoriesClientPage({
                               )}
                             </TableCell>
                             {/* 8.4-C composite % cells */}
-                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            <TableCell className="hidden text-center text-sm text-muted-foreground xl:table-cell">
                               {formatPct(cat.min_composite_pct)}
                             </TableCell>
-                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            <TableCell className="hidden text-center text-sm text-muted-foreground xl:table-cell">
                               {formatPct(cat.max_composite_pct)}
                             </TableCell>
                             {/* 8.4-C Phase C tier cell */}

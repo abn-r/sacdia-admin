@@ -110,9 +110,9 @@ export async function UserDetailClassesTab({
               <TableHead>{t("colClass")}</TableHead>
               <TableHead>{t("colClub")}</TableHead>
               <TableHead>{t("colYear")}</TableHead>
-              <TableHead>{t("colStarted")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colStarted")}</TableHead>
               <TableHead>{t("colCompleted")}</TableHead>
-              <TableHead>{t("colInvested")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colInvested")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -176,7 +176,7 @@ export async function UserDetailClassesTab({
                   <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                     {formatEcclesiasticalYearLabel(row.ecclesiastical_year, locale)}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                  <TableCell className="whitespace-nowrap text-sm text-muted-foreground hidden xl:table-cell">
                     {historical ? t("notCompleted") : formatDateLong(row.enrollment_date, locale)}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ export async function UserDetailClassesTab({
                       ? formatDateLong(completedAt, locale)
                       : t("notCompleted")}
                   </TableCell>
-                  <TableCell className="text-sm">
+                  <TableCell className="text-sm hidden xl:table-cell">
                     {isInvestedStatus(status) ? t("investedYes") : t("investedNo")}
                   </TableCell>
                   <TableCell>

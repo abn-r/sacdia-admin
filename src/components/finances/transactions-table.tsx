@@ -218,10 +218,10 @@ export function TransactionsTable({
                 {t("table.colCategory")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colSection")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -247,7 +247,7 @@ export function TransactionsTable({
                 {t("table.colAmount")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colEvidence")}
             </TableHead>
             <TableHead className="h-9 w-12 px-3" />
@@ -263,8 +263,8 @@ export function TransactionsTable({
                 <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                   {formatDate(finance.finance_date, { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </TableCell>
-                <TableCell className="max-w-xs px-3 py-2.5 align-middle">
-                  <span className="truncate text-sm">
+                <TableCell className="max-w-xs whitespace-normal px-3 py-2.5 align-middle">
+                  <span className="text-sm">
                     {finance.description ?? <span className="text-muted-foreground">—</span>}
                   </span>
                 </TableCell>
@@ -273,10 +273,10 @@ export function TransactionsTable({
                     {finance.finances_categories?.name ?? "—"}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   <span className="text-sm">{getSectionLabel(finance)}</span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
                   {monthName(finance.month)}/{finance.year}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -297,7 +297,7 @@ export function TransactionsTable({
                     {formatAmount(Math.abs(finance.amount))}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   {evidenceCount > 0 ? (
                     <Button
                       type="button"
