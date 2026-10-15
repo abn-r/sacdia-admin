@@ -533,7 +533,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
             <AlertDialogAction
               onClick={confirmDeleteEvidence}
               disabled={isDeletingEvidence}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeletingEvidence
                 ? t("dialogs.deleteEvidence.confirmLoading")

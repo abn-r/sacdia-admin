@@ -228,7 +228,7 @@ export function PastorsClientPage({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isRemoving}>{t("removeDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
+              variant="destructive-solid"
               loading={isRemoving}
               onClick={(event) => {
                 // Keep the dialog open until the request settles.

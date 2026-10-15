@@ -74,7 +74,7 @@ export function DeleteCategoryDialog({
               confirm();
             }}
             loading={busy}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            variant="destructive-solid"
           >
             Eliminar
           </AlertDialogAction>

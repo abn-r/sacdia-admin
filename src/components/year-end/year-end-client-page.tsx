@@ -317,7 +317,7 @@ export function YearEndClientPage({ ecclesiasticalYears }: YearEndClientPageProp
             <AlertDialogAction
               onClick={handleConfirmClose}
               disabled={isClosing}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isClosing ? "Cerrando..." : "Confirmar cierre"}
             </AlertDialogAction>

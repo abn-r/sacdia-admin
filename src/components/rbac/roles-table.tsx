@@ -232,7 +232,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           </AlertDialogCancel>
           {!isBlocked ? (
             <AlertDialogAction
-              variant="destructive"
+              variant="destructive-solid"
               loading={loading}
               onClick={(e) => {
                 e.preventDefault();

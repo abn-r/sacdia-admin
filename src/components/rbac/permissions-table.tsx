@@ -359,7 +359,7 @@ export function PermissionsTable({
               <AlertDialogCancel disabled={deletePending}>{t("permissionsTable.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 loading={deletePending}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                variant="destructive-solid"
                 onClick={(event) => {
                   event.preventDefault();
                   handleDelete();

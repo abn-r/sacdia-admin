@@ -628,7 +628,7 @@ export function AwardCategoriesClientPage({
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeleting
                 ? t("dialogs.deleteCategory.confirmLoading")

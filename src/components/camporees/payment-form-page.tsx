@@ -789,7 +789,7 @@ export function PaymentFormPage({
                 void handleRemoveVoucher();
               }}
               loading={isRemoving}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {tV("removeConfirmAction")}
             </AlertDialogAction>

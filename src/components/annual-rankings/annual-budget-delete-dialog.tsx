@@ -69,7 +69,7 @@ export function AnnualBudgetDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
+            variant="destructive-solid"
             onClick={handleConfirm}
             loading={loading}
           >

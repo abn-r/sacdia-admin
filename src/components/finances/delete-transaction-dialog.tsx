@@ -81,7 +81,7 @@ export function DeleteTransactionDialog({
           <AlertDialogAction
             onClick={handleDelete}
             loading={isDeleting}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            variant="destructive-solid"
           >
             {t("delete.confirmButton")}
           </AlertDialogAction>

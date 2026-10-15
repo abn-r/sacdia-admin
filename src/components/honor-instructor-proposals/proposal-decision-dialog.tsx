@@ -151,7 +151,7 @@ export function ProposalDecisionDialog({ proposal, action, onClose }: ProposalDe
           <AlertDialogCancel disabled={isPending}>{t("dialog.cancel")}</AlertDialogCancel>
           {invalid ? (
             <AlertDialogAction
-              variant="destructive"
+              variant="destructive-solid"
               onClick={(event) => {
                 event.preventDefault();
                 switchToReject();
@@ -161,7 +161,7 @@ export function ProposalDecisionDialog({ proposal, action, onClose }: ProposalDe
             </AlertDialogAction>
           ) : (
             <AlertDialogAction
-              variant={isReject ? "destructive" : "default"}
+              variant={isReject ? "destructive-solid" : "default"}
               loading={isPending}
               onClick={(event) => {
                 event.preventDefault();

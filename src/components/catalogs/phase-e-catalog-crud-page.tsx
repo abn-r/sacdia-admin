@@ -199,7 +199,7 @@ function DeleteButton() {
     <Button
       loading={pending}
       type="submit"
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      variant="destructive-solid"
     >
       {t("delete")}
     </Button>

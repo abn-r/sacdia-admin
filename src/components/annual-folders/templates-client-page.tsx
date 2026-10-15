@@ -611,7 +611,7 @@ export function TemplatesClientPage({
             <AlertDialogAction
               onClick={confirmDeleteTemplate}
               disabled={isDeletingTemplate}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeletingTemplate ? t("templatesClientPage.deleteDraftLoading") : t("templatesClientPage.deleteDraftButton")}
             </AlertDialogAction>
@@ -995,7 +995,7 @@ export function TemplatesClientPage({
               <AlertDialogAction
                 onClick={confirmDeleteSection}
                 disabled={isDeletingSection}
-                className="bg-destructive text-white hover:bg-destructive/90"
+                variant="destructive-solid"
               >
                 {isDeletingSection
                   ? t("templates.deletingSectionLoading")

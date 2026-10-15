@@ -71,7 +71,7 @@ export function DeleteInventoryDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            variant="destructive-solid"
           >
             {isDeleting ? "Eliminando..." : "Eliminar"}
           </AlertDialogAction>

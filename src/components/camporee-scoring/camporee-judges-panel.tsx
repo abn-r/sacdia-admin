@@ -785,7 +785,7 @@ export function CamporeeJudgesPanel({
               {t("removeCancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
+              variant="destructive-solid"
               disabled={isPending || !removingJudge}
               onClick={(event) => {
                 event.preventDefault();
