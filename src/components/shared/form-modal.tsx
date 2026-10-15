@@ -102,8 +102,17 @@ export function RouteFormModal({
     <Dialog open={open} onOpenChange={(next) => (next ? setOpen(true) : close())}>
       <DialogContent
         showCloseButton={false}
+        // Land focus on the dialog itself, not the close button (a focus ring on
+        // open reads as an error) nor the first field (opens the phone keyboard).
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          (event.currentTarget as HTMLElement | null)?.focus();
+        }}
         className={cn(
           "flex max-h-[min(90dvh,860px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl",
+          // Phones: a bottom sheet (full width, thumb-reachable actions) that slides up.
+          "max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[92dvh] max-sm:max-w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none",
+          "max-sm:data-open:zoom-in-100 max-sm:data-open:slide-in-from-bottom-full max-sm:data-closed:zoom-out-100 max-sm:data-closed:slide-out-to-bottom-full max-sm:data-open:duration-300 max-sm:[animation-timing-function:var(--ease-drawer)]",
           className,
         )}
       >
@@ -224,7 +233,7 @@ export function FormModalFooter({
 }) {
   const t = useTranslations("shared.formModal");
   return (
-    <footer className="flex items-center justify-between gap-4 border-t px-6 py-4">
+    <footer className="flex items-center justify-between gap-4 border-t px-6 py-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]">
       <span className="text-sm text-muted-foreground tabular-nums">
         {step !== undefined && total !== undefined && total > 1
           ? t("stepOf", { current: step + 1, total })

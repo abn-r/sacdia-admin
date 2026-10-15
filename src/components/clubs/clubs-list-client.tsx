@@ -186,9 +186,9 @@ export function ClubsListClient({
             </h3>
             <span className="text-xs text-muted-foreground">{t("filtersHint")}</span>
           </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[300px] space-y-1">
+          <div>
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="w-[300px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-search">{tList("colName")}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -201,7 +201,7 @@ export function ClubsListClient({
                   />
                 </div>
               </div>
-              <div className="w-[200px] space-y-1">
+              <div className="w-[200px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-status">{tList("colStatus")}</Label>
                 <Select
                   value={currentStatusFilter}
@@ -217,7 +217,7 @@ export function ClubsListClient({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="w-[240px] space-y-1">
+              <div className="w-[240px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-local-field">{tList("colLocalField")}</Label>
                 <Select
                   value={currentLocalField}

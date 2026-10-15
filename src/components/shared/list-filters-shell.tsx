@@ -15,9 +15,8 @@ export function ListFiltersShell({ title, hint, children }: ListFiltersShellProp
         <h3 className="text-sm font-semibold tracking-wide text-foreground">{title}</h3>
         {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
       </div>
-      <div className="overflow-x-auto pb-1">
-        <div className="flex min-w-max items-end gap-4">{children}</div>
-      </div>
+      {/* Wrap instead of scrolling sideways: hidden filters gave no cue on phones. */}
+      <div className="flex flex-wrap items-end gap-4">{children}</div>
     </div>
   );
 }
@@ -36,7 +35,7 @@ export function ListFilterField({
   children,
 }: ListFilterFieldProps) {
   return (
-    <div className={cn("space-y-1", className ?? "w-[200px]")}>
+    <div className={cn("space-y-1 [&_[data-slot=select-trigger]]:w-full", className ?? "w-[200px]", "max-sm:w-full")}>
       <Label htmlFor={id}>{label}</Label>
       {children}
     </div>

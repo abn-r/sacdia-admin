@@ -285,6 +285,26 @@
 
 html {
   overscroll-behavior: none;
+  /* Native-feeling taps: no gray flash (controls have their own :active) and no landscape font inflation. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Skip the double-tap-zoom wait so taps fire immediately. */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* iOS zooms into fields under 16px and never zooms back. Unlayered so it beats
+   text-sm utilities on touch devices only; desktop keeps the compact size. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 [data-sonner-toaster] [data-sonner-toast] {

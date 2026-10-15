@@ -49,15 +49,12 @@ export function ClubDetailHero({
 }: ClubDetailHeroProps) {
   return (
     <Card className="gap-4 p-6 sm:p-7">
-      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr]">
+      <div className="grid items-start gap-4 sm:grid-cols-[112px_1fr] sm:gap-6">
         <div
-          className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted"
+          className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted sm:size-[104px] sm:rounded-2xl"
           aria-hidden
         >
-          <span
-            className="select-none font-medium text-muted-foreground"
-            style={{ fontSize: Math.round(104 * 0.36) }}
-          >
+          <span className="select-none text-[23px] font-medium text-muted-foreground sm:text-[37px]">
             {clubInitials(name)}
           </span>
         </div>
