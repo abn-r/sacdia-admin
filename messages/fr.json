@@ -4072,6 +4072,7 @@
         "title": "Ajouter un utilisateur",
         "description": "Créer un nouvel utilisateur et lui envoyer une invitation par e-mail.",
         "breadcrumb": "Ajouter un utilisateur",
+        "steps": {"person": "Personne", "access": "Rôle et emplacement"},
         "fields": {
           "name": "Prénom",
           "paternal_last_name": "Nom de famille paternel",
@@ -6247,6 +6248,12 @@
     }
   },
   "shared": {
+    "formModal": {
+      "close": "Fermer",
+      "stepOf": "Étape {current} sur {total}",
+      "back": "Retour",
+      "continue": "Continuer"
+    },
     "errors": {
       "unexpected": "Erreur inattendue",
       "dashboardTitle": "Une erreur s'est produite",

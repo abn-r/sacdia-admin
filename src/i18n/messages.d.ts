@@ -4101,6 +4101,10 @@ export interface IntlMessages {
         title: string;
         description: string;
         breadcrumb: string;
+        steps: {
+          person: string;
+          access: string;
+        };
         fields: {
           name: string;
           paternal_last_name: string;
@@ -6276,6 +6280,12 @@ export interface IntlMessages {
     };
   };
   shared: {
+    formModal: {
+      close: string;
+      stepOf: string;
+      back: string;
+      continue: string;
+    };
     errors: {
       unexpected: string;
       dashboardTitle: string;

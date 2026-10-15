@@ -4072,6 +4072,7 @@
         "title": "Agregar usuario",
         "description": "Crear un nuevo usuario y enviarle invitación por email.",
         "breadcrumb": "Agregar usuario",
+        "steps": {"person": "Persona", "access": "Rol y ubicación"},
         "fields": {
           "name": "Nombre",
           "paternal_last_name": "Apellido paterno",
@@ -6247,6 +6248,12 @@
     }
   },
   "shared": {
+    "formModal": {
+      "close": "Cerrar",
+      "stepOf": "Paso {current} de {total}",
+      "back": "Atrás",
+      "continue": "Continuar"
+    },
     "errors": {
       "unexpected": "Error inesperado",
       "dashboardTitle": "Algo salió mal",

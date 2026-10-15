@@ -4072,6 +4072,7 @@
         "title": "Add user",
         "description": "Create a new user and send them an invitation by email.",
         "breadcrumb": "Add user",
+        "steps": {"person": "Person", "access": "Role and location"},
         "fields": {
           "name": "First name",
           "paternal_last_name": "Paternal last name",
@@ -6247,6 +6248,12 @@
     }
   },
   "shared": {
+    "formModal": {
+      "close": "Close",
+      "stepOf": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue"
+    },
     "errors": {
       "unexpected": "Unexpected error",
       "dashboardTitle": "Something went wrong",

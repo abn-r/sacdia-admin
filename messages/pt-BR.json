@@ -4072,6 +4072,7 @@
         "title": "Adicionar usuário",
         "description": "Criar um novo usuário e enviar um convite por e-mail.",
         "breadcrumb": "Adicionar usuário",
+        "steps": {"person": "Pessoa", "access": "Função e localização"},
         "fields": {
           "name": "Nome",
           "paternal_last_name": "Sobrenome paterno",
@@ -6247,6 +6248,12 @@
     }
   },
   "shared": {
+    "formModal": {
+      "close": "Fechar",
+      "stepOf": "Etapa {current} de {total}",
+      "back": "Voltar",
+      "continue": "Continuar"
+    },
     "errors": {
       "unexpected": "Erro inesperado",
       "dashboardTitle": "Algo deu errado",

@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  FormModalBody,
+  FormModalFooter,
+  FormModalSteps,
+  useFormModal,
+} from "@/components/shared/form-modal";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -122,9 +126,19 @@ export interface NewUserFormProps {
 
 const LIST_HREF = "/dashboard/users";
 
+/** Step 1 = who the person is; step 2 = what they can do and where. */
+const STEP_FIELDS = [
+  ["name", "paternal_last_name", "maternal_last_name", "email"],
+  ["role", "country_id", "union_id", "local_field_id"],
+] as const satisfies ReadonlyArray<ReadonlyArray<keyof FormValues>>;
+const LAST_STEP = STEP_FIELDS.length - 1;
+
 export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
   const t = useTranslations("users.pages.new");
-  const router = useRouter();
+  const tModal = useTranslations("shared.formModal");
+  const modal = useFormModal(LIST_HREF);
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
   const getRoleLabel = useRoleLabel();
   const isScoped = Boolean(geography);
 
@@ -288,7 +302,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
         toast.warning(t("toast.inviteNotSent"));
       }
 
-      router.push(LIST_HREF);
+      modal.complete();
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 409) {
@@ -309,15 +323,35 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
   // Filter and order roles according to allowedRoles prop
   const roleOptions = ALL_CREATABLE_ROLES.filter((r) => allowedRoles.includes(r));
 
+  async function goNext() {
+    const valid = await form.trigger([...STEP_FIELDS[step]]);
+    if (!valid) return;
+    setDirection("forward");
+    setStep((current) => Math.min(current + 1, LAST_STEP));
+  }
+
+  function goBack() {
+    setDirection("back");
+    setStep((current) => Math.max(current - 1, 0));
+  }
+
+  // Enter on an earlier step advances instead of submitting fields the user hasn't seen.
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (step < LAST_STEP) {
+      event.preventDefault();
+      void goNext();
+      return;
+    }
+    void form.handleSubmit(onSubmit)(event);
+  }
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8"
-        noValidate
-      >
-        {/* ── Grid fields ── */}
-        <div className="grid gap-6 md:grid-cols-2">
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
+        <FormModalSteps steps={[t("steps.person"), t("steps.access")]} current={step} />
+        <FormModalBody stepKey={step} direction={direction}>
+        {step === 0 ? (
+        <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">
           {/* Name */}
           <FormField
             control={form.control}
@@ -414,7 +448,9 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
               </FormItem>
             )}
           />
-
+        </div>
+        ) : (
+        <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">
           {/* Role */}
           <FormField
             control={form.control}
@@ -581,19 +617,28 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
             )}
           />
         </div>
+        )}
+        </FormModalBody>
 
-        {/* ── Footer ── */}
-        <div className="flex items-center justify-between gap-4 pt-2">
-          <Button variant="outline" asChild>
-            <Link href={LIST_HREF} prefetch={false}>
+        <FormModalFooter step={step} total={STEP_FIELDS.length}>
+          {step === 0 ? (
+            <Button type="button" variant="outline" onClick={modal.close}>
               {t("actions.cancel")}
-            </Link>
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-            {isSubmitting ? t("actions.submitting") : t("actions.submit")}
-          </Button>
-        </div>
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" onClick={goBack} disabled={isSubmitting}>
+              {tModal("back")}
+            </Button>
+          )}
+          {step < LAST_STEP ? (
+            <Button type="submit">{tModal("continue")}</Button>
+          ) : (
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {isSubmitting ? t("actions.submitting") : t("actions.submit")}
+            </Button>
+          )}
+        </FormModalFooter>
       </form>
     </Form>
   );
