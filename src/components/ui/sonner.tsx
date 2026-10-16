@@ -41,8 +41,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        // Crisp: neutral surface, the hue lives only on the icon (same rule as StatusBadge).
         classNames: {
           toast: "cn-toast",
+          success: "[&_[data-icon]]:!text-[color-mix(in_oklch,var(--success),black_15%)] dark:[&_[data-icon]]:!text-success",
+          error: "[&_[data-icon]]:!text-destructive",
+          warning: "[&_[data-icon]]:!text-[color-mix(in_oklch,var(--warning),black_25%)] dark:[&_[data-icon]]:!text-warning",
+          info: "[&_[data-icon]]:!text-info",
         },
       }}
       {...props}

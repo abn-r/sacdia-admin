@@ -64,7 +64,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <PreferencesStoreProvider initialValues={PREFERENCE_DEFAULTS}>
             <NextIntlClientProvider locale={locale} messages={messages}>
               {children}
-              <Toaster position="top-center" richColors closeButton />
+              <Toaster position="top-center" closeButton />
             </NextIntlClientProvider>
           </PreferencesStoreProvider>
         </TooltipProvider>
