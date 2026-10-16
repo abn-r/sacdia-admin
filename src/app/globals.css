@@ -183,7 +183,8 @@
   --cat-social: oklch(0.66 0.18 140);
   --section-aventureros: oklch(0.66 0.18 60);
   --section-conquistadores: oklch(0.55 0.2 260);
-  --section-guias: oklch(0.55 0.18 25);
+  /* Teal (GM emblem globe), not red: red is reserved for errors/critical state. */
+  --section-guias: oklch(0.55 0.11 185);
   --warning-soft: oklch(0.95 0.05 85);
   --warning-soft-foreground: oklch(0.4 0.15 60);
 
@@ -247,7 +248,7 @@
   --cat-social: oklch(0.74 0.18 140);
   --section-aventureros: oklch(0.74 0.18 60);
   --section-conquistadores: oklch(0.68 0.2 260);
-  --section-guias: oklch(0.68 0.18 25);
+  --section-guias: oklch(0.72 0.11 185);
   --warning-soft: oklch(0.35 0.05 85);
   --warning-soft-foreground: oklch(0.9 0.08 85);
 

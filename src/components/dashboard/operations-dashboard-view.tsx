@@ -1,10 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { OperationsDashboardChrome } from "@/components/dashboard/operations-dashboard-chrome";
-import { ClassEnrollmentsChart } from "@/components/dashboard/class-enrollments-chart";
-import { SupervisionHome } from "@/components/dashboard/operations-home-supervision";
-import { DispatchHome } from "@/components/dashboard/operations-home-dispatch";
+import { OperationsHomeLayout } from "@/components/dashboard/operations-home-layout";
 import type { OperationsGapRow } from "@/components/dashboard/operations-gap-table";
-import type { OperationsPeriodContextProps } from "@/components/dashboard/operations-period-context";
+import type { OperationsSecondaryStat } from "@/components/dashboard/operations-secondary-stats";
 import {
   buildDashboardHref,
   buildDrillDownQuery,
@@ -16,14 +14,12 @@ import {
   type OperationsDashboardQuery,
 } from "@/lib/api/operations-dashboard";
 import {
-  dispatchSummary,
+  attentionTotal,
   firstAccessibleHref,
-  laggingClubs,
+  groupClassesByClubType,
   rankChildrenByGap,
   resolveHomeMode,
-  supervisionSummary,
   visibleWorkQueue,
-  type SummaryMessage,
 } from "@/lib/dashboard/operations-home";
 import type { AuthUser } from "@/lib/auth/types";
 import { getFormatNumber } from "@/lib/format-locale";
@@ -56,85 +52,40 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
   const hasReportingMonth = meta.period.reporting_month !== null;
   const fmt = (value: number | null | undefined) => formatMetricCount(value, formatNumber);
   const pct = (value: number | null | undefined) => formatMetricPercent(value, formatNumber);
+  const formatCount = (value: number) => fmt(value);
   const mode = resolveHomeMode(meta.scope, query);
   const childLevel = CHILD_LEVEL_BY_SCOPE[meta.scope.level];
 
-  const sentence = (messages: SummaryMessage[]) =>
-    messages.map((message) => tHome(`summary.${message.key}`, message.values)).join(" ");
+  const { operations, monthly_reports: reports, people, classes, honors, activities } = summary;
+  const totalClubs = operations.operational_clubs + operations.non_operational_clubs;
+  const reportsPct = hasReportingMonth ? reports.coverage_pct : null;
 
-  const queueLabels = {
-    roles: t("attention.roleAssignments"),
-    transfers: t("attention.transfers"),
-    classes: t("attention.classValidations"),
-    honors: t("attention.honorsReview"),
-    folders: t("attention.annualFolders"),
-  };
   const queueItems = visibleWorkQueue(summary, user);
+  const pendingTotal = attentionTotal(queueItems);
 
-  const honorsUnavailable = summary.honors.attribution === "unavailable";
+  const honorsAvailable = honors.attribution !== "unavailable";
   const honorsHref = firstAccessibleHref(user, ["/dashboard/clubs/validations?tab=honors"]);
-  const activitiesHref = firstAccessibleHref(user, ["/dashboard/clubs/activities"]);
-  const context: OperationsPeriodContextProps = {
-    headingId: "operations-context",
-    title: tHome("periodContextTitle"),
-    groups: [
-      {
-        title: t("formation.title"),
-        description: t("formation.description", {
-          enrollments: fmt(summary.classes.total_enrollments),
-          people: fmt(summary.classes.distinct_people),
-        }),
-        children: (
-          <ClassEnrollmentsChart items={summary.classes.by_class} compact showTable={false} />
-        ),
-      },
-      {
-        title: t("honors.title"),
-        description: honorsUnavailable
-          ? t("honors.attribution.unavailable")
-          : t("honors.attribution.current_affiliation"),
-        rows: honorsUnavailable
-          ? []
-          : [
-              { label: t("honors.inProgress"), value: fmt(summary.honors.in_progress) },
-              {
-                label: t("honors.pendingReview"),
-                value: fmt(summary.honors.pending_review),
-              },
-              { label: t("honors.approved"), value: fmt(summary.honors.approved) },
-            ],
-        action:
-          honorsHref && !honorsUnavailable
-            ? { href: honorsHref, label: tHome("honorsAction") }
-            : undefined,
-      },
-      {
-        title: t("activities.title"),
-        description: t("activities.description"),
-        rows: [
-          { label: t("activities.registered"), value: fmt(summary.activities.registered) },
-          { label: t("activities.jointRegistered"), value: fmt(summary.activities.joint_registered) },
-          {
-            label: t("activities.participatingSections"),
-            value: fmt(summary.activities.distinct_participating_sections),
-          },
-        ],
-        action: activitiesHref ? { href: activitiesHref, label: tHome("activitiesAction") } : undefined,
-      },
-    ],
-  };
-
-  const dataQuality = {
-    title: t("dataQuality.title"),
-    description: t("dataQuality.description"),
-    entries: data_quality,
-    statusLabels: {
-      exact: t("dataQuality.status.exact"),
-      current_affiliation: t("dataQuality.status.current_affiliation"),
-      unavailable: t("dataQuality.status.unavailable"),
-      not_applicable: t("dataQuality.status.not_applicable"),
+  const stats: OperationsSecondaryStat[] = [
+    {
+      id: "activities",
+      label: tHome("stats.activities"),
+      value: fmt(activities.registered),
+      href: firstAccessibleHref(user, ["/dashboard/clubs/activities"]),
     },
-  };
+  ];
+  if (honorsAvailable && honors.pending_review !== null) {
+    stats.push({
+      id: "honorsPending",
+      label: tHome("stats.honorsPending"),
+      value: fmt(honors.pending_review),
+      href: honorsHref,
+    });
+  }
+  if (honorsAvailable && honors.approved !== null) {
+    stats.push({ id: "honorsApproved", label: tHome("stats.honorsApproved"), value: fmt(honors.approved) });
+  }
+
+  const formationGroups = groupClassesByClubType(classes.by_class);
 
   return (
     <div className="@container/main flex flex-col gap-6">
@@ -145,82 +96,118 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
         description={tHome("description")}
       />
 
-      {mode === "dispatch" ? (
-        <DispatchHome
-          queue={{
-            headingId: "operations-queue",
-            title: tHome("dispatchTitle"),
-            reviewLabel: tHome("review"),
-            labels: queueLabels,
-            items: queueItems,
-            formatCount: (value: number) => fmt(value),
-            empty: {
-              title: tHome("dispatchEmptyTitle"),
-              description: tHome("dispatchEmptyDescription"),
+      <OperationsHomeLayout
+        mode={mode}
+        kpis={{
+          label: tHome("kpis.label"),
+          items: [
+            {
+              id: "reports",
+              label: tHome("kpis.reports.label"),
+              value: pct(reportsPct),
+              pct: reportsPct,
+              caption: hasReportingMonth
+                ? tHome("kpis.reports.caption", {
+                    submitted: reports.submitted_sections,
+                    expected: reports.expected_sections,
+                  })
+                : t("noClosedMonth"),
+              href: firstAccessibleHref(user, ["/dashboard/reports/supervision", "/dashboard/reports"]),
             },
-          }}
-          lagging={{
-            headingId: "operations-lagging",
-            title: tHome("laggingTitle"),
-            rows: laggingClubs(children, hasReportingMonth).map(({ child, reasons }) => ({
-              key: `${child.level}-${child.id}`,
-              name: child.name,
-              href: childHref(child, query),
-              reasons: reasons.map((reason) => ({
-                label: tHome(`lagReason.${reason}`),
-                tone: reason === "missingReport" ? ("danger" as const) : ("muted" as const),
-              })),
-            })),
-          }}
-          summary={sentence(dispatchSummary(summary, hasReportingMonth))}
-          context={context}
-          dataQuality={dataQuality}
-        />
-      ) : (
-        <SupervisionHome
-          summary={sentence(supervisionSummary(children, childLevel, summary, hasReportingMonth))}
-          gapTable={{
-            headingId: "operations-gap",
-            title: tHome("gapTable.title", { level: childLevel }),
-            description: tHome("gapTable.description"),
-            columns: {
-              name: tHome("gapTable.columns.name"),
-              reports: tHome("gapTable.columns.reports"),
-              nonOperational: tHome("gapTable.columns.nonOperational"),
-              pending: tHome("gapTable.columns.pending"),
+            {
+              id: "clubs",
+              label: tHome("kpis.clubs.label"),
+              value: fmt(operations.operational_clubs),
+              total: tHome("kpis.clubs.total", { total: totalClubs }),
+              pct: operations.operational_rate_pct,
+              caption: tHome("kpis.clubs.caption", { count: operations.non_operational_clubs }),
+              href: firstAccessibleHref(user, ["/dashboard/clubs"]),
             },
-            empty: {
-              title: tHome("gapTable.emptyTitle", { level: childLevel }),
-              description: tHome("gapTable.emptyDescription"),
+            {
+              id: "people",
+              label: tHome("kpis.people.label"),
+              value: fmt(people.institutionally_active),
+              caption: tHome("kpis.people.caption", { count: people.platform_accounts.active }),
             },
-            rows: rankChildrenByGap(children, hasReportingMonth).map(
-              ({ child, gap }): OperationsGapRow => ({
+            {
+              id: "enrollments",
+              label: tHome("kpis.enrollments.label"),
+              value: fmt(classes.total_enrollments),
+              caption: tHome("kpis.enrollments.caption", { count: classes.distinct_people }),
+            },
+          ],
+        }}
+        breakdown={{
+          headingId: "operations-breakdown",
+          title: tHome("gapTable.title", { level: childLevel }),
+          description: tHome("gapTable.description"),
+          columns: {
+            name: tHome("gapTable.columns.name"),
+            reports: tHome("gapTable.columns.reports"),
+            operational: tHome("gapTable.columns.operational"),
+          },
+          emptyLabel: tHome("gapTable.emptyTitle", { level: childLevel }),
+          rows: rankChildrenByGap(children, hasReportingMonth).map(
+            ({ child }): OperationsGapRow => {
+              const childReportsPct = hasReportingMonth ? child.monthly_reports.coverage_pct : null;
+              const childTotal =
+                child.operations.operational_clubs + child.operations.non_operational_clubs;
+              return {
                 key: `${child.level}-${child.id}`,
                 name: child.name,
                 href: childHref(child, query),
-                reports: hasReportingMonth ? pct(child.monthly_reports.coverage_pct) : "—",
-                missingLabel:
-                  gap.missingSections > 0
-                    ? tHome("gapTable.missingCount", { count: gap.missingSections })
-                    : undefined,
-                nonOperational: fmt(gap.nonOperationalClubs),
-                pending: fmt(gap.pendingTotal),
-                hasGap: gap.hasGap,
-              }),
-            ),
-          }}
-          pending={{
-            headingId: "operations-pending",
-            title: tHome("pendingTitle"),
-            reviewLabel: tHome("review"),
-            labels: queueLabels,
-            items: queueItems,
-            formatCount: (value: number) => fmt(value),
-          }}
-          context={context}
-          dataQuality={dataQuality}
-        />
-      )}
+                reports: { pct: childReportsPct, label: pct(childReportsPct) },
+                operational: {
+                  pct: child.operations.operational_rate_pct,
+                  label: `${fmt(child.operations.operational_clubs)}/${fmt(childTotal)}`,
+                },
+              };
+            },
+          ),
+        }}
+        attention={{
+          headingId: "operations-attention",
+          title: t("attention.title"),
+          labels: {
+            roles: t("attention.roleAssignments"),
+            transfers: t("attention.transfers"),
+            classes: t("attention.classValidations"),
+            honors: t("attention.honorsReview"),
+            folders: t("attention.annualFolders"),
+          },
+          items: queueItems,
+          total: fmt(pendingTotal),
+          totalLabel: t("attention.total", { count: pendingTotal }),
+          formatCount,
+          emptyLabel: t("attention.empty"),
+        }}
+        formation={{
+          headingId: "operations-formation",
+          title: t("formation.title"),
+          chartLabel: t("formation.chartAriaLabel"),
+          summary: t("formation.summary", {
+            enrollments: classes.total_enrollments,
+            people: classes.distinct_people,
+            classes: formationGroups.reduce((total, group) => total + group.items.length, 0),
+          }),
+          legendLabel: t("formation.legendLabel"),
+          emptyLabel: t("formation.emptyTitle"),
+          groups: formationGroups,
+          formatCount,
+        }}
+        stats={{ label: tHome("stats.label"), items: stats }}
+        dataQuality={{
+          title: t("dataQuality.title"),
+          description: t("dataQuality.description"),
+          entries: data_quality,
+          statusLabels: {
+            exact: t("dataQuality.status.exact"),
+            current_affiliation: t("dataQuality.status.current_affiliation"),
+            unavailable: t("dataQuality.status.unavailable"),
+            not_applicable: t("dataQuality.status.not_applicable"),
+          },
+        }}
+      />
     </div>
   );
 }

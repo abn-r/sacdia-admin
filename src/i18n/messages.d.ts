@@ -1788,13 +1788,25 @@ export interface IntlMessages {
       home: {
         title: string;
         description: string;
-        honorsAction: string;
-        activitiesAction: string;
-        summary: {
-          childrenReported: string;
-          sectionsReported: string;
-          noClosedMonth: string;
-          nonOperationalClubs: string;
+        kpis: {
+          label: string;
+          reports: {
+            label: string;
+            caption: string;
+          };
+          clubs: {
+            label: string;
+            total: string;
+            caption: string;
+          };
+          people: {
+            label: string;
+            caption: string;
+          };
+          enrollments: {
+            label: string;
+            caption: string;
+          };
         };
         gapTable: {
           title: string;
@@ -1802,62 +1814,33 @@ export interface IntlMessages {
           columns: {
             name: string;
             reports: string;
-            nonOperational: string;
-            pending: string;
+            operational: string;
           };
-          missingCount: string;
           emptyTitle: string;
-          emptyDescription: string;
         };
-        pendingTitle: string;
-        review: string;
-        dispatchTitle: string;
-        dispatchEmptyTitle: string;
-        dispatchEmptyDescription: string;
-        laggingTitle: string;
-        lagReason: {
-          missingReport: string;
-          nonOperational: string;
+        stats: {
+          label: string;
+          activities: string;
+          honorsPending: string;
+          honorsApproved: string;
         };
-        periodContextTitle: string;
       };
       attention: {
         title: string;
-        description: string;
         roleAssignments: string;
         transfers: string;
         classValidations: string;
         honorsReview: string;
         annualFolders: string;
+        total: string;
+        empty: string;
       };
       formation: {
         title: string;
-        description: string;
         chartAriaLabel: string;
-        chartSeries: string;
-        tableTitle: string;
-        tableClass: string;
-        tableClubType: string;
-        tableEnrollments: string;
+        summary: string;
+        legendLabel: string;
         emptyTitle: string;
-        emptyDescription: string;
-      };
-      honors: {
-        title: string;
-        inProgress: string;
-        pendingReview: string;
-        approved: string;
-        attribution: {
-          current_affiliation: string;
-          unavailable: string;
-        };
-      };
-      activities: {
-        title: string;
-        description: string;
-        registered: string;
-        jointRegistered: string;
-        participatingSections: string;
       };
       dataQuality: {
         title: string;

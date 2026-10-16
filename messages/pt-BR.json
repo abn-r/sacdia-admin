@@ -1759,13 +1759,25 @@
       "home": {
         "title": "Início",
         "description": "O que precisa de atenção no seu escopo.",
-        "honorsAction": "Revisar especialidades",
-        "activitiesAction": "Ver atividades",
-        "summary": {
-          "childrenReported": "{reported, number} de {total, number} {level, select, division {divisões} union {uniões} local_field {campos locais} other {clubes}} entregaram o relatório do mês.",
-          "sectionsReported": "{submitted, number} de {expected, number} seções entregaram o relatório do mês.",
-          "noClosedMonth": "Ainda não há um mês fechado para medir os relatórios.",
-          "nonOperationalClubs": "{count, plural, one {# clube não operacional.} other {# clubes não operacionais.}}"
+        "kpis": {
+          "label": "Indicadores do escopo",
+          "reports": {
+            "label": "Relatórios do mês",
+            "caption": "{submitted, number} de {expected, number} seções"
+          },
+          "clubs": {
+            "label": "Clubes operacionais",
+            "total": "/ {total, number}",
+            "caption": "{count, plural, =0 {Todos com atividade neste mês} one {# sem atividade neste mês} other {# sem atividade neste mês}}"
+          },
+          "people": {
+            "label": "Pessoas ativas",
+            "caption": "{count, number} com conta no app"
+          },
+          "enrollments": {
+            "label": "Inscrições em classes",
+            "caption": "{count, plural, one {# pessoa distinta} other {# pessoas distintas}}"
+          }
         },
         "gapTable": {
           "title": "{level, select, division {Divisões} union {Uniões} local_field {Campos locais} other {Clubes}}",
@@ -1773,62 +1785,33 @@
           "columns": {
             "name": "Nome",
             "reports": "Relatórios",
-            "nonOperational": "Não operacionais",
-            "pending": "Pendentes"
+            "operational": "Operacionais"
           },
-          "missingCount": "{count, plural, one {falta #} other {faltam #}}",
-          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}",
-          "emptyDescription": "Ainda não há registros neste nível."
+          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}"
         },
-        "pendingTitle": "Pendentes",
-        "review": "Revisar",
-        "dispatchTitle": "Para atender",
-        "dispatchEmptyTitle": "Nada pendente no seu escopo",
-        "dispatchEmptyDescription": "Novas solicitações e validações aparecem aqui.",
-        "laggingTitle": "Clubes atrasados",
-        "lagReason": {
-          "missingReport": "Sem relatório do mês",
-          "nonOperational": "Não operacional"
-        },
-        "periodContextTitle": "Contexto do período"
+        "stats": {
+          "label": "Outros indicadores do período",
+          "activities": "Atividades registradas",
+          "honorsPending": "Especialidades em revisão",
+          "honorsApproved": "Especialidades aprovadas"
+        }
       },
       "attention": {
         "title": "Requer atenção",
-        "description": "Filas operacionais sem total agregado.",
         "roleAssignments": "Atribuições pendentes",
         "transfers": "Transferências pendentes",
         "classValidations": "Validações de classe",
         "honorsReview": "Revisões de especialidades",
-        "annualFolders": "Pastas pendentes da União"
+        "annualFolders": "Pastas pendentes da União",
+        "total": "{count, plural, one {# pendente} other {# pendentes}}",
+        "empty": "Tudo em dia"
       },
       "formation": {
-        "title": "Formação",
-        "description": "{enrollments} matrículas · {people} pessoas distintas",
-        "chartAriaLabel": "Matrículas por classe e tipo de clube",
-        "chartSeries": "Matrículas",
-        "tableTitle": "Detalhe tabular equivalente",
-        "tableClass": "Classe",
-        "tableClubType": "Tipo de clube",
-        "tableEnrollments": "Matrículas",
-        "emptyTitle": "Sem matrículas registradas",
-        "emptyDescription": "Não há matrículas por classe no escopo atual."
-      },
-      "honors": {
-        "title": "Especialidades",
-        "inProgress": "Em progresso",
-        "pendingReview": "Em revisão",
-        "approved": "Aprovadas",
-        "attribution": {
-          "current_affiliation": "Atribuição por afiliação atual",
-          "unavailable": "Indisponível para o ano selecionado"
-        }
-      },
-      "activities": {
-        "title": "Atividades",
-        "description": "Atividades registradas; não implica execução nem participação.",
-        "registered": "Registradas",
-        "jointRegistered": "Conjuntas registradas",
-        "participatingSections": "Seções participantes"
+        "title": "Formação por classe",
+        "chartAriaLabel": "Inscrições por classe e tipo de clube",
+        "summary": "{enrollments, number} inscrições de {people, number} pessoas em {classes, number} classes.",
+        "legendLabel": "Tipos de clube",
+        "emptyTitle": "Sem inscrições em classes neste escopo"
       },
       "dataQuality": {
         "title": "Qualidade dos dados",

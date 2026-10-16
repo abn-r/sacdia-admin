@@ -1,7 +1,7 @@
 import type { AuthUser } from "@/lib/auth/types";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import type {
-  ChildLevel,
+  ClassBreakdownItem,
   DashboardMetrics,
   OperationsDashboardChild,
   OperationsDashboardQuery,
@@ -141,76 +141,90 @@ export function rankChildrenByGap(
     );
 }
 
-export type LagReason = "missingReport" | "nonOperational";
-
-export function laggingClubs(
-  children: OperationsDashboardChild[],
-  hasReportingMonth: boolean,
-): Array<{ child: OperationsDashboardChild; reasons: LagReason[] }> {
-  return rankChildrenByGap(children, hasReportingMonth)
-    .filter(({ gap }) => gap.hasGap)
-    .map(({ child, gap }) => {
-      const reasons: LagReason[] = [];
-      if (gap.missingSections > 0) reasons.push("missingReport");
-      if (gap.nonOperationalClubs > 0) reasons.push("nonOperational");
-      return { child, reasons };
-    });
-}
-
-export type SummaryMessage =
-  | { key: "childrenReported"; values: { reported: number; total: number; level: ChildLevel } }
-  | { key: "sectionsReported"; values: { submitted: number; expected: number } }
-  | { key: "noClosedMonth"; values: Record<string, never> }
-  | { key: "nonOperationalClubs"; values: { count: number } };
-
-function nonOperationalMessage(summary: DashboardMetrics): SummaryMessage[] {
-  const count = summary.operations.non_operational_clubs;
-  return count > 0 ? [{ key: "nonOperationalClubs", values: { count } }] : [];
-}
-
-export function supervisionSummary(
-  children: OperationsDashboardChild[],
-  childLevel: ChildLevel,
-  summary: DashboardMetrics,
-  hasReportingMonth: boolean,
-): SummaryMessage[] {
-  if (!hasReportingMonth) {
-    return [{ key: "noClosedMonth", values: {} }, ...nonOperationalMessage(summary)];
-  }
-  const expecting = children.filter((child) => child.monthly_reports.expected_sections > 0);
-  // `missing_sections` excludes generated drafts, so it cannot tell "delivered".
-  const reported = expecting.filter(
-    (child) => child.monthly_reports.submitted_sections >= child.monthly_reports.expected_sections,
-  );
-  const reportMessage: SummaryMessage[] =
-    expecting.length > 0
-      ? [
-          {
-            key: "childrenReported",
-            values: { reported: reported.length, total: expecting.length, level: childLevel },
-          },
-        ]
-      : [];
-  return [...reportMessage, ...nonOperationalMessage(summary)];
-}
-
-export function dispatchSummary(
-  summary: DashboardMetrics,
-  hasReportingMonth: boolean,
-): SummaryMessage[] {
-  if (!hasReportingMonth) {
-    return [{ key: "noClosedMonth", values: {} }, ...nonOperationalMessage(summary)];
-  }
-  const { expected_sections: expected, submitted_sections: submitted } = summary.monthly_reports;
-  const reportMessage: SummaryMessage[] =
-    expected > 0 ? [{ key: "sectionsReported", values: { submitted, expected } }] : [];
-  return [...reportMessage, ...nonOperationalMessage(summary)];
-}
-
 /** Pending queues with work AND a screen the user can open. */
 export function visibleWorkQueue(
   summary: DashboardMetrics,
   user: AuthUser,
 ): OperationsWorkItem[] {
   return buildWorkQueue(summary).filter((item) => firstAccessibleHref(user, [item.href]));
+}
+
+export function attentionTotal(items: OperationsWorkItem[]): number {
+  return items.reduce((total, item) => total + item.count, 0);
+}
+
+export type HomeSection = "breakdown" | "attention";
+
+/** Dispatch leads with the work queue; supervision leads with the territorial breakdown. */
+export function homeSectionOrder(mode: HomeMode): [HomeSection, HomeSection] {
+  return mode === "dispatch" ? ["attention", "breakdown"] : ["breakdown", "attention"];
+}
+
+export type ProgressTone = "destructive" | "warning" | "success" | "none";
+
+/** <50% destructive, 50–79% warning, ≥80% success; no value → no fill. */
+export function progressTone(pct: number | null | undefined): ProgressTone {
+  if (pct === null || pct === undefined || Number.isNaN(pct)) return "none";
+  if (pct < 50) return "destructive";
+  if (pct < 80) return "warning";
+  return "success";
+}
+
+const CHART_FALLBACK_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+] as const;
+
+function normalizeName(name: string): string {
+  return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+/** Section token by club type name; unknown types fall back to the chart palette. */
+export function clubTypeColor(clubTypeName: string, fallbackIndex: number): string {
+  const name = normalizeName(clubTypeName);
+  if (name.includes("aventurer")) return "var(--section-aventureros)";
+  if (name.includes("conquistador")) return "var(--section-conquistadores)";
+  if (name.includes("guia")) return "var(--section-guias)";
+  return CHART_FALLBACK_COLORS[fallbackIndex % CHART_FALLBACK_COLORS.length];
+}
+
+export type ClassTypeGroup = {
+  id: number;
+  name: string;
+  color: string;
+  total: number;
+  items: ClassBreakdownItem[];
+};
+
+/** Classes with enrollments, in display order, grouped by club type (first-seen order). */
+export function groupClassesByClubType(items: ClassBreakdownItem[]): ClassTypeGroup[] {
+  const sorted = items
+    .filter((item) => item.enrollment_count > 0)
+    .sort((a, b) => a.display_order - b.display_order || a.class_id - b.class_id);
+  const groups: ClassTypeGroup[] = [];
+  const indexByType = new Map<number, ClassTypeGroup>();
+  let unknownTypes = 0;
+
+  for (const item of sorted) {
+    let group = indexByType.get(item.club_type_id);
+    if (!group) {
+      const known = /aventurer|conquistador|guia/.test(normalizeName(item.club_type_name));
+      group = {
+        id: item.club_type_id,
+        name: item.club_type_name,
+        color: clubTypeColor(item.club_type_name, known ? 0 : unknownTypes++),
+        total: 0,
+        items: [],
+      };
+      indexByType.set(item.club_type_id, group);
+      groups.push(group);
+    }
+    group.items.push(item);
+    group.total += item.enrollment_count;
+  }
+
+  return groups;
 }

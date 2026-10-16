@@ -1759,13 +1759,25 @@
       "home": {
         "title": "Home",
         "description": "What needs attention in your scope.",
-        "honorsAction": "Review honors",
-        "activitiesAction": "Open activities",
-        "summary": {
-          "childrenReported": "{reported, number} of {total, number} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
-          "sectionsReported": "{submitted, number} of {expected, number} sections submitted this month’s report.",
-          "noClosedMonth": "There’s no closed month to measure reports yet.",
-          "nonOperationalClubs": "{count, plural, one {# non-operational club.} other {# non-operational clubs.}}"
+        "kpis": {
+          "label": "Scope indicators",
+          "reports": {
+            "label": "Monthly reports",
+            "caption": "{submitted, number} of {expected, number} sections"
+          },
+          "clubs": {
+            "label": "Operational clubs",
+            "total": "/ {total, number}",
+            "caption": "{count, plural, =0 {All active this month} other {# with no activity this month}}"
+          },
+          "people": {
+            "label": "Active people",
+            "caption": "{count, number} with an app account"
+          },
+          "enrollments": {
+            "label": "Class enrollments",
+            "caption": "{count, plural, one {# distinct person} other {# distinct people}}"
+          }
         },
         "gapTable": {
           "title": "{level, select, division {Divisions} union {Unions} local_field {Local fields} other {Clubs}}",
@@ -1773,62 +1785,33 @@
           "columns": {
             "name": "Name",
             "reports": "Reports",
-            "nonOperational": "Non-operational",
-            "pending": "Pending"
+            "operational": "Operational"
           },
-          "missingCount": "{count, plural, one {# missing} other {# missing}}",
-          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}",
-          "emptyDescription": "Nothing is registered at this level yet."
+          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}"
         },
-        "pendingTitle": "Pending",
-        "review": "Review",
-        "dispatchTitle": "To do",
-        "dispatchEmptyTitle": "Nothing pending in your scope",
-        "dispatchEmptyDescription": "New requests and validations show up here.",
-        "laggingTitle": "Clubs falling behind",
-        "lagReason": {
-          "missingReport": "No report this month",
-          "nonOperational": "Non-operational"
-        },
-        "periodContextTitle": "Period context"
+        "stats": {
+          "label": "Other period indicators",
+          "activities": "Activities registered",
+          "honorsPending": "Honors in review",
+          "honorsApproved": "Honors approved"
+        }
       },
       "attention": {
         "title": "Needs attention",
-        "description": "Operational queues without an aggregated total.",
         "roleAssignments": "Pending role assignments",
         "transfers": "Pending transfers",
         "classValidations": "Class validations",
         "honorsReview": "Honor reviews",
-        "annualFolders": "Union pending folders"
+        "annualFolders": "Union pending folders",
+        "total": "{count, plural, one {# pending} other {# pending}}",
+        "empty": "All caught up"
       },
       "formation": {
-        "title": "Formation",
-        "description": "{enrollments} enrollments · {people} distinct people",
+        "title": "Training by class",
         "chartAriaLabel": "Enrollments by class and club type",
-        "chartSeries": "Enrollments",
-        "tableTitle": "Equivalent tabular detail",
-        "tableClass": "Class",
-        "tableClubType": "Club type",
-        "tableEnrollments": "Enrollments",
-        "emptyTitle": "No enrollments recorded",
-        "emptyDescription": "There are no class enrollments in the current scope."
-      },
-      "honors": {
-        "title": "Honors",
-        "inProgress": "In progress",
-        "pendingReview": "Pending review",
-        "approved": "Approved",
-        "attribution": {
-          "current_affiliation": "Attributed by current affiliation",
-          "unavailable": "Unavailable for the selected year"
-        }
-      },
-      "activities": {
-        "title": "Activities",
-        "description": "Registered activities; does not imply execution or attendance.",
-        "registered": "Registered",
-        "jointRegistered": "Joint registered",
-        "participatingSections": "Participating sections"
+        "summary": "{enrollments, number} enrollments from {people, number} people across {classes, number} classes.",
+        "legendLabel": "Club types",
+        "emptyTitle": "No class enrollments in this scope"
       },
       "dataQuality": {
         "title": "Data quality",
