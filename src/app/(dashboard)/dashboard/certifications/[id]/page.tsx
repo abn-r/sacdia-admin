@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
@@ -165,6 +163,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default async function CertificationDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
   const t = await getTranslations("certifications.pages.detail");
+  const tList = await getTranslations("certifications.pages.list");
 
   const { id } = await params;
   const certificationId = toPositiveNumber(id);
@@ -216,17 +215,9 @@ export default async function CertificationDetailPage({ params }: { params: Para
         title={name}
         description={t("description")}
         breadcrumbs={[
-          { label: t("back"), href: "/dashboard/certifications" },
+          { label: tList("title"), href: "/dashboard/certifications" },
           { label: name },
         ]}
-        actions={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/certifications">
-              <ArrowLeft className="size-4" />
-              {t("back")}
-            </Link>
-          </Button>
-        }
       />
 
       {/* Summary card */}
@@ -236,7 +227,6 @@ export default async function CertificationDetailPage({ params }: { params: Para
             <ShieldCheck className="size-6 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold">{name}</h2>
             {description && (
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             )}

@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { Mail, MapPin, ArrowLeft, Shield, Users } from "lucide-react";
-import Link from "next/link";
+import { Mail, MapPin, Shield, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UserAvatar } from "@/components/users/user-avatar";
 import { cn } from "@/lib/utils";
@@ -16,8 +14,6 @@ interface HeroProps {
   ageLabel?: string | null;
   primaryAssignment: ClubAssignmentSummary | null;
   roleLabels: string[];
-  backHref: string;
-  backLabel: string;
   statusActiveLabel: string;
   statusInactiveLabel: string;
   metaLabels: {
@@ -43,8 +39,6 @@ export function UserDetailHero({
   ageLabel,
   primaryAssignment,
   roleLabels,
-  backHref,
-  backLabel,
   statusActiveLabel,
   statusInactiveLabel,
   metaLabels,
@@ -57,7 +51,7 @@ export function UserDetailHero({
 
   return (
     <Card className="gap-4 p-6 sm:p-7">
-      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr_auto]">
+      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr]">
         <div className="relative">
           <UserAvatar
             src={user.user_image}
@@ -70,9 +64,9 @@ export function UserDetailHero({
         </div>
 
         <div className="min-w-0">
-          <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
+          <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
             {fullName}
-          </h2>
+          </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {secondaryIdentityLabel ? (
@@ -139,14 +133,6 @@ export function UserDetailHero({
           </div>
         </div>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          <Button asChild variant="outline" size="sm">
-            <Link href={backHref} prefetch={false}>
-              <ArrowLeft className="size-4" />
-              {backLabel}
-            </Link>
-          </Button>
-        </div>
       </div>
     </Card>
   );

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
+import { formatUserName } from "@/components/certificate-bulk-imports/helpers";
 import { CertificateBulkImportDetailPage } from "@/components/certificate-bulk-imports/certificate-bulk-import-detail-page";
 import { getCertificateBulkImportDetail } from "@/lib/api/certificate-bulk-imports";
 import { ApiError } from "@/lib/api/client";
@@ -41,12 +42,12 @@ export default async function CertificateBulkImportDetailRoute({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={t("title")}
+        title={batch ? formatUserName(batch.user) : t("title")}
         description={t("description", { batchId: batchId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
           { label: t("breadcrumbList"), href: "/dashboard/certificate-bulk-imports" },
-          { label: batchId.slice(0, 8).toUpperCase() },
+          { label: batch ? formatUserName(batch.user) : batchId.slice(0, 8).toUpperCase() },
         ]}
       />
 

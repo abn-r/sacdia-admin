@@ -59,14 +59,10 @@ export async function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
 
           {/* Main info */}
           <div className="min-w-0 flex-1 space-y-3">
-            <div>
-              <h2 className="text-xl font-bold">{camporee.name}</h2>
-              {camporee.description && (
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  {camporee.description}
-                </p>
-              )}
-            </div>
+            {/* The page title already shows the camporee name. */}
+            {camporee.description && (
+              <p className="text-sm text-muted-foreground">{camporee.description}</p>
+            )}
 
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

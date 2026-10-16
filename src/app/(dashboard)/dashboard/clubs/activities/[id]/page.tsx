@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
+import { Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
@@ -157,19 +155,11 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         title={activity.name}
         description={t("pageDetail.description")}
         breadcrumbs={[
-          { label: t("pageDetail.back_link"), href: "/dashboard/clubs/activities" },
+          { label: t("page.title"), href: "/dashboard/clubs/activities" },
           { label: activity.name },
         ]}
         actions={
-          <>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/clubs/activities">
-                <ArrowLeft className="size-4" />
-                {t("pageDetail.back_link")}
-              </Link>
-            </Button>
-            <ActivityDetailActions activity={activity} />
-          </>
+          <ActivityDetailActions activity={activity} />
         }
       />
 
@@ -180,7 +170,6 @@ export default async function ActivityDetailPage({ params }: { params: Params })
             <Calendar className="size-6 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold">{activity.name}</h2>
             {activity.description && (
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {activity.description}

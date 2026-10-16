@@ -1,8 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { CamporeeInfoCard } from "@/components/camporees/camporee-info-card";
 import { CamporeeDetailInfoTab } from "@/components/camporees/camporee-detail-info-tab";
@@ -199,6 +196,7 @@ export default async function UnionCamporeeDetailPage({
   }
 
   const t = await getTranslations("camporees.pages.detail");
+  const tUnion = await getTranslations("camporees.pages.union");
   // camporee_events:* only — the API does not accept camporees:* for events.
   const canCreateEvents = canCapability(user, "campamentos-list-union", "events.create");
   const canEditEvents = canCapability(user, "campamentos-list-union", "events.update");
@@ -373,17 +371,11 @@ export default async function UnionCamporeeDetailPage({
         title={camporee.name}
         description={t("description")}
         breadcrumbs={[
-          { label: "Camporees de unión", href: "/dashboard/campamentos/union" },
+          { label: tUnion("title"), href: "/dashboard/campamentos/union" },
           { label: camporee.name },
         ]}
         actions={
           <>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/campamentos/union">
-                <ArrowLeft className="size-4" />
-                {t("back")}
-              </Link>
-            </Button>
             <ClubRegistrationActions
               camporeeId={camporeeId}
               isUnion

@@ -44,14 +44,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
   Table,
   TableBody,
   TableCell,
@@ -245,24 +237,13 @@ export function AchievementsCrudPage({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard/configuration/achievements">{t("breadcrumbRoot")}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{categoryName}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <PageHeader
         title={categoryName}
         description={t("pageDescription")}
+        breadcrumbs={[
+          { label: t("breadcrumbRoot"), href: "/dashboard/configuration/achievements" },
+          { label: categoryName },
+        ]}
         actions={
           <Button asChild>
             <Link href={`/dashboard/configuration/achievements/${categoryId}/new`}>

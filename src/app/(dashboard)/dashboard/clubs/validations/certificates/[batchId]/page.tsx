@@ -5,6 +5,7 @@ import { FileText } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
+import { formatUserName } from "@/components/certificate-bulk-imports/helpers";
 import { CertificateBulkImportDetailPage } from "@/components/certificate-bulk-imports/certificate-bulk-import-detail-page";
 import { getCertificateBulkImportDetail } from "@/lib/api/certificate-bulk-imports";
 import { ApiError } from "@/lib/api/client";
@@ -43,12 +44,12 @@ export default async function ClubsCertificateBulkImportDetailRoute({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={t("title")}
+        title={batch ? formatUserName(batch.user) : t("title")}
         description={t("description", { batchId: batchId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
           { label: tValidations("title"), href: "/dashboard/clubs/validations?tab=certificates" },
-          { label: batchId.slice(0, 8).toUpperCase() },
+          { label: batch ? formatUserName(batch.user) : batchId.slice(0, 8).toUpperCase() },
         ]}
       />
 
@@ -64,10 +65,7 @@ export default async function ClubsCertificateBulkImportDetailRoute({
       )}
 
       {!loadError && batch && (
-        <CertificateBulkImportDetailPage
-          batch={batch}
-          listHref="/dashboard/clubs/validations?tab=certificates"
-        />
+        <CertificateBulkImportDetailPage batch={batch} />
       )}
     </div>
   );

@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, GraduationCap } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -144,14 +142,6 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
           { label: catalogT("title"), href: "/dashboard/catalogs/classes" },
           { label: className },
         ]}
-        actions={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/catalogs/classes">
-              <ArrowLeft className="size-4" />
-              {t("back")}
-            </Link>
-          </Button>
-        }
       />
 
       <Card>
@@ -160,7 +150,6 @@ export default async function CatalogClassDetailPage({ params }: { params: Param
             <GraduationCap className="size-5 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold">{className}</h2>
             {description && (
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             )}
