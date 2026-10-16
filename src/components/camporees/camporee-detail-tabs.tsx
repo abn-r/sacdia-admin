@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, type ReactNode } from "react";
+import { useState, useCallback, useEffect, type ReactNode } from "react";
+import { useEdgeFade } from "@/hooks/use-edge-fade";
 import dynamic from "next/dynamic";
 import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -213,10 +214,33 @@ export function CamporeeDetailTabs({
   }, [camporeeId, isUnionCamporee, setPending]);
 
   const activeTab = resolveInitialTab(initialTab);
+  const { attach: attachTabsScroller, element: tabsScroller, style: tabsFadeStyle } = useEdgeFade();
+
+  // Keep the selected tab visible inside the single scrolling row.
+  const revealActiveTab = useCallback(() => {
+    requestAnimationFrame(() => {
+      tabsScroller
+        ?.querySelector<HTMLElement>('[role="tab"][data-state="active"]')
+        ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+  }, [tabsScroller]);
+
+  useEffect(revealActiveTab, [activeTab, revealActiveTab]);
 
   return (
-    <Tabs key={activeTab} defaultValue={activeTab} className="w-full min-w-0">
-      <TabsList className="h-auto min-h-8 w-full flex-wrap">
+    <Tabs
+      key={activeTab}
+      defaultValue={activeTab}
+      onValueChange={revealActiveTab}
+      className="w-full min-w-0"
+    >
+      {/* 11 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
+      <div
+        ref={attachTabsScroller}
+        style={tabsFadeStyle}
+        className="-mx-1 overflow-x-auto overscroll-x-contain border-b px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+      <TabsList variant="line" className="w-max flex-nowrap gap-4">
         <TabsTrigger value="info">Información</TabsTrigger>
 
         <TabsTrigger value="members">
@@ -296,6 +320,7 @@ export function CamporeeDetailTabs({
           )}
         </TabsTrigger>
       </TabsList>
+      </div>
 
       {/* ── Informacion ── */}
       <TabsContent value="info" className="mt-4">
