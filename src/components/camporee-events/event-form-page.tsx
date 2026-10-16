@@ -15,7 +15,7 @@
  *       Additional numeric fields: capacity, registered_count, max_points.
  */
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { Check, UserRound } from "lucide-react";
@@ -137,6 +137,12 @@ function SubmitButton({ label }: { label: string }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
+
+/** Server-validated fields whose input is not inside a step container → step index. */
+const EVENT_FIELD_STEP: Record<string, number> = {
+  starts_at: 1,
+  ends_at: 1,
+};
 
 export function EventFormPage({
   mode,
@@ -335,10 +341,21 @@ export function EventFormPage({
     stepIncomplete,
     goTo,
     goNext,
+    goToField,
     handleSubmit,
     handleKeyDown,
     stepRef,
   } = useFormSteps(steps.length);
+
+  useEffect(() => {
+    if (!actionState.field) return;
+    // Hidden/aggregate fields that live outside a step container map to their step.
+    if (!goToField(actionState.field)) {
+      const fallback = EVENT_FIELD_STEP[actionState.field];
+      if (fallback !== undefined) goTo(fallback);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [actionState]);
 
   return (
     <form
@@ -474,7 +491,7 @@ export function EventFormPage({
               <div className="space-y-2 sm:col-span-2">
                 <Label>Tipo de evento</Label>
                 <Select value={selectedEventTypeId} onValueChange={handleEventTypeChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="event_type_id" className="w-full">
                     <SelectValue placeholder="Selecciona el tipo" />
                   </SelectTrigger>
                   <SelectContent>

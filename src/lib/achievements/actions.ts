@@ -28,7 +28,19 @@ const ACHIEVEMENTS_PATH = "/dashboard/configuration/achievements";
 
 export type AchievementActionState = {
   error?: string;
+  /** HTML `name` of the form input the error belongs to. */
+  field?: string;
 };
+
+/** Validation failure tied to a form input, so the form can jump to its step. */
+class AchievementFieldError extends Error {
+  constructor(
+    message: string,
+    readonly field: string,
+  ) {
+    super(message);
+  }
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -155,26 +167,26 @@ function buildAchievementPayload(
   formData: FormData,
 ): AchievementPayload {
   const name = readString(formData, "name");
-  if (!name) throw new Error(t("validation.achievement_name_required"));
+  if (!name) throw new AchievementFieldError(t("validation.achievement_name_required"), "name");
 
   const type = readString(formData, "type") as AchievementType;
-  if (!type) throw new Error(t("validation.type_required"));
+  if (!type) throw new AchievementFieldError(t("validation.type_required"), "type");
 
   const tier = readString(formData, "tier") as AchievementTier;
-  if (!tier) throw new Error(t("validation.tier_required"));
+  if (!tier) throw new AchievementFieldError(t("validation.tier_required"), "tier");
 
   const scope = readString(formData, "scope") as AchievementScope;
-  if (!scope) throw new Error(t("validation.scope_required"));
+  if (!scope) throw new AchievementFieldError(t("validation.scope_required"), "scope");
 
   const points = parsePositiveNumber(formData, "points");
-  if (points === null) throw new Error(t("validation.points_positive"));
+  if (points === null) throw new AchievementFieldError(t("validation.points_positive"), "points");
 
   const criteriaRaw = readString(formData, "criteria");
   let criteria: AchievementCriteria;
   try {
     criteria = JSON.parse(criteriaRaw) as AchievementCriteria;
   } catch {
-    throw new Error(t("validation.criteria_invalid"));
+    throw new AchievementFieldError(t("validation.criteria_invalid"), "criteria");
   }
 
   const category_id = parsePositiveNumber(formData, "category_id");
@@ -213,6 +225,7 @@ export async function createAchievementAction(
     await createAchievement(payload);
   } catch (error) {
     return {
+      ...(error instanceof AchievementFieldError ? { field: error.field } : {}),
       error: getActionErrorMessage(error, t("errors.create_achievement_failed"), {
         endpointLabel: "/achievements",
       }),
@@ -244,6 +257,7 @@ export async function updateAchievementAction(
     await updateAchievement(achievementId, payload);
   } catch (error) {
     return {
+      ...(error instanceof AchievementFieldError ? { field: error.field } : {}),
       error: getActionErrorMessage(error, t("errors.update_achievement_failed"), {
         endpointLabel: `/achievements/${achievementId}`,
       }),

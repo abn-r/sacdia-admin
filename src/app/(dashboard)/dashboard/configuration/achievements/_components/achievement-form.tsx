@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -169,10 +169,18 @@ export function AchievementForm({
     stepIncomplete,
     goTo,
     goNext,
+    goToField,
     handleSubmit,
     handleKeyDown,
     stepRef,
   } = useFormSteps(steps.length);
+
+  useEffect(() => {
+    if (!state.field) return;
+    // The criteria editor mounts lazily, so its hidden input may not exist yet.
+    if (!goToField(state.field) && state.field === "criteria") goTo(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [state]);
 
   // Heavy editors mount on first visit and then stay mounted (hidden).
   const [reached, setReached] = useState(0);

@@ -14,7 +14,7 @@
  *   4. Participants — ParticipantsField, duration_seconds, active
  */
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -193,10 +193,16 @@ export function EventTemplateFormPage({
     stepIncomplete,
     goTo,
     goNext,
+    goToField,
     handleSubmit,
     handleKeyDown,
     stepRef,
   } = useFormSteps(steps.length);
+
+  useEffect(() => {
+    if (actionState.field) goToField(actionState.field);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [actionState]);
 
   return (
     <form
@@ -326,7 +332,7 @@ export function EventTemplateFormPage({
               {t("fieldEventType")} <span className="text-destructive">*</span>
             </Label>
             <Select value={selectedEventTypeId} onValueChange={setSelectedEventTypeId}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="event_type_id" className="w-full">
                 <SelectValue placeholder={t("fieldEventTypePlaceholder")} />
               </SelectTrigger>
               <SelectContent>

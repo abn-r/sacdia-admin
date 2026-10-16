@@ -19,6 +19,26 @@ function focusFirst(controls: Control[]) {
   window.requestAnimationFrame(() => target.focus());
 }
 
+const FOCUSABLE = "button, input:not([type=hidden]), select, textarea, [tabindex]";
+
+function findField(container: HTMLElement | null, name: string): HTMLElement | null {
+  if (!container) return null;
+  return (
+    container.querySelector<HTMLElement>(`[name="${CSS.escape(name)}"]`) ??
+    container.querySelector<HTMLElement>(`[id="${CSS.escape(name)}"]`)
+  );
+}
+
+/** Hidden/aria-hidden mirrors (Radix select, hidden inputs) defer to a visible sibling control. */
+function focusableFor(element: HTMLElement): HTMLElement | null {
+  const isMirror =
+    element.getAttribute("aria-hidden") === "true" ||
+    (element instanceof HTMLInputElement && element.type === "hidden");
+  if (!isMirror) return element;
+  const candidates = Array.from(element.parentElement?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []);
+  return candidates.find((el) => el.getAttribute("aria-hidden") !== "true") ?? null;
+}
+
 /**
  * Step state for FormData forms whose steps all stay mounted (`hidden`) so the
  * server action receives every field. The form must be `noValidate`: each step
@@ -36,6 +56,19 @@ export function useFormSteps(total: number) {
     setStepIncomplete(false);
     setDirection(next < step ? "back" : "forward");
     setStep(next);
+  }
+
+  /** Jumps to the step that holds the field (by `name`, then `id`) and focuses it. */
+  function goToField(name: string): boolean {
+    for (let index = 0; index < total; index += 1) {
+      const element = findField(stepRefs.current[index] ?? null, name);
+      if (!element) continue;
+      if (index !== step) goTo(index);
+      const target = focusableFor(element);
+      if (target) window.requestAnimationFrame(() => target.focus());
+      return true;
+    }
+    return false;
   }
 
   function goNext() {
@@ -90,6 +123,7 @@ export function useFormSteps(total: number) {
     stepIncomplete,
     goTo,
     goNext,
+    goToField,
     handleSubmit,
     handleKeyDown,
     stepRef,
