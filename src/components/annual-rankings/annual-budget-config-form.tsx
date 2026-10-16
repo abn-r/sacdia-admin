@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useFieldArray, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ArrowLeft,
   Building2,
   CalendarDays,
   MapPin,
@@ -24,13 +23,6 @@ import { BudgetSectionCard } from "@/components/annual-rankings/budget-section-c
 import { PointsAllocationBar } from "@/components/annual-rankings/points-allocation-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -93,7 +85,6 @@ interface AnnualBudgetConfigFormProps {
    * `modal`: two-step form inside `RouteFormModal` (create route).
    * `page`: single full-page form (edit route).
    */
-  layout?: "page" | "modal";
 }
 
 export function AnnualBudgetConfigForm({
@@ -103,7 +94,6 @@ export function AnnualBudgetConfigForm({
   localFields,
   clubTypes,
   ecclesiasticalYears,
-  layout = "page",
 }: AnnualBudgetConfigFormProps) {
   const t = useTranslations("annual_folders.budgetConfigForm");
   const tModal = useTranslations("shared.formModal");
@@ -588,138 +578,58 @@ export function AnnualBudgetConfigForm({
     void form.handleSubmit(handleSaveConfig, onInvalid)(event);
   }
 
-  if (layout === "modal") {
-    const steps = [t("steps.scope"), t("steps.sections")];
-    return (
-      <Form {...form}>
-        <form onSubmit={handleModalSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
-          <FormModalSteps steps={steps} current={step} />
-          <FormModalBody stepKey={step} direction={direction}>
-            {step === 0 ? (
-              <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-                {scopeFields}
-                {maxPointsField}
-                <p className="text-sm text-muted-foreground sm:col-span-2">{annualFolderHint}</p>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  {allocationBar}
-                  {balanceBadge}
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-sm font-medium">Secciones y subsecciones</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Asigna puntos a cada subsección hasta completar el total de su sección.
-                    </p>
-                  </div>
-                  {addSectionButton}
-                </div>
-                {axesError}
-                {sectionCards}
-              </div>
-            )}
-          </FormModalBody>
-          <FormModalFooter step={step} total={steps.length}>
-            {step === 0 ? (
-              <Button type="button" variant="outline" onClick={modal.close}>
-                Cancelar
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" onClick={goBack} disabled={savingConfig}>
-                {tModal("back")}
-              </Button>
-            )}
-            {step === 0 ? (
-              <Button type="submit">{tModal("continue")}</Button>
-            ) : (
-              <Button loading={savingConfig} type="submit">
-                <Save />
-                {isEdit ? "Guardar cambios" : "Crear configuración"}
-              </Button>
-            )}
-          </FormModalFooter>
-        </form>
-      </Form>
-    );
-  }
-
+  const steps = [t("steps.scope"), t("steps.sections")];
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" size="sm" className="w-fit" asChild>
-        <a href={ROUTE_BASE}>
-          <ArrowLeft className="size-4" />
-          Volver al listado
-        </a>
-      </Button>
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSaveConfig)}
-          className="flex flex-col gap-6"
-          noValidate
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {isEdit ? "Editar configuración" : "Nueva configuración"}
-              </CardTitle>
-              <CardDescription>
-                Define el alcance, el puntaje máximo y cómo se distribuye entre
-                secciones y subsecciones.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <Form {...form}>
+      <form onSubmit={handleModalSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
+        <FormModalSteps steps={steps} current={step} />
+        <FormModalBody stepKey={step} direction={direction}>
+          {step === 0 ? (
+            <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
               {scopeFields}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Puntaje máximo anual</CardTitle>
-              <CardDescription>{annualFolderHint}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
               {maxPointsField}
-
-              {allocationBar}
-            </CardContent>
-          </Card>
-
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold">
-                  Secciones y subsecciones
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Asigna puntos a cada subsección hasta completar el total de su
-                  sección.
-                </p>
+              <p className="text-sm text-muted-foreground sm:col-span-2">{annualFolderHint}</p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <div className="space-y-3">
+                {allocationBar}
+                {balanceBadge}
               </div>
-              {addSectionButton}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-medium">Secciones y subsecciones</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Asigna puntos a cada subsección hasta completar el total de su sección.
+                  </p>
+                </div>
+                {addSectionButton}
+              </div>
+              {axesError}
+              {sectionCards}
             </div>
-
-            {axesError}
-
-            {sectionCards}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-xs">
-            {balanceBadge}
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" asChild>
-                <a href={ROUTE_BASE}>Cancelar</a>
-              </Button>
-              <Button loading={savingConfig} type="submit">
-                <Save />
-                {isEdit ? "Guardar cambios" : "Crear configuración"}
-              </Button>
-            </div>
-          </div>
-        </form>
-      </Form>
-    </div>
+          )}
+        </FormModalBody>
+        <FormModalFooter step={step} total={steps.length}>
+          {step === 0 ? (
+            <Button type="button" variant="outline" onClick={modal.close}>
+              Cancelar
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" onClick={goBack} disabled={savingConfig}>
+              {tModal("back")}
+            </Button>
+          )}
+          {step === 0 ? (
+            <Button type="submit">{tModal("continue")}</Button>
+          ) : (
+            <Button loading={savingConfig} type="submit">
+              <Save />
+              {isEdit ? "Guardar cambios" : "Crear configuración"}
+            </Button>
+          )}
+        </FormModalFooter>
+      </form>
+    </Form>
   );
 }

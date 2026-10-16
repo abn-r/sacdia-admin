@@ -28,7 +28,6 @@ export function NewRankingConfigModalContent({ data }: { data: RankingConfigPage
   return (
     <AnnualBudgetConfigForm
       mode="create"
-      layout="modal"
       unions={data.unions}
       localFields={data.localFields}
       clubTypes={data.clubTypes}
