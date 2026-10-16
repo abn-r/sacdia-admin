@@ -57,7 +57,7 @@ export function RowActions({ label, actions, primary, className }: RowActionsPro
   if (!primary && visible.length === 0) return null;
 
   return (
-    <div className={cn("flex items-center justify-end gap-1.5", className)}>
+    <div data-slot="row-actions" className={cn("flex items-center justify-end gap-1.5", className)}>
       {primary}
       {visible.length > 0 ? (
         // Non-modal so an AlertDialog opened from an item doesn't inherit a locked body.
@@ -129,7 +129,7 @@ function RowActionItem({ action }: { action: RowAction }) {
 export function RowActionsHead({ className }: { className?: string }) {
   const t = useTranslations("shared.uiPrimitives");
   return (
-    <TableHead className={cn("w-12 text-right", className)}>
+    <TableHead data-row-actions="" className={cn("w-12 text-right", className)}>
       <span className="sr-only">{t("rowActionsColumn")}</span>
     </TableHead>
   );

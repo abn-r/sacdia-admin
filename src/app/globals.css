@@ -290,6 +290,29 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Row actions stay pinned to the right edge: the "⋯" is always reachable and
+   focusing it never scrolls the table sideways (hiding the name column). */
+[data-slot="table-cell"]:has([data-slot="row-actions"]),
+[data-slot="table-head"][data-row-actions] {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: var(--card);
+}
+[data-slot="table-row"]:hover > [data-slot="table-cell"]:has([data-slot="row-actions"]) {
+  background: color-mix(in oklch, var(--muted) 50%, var(--card));
+}
+/* The end fade would wash out the pinned "⋯"; a hairline shadow on the pinned
+   column is the overflow cue instead. */
+[data-slot="table-container"]:has([data-slot="row-actions"]) {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+[data-slot="table-container"][data-overflow-end]
+  :is([data-slot="table-cell"]:has([data-slot="row-actions"]), [data-slot="table-head"][data-row-actions]) {
+  box-shadow: -8px 0 8px -8px oklch(0 0 0 / 0.18);
+}
+
 /* Skip the double-tap-zoom wait so taps fire immediately. */
 button,
 a,

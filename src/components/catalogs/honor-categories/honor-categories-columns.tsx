@@ -81,7 +81,7 @@ export function getHonorCategoryColumns({
     {
       id: "actions",
       header: () => <span className="sr-only">{labels.actions}</span>,
-      meta: { className: "w-12 text-right" },
+      meta: { className: "sticky right-0 z-10 w-12 bg-card text-right" },
       cell: ({ row }) => {
         const category = row.original;
 
