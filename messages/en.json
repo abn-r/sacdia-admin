@@ -3568,7 +3568,9 @@
       "errorUploadFailed": "Failed to upload voucher.",
       "errorRemoveFailed": "Failed to remove voucher.",
       "toastUploaded": "Voucher uploaded",
-      "toastRemoved": "Voucher removed"
+      "toastRemoved": "Voucher removed",
+      "savedPendingVoucher": "The payment is already recorded; only the voucher is missing. Try the upload again.",
+      "retryUpload": "Retry upload"
     },
     "registerMemberDialog": {
       "title": "Register member",

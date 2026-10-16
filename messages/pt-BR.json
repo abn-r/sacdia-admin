@@ -3568,7 +3568,9 @@
       "errorUploadFailed": "Não foi possível enviar o comprovante.",
       "errorRemoveFailed": "Não foi possível remover o comprovante.",
       "toastUploaded": "Comprovante enviado",
-      "toastRemoved": "Comprovante removido"
+      "toastRemoved": "Comprovante removido",
+      "savedPendingVoucher": "O pagamento já foi registrado; falta apenas o comprovante. Tente enviar novamente.",
+      "retryUpload": "Tentar envio novamente"
     },
     "registerMemberDialog": {
       "title": "Registrar membro",

@@ -3568,7 +3568,9 @@
       "errorUploadFailed": "No se pudo subir el comprobante.",
       "errorRemoveFailed": "No se pudo eliminar el comprobante.",
       "toastUploaded": "Comprobante subido",
-      "toastRemoved": "Comprobante eliminado"
+      "toastRemoved": "Comprobante eliminado",
+      "savedPendingVoucher": "El pago ya se registró; solo falta el comprobante. Vuelve a intentar la subida.",
+      "retryUpload": "Reintentar subida"
     },
     "registerMemberDialog": {
       "title": "Registrar miembro",

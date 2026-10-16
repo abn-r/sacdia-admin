@@ -3598,6 +3598,8 @@ export interface IntlMessages {
       errorRemoveFailed: string;
       toastUploaded: string;
       toastRemoved: string;
+      savedPendingVoucher: string;
+      retryUpload: string;
     };
     registerMemberDialog: {
       title: string;

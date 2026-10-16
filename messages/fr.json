@@ -3568,7 +3568,9 @@
       "errorUploadFailed": "Échec du téléversement du justificatif.",
       "errorRemoveFailed": "Échec de la suppression du justificatif.",
       "toastUploaded": "Justificatif téléversé",
-      "toastRemoved": "Justificatif supprimé"
+      "toastRemoved": "Justificatif supprimé",
+      "savedPendingVoucher": "Le paiement est déjà enregistré ; il ne manque que le justificatif. Réessayez l'envoi.",
+      "retryUpload": "Réessayer l'envoi"
     },
     "registerMemberDialog": {
       "title": "Enregistrer un membre",

@@ -80,6 +80,7 @@ import {
   getCamporeeMemberDisplayName,
   getSelectablePaymentMembers,
 } from "@/lib/camporees/member-display";
+import { persistCamporeePayment } from "@/lib/camporees/persist-payment";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -209,6 +210,10 @@ export function PaymentFormPage({
   const [isRemoving, setIsRemoving] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Id of a payment this create form already saved. If the voucher upload then
+  // fails, a resubmit must update this row and retry the upload — never create
+  // a second payment.
+  const [savedPaymentId, setSavedPaymentId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Generate / cleanup object URL for image previews
@@ -290,29 +295,17 @@ export function PaymentFormPage({
         paid_at: values.paid_at || undefined,
       };
 
-      let resolvedPaymentUuid: string | null =
-        payment?.camporee_payment_id ?? null;
-
-      if (isEditing && payment) {
-        await updatePayment(payment.camporee_payment_id, payloadBase);
-      } else {
-        const created = (await createPayment(
+      const resolvedPaymentUuid = await persistCamporeePayment(
+        {
           camporeeId,
-          values.member_id,
-          payloadBase,
-        )) as Partial<CamporeePayment> | { data: Partial<CamporeePayment> } | null;
-
-        // Backend may return the row directly, or wrapped in { data: ... }
-        if (created && typeof created === "object") {
-          const candidate =
-            "camporee_payment_id" in created
-              ? (created as Partial<CamporeePayment>)
-              : ((created as { data?: Partial<CamporeePayment> }).data ?? null);
-          if (candidate && typeof candidate.camporee_payment_id === "string") {
-            resolvedPaymentUuid = candidate.camporee_payment_id;
-          }
-        }
-      }
+          memberId: values.member_id,
+          payload: payloadBase,
+          editingId: isEditing && payment ? payment.camporee_payment_id : null,
+          savedId: savedPaymentId,
+        },
+        { create: createPayment, update: updatePayment },
+      );
+      if (!isEditing && resolvedPaymentUuid) setSavedPaymentId(resolvedPaymentUuid);
 
       // Upload voucher second (if user selected one)
       if (pendingFile) {
@@ -365,7 +358,9 @@ export function PaymentFormPage({
       : t("paymentDialog.registering")
     : isEditing
       ? t("paymentDialog.saveChanges")
-      : t("paymentDialog.registerPayment");
+      : savedPaymentId
+        ? tV("retryUpload")
+        : t("paymentDialog.registerPayment");
 
   async function goNext() {
     const valid = await form.trigger([...STEP_FIELDS[step]]);
@@ -424,10 +419,18 @@ export function PaymentFormPage({
                         </span>
                       </FormLabel>
                       <FormControl>
-                        {isEditing ? (
+                        {isEditing || savedPaymentId ? (
                           <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
                             {payment?.member_name?.trim() ||
                               payment?.member_id ||
+                              (() => {
+                                const saved = selectableMembers.find(
+                                  (m) => String(m.camporee_member_id) === field.value,
+                                );
+                                return saved
+                                  ? getCamporeeMemberDisplayName(saved, t("paymentDialog.unknownMember"))
+                                  : undefined;
+                              })() ||
                               t("paymentDialog.unknownMember")}
                           </p>
                         ) : selectableMembers.length === 0 ? (
@@ -605,6 +608,12 @@ export function PaymentFormPage({
                   <h3 className="text-sm font-medium">{tV("sectionTitle")}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{tV("help")}</p>
                 </div>
+
+                {savedPaymentId && !isEditing ? (
+                  <p role="status" className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
+                    {tV("savedPendingVoucher")}
+                  </p>
+                ) : null}
 
                 {/* Existing voucher (edit mode only) */}
                 {currentVoucherUrl ? (
