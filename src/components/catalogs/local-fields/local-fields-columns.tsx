@@ -1,17 +1,11 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions } from "@/components/shared/row-actions";
 import type { AdminLocalFieldRow } from "@/lib/catalogs/local-fields/types";
 
 export type LocalFieldColumnLabels = {
@@ -79,37 +73,30 @@ export function getLocalFieldColumns({
     },
     {
       id: "actions",
-      header: () => labels.actions,
+      header: () => <span className="sr-only">{labels.actions}</span>,
+      meta: { className: "w-12 text-right" },
       cell: ({ row }) => {
         const localField = row.original;
 
-        if (!canEdit && !canDelete) {
-          return <span className="text-muted-foreground text-xs">—</span>;
-        }
-
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{labels.actions}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {canEdit ? (
-                <DropdownMenuItem onClick={() => onEdit(localField)}>
-                  <Pencil className="size-4" />
-                  {labels.edit}
-                </DropdownMenuItem>
-              ) : null}
-              {canDelete ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onDelete(localField)}>
-                  <Trash2 className="size-4" />
-                  {labels.delete}
-                </DropdownMenuItem>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            label={localField.name}
+            actions={[
+              {
+                label: labels.edit,
+                icon: Pencil,
+                onSelect: () => onEdit(localField),
+                hidden: !canEdit,
+              },
+              {
+                label: `${labels.delete}…`,
+                icon: Trash2,
+                destructive: true,
+                onSelect: () => onDelete(localField),
+                hidden: !canDelete,
+              },
+            ]}
+          />
         );
       },
     },

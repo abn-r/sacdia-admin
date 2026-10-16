@@ -20,7 +20,6 @@ import {
 } from "react";
 import {
   Eye,
-  MoreHorizontal,
   RefreshCcw,
   Pencil,
   Plus,
@@ -57,12 +56,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Select,
   SelectContent,
@@ -1187,9 +1181,7 @@ export function PhaseECatalogCrudPage({
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete || detailPathPrefix) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -1277,114 +1269,43 @@ export function PhaseECatalogCrudPage({
                         </TableCell>
                         {(canEdit || canDelete || detailPathPrefix) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-card">
-                            <div className="hidden gap-1 md:flex">
-                              {detailPathPrefix && itemId ? (
-                                <Button variant="ghost" size="icon" className="size-8" asChild>
-                                  <Link
-                                    href={`${detailPathPrefix}/${itemId}`}
-                                    title={t("viewDetail")}
-                                  >
-                                    <Eye className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              ) : null}
-                              {canEdit && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  disabled={!itemId}
-                                  onClick={() => handleEditOpen(item)}
-                                  title={t("edit")}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Button>
-                              )}
-                              {hasRecalculateAction && canEdit && itemId ? (
-                                <form action={recalculateFormAction} className="inline">
-                                  <input
-                                    type="hidden"
-                                    name="id"
-                                    value={String(itemId)}
-                                  />
-                                <Button
-                                  type="submit"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 gap-1.5"
-                                  aria-label={masterHonorsT("recalculateNow")}
-                                  title={masterHonorsT("recalculateNow")}
-                                >
-                                  <RefreshCcw className="size-3.5" />
-                                  <span className="hidden md:inline">{masterHonorsT("recalculateNow")}</span>
-                                </Button>
-                              </form>
-                            ) : null}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("delete")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                  {detailPathPrefix && itemId ? (
-                                    <DropdownMenuItem asChild>
-                                      <Link href={`${detailPathPrefix}/${itemId}`}>
-                                        <Eye className="size-4" />
-                                        {t("viewDetail")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  ) : null}
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      onSelect={() => handleEditOpen(item)}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("edit")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  {hasRecalculateAction && canEdit && itemId ? (
-                                    <DropdownMenuItem
-                                      onSelect={(event) => {
-                                        event.preventDefault();
-                                        const recalculateForm = document.getElementById(
-                                          `recalculate-master-honor-${itemId}`,
-                                        ) as HTMLFormElement | null;
-                                        recalculateForm?.requestSubmit();
-                                      }}
-                                    >
-                                      <RefreshCcw className="size-4" />
-                                      {masterHonorsT("recalculateNow")}
-                                    </DropdownMenuItem>
-                                  ) : null}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      {t("delete")}
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                            <RowActions
+                              label={itemName}
+                              actions={[
+                                {
+                                  label: t("viewDetail"),
+                                  icon: Eye,
+                                  href: `${detailPathPrefix}/${itemId}`,
+                                  hidden: !(detailPathPrefix && itemId),
+                                },
+                                {
+                                  label: t("edit"),
+                                  icon: Pencil,
+                                  onSelect: () => handleEditOpen(item),
+                                  hidden: !canEdit,
+                                  disabled: !itemId,
+                                },
+                                {
+                                  label: masterHonorsT("recalculateNow"),
+                                  icon: RefreshCcw,
+                                  onSelect: () => {
+                                    const recalculateForm = document.getElementById(
+                                      `recalculate-master-honor-${itemId}`,
+                                    ) as HTMLFormElement | null;
+                                    recalculateForm?.requestSubmit();
+                                  },
+                                  hidden: !(hasRecalculateAction && canEdit && itemId),
+                                },
+                                {
+                                  label: `${t("delete")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                             {itemId && hasRecalculateAction ? (
                               <form
                                 id={`recalculate-master-honor-${itemId}`}

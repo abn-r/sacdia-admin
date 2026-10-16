@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { UserAvatar } from "@/components/users/user-avatar";
 import { DetailSection } from "@/components/users/detail/section";
 import { useRoleLabel } from "@/lib/auth/role-labels";
@@ -71,6 +72,7 @@ function MemberIdentity({
 
 export function RolesTab({ data }: RolesTabProps) {
   const t = useTranslations("clubs.detail.roles");
+  const tWorkspace = useTranslations("clubs.sections.workspace");
   const translateRole = useRoleLabel();
   const router = useRouter();
 
@@ -351,7 +353,7 @@ export function RolesTab({ data }: RolesTabProps) {
                 <TableHead>{t("memberLabel")}</TableHead>
                 <TableHead>{t("sectionLabel")}</TableHead>
                 <TableHead>{t("roleLabel")}</TableHead>
-                {data.canManageRoles ? <TableHead className="w-[80px]" /> : null}
+                {data.canManageRoles ? <RowActionsHead /> : null}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -376,13 +378,25 @@ export function RolesTab({ data }: RolesTabProps) {
                     </TableCell>
                     {data.canManageRoles && member.assignment_id ? (
                       <TableCell>
-                        <form action={revokeRoleAction}>
+                        <form
+                          id={`revoke-role-${member.assignment_id}`}
+                          action={revokeRoleAction}
+                        >
                           <input type="hidden" name="club_id" value={data.clubId} />
                           <input type="hidden" name="assignment_id" value={member.assignment_id} />
-                          <Button type="submit" variant="ghost" size="icon" className="size-8">
-                            <Trash2 className="size-4" />
-                          </Button>
                         </form>
+                        <RowActions
+                          label={member.name}
+                          actions={[
+                            {
+                              label: tWorkspace("revokeAssignment"),
+                              icon: Trash2,
+                              destructive: true,
+                              onSelect: () =>
+                                (document.getElementById(`revoke-role-${member.assignment_id}`) as HTMLFormElement | null)?.requestSubmit(),
+                            },
+                          ]}
+                        />
                       </TableCell>
                     ) : data.canManageRoles ? (
                       <TableCell />
@@ -534,7 +548,7 @@ export function RolesTab({ data }: RolesTabProps) {
                   <TableHead>{t("classLabel")}</TableHead>
                   <TableHead>{t("memberLabel")}</TableHead>
                   <TableHead>{t("responsibilityLabel")}</TableHead>
-                  {data.canManageRoles ? <TableHead className="w-[80px]" /> : null}
+                  {data.canManageRoles ? <RowActionsHead /> : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -563,17 +577,29 @@ export function RolesTab({ data }: RolesTabProps) {
                       </TableCell>
                       {data.canManageRoles ? (
                         <TableCell>
-                          <form action={revokeCounselorAction}>
+                          <form
+                            id={`revoke-counselor-${assignment.assignment_id}`}
+                            action={revokeCounselorAction}
+                          >
                             <input type="hidden" name="club_id" value={data.clubId} />
                             <input
                               type="hidden"
                               name="assignment_id"
                               value={assignment.assignment_id}
                             />
-                            <Button type="submit" variant="ghost" size="icon" className="size-8">
-                              <Trash2 className="size-4" />
-                            </Button>
                           </form>
+                          <RowActions
+                            label={assignmentUserName(assignment)}
+                            actions={[
+                              {
+                                label: tWorkspace("revokeAssignment"),
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () =>
+                                  (document.getElementById(`revoke-counselor-${assignment.assignment_id}`) as HTMLFormElement | null)?.requestSubmit(),
+                              },
+                            ]}
+                          />
                         </TableCell>
                       ) : null}
                     </TableRow>

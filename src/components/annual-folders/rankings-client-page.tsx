@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   ArrowRight,
   BarChart3,
+  Eye,
   Medal,
   Search,
   TrendingUp,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -505,9 +507,7 @@ export function RankingsClientPage({
                   <TableHead className="hidden xl:table-cell h-9 min-w-56 px-3">
                     Componentes
                   </TableHead>
-                  <TableHead className="h-9 w-24 px-3 text-center">
-                    Acciones
-                  </TableHead>
+                  <RowActionsHead className="h-9 px-3" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -520,13 +520,15 @@ export function RankingsClientPage({
                       <RankBadge position={item.rank_position} />
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={
+                      <Link
+                        prefetch={false}
+                        href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                        className={`hover:underline ${
                           item.rank_position <= 3 ? "font-semibold" : "font-medium"
-                        }
+                        }`}
                       >
                         {item.club_name}
-                      </span>
+                      </Link>
                     </TableCell>
                     <TableCell className="hidden xl:table-cell text-center text-sm text-muted-foreground">
                       {activeClubType?.name ?? item.club_type_id}
@@ -554,14 +556,17 @@ export function RankingsClientPage({
                     <TableCell className="hidden xl:table-cell">
                       <ComponentSummary components={item.components} />
                     </TableCell>
-                    <TableCell className="text-center">
-                      <Link prefetch={false}
-                        href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
-                        className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
-                      >
-                        Ver detalle
-                        <ArrowRight className="size-3" />
-                      </Link>
+                    <TableCell>
+                      <RowActions
+                        label={item.club_name}
+                        actions={[
+                          {
+                            label: "Ver detalle",
+                            icon: Eye,
+                            href: `/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`,
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

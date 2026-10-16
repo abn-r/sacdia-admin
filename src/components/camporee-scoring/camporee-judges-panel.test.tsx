@@ -192,6 +192,12 @@ const judgeCandidates: CamporeeJudgeCandidate[] = [
   },
 ];
 
+async function openEventFromMenu() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: /Acciones de/ }));
+  await user.click(await screen.findByRole("menuitem", { name: "Abrir" }));
+}
+
 describe("CamporeeJudgesPanel", () => {
   afterEach(() => cleanup());
 
@@ -501,7 +507,7 @@ describe("EventJudgeAssignmentsPanel", () => {
       </NextIntlClientProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir" }));
+    await openEventFromMenu();
 
     fireEvent.click(screen.getByLabelText("Sección"));
     fireEvent.click(await screen.findByRole("option", { name: /Halcones · Conquistadores/i }));
@@ -526,7 +532,7 @@ describe("EventJudgeAssignmentsPanel", () => {
       </NextIntlClientProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir" }));
+    await openEventFromMenu();
 
     expect(screen.getAllByText("Ana Juez").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Editar asignación")).toBeInTheDocument();
@@ -552,7 +558,7 @@ describe("EventJudgeAssignmentsPanel", () => {
       </NextIntlClientProvider>,
     );
 
-    await user.click(screen.getByRole("button", { name: "Abrir" }));
+    await openEventFromMenu();
     await user.click(screen.getByLabelText("Editar asignación"));
     await user.click(screen.getByRole("menuitem", { name: "Quitar" }));
 

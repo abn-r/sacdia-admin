@@ -6328,6 +6328,8 @@
     "uiPrimitives": {
       "close": "Fechar",
       "more": "Mais",
+      "rowActions": "Ações de {name}",
+      "rowActionsColumn": "Ações",
       "toggleSidebar": "Alternar barra lateral",
       "sidebarTitle": "Menu",
       "sidebarDescription": "Navegação principal do painel."

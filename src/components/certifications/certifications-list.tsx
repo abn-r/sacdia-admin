@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { Eye, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -13,8 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 
 type CertificationRow = {
   certification_id: number;
@@ -67,14 +67,19 @@ export function CertificationsList({
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_status")}
             </TableHead>
-            <TableHead className="h-9 w-12 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.map((cert) => (
             <TableRow key={cert.certification_id} className="hover:bg-muted/30">
               <TableCell className="px-3 py-2.5 align-middle">
-                <span className="font-medium">{cert.name}</span>
+                <Link
+                  href={`${detailBasePath}/${cert.certification_id}`}
+                  className="font-medium hover:underline"
+                >
+                  {cert.name}
+                </Link>
               </TableCell>
               <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
                 <span className="line-clamp-3 text-sm text-muted-foreground">
@@ -93,12 +98,16 @@ export function CertificationsList({
                 <StatusBadge intent={flagStatusIntent(cert.active !== false)} label={cert.active !== false ? t("status_active") : t("status_inactive")} />
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`${detailBasePath}/${cert.certification_id}`}>
-                    <ChevronRight className="size-4" />
-                    <span className="sr-only">{t("view_detail")}</span>
-                  </Link>
-                </Button>
+                <RowActions
+                  label={cert.name}
+                  actions={[
+                    {
+                      label: t("view_detail"),
+                      icon: Eye,
+                      href: `${detailBasePath}/${cert.certification_id}`,
+                    },
+                  ]}
+                />
               </TableCell>
             </TableRow>
           ))}

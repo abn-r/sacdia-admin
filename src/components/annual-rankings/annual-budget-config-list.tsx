@@ -9,6 +9,7 @@ import { AnnualBudgetDeleteDialog } from "@/components/annual-rankings/annual-bu
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
@@ -18,11 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { configLabel } from "@/lib/annual-rankings/annual-ranking-config-utils";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
@@ -100,7 +96,7 @@ export function AnnualBudgetConfigList({
                 <TableHead>Tipo de club</TableHead>
                 <TableHead className="text-right">Puntaje máximo</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -135,41 +131,22 @@ export function AnnualBudgetConfigList({
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-end gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8"
-                              asChild
-                            >
-                              <Link
-                                href={`${ROUTE_BASE}/${config.annual_ranking_config_id}`}
-                              >
-                                <Pencil className="size-3.5" />
-                                <span className="sr-only">Editar</span>
-                              </Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Editar</TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8 text-destructive hover:text-destructive"
-                              onClick={() => setDeleteTarget(config)}
-                            >
-                              <Trash2 className="size-3.5" />
-                              <span className="sr-only">Eliminar</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Eliminar</TooltipContent>
-                        </Tooltip>
-                      </div>
+                      <RowActions
+                        label={scopeName}
+                        actions={[
+                          {
+                            label: "Editar",
+                            icon: Pencil,
+                            href: `${ROUTE_BASE}/${config.annual_ranking_config_id}`,
+                          },
+                          {
+                            label: "Eliminar…",
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => setDeleteTarget(config),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

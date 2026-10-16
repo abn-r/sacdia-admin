@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { useLocale, useTranslations } from "next-intl";
 import { formatCalendarDate } from "@/lib/format-locale";
 import { listUnionCamporees } from "@/lib/api/camporees";
@@ -174,7 +175,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colStatus")}
                 </TableHead>
-                <TableHead className="h-9 w-24 px-3" />
+                <RowActionsHead className="h-9 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -183,7 +184,12 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 return (
                   <TableRow key={id} className="hover:bg-muted/30">
                     <TableCell className="max-w-[300px] whitespace-normal px-3 py-2.5 align-middle">
-                      <span className="font-medium">{camporee.name}</span>
+                      <Link
+                        href={`/dashboard/campamentos/union/${id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {camporee.name}
+                      </Link>
                     </TableCell>
                     <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                       {camporee.union_name ?? "—"}
@@ -203,38 +209,27 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                       <StatusBadge intent={flagStatusIntent(camporee.active !== false)} label={camporee.active !== false ? t("unionList.statusActive") : t("unionList.statusInactive")} size="sm" />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          asChild
-                          title="Ver detalle"
-                        >
-                          <Link href={`/dashboard/campamentos/union/${id}`}>
-                            <Eye className="size-3.5" />
-                            <span className="sr-only">Ver detalle</span>
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleEdit(camporee)}
-                          title={t("unionList.editTitle")}
-                        >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">{t("unionList.editLabel")}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(camporee)}
-                          title={t("unionList.deleteTitle")}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="size-3.5" />
-                          <span className="sr-only">{t("unionList.deleteLabel")}</span>
-                        </Button>
-                      </div>
+                      <RowActions
+                        label={camporee.name}
+                        actions={[
+                          {
+                            label: t("list.viewDetail"),
+                            icon: Eye,
+                            href: `/dashboard/campamentos/union/${id}`,
+                          },
+                          {
+                            label: t("unionList.editLabel"),
+                            icon: Pencil,
+                            onSelect: () => handleEdit(camporee),
+                          },
+                          {
+                            label: `${t("unionList.deleteLabel")}…`,
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => handleDelete(camporee),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

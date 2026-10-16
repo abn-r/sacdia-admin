@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, XCircle, ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RowActionsHead, RowActions } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RequestStatusBadge } from "@/components/requests/request-status-badge";
 import { RequestReviewDialog } from "@/components/requests/request-review-dialog";
@@ -93,9 +93,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
               <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("transfers.table.columns.date")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-                {t("transfers.table.columns.actions")}
-              </TableHead>
+              <RowActionsHead className="h-9 w-44 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -124,41 +122,31 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                     {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="flex items-center justify-end gap-1">
-                      {isPending && (
-                        <>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-success hover:bg-success/10 hover:text-success"
-                                onClick={() => setDialog({ request: req, action: "approved" })}
-                                aria-label={t("transfers.table.actions.approveAriaLabel")}
-                              >
-                                <CheckCircle2 className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("transfers.table.actions.approve")}</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => setDialog({ request: req, action: "rejected" })}
-                                aria-label={t("transfers.table.actions.rejectAriaLabel")}
-                              >
-                                <XCircle className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("transfers.table.actions.reject")}</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-                    </div>
+                    {isPending && (
+                      <RowActions
+                        label={getUserName(req.requester)}
+                        actions={[]}
+                        primary={
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setDialog({ request: req, action: "rejected" })}
+                              aria-label={t("transfers.table.actions.rejectAriaLabel")}
+                            >
+                              {t("transfers.table.actions.reject")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => setDialog({ request: req, action: "approved" })}
+                              aria-label={t("transfers.table.actions.approveAriaLabel")}
+                            >
+                              {t("transfers.table.actions.approve")}
+                            </Button>
+                          </>
+                        }
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               );

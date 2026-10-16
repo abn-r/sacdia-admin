@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { Eye, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Table,
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MemberRankingScoreBadge } from "@/components/rankings/member-ranking-score-badge";
 import type { MemberRankingItem } from "@/lib/api/section-rankings";
@@ -103,9 +103,7 @@ export function SectionMembersTable({
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("colCategory")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-              {t("colAction")}
-            </TableHead>
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
 
@@ -125,9 +123,12 @@ export function SectionMembersTable({
               {/* Member */}
               <TableCell className="px-3 py-2.5 align-middle">
                 <div className="space-y-0.5">
-                  <p className="font-medium leading-none text-sm">
+                  <Link
+                    href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}`}
+                    className="block font-medium leading-none text-sm hover:underline"
+                  >
                     {getMemberName(item.user)}
-                  </p>
+                  </Link>
                   {item.user?.email && (
                     <p className="text-xs text-muted-foreground">
                       {item.user.email}
@@ -162,14 +163,11 @@ export function SectionMembersTable({
               </TableCell>
 
               {/* Action — links to existing member breakdown page */}
-              <TableCell className="px-3 py-2.5 align-middle text-right">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link
-                    href={`/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}`}
-                  >
-                    {t("viewDetail")}
-                  </Link>
-                </Button>
+              <TableCell className="px-3 py-2.5 align-middle">
+                <RowActions
+                  label={getMemberName(item.user)}
+                  actions={[{ label: t("viewDetail"), icon: Eye, href: `/dashboard/member-rankings/${item.enrollment_id}/breakdown?year_id=${yearId}` }]}
+                />
               </TableCell>
             </TableRow>
           ))}

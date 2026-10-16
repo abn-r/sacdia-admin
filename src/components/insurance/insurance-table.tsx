@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Pencil, Trash2, ExternalLink, ShieldCheck, Shield, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -218,7 +218,7 @@ export function InsuranceTable({
                 {t("table.col_status")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 w-32 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -289,47 +289,31 @@ export function InsuranceTable({
 
                 {/* Actions */}
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <div className="flex items-center gap-1">
-                    {/* Evidence link */}
-                    {ins?.evidence_file_url && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        asChild
-                        title={t("table.action_view_evidence")}
-                      >
-                        <a href={ins.evidence_file_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="size-3.5" />
-                          <span className="sr-only">{t("table.action_view_evidence")}</span>
-                        </a>
-                      </Button>
-                    )}
-
-                    {onEdit && ((ins && canUpdate) || (!ins && canCreate)) && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onEdit(member)}
-                        title={ins ? t("table.action_edit") : t("table.action_register")}
-                      >
-                        <Pencil className="size-3.5" />
-                        <span className="sr-only">{t("table.sr_edit")}</span>
-                      </Button>
-                    )}
-
-                    {onDelete && ins && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onDelete(member)}
-                        title={t("table.action_deactivate")}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="size-3.5" />
-                        <span className="sr-only">{t("table.sr_deactivate")}</span>
-                      </Button>
-                    )}
-                  </div>
+                  <RowActions
+                    label={memberFullName(member) || t("table.no_name")}
+                    actions={[
+                      {
+                        label: t("table.action_view_evidence"),
+                        icon: ExternalLink,
+                        href: ins?.evidence_file_url ?? undefined,
+                        external: true,
+                        hidden: !ins?.evidence_file_url,
+                      },
+                      {
+                        label: ins ? t("table.action_edit") : t("table.action_register"),
+                        icon: Pencil,
+                        onSelect: () => onEdit?.(member),
+                        hidden: !onEdit || !((ins && canUpdate) || (!ins && canCreate)),
+                      },
+                      {
+                        label: `${t("table.action_deactivate")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => onDelete?.(member),
+                        hidden: !onDelete || !ins,
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             );

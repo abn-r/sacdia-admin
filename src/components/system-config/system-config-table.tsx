@@ -10,9 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { SystemConfig } from "@/lib/api/system-config";
 
@@ -66,9 +65,7 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_type")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-              {t("col_actions")}
-            </TableHead>
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,21 +96,16 @@ export function SystemConfigTable({ configs, onEdit }: SystemConfigTableProps) {
                 )}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <div className="flex items-center justify-end">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onEdit(config)}
-                        aria-label={t("action_edit_key", { key: config.config_key })}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{t("action_edit")}</TooltipContent>
-                  </Tooltip>
-                </div>
+                <RowActions
+                  label={config.config_key}
+                  actions={[
+                    {
+                      label: t("action_edit"),
+                      icon: Pencil,
+                      onSelect: () => onEdit(config),
+                    },
+                  ]}
+                />
               </TableCell>
             </TableRow>
           ))}

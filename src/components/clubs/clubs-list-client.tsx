@@ -4,10 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Building2, Eye, MoreHorizontal, Pencil, Search } from "lucide-react";
+import { Building2, Eye, Pencil, Search } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,12 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -262,9 +256,7 @@ export function ClubsListClient({
                     <TableHead>{t("colSections")}</TableHead>
                     <TableHead>{tList("colStatus")}</TableHead>
                     {canEdit && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
-                        {tList("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -323,67 +315,23 @@ export function ClubsListClient({
                         </TableCell>
                         {canEdit && (
                           <TableCell className="sticky right-0 z-10 border-l bg-card">
-                            <div className="hidden gap-1 md:flex">
-                              {clubId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("actionView")}
-                                >
-                                  <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
-                                    <Eye className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                              {clubId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("actionEdit")}
-                                >
-                                  <Link
-                                    prefetch={false}
-                                    href={`/dashboard/clubs/${clubId}?tab=edit`}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8">
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {clubId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link prefetch={false} href={`/dashboard/clubs/${clubId}`}>
-                                        <Eye className="size-4" />
-                                        {t("actionView")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                  {clubId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link
-                                        prefetch={false}
-                                        href={`/dashboard/clubs/${clubId}?tab=edit`}
-                                      >
-                                        <Pencil className="size-4" />
-                                        {t("actionEdit")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                            <RowActions
+                              label={club.name ?? "—"}
+                              actions={[
+                                {
+                                  label: t("actionView"),
+                                  icon: Eye,
+                                  href: `/dashboard/clubs/${clubId}`,
+                                  hidden: !clubId,
+                                },
+                                {
+                                  label: t("actionEdit"),
+                                  icon: Pencil,
+                                  href: `/dashboard/clubs/${clubId}?tab=edit`,
+                                  hidden: !clubId,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>

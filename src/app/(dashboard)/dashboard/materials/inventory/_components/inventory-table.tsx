@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { MoneyFormat } from "@/components/materials/money-format";
 import { ProductFormSheet } from "./product-form-sheet";
 import { DeleteProductDialog } from "./delete-product-dialog";
@@ -60,9 +60,7 @@ export function InventoryTable({
               <TableHead className="text-right">{t("colPrice")}</TableHead>
               <TableHead className="text-right">{t("colStock")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
-              <TableHead className="sticky right-0 z-20 w-[88px] border-l bg-card">
-                {t("colActions")}
-              </TableHead>
+              <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -115,25 +113,22 @@ export function InventoryTable({
                   <StatusBadge intent={flagStatusIntent(product.active)} label={product.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
                 <TableCell className="sticky right-0 z-10 border-l bg-card">
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("editAriaLabel")}
-                      onClick={() => setEditTarget(product)}
-                    >
-                      <Pencil className="size-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-destructive hover:text-destructive"
-                      aria-label={t("deactivateAriaLabel")}
-                      onClick={() => setDeleteTarget(product)}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </div>
+                  <RowActions
+                    label={product.title}
+                    actions={[
+                      {
+                        label: t("editAriaLabel"),
+                        icon: Pencil,
+                        onSelect: () => setEditTarget(product),
+                      },
+                      {
+                        label: `${t("deactivateAriaLabel")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setDeleteTarget(product),
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}

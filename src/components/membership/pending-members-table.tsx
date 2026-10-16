@@ -3,9 +3,6 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
-  CheckCircle2,
-  XCircle,
-  Loader2,
   RefreshCw,
   UserPlus,
   Clock,
@@ -21,11 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
 import {
@@ -165,9 +158,7 @@ export function PendingMembersTable({
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_expires")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-                  {t("table.col_actions")}
-                </TableHead>
+                <RowActionsHead className="h-9 w-56 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -224,43 +215,32 @@ export function PendingMembersTable({
 
                     {/* Actions */}
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center justify-end gap-1">
-                        {isProcessing && (
-                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                        )}
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                      <RowActions
+                        label={getUserName(req.users)}
+                        actions={[]}
+                        primary={
+                          <>
                             <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-success hover:bg-success/10 hover:text-success"
-                              onClick={() => handleApprove(req)}
-                              disabled={isProcessing || isRefreshing}
-                              aria-label={t("table.aria_approve")}
-                            >
-                              <CheckCircle2 className="size-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("table.tooltip_approve")}</TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              variant="outline"
+                              size="sm"
                               onClick={() => setRejectDialog(req)}
                               disabled={isProcessing || isRefreshing}
                               aria-label={t("table.aria_reject")}
                             >
-                              <XCircle className="size-4" />
+                              {t("table.tooltip_reject")}
                             </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("table.tooltip_reject")}</TooltipContent>
-                        </Tooltip>
-                      </div>
+                            <Button
+                              size="sm"
+                              loading={isProcessing}
+                              onClick={() => handleApprove(req)}
+                              disabled={isProcessing || isRefreshing}
+                              aria-label={t("table.aria_approve")}
+                            >
+                              {t("table.tooltip_approve")}
+                            </Button>
+                          </>
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 );

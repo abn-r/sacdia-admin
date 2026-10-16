@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { CertificateBatchStatusBadge } from "@/components/certificate-bulk-imports/certificate-bulk-import-badges";
 import { CertificateBulkImportProgress } from "@/components/certificate-bulk-imports/certificate-bulk-import-progress";
 import {
@@ -139,7 +140,7 @@ export function CertificateBulkImportListPage({
                   <TableHead>Enviado</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Progreso</TableHead>
-                  <TableHead className="text-right">Acción</TableHead>
+                  <RowActionsHead className="w-32" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -166,13 +167,19 @@ export function CertificateBulkImportListPage({
                           total={counts.total}
                         />
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" asChild>
-                          <Link href={`${detailBasePath}/${batch.batch_id}`} prefetch={false}>
-                            Revisar
-                            <ArrowRight aria-hidden="true" />
-                          </Link>
-                        </Button>
+                      <TableCell>
+                        <RowActions
+                          label={formatUserName(batch.user)}
+                          actions={[]}
+                          primary={
+                            <Button size="sm" asChild>
+                              <Link href={`${detailBasePath}/${batch.batch_id}`} prefetch={false}>
+                                Revisar
+                                <ArrowRight aria-hidden="true" />
+                              </Link>
+                            </Button>
+                          }
+                        />
                       </TableCell>
                     </TableRow>
                   );

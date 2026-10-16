@@ -19,7 +19,6 @@ import {
   Search,
   Pencil,
   Trash2,
-  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,12 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -330,9 +324,7 @@ export function EventTemplateListClient({
                     <TableHead className="hidden xl:table-cell">{t("colParticipants")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -366,66 +358,25 @@ export function EventTemplateListClient({
                         </TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-card">
-                            <div className="hidden gap-1 md:flex">
-                              {canEdit && itemId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("editActionTitle")}
-                                >
-                                  <Link prefetch={false}
-                                    href={`${`/dashboard/campamentos/plantillas/`}${itemId}/edit`}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("deleteActionTitle")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8">
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {canEdit && itemId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link prefetch={false}
-                                        href={`${`/dashboard/campamentos/plantillas/`}${itemId}/edit`}
-                                      >
-                                        <Pencil className="size-4" />
-                                        Editar
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      Eliminar
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                            <RowActions
+                              label={titleText}
+                              actions={[
+                                {
+                                  label: t("editActionTitle"),
+                                  icon: Pencil,
+                                  href: `/dashboard/campamentos/plantillas/${itemId}/edit`,
+                                  hidden: !(canEdit && itemId),
+                                },
+                                {
+                                  label: `${t("deleteActionTitle")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Key, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
@@ -150,7 +151,7 @@ export function PermissionsTable({
                     <TableHead>{t("permissionsTable.colKey")}</TableHead>
                     <TableHead className="hidden xl:table-cell">{t("permissionsTable.colDescription")}</TableHead>
                     <TableHead>{t("permissionsTable.colStatus")}</TableHead>
-                    <TableHead className="w-[100px]">{t("permissionsTable.colActions")}</TableHead>
+                    <RowActionsHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -177,16 +178,24 @@ export function PermissionsTable({
                         <StatusBadge intent={flagStatusIntent(perm.active !== false)} label={perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")} size="sm" />
                       </TableCell>
                       <TableCell>
-                        {canWrite ? (
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title={t("permissionsTable.actionEdit")}>
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteItem(perm)} title={t("permissionsTable.actionDelete")}>
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                        ) : null}
+                        <RowActions
+                          label={getPermissionLabel(t, perm.permission_name)}
+                          actions={[
+                            {
+                              label: t("permissionsTable.actionEdit"),
+                              icon: Pencil,
+                              onSelect: () => setEditItem(perm),
+                              hidden: !canWrite,
+                            },
+                            {
+                              label: `${t("permissionsTable.actionDelete")}…`,
+                              icon: Trash2,
+                              destructive: true,
+                              onSelect: () => setDeleteItem(perm),
+                              hidden: !canWrite,
+                            },
+                          ]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

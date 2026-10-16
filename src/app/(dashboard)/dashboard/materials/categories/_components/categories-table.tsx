@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { CategoryFormSheet } from "./category-form-sheet";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import type { MaterialCategoryAdmin } from "@/lib/types/materials";
@@ -51,7 +51,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Estado
               </TableHead>
-              <TableHead className="h-9 w-24 px-3" />
+              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -78,24 +78,22 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                   <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("editAriaLabel")}
-                      onClick={() => setEditTarget(cat)}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("deleteAriaLabel")}
-                      onClick={() => setDeleteTarget(cat)}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button>
-                  </div>
+                  <RowActions
+                    label={cat.label}
+                    actions={[
+                      {
+                        label: t("editAriaLabel"),
+                        icon: Pencil,
+                        onSelect: () => setEditTarget(cat),
+                      },
+                      {
+                        label: `${t("deleteAriaLabel")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setDeleteTarget(cat),
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}

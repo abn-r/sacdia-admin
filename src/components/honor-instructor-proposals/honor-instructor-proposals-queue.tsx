@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Check, ChevronLeft, ChevronRight, Inbox, RefreshCw, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Inbox, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { useFormatDate } from "@/lib/format-locale";
 import type {
   HonorInstructorProposal,
@@ -134,7 +135,7 @@ export function HonorInstructorProposalsQueue() {
                     <TableHead>{t("columns.current")}</TableHead>
                     <TableHead>{t("columns.proposed")}</TableHead>
                     <TableHead>{t("columns.date")}</TableHead>
-                    <TableHead className="text-right">{t("columns.actions")}</TableHead>
+                    <RowActionsHead className="w-56" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -160,20 +161,24 @@ export function HonorInstructorProposalsQueue() {
                         </TableCell>
                         <TableCell className="text-right">
                           {proposal.status === "PENDING" ? (
-                            <div className="flex justify-end gap-2">
-                              <Button size="sm" onClick={() => setDecision({ proposal, action: "approve" })}>
-                                <Check aria-hidden="true" />
-                                {t("actions.approve")}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setDecision({ proposal, action: "reject" })}
-                              >
-                                <X aria-hidden="true" />
-                                {t("actions.reject")}
-                              </Button>
-                            </div>
+                            <RowActions
+                              label={proposal.member?.display_name ?? proposal.honor?.name ?? "—"}
+                              actions={[]}
+                              primary={
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setDecision({ proposal, action: "reject" })}
+                                  >
+                                    {t("actions.reject")}
+                                  </Button>
+                                  <Button size="sm" onClick={() => setDecision({ proposal, action: "approve" })}>
+                                    {t("actions.approve")}
+                                  </Button>
+                                </>
+                              }
+                            />
                           ) : (
                             <div className="flex flex-col items-end gap-1">
                               <StatusBadge

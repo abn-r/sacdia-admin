@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -254,7 +255,7 @@ export function MemberOfMonthSupervisionClient({
                 <TableHead>{t("tableColPeriod")}</TableHead>
                 <TableHead className="text-right">{t("tableColPoints")}</TableHead>
                 <TableHead>{t("tableColNotified")}</TableHead>
-                <TableHead className="text-right">{t("tableColActions")}</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -292,23 +293,24 @@ export function MemberOfMonthSupervisionClient({
                     <NotifiedBadge notified={item.notified} />
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={item.club_id === null}
-                        onClick={() => {
-                          if (item.club_id === null) return;
-                          setDialogTarget({
-                            clubId: item.club_id,
-                            sectionId: item.club_section_id,
-                            sectionName: item.section_name ?? "sección",
-                          });
-                        }}
-                      >
-                        {t("reevaluateButton")}
-                      </Button>
-                    </div>
+                    <RowActions
+                      label={item.user_name ?? "—"}
+                      actions={[
+                        {
+                          label: t("reevaluateButton"),
+                          icon: RefreshCw,
+                          disabled: item.club_id === null,
+                          onSelect: () => {
+                            if (item.club_id === null) return;
+                            setDialogTarget({
+                              clubId: item.club_id,
+                              sectionId: item.club_section_id,
+                              sectionName: item.section_name ?? "sección",
+                            });
+                          },
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

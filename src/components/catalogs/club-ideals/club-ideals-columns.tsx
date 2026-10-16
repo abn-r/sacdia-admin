@@ -1,17 +1,11 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions } from "@/components/shared/row-actions";
 import type { AdminClubIdealRow } from "@/lib/catalogs/club-ideals/types";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
 import { getClubTypeSortIndex } from "@/lib/catalogs/club-ideals/sort";
@@ -107,35 +101,30 @@ export function getClubIdealColumns({
     },
     {
       id: "actions",
-      header: () => labels.actions,
+      header: () => <span className="sr-only">{labels.actions}</span>,
+      meta: { className: "w-12 text-right" },
       cell: ({ row }) => {
         const clubIdeal = row.original;
-        if (!canEdit && !canDelete) {
-          return <span className="text-muted-foreground text-xs">—</span>;
-        }
+
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{labels.actions}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {canEdit ? (
-                <DropdownMenuItem onClick={() => onEdit(clubIdeal)}>
-                  <Pencil className="size-4" />
-                  {labels.edit}
-                </DropdownMenuItem>
-              ) : null}
-              {canDelete ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onDelete(clubIdeal)}>
-                  <Trash2 className="size-4" />
-                  {labels.delete}
-                </DropdownMenuItem>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            label={clubIdeal.name}
+            actions={[
+              {
+                label: labels.edit,
+                icon: Pencil,
+                onSelect: () => onEdit(clubIdeal),
+                hidden: !canEdit,
+              },
+              {
+                label: `${labels.delete}…`,
+                icon: Trash2,
+                destructive: true,
+                onSelect: () => onDelete(clubIdeal),
+                hidden: !canDelete,
+              },
+            ]}
+          />
         );
       },
     },

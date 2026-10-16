@@ -6360,6 +6360,8 @@ export interface IntlMessages {
     uiPrimitives: {
       close: string;
       more: string;
+      rowActions: string;
+      rowActionsColumn: string;
       toggleSidebar: string;
       sidebarTitle: string;
       sidebarDescription: string;

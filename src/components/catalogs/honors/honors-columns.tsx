@@ -1,18 +1,12 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Button } from "@/components/ui/button";
+import { RowActions } from "@/components/shared/row-actions";
 import { CatalogThumbnail } from "@/components/shared/catalog-thumbnail";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { AdminHonorRow } from "@/lib/catalogs/honors/types";
 
 export type HonorColumnLabels = {
@@ -106,37 +100,30 @@ export function getHonorColumns({
     },
     {
       id: "actions",
-      header: () => labels.actions,
+      header: () => <span className="sr-only">{labels.actions}</span>,
+      meta: { className: "w-12 text-right" },
       cell: ({ row }) => {
         const honor = row.original;
 
-        if (!canEdit && !canDelete) {
-          return <span className="text-muted-foreground text-xs">—</span>;
-        }
-
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{labels.actions}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {canEdit ? (
-                <DropdownMenuItem onClick={() => onEdit(honor)}>
-                  <Pencil className="size-4" />
-                  {labels.edit}
-                </DropdownMenuItem>
-              ) : null}
-              {canDelete ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onDelete(honor)}>
-                  <Trash2 className="size-4" />
-                  {labels.delete}
-                </DropdownMenuItem>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            label={honor.name}
+            actions={[
+              {
+                label: labels.edit,
+                icon: Pencil,
+                onSelect: () => onEdit(honor),
+                hidden: !canEdit,
+              },
+              {
+                label: `${labels.delete}…`,
+                icon: Trash2,
+                destructive: true,
+                onSelect: () => onDelete(honor),
+                hidden: !canDelete,
+              },
+            ]}
+          />
         );
       },
     },

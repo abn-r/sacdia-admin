@@ -6328,6 +6328,8 @@
     "uiPrimitives": {
       "close": "Fermer",
       "more": "Plus",
+      "rowActions": "Actions pour {name}",
+      "rowActionsColumn": "Actions",
       "toggleSidebar": "Basculer la barre latérale",
       "sidebarTitle": "Menu",
       "sidebarDescription": "Navigation principale du panneau."

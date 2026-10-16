@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -100,9 +101,7 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
               <TableHead className="hidden xl:table-cell">{t("colHolder")}</TableHead>
               <TableHead>{t("colClabe")}</TableHead>
               <TableHead className="hidden xl:table-cell">{t("colUpdated")}</TableHead>
-              <TableHead className="sticky right-0 w-[1%] bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
-                {t("colActions")}
-              </TableHead>
+              <RowActionsHead className="sticky right-0 bg-card shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,41 +142,30 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                   </TableCell>
                   <TableCell className="sticky right-0 bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                     {row.canManage ? (
-                      <div className="flex justify-end gap-1">
-                        {row.configured ? (
-                          <>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openDialog(row, "edit")}
-                            >
-                              <Pencil data-icon="inline-start" />
-                              {t("actionEdit")}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => setDeleteTarget(row)}
-                            >
-                              <Trash2 data-icon="inline-start" />
-                              {t("actionDelete")}
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            type="button"
-                            variant="default"
-                            size="sm"
-                            onClick={() => openDialog(row, "create")}
-                          >
-                            <Plus data-icon="inline-start" />
-                            {t("actionCreate")}
-                          </Button>
-                        )}
-                      </div>
+                      <RowActions
+                        label={row.name}
+                        actions={[
+                          {
+                            label: t("actionCreate"),
+                            icon: Plus,
+                            onSelect: () => openDialog(row, "create"),
+                            hidden: row.configured,
+                          },
+                          {
+                            label: t("actionEdit"),
+                            icon: Pencil,
+                            onSelect: () => openDialog(row, "edit"),
+                            hidden: !row.configured,
+                          },
+                          {
+                            label: `${t("actionDelete")}…`,
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => setDeleteTarget(row),
+                            hidden: !row.configured,
+                          },
+                        ]}
+                      />
                     ) : (
                       <span className="text-xs text-muted-foreground">
                         {t("actionReadonly")}

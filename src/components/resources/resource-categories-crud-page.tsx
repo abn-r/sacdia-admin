@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import {
   FolderOpen,
-  MoreHorizontal,
   Pencil,
   Plus,
   Search,
@@ -42,12 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -372,9 +366,7 @@ export function ResourceCategoriesCrudPage({
                     <TableHead>{t("colDescription")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-card">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -398,69 +390,29 @@ export function ResourceCategoriesCrudPage({
                         </TableCell>
                         {(canEdit || canDelete) && (
                           <TableCell className="sticky right-0 z-10 border-l bg-card">
-                            <div className="hidden gap-1 md:flex">
-                              {canEdit && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  disabled={!itemId}
-                                  onClick={() => {
+                            <RowActions
+                              label={name}
+                              actions={[
+                                {
+                                  label: t("edit"),
+                                  icon: Pencil,
+                                  onSelect: () => {
                                     setEditItem(item);
                                     setEditActiveChecked(getDefaultActive(item));
-                                  }}
-                                  title={t("edit")}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Button>
-                              )}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("delete")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      onSelect={() => {
-                                        setEditItem(item);
-                                        setEditActiveChecked(getDefaultActive(item));
-                                      }}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("edit")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      {t("delete")}
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                                  },
+                                  hidden: !canEdit,
+                                  disabled: !itemId,
+                                },
+                                {
+                                  label: `${t("delete")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>

@@ -2,8 +2,7 @@
 
 
 import { useState } from "react";
-import Link from "next/link";
-import { CheckCircle2, DollarSign, Loader2, Paperclip, Pencil, XCircle } from "lucide-react";
+import { DollarSign, Loader2, Paperclip, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -18,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   approveCamporeePayment,
   rejectCamporeePayment,
@@ -253,7 +253,7 @@ export function CamporeePaymentsPanel({
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("paymentsPanel.colDate")}
                 </TableHead>
-                <TableHead className="h-9 w-24 px-3" />
+                <RowActionsHead className="h-9 w-64 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -319,66 +319,41 @@ export function CamporeePaymentsPanel({
                       {formatDate(payment.paid_at ?? payment.created_at)}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center justify-end gap-1">
-                        {canApprove && (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  loading={isApproving}
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  className="text-success hover:bg-success/10 hover:text-success"
-                                  onClick={() => handleApprove(payment)}
-                                  aria-label={t("paymentsPanel.approveLabel")}
-                                >
-                                  <CheckCircle2 className="size-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{t("paymentsPanel.approveLabel")}</TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                  onClick={() => setDialog({ payment, mode: "reject" })}
-                                  aria-label={t("paymentsPanel.rejectLabel")}
-                                >
-                                  <XCircle className="size-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{t("paymentsPanel.rejectLabel")}</TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-
-                        {canMutate && !isUnionCamporee && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
+                      <RowActions
+                        label={
+                          resolveCamporeePaymentMemberName(payment) ??
+                          payment.member_name ??
+                          String(payment.member_id)
+                        }
+                        actions={[
+                          {
+                            label: t("paymentsPanel.editLabel"),
+                            icon: Pencil,
+                            href: `/dashboard/campamentos/${camporeeId}/payments/${payment.camporee_payment_id}/edit`,
+                            hidden: !canMutate || isUnionCamporee,
+                          },
+                        ]}
+                        primary={
+                          canApprove ? (
+                            <>
                               <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                asChild
-                                aria-label={t("paymentsPanel.editLabel")}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setDialog({ payment, mode: "reject" })}
                               >
-                                <Link
-                                  href={`${`/dashboard/campamentos/${camporeeId}/payments/`}${payment.camporee_payment_id}/edit`}
-                                  prefetch={false}
-                                >
-                                  <Pencil className="size-3.5" />
-                                  <span className="sr-only">
-                                    {t("paymentsPanel.editLabel")}
-                                  </span>
-                                </Link>
+                                {t("paymentsPanel.rejectLabel")}
                               </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("paymentsPanel.editLabel")}</TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
+                              <Button
+                                size="sm"
+                                loading={isApproving}
+                                onClick={() => handleApprove(payment)}
+                              >
+                                {t("paymentsPanel.approveLabel")}
+                              </Button>
+                            </>
+                          ) : undefined
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 );

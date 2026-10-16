@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Table,
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { MemberRankingScoreBadge } from "@/components/rankings/member-ranking-score-badge";
@@ -93,9 +93,7 @@ export function SectionRankingsTable({
               <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("colCalculated")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-                {t("colAction")}
-              </TableHead>
+              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
 
@@ -122,9 +120,12 @@ export function SectionRankingsTable({
 
                   {/* Section name */}
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <p className="font-medium text-sm leading-none">
+                    <Link
+                      href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
+                      className="block font-medium text-sm leading-none hover:underline"
+                    >
                       {item.section_name}
-                    </p>
+                    </Link>
                   </TableCell>
 
                   {/* Composite score */}
@@ -148,14 +149,11 @@ export function SectionRankingsTable({
                   </TableCell>
 
                   {/* Action */}
-                  <TableCell className="px-3 py-2.5 align-middle text-right">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link
-                        href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
-                      >
-                        {t("viewMembers")}
-                      </Link>
-                    </Button>
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <RowActions
+                      label={item.section_name}
+                      actions={[{ label: t("viewMembers"), icon: Users, href: `/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}` }]}
+                    />
                   </TableCell>
                 </TableRow>
               );

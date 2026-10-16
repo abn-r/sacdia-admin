@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Eye, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { listOrders } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -163,9 +163,7 @@ export default async function InboxPage({
                     <TableHead>{t("colStatus")}</TableHead>
                     <TableHead className="text-right">{t("colTotal")}</TableHead>
                     <TableHead>{t("colDate")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[72px] border-l bg-card">
-                      {t("colActions")}
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -198,12 +196,15 @@ export default async function InboxPage({
                         {formatDate(orden.created_at)}
                       </TableCell>
                       <TableCell className="sticky right-0 z-10 border-l bg-card">
-                        <Button variant="ghost" size="icon-sm" asChild>
-                          <Link href={resolveDetailHref(orden)} prefetch={false}>
-                            <Eye className="size-4" />
-                            <span className="sr-only">{t("viewDetail")}</span>
-                          </Link>
-                        </Button>
+                        <RowActions
+                          label={orden.folio_referencia ?? orden.director.nombre}
+                          actions={[
+                            {
+                              label: t("viewDetail"),
+                              href: resolveDetailHref(orden),
+                            },
+                          ]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

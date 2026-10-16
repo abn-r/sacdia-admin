@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Loader2, UserMinus, Users, XCircle } from "lucide-react";
+import { Loader2, UserMinus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -16,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   removeCamporeeMember,
   removeUnionCamporeeMember,
@@ -246,7 +246,7 @@ export function CamporeeMembersPanel({
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("membersPanel.colInsurance")}
               </TableHead>
-              <TableHead className="h-9 w-28 px-3" />
+              <RowActionsHead className="h-9 w-72 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -281,61 +281,39 @@ export function CamporeeMembersPanel({
                     <InsuranceBadge status={member.insurance_status} t={t} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="flex items-center justify-end gap-1">
-                      {canApprove && (
-                        <>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                loading={isApproving}
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-success hover:bg-success/10 hover:text-success"
-                                onClick={() => handleApprove(member)}
-                                aria-label={t("membersPanel.approveLabel")}
-                              >
-                                <CheckCircle2 className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("membersPanel.approveLabel")}</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => setDialog({ member, mode: "reject" })}
-                                aria-label={t("membersPanel.rejectLabel")}
-                              >
-                                <XCircle className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("membersPanel.rejectLabel")}</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-
-                      {isRemovable && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                    <RowActions
+                      label={member.name ?? member.user_id}
+                      actions={[
+                        {
+                          label: t("membersPanel.removeLabel"),
+                          icon: UserMinus,
+                          destructive: true,
+                          disabled: removingUserId === member.user_id,
+                          hidden: !isRemovable,
+                          onSelect: () => handleRemove(member.user_id, member.name),
+                        },
+                      ]}
+                      primary={
+                        canApprove ? (
+                          <>
                             <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => handleRemove(member.user_id, member.name)}
-                              disabled={removingUserId === member.user_id}
-                              aria-label={t("membersPanel.removeLabel")}
-                              className="text-destructive hover:text-destructive"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setDialog({ member, mode: "reject" })}
                             >
-                              <UserMinus className="size-3.5" />
-                              <span className="sr-only">{t("membersPanel.removeLabel")}</span>
+                              {t("membersPanel.rejectLabel")}
                             </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("membersPanel.removeLabel")}</TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
+                            <Button
+                              size="sm"
+                              loading={isApproving}
+                              onClick={() => handleApprove(member)}
+                            >
+                              {t("membersPanel.approveLabel")}
+                            </Button>
+                          </>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               );

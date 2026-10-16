@@ -8,7 +8,6 @@ import {
   Download,
   ExternalLink,
   FileText,
-  MoreHorizontal,
   Radio,
   Pencil,
   Plus,
@@ -49,13 +48,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -64,11 +57,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
@@ -1283,9 +1271,7 @@ export function ResourcesCrudPage({
                     <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Fecha
                     </TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium text-muted-foreground">
-                      Acciones
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 h-9 border-l bg-card px-3" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1337,116 +1323,33 @@ export function ResourcesCrudPage({
                           {formatDate(item.created_at)}
                         </TableCell>
                         <TableCell className="sticky right-0 z-10 border-l bg-card px-3 py-2.5 align-middle">
-                          {/* Desktop: icon buttons */}
-                          <div className="hidden items-center gap-0.5 md:flex">
-                            {type !== "text" && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-muted-foreground hover:text-foreground"
-                                    disabled={!itemId}
-                                    onClick={() => handleOpenSignedUrl(item)}
-                                  >
-                                    {type === "video_link" ? (
-                                      <ExternalLink className="size-3.5" />
-                                    ) : (
-                                      <Download className="size-3.5" />
-                                    )}
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {type === "video_link" ? "Abrir enlace" : "Descargar"}
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-
-                            {canEdit && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-muted-foreground hover:text-foreground"
-                                    disabled={!itemId}
-                                    onClick={() => setEditItem(item)}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Editar</TooltipContent>
-                              </Tooltip>
-                            )}
-
-                            {canDelete && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-destructive/70 hover:text-destructive"
-                                    disabled={!itemId}
-                                    onClick={() => setDeleteItem(item)}
-                                  >
-                                    <Trash2 className="size-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Eliminar</TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-
-                          {/* Mobile: dropdown */}
-                          <div className="md:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  title="Acciones"
-                                >
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {type !== "text" && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    onSelect={() => handleOpenSignedUrl(item)}
-                                  >
-                                    {type === "video_link" ? (
-                                      <ExternalLink className="size-4" />
-                                    ) : (
-                                      <Download className="size-4" />
-                                    )}
-                                    {type === "video_link" ? "Abrir enlace" : "Descargar"}
-                                  </DropdownMenuItem>
-                                )}
-                                {(canEdit || canDelete) && <DropdownMenuSeparator />}
-                                {canEdit && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    onSelect={() => setEditItem(item)}
-                                  >
-                                    <Pencil className="size-4" />
-                                    Editar
-                                  </DropdownMenuItem>
-                                )}
-                                {canDelete && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    variant="destructive"
-                                    onSelect={() => setDeleteItem(item)}
-                                  >
-                                    <Trash2 className="size-4" />
-                                    Eliminar
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <RowActions
+                            label={title}
+                            actions={[
+                              {
+                                label: type === "video_link" ? "Abrir enlace" : "Descargar",
+                                icon: type === "video_link" ? ExternalLink : Download,
+                                onSelect: () => handleOpenSignedUrl(item),
+                                hidden: type === "text",
+                                disabled: !itemId,
+                              },
+                              {
+                                label: "Editar",
+                                icon: Pencil,
+                                onSelect: () => setEditItem(item),
+                                hidden: !canEdit,
+                                disabled: !itemId,
+                              },
+                              {
+                                label: "Eliminar…",
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => setDeleteItem(item),
+                                hidden: !canDelete,
+                                disabled: !itemId,
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );

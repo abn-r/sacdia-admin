@@ -5,7 +5,6 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
-  MoreHorizontal,
   Pencil,
   Plus,
   Search,
@@ -34,12 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -279,9 +273,7 @@ export function AchievementCategoriesCrudPage({
                     <TableHead>{t("tableColIcon")}</TableHead>
                     <TableHead>{t("tableColOrder")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-card text-xs font-medium text-muted-foreground">
-                      {t("tableColActions")}
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -321,54 +313,24 @@ export function AchievementCategoriesCrudPage({
                           <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         <TableCell className="sticky right-0 z-10 border-l bg-card">
-                          <div className="hidden gap-1 md:flex">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                              disabled={!categoryId}
-                              onClick={() => setEditItem(item)}
-                              title={t("actionEdit")}
-                            >
-                              <Pencil className="size-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 text-destructive hover:text-destructive"
-                              disabled={!categoryId}
-                              onClick={() => setDeleteItem(item)}
-                              title={t("actionDelete")}
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          </div>
-                          <div className="md:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-8">
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  disabled={!categoryId}
-                                  onSelect={() => setEditItem(item)}
-                                >
-                                  <Pencil className="size-4" />
-                                  {t("actionEdit")}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  disabled={!categoryId}
-                                  variant="destructive"
-                                  onSelect={() => setDeleteItem(item)}
-                                >
-                                  <Trash2 className="size-4" />
-                                  {t("actionDelete")}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <RowActions
+                            label={categoryName}
+                            actions={[
+                              {
+                                label: t("actionEdit"),
+                                icon: Pencil,
+                                onSelect: () => setEditItem(item),
+                                disabled: !categoryId,
+                              },
+                              {
+                                label: `${t("actionDelete")}…`,
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => setDeleteItem(item),
+                                disabled: !categoryId,
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );

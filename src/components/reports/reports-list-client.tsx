@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import {
   listMonthlyReports,
@@ -384,7 +385,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     <TableHead>{t("list.tableHeaderStatus")}</TableHead>
                     <TableHead className="hidden md:table-cell">{t("list.tableHeaderGenerated")}</TableHead>
                     <TableHead className="hidden md:table-cell">{t("list.tableHeaderSubmitted")}</TableHead>
-                    <TableHead className="w-[200px]">{t("list.tableHeaderActions")}</TableHead>
+                    <RowActionsHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -397,7 +398,12 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     return (
                       <TableRow key={report.report_id}>
                         <TableCell className="font-medium">
-                          {t(`months.${report.month}` as Parameters<typeof t>[0])}
+                          <Link
+                            href={`/dashboard/reports/${report.report_id}`}
+                            className="hover:underline"
+                          >
+                            {t(`months.${report.month}` as Parameters<typeof t>[0])}
+                          </Link>
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
@@ -410,57 +416,37 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           {report.submitted_at ? formatDate(report.submitted_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5">
-                            <Button variant="ghost" size="xs" asChild>
-                              <Link href={`/dashboard/reports/${report.report_id}`}>
-                                {isSubmitted ? (
-                                  <Eye className="size-3" />
-                                ) : (
-                                  <Pencil className="size-3" />
-                                )}
-                                {isSubmitted ? t("list.actionView") : t("list.actionEdit")}
-                              </Link>
-                            </Button>
-
-                            {!isSubmitted && (
-                              <Button
-                                loading={loadingAction === "generate"}
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => generateMutation.mutate(report)}
-                                disabled={isDisabled}
-                              >
-                                <Zap className="size-3" />
-                                {t("list.actionGenerate")}
-                              </Button>
-                            )}
-
-                            {isGenerated && (
-                              <Button
-                                loading={loadingAction === "submit"}
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => submitMutation.mutate(report)}
-                                disabled={isDisabled}
-                              >
-                                <Send className="size-3" />
-                                {t("list.actionSend")}
-                              </Button>
-                            )}
-
-                            {(isGenerated || isSubmitted) && (
-                              <Button
-                                loading={loadingAction === "pdf"}
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => handleDownloadPdf(report)}
-                                disabled={isDisabled}
-                              >
-                                <Download className="size-3" />
-                                {t("list.actionPdf")}
-                              </Button>
-                            )}
-                          </div>
+                          <RowActions
+                            label={`${t(`months.${report.month}` as Parameters<typeof t>[0])} ${report.year}`}
+                            actions={[
+                              {
+                                label: isSubmitted ? t("list.actionView") : t("list.actionEdit"),
+                                icon: isSubmitted ? Eye : Pencil,
+                                href: `/dashboard/reports/${report.report_id}`,
+                              },
+                              {
+                                label: t("list.actionGenerate"),
+                                icon: Zap,
+                                onSelect: () => generateMutation.mutate(report),
+                                disabled: isDisabled,
+                                hidden: isSubmitted,
+                              },
+                              {
+                                label: t("list.actionSend"),
+                                icon: Send,
+                                onSelect: () => submitMutation.mutate(report),
+                                disabled: isDisabled,
+                                hidden: !isGenerated,
+                              },
+                              {
+                                label: t("list.actionPdf"),
+                                icon: Download,
+                                onSelect: () => handleDownloadPdf(report),
+                                disabled: isDisabled,
+                                hidden: !(isGenerated || isSubmitted),
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );

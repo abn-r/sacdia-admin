@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -390,7 +391,7 @@ export function CronHistoryClient({
                       <TableHead>{t("colDuration")}</TableHead>
                       <TableHead className="hidden text-right xl:table-cell">{t("colItems")}</TableHead>
                       <TableHead className="hidden max-w-[200px] xl:table-cell">{t("colError")}</TableHead>
-                      <TableHead className="pr-6 text-right">{t("colDetails")}</TableHead>
+                      <RowActionsHead />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -450,16 +451,17 @@ export function CronHistoryClient({
                         </TableCell>
 
                         {/* Details */}
-                        <TableCell className="pr-6 text-right">
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            onClick={() => setSelectedItem(item)}
-                            className="gap-1.5"
-                          >
-                            <Info className="size-3" />
-                            {t("viewButton")}
-                          </Button>
+                        <TableCell className="pr-6">
+                          <RowActions
+                            label={item.job_name}
+                            actions={[
+                              {
+                                label: t("viewButton"),
+                                icon: Info,
+                                onSelect: () => setSelectedItem(item),
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}

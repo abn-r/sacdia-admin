@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import {
   Eye,
   EyeOff,
-  MoreHorizontal,
   Pencil,
   Plus,
   RefreshCw,
@@ -37,12 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -370,9 +364,7 @@ export function AchievementsCrudPage({
                     <TableHead className="hidden xl:table-cell">{t("tableColScope")}</TableHead>
                     <TableHead className="hidden xl:table-cell">{t("tableColSecret")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-card text-xs font-medium text-muted-foreground">
-                      {t("tableColActions")}
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -472,80 +464,24 @@ export function AchievementsCrudPage({
                         </TableCell>
 
                         <TableCell className="sticky right-0 z-10 border-l bg-card">
-                          <div className="hidden gap-1 md:flex">
-                            {achId ? (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                                asChild
-                                title={t("actionEdit")}
-                              >
-                                <Link
-                                  href={`/dashboard/configuration/achievements/${categoryId}/${achId}/edit`}
-                                  prefetch={false}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Link>
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                                disabled
-                                title={t("actionEdit")}
-                              >
-                                <Pencil className="size-3.5" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 text-destructive hover:text-destructive"
-                              disabled={!achId}
-                              onClick={() => setDeleteItem(item)}
-                              title={t("actionDelete")}
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          </div>
-
-                          <div className="md:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-8">
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {achId ? (
-                                  <DropdownMenuItem asChild>
-                                    <Link
-                                      href={`/dashboard/configuration/achievements/${categoryId}/${achId}/edit`}
-                                      prefetch={false}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("actionEdit")}
-                                    </Link>
-                                  </DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem disabled>
-                                    <Pencil className="size-4" />
-                                    {t("actionEdit")}
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
-                                  disabled={!achId}
-                                  variant="destructive"
-                                  onSelect={() => setDeleteItem(item)}
-                                >
-                                  <Trash2 className="size-4" />
-                                  {t("actionDelete")}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <RowActions
+                            label={achName}
+                            actions={[
+                              {
+                                label: t("actionEdit"),
+                                icon: Pencil,
+                                href: `/dashboard/configuration/achievements/${categoryId}/${achId}/edit`,
+                                disabled: !achId,
+                              },
+                              {
+                                label: `${t("actionDelete")}…`,
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => setDeleteItem(item),
+                                disabled: !achId,
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );

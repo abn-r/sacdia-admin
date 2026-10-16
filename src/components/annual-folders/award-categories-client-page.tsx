@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -395,7 +396,7 @@ export function AwardCategoriesClientPage({
                               Estado
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 w-20 px-3 text-right text-xs font-medium text-muted-foreground">Acciones</TableHead>
+                          <RowActionsHead className="h-9 px-3" />
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -465,28 +466,23 @@ export function AwardCategoriesClientPage({
                               <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? "Activa" : "Inactiva"} size="sm" />
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  onClick={() => handleEdit(cat)}
-                                  title={t("awardCategoriesClient.editCategoryTitle")}
-                                  disabled={cat.is_legacy}
-                                >
-                                  <Pencil className="size-3.5" />
-                                  <span className="sr-only">Editar</span>
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  onClick={() => handleDelete(cat)}
-                                  title={t("awardCategoriesClient.deleteCategoryTitle")}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="size-3.5" />
-                                  <span className="sr-only">Eliminar</span>
-                                </Button>
-                              </div>
+                              <RowActions
+                                label={cat.name}
+                                actions={[
+                                  {
+                                    label: "Editar",
+                                    icon: Pencil,
+                                    onSelect: () => handleEdit(cat),
+                                    disabled: cat.is_legacy,
+                                  },
+                                  {
+                                    label: "Eliminar…",
+                                    icon: Trash2,
+                                    destructive: true,
+                                    onSelect: () => handleDelete(cat),
+                                  },
+                                ]}
+                              />
                             </TableCell>
                           </TableRow>
                         ))}
