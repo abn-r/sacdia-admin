@@ -37,9 +37,11 @@ function SubmitButton() {
 
 type Props = {
   nextParam: string;
+  /** The session could not be refreshed because the backend was unreachable. */
+  refreshUnavailable?: boolean;
 };
 
-export function LoginForm({ nextParam }: Props) {
+export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
   const t = useTranslations("auth.login");
   const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
@@ -92,6 +94,16 @@ export function LoginForm({ nextParam }: Props) {
           >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             <span>{state.error}</span>
+          </div>
+        )}
+
+        {!state.error && refreshUnavailable && (
+          <div
+            role="status"
+            className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/50 px-3.5 py-3 text-sm text-muted-foreground"
+          >
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <span>{t("session_refresh_unavailable")}</span>
           </div>
         )}
 

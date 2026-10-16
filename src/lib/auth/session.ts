@@ -3,6 +3,7 @@ import { cookies, headers } from "next/headers";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
+  REFRESH_FAILED_COOKIE,
   ACCESS_TOKEN_MAX_AGE_SECONDS,
   REFRESH_TOKEN_MAX_AGE_SECONDS,
   AUTH_COOKIE_OPTIONS,
@@ -145,6 +146,10 @@ export function setAuthCookies(cookieStore: CookieStore, tokens: AuthTokens) {
       maxAge: getRefreshTokenMaxAgeSeconds(tokens.expiresAt),
     });
   }
+
+  if (cookieStore.get(REFRESH_FAILED_COOKIE)?.value) {
+    cookieStore.delete(REFRESH_FAILED_COOKIE);
+  }
 }
 
 export function sanitizeDashboardNextPath(value: string): string | null {
@@ -167,19 +172,37 @@ async function getCurrentDashboardPath() {
   return sanitizeDashboardNextPath(`${pathname}${search}`) ?? "/dashboard";
 }
 
-export async function hasRefreshToken() {
+// `reason` query value the refresh route adds to /login after a transient failure.
+export const LOGIN_REASON_REFRESH_UNAVAILABLE = "refresh_unavailable";
+
+/**
+ * True when a refresh cookie exists and the previous refresh attempt did not
+ * just fail for a transient reason. Pages that bounce to /api/auth/refresh on
+ * their own (e.g. the login layout) must use this to avoid a redirect loop.
+ */
+export async function canAttemptSessionRefresh() {
   const cookieStore = await cookies();
-  return Boolean(cookieStore.get(REFRESH_TOKEN_COOKIE)?.value);
+  return (
+    Boolean(cookieStore.get(REFRESH_TOKEN_COOKIE)?.value) &&
+    !cookieStore.get(REFRESH_FAILED_COOKIE)?.value
+  );
 }
 
-export async function refreshSessionFromCookies(
+export type RefreshSessionResult =
+  | { status: "refreshed"; accessToken: string }
+  // Refresh token rejected or missing; auth cookies have been cleared.
+  | { status: "invalid" }
+  // Backend answered 429/5xx; cookies are kept so a later retry can succeed.
+  | { status: "unavailable" };
+
+export async function attemptSessionRefresh(
   cookieStoreArg?: CookieStore,
-): Promise<string | null> {
+): Promise<RefreshSessionResult> {
   const cookieStore = cookieStoreArg ?? (await cookies());
   const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
 
   if (!refreshToken) {
-    return null;
+    return { status: "invalid" };
   }
 
   try {
@@ -191,7 +214,7 @@ export async function refreshSessionFromCookies(
 
     if (!tokens.accessToken) {
       clearAuthCookies(cookieStore);
-      return null;
+      return { status: "invalid" };
     }
 
     setAuthCookies(cookieStore, {
@@ -200,21 +223,28 @@ export async function refreshSessionFromCookies(
       expiresAt: tokens.expiresAt,
     });
 
-    return tokens.accessToken;
+    return { status: "refreshed", accessToken: tokens.accessToken };
   } catch (error) {
     if (error instanceof ApiError) {
       if ([400, 401, 403].includes(error.status)) {
         clearAuthCookies(cookieStore);
-        return null;
+        return { status: "invalid" };
       }
 
       if (error.status === 429 || error.status >= 500) {
-        return null;
+        return { status: "unavailable" };
       }
     }
 
     throw error;
   }
+}
+
+export async function refreshSessionFromCookies(
+  cookieStoreArg?: CookieStore,
+): Promise<string | null> {
+  const result = await attemptSessionRefresh(cookieStoreArg);
+  return result.status === "refreshed" ? result.accessToken : null;
 }
 
 function unwrapAuthMePayload(response: { status?: string; data?: AuthUser } & AuthUser): AuthUser {

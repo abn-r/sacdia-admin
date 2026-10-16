@@ -1187,6 +1187,7 @@ export interface IntlMessages {
       brand_description: string;
       version_label: string;
       region_label: string;
+      session_refresh_unavailable: string;
     };
     validation: {
       email_invalid: string;

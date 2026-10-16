@@ -10,3 +10,9 @@ export const AUTH_COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
 };
+
+// Short-lived marker set when a refresh attempt failed for a transient reason
+// (network, 429, 5xx). It stops the login layout from bouncing straight back to
+// /api/auth/refresh, which would otherwise loop while the backend is down.
+export const REFRESH_FAILED_COOKIE = "sacdia_admin_refresh_failed";
+export const REFRESH_FAILED_MAX_AGE_SECONDS = 60;

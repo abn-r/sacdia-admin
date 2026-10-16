@@ -1157,7 +1157,8 @@
       "verse_text": "“Tudo posso naquele que me fortalece.”",
       "brand_description": "Plataforma para clubes de Aventureiros, Desbravadores e Guias Mestres. Inscrições, classes, especialidades e finanças em um só lugar.",
       "version_label": "v1.0 · 2026",
-      "region_label": "Associação Norte · Pacífico"
+      "region_label": "Associação Norte · Pacífico",
+      "session_refresh_unavailable": "Não foi possível renovar sua sessão porque o servidor não respondeu. Entre novamente ou tente em alguns minutos."
     },
     "validation": {
       "email_invalid": "Insira um e-mail válido",

@@ -1157,7 +1157,8 @@
       "verse_text": "«Todo lo puedo en Cristo que me fortalece.»",
       "brand_description": "Plataforma para clubes de Aventureros, Conquistadores y Guías Mayores. Inscripciones, clases, especialidades y finanzas en un solo lugar.",
       "version_label": "v1.0 · 2026",
-      "region_label": "Asociación Norte · Pacífico"
+      "region_label": "Asociación Norte · Pacífico",
+      "session_refresh_unavailable": "No pudimos renovar tu sesión porque el servidor no respondió. Inicia sesión de nuevo o inténtalo en unos minutos."
     },
     "validation": {
       "email_invalid": "Ingresa un correo válido",

@@ -1157,7 +1157,8 @@
       "verse_text": "« Je puis tout par Celui qui me fortifie. »",
       "brand_description": "Plateforme pour les clubs d'Aventuriers, d'Éclaireurs et de Guides Maîtres. Inscriptions, classes, spécialités et finances en un seul endroit.",
       "version_label": "v1.0 · 2026",
-      "region_label": "Association Nord-Pacifique"
+      "region_label": "Association Nord-Pacifique",
+      "session_refresh_unavailable": "Nous n'avons pas pu renouveler votre session car le serveur n'a pas répondu. Reconnectez-vous ou réessayez dans quelques minutes."
     },
     "validation": {
       "email_invalid": "Saisissez un e-mail valide",

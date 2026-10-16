@@ -1157,7 +1157,8 @@
       "verse_text": "“I can do all things through Christ who strengthens me.”",
       "brand_description": "Platform for Adventurer, Pathfinder and Master Guide clubs. Memberships, classes, honors and finance in one place.",
       "version_label": "v1.0 · 2026",
-      "region_label": "North Pacific Association"
+      "region_label": "North Pacific Association",
+      "session_refresh_unavailable": "We couldn't renew your session because the server didn't respond. Sign in again or try again in a few minutes."
     },
     "validation": {
       "email_invalid": "Enter a valid email",
