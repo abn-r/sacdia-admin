@@ -67,6 +67,16 @@ function isExpiringSoon(expiresAt?: string | null): boolean {
   return diff > 0 && diff < 48 * 60 * 60 * 1000;
 }
 
+/**
+ * Actions column pinned to the right edge: on narrow widths the table scrolls
+ * horizontally (DS table wrapper) while approve / verify / reject stay reachable.
+ * The cell needs an opaque background to cover the scrolled content.
+ */
+const ACTIONS_HEAD_STICKY =
+  "sticky right-0 z-10 border-l border-border/60 bg-card";
+const ACTIONS_CELL_STICKY =
+  "sticky right-0 z-10 border-l border-border/60 bg-card group-hover/row:bg-[color-mix(in_oklab,var(--card),var(--muted)_30%)]";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface PendingMembersTableProps {
@@ -184,7 +194,10 @@ export function PendingMembersTable({
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_expires")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
+                <TableHead
+                  data-testid="actions-head"
+                  className={`h-9 px-3 text-right text-xs font-medium text-muted-foreground ${ACTIONS_HEAD_STICKY}`}
+                >
                   {t("table.col_actions")}
                 </TableHead>
               </TableRow>
@@ -200,7 +213,7 @@ export function PendingMembersTable({
                 return (
                   <TableRow
                     key={req.assignment_id}
-                    className="hover:bg-muted/30"
+                    className="group/row hover:bg-muted/30"
                   >
                     {/* Member info */}
                     <TableCell className="px-3 py-2.5 align-middle">
@@ -270,7 +283,10 @@ export function PendingMembersTable({
                     </TableCell>
 
                     {/* Actions */}
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell
+                      data-testid="actions-cell"
+                      className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY}`}
+                    >
                       <div className="flex items-center justify-end gap-1">
                         {isProcessing && (
                           <Loader2 className="size-4 animate-spin text-muted-foreground" />

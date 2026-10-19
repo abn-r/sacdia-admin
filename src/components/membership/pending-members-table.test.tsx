@@ -254,3 +254,32 @@ describe("PendingMembersTable (effective expiry)", () => {
     expect(c2.querySelector(".text-warning")).not.toBeNull();
   });
 });
+
+describe("PendingMembersTable (narrow widths)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockList.mockResolvedValue([]);
+  });
+
+  afterEach(() => cleanup());
+
+  it("scrolls horizontally and pins the actions column to the right", () => {
+    const { container } = renderTable([adult(), minor("pending")]);
+
+    // DS table pattern: scroll wrapper around the table.
+    expect(container.querySelector(".overflow-x-auto.rounded-xl")).not.toBeNull();
+
+    const head = screen.getByTestId("actions-head");
+    expect(head.className).toContain("sticky");
+    expect(head.className).toContain("right-0");
+    expect(head.className).toContain("bg-card");
+
+    const cells = screen.getAllByTestId("actions-cell");
+    expect(cells).toHaveLength(2);
+    for (const cell of cells) {
+      expect(cell.className).toContain("sticky");
+      expect(cell.className).toContain("right-0");
+      expect(cell.className).toContain("bg-card");
+    }
+  });
+});
