@@ -6793,6 +6793,78 @@
       "reject": "Une erreur s’est produite lors du refus de la demande"
     }
   },
+  "guardianships": {
+    "title": "Tutelles",
+    "description": "Relations de tutelle de l'utilisateur en tant que mineur et en tant que tuteur.",
+    "asDependent": {
+      "title": "Tuteurs de ce profil",
+      "empty": "Ce profil n'a aucune tutelle enregistrée."
+    },
+    "asGuardian": {
+      "title": "Mineurs sous sa responsabilité",
+      "empty": "Cet utilisateur n'est le tuteur d'aucun mineur."
+    },
+    "profile": {
+      "title": "Profil de mineur",
+      "createdAt": "Créé le",
+      "createdBy": "Créé par (ID)",
+      "frozenAt": "Gelé depuis le",
+      "purgeAfter": "Suppression prévue à partir du",
+      "active": "Actif"
+    },
+    "fields": {
+      "guardian": "Tuteur",
+      "email": "E-mail",
+      "custodianClub": "Garde du club",
+      "externalName": "Tuteur externe (sans compte)",
+      "relationship": "Lien de parenté",
+      "status": "Statut",
+      "method": "Méthode de vérification",
+      "verifiedAt": "Vérifié le",
+      "verifiedBy": "Vérifié par",
+      "evidence": "Fiche signée",
+      "createdAt": "Enregistrée le",
+      "revokedAt": "Révoquée le",
+      "revokedReason": "Motif de révocation",
+      "birthday": "Naissance"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Garde",
+      "testData": "Données de test",
+      "revoked": "Révoquée"
+    },
+    "status": {
+      "pending": "En attente",
+      "verified": "Vérifié",
+      "revoked": "Révoqué"
+    },
+    "method": {
+      "director_paper_form": "Fiche papier (directeur)",
+      "guardian_invite": "Invitation de tuteur",
+      "legacy_import": "Import hérité",
+      "test_placeholder": "Marqueur de test"
+    },
+    "revokedReason": {
+      "guardian_left": "Le tuteur est parti",
+      "removed_by_primary": "Retiré par le tuteur principal",
+      "guardian_account_closed": "Compte du tuteur fermé",
+      "claimed": "Réclamé par un autre tuteur",
+      "admin": "Administration",
+      "released": "Libéré"
+    },
+    "evidence": {
+      "missing": "Sans fiche",
+      "view": "Voir la fiche",
+      "loading": "Chargement...",
+      "open": "Ouvrir la fiche",
+      "expiryNote": "Le lien est temporaire et expire dans quelques minutes.",
+      "error": "La fiche n'a pas pu être ouverte.",
+      "unavailable": "Les fiches ne sont pas disponibles pour le moment.",
+      "notFound": "Il n'y a pas de fiche signée pour cette tutelle.",
+      "denied": "Vous n'avez pas la permission de voir cette fiche."
+    }
+  },
   "sla": {
     "client": {
       "title": "Tableau de bord SLA",

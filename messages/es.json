@@ -6793,6 +6793,78 @@
       "reject": "Ocurrió un error al rechazar la solicitud"
     }
   },
+  "guardianships": {
+    "title": "Tutorías",
+    "description": "Relaciones de tutoría del usuario como menor y como tutor.",
+    "asDependent": {
+      "title": "Tutores de este perfil",
+      "empty": "Este perfil no tiene tutorías registradas."
+    },
+    "asGuardian": {
+      "title": "Menores a su cargo",
+      "empty": "Este usuario no es tutor de ningún menor."
+    },
+    "profile": {
+      "title": "Perfil de menor",
+      "createdAt": "Creado el",
+      "createdBy": "Creado por (ID)",
+      "frozenAt": "Congelado desde",
+      "purgeAfter": "Se eliminará a partir del",
+      "active": "Activo"
+    },
+    "fields": {
+      "guardian": "Tutor",
+      "email": "Correo",
+      "custodianClub": "Custodia del club",
+      "externalName": "Tutor externo (sin cuenta)",
+      "relationship": "Parentesco",
+      "status": "Estado",
+      "method": "Método de verificación",
+      "verifiedAt": "Verificado el",
+      "verifiedBy": "Verificado por",
+      "evidence": "Ficha firmada",
+      "createdAt": "Registrada el",
+      "revokedAt": "Revocada el",
+      "revokedReason": "Motivo de revocación",
+      "birthday": "Nacimiento"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Custodia",
+      "testData": "Datos de prueba",
+      "revoked": "Revocada"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "verified": "Verificado",
+      "revoked": "Revocado"
+    },
+    "method": {
+      "director_paper_form": "Ficha en papel (director)",
+      "guardian_invite": "Invitación de tutor",
+      "legacy_import": "Importación heredada",
+      "test_placeholder": "Marcador de prueba"
+    },
+    "revokedReason": {
+      "guardian_left": "El tutor salió",
+      "removed_by_primary": "Removido por el tutor principal",
+      "guardian_account_closed": "Cuenta del tutor cerrada",
+      "claimed": "Reclamado por otro tutor",
+      "admin": "Administración",
+      "released": "Liberado"
+    },
+    "evidence": {
+      "missing": "Sin ficha",
+      "view": "Ver ficha",
+      "loading": "Cargando...",
+      "open": "Abrir ficha",
+      "expiryNote": "El enlace es temporal y vence en unos minutos.",
+      "error": "No se pudo abrir la ficha.",
+      "unavailable": "Las fichas no están disponibles por ahora.",
+      "notFound": "No hay una ficha firmada para esta tutoría.",
+      "denied": "No tienes permiso para ver esta ficha."
+    }
+  },
   "sla": {
     "client": {
       "title": "SLA Dashboard",

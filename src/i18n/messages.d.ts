@@ -6822,6 +6822,78 @@ export interface IntlMessages {
       reject: string;
     };
   };
+  guardianships: {
+    title: string;
+    description: string;
+    asDependent: {
+      title: string;
+      empty: string;
+    };
+    asGuardian: {
+      title: string;
+      empty: string;
+    };
+    profile: {
+      title: string;
+      createdAt: string;
+      createdBy: string;
+      frozenAt: string;
+      purgeAfter: string;
+      active: string;
+    };
+    fields: {
+      guardian: string;
+      email: string;
+      custodianClub: string;
+      externalName: string;
+      relationship: string;
+      status: string;
+      method: string;
+      verifiedAt: string;
+      verifiedBy: string;
+      evidence: string;
+      createdAt: string;
+      revokedAt: string;
+      revokedReason: string;
+      birthday: string;
+    };
+    badges: {
+      primary: string;
+      custodian: string;
+      testData: string;
+      revoked: string;
+    };
+    status: {
+      pending: string;
+      verified: string;
+      revoked: string;
+    };
+    method: {
+      director_paper_form: string;
+      guardian_invite: string;
+      legacy_import: string;
+      test_placeholder: string;
+    };
+    revokedReason: {
+      guardian_left: string;
+      removed_by_primary: string;
+      guardian_account_closed: string;
+      claimed: string;
+      admin: string;
+      released: string;
+    };
+    evidence: {
+      missing: string;
+      view: string;
+      loading: string;
+      open: string;
+      expiryNote: string;
+      error: string;
+      unavailable: string;
+      notFound: string;
+      denied: string;
+    };
+  };
   sla: {
     client: {
       title: string;

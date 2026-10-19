@@ -27,6 +27,8 @@ import { UserAccessToggles } from "@/components/users/user-access-toggles";
 import { PostRegistrationTab } from "@/components/users/post-registration-tab";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import { UserRolesOverview } from "@/components/users/user-roles-overview";
+import { UserGuardianshipsCard } from "@/components/users/user-guardianships-card";
+import { hasGuardianshipsContent } from "@/lib/admin-users/guardianships";
 
 import { UserDetailHero } from "@/components/users/detail/hero";
 import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
@@ -379,6 +381,14 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               legalPhoneLabel={t("fields.phone")}
               legalRelationshipLabel={t("fields.relationship")}
             />
+            {hasGuardianshipsContent(user.guardianships) ? (
+              <div className="mt-3.5">
+                <UserGuardianshipsCard
+                  userId={user.user_id}
+                  guardianships={user.guardianships}
+                />
+              </div>
+            ) : null}
           </TabsContent>
 
           <TabsContent value="datos" className="mt-0">

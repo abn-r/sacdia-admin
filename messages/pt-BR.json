@@ -6793,6 +6793,78 @@
       "reject": "Ocorreu um erro ao rejeitar a solicitação"
     }
   },
+  "guardianships": {
+    "title": "Tutelas",
+    "description": "Relações de tutela do usuário como menor e como responsável.",
+    "asDependent": {
+      "title": "Responsáveis deste perfil",
+      "empty": "Este perfil não possui tutelas registradas."
+    },
+    "asGuardian": {
+      "title": "Menores sob seus cuidados",
+      "empty": "Este usuário não é responsável por nenhum menor."
+    },
+    "profile": {
+      "title": "Perfil de menor",
+      "createdAt": "Criado em",
+      "createdBy": "Criado por (ID)",
+      "frozenAt": "Congelado desde",
+      "purgeAfter": "Exclusão prevista a partir de",
+      "active": "Ativo"
+    },
+    "fields": {
+      "guardian": "Responsável",
+      "email": "E-mail",
+      "custodianClub": "Custódia do clube",
+      "externalName": "Responsável externo (sem conta)",
+      "relationship": "Parentesco",
+      "status": "Status",
+      "method": "Método de verificação",
+      "verifiedAt": "Verificado em",
+      "verifiedBy": "Verificado por",
+      "evidence": "Ficha assinada",
+      "createdAt": "Registrada em",
+      "revokedAt": "Revogada em",
+      "revokedReason": "Motivo da revogação",
+      "birthday": "Nascimento"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Custódia",
+      "testData": "Dados de teste",
+      "revoked": "Revogada"
+    },
+    "status": {
+      "pending": "Pendente",
+      "verified": "Verificado",
+      "revoked": "Revogado"
+    },
+    "method": {
+      "director_paper_form": "Ficha em papel (diretor)",
+      "guardian_invite": "Convite de responsável",
+      "legacy_import": "Importação legada",
+      "test_placeholder": "Marcador de teste"
+    },
+    "revokedReason": {
+      "guardian_left": "O responsável saiu",
+      "removed_by_primary": "Removido pelo responsável principal",
+      "guardian_account_closed": "Conta do responsável encerrada",
+      "claimed": "Reivindicado por outro responsável",
+      "admin": "Administração",
+      "released": "Liberado"
+    },
+    "evidence": {
+      "missing": "Sem ficha",
+      "view": "Ver ficha",
+      "loading": "Carregando...",
+      "open": "Abrir ficha",
+      "expiryNote": "O link é temporário e expira em poucos minutos.",
+      "error": "Não foi possível abrir a ficha.",
+      "unavailable": "As fichas não estão disponíveis no momento.",
+      "notFound": "Não há ficha assinada para esta tutela.",
+      "denied": "Você não tem permissão para ver esta ficha."
+    }
+  },
   "sla": {
     "client": {
       "title": "Painel SLA",

@@ -6793,6 +6793,78 @@
       "reject": "An error occurred while rejecting the request"
     }
   },
+  "guardianships": {
+    "title": "Guardianships",
+    "description": "The user's guardianship relationships as a minor and as a guardian.",
+    "asDependent": {
+      "title": "Guardians of this profile",
+      "empty": "This profile has no guardianships on record."
+    },
+    "asGuardian": {
+      "title": "Minors in their care",
+      "empty": "This user is not a guardian of any minor."
+    },
+    "profile": {
+      "title": "Minor profile",
+      "createdAt": "Created on",
+      "createdBy": "Created by (ID)",
+      "frozenAt": "Frozen since",
+      "purgeAfter": "Scheduled for deletion from",
+      "active": "Active"
+    },
+    "fields": {
+      "guardian": "Guardian",
+      "email": "Email",
+      "custodianClub": "Club custody",
+      "externalName": "External guardian (no account)",
+      "relationship": "Relationship",
+      "status": "Status",
+      "method": "Verification method",
+      "verifiedAt": "Verified on",
+      "verifiedBy": "Verified by",
+      "evidence": "Signed form",
+      "createdAt": "Registered on",
+      "revokedAt": "Revoked on",
+      "revokedReason": "Revocation reason",
+      "birthday": "Birthday"
+    },
+    "badges": {
+      "primary": "Primary",
+      "custodian": "Custody",
+      "testData": "Test data",
+      "revoked": "Revoked"
+    },
+    "status": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "revoked": "Revoked"
+    },
+    "method": {
+      "director_paper_form": "Paper form (director)",
+      "guardian_invite": "Guardian invite",
+      "legacy_import": "Legacy import",
+      "test_placeholder": "Test placeholder"
+    },
+    "revokedReason": {
+      "guardian_left": "Guardian left",
+      "removed_by_primary": "Removed by the primary guardian",
+      "guardian_account_closed": "Guardian account closed",
+      "claimed": "Claimed by another guardian",
+      "admin": "Administration",
+      "released": "Released"
+    },
+    "evidence": {
+      "missing": "No form",
+      "view": "View form",
+      "loading": "Loading...",
+      "open": "Open form",
+      "expiryNote": "The link is temporary and expires in a few minutes.",
+      "error": "The form could not be opened.",
+      "unavailable": "Forms are not available right now.",
+      "notFound": "There is no signed form for this guardianship.",
+      "denied": "You do not have permission to view this form."
+    }
+  },
   "sla": {
     "client": {
       "title": "SLA Dashboard",
