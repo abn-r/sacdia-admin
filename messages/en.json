@@ -1468,6 +1468,9 @@
         "continuationsClass": "Suggested class",
         "continuationsPathComplete": "Path complete",
         "continuationsBlocked": "Not eligible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "This is a minor and the guardian's consent is not verified yet. Verify it before enrolling."
+        },
         "continuationsSubmit": "Enroll selected",
         "continuationsLoadError": "Could not load the continuations list.",
         "continuationsSubmitError": "Could not enroll the selected members.",

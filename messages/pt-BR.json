@@ -1468,6 +1468,9 @@
         "continuationsClass": "Classe sugerida",
         "continuationsPathComplete": "Percurso completo",
         "continuationsBlocked": "Não elegível",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "Menor sem o consentimento do responsável verificado. Verifique antes de inscrever."
+        },
         "continuationsSubmit": "Inscrever selecionados",
         "continuationsLoadError": "Não foi possível carregar a lista de continuações.",
         "continuationsSubmitError": "Não foi possível inscrever os selecionados.",

@@ -1497,6 +1497,9 @@ export interface IntlMessages {
         continuationsClass: string;
         continuationsPathComplete: string;
         continuationsBlocked: string;
+        continuationsBlockedReasons: {
+          MR_CONSENT_NOT_VERIFIED: string;
+        };
         continuationsSubmit: string;
         continuationsLoadError: string;
         continuationsSubmitError: string;

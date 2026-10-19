@@ -1468,6 +1468,9 @@
         "continuationsClass": "Classe suggérée",
         "continuationsPathComplete": "Parcours terminé",
         "continuationsBlocked": "Non admissible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "Mineur dont le consentement du tuteur n'est pas encore vérifié. Vérifiez-le avant d'inscrire."
+        },
         "continuationsSubmit": "Inscrire la sélection",
         "continuationsLoadError": "Impossible de charger la liste des continuations.",
         "continuationsSubmitError": "Impossible d'inscrire les membres sélectionnés.",
