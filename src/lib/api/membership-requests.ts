@@ -102,6 +102,8 @@ export const CONSENT_ERROR_CODES = [
   "GUARDIANSHIP_EVIDENCE_REQUIRED",
   "GUARDIANSHIP_EVIDENCE_UNAVAILABLE",
   "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY",
+  "GUARDIANSHIP_GUARDIAN_SELF_VERIFY",
+  "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED",
   "GUARDIANSHIP_NOT_FOUND",
   "MR_CONSENT_CONFIRMATION_REQUIRED",
   "MR_CONSENT_NOT_VERIFIED",
@@ -119,12 +121,20 @@ export type ConsentErrorCode = (typeof CONSENT_ERROR_CODES)[number];
  * Reads the machine error code from a failed request. Only the top-level
  * `code` is used: the backend drops `details` in production, so clients
  * must never depend on it.
+ *
+ * Exception: a body rejected by the multipart parser (multer) answers HTTP 413
+ * with no `code` of ours. Any failure with status 413 and no recognised code is
+ * a size problem, so it maps to FILE_TOO_LARGE.
  */
 export function getConsentErrorCode(error: unknown): ConsentErrorCode | null {
   const code = readErrorCode(error);
-  return code && (CONSENT_ERROR_CODES as readonly string[]).includes(code)
-    ? (code as ConsentErrorCode)
-    : null;
+  if (code && (CONSENT_ERROR_CODES as readonly string[]).includes(code)) {
+    return code as ConsentErrorCode;
+  }
+  if (error instanceof ApiError && error.status === 413) {
+    return "FILE_TOO_LARGE";
+  }
+  return null;
 }
 
 /** Narrows an arbitrary string (e.g. `approve_error`) to a known consent code. */

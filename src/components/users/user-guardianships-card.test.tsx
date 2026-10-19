@@ -236,6 +236,81 @@ describe("UserGuardianshipsCard", () => {
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(expected));
   });
 
+  describe("signed URL expiry (S5)", () => {
+    const evidenceFor = (sig: string, expires_in = 900) => ({
+      url: `https://r2.example/signed?sig=${sig}`,
+      expires_in,
+      content_type: "application/pdf",
+      uploaded_at: "2026-10-02T00:00:00.000Z",
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it("a fresh link opens normally without refetching", async () => {
+      mockEvidence.mockResolvedValue(evidenceFor("1"));
+      const open = vi.spyOn(window, "open").mockReturnValue(null);
+      const user = userEvent.setup();
+      renderCard(block({ as_dependent: [row()] }));
+
+      await user.click(screen.getByRole("button", { name: g.evidence.view }));
+      const link = await screen.findByRole("link", { name: g.evidence.open });
+      link.addEventListener("click", (event) => event.preventDefault());
+      await user.click(link);
+
+      expect(mockEvidence).toHaveBeenCalledTimes(1);
+      expect(open).not.toHaveBeenCalled();
+    });
+
+    it("a stale link (past its TTL) is refetched before opening and the fresh URL is opened", async () => {
+      mockEvidence
+        .mockResolvedValueOnce(evidenceFor("old"))
+        .mockResolvedValue(evidenceFor("new"));
+      const open = vi.spyOn(window, "open").mockReturnValue(null);
+      const user = userEvent.setup();
+      renderCard(block({ as_dependent: [row()] }));
+
+      await user.click(screen.getByRole("button", { name: g.evidence.view }));
+      const link = await screen.findByRole("link", { name: g.evidence.open });
+      expect(link).toHaveAttribute("href", "https://r2.example/signed?sig=old");
+
+      // 15 min later the old URL is about to be / already expired.
+      const realNow = Date.now();
+      vi.spyOn(Date, "now").mockReturnValue(realNow + 14.5 * 60 * 1000);
+      await user.click(link);
+
+      await waitFor(() => expect(mockEvidence).toHaveBeenCalledTimes(2));
+      await waitFor(() =>
+        expect(open).toHaveBeenCalledWith(
+          "https://r2.example/signed?sig=new",
+          "_blank",
+          "noopener,noreferrer",
+        ),
+      );
+      expect(
+        await screen.findByRole("link", { name: g.evidence.open }),
+      ).toHaveAttribute("href", "https://r2.example/signed?sig=new");
+    });
+
+    it("if the refresh of a stale link fails, shows the mapped error instead of opening a dead URL", async () => {
+      mockEvidence
+        .mockResolvedValueOnce(evidenceFor("old"))
+        .mockRejectedValue(new ApiError("x", 503, { code: "GUARDIANSHIP_EVIDENCE_UNAVAILABLE" }));
+      const open = vi.spyOn(window, "open").mockReturnValue(null);
+      const user = userEvent.setup();
+      renderCard(block({ as_dependent: [row()] }));
+
+      await user.click(screen.getByRole("button", { name: g.evidence.view }));
+      const link = await screen.findByRole("link", { name: g.evidence.open });
+      vi.spyOn(Date, "now").mockReturnValue(Date.now() + 20 * 60 * 1000);
+      await user.click(link);
+
+      await waitFor(() =>
+        expect(screen.getByRole("alert")).toHaveTextContent(g.evidence.unavailable),
+      );
+      expect(open).not.toHaveBeenCalled();
+    });
+  });
+
   it("lists as_guardian dependents with name, birthday and status", () => {
     renderCard(
       block({

@@ -349,6 +349,132 @@ describe("MembershipConsentVerifyDialog", () => {
       );
       expect(mockVerify).not.toHaveBeenCalled();
     });
+
+    it("S3: a multer 413 without a code shows the FILE_TOO_LARGE message", async () => {
+      mockUpload.mockRejectedValue(new ApiError("Payload Too Large", 413, null));
+      renderDialog(makeRequest(false));
+      pick(new File(["x"], "a.jpg", { type: "image/jpeg" }));
+
+      await waitFor(() =>
+        expect(mockToastError).toHaveBeenCalledWith(errorsMsg.FILE_TOO_LARGE),
+      );
+      expect(mockToastError).not.toHaveBeenCalledWith(errorsMsg.upload);
+    });
+
+    it("maps GUARDIANSHIP_CONSENT_ALREADY_VERIFIED (409) on upload", async () => {
+      mockUpload.mockRejectedValue(
+        new ApiError("x", 409, { code: "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED" }),
+      );
+      renderDialog(makeRequest(false));
+      pick(new File(["x"], "a.jpg", { type: "image/jpeg" }));
+
+      await waitFor(() =>
+        expect(mockToastError).toHaveBeenCalledWith(
+          errorsMsg.GUARDIANSHIP_CONSENT_ALREADY_VERIFIED,
+        ),
+      );
+    });
+  });
+
+  it("maps GUARDIANSHIP_GUARDIAN_SELF_VERIFY (403) on verify", async () => {
+    mockVerify.mockRejectedValue(
+      new ApiError("x", 403, { code: "GUARDIANSHIP_GUARDIAN_SELF_VERIFY" }),
+    );
+    const user = userEvent.setup();
+    renderDialog(makeRequest(true));
+    await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+    await user.click(screen.getByLabelText(dialogMsg.confirm_checkbox));
+    await user.click(confirmButton());
+
+    await waitFor(() =>
+      expect(mockToastError).toHaveBeenCalledWith(errorsMsg.GUARDIANSHIP_GUARDIAN_SELF_VERIFY),
+    );
+  });
+
+  describe("signed URL expiry (S5)", () => {
+    const FRESH_EVIDENCE = { ...IMAGE_EVIDENCE, url: "https://r2.example/signed?sig=fresh" };
+
+    it("refetches the signed URL once when the image fails to load, and retries with the new URL", async () => {
+      mockGetEvidence
+        .mockResolvedValueOnce(IMAGE_EVIDENCE)
+        .mockResolvedValue(FRESH_EVIDENCE);
+      renderDialog(makeRequest(true));
+
+      const img = await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+      expect(img).toHaveAttribute("src", IMAGE_EVIDENCE.url);
+
+      fireEvent.error(img);
+
+      await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledTimes(2));
+      await waitFor(() =>
+        expect(screen.getByRole("img", { name: dialogMsg.evidence_image_alt })).toHaveAttribute(
+          "src",
+          FRESH_EVIDENCE.url,
+        ),
+      );
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("does not loop: a second failure shows an error with a reload button and no further refetch", async () => {
+      mockGetEvidence
+        .mockResolvedValueOnce(IMAGE_EVIDENCE)
+        .mockResolvedValue(FRESH_EVIDENCE);
+      const user = userEvent.setup();
+      renderDialog(makeRequest(true));
+
+      fireEvent.error(await screen.findByRole("img", { name: dialogMsg.evidence_image_alt }));
+      await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledTimes(2));
+      await waitFor(() =>
+        expect(screen.getByRole("img", { name: dialogMsg.evidence_image_alt })).toHaveAttribute(
+          "src",
+          FRESH_EVIDENCE.url,
+        ),
+      );
+
+      fireEvent.error(screen.getByRole("img", { name: dialogMsg.evidence_image_alt }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(errorsMsg.evidence_load);
+      expect(mockGetEvidence).toHaveBeenCalledTimes(2);
+
+      // Manual reload still works and clears the error once the image loads.
+      await user.click(screen.getByRole("button", { name: dialogMsg.evidence_reload }));
+      await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledTimes(3));
+      fireEvent.load(screen.getByRole("img", { name: dialogMsg.evidence_image_alt }));
+      await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    });
+
+    it("a successful load re-arms the single retry for a later expiry", async () => {
+      mockGetEvidence.mockResolvedValue(IMAGE_EVIDENCE);
+      renderDialog(makeRequest(true));
+
+      const img = await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+      fireEvent.error(img);
+      await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledTimes(2));
+
+      fireEvent.load(screen.getByRole("img", { name: dialogMsg.evidence_image_alt }));
+      fireEvent.error(screen.getByRole("img", { name: dialogMsg.evidence_image_alt }));
+
+      await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledTimes(3));
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("keeps the signed URL fresh while the dialog stays open (proactive refresh before expiry)", async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      try {
+        mockGetEvidence.mockResolvedValue({ ...IMAGE_EVIDENCE, expires_in: 900 });
+        renderDialog(makeRequest(true));
+        await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+        expect(mockGetEvidence).toHaveBeenCalledTimes(1);
+
+        await vi.advanceTimersByTimeAsync(13 * 60 * 1000);
+        expect(mockGetEvidence).toHaveBeenCalledTimes(1);
+
+        await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
+        expect(mockGetEvidence.mock.calls.length).toBeGreaterThanOrEqual(2);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });
 

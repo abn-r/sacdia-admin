@@ -53,8 +53,16 @@ function statusVariant(status: string) {
 type EvidenceState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "ready"; url: string }
+  | { kind: "ready"; url: string; fetchedAt: number; expiresInSeconds: number }
   | { kind: "error"; message: string };
+
+/** Signed URLs live ~15 min; treat them as stale this long before they expire. */
+const STALE_MARGIN_SECONDS = 30;
+const DEFAULT_TTL_SECONDS = 900;
+
+function isStale(state: { fetchedAt: number; expiresInSeconds: number }): boolean {
+  return Date.now() - state.fetchedAt >= (state.expiresInSeconds - STALE_MARGIN_SECONDS) * 1000;
+}
 
 function EvidenceAccess({
   userId,
@@ -66,14 +74,25 @@ function EvidenceAccess({
   const t = useTranslations("guardianships.evidence");
   const [state, setState] = useState<EvidenceState>({ kind: "idle" });
 
-  async function load() {
+  async function load(openAfter = false) {
     setState({ kind: "loading" });
     try {
       const evidence = await getAdminGuardianshipConsentEvidenceFromClient(
         userId,
         guardianshipId,
       );
-      setState({ kind: "ready", url: evidence.url });
+      setState({
+        kind: "ready",
+        url: evidence.url,
+        fetchedAt: Date.now(),
+        expiresInSeconds:
+          typeof evidence.expires_in === "number" && evidence.expires_in > 0
+            ? evidence.expires_in
+            : DEFAULT_TTL_SECONDS,
+      });
+      // After an await the browser may block the popup; the refreshed link is
+      // rendered anyway, so a second click always works.
+      if (openAfter) window.open(evidence.url, "_blank", "noopener,noreferrer");
     } catch (error) {
       // Only the machine `code` / HTTP status are read; `details` never is.
       const code =
@@ -95,7 +114,18 @@ function EvidenceAccess({
     <div className="space-y-1.5">
       {state.kind === "ready" ? (
         <Button asChild variant="outline" size="sm">
-          <a href={state.url} target="_blank" rel="noopener noreferrer">
+          <a
+            href={state.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => {
+              // Never open an expired signed URL: refetch it first, then open.
+              if (isStale(state)) {
+                event.preventDefault();
+                void load(true);
+              }
+            }}
+          >
             <ExternalLink className="size-4" />
             {t("open")}
           </a>
@@ -105,7 +135,7 @@ function EvidenceAccess({
           type="button"
           variant="outline"
           size="sm"
-          onClick={load}
+          onClick={() => void load()}
           disabled={state.kind === "loading"}
         >
           {state.kind === "loading" ? (

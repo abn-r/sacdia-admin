@@ -110,6 +110,31 @@ describe("membership-requests consent API", () => {
       expect(toConsentErrorCode("MR_NOT_FOUND")).toBe("MR_NOT_FOUND");
     });
 
+    it("maps an HTTP 413 without a code (multer limit) to FILE_TOO_LARGE", () => {
+      expect(getConsentErrorCode(new ApiError("Payload Too Large", 413, null))).toBe(
+        "FILE_TOO_LARGE",
+      );
+      expect(
+        getConsentErrorCode(new ApiError("Payload Too Large", 413, { message: "File too large" })),
+      ).toBe("FILE_TOO_LARGE");
+      // Non-JSON body (e.g. a proxy HTML/text page).
+      expect(getConsentErrorCode(new ApiError("x", 413, "<html>413</html>"))).toBe(
+        "FILE_TOO_LARGE",
+      );
+      // An unrecognised code on a 413 is still a size problem.
+      expect(getConsentErrorCode(new ApiError("x", 413, { code: "WHATEVER" }))).toBe(
+        "FILE_TOO_LARGE",
+      );
+    });
+
+    it("keeps a recognised code over the 413 fallback and does not widen other statuses", () => {
+      expect(
+        getConsentErrorCode(new ApiError("x", 413, { code: "FILE_TYPE_INVALID" })),
+      ).toBe("FILE_TYPE_INVALID");
+      expect(getConsentErrorCode(new ApiError("x", 400, null))).toBeNull();
+      expect(getConsentErrorCode(new ApiError("x", 500, null))).toBeNull();
+    });
+
     it.each(CONSENT_ERROR_CODES)("%s is a recognised consent code", (code) => {
       expect(getConsentErrorCode(new ApiError("x", 400, { code }))).toBe(code);
     });

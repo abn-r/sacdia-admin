@@ -53,6 +53,15 @@ function isAcceptedType(file: File): boolean {
   return (CONSENT_EVIDENCE_ACCEPTED_TYPES as readonly string[]).includes(file.type);
 }
 
+/** Refresh the signed URL this long before it expires. */
+const SIGNED_URL_REFRESH_MARGIN_SECONDS = 60;
+const SIGNED_URL_MIN_REFRESH_SECONDS = 30;
+
+function refreshIntervalMs(expiresInSeconds: number | undefined): number {
+  const ttl = typeof expiresInSeconds === "number" && expiresInSeconds > 0 ? expiresInSeconds : 900;
+  return Math.max(ttl - SIGNED_URL_REFRESH_MARGIN_SECONDS, SIGNED_URL_MIN_REFRESH_SECONDS) * 1000;
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface MembershipConsentVerifyDialogProps {
@@ -87,6 +96,10 @@ export function MembershipConsentVerifyDialog({
   const [reviewed, setReviewed] = useState(false);
   const [approve, setApprove] = useState(true);
   const [fileError, setFileError] = useState<string | null>(null);
+  // The signed URL lives 15 min. If the image fails to load we refetch it ONCE
+  // and retry; a successful load re-arms the retry for a later expiry.
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageRetriedRef = useRef(false);
 
   const evidenceExpected = Boolean(request.consent?.evidence_uploaded) || uploadedHere;
 
@@ -98,6 +111,9 @@ export function MembershipConsentVerifyDialog({
     staleTime: 0,
     gcTime: 0,
     retry: false,
+    // Keep links (PDF / open in new tab) valid while the dialog stays open.
+    refetchInterval: (query) =>
+      query.state.data ? refreshIntervalMs(query.state.data.expires_in) : false,
   });
 
   const evidence = evidenceQuery.data ?? null;
@@ -151,6 +167,27 @@ export function MembershipConsentVerifyDialog({
   function handleOpenChange(next: boolean) {
     if (isBusy) return;
     onOpenChange(next);
+  }
+
+  function handleImageLoad() {
+    imageRetriedRef.current = false;
+    setImageFailed(false);
+  }
+
+  function handleImageError() {
+    if (!imageRetriedRef.current) {
+      // Most likely an expired signed URL: get a fresh one and retry once.
+      imageRetriedRef.current = true;
+      void evidenceQuery.refetch();
+      return;
+    }
+    setImageFailed(true);
+  }
+
+  function handleEvidenceReload() {
+    imageRetriedRef.current = false;
+    setImageFailed(false);
+    void evidenceQuery.refetch();
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -219,12 +256,12 @@ export function MembershipConsentVerifyDialog({
               <p className="text-xs font-medium text-muted-foreground">
                 {t("dialog.evidence_title")}
               </p>
-              {evidenceLoadError && (
+              {(evidenceLoadError || imageFailed) && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="xs"
-                  onClick={() => evidenceQuery.refetch()}
+                  onClick={handleEvidenceReload}
                 >
                   <RefreshCw className="size-3" />
                   {t("dialog.evidence_reload")}
@@ -242,6 +279,12 @@ export function MembershipConsentVerifyDialog({
             {evidenceLoadError && (
               <p role="alert" className="text-sm text-destructive">
                 {errorMessage(evidenceQuery.error, "evidence_load")}
+              </p>
+            )}
+
+            {imageFailed && !evidenceLoadError && (
+              <p role="alert" className="text-sm text-destructive">
+                {errorMessage(null, "evidence_load")}
               </p>
             )}
 
@@ -263,6 +306,8 @@ export function MembershipConsentVerifyDialog({
                       src={evidence.url}
                       alt={t("dialog.evidence_image_alt")}
                       className="max-h-72 w-full object-contain"
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
                     />
                   </a>
                 ) : (
