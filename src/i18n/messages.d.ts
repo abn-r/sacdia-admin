@@ -4281,7 +4281,8 @@ export interface IntlMessages {
           contactsEmpty: string;
           contactsMissingPayload: string;
           legalRepTitle: string;
-          legalRepEmpty: string;
+          legalRepLegacyTitle: string;
+          legalRepLegacyNote: string;
           pastoralTitle: string;
           pastoralEmpty: string;
           healthTitle: string;

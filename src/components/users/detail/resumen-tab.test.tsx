@@ -65,8 +65,8 @@ function renderResumen(
         missingPayloadMessage: "Sin payload",
       }}
       showLegalRep={false}
-      legalRepTitle="Representante"
-      legalRepEmpty="Sin representante"
+      legalRepTitle="Representante legal (heredado)"
+      legalRepLegacyNote="Registro heredado, solo lectura."
       legalRep={null}
       legalNameLabel="Nombre"
       legalPhoneLabel="Teléfono"
@@ -135,5 +135,31 @@ describe("UserDetailResumenTab dependent profile", () => {
     renderResumen(true, { dependentAccess: null });
     expect(screen.queryByTestId("dependent-no-access")).not.toBeInTheDocument();
     expect(screen.getByText("App móvil")).toBeInTheDocument();
+  });
+});
+
+describe("UserDetailResumenTab legacy legal representative", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  const legalRep = { fullName: "Rosa Díaz", phone: "555-0100", relationship: "Tía" };
+
+  it("hides the whole section when there is no legacy row", () => {
+    renderResumen(true, { showLegalRep: true, legalRep: null });
+    expect(screen.queryByText("Representante legal (heredado)")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sin representante/)).not.toBeInTheDocument();
+  });
+
+  it("keeps showing an existing legacy row, labelled as legacy", () => {
+    renderResumen(true, { showLegalRep: true, legalRep });
+    expect(screen.getByText("Representante legal (heredado)")).toBeInTheDocument();
+    expect(screen.getByText("Registro heredado, solo lectura.")).toBeInTheDocument();
+    expect(screen.getByText("Rosa Díaz")).toBeInTheDocument();
+  });
+
+  it("stays hidden without the legal_representative capability", () => {
+    renderResumen(true, { showLegalRep: false, legalRep });
+    expect(screen.queryByText("Rosa Díaz")).not.toBeInTheDocument();
   });
 });

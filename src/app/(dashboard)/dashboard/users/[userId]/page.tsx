@@ -387,8 +387,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 missingPayloadMessage: t("sections.contactsMissingPayload"),
               }}
               showLegalRep={canSeeLegalRepresentative}
-              legalRepTitle={t("sections.legalRepTitle")}
-              legalRepEmpty={t("sections.legalRepEmpty")}
+              legalRepTitle={t("sections.legalRepLegacyTitle")}
+              legalRepLegacyNote={t("sections.legalRepLegacyNote")}
               legalRep={legalRep}
               legalNameLabel={t("fields.fullName")}
               legalPhoneLabel={t("fields.phone")}

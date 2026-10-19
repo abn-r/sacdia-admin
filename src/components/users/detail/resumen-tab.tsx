@@ -71,8 +71,10 @@ export interface ResumenTabProps {
 
   // Legal rep
   showLegalRep: boolean;
+  /** Title already labelled as legacy (the section only renders for a legacy row). */
   legalRepTitle: string;
-  legalRepEmpty: string;
+  /** Read-only note: legacy records are replaced by Tutorías. */
+  legalRepLegacyNote: string;
   legalRep: { fullName: string; phone: string; relationship: string } | null;
   legalNameLabel: string;
   legalPhoneLabel: string;
@@ -204,17 +206,15 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
         />
       ) : null}
 
-      {props.showLegalRep ? (
+      {/* Legacy and read-only (replaced by Tutorías): never render an empty shell. */}
+      {props.showLegalRep && props.legalRep ? (
         <DetailSection num="06" title={props.legalRepTitle}>
-          {!props.legalRep ? (
-            <p className="text-sm text-muted-foreground">{props.legalRepEmpty}</p>
-          ) : (
-            <DetailCols2>
-              <DetailField k={props.legalNameLabel} v={props.legalRep.fullName} />
-              <DetailField k={props.legalPhoneLabel} v={props.legalRep.phone} />
-              <DetailField k={props.legalRelationshipLabel} v={props.legalRep.relationship} />
-            </DetailCols2>
-          )}
+          <p className="mb-3 text-xs text-muted-foreground">{props.legalRepLegacyNote}</p>
+          <DetailCols2>
+            <DetailField k={props.legalNameLabel} v={props.legalRep.fullName} />
+            <DetailField k={props.legalPhoneLabel} v={props.legalRep.phone} />
+            <DetailField k={props.legalRelationshipLabel} v={props.legalRep.relationship} />
+          </DetailCols2>
         </DetailSection>
       ) : null}
     </div>
