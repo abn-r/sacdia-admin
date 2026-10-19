@@ -6815,7 +6815,7 @@
     "profile": {
       "title": "Profil de mineur",
       "createdAt": "Créé le",
-      "createdBy": "Créé par (ID)",
+      "createdBy": "Créé par",
       "frozenAt": "Gelé depuis le",
       "purgeAfter": "Suppression prévue à partir du",
       "active": "Actif"

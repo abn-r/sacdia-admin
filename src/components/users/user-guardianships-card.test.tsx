@@ -344,11 +344,51 @@ describe("UserGuardianshipsCard", () => {
       }),
     );
     const profile = screen.getByTestId("guardianship-dependent-profile");
-    expect(within(profile).getByText("creator-uuid")).toBeInTheDocument();
+    // Only the creator's id is available: short id linking to that user.
+    const creator = within(profile).getByRole("link", { name: "creator-" });
+    expect(creator).toHaveAttribute("href", "/dashboard/users/creator-uuid");
+    expect(creator).toHaveAttribute("title", "creator-uuid");
+    expect(within(profile).getByText(g.profile.createdBy)).toBeInTheDocument();
+    expect(within(profile).queryByText("creator-uuid")).toBeNull();
     expect(within(profile).getByText(g.profile.frozenAt)).toBeInTheDocument();
     expect(within(profile).queryByText(g.profile.active)).toBeNull();
     expect(within(profile).getByText(/2027/)).toBeInTheDocument();
     expect(screen.getByText(g.asDependent.empty)).toBeInTheDocument();
+  });
+
+  it("shows a short id (8 chars) of a real uuid instead of the raw uuid", () => {
+    const uuid = "0f8fad5b-d9cb-469f-a165-70867728950e";
+    renderCard(
+      block({
+        dependent_profile: {
+          created_at: "2026-10-01T10:00:00.000Z",
+          created_by_user_id: uuid,
+          frozen_at: null,
+          purge_after: null,
+        },
+      }),
+    );
+    const profile = screen.getByTestId("guardianship-dependent-profile");
+    expect(within(profile).getByRole("link", { name: "0f8fad5b" })).toHaveAttribute(
+      "href",
+      `/dashboard/users/${uuid}`,
+    );
+    expect(within(profile).queryByText(uuid)).toBeNull();
+  });
+
+  it("renders a dash when the creator id is missing", () => {
+    renderCard(
+      block({
+        dependent_profile: {
+          created_at: "2026-10-01T10:00:00.000Z",
+          created_by_user_id: null,
+          frozen_at: null,
+          purge_after: null,
+        },
+      }),
+    );
+    const profile = screen.getByTestId("guardianship-dependent-profile");
+    expect(within(profile).queryByRole("link")).toBeNull();
   });
 
   it("an active (not frozen) profile shows the active label and no purge date", () => {

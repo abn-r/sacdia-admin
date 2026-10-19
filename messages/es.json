@@ -6815,7 +6815,7 @@
     "profile": {
       "title": "Perfil de menor",
       "createdAt": "Creado el",
-      "createdBy": "Creado por (ID)",
+      "createdBy": "Creado por",
       "frozenAt": "Congelado desde",
       "purgeAfter": "Se eliminará a partir del",
       "active": "Activo"

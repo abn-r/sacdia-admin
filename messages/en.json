@@ -6815,7 +6815,7 @@
     "profile": {
       "title": "Minor profile",
       "createdAt": "Created on",
-      "createdBy": "Created by (ID)",
+      "createdBy": "Created by",
       "frozenAt": "Frozen since",
       "purgeAfter": "Scheduled for deletion from",
       "active": "Active"

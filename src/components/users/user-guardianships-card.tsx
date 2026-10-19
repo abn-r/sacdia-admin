@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ExternalLink, FileText, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -40,6 +41,11 @@ const REVOKED_REASON_KEYS = [
 
 function isOneOf<T extends string>(keys: readonly T[], value: string | null): value is T {
   return value !== null && (keys as readonly string[]).includes(value);
+}
+
+/** First segment of a UUID, enough to tell users apart at a glance. */
+function shortId(id: string): string {
+  return id.slice(0, 8);
 }
 
 function statusVariant(status: string) {
@@ -312,9 +318,15 @@ export function UserGuardianshipsCard({
                   k={t("profile.createdBy")}
                   v={
                     dependent_profile.created_by_user_id ? (
-                      <code className="font-mono text-xs">
-                        {dependent_profile.created_by_user_id}
-                      </code>
+                      // The API only returns the creator's id (no name): show a
+                      // short id that links to that user's detail.
+                      <Link
+                        href={`/dashboard/users/${encodeURIComponent(dependent_profile.created_by_user_id)}`}
+                        title={dependent_profile.created_by_user_id}
+                        className="font-mono text-xs text-primary underline-offset-4 hover:underline"
+                      >
+                        {shortId(dependent_profile.created_by_user_id)}
+                      </Link>
                     ) : (
                       dash
                     )
