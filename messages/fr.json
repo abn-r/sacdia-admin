@@ -6716,6 +6716,68 @@
         "confirming": "Refus en cours ..."
       }
     },
+    "consent": {
+      "badge_pending": "Mineur · consentement en attente",
+      "badge_verified": "Mineur · consentement vérifié",
+      "approve_blocked": "Impossible d'approuver tant que le consentement du tuteur n'est pas vérifié.",
+      "verify_action": "Vérifier le consentement",
+      "verify_action_aria": "Vérifier le consentement du tuteur",
+      "dialog": {
+        "title": "Vérifier le consentement du tuteur",
+        "description": "{userName} est mineur. Examinez la fiche signée par son tuteur avant de confirmer.",
+        "guardians_label": "Tuteurs enregistrés",
+        "guardian_primary": "Principal",
+        "evidence_title": "Fiche signée",
+        "evidence_loading": "Chargement de la fiche...",
+        "evidence_none": "Aucune fiche n'a encore été téléversée. Téléversez la fiche signée pour pouvoir vérifier.",
+        "evidence_uploaded_at": "Téléversée le {date}",
+        "evidence_uploaded_by": "par {name}",
+        "evidence_image_alt": "Fiche de consentement signée",
+        "evidence_open_pdf": "Ouvrir la fiche en PDF",
+        "evidence_open_new_tab": "Ouvrir dans un nouvel onglet",
+        "evidence_expiry_note": "Le lien vers la fiche est temporaire et expire dans quelques minutes.",
+        "evidence_reload": "Recharger",
+        "upload": "Téléverser la fiche",
+        "replace": "Remplacer la fiche",
+        "uploading": "Téléversement...",
+        "upload_hint": "JPG, PNG, WebP ou PDF. 10 Mo maximum. Les photos HEIC ne sont pas acceptées : convertissez-les en JPG.",
+        "confirm_checkbox": "J'ai vérifié la fiche signée",
+        "approve_checkbox": "Approuver l'adhésion à la confirmation",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "confirming": "Confirmation..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Fiche téléversée avec succès",
+        "verified": "Consentement vérifié pour {name}",
+        "verified_approved": "Consentement vérifié et adhésion approuvée pour {name}",
+        "approve_failed": "Consentement vérifié, mais la demande n'a pas pu être approuvée : {reason}"
+      },
+      "validation": {
+        "type": "Format non valide. Utilisez JPG, PNG, WebP ou PDF (HEIC n'est pas accepté).",
+        "size": "Le fichier dépasse 10 Mo."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "Aucune fiche signée n'a été téléversée pour ce mineur.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Téléversez la fiche signée avant de vérifier le consentement.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Les fiches ne peuvent pas être enregistrées ni consultées pour le moment. Réessayez plus tard.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un mineur sous la garde du club doit être vérifié par une autre personne autorisée du club, pas par celle qui a téléversé la fiche ni par celle qui l'a pris en charge.",
+        "GUARDIANSHIP_NOT_FOUND": "Aucune tutelle active n'a été trouvée pour ce mineur.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "Vous devez confirmer que vous avez examiné la fiche signée.",
+        "MR_CONSENT_NOT_VERIFIED": "Le consentement du tuteur n'est pas encore vérifié. Vérifiez-le avant d'approuver.",
+        "MR_NOT_FOUND": "La demande n'existe plus ou n'appartient pas à cette section.",
+        "MR_ALREADY_PENDING": "La demande a déjà été traitée. Actualisez la liste.",
+        "FILE_REQUIRED": "Sélectionnez un fichier.",
+        "FILE_TYPE_INVALID": "Format non valide. Utilisez JPG, PNG, WebP ou PDF.",
+        "FILE_TOO_LARGE": "Le fichier dépasse 10 Mo.",
+        "GUARD_PERMISSION_DENIED": "Vous n'avez pas la permission d'effectuer cette action.",
+        "generic": "L'action n'a pas pu être effectuée.",
+        "upload": "La fiche n'a pas pu être téléversée.",
+        "verify": "Le consentement n'a pas pu être vérifié.",
+        "approve": "Une erreur s'est produite lors de l'approbation de la demande",
+        "evidence_load": "La fiche n'a pas pu être chargée."
+      }
+    },
     "client": {
       "section_label": "Section du club",
       "section_placeholder": "Sélectionner une section",

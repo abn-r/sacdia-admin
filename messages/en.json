@@ -6716,6 +6716,68 @@
         "confirming": "Rejecting..."
       }
     },
+    "consent": {
+      "badge_pending": "Minor · consent pending",
+      "badge_verified": "Minor · consent verified",
+      "approve_blocked": "Cannot approve until the guardian's consent is verified.",
+      "verify_action": "Verify consent",
+      "verify_action_aria": "Verify guardian consent",
+      "dialog": {
+        "title": "Verify guardian consent",
+        "description": "{userName} is a minor. Review the form signed by their guardian before confirming.",
+        "guardians_label": "Registered guardians",
+        "guardian_primary": "Primary",
+        "evidence_title": "Signed form",
+        "evidence_loading": "Loading form...",
+        "evidence_none": "No form has been uploaded yet. Upload the signed form to be able to verify.",
+        "evidence_uploaded_at": "Uploaded on {date}",
+        "evidence_uploaded_by": "by {name}",
+        "evidence_image_alt": "Signed consent form",
+        "evidence_open_pdf": "Open form as PDF",
+        "evidence_open_new_tab": "Open in a new tab",
+        "evidence_expiry_note": "The link to the form is temporary and expires in a few minutes.",
+        "evidence_reload": "Reload",
+        "upload": "Upload form",
+        "replace": "Replace form",
+        "uploading": "Uploading...",
+        "upload_hint": "JPG, PNG, WebP or PDF. Max 10 MB. HEIC photos are not accepted: convert them to JPG.",
+        "confirm_checkbox": "I verified the signed form",
+        "approve_checkbox": "Approve the membership on confirm",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "confirming": "Confirming..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Form uploaded successfully",
+        "verified": "Consent verified for {name}",
+        "verified_approved": "Consent verified and membership approved for {name}",
+        "approve_failed": "Consent verified, but the request could not be approved: {reason}"
+      },
+      "validation": {
+        "type": "Invalid format. Use JPG, PNG, WebP or PDF (HEIC is not accepted).",
+        "size": "The file is larger than 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "There is no signed form uploaded for this minor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Upload the signed form before verifying the consent.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Forms cannot be stored or read right now. Try again later.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "A minor under club custody must be verified by another authorized person of the club, not by whoever uploaded the form or took the minor into custody.",
+        "GUARDIANSHIP_NOT_FOUND": "No active guardianship was found for this minor.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "You must confirm that you reviewed the signed form.",
+        "MR_CONSENT_NOT_VERIFIED": "The guardian's consent is not verified yet. Verify it before approving.",
+        "MR_NOT_FOUND": "The request no longer exists or does not belong to this section.",
+        "MR_ALREADY_PENDING": "The request was already processed. Refresh the list.",
+        "FILE_REQUIRED": "Select a file.",
+        "FILE_TYPE_INVALID": "Invalid format. Use JPG, PNG, WebP or PDF.",
+        "FILE_TOO_LARGE": "The file is larger than 10 MB.",
+        "GUARD_PERMISSION_DENIED": "You do not have permission to perform this action.",
+        "generic": "The action could not be completed.",
+        "upload": "The form could not be uploaded.",
+        "verify": "The consent could not be verified.",
+        "approve": "An error occurred while approving the request",
+        "evidence_load": "The form could not be loaded."
+      }
+    },
     "client": {
       "section_label": "Club section",
       "section_placeholder": "Select section",
