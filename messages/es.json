@@ -1468,6 +1468,9 @@
         "continuationsClass": "Clase sugerida",
         "continuationsPathComplete": "Recorrido completo",
         "continuationsBlocked": "No elegible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "Es menor y el consentimiento del tutor aún no está verificado. Verifícalo para poder inscribirlo."
+        },
         "continuationsSubmit": "Inscribir seleccionados",
         "continuationsLoadError": "No se pudo cargar la lista de continuaciones.",
         "continuationsSubmitError": "No se pudo inscribir a los seleccionados.",
@@ -4249,7 +4252,8 @@
           "contactsEmpty": "Sin contactos de emergencia registrados.",
           "contactsMissingPayload": "No se pudieron cargar los contactos.",
           "legalRepTitle": "Representante legal",
-          "legalRepEmpty": "Sin representante legal registrado.",
+          "legalRepLegacyTitle": "Representante legal (heredado)",
+          "legalRepLegacyNote": "Registro heredado, solo lectura. Las relaciones actuales se gestionan en Tutorías.",
           "pastoralTitle": "Roles de club",
           "pastoralEmpty": "Sin roles de club registrados.",
           "healthTitle": "Salud",
@@ -4299,7 +4303,9 @@
           "appLabel": "App móvil",
           "appSub": "Acceso al cliente móvil",
           "panelLabel": "Panel admin",
-          "panelSub": "Acceso al panel administrativo"
+          "panelSub": "Acceso al panel administrativo",
+          "dependentLabel": "Sin acceso propio",
+          "dependentSub": "Gestionado por su tutor"
         },
         "deletedAccount": "Cuenta eliminada",
         "anonymizedAccount": "Datos personales anonimizados",
@@ -6716,6 +6722,71 @@
         "confirming": "Rechazando..."
       }
     },
+    "consent": {
+      "badge_pending": "Menor · consentimiento pendiente",
+      "expiry_extended_hint": "Se extiende mientras el consentimiento está pendiente",
+      "badge_verified": "Menor · consentimiento verificado",
+      "approve_blocked": "No se puede aprobar hasta verificar el consentimiento del tutor.",
+      "verify_action": "Verificar consentimiento",
+      "verify_action_aria": "Verificar consentimiento del tutor",
+      "dialog": {
+        "title": "Verificar consentimiento del tutor",
+        "description": "{userName} es menor de edad. Revisa la ficha firmada por su tutor antes de confirmar.",
+        "guardians_label": "Tutores registrados",
+        "guardian_primary": "Principal",
+        "evidence_title": "Ficha firmada",
+        "evidence_loading": "Cargando ficha...",
+        "evidence_none": "Aún no hay una ficha subida. Sube la ficha firmada para poder verificar.",
+        "evidence_uploaded_at": "Subida el {date}",
+        "evidence_uploaded_by": "por {name}",
+        "evidence_image_alt": "Ficha de consentimiento firmada",
+        "evidence_open_pdf": "Abrir ficha en PDF",
+        "evidence_open_new_tab": "Abrir en una pestaña nueva",
+        "evidence_expiry_note": "El enlace a la ficha es temporal y vence en unos minutos.",
+        "evidence_reload": "Recargar",
+        "upload": "Subir ficha",
+        "replace": "Reemplazar ficha",
+        "uploading": "Subiendo...",
+        "upload_hint": "JPG, PNG, WebP o PDF. Máximo 10 MB. Las fotos HEIC no se aceptan: conviértelas a JPG.",
+        "confirm_checkbox": "Verifiqué la ficha firmada",
+        "approve_checkbox": "Aprobar la membresía al confirmar",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "confirming": "Confirmando..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Ficha subida correctamente",
+        "verified": "Consentimiento verificado para {name}",
+        "verified_approved": "Consentimiento verificado y membresía aprobada para {name}",
+        "approve_failed": "Consentimiento verificado, pero no se pudo aprobar la solicitud: {reason}"
+      },
+      "validation": {
+        "type": "Formato no válido. Usa JPG, PNG, WebP o PDF (HEIC no se acepta).",
+        "size": "El archivo supera los 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "No hay una ficha firmada subida para este menor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Sube la ficha firmada antes de verificar el consentimiento.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Las fichas no se pueden guardar ni consultar por ahora. Inténtalo más tarde.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un menor bajo custodia del club debe ser verificado por otra persona autorizada del club, distinta de quien subió la ficha o lo recibió en custodia.",
+        "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "Quien verifica no puede ser un tutor del menor. Pide a otra persona autorizada del club que verifique la ficha.",
+        "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "El consentimiento ya fue verificado: la ficha no se puede reemplazar. Si cambia el tutor, se debe registrar una nueva tutoría.",
+        "GUARDIANSHIP_NOT_FOUND": "No se encontró una tutoría activa para este menor.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "Debes confirmar que revisaste la ficha firmada.",
+        "MR_CONSENT_NOT_VERIFIED": "El consentimiento del tutor aún no está verificado. Verifícalo antes de aprobar.",
+        "MR_NOT_FOUND": "La solicitud ya no existe o no pertenece a esta sección.",
+        "MR_ALREADY_PENDING": "La solicitud ya fue procesada. Actualiza la lista.",
+        "FILE_REQUIRED": "Selecciona un archivo.",
+        "FILE_TYPE_INVALID": "Formato no válido. Usa JPG, PNG, WebP o PDF.",
+        "FILE_TOO_LARGE": "El archivo supera los 10 MB.",
+        "GUARD_PERMISSION_DENIED": "No tienes permiso para realizar esta acción.",
+        "generic": "No se pudo completar la acción.",
+        "upload": "No se pudo subir la ficha.",
+        "verify": "No se pudo verificar el consentimiento.",
+        "approve": "Ocurrió un error al aprobar la solicitud",
+        "evidence_load": "No se pudo cargar la ficha."
+      }
+    },
     "client": {
       "section_label": "Sección de club",
       "section_placeholder": "Seleccionar sección",
@@ -6729,6 +6800,78 @@
     "errors": {
       "approve": "Ocurrió un error al aprobar la solicitud",
       "reject": "Ocurrió un error al rechazar la solicitud"
+    }
+  },
+  "guardianships": {
+    "title": "Tutorías",
+    "description": "Relaciones de tutoría del usuario como menor y como tutor.",
+    "asDependent": {
+      "title": "Tutores de este perfil",
+      "empty": "Este perfil no tiene tutorías registradas."
+    },
+    "asGuardian": {
+      "title": "Menores a su cargo",
+      "empty": "Este usuario no es tutor de ningún menor."
+    },
+    "profile": {
+      "title": "Perfil de menor",
+      "createdAt": "Creado el",
+      "createdBy": "Creado por",
+      "frozenAt": "Congelado desde",
+      "purgeAfter": "Se eliminará a partir del",
+      "active": "Activo"
+    },
+    "fields": {
+      "guardian": "Tutor",
+      "email": "Correo",
+      "custodianClub": "Custodia del club",
+      "externalName": "Tutor externo (sin cuenta)",
+      "relationship": "Parentesco",
+      "status": "Estado",
+      "method": "Método de verificación",
+      "verifiedAt": "Verificado el",
+      "verifiedBy": "Verificado por",
+      "evidence": "Ficha firmada",
+      "createdAt": "Registrada el",
+      "revokedAt": "Revocada el",
+      "revokedReason": "Motivo de revocación",
+      "birthday": "Nacimiento"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Custodia",
+      "testData": "Datos de prueba",
+      "revoked": "Revocada"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "verified": "Verificado",
+      "revoked": "Revocado"
+    },
+    "method": {
+      "director_paper_form": "Ficha en papel (director)",
+      "guardian_invite": "Invitación de tutor",
+      "legacy_import": "Importación heredada",
+      "test_placeholder": "Marcador de prueba"
+    },
+    "revokedReason": {
+      "guardian_left": "El tutor salió",
+      "removed_by_primary": "Removido por el tutor principal",
+      "guardian_account_closed": "Cuenta del tutor cerrada",
+      "claimed": "Reclamado por otro tutor",
+      "admin": "Administración",
+      "released": "Liberado"
+    },
+    "evidence": {
+      "missing": "Sin ficha",
+      "view": "Ver ficha",
+      "loading": "Cargando...",
+      "open": "Abrir ficha",
+      "expiryNote": "El enlace es temporal y vence en unos minutos.",
+      "error": "No se pudo abrir la ficha.",
+      "unavailable": "Las fichas no están disponibles por ahora.",
+      "notFound": "No hay una ficha firmada para esta tutoría.",
+      "denied": "No tienes permiso para ver esta ficha."
     }
   },
   "sla": {

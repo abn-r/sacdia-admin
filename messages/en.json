@@ -1468,6 +1468,9 @@
         "continuationsClass": "Suggested class",
         "continuationsPathComplete": "Path complete",
         "continuationsBlocked": "Not eligible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "This is a minor and the guardian's consent is not verified yet. Verify it before enrolling."
+        },
         "continuationsSubmit": "Enroll selected",
         "continuationsLoadError": "Could not load the continuations list.",
         "continuationsSubmitError": "Could not enroll the selected members.",
@@ -4249,7 +4252,8 @@
           "contactsEmpty": "No emergency contacts registered.",
           "contactsMissingPayload": "Could not load contacts.",
           "legalRepTitle": "Legal representative",
-          "legalRepEmpty": "No legal representative registered.",
+          "legalRepLegacyTitle": "Legal representative (legacy)",
+          "legalRepLegacyNote": "Legacy read-only record. Current relationships are managed under Guardianships.",
           "pastoralTitle": "Club roles",
           "pastoralEmpty": "No club roles registered.",
           "healthTitle": "Health",
@@ -4299,7 +4303,9 @@
           "appLabel": "Mobile app",
           "appSub": "Access to mobile client",
           "panelLabel": "Admin panel",
-          "panelSub": "Access to the admin panel"
+          "panelSub": "Access to the admin panel",
+          "dependentLabel": "No own access",
+          "dependentSub": "Managed by their guardian"
         },
         "deletedAccount": "Deleted account",
         "anonymizedAccount": "Personal data anonymized",
@@ -6716,6 +6722,71 @@
         "confirming": "Rejecting..."
       }
     },
+    "consent": {
+      "badge_pending": "Minor · consent pending",
+      "expiry_extended_hint": "Extended while consent is pending",
+      "badge_verified": "Minor · consent verified",
+      "approve_blocked": "Cannot approve until the guardian's consent is verified.",
+      "verify_action": "Verify consent",
+      "verify_action_aria": "Verify guardian consent",
+      "dialog": {
+        "title": "Verify guardian consent",
+        "description": "{userName} is a minor. Review the form signed by their guardian before confirming.",
+        "guardians_label": "Registered guardians",
+        "guardian_primary": "Primary",
+        "evidence_title": "Signed form",
+        "evidence_loading": "Loading form...",
+        "evidence_none": "No form has been uploaded yet. Upload the signed form to be able to verify.",
+        "evidence_uploaded_at": "Uploaded on {date}",
+        "evidence_uploaded_by": "by {name}",
+        "evidence_image_alt": "Signed consent form",
+        "evidence_open_pdf": "Open form as PDF",
+        "evidence_open_new_tab": "Open in a new tab",
+        "evidence_expiry_note": "The link to the form is temporary and expires in a few minutes.",
+        "evidence_reload": "Reload",
+        "upload": "Upload form",
+        "replace": "Replace form",
+        "uploading": "Uploading...",
+        "upload_hint": "JPG, PNG, WebP or PDF. Max 10 MB. HEIC photos are not accepted: convert them to JPG.",
+        "confirm_checkbox": "I verified the signed form",
+        "approve_checkbox": "Approve the membership on confirm",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "confirming": "Confirming..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Form uploaded successfully",
+        "verified": "Consent verified for {name}",
+        "verified_approved": "Consent verified and membership approved for {name}",
+        "approve_failed": "Consent verified, but the request could not be approved: {reason}"
+      },
+      "validation": {
+        "type": "Invalid format. Use JPG, PNG, WebP or PDF (HEIC is not accepted).",
+        "size": "The file is larger than 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "There is no signed form uploaded for this minor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Upload the signed form before verifying the consent.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Forms cannot be stored or read right now. Try again later.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "A minor under club custody must be verified by another authorized person of the club, not by whoever uploaded the form or took the minor into custody.",
+        "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "The person verifying cannot be a guardian of the minor. Ask another authorized person of the club to verify the form.",
+        "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "Consent is already verified, so the form cannot be replaced. If the guardian changes, a new guardianship must be registered.",
+        "GUARDIANSHIP_NOT_FOUND": "No active guardianship was found for this minor.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "You must confirm that you reviewed the signed form.",
+        "MR_CONSENT_NOT_VERIFIED": "The guardian's consent is not verified yet. Verify it before approving.",
+        "MR_NOT_FOUND": "The request no longer exists or does not belong to this section.",
+        "MR_ALREADY_PENDING": "The request was already processed. Refresh the list.",
+        "FILE_REQUIRED": "Select a file.",
+        "FILE_TYPE_INVALID": "Invalid format. Use JPG, PNG, WebP or PDF.",
+        "FILE_TOO_LARGE": "The file is larger than 10 MB.",
+        "GUARD_PERMISSION_DENIED": "You do not have permission to perform this action.",
+        "generic": "The action could not be completed.",
+        "upload": "The form could not be uploaded.",
+        "verify": "The consent could not be verified.",
+        "approve": "An error occurred while approving the request",
+        "evidence_load": "The form could not be loaded."
+      }
+    },
     "client": {
       "section_label": "Club section",
       "section_placeholder": "Select section",
@@ -6729,6 +6800,78 @@
     "errors": {
       "approve": "An error occurred while approving the request",
       "reject": "An error occurred while rejecting the request"
+    }
+  },
+  "guardianships": {
+    "title": "Guardianships",
+    "description": "The user's guardianship relationships as a minor and as a guardian.",
+    "asDependent": {
+      "title": "Guardians of this profile",
+      "empty": "This profile has no guardianships on record."
+    },
+    "asGuardian": {
+      "title": "Minors in their care",
+      "empty": "This user is not a guardian of any minor."
+    },
+    "profile": {
+      "title": "Minor profile",
+      "createdAt": "Created on",
+      "createdBy": "Created by",
+      "frozenAt": "Frozen since",
+      "purgeAfter": "Scheduled for deletion from",
+      "active": "Active"
+    },
+    "fields": {
+      "guardian": "Guardian",
+      "email": "Email",
+      "custodianClub": "Club custody",
+      "externalName": "External guardian (no account)",
+      "relationship": "Relationship",
+      "status": "Status",
+      "method": "Verification method",
+      "verifiedAt": "Verified on",
+      "verifiedBy": "Verified by",
+      "evidence": "Signed form",
+      "createdAt": "Registered on",
+      "revokedAt": "Revoked on",
+      "revokedReason": "Revocation reason",
+      "birthday": "Birthday"
+    },
+    "badges": {
+      "primary": "Primary",
+      "custodian": "Custody",
+      "testData": "Test data",
+      "revoked": "Revoked"
+    },
+    "status": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "revoked": "Revoked"
+    },
+    "method": {
+      "director_paper_form": "Paper form (director)",
+      "guardian_invite": "Guardian invite",
+      "legacy_import": "Legacy import",
+      "test_placeholder": "Test placeholder"
+    },
+    "revokedReason": {
+      "guardian_left": "Guardian left",
+      "removed_by_primary": "Removed by the primary guardian",
+      "guardian_account_closed": "Guardian account closed",
+      "claimed": "Claimed by another guardian",
+      "admin": "Administration",
+      "released": "Released"
+    },
+    "evidence": {
+      "missing": "No form",
+      "view": "View form",
+      "loading": "Loading...",
+      "open": "Open form",
+      "expiryNote": "The link is temporary and expires in a few minutes.",
+      "error": "The form could not be opened.",
+      "unavailable": "Forms are not available right now.",
+      "notFound": "There is no signed form for this guardianship.",
+      "denied": "You do not have permission to view this form."
     }
   },
   "sla": {

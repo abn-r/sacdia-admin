@@ -27,6 +27,8 @@ import { UserAccessToggles } from "@/components/users/user-access-toggles";
 import { PostRegistrationTab } from "@/components/users/post-registration-tab";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import { UserRolesOverview } from "@/components/users/user-roles-overview";
+import { UserGuardianshipsCard } from "@/components/users/user-guardianships-card";
+import { hasGuardianshipsContent } from "@/lib/admin-users/guardianships";
 
 import { UserDetailHero } from "@/components/users/detail/hero";
 import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
@@ -153,6 +155,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const secondaryIdentityLabel = getAdminUserSecondaryLabel(user, {
     anonymized: t("anonymizedAccount"),
   });
+
+  // A dependent profile (minor without login, managed by a guardian) is the
+  // only signal the admin detail exposes: `guardianships.dependent_profile`.
+  // It is null when the actor lacks `legal_representative:read`.
+  const isDependent = user.guardianships?.dependent_profile != null;
 
   const age = calculateAge(user.birthday);
   const roleNamesRaw = extractRoleNames(user);
@@ -361,6 +368,14 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               accessApp={Boolean(user.access_app)}
               accessPanel={Boolean(user.access_panel)}
               active={user.active !== false}
+              dependentAccess={
+                isDependent
+                  ? {
+                      label: t("access.dependentLabel"),
+                      sub: t("access.dependentSub"),
+                    }
+                  : null
+              }
               showContacts={canSeeEmergencyContacts}
               contactsProps={{
                 hasPayload: user.emergency_contacts != null,
@@ -372,13 +387,21 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 missingPayloadMessage: t("sections.contactsMissingPayload"),
               }}
               showLegalRep={canSeeLegalRepresentative}
-              legalRepTitle={t("sections.legalRepTitle")}
-              legalRepEmpty={t("sections.legalRepEmpty")}
+              legalRepTitle={t("sections.legalRepLegacyTitle")}
+              legalRepLegacyNote={t("sections.legalRepLegacyNote")}
               legalRep={legalRep}
               legalNameLabel={t("fields.fullName")}
               legalPhoneLabel={t("fields.phone")}
               legalRelationshipLabel={t("fields.relationship")}
             />
+            {hasGuardianshipsContent(user.guardianships) ? (
+              <div className="mt-3.5">
+                <UserGuardianshipsCard
+                  userId={user.user_id}
+                  guardianships={user.guardianships}
+                />
+              </div>
+            ) : null}
           </TabsContent>
 
           <TabsContent value="datos" className="mt-0">
@@ -583,18 +606,20 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                           key="appAccess"
                           label={t("sidebar.appAccess")}
                           value={
-                            user.access_app
-                              ? t("sidebar.yes")
-                              : t("sidebar.no")
+                            isDependent
+                              ? t("access.dependentLabel")
+                              : user.access_app
+                                ? t("sidebar.yes")
+                                : t("sidebar.no")
                           }
                         />,
                         <SidebarRow
                           key="panelAccess"
                           label={t("sidebar.panelAccess")}
                           value={
-                            user.access_panel
-                              ? t("sidebar.yes")
-                              : t("sidebar.no")
+                            isDependent || !user.access_panel
+                              ? t("sidebar.no")
+                              : t("sidebar.yes")
                           }
                         />,
                       ]

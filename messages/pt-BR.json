@@ -1468,6 +1468,9 @@
         "continuationsClass": "Classe sugerida",
         "continuationsPathComplete": "Percurso completo",
         "continuationsBlocked": "Não elegível",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "Menor sem o consentimento do responsável verificado. Verifique antes de inscrever."
+        },
         "continuationsSubmit": "Inscrever selecionados",
         "continuationsLoadError": "Não foi possível carregar a lista de continuações.",
         "continuationsSubmitError": "Não foi possível inscrever os selecionados.",
@@ -4249,7 +4252,8 @@
           "contactsEmpty": "Nenhum contato de emergência registrado.",
           "contactsMissingPayload": "Não foi possível carregar os contatos.",
           "legalRepTitle": "Representante legal",
-          "legalRepEmpty": "Nenhum representante legal registrado.",
+          "legalRepLegacyTitle": "Representante legal (legado)",
+          "legalRepLegacyNote": "Registro legado, somente leitura. As relações atuais são gerenciadas em Tutelas.",
           "pastoralTitle": "Funções de clube",
           "pastoralEmpty": "Nenhuma função de clube registrada.",
           "healthTitle": "Saúde",
@@ -4299,7 +4303,9 @@
           "appLabel": "App móvel",
           "appSub": "Acesso ao cliente móvel",
           "panelLabel": "Painel admin",
-          "panelSub": "Acesso ao painel administrativo"
+          "panelSub": "Acesso ao painel administrativo",
+          "dependentLabel": "Sem acesso próprio",
+          "dependentSub": "Gerenciado pelo responsável"
         },
         "deletedAccount": "Conta excluída",
         "anonymizedAccount": "Dados pessoais anonimizados",
@@ -6716,6 +6722,71 @@
         "confirming": "Rejeitando..."
       }
     },
+    "consent": {
+      "badge_pending": "Menor · consentimento pendente",
+      "expiry_extended_hint": "Estendido enquanto o consentimento estiver pendente",
+      "badge_verified": "Menor · consentimento verificado",
+      "approve_blocked": "Não é possível aprovar até que o consentimento do responsável seja verificado.",
+      "verify_action": "Verificar consentimento",
+      "verify_action_aria": "Verificar consentimento do responsável",
+      "dialog": {
+        "title": "Verificar consentimento do responsável",
+        "description": "{userName} é menor de idade. Revise a ficha assinada pelo responsável antes de confirmar.",
+        "guardians_label": "Responsáveis registrados",
+        "guardian_primary": "Principal",
+        "evidence_title": "Ficha assinada",
+        "evidence_loading": "Carregando ficha...",
+        "evidence_none": "Ainda não há ficha enviada. Envie a ficha assinada para poder verificar.",
+        "evidence_uploaded_at": "Enviada em {date}",
+        "evidence_uploaded_by": "por {name}",
+        "evidence_image_alt": "Ficha de consentimento assinada",
+        "evidence_open_pdf": "Abrir ficha em PDF",
+        "evidence_open_new_tab": "Abrir em uma nova aba",
+        "evidence_expiry_note": "O link da ficha é temporário e expira em poucos minutos.",
+        "evidence_reload": "Recarregar",
+        "upload": "Enviar ficha",
+        "replace": "Substituir ficha",
+        "uploading": "Enviando...",
+        "upload_hint": "JPG, PNG, WebP ou PDF. Máximo de 10 MB. Fotos HEIC não são aceitas: converta para JPG.",
+        "confirm_checkbox": "Verifiquei a ficha assinada",
+        "approve_checkbox": "Aprovar a adesão ao confirmar",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "confirming": "Confirmando..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Ficha enviada com sucesso",
+        "verified": "Consentimento verificado para {name}",
+        "verified_approved": "Consentimento verificado e adesão aprovada para {name}",
+        "approve_failed": "Consentimento verificado, mas não foi possível aprovar a solicitação: {reason}"
+      },
+      "validation": {
+        "type": "Formato inválido. Use JPG, PNG, WebP ou PDF (HEIC não é aceito).",
+        "size": "O arquivo excede 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "Não há ficha assinada enviada para este menor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Envie a ficha assinada antes de verificar o consentimento.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "As fichas não podem ser armazenadas nem consultadas no momento. Tente novamente mais tarde.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Um menor sob custódia do clube deve ser verificado por outra pessoa autorizada do clube, não por quem enviou a ficha nem por quem o recebeu em custódia.",
+        "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "Quem verifica não pode ser um responsável do menor. Peça a outra pessoa autorizada do clube que verifique a ficha.",
+        "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "O consentimento já foi verificado: a ficha não pode ser substituída. Se o responsável mudar, uma nova tutela deve ser registrada.",
+        "GUARDIANSHIP_NOT_FOUND": "Nenhuma tutela ativa foi encontrada para este menor.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "Você deve confirmar que revisou a ficha assinada.",
+        "MR_CONSENT_NOT_VERIFIED": "O consentimento do responsável ainda não foi verificado. Verifique antes de aprovar.",
+        "MR_NOT_FOUND": "A solicitação não existe mais ou não pertence a esta seção.",
+        "MR_ALREADY_PENDING": "A solicitação já foi processada. Atualize a lista.",
+        "FILE_REQUIRED": "Selecione um arquivo.",
+        "FILE_TYPE_INVALID": "Formato inválido. Use JPG, PNG, WebP ou PDF.",
+        "FILE_TOO_LARGE": "O arquivo excede 10 MB.",
+        "GUARD_PERMISSION_DENIED": "Você não tem permissão para realizar esta ação.",
+        "generic": "Não foi possível concluir a ação.",
+        "upload": "Não foi possível enviar a ficha.",
+        "verify": "Não foi possível verificar o consentimento.",
+        "approve": "Ocorreu um erro ao aprovar a solicitação",
+        "evidence_load": "Não foi possível carregar a ficha."
+      }
+    },
     "client": {
       "section_label": "Seção do clube",
       "section_placeholder": "Selecionar seção",
@@ -6729,6 +6800,78 @@
     "errors": {
       "approve": "Ocorreu um erro ao aprovar a solicitação",
       "reject": "Ocorreu um erro ao rejeitar a solicitação"
+    }
+  },
+  "guardianships": {
+    "title": "Tutelas",
+    "description": "Relações de tutela do usuário como menor e como responsável.",
+    "asDependent": {
+      "title": "Responsáveis deste perfil",
+      "empty": "Este perfil não possui tutelas registradas."
+    },
+    "asGuardian": {
+      "title": "Menores sob seus cuidados",
+      "empty": "Este usuário não é responsável por nenhum menor."
+    },
+    "profile": {
+      "title": "Perfil de menor",
+      "createdAt": "Criado em",
+      "createdBy": "Criado por",
+      "frozenAt": "Congelado desde",
+      "purgeAfter": "Exclusão prevista a partir de",
+      "active": "Ativo"
+    },
+    "fields": {
+      "guardian": "Responsável",
+      "email": "E-mail",
+      "custodianClub": "Custódia do clube",
+      "externalName": "Responsável externo (sem conta)",
+      "relationship": "Parentesco",
+      "status": "Status",
+      "method": "Método de verificação",
+      "verifiedAt": "Verificado em",
+      "verifiedBy": "Verificado por",
+      "evidence": "Ficha assinada",
+      "createdAt": "Registrada em",
+      "revokedAt": "Revogada em",
+      "revokedReason": "Motivo da revogação",
+      "birthday": "Nascimento"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Custódia",
+      "testData": "Dados de teste",
+      "revoked": "Revogada"
+    },
+    "status": {
+      "pending": "Pendente",
+      "verified": "Verificado",
+      "revoked": "Revogado"
+    },
+    "method": {
+      "director_paper_form": "Ficha em papel (diretor)",
+      "guardian_invite": "Convite de responsável",
+      "legacy_import": "Importação legada",
+      "test_placeholder": "Marcador de teste"
+    },
+    "revokedReason": {
+      "guardian_left": "O responsável saiu",
+      "removed_by_primary": "Removido pelo responsável principal",
+      "guardian_account_closed": "Conta do responsável encerrada",
+      "claimed": "Reivindicado por outro responsável",
+      "admin": "Administração",
+      "released": "Liberado"
+    },
+    "evidence": {
+      "missing": "Sem ficha",
+      "view": "Ver ficha",
+      "loading": "Carregando...",
+      "open": "Abrir ficha",
+      "expiryNote": "O link é temporário e expira em poucos minutos.",
+      "error": "Não foi possível abrir a ficha.",
+      "unavailable": "As fichas não estão disponíveis no momento.",
+      "notFound": "Não há ficha assinada para esta tutela.",
+      "denied": "Você não tem permissão para ver esta ficha."
     }
   },
   "sla": {

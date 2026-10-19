@@ -24,6 +24,13 @@ function classLabel(
   return suggested.code ?? item.blocked_reason ?? suggested.status;
 }
 
+const KNOWN_BLOCKED_REASONS = ["MR_CONSENT_NOT_VERIFIED"] as const;
+type KnownBlockedReason = (typeof KNOWN_BLOCKED_REASONS)[number];
+
+function isKnownBlockedReason(code: string | null | undefined): code is KnownBlockedReason {
+  return KNOWN_BLOCKED_REASONS.includes(code as KnownBlockedReason);
+}
+
 export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
   const t = useTranslations("clubs.detail.sections");
   const [items, setItems] = useState<ContinuationListItem[]>([]);
@@ -32,6 +39,11 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [blockedNotices, setBlockedNotices] = useState<string[]>([]);
+
+  function blockedReasonLabel(code: string | null | undefined): string | null {
+    return isKnownBlockedReason(code) ? t(`continuationsBlockedReasons.${code}`) : null;
+  }
 
   async function load() {
     setLoading(true);
@@ -68,6 +80,7 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
     setSubmitting(true);
     setError(null);
     setNotice(null);
+    setBlockedNotices([]);
     try {
       const results = await submitAnnualContinuationsFromClient(
         sectionId,
@@ -78,6 +91,13 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
       const blocked = results.filter((row) => row.outcome === "blocked").length;
       const failed = results.filter((row) => row.outcome === "failed").length;
       setNotice(t("continuationsResult", { enrolled, complete, blocked, failed }));
+      const namesById = new Map(items.map((row) => [row.user_id, row.name]));
+      setBlockedNotices(
+        results.flatMap((row) => {
+          const reason = row.outcome === "blocked" ? blockedReasonLabel(row.error_code) : null;
+          return reason ? [`${namesById.get(row.user_id) ?? row.user_id}: ${reason}`] : [];
+        }),
+      );
       await load();
     } catch {
       setError(t("continuationsSubmitError"));
@@ -121,7 +141,10 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
                     </span>
                     {!eligible ? (
                       <span className="block text-[11px] text-destructive">
-                        {item.blocked_reason ?? item.suggested_class.code ?? t("continuationsBlocked")}
+                        {blockedReasonLabel(item.blocked_reason) ??
+                          item.blocked_reason ??
+                          item.suggested_class.code ??
+                          t("continuationsBlocked")}
                       </span>
                     ) : null}
                   </span>
@@ -138,6 +161,13 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
         </p>
       ) : null}
       {notice ? <p className="text-xs text-primary">{notice}</p> : null}
+      {blockedNotices.length > 0 ? (
+        <ul className="space-y-0.5 text-xs text-destructive">
+          {blockedNotices.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      ) : null}
 
       <Button
         type="button"

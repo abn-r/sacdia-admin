@@ -9,6 +9,8 @@ import {
   RefreshCw,
   UserPlus,
   Clock,
+  ShieldCheck,
+  Info,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -28,9 +30,12 @@ import {
 } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
+import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
+import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
 import {
   listMembershipRequestsFromClient,
   approveMembershipRequest,
+  getConsentErrorCode,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
 import { ApiError } from "@/lib/api/client";
@@ -50,12 +55,27 @@ function getUserEmail(user?: MembershipRequest["users"]): string {
   return user?.email ?? "\u2014";
 }
 
+/** The date the request really lapses: the computed one wins over the base timeout. */
+function getEffectiveExpiry(req: MembershipRequest): string | null {
+  return req.effective_expires_at ?? req.expires_at ?? null;
+}
+
 function isExpiringSoon(expiresAt?: string | null): boolean {
   if (!expiresAt) return false;
   const diff = new Date(expiresAt).getTime() - Date.now();
   // Less than 48 hours
   return diff > 0 && diff < 48 * 60 * 60 * 1000;
 }
+
+/**
+ * Actions column pinned to the right edge: on narrow widths the table scrolls
+ * horizontally (DS table wrapper) while approve / verify / reject stay reachable.
+ * The cell needs an opaque background to cover the scrolled content.
+ */
+const ACTIONS_HEAD_STICKY =
+  "sticky right-0 z-10 border-l border-border/60 bg-card";
+const ACTIONS_CELL_STICKY =
+  "sticky right-0 z-10 border-l border-border/60 bg-card group-hover/row:bg-[color-mix(in_oklab,var(--card),var(--muted)_30%)]";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,6 +94,8 @@ export function PendingMembersTable({
   const formatDate = useFormatDate();
   const formatDatetime = useFormatDateTime();
   const translateRole = useRoleLabel();
+  const tConsent = useTranslations("membership.consent");
+  const consentErrorMessage = useConsentErrorMessage();
 
   const getRoleName = (role?: MembershipRequest["roles"]): string => {
     const raw = role?.role_name ?? "member";
@@ -83,6 +105,7 @@ export function PendingMembersTable({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [rejectDialog, setRejectDialog] = useState<MembershipRequest | null>(null);
+  const [consentDialog, setConsentDialog] = useState<MembershipRequest | null>(null);
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -107,11 +130,17 @@ export function PendingMembersTable({
       toast.success(t("toasts.approved", { name: getUserName(req.users) }));
       await refresh();
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : t("errors.approve");
-      toast.error(message);
+      if (getConsentErrorCode(error)) {
+        // e.g. MR_CONSENT_NOT_VERIFIED: the list was stale. Explain and re-sync.
+        toast.error(consentErrorMessage(error, "approve"));
+        await refresh();
+      } else {
+        const message =
+          error instanceof ApiError
+            ? error.message
+            : t("errors.approve");
+        toast.error(message);
+      }
     } finally {
       setProcessingId(null);
     }
@@ -165,7 +194,10 @@ export function PendingMembersTable({
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_expires")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
+                <TableHead
+                  data-testid="actions-head"
+                  className={`h-9 px-3 text-right text-xs font-medium text-muted-foreground ${ACTIONS_HEAD_STICKY}`}
+                >
                   {t("table.col_actions")}
                 </TableHead>
               </TableRow>
@@ -173,12 +205,15 @@ export function PendingMembersTable({
             <TableBody>
               {requests.map((req) => {
                 const isProcessing = processingId === req.assignment_id;
-                const expiring = isExpiringSoon(req.expires_at);
+                const consent = req.consent ?? null;
+                const consentPending = consent?.status === "pending";
+                const expiry = getEffectiveExpiry(req);
+                const expiring = isExpiringSoon(expiry);
 
                 return (
                   <TableRow
                     key={req.assignment_id}
-                    className="hover:bg-muted/30"
+                    className="group/row hover:bg-muted/30"
                   >
                     {/* Member info */}
                     <TableCell className="px-3 py-2.5 align-middle">
@@ -189,6 +224,16 @@ export function PendingMembersTable({
                         <p className="text-xs text-muted-foreground">
                           {getUserEmail(req.users)}
                         </p>
+                        {consent && (
+                          <Badge
+                            variant={consentPending ? "soft-warning" : "soft-success"}
+                            className="mt-1"
+                          >
+                            {consentPending
+                              ? tConsent("badge_pending")
+                              : tConsent("badge_verified")}
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
 
@@ -217,32 +262,75 @@ export function PendingMembersTable({
                               : "text-muted-foreground"
                           }`}
                         >
-                          {req.expires_at ? formatDatetime(req.expires_at) : "—"}
+                          {expiry ? formatDatetime(expiry) : "—"}
                         </span>
+                        {consentPending && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                tabIndex={0}
+                                role="img"
+                                aria-label={tConsent("expiry_extended_hint")}
+                                className="inline-flex text-muted-foreground"
+                              >
+                                <Info className="size-3.5" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>{tConsent("expiry_extended_hint")}</TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
 
                     {/* Actions */}
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell
+                      data-testid="actions-cell"
+                      className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY}`}
+                    >
                       <div className="flex items-center justify-end gap-1">
                         {isProcessing && (
                           <Loader2 className="size-4 animate-spin text-muted-foreground" />
                         )}
 
+                        {consentPending && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-primary hover:bg-primary/10 hover:text-primary"
+                                onClick={() => setConsentDialog(req)}
+                                disabled={isProcessing || isRefreshing}
+                                aria-label={tConsent("verify_action_aria")}
+                              >
+                                <ShieldCheck className="size-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{tConsent("verify_action")}</TooltipContent>
+                          </Tooltip>
+                        )}
+
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-success hover:bg-success/10 hover:text-success"
-                              onClick={() => handleApprove(req)}
-                              disabled={isProcessing || isRefreshing}
-                              aria-label={t("table.aria_approve")}
-                            >
-                              <CheckCircle2 className="size-4" />
-                            </Button>
+                            {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+                            <span tabIndex={consentPending ? 0 : undefined}>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-success hover:bg-success/10 hover:text-success"
+                                onClick={() => handleApprove(req)}
+                                disabled={isProcessing || isRefreshing || consentPending}
+                                aria-label={t("table.aria_approve")}
+                              >
+                                <CheckCircle2 className="size-4" />
+                              </Button>
+                            </span>
                           </TooltipTrigger>
-                          <TooltipContent>{t("table.tooltip_approve")}</TooltipContent>
+                          <TooltipContent>
+                            {consentPending
+                              ? tConsent("approve_blocked")
+                              : t("table.tooltip_approve")}
+                          </TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
@@ -268,6 +356,22 @@ export function PendingMembersTable({
             </TableBody>
           </Table>
         </div>
+      )}
+
+      {/* Consent verification dialog (minors) */}
+      {consentDialog && (
+        <MembershipConsentVerifyDialog
+          open
+          clubSectionId={clubSectionId}
+          request={consentDialog}
+          onOpenChange={(open) => {
+            if (!open) setConsentDialog(null);
+          }}
+          onSuccess={() => {
+            setConsentDialog(null);
+            refresh();
+          }}
+        />
       )}
 
       {/* Reject dialog */}

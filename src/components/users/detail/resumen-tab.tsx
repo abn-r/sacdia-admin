@@ -4,6 +4,7 @@ import { HealthBlock } from "./health-block";
 import { ContactsBlock } from "./contacts-block";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Users } from "lucide-react";
 import type { ContactEntry } from "./contacts-block";
 
 export interface ResumenIdentityField {
@@ -49,6 +50,12 @@ export interface ResumenTabProps {
   accessApp: boolean;
   accessPanel: boolean;
   active: boolean;
+  /**
+   * Dependent profile (minor without login, managed by a guardian). When set,
+   * the App / Panel / Estado toggles are replaced by a "no own access" notice:
+   * the stored flags describe a login that does not exist.
+   */
+  dependentAccess?: { label: string; sub: string } | null;
 
   // Contacts
   showContacts: boolean;
@@ -64,8 +71,10 @@ export interface ResumenTabProps {
 
   // Legal rep
   showLegalRep: boolean;
+  /** Title already labelled as legacy (the section only renders for a legacy row). */
   legalRepTitle: string;
-  legalRepEmpty: string;
+  /** Read-only note: legacy records are replaced by Tutorías. */
+  legalRepLegacyNote: string;
   legalRep: { fullName: string; phone: string; relationship: string } | null;
   legalNameLabel: string;
   legalPhoneLabel: string;
@@ -130,7 +139,7 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
       {props.showHealth ? <HealthBlock {...props.healthProps} /> : null}
 
       <DetailSection num="04" title={props.rolesAccessTitle}>
-        <div className={props.showAccessFlags ? "mb-4" : undefined}>
+        <div className={props.showAccessFlags || props.dependentAccess ? "mb-4" : undefined}>
           <div className="mb-2 text-[11px] font-semibold text-muted-foreground">
             {props.rolesLabel}
           </div>
@@ -148,7 +157,22 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
             </div>
           )}
         </div>
-        {props.showAccessFlags ? (
+        {props.dependentAccess ? (
+          <div
+            data-testid="dependent-no-access"
+            className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5"
+          >
+            <Users className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <div>
+              <div className="text-sm font-semibold text-foreground">
+                {props.dependentAccess.label}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {props.dependentAccess.sub}
+              </div>
+            </div>
+          </div>
+        ) : props.showAccessFlags ? (
           <div className="grid gap-3 sm:grid-cols-3">
             <ReadOnlyToggle
               label={props.accessAppLabel}
@@ -182,17 +206,15 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
         />
       ) : null}
 
-      {props.showLegalRep ? (
+      {/* Legacy and read-only (replaced by Tutorías): never render an empty shell. */}
+      {props.showLegalRep && props.legalRep ? (
         <DetailSection num="06" title={props.legalRepTitle}>
-          {!props.legalRep ? (
-            <p className="text-sm text-muted-foreground">{props.legalRepEmpty}</p>
-          ) : (
-            <DetailCols2>
-              <DetailField k={props.legalNameLabel} v={props.legalRep.fullName} />
-              <DetailField k={props.legalPhoneLabel} v={props.legalRep.phone} />
-              <DetailField k={props.legalRelationshipLabel} v={props.legalRep.relationship} />
-            </DetailCols2>
-          )}
+          <p className="mb-3 text-xs text-muted-foreground">{props.legalRepLegacyNote}</p>
+          <DetailCols2>
+            <DetailField k={props.legalNameLabel} v={props.legalRep.fullName} />
+            <DetailField k={props.legalPhoneLabel} v={props.legalRep.phone} />
+            <DetailField k={props.legalRelationshipLabel} v={props.legalRep.relationship} />
+          </DetailCols2>
         </DetailSection>
       ) : null}
     </div>
