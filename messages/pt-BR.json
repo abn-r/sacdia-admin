@@ -4302,7 +4302,9 @@
           "appLabel": "App móvel",
           "appSub": "Acesso ao cliente móvel",
           "panelLabel": "Painel admin",
-          "panelSub": "Acesso ao painel administrativo"
+          "panelSub": "Acesso ao painel administrativo",
+          "dependentLabel": "Sem acesso próprio",
+          "dependentSub": "Gerenciado pelo responsável"
         },
         "deletedAccount": "Conta excluída",
         "anonymizedAccount": "Dados pessoais anonimizados",

@@ -156,6 +156,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     anonymized: t("anonymizedAccount"),
   });
 
+  // A dependent profile (minor without login, managed by a guardian) is the
+  // only signal the admin detail exposes: `guardianships.dependent_profile`.
+  // It is null when the actor lacks `legal_representative:read`.
+  const isDependent = user.guardianships?.dependent_profile != null;
+
   const age = calculateAge(user.birthday);
   const roleNamesRaw = extractRoleNames(user);
   const roleLabels = roleNamesRaw.map((r) => translateRole(r) || r);
@@ -363,6 +368,14 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               accessApp={Boolean(user.access_app)}
               accessPanel={Boolean(user.access_panel)}
               active={user.active !== false}
+              dependentAccess={
+                isDependent
+                  ? {
+                      label: t("access.dependentLabel"),
+                      sub: t("access.dependentSub"),
+                    }
+                  : null
+              }
               showContacts={canSeeEmergencyContacts}
               contactsProps={{
                 hasPayload: user.emergency_contacts != null,
@@ -593,18 +606,20 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                           key="appAccess"
                           label={t("sidebar.appAccess")}
                           value={
-                            user.access_app
-                              ? t("sidebar.yes")
-                              : t("sidebar.no")
+                            isDependent
+                              ? t("access.dependentLabel")
+                              : user.access_app
+                                ? t("sidebar.yes")
+                                : t("sidebar.no")
                           }
                         />,
                         <SidebarRow
                           key="panelAccess"
                           label={t("sidebar.panelAccess")}
                           value={
-                            user.access_panel
-                              ? t("sidebar.yes")
-                              : t("sidebar.no")
+                            isDependent || !user.access_panel
+                              ? t("sidebar.no")
+                              : t("sidebar.yes")
                           }
                         />,
                       ]

@@ -4302,7 +4302,9 @@
           "appLabel": "Mobile app",
           "appSub": "Access to mobile client",
           "panelLabel": "Admin panel",
-          "panelSub": "Access to the admin panel"
+          "panelSub": "Access to the admin panel",
+          "dependentLabel": "No own access",
+          "dependentSub": "Managed by their guardian"
         },
         "deletedAccount": "Deleted account",
         "anonymizedAccount": "Personal data anonymized",

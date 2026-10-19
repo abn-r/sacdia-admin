@@ -4,6 +4,7 @@ import { HealthBlock } from "./health-block";
 import { ContactsBlock } from "./contacts-block";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { UsersRound } from "lucide-react";
 import type { ContactEntry } from "./contacts-block";
 
 export interface ResumenIdentityField {
@@ -49,6 +50,12 @@ export interface ResumenTabProps {
   accessApp: boolean;
   accessPanel: boolean;
   active: boolean;
+  /**
+   * Dependent profile (minor without login, managed by a guardian). When set,
+   * the App / Panel / Estado toggles are replaced by a "no own access" notice:
+   * the stored flags describe a login that does not exist.
+   */
+  dependentAccess?: { label: string; sub: string } | null;
 
   // Contacts
   showContacts: boolean;
@@ -130,7 +137,7 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
       {props.showHealth ? <HealthBlock {...props.healthProps} /> : null}
 
       <DetailSection num="04" title={props.rolesAccessTitle}>
-        <div className={props.showAccessFlags ? "mb-4" : undefined}>
+        <div className={props.showAccessFlags || props.dependentAccess ? "mb-4" : undefined}>
           <div className="mb-2 text-[11px] font-semibold text-muted-foreground">
             {props.rolesLabel}
           </div>
@@ -148,7 +155,22 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
             </div>
           )}
         </div>
-        {props.showAccessFlags ? (
+        {props.dependentAccess ? (
+          <div
+            data-testid="dependent-no-access"
+            className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5"
+          >
+            <UsersRound className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <div>
+              <div className="text-sm font-semibold text-foreground">
+                {props.dependentAccess.label}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {props.dependentAccess.sub}
+              </div>
+            </div>
+          </div>
+        ) : props.showAccessFlags ? (
           <div className="grid gap-3 sm:grid-cols-3">
             <ReadOnlyToggle
               label={props.accessAppLabel}

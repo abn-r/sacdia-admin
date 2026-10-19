@@ -23,7 +23,10 @@ function stubHealthProps(): ResumenTabProps["healthProps"] {
   };
 }
 
-function renderResumen(showAccessFlags: boolean) {
+function renderResumen(
+  showAccessFlags: boolean,
+  extra: Partial<ResumenTabProps> = {},
+) {
   return render(
     <UserDetailResumenTab
       identityTitle="Identidad"
@@ -68,6 +71,7 @@ function renderResumen(showAccessFlags: boolean) {
       legalNameLabel="Nombre"
       legalPhoneLabel="Teléfono"
       legalRelationshipLabel="Parentesco"
+      {...extra}
     />,
   );
 }
@@ -94,5 +98,42 @@ describe("UserDetailResumenTab access flags", () => {
     expect(screen.queryByText("Estado")).not.toBeInTheDocument();
     expect(screen.queryByText("Acceso al panel administrativo")).not.toBeInTheDocument();
     expect(screen.getByText("Director de campo")).toBeInTheDocument();
+  });
+});
+
+describe("UserDetailResumenTab dependent profile", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("replaces the login toggles with a 'no own access' notice", () => {
+    renderResumen(true, {
+      dependentAccess: {
+        label: "Sin acceso propio",
+        sub: "Gestionado por su tutor",
+      },
+    });
+
+    expect(screen.getByTestId("dependent-no-access")).toBeInTheDocument();
+    expect(screen.getByText("Sin acceso propio")).toBeInTheDocument();
+    expect(screen.getByText("Gestionado por su tutor")).toBeInTheDocument();
+    expect(screen.queryByText("App móvil")).not.toBeInTheDocument();
+    expect(screen.queryByText("Acceso al cliente móvil")).not.toBeInTheDocument();
+    expect(screen.queryByText("Habilitado para iniciar sesión")).not.toBeInTheDocument();
+    // System roles stay visible
+    expect(screen.getByText("Director de campo")).toBeInTheDocument();
+  });
+
+  it("shows the notice even when the actor cannot see the access flags", () => {
+    renderResumen(false, {
+      dependentAccess: { label: "Sin acceso propio", sub: "Gestionado por su tutor" },
+    });
+    expect(screen.getByTestId("dependent-no-access")).toBeInTheDocument();
+  });
+
+  it("keeps the toggles for regular accounts", () => {
+    renderResumen(true, { dependentAccess: null });
+    expect(screen.queryByTestId("dependent-no-access")).not.toBeInTheDocument();
+    expect(screen.getByText("App móvil")).toBeInTheDocument();
   });
 });

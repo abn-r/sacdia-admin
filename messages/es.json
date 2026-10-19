@@ -4302,7 +4302,9 @@
           "appLabel": "App móvil",
           "appSub": "Acceso al cliente móvil",
           "panelLabel": "Panel admin",
-          "panelSub": "Acceso al panel administrativo"
+          "panelSub": "Acceso al panel administrativo",
+          "dependentLabel": "Sin acceso propio",
+          "dependentSub": "Gestionado por su tutor"
         },
         "deletedAccount": "Cuenta eliminada",
         "anonymizedAccount": "Datos personales anonimizados",

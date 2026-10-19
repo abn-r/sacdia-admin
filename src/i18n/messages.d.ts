@@ -4332,6 +4332,8 @@ export interface IntlMessages {
           appSub: string;
           panelLabel: string;
           panelSub: string;
+          dependentLabel: string;
+          dependentSub: string;
         };
         deletedAccount: string;
         anonymizedAccount: string;
