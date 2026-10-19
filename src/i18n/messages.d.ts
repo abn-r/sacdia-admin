@@ -6753,6 +6753,7 @@ export interface IntlMessages {
     };
     consent: {
       badge_pending: string;
+      expiry_extended_hint: string;
       badge_verified: string;
       approve_blocked: string;
       verify_action: string;

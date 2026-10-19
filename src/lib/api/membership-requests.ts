@@ -44,7 +44,14 @@ export type MembershipRequest = {
   role_id?: string | null;
   status: string;
   created_at: string;
+  /** Base timeout of the request. */
   expires_at?: string | null;
+  /**
+   * Computed by the backend: when the request really lapses. For minors with
+   * pending consent the window is longer (30 days) than the base `expires_at`.
+   * Display `effective_expires_at ?? expires_at`.
+   */
+  effective_expires_at?: string | null;
   rejection_reason?: string | null;
   users?: MembershipRequestUser | null;
   roles?: MembershipRequestRole | null;

@@ -186,3 +186,71 @@ describe("PendingMembersTable (consent)", () => {
     await waitFor(() => expect(mockList).toHaveBeenCalledWith(42));
   });
 });
+
+describe("PendingMembersTable (effective expiry)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockList.mockResolvedValue([]);
+  });
+
+  afterEach(() => cleanup());
+
+  // Noon UTC keeps the calendar day stable across time zones.
+  const BASE = "2026-10-09T12:00:00.000Z";
+  const EFFECTIVE = "2026-10-31T12:00:00.000Z";
+
+  it("shows effective_expires_at instead of the base expires_at", () => {
+    renderTable([
+      { ...minor("pending"), expires_at: BASE, effective_expires_at: EFFECTIVE },
+    ]);
+
+    expect(screen.getByText(/\b31 oct/)).toBeInTheDocument();
+    expect(screen.queryByText(/\b09 oct/)).toBeNull();
+  });
+
+  it("falls back to expires_at when effective_expires_at is absent or null", () => {
+    renderTable([
+      { ...adult(), assignment_id: "a1", expires_at: BASE },
+      { ...adult(), assignment_id: "a2", expires_at: BASE, effective_expires_at: null },
+    ]);
+
+    expect(screen.getAllByText(/\b09 oct/)).toHaveLength(2);
+  });
+
+  it("pending-consent minors get the 'extended while pending' hint", async () => {
+    const user = userEvent.setup();
+    renderTable([
+      { ...minor("pending"), expires_at: BASE, effective_expires_at: EFFECTIVE },
+    ]);
+
+    const hint = screen.getByRole("img", { name: consentMsg.expiry_extended_hint });
+    expect(hint).toBeInTheDocument();
+    await user.hover(hint);
+    expect((await screen.findAllByText(consentMsg.expiry_extended_hint)).length).toBeGreaterThan(0);
+  });
+
+  it("adults and verified minors get no extended hint", () => {
+    renderTable([
+      { ...adult(), expires_at: BASE },
+      { ...minor("verified"), expires_at: BASE },
+    ]);
+
+    expect(screen.queryByRole("img", { name: consentMsg.expiry_extended_hint })).toBeNull();
+  });
+
+  it("flags 'expiring soon' from the effective date, not the base one", () => {
+    const soon = new Date(Date.now() + 10 * 3600 * 1000).toISOString();
+    const far = new Date(Date.now() + 20 * 24 * 3600 * 1000).toISOString();
+    const { container } = renderTable([
+      { ...minor("pending"), expires_at: soon, effective_expires_at: far },
+    ]);
+    // Base is within 48h but the effective date is 20 days out: no warning styling.
+    expect(container.querySelector(".text-warning")).toBeNull();
+
+    cleanup();
+    const { container: c2 } = renderTable([
+      { ...minor("pending"), expires_at: far, effective_expires_at: soon },
+    ]);
+    expect(c2.querySelector(".text-warning")).not.toBeNull();
+  });
+});

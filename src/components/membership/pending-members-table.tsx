@@ -10,6 +10,7 @@ import {
   UserPlus,
   Clock,
   ShieldCheck,
+  Info,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -52,6 +53,11 @@ function getUserName(user?: MembershipRequest["users"]): string {
 
 function getUserEmail(user?: MembershipRequest["users"]): string {
   return user?.email ?? "\u2014";
+}
+
+/** The date the request really lapses: the computed one wins over the base timeout. */
+function getEffectiveExpiry(req: MembershipRequest): string | null {
+  return req.effective_expires_at ?? req.expires_at ?? null;
 }
 
 function isExpiringSoon(expiresAt?: string | null): boolean {
@@ -186,9 +192,10 @@ export function PendingMembersTable({
             <TableBody>
               {requests.map((req) => {
                 const isProcessing = processingId === req.assignment_id;
-                const expiring = isExpiringSoon(req.expires_at);
                 const consent = req.consent ?? null;
                 const consentPending = consent?.status === "pending";
+                const expiry = getEffectiveExpiry(req);
+                const expiring = isExpiringSoon(expiry);
 
                 return (
                   <TableRow
@@ -242,8 +249,23 @@ export function PendingMembersTable({
                               : "text-muted-foreground"
                           }`}
                         >
-                          {req.expires_at ? formatDatetime(req.expires_at) : "—"}
+                          {expiry ? formatDatetime(expiry) : "—"}
                         </span>
+                        {consentPending && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                tabIndex={0}
+                                role="img"
+                                aria-label={tConsent("expiry_extended_hint")}
+                                className="inline-flex text-muted-foreground"
+                              >
+                                <Info className="size-3.5" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>{tConsent("expiry_extended_hint")}</TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
 

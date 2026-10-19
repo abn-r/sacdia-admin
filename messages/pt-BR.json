@@ -6724,6 +6724,7 @@
     },
     "consent": {
       "badge_pending": "Menor · consentimento pendente",
+      "expiry_extended_hint": "Estendido enquanto o consentimento estiver pendente",
       "badge_verified": "Menor · consentimento verificado",
       "approve_blocked": "Não é possível aprovar até que o consentimento do responsável seja verificado.",
       "verify_action": "Verificar consentimento",

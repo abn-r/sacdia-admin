@@ -6724,6 +6724,7 @@
     },
     "consent": {
       "badge_pending": "Mineur · consentement en attente",
+      "expiry_extended_hint": "Prolongé tant que le consentement est en attente",
       "badge_verified": "Mineur · consentement vérifié",
       "approve_blocked": "Impossible d'approuver tant que le consentement du tuteur n'est pas vérifié.",
       "verify_action": "Vérifier le consentement",
