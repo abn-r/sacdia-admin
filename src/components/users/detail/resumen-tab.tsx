@@ -4,7 +4,7 @@ import { HealthBlock } from "./health-block";
 import { ContactsBlock } from "./contacts-block";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { UsersRound } from "lucide-react";
+import { Users } from "lucide-react";
 import type { ContactEntry } from "./contacts-block";
 
 export interface ResumenIdentityField {
@@ -162,7 +162,7 @@ export function UserDetailResumenTab(props: ResumenTabProps) {
             data-testid="dependent-no-access"
             className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-3.5"
           >
-            <UsersRound className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Users className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <div>
               <div className="text-sm font-semibold text-foreground">
                 {props.dependentAccess.label}
