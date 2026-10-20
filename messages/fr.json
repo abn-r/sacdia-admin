@@ -8779,5 +8779,106 @@
         "assigned": "Pasteur assigné."
       }
     }
+  },
+  "familyAccess": {
+    "title": "Accès familial",
+    "description": "L'accès propre du mineur et les appareils liés par son tuteur. Seul le tuteur active un accès ou change son mot de passe : d'ici, vous pouvez uniquement désactiver ou révoquer.",
+    "supervision": {
+      "label": "Supervision du tuteur",
+      "active": "Active",
+      "pending_guardian": "En attente de tuteur",
+      "none": "Aucune supervision"
+    },
+    "login": {
+      "title": "Accès propre",
+      "empty": "Ce profil n'a pas d'accès propre.",
+      "status": {
+        "active": "Active",
+        "pending_guardian": "En attente de tuteur",
+        "disabled": "Désactivée"
+      },
+      "fields": {
+        "status": "Statut",
+        "method": "Méthode de connexion",
+        "handle": "Identifiant",
+        "origin": "Origine",
+        "enabledBy": "Activé par",
+        "enabledAt": "Activé le",
+        "passwordSetBy": "Mot de passe défini par",
+        "pendingSince": "En attente de tuteur depuis",
+        "disabledAt": "Désactivé le",
+        "disabledReason": "Motif de la désactivation"
+      },
+      "method": {
+        "email": "E-mail",
+        "handle": "Identifiant"
+      },
+      "origin": {
+        "self_registered": "Inscription personnelle",
+        "guardian_enabled": "Activé par le tuteur"
+      },
+      "passwordSetBy": {
+        "guardian": "Le tuteur",
+        "self": "Le mineur"
+      },
+      "disabledReason": {
+        "guardian": "Désactivé par le tuteur",
+        "admin": "Désactivé par l'administration",
+        "unlinked_purged": "Aucun tuteur lié (nettoyage automatique)"
+      },
+      "disable": "Désactiver",
+      "disableAria": "Désactiver l'accès propre"
+    },
+    "devices": {
+      "title": "Appareils liés",
+      "empty": "Aucun appareil lié.",
+      "columns": {
+        "device": "Appareil",
+        "platform": "Plateforme",
+        "pairedBy": "Lié par",
+        "lastSeen": "Dernière activité",
+        "expires": "Expire",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Actif",
+        "revoked": "Révoqué"
+      },
+      "appVersion": "Version {version}",
+      "revokedOn": "Révoqué le {date}",
+      "revoke": "Révoquer",
+      "revokeAria": "Révoquer l'appareil {label}"
+    },
+    "dialog": {
+      "disableTitle": "Désactiver l'accès propre ?",
+      "disableDescription": "Le mineur perdra l'accès immédiatement et ses sessions seront fermées. Seul son tuteur pourra le réactiver. Les tuteurs vérifiés seront prévenus.",
+      "revokeTitle": "Révoquer l'appareil lié ?",
+      "revokeDescription": "L'appareil « {label} » perdra l'accès immédiatement. Les tuteurs vérifiés seront prévenus.",
+      "reasonLabel": "Motif (obligatoire)",
+      "reasonHint": "5 caractères minimum. Il est consigné dans le journal d'audit.",
+      "reasonPlaceholder": "Décrivez le motif de cette action...",
+      "reasonTooShort": "Le motif doit comporter au moins 5 caractères.",
+      "cancel": "Annuler",
+      "disableConfirm": "Désactiver l'accès",
+      "revokeConfirm": "Révoquer l'appareil",
+      "working": "Traitement..."
+    },
+    "toasts": {
+      "disabled": "Accès propre désactivé.",
+      "revoked": "Appareil révoqué."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "L'utilisateur n'existe plus ou est hors de votre périmètre.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "Ce profil n'a pas d'accès propre à désactiver.",
+      "DEVICE_NOT_FOUND": "L'appareil n'existe plus ou n'appartient pas à ce profil.",
+      "forbidden": "Vous n'avez pas la permission de gérer l'accès familial de cet utilisateur.",
+      "invalid_reason": "Le motif doit comporter entre 5 et 500 caractères.",
+      "generic": "L'action n'a pas pu être menée à bien. Réessayez."
+    }
   }
 }

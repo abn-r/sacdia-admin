@@ -8779,5 +8779,106 @@
         "assigned": "Pastor atribuído."
       }
     }
+  },
+  "familyAccess": {
+    "title": "Acesso familiar",
+    "description": "O acesso próprio do menor e os dispositivos vinculados pelo responsável. Somente o responsável ativa um acesso ou altera a senha: daqui só é possível desativar ou revogar.",
+    "supervision": {
+      "label": "Supervisão do responsável",
+      "active": "Ativa",
+      "pending_guardian": "Aguardando responsável",
+      "none": "Sem supervisão"
+    },
+    "login": {
+      "title": "Acesso próprio",
+      "empty": "Este perfil não tem acesso próprio.",
+      "status": {
+        "active": "Ativa",
+        "pending_guardian": "Aguardando responsável",
+        "disabled": "Desativada"
+      },
+      "fields": {
+        "status": "Status",
+        "method": "Método de login",
+        "handle": "Usuário",
+        "origin": "Origem",
+        "enabledBy": "Ativado por",
+        "enabledAt": "Ativado em",
+        "passwordSetBy": "Senha definida por",
+        "pendingSince": "Aguardando responsável desde",
+        "disabledAt": "Desativado em",
+        "disabledReason": "Motivo da desativação"
+      },
+      "method": {
+        "email": "E-mail",
+        "handle": "Usuário"
+      },
+      "origin": {
+        "self_registered": "Cadastro próprio",
+        "guardian_enabled": "Ativado pelo responsável"
+      },
+      "passwordSetBy": {
+        "guardian": "O responsável",
+        "self": "O menor"
+      },
+      "disabledReason": {
+        "guardian": "Desativado pelo responsável",
+        "admin": "Desativado pela administração",
+        "unlinked_purged": "Sem responsável vinculado (limpeza automática)"
+      },
+      "disable": "Desativar",
+      "disableAria": "Desativar o acesso próprio"
+    },
+    "devices": {
+      "title": "Dispositivos vinculados",
+      "empty": "Não há dispositivos vinculados.",
+      "columns": {
+        "device": "Dispositivo",
+        "platform": "Plataforma",
+        "pairedBy": "Vinculado por",
+        "lastSeen": "Última atividade",
+        "expires": "Expira",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Ativo",
+        "revoked": "Revogado"
+      },
+      "appVersion": "Versão {version}",
+      "revokedOn": "Revogado em {date}",
+      "revoke": "Revogar",
+      "revokeAria": "Revogar o dispositivo {label}"
+    },
+    "dialog": {
+      "disableTitle": "Desativar o acesso próprio?",
+      "disableDescription": "O menor perderá o acesso imediatamente e suas sessões serão encerradas. Somente o responsável poderá reativá-lo. Os responsáveis verificados serão avisados.",
+      "revokeTitle": "Revogar o dispositivo vinculado?",
+      "revokeDescription": "O dispositivo \"{label}\" perderá o acesso imediatamente. Os responsáveis verificados serão avisados.",
+      "reasonLabel": "Motivo (obrigatório)",
+      "reasonHint": "Mínimo de 5 caracteres. Fica registrado na auditoria.",
+      "reasonPlaceholder": "Descreva o motivo desta ação...",
+      "reasonTooShort": "O motivo deve ter pelo menos 5 caracteres.",
+      "cancel": "Cancelar",
+      "disableConfirm": "Desativar acesso",
+      "revokeConfirm": "Revogar dispositivo",
+      "working": "Processando..."
+    },
+    "toasts": {
+      "disabled": "Acesso próprio desativado.",
+      "revoked": "Dispositivo revogado."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "O usuário não existe mais ou está fora do seu escopo.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "Este perfil não tem acesso próprio para desativar.",
+      "DEVICE_NOT_FOUND": "O dispositivo não existe mais ou não pertence a este perfil.",
+      "forbidden": "Você não tem permissão para gerenciar o acesso familiar deste usuário.",
+      "invalid_reason": "O motivo deve ter entre 5 e 500 caracteres.",
+      "generic": "Não foi possível concluir a ação. Tente novamente."
+    }
   }
 }
