@@ -185,6 +185,43 @@ describe("PendingMembersTable (consent)", () => {
     expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
   });
 
+  it.each([
+    ["self_custodian", "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY"],
+    ["self_guardian", "GUARDIANSHIP_GUARDIAN_SELF_VERIFY"],
+  ] as const)(
+    "viewer_verify_block %s disables verify with the matching tooltip",
+    async (block, code) => {
+      const user = userEvent.setup();
+      const req = minor("pending");
+      req.consent = { ...req.consent!, viewer_can_verify: false, viewer_verify_block: block };
+      renderTable([req]);
+
+      const verify = screen.getByRole("button", { name: consentMsg.verify_action_aria });
+      expect(verify).toBeDisabled();
+
+      await user.hover(verify.parentElement as HTMLElement);
+      expect((await screen.findAllByText(consentMsg.errors[code])).length).toBeGreaterThan(0);
+      await user.click(verify);
+      expect(screen.queryByRole("alertdialog")).toBeNull();
+    },
+  );
+
+  it("a null block keeps verify enabled, even when viewer_can_verify is false (nothing to verify yet is handled elsewhere)", () => {
+    const req = minor("pending");
+    req.consent = { ...req.consent!, viewer_can_verify: false, viewer_verify_block: null };
+    renderTable([req]);
+
+    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
+  });
+
+  it("viewer_can_verify true with a null block keeps verify enabled", () => {
+    const req = minor("pending");
+    req.consent = { ...req.consent!, viewer_can_verify: true, viewer_verify_block: null };
+    renderTable([req]);
+
+    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
+  });
+
   it("explains why approve is blocked via tooltip", async () => {
     const user = userEvent.setup();
     renderTable([minor("pending")]);

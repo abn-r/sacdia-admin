@@ -62,7 +62,10 @@ import { ApiError } from "@/lib/api/client";
 const dialogMsg = messages.membership.consent.dialog;
 const errorsMsg = messages.membership.consent.errors;
 
-function makeRequest(evidenceUploaded: boolean): MembershipRequest {
+function makeRequest(
+  evidenceUploaded: boolean,
+  verdict: Partial<NonNullable<MembershipRequest["consent"]>> = {},
+): MembershipRequest {
   return {
     assignment_id: "asg-1",
     club_section_id: 42,
@@ -86,6 +89,7 @@ function makeRequest(evidenceUploaded: boolean): MembershipRequest {
       guardians: [
         { display_name: "María Pérez", relationship_type_name: "Madre", is_primary: true },
       ],
+      ...verdict,
     },
   };
 }
@@ -166,6 +170,33 @@ describe("MembershipConsentVerifyDialog", () => {
 
     await user.click(screen.getByLabelText(dialogMsg.confirm_checkbox));
     expect(confirmButton()).toBeDisabled();
+  });
+
+  it.each([
+    ["self_custodian", "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY"],
+    ["self_guardian", "GUARDIANSHIP_GUARDIAN_SELF_VERIFY"],
+  ] as const)(
+    "viewer_verify_block %s: explains why and keeps Confirm disabled",
+    async (block, code) => {
+      const user = userEvent.setup();
+      renderDialog(makeRequest(true, { viewer_can_verify: false, viewer_verify_block: block }));
+      await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+
+      expect(screen.getByRole("alert")).toHaveTextContent(errorsMsg[code]);
+      await user.click(screen.getByLabelText(dialogMsg.confirm_checkbox));
+      expect(confirmButton()).toBeDisabled();
+      expect(mockVerify).not.toHaveBeenCalled();
+    },
+  );
+
+  it("a null block shows no notice and Confirm works as before", async () => {
+    const user = userEvent.setup();
+    renderDialog(makeRequest(true, { viewer_can_verify: false, viewer_verify_block: null }));
+    await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+
+    expect(screen.queryByRole("alert")).toBeNull();
+    await user.click(screen.getByLabelText(dialogMsg.confirm_checkbox));
+    expect(confirmButton()).toBeEnabled();
   });
 
   it("with evidence: Confirm stays disabled until the checkbox is ticked", async () => {

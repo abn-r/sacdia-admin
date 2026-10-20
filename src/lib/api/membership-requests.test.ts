@@ -14,6 +14,7 @@ import {
   CONSENT_ERROR_CODES,
   getConsentErrorCode,
   getConsentEvidence,
+  listMembershipRequestsFromClient,
   toConsentErrorCode,
   uploadConsentEvidence,
   verifyConsent,
@@ -146,5 +147,84 @@ describe("membership-requests consent API", () => {
     it.each(CONSENT_ERROR_CODES)("%s is a recognised consent code", (code) => {
       expect(getConsentErrorCode(new ApiError("x", 400, { code }))).toBe(code);
     });
+  });
+});
+
+describe("listMembershipRequestsFromClient (verify verdict)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function item(consent: Record<string, unknown> | null) {
+    return {
+      assignment_id: "asg-1",
+      club_section_id: 7,
+      status: "pending",
+      created_at: "2026-10-01T00:00:00.000Z",
+      consent,
+    };
+  }
+
+  const baseConsent = {
+    required: true,
+    dependent: true,
+    guardianship_id: "g-1",
+    status: "pending",
+    evidence_uploaded: true,
+    guardians: [],
+  };
+
+  async function load(consent: Record<string, unknown> | null) {
+    mockRequest.mockResolvedValue({ status: "success", data: [item(consent)] });
+    const [first] = await listMembershipRequestsFromClient(7);
+    return first.consent;
+  }
+
+  it("reads viewer_can_verify and a self_custodian block", async () => {
+    const consent = await load({
+      ...baseConsent,
+      viewer_can_verify: false,
+      viewer_verify_block: "self_custodian",
+    });
+    expect(consent?.viewer_can_verify).toBe(false);
+    expect(consent?.viewer_verify_block).toBe("self_custodian");
+  });
+
+  it("reads a self_guardian block and a null block", async () => {
+    const guardian = await load({
+      ...baseConsent,
+      viewer_can_verify: false,
+      viewer_verify_block: "self_guardian",
+    });
+    expect(guardian?.viewer_verify_block).toBe("self_guardian");
+
+    const allowed = await load({
+      ...baseConsent,
+      viewer_can_verify: true,
+      viewer_verify_block: null,
+    });
+    expect(allowed?.viewer_can_verify).toBe(true);
+    expect(allowed?.viewer_verify_block).toBeNull();
+  });
+
+  it("is backward compatible: absent fields stay undefined", async () => {
+    const consent = await load({ ...baseConsent });
+    expect(consent?.viewer_can_verify).toBeUndefined();
+    expect(consent?.viewer_verify_block).toBeUndefined();
+    expect(consent?.guardianship_id).toBe("g-1");
+  });
+
+  it("treats an unknown block value as no block", async () => {
+    const consent = await load({
+      ...baseConsent,
+      viewer_can_verify: "yes",
+      viewer_verify_block: "something_new",
+    });
+    expect(consent?.viewer_verify_block).toBeNull();
+    expect(consent?.viewer_can_verify).toBeUndefined();
+  });
+
+  it("keeps adults (consent null) untouched", async () => {
+    expect(await load(null)).toBeNull();
   });
 });

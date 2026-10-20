@@ -30,6 +30,14 @@ export type MembershipConsentGuardian = {
  * Present for every minor (by age, not only those with a dependent profile),
  * including teens and minors registered by a director.
  */
+export type MembershipVerifyBlock = "self_custodian" | "self_guardian";
+
+/** The 403 code verify-consent would answer for each block (reuses its copy). */
+export const VERIFY_BLOCK_CODE = {
+  self_custodian: "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY",
+  self_guardian: "GUARDIANSHIP_GUARDIAN_SELF_VERIFY",
+} as const satisfies Record<MembershipVerifyBlock, string>;
+
 export type MembershipRequestConsent = {
   required: true;
   /**
@@ -48,6 +56,18 @@ export type MembershipRequestConsent = {
   status: MembershipConsentStatus;
   evidence_uploaded: boolean;
   guardians: MembershipConsentGuardian[];
+  /**
+   * Server verdict (UI hint; verify-consent stays the authority). Absent on
+   * older backends. `false` with a null block only means there is nothing to
+   * verify yet (no form / already verified).
+   */
+  viewer_can_verify?: boolean;
+  /**
+   * Why the viewer may not verify: they registered/uploaded/received the minor
+   * in custody (`self_custodian`) or are a guardian of the child
+   * (`self_guardian`). Null when allowed or when there was nothing to verify.
+   */
+  viewer_verify_block?: MembershipVerifyBlock | null;
 };
 
 export type MembershipRequest = {
@@ -183,6 +203,31 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+/** Reads the verify verdict defensively: unknown values never block the UI. */
+function normalizeConsent(raw: unknown): MembershipRequestConsent | null | undefined {
+  if (!raw || typeof raw !== "object") return raw as null | undefined;
+  const consent = { ...(raw as MembershipRequestConsent) } as MembershipRequestConsent &
+    Record<string, unknown>;
+
+  if (typeof consent.viewer_can_verify !== "boolean") {
+    delete consent.viewer_can_verify;
+  }
+  if ("viewer_verify_block" in consent) {
+    const block = consent.viewer_verify_block as unknown;
+    consent.viewer_verify_block =
+      block === "self_custodian" || block === "self_guardian" ? block : null;
+  }
+  return consent;
+}
+
+function normalizeRequests(payload: unknown): MembershipRequest[] {
+  return extractList<MembershipRequest>(payload).map((request) =>
+    request && typeof request === "object" && "consent" in request
+      ? { ...request, consent: normalizeConsent(request.consent) }
+      : request,
+  );
+}
+
 // ─── API functions ────────────────────────────────────────────────────────────
 
 /**
@@ -197,7 +242,7 @@ export async function listMembershipRequests(
   const res = await apiRequest<unknown>(
     `/club-sections/${clubSectionId}/membership-requests`,
   );
-  return extractList<MembershipRequest>(res);
+  return normalizeRequests(res);
 }
 
 /**
@@ -211,7 +256,7 @@ export async function listMembershipRequestsFromClient(
   const res = await apiRequestFromClient<unknown>(
     `/club-sections/${clubSectionId}/membership-requests`,
   );
-  return extractList<MembershipRequest>(res);
+  return normalizeRequests(res);
 }
 
 /**
