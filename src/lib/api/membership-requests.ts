@@ -122,6 +122,10 @@ export type VerifyConsentResult = {
 
 export type VerifyConsentInput = {
   confirm_paper_form_reviewed: true;
+  /**
+   * Also approve the request. Needs club_members:approve: verify-only reviewers
+   * must send `false` (true answers 403 MR_APPROVE_PERMISSION_REQUIRED).
+   */
   approve?: boolean;
 };
 
@@ -153,6 +157,9 @@ export const CONSENT_ERROR_CODES = [
   "FILE_TYPE_INVALID",
   "FILE_TOO_LARGE",
   "GUARD_PERMISSION_DENIED",
+  // 403 on a section outside the reviewer's scope (a coordinator whose
+  // assignments no longer cover it).
+  "GUARD_CLUB_SCOPE_REQUIRED",
 ] as const;
 
 export type ConsentErrorCode = (typeof CONSENT_ERROR_CODES)[number];
@@ -234,7 +241,9 @@ function normalizeRequests(payload: unknown): MembershipRequest[] {
  * GET /api/v1/club-sections/:clubSectionId/membership-requests
  * List pending membership requests for a club section.
  * Server-side (SSR) — reads token from cookies.
- * Requires `club_members:approve` permission.
+ * Requires `club_members:approve` OR `consent:verify`. With only
+ * `consent:verify` (coordinators) the backend returns just the minors whose
+ * consent is pending AND that have a current form, same item shape.
  */
 export async function listMembershipRequests(
   clubSectionId: number,
@@ -249,6 +258,7 @@ export async function listMembershipRequests(
  * GET /api/v1/club-sections/:clubSectionId/membership-requests
  * List pending membership requests for a club section.
  * Client-side — uses axios interceptor to attach Bearer token.
+ * 403 GUARD_CLUB_SCOPE_REQUIRED: the section is outside a coordinator's scope.
  */
 export async function listMembershipRequestsFromClient(
   clubSectionId: number,

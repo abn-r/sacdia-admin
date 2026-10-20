@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -14,13 +12,14 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/shared/empty-state";
 import { PendingMembersTable } from "@/components/membership/pending-members-table";
 import {
+  getConsentErrorCode,
   listMembershipRequestsFromClient,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
 import { ApiError } from "@/lib/api/client";
+import type { MembershipReviewMode } from "@/lib/auth/membership-review-mode";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,12 +30,15 @@ type SectionOption = {
 
 interface MembershipRequestsClientPageProps {
   sections: SectionOption[];
+  /** `verify-only` for consent:verify reviewers without club_members:approve. */
+  mode?: MembershipReviewMode;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function MembershipRequestsClientPage({
   sections,
+  mode = "approve",
 }: MembershipRequestsClientPageProps) {
   const t = useTranslations("membership");
   const [selectedSectionId, setSelectedSectionId] = useState<number>(
@@ -56,6 +58,10 @@ export function MembershipRequestsClientPage({
 
   const loadError = (() => {
     if (!queryError) return null;
+    // Section left the coordinator's scope (assignment ended or changed).
+    if (getConsentErrorCode(queryError) === "GUARD_CLUB_SCOPE_REQUIRED") {
+      return t("client.load_error_scope");
+    }
     if (
       queryError instanceof ApiError &&
       (queryError.status === 403 || queryError.status === 401)
@@ -120,6 +126,7 @@ export function MembershipRequestsClientPage({
           key={selectedSectionId}
           clubSectionId={selectedSectionId}
           initialRequests={requests}
+          mode={mode}
         />
       )}
     </div>

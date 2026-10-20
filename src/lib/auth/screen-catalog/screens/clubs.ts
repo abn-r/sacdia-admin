@@ -8,6 +8,7 @@ import {
   CLUB_ROLES_REVOKE,
   CLUBS_CREATE,
   CLUBS_READ,
+  CONSENT_VERIFY,
   COORDINATION_MANAGE,
   ECCLESIASTICAL_YEARS_UPDATE,
   MEMBER_RANKING_WEIGHTS_READ,
@@ -137,9 +138,27 @@ export const clubsScreens: ScreenDefinition[] = [
 
   viewOnlyScreen("requests-transfers", { permissions: [REQUESTS_READ] }),
   viewOnlyScreen("requests-assignments", { permissions: [REQUESTS_READ] }),
-  viewOnlyScreen("requests-membership", {
-    permissions: [CLUB_MEMBERS_APPROVE],
-  }),
+  // Two reviewer profiles share the page (see membership-review-mode.ts):
+  // club_members:approve reviews everything; consent:verify alone reviews only
+  // minors' consent forms (coordinators). Backend: the list, consent-evidence
+  // and verify-consent routes are any-of; approve/reject stay approve-only.
+  {
+    id: "requests-membership",
+    surfaces: ["admin"],
+    viewAny: { permissions: [CLUB_MEMBERS_APPROVE, CONSENT_VERIFY] },
+    capabilities: [
+      {
+        id: "approve",
+        kind: "button",
+        gate: { permissions: [CLUB_MEMBERS_APPROVE] },
+      },
+      {
+        id: "verify_consent",
+        kind: "button",
+        gate: { permissions: [CONSENT_VERIFY, CLUB_MEMBERS_APPROVE] },
+      },
+    ],
+  },
 
   viewOnlyScreen("validations-investitures", {
     permissions: [VALIDATION_READ],

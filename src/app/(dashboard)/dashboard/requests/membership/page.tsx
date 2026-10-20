@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -5,6 +6,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRequestsClientPage } from "@/components/membership/membership-requests-client-page";
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { resolveMembershipReviewMode } from "@/lib/auth/membership-review-mode";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type ClubSection = {
@@ -71,15 +73,21 @@ async function fetchClubSections(): Promise<FetchResult> {
 }
 
 export default async function MembershipRequestsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
+  // approve: club_members:approve. verify-only: consent:verify alone (coordinators).
+  // The dashboard layout already gates the route; this is the fail-closed backstop.
+  const mode = resolveMembershipReviewMode(user);
+  if (!mode) redirect("/dashboard");
+
   const t = await getTranslations("requests");
   const result = await fetchClubSections();
+  const header = mode === "verify-only" ? "pageConsentVerify" : "pageMembership";
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("pageMembership.title")}
-        description={t("pageMembership.description")}
+        title={t(`${header}.title`)}
+        description={t(`${header}.description`)}
       />
 
       {!result.available && (
@@ -98,7 +106,7 @@ export default async function MembershipRequestsPage() {
       )}
 
       {result.available && result.sections.length > 0 && (
-        <MembershipRequestsClientPage sections={result.sections} />
+        <MembershipRequestsClientPage sections={result.sections} mode={mode} />
       )}
     </div>
   );

@@ -72,6 +72,12 @@ interface MembershipConsentVerifyDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Called after consent was verified (the list should be refreshed). */
   onSuccess: () => void;
+  /**
+   * Whether the viewer may also approve (club_members:approve). When false
+   * (verify-only reviewers) the approve option is not offered and the request
+   * always sends `approve: false`.
+   */
+  canApprove?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -82,6 +88,7 @@ export function MembershipConsentVerifyDialog({
   request,
   onOpenChange,
   onSuccess,
+  canApprove = true,
 }: MembershipConsentVerifyDialogProps) {
   const t = useTranslations("membership.consent");
   const formatDateTime = useFormatDateTime();
@@ -95,7 +102,8 @@ export function MembershipConsentVerifyDialog({
   // the (stale) list item said there was none.
   const [uploadedHere, setUploadedHere] = useState(false);
   const [reviewed, setReviewed] = useState(false);
-  const [approve, setApprove] = useState(true);
+  const [approveChecked, setApproveChecked] = useState(true);
+  const approve = canApprove && approveChecked;
   const [fileError, setFileError] = useState<string | null>(null);
   // The signed URL lives 15 min. If the image fails to load we refetch it ONCE
   // and retry; a successful load re-arms the retry for a later expiry.
@@ -161,7 +169,7 @@ export function MembershipConsentVerifyDialog({
       // Verifying is allowed without approving (e.g. a coordinator): nothing was
       // written, so unticking Approve lets the retry only verify the consent.
       if (getConsentErrorCode(error) === "MR_APPROVE_PERMISSION_REQUIRED") {
-        setApprove(false);
+        setApproveChecked(false);
       }
     },
   });
@@ -409,17 +417,22 @@ export function MembershipConsentVerifyDialog({
                 {t("dialog.confirm_checkbox")}
               </Label>
             </div>
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="consent-approve"
-                checked={approve}
-                disabled={isBusy}
-                onCheckedChange={(checked) => setApprove(checked === true)}
-              />
-              <Label htmlFor="consent-approve" className="text-sm leading-snug">
-                {t("dialog.approve_checkbox")}
-              </Label>
-            </div>
+            {canApprove && (
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="consent-approve"
+                  checked={approveChecked}
+                  disabled={isBusy}
+                  onCheckedChange={(checked) => setApproveChecked(checked === true)}
+                />
+                <Label htmlFor="consent-approve" className="text-sm leading-snug">
+                  {t("dialog.approve_checkbox")}
+                </Label>
+              </div>
+            )}
+            {!canApprove && (
+              <p className="text-xs text-muted-foreground">{t("dialog.verify_only_note")}</p>
+            )}
           </div>
         </div>
 

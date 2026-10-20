@@ -5303,6 +5303,13 @@
       "emptyTitle": "Sem seções disponíveis",
       "emptyDescription": "Nenhuma seção de clube ativa foi encontrada para gerenciar solicitações."
     },
+    "pageConsentVerify": {
+      "title": "Fichas para verificar",
+      "description": "Fichas de consentimento assinadas de menores, nas seções que você coordena, aguardando sua verificação.",
+      "errorLoad": "Não foi possível carregar suas seções.",
+      "emptyTitle": "Nenhuma seção atribuída",
+      "emptyDescription": "Você não tem seções de clube dentro do seu escopo de coordenação."
+    },
     "pageTransfers": {
       "title": "Solicitações de Transferência",
       "description": "Revisão e aprovação de solicitações de transferência entre seções.",
@@ -6697,6 +6704,8 @@
     "table": {
       "count_one": "{count} solicitação pendente",
       "count_other": "{count} solicitações pendentes",
+      "count_verify_only_one": "{count} ficha para verificar",
+      "count_verify_only_other": "{count} fichas para verificar",
       "refresh": "Atualizar",
       "refresh_error": "Não foi possível atualizar a lista",
       "col_member": "Membro",
@@ -6706,6 +6715,8 @@
       "col_actions": "Ações",
       "empty_title": "Sem solicitações pendentes",
       "empty_description": "Não há solicitações de adesão pendentes para esta seção.",
+      "empty_title_verify_only": "Nenhuma ficha para verificar",
+      "empty_description_verify_only": "Nenhuma ficha de consentimento aguarda verificação nesta seção.",
       "aria_approve": "Aprovar adesão",
       "aria_reject": "Rejeitar adesão",
       "tooltip_approve": "Aprovar",
@@ -6751,6 +6762,7 @@
         "upload_hint": "JPG, PNG, WebP ou PDF. Máximo de 10 MB. Fotos HEIC não são aceitas: converta para JPG.",
         "confirm_checkbox": "Verifiquei a ficha assinada",
         "approve_checkbox": "Aprovar a adesão ao confirmar",
+        "verify_only_note": "Você só verifica o consentimento. Um diretor aprovará a adesão depois.",
         "cancel": "Cancelar",
         "confirm": "Confirmar",
         "confirming": "Confirmando..."
@@ -6782,6 +6794,7 @@
         "FILE_TYPE_INVALID": "Formato inválido. Use JPG, PNG, WebP ou PDF.",
         "FILE_TOO_LARGE": "O arquivo excede 10 MB.",
         "GUARD_PERMISSION_DENIED": "Você não tem permissão para realizar esta ação.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "Esta seção está fora do seu escopo de coordenação.",
         "generic": "Não foi possível concluir a ação.",
         "upload": "Não foi possível enviar a ficha.",
         "verify": "Não foi possível verificar o consentimento.",
@@ -6793,6 +6806,7 @@
       "section_label": "Seção do clube",
       "section_placeholder": "Selecionar seção",
       "load_error_permission": "Você não tem permissão para ver as solicitações desta seção.",
+      "load_error_scope": "Esta seção está fora do seu escopo de coordenação. Escolha outra.",
       "load_error_generic": "Não foi possível carregar as solicitações."
     },
     "toasts": {
