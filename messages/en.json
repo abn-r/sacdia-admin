@@ -6729,6 +6729,7 @@
       "approve_blocked": "Cannot approve until the guardian's consent is verified.",
       "verify_action": "Verify consent",
       "verify_action_aria": "Verify guardian consent",
+      "verify_no_guardian": "No guardian is linked yet: there is nothing to verify.",
       "dialog": {
         "title": "Verify guardian consent",
         "description": "{userName} is a minor. Review the form signed by their guardian before confirming.",
@@ -6768,10 +6769,11 @@
         "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "There is no signed form uploaded for this minor.",
         "GUARDIANSHIP_EVIDENCE_REQUIRED": "Upload the signed form before verifying the consent.",
         "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Forms cannot be stored or read right now. Try again later.",
-        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "A minor under club custody must be verified by another authorized person of the club, not by whoever uploaded the form or took the minor into custody.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "A minor under club custody must be verified by another authorized person of the club, not by whoever registered them, uploaded the form or took the minor into custody.",
         "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "The person verifying cannot be a guardian of the minor. Ask another authorized person of the club to verify the form.",
         "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "Consent is already verified, so the form cannot be replaced. If the guardian changes, a new guardianship must be registered.",
         "GUARDIANSHIP_NOT_FOUND": "No active guardianship was found for this minor.",
+        "MR_APPROVE_PERMISSION_REQUIRED": "You do not have permission to approve memberships. Untick \"Approve\" to only verify the consent; a director will approve afterwards.",
         "MR_CONSENT_CONFIRMATION_REQUIRED": "You must confirm that you reviewed the signed form.",
         "MR_CONSENT_NOT_VERIFIED": "The guardian's consent is not verified yet. Verify it before approving.",
         "MR_NOT_FOUND": "The request no longer exists or does not belong to this section.",
@@ -8778,6 +8780,122 @@
         "assigning": "Assigning…",
         "assigned": "Pastor assigned."
       }
+    }
+  },
+  "familyAccess": {
+    "title": "Family access",
+    "description": "The minor's own login and the devices linked by their guardian. Only the guardian turns an access on or changes its password: from here you can only disable or revoke.",
+    "supervision": {
+      "label": "Guardian supervision",
+      "active": "Active",
+      "pending_guardian": "Pending guardian",
+      "none": "No supervision"
+    },
+    "login": {
+      "title": "Own login",
+      "empty": "This profile has no own login.",
+      "status": {
+        "active": "Active",
+        "pending_guardian": "Pending guardian",
+        "disabled": "Disabled"
+      },
+      "fields": {
+        "status": "Status",
+        "method": "Sign-in method",
+        "handle": "Username",
+        "origin": "Origin",
+        "enabledBy": "Enabled by",
+        "enabledByGuardian": "Supervision enabled by",
+        "enabledAt": "Enabled on",
+        "passwordSetBy": "Password set by",
+        "pendingSince": "Pending guardian since",
+        "disabledAt": "Disabled on",
+        "disabledReason": "Reason for disabling"
+      },
+      "method": {
+        "email": "Email",
+        "handle": "Username"
+      },
+      "origin": {
+        "self_registered": "Self-registered",
+        "guardian_enabled": "Enabled by the guardian"
+      },
+      "passwordSetBy": {
+        "guardian": "The guardian",
+        "self": "The minor"
+      },
+      "disabledReason": {
+        "guardian": "Disabled by the guardian",
+        "admin": "Disabled by administration",
+        "unlinked_purged": "No linked guardian (automatic cleanup)"
+      },
+      "disable": "Disable",
+      "disableAria": "Disable the own login"
+    },
+    "devices": {
+      "title": "Linked devices",
+      "empty": "There are no linked devices.",
+      "columns": {
+        "device": "Device",
+        "pairedBy": "Linked by",
+        "lastSeen": "Last activity",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Active",
+        "revoked": "Revoked"
+      },
+      "appVersion": "Version {version}",
+      "expiresOn": "Expires on {date}",
+      "revokedOn": "Revoked on {date}",
+      "revoke": "Revoke",
+      "revokeAria": "Revoke the device {label}"
+    },
+    "dialog": {
+      "disableTitle": "Disable the own login?",
+      "disableDescription": "The minor will lose access immediately and their sessions will be closed. Only their guardian can turn it back on. Verified guardians will be notified.",
+      "revokeTitle": "Revoke the linked device?",
+      "revokeDescription": "The device \"{label}\" will lose access immediately. Verified guardians will be notified.",
+      "reasonLabel": "Reason (required)",
+      "reasonHint": "At least 5 characters. It is recorded in the audit log.",
+      "reasonPlaceholder": "Describe the reason for this action...",
+      "reasonTooShort": "The reason must be at least 5 characters long.",
+      "cancel": "Cancel",
+      "disableConfirm": "Disable access",
+      "revokeConfirm": "Revoke device",
+      "working": "Working..."
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "load": "View active sessions",
+      "loading": "Loading...",
+      "empty": "There are no active sessions.",
+      "error": "The sessions could not be loaded.",
+      "retry": "Retry",
+      "deviceBadge": "Linked device",
+      "userBadge": "User session",
+      "linkedDevice": "Device: {label}",
+      "createdAt": "Created on",
+      "expiresAt": "Expires on",
+      "ip": "IP",
+      "agent": "Client"
+    },
+    "toasts": {
+      "disabled": "Own login disabled.",
+      "revoked": "Device revoked."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "The user no longer exists or is outside your scope.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "This profile has no own login to disable.",
+      "DEVICE_NOT_FOUND": "The device no longer exists or does not belong to this profile.",
+      "forbidden": "You do not have permission to manage this user's family access.",
+      "invalid_reason": "The reason must be between 5 and 500 characters long.",
+      "generic": "The action could not be completed. Please try again."
     }
   }
 }

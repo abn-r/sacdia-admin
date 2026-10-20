@@ -6758,6 +6758,7 @@ export interface IntlMessages {
       approve_blocked: string;
       verify_action: string;
       verify_action_aria: string;
+      verify_no_guardian: string;
       dialog: {
         title: string;
         description: string;
@@ -6801,6 +6802,7 @@ export interface IntlMessages {
         GUARDIANSHIP_GUARDIAN_SELF_VERIFY: string;
         GUARDIANSHIP_CONSENT_ALREADY_VERIFIED: string;
         GUARDIANSHIP_NOT_FOUND: string;
+        MR_APPROVE_PERMISSION_REQUIRED: string;
         MR_CONSENT_CONFIRMATION_REQUIRED: string;
         MR_CONSENT_NOT_VERIFIED: string;
         MR_NOT_FOUND: string;
@@ -8822,6 +8824,122 @@ export interface IntlMessages {
         assigning: string;
         assigned: string;
       };
+    };
+  };
+  familyAccess: {
+    title: string;
+    description: string;
+    supervision: {
+      label: string;
+      active: string;
+      pending_guardian: string;
+      none: string;
+    };
+    login: {
+      title: string;
+      empty: string;
+      status: {
+        active: string;
+        pending_guardian: string;
+        disabled: string;
+      };
+      fields: {
+        status: string;
+        method: string;
+        handle: string;
+        origin: string;
+        enabledBy: string;
+        enabledByGuardian: string;
+        enabledAt: string;
+        passwordSetBy: string;
+        pendingSince: string;
+        disabledAt: string;
+        disabledReason: string;
+      };
+      method: {
+        email: string;
+        handle: string;
+      };
+      origin: {
+        self_registered: string;
+        guardian_enabled: string;
+      };
+      passwordSetBy: {
+        guardian: string;
+        self: string;
+      };
+      disabledReason: {
+        guardian: string;
+        admin: string;
+        unlinked_purged: string;
+      };
+      disable: string;
+      disableAria: string;
+    };
+    devices: {
+      title: string;
+      empty: string;
+      columns: {
+        device: string;
+        pairedBy: string;
+        lastSeen: string;
+        status: string;
+        actions: string;
+      };
+      platform: {
+        ios: string;
+        android: string;
+      };
+      status: {
+        active: string;
+        revoked: string;
+      };
+      appVersion: string;
+      expiresOn: string;
+      revokedOn: string;
+      revoke: string;
+      revokeAria: string;
+    };
+    dialog: {
+      disableTitle: string;
+      disableDescription: string;
+      revokeTitle: string;
+      revokeDescription: string;
+      reasonLabel: string;
+      reasonHint: string;
+      reasonPlaceholder: string;
+      reasonTooShort: string;
+      cancel: string;
+      disableConfirm: string;
+      revokeConfirm: string;
+      working: string;
+    };
+    sessions: {
+      title: string;
+      load: string;
+      loading: string;
+      empty: string;
+      error: string;
+      retry: string;
+      deviceBadge: string;
+      userBadge: string;
+      linkedDevice: string;
+      createdAt: string;
+      expiresAt: string;
+      ip: string;
+      agent: string;
+    };
+    toasts: {
+      disabled: string;
+      revoked: string;
+    };
+    errors: {
+      ADMIN_USER_NOT_FOUND: string;
+      SUPERVISED_LOGIN_NOT_FOUND: string;
+      DEVICE_NOT_FOUND: string;
+      forbidden: string;
+      invalid_reason: string;
+      generic: string;
     };
   };
 }

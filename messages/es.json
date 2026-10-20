@@ -6729,6 +6729,7 @@
       "approve_blocked": "No se puede aprobar hasta verificar el consentimiento del tutor.",
       "verify_action": "Verificar consentimiento",
       "verify_action_aria": "Verificar consentimiento del tutor",
+      "verify_no_guardian": "Aún no hay un tutor vinculado: no hay nada que verificar.",
       "dialog": {
         "title": "Verificar consentimiento del tutor",
         "description": "{userName} es menor de edad. Revisa la ficha firmada por su tutor antes de confirmar.",
@@ -6768,10 +6769,11 @@
         "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "No hay una ficha firmada subida para este menor.",
         "GUARDIANSHIP_EVIDENCE_REQUIRED": "Sube la ficha firmada antes de verificar el consentimiento.",
         "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Las fichas no se pueden guardar ni consultar por ahora. Inténtalo más tarde.",
-        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un menor bajo custodia del club debe ser verificado por otra persona autorizada del club, distinta de quien subió la ficha o lo recibió en custodia.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un menor bajo custodia del club debe ser verificado por otra persona autorizada del club, distinta de quien lo registró, subió la ficha o lo recibió en custodia.",
         "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "Quien verifica no puede ser un tutor del menor. Pide a otra persona autorizada del club que verifique la ficha.",
         "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "El consentimiento ya fue verificado: la ficha no se puede reemplazar. Si cambia el tutor, se debe registrar una nueva tutoría.",
         "GUARDIANSHIP_NOT_FOUND": "No se encontró una tutoría activa para este menor.",
+        "MR_APPROVE_PERMISSION_REQUIRED": "No tienes permiso para aprobar membresías. Desmarca «Aprobar» para solo verificar el consentimiento; un director aprobará después.",
         "MR_CONSENT_CONFIRMATION_REQUIRED": "Debes confirmar que revisaste la ficha firmada.",
         "MR_CONSENT_NOT_VERIFIED": "El consentimiento del tutor aún no está verificado. Verifícalo antes de aprobar.",
         "MR_NOT_FOUND": "La solicitud ya no existe o no pertenece a esta sección.",
@@ -8778,6 +8780,122 @@
         "assigning": "Asignando…",
         "assigned": "Pastor asignado."
       }
+    }
+  },
+  "familyAccess": {
+    "title": "Acceso familiar",
+    "description": "Acceso propio del menor y dispositivos vinculados por su tutor. Solo el tutor activa un acceso o cambia su contraseña: desde aquí únicamente se puede desactivar o revocar.",
+    "supervision": {
+      "label": "Supervisión del tutor",
+      "active": "Activa",
+      "pending_guardian": "Pendiente de tutor",
+      "none": "Sin supervisión"
+    },
+    "login": {
+      "title": "Acceso propio",
+      "empty": "Este perfil no tiene un acceso propio.",
+      "status": {
+        "active": "Activa",
+        "pending_guardian": "Pendiente de tutor",
+        "disabled": "Desactivada"
+      },
+      "fields": {
+        "status": "Estado",
+        "method": "Método de ingreso",
+        "handle": "Usuario",
+        "origin": "Origen",
+        "enabledBy": "Activado por",
+        "enabledByGuardian": "Supervisión activada por",
+        "enabledAt": "Activado el",
+        "passwordSetBy": "Contraseña definida por",
+        "pendingSince": "Pendiente de tutor desde",
+        "disabledAt": "Desactivado el",
+        "disabledReason": "Motivo de la desactivación"
+      },
+      "method": {
+        "email": "Correo",
+        "handle": "Usuario"
+      },
+      "origin": {
+        "self_registered": "Registro propio",
+        "guardian_enabled": "Activado por el tutor"
+      },
+      "passwordSetBy": {
+        "guardian": "El tutor",
+        "self": "El menor"
+      },
+      "disabledReason": {
+        "guardian": "Desactivado por el tutor",
+        "admin": "Desactivado por administración",
+        "unlinked_purged": "Sin tutor vinculado (depuración automática)"
+      },
+      "disable": "Desactivar",
+      "disableAria": "Desactivar el acceso propio"
+    },
+    "devices": {
+      "title": "Dispositivos vinculados",
+      "empty": "No hay dispositivos vinculados.",
+      "columns": {
+        "device": "Dispositivo",
+        "pairedBy": "Vinculado por",
+        "lastSeen": "Última actividad",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Activo",
+        "revoked": "Revocado"
+      },
+      "appVersion": "Versión {version}",
+      "expiresOn": "Vence el {date}",
+      "revokedOn": "Revocado el {date}",
+      "revoke": "Revocar",
+      "revokeAria": "Revocar el dispositivo {label}"
+    },
+    "dialog": {
+      "disableTitle": "¿Desactivar el acceso propio?",
+      "disableDescription": "El menor perderá el acceso de inmediato y sus sesiones se cerrarán. Solo su tutor podrá reactivarlo. Los tutores verificados recibirán un aviso.",
+      "revokeTitle": "¿Revocar el dispositivo vinculado?",
+      "revokeDescription": "El dispositivo «{label}» dejará de tener acceso de inmediato. Los tutores verificados recibirán un aviso.",
+      "reasonLabel": "Motivo (obligatorio)",
+      "reasonHint": "Mínimo 5 caracteres. Queda registrado en la auditoría.",
+      "reasonPlaceholder": "Describe el motivo de esta acción...",
+      "reasonTooShort": "El motivo debe tener al menos 5 caracteres.",
+      "cancel": "Cancelar",
+      "disableConfirm": "Desactivar acceso",
+      "revokeConfirm": "Revocar dispositivo",
+      "working": "Procesando..."
+    },
+    "sessions": {
+      "title": "Sesiones activas",
+      "load": "Ver sesiones activas",
+      "loading": "Cargando...",
+      "empty": "No hay sesiones activas.",
+      "error": "No se pudieron cargar las sesiones.",
+      "retry": "Reintentar",
+      "deviceBadge": "Dispositivo vinculado",
+      "userBadge": "Sesión del usuario",
+      "linkedDevice": "Dispositivo: {label}",
+      "createdAt": "Creada el",
+      "expiresAt": "Vence el",
+      "ip": "IP",
+      "agent": "Cliente"
+    },
+    "toasts": {
+      "disabled": "Acceso propio desactivado.",
+      "revoked": "Dispositivo revocado."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "El usuario ya no existe o está fuera de tu alcance.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "Este perfil no tiene un acceso propio que desactivar.",
+      "DEVICE_NOT_FOUND": "El dispositivo ya no existe o no pertenece a este perfil.",
+      "forbidden": "No tienes permiso para gestionar el acceso familiar de este usuario.",
+      "invalid_reason": "El motivo debe tener entre 5 y 500 caracteres.",
+      "generic": "No se pudo completar la acción. Inténtalo de nuevo."
     }
   }
 }

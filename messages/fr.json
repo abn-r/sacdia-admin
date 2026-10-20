@@ -6729,6 +6729,7 @@
       "approve_blocked": "Impossible d'approuver tant que le consentement du tuteur n'est pas vérifié.",
       "verify_action": "Vérifier le consentement",
       "verify_action_aria": "Vérifier le consentement du tuteur",
+      "verify_no_guardian": "Aucun tuteur n'est encore lié : il n'y a rien à vérifier.",
       "dialog": {
         "title": "Vérifier le consentement du tuteur",
         "description": "{userName} est mineur. Examinez la fiche signée par son tuteur avant de confirmer.",
@@ -6768,10 +6769,11 @@
         "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "Aucune fiche signée n'a été téléversée pour ce mineur.",
         "GUARDIANSHIP_EVIDENCE_REQUIRED": "Téléversez la fiche signée avant de vérifier le consentement.",
         "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Les fiches ne peuvent pas être enregistrées ni consultées pour le moment. Réessayez plus tard.",
-        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un mineur sous la garde du club doit être vérifié par une autre personne autorisée du club, pas par celle qui a téléversé la fiche ni par celle qui l'a pris en charge.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un mineur sous la garde du club doit être vérifié par une autre personne autorisée du club, pas par celle qui l'a enregistré, a téléversé la fiche ou l'a pris en charge.",
         "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "La personne qui vérifie ne peut pas être un tuteur du mineur. Demandez à une autre personne autorisée du club de vérifier la fiche.",
         "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "Le consentement est déjà vérifié : la fiche ne peut pas être remplacée. Si le tuteur change, une nouvelle tutelle doit être enregistrée.",
         "GUARDIANSHIP_NOT_FOUND": "Aucune tutelle active n'a été trouvée pour ce mineur.",
+        "MR_APPROVE_PERMISSION_REQUIRED": "Vous n'avez pas la permission d'approuver les adhésions. Décochez « Approuver » pour vérifier uniquement le consentement ; un directeur approuvera ensuite.",
         "MR_CONSENT_CONFIRMATION_REQUIRED": "Vous devez confirmer que vous avez examiné la fiche signée.",
         "MR_CONSENT_NOT_VERIFIED": "Le consentement du tuteur n'est pas encore vérifié. Vérifiez-le avant d'approuver.",
         "MR_NOT_FOUND": "La demande n'existe plus ou n'appartient pas à cette section.",
@@ -8778,6 +8780,122 @@
         "assigning": "Assignation…",
         "assigned": "Pasteur assigné."
       }
+    }
+  },
+  "familyAccess": {
+    "title": "Accès familial",
+    "description": "L'accès propre du mineur et les appareils liés par son tuteur. Seul le tuteur active un accès ou change son mot de passe : d'ici, vous pouvez uniquement désactiver ou révoquer.",
+    "supervision": {
+      "label": "Supervision du tuteur",
+      "active": "Active",
+      "pending_guardian": "En attente de tuteur",
+      "none": "Aucune supervision"
+    },
+    "login": {
+      "title": "Accès propre",
+      "empty": "Ce profil n'a pas d'accès propre.",
+      "status": {
+        "active": "Active",
+        "pending_guardian": "En attente de tuteur",
+        "disabled": "Désactivée"
+      },
+      "fields": {
+        "status": "Statut",
+        "method": "Méthode de connexion",
+        "handle": "Identifiant",
+        "origin": "Origine",
+        "enabledBy": "Activé par",
+        "enabledByGuardian": "Supervision activée par",
+        "enabledAt": "Activé le",
+        "passwordSetBy": "Mot de passe défini par",
+        "pendingSince": "En attente de tuteur depuis",
+        "disabledAt": "Désactivé le",
+        "disabledReason": "Motif de la désactivation"
+      },
+      "method": {
+        "email": "E-mail",
+        "handle": "Identifiant"
+      },
+      "origin": {
+        "self_registered": "Inscription personnelle",
+        "guardian_enabled": "Activé par le tuteur"
+      },
+      "passwordSetBy": {
+        "guardian": "Le tuteur",
+        "self": "Le mineur"
+      },
+      "disabledReason": {
+        "guardian": "Désactivé par le tuteur",
+        "admin": "Désactivé par l'administration",
+        "unlinked_purged": "Aucun tuteur lié (nettoyage automatique)"
+      },
+      "disable": "Désactiver",
+      "disableAria": "Désactiver l'accès propre"
+    },
+    "devices": {
+      "title": "Appareils liés",
+      "empty": "Aucun appareil lié.",
+      "columns": {
+        "device": "Appareil",
+        "pairedBy": "Lié par",
+        "lastSeen": "Dernière activité",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Actif",
+        "revoked": "Révoqué"
+      },
+      "appVersion": "Version {version}",
+      "expiresOn": "Expire le {date}",
+      "revokedOn": "Révoqué le {date}",
+      "revoke": "Révoquer",
+      "revokeAria": "Révoquer l'appareil {label}"
+    },
+    "dialog": {
+      "disableTitle": "Désactiver l'accès propre ?",
+      "disableDescription": "Le mineur perdra l'accès immédiatement et ses sessions seront fermées. Seul son tuteur pourra le réactiver. Les tuteurs vérifiés seront prévenus.",
+      "revokeTitle": "Révoquer l'appareil lié ?",
+      "revokeDescription": "L'appareil « {label} » perdra l'accès immédiatement. Les tuteurs vérifiés seront prévenus.",
+      "reasonLabel": "Motif (obligatoire)",
+      "reasonHint": "5 caractères minimum. Il est consigné dans le journal d'audit.",
+      "reasonPlaceholder": "Décrivez le motif de cette action...",
+      "reasonTooShort": "Le motif doit comporter au moins 5 caractères.",
+      "cancel": "Annuler",
+      "disableConfirm": "Désactiver l'accès",
+      "revokeConfirm": "Révoquer l'appareil",
+      "working": "Traitement..."
+    },
+    "sessions": {
+      "title": "Sessions actives",
+      "load": "Voir les sessions actives",
+      "loading": "Chargement...",
+      "empty": "Aucune session active.",
+      "error": "Impossible de charger les sessions.",
+      "retry": "Réessayer",
+      "deviceBadge": "Appareil lié",
+      "userBadge": "Session de l'utilisateur",
+      "linkedDevice": "Appareil : {label}",
+      "createdAt": "Créée le",
+      "expiresAt": "Expire le",
+      "ip": "IP",
+      "agent": "Client"
+    },
+    "toasts": {
+      "disabled": "Accès propre désactivé.",
+      "revoked": "Appareil révoqué."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "L'utilisateur n'existe plus ou est hors de votre périmètre.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "Ce profil n'a pas d'accès propre à désactiver.",
+      "DEVICE_NOT_FOUND": "L'appareil n'existe plus ou n'appartient pas à ce profil.",
+      "forbidden": "Vous n'avez pas la permission de gérer l'accès familial de cet utilisateur.",
+      "invalid_reason": "Le motif doit comporter entre 5 et 500 caractères.",
+      "generic": "L'action n'a pas pu être menée à bien. Réessayez."
     }
   }
 }

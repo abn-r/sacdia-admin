@@ -36,6 +36,7 @@ import {
   getConsentErrorCode,
   uploadConsentEvidence,
   verifyConsent,
+  VERIFY_BLOCK_CODE,
   type ConsentEvidence,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
@@ -157,12 +158,19 @@ export function MembershipConsentVerifyDialog({
     },
     onError: (error) => {
       toast.error(errorMessage(error, "verify"));
+      // Verifying is allowed without approving (e.g. a coordinator): nothing was
+      // written, so unticking Approve lets the retry only verify the consent.
+      if (getConsentErrorCode(error) === "MR_APPROVE_PERMISSION_REQUIRED") {
+        setApprove(false);
+      }
     },
   });
 
   const isBusy = uploadMutation.isPending || verifyMutation.isPending;
   const hasEvidence = evidence !== null;
-  const canConfirm = hasEvidence && reviewed && !isBusy;
+  // Server verdict (UI hint; verify-consent stays the authority).
+  const verifyBlock = request.consent?.viewer_verify_block ?? null;
+  const canConfirm = hasEvidence && reviewed && !isBusy && verifyBlock === null;
 
   function handleOpenChange(next: boolean) {
     if (isBusy) return;
@@ -224,6 +232,15 @@ export function MembershipConsentVerifyDialog({
         </AlertDialogHeader>
 
         <div className="space-y-4">
+          {verifyBlock && (
+            <p
+              role="alert"
+              className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-foreground"
+            >
+              {errorMessage(VERIFY_BLOCK_CODE[verifyBlock])}
+            </p>
+          )}
+
           {guardians.length > 0 && (
             <div className="space-y-1.5">
               <p className="text-xs font-medium text-muted-foreground">

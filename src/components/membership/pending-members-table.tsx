@@ -36,6 +36,7 @@ import {
   listMembershipRequestsFromClient,
   approveMembershipRequest,
   getConsentErrorCode,
+  VERIFY_BLOCK_CODE,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
 import { ApiError } from "@/lib/api/client";
@@ -207,6 +208,13 @@ export function PendingMembersTable({
                 const isProcessing = processingId === req.assignment_id;
                 const consent = req.consent ?? null;
                 const consentPending = consent?.status === "pending";
+                // Nothing to verify until a guardian (or club custody) exists:
+                // a self-registered teen nobody has linked yet has no row.
+                const nothingToVerify = consent !== null && consent.guardianship_id === null;
+                // Server verdict: the viewer registered/uploaded the minor or is
+                // their guardian. verify-consent still enforces it (403 backstop).
+                const verifyBlock = consent?.viewer_verify_block ?? null;
+                const verifyDisabled = nothingToVerify || verifyBlock !== null;
                 const expiry = getEffectiveExpiry(req);
                 const expiring = isExpiringSoon(expiry);
 
@@ -295,18 +303,27 @@ export function PendingMembersTable({
                         {consentPending && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-primary hover:bg-primary/10 hover:text-primary"
-                                onClick={() => setConsentDialog(req)}
-                                disabled={isProcessing || isRefreshing}
-                                aria-label={tConsent("verify_action_aria")}
-                              >
-                                <ShieldCheck className="size-4" />
-                              </Button>
+                              {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+                              <span tabIndex={verifyDisabled ? 0 : undefined}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-primary hover:bg-primary/10 hover:text-primary"
+                                  onClick={() => setConsentDialog(req)}
+                                  disabled={isProcessing || isRefreshing || verifyDisabled}
+                                  aria-label={tConsent("verify_action_aria")}
+                                >
+                                  <ShieldCheck className="size-4" />
+                                </Button>
+                              </span>
                             </TooltipTrigger>
-                            <TooltipContent>{tConsent("verify_action")}</TooltipContent>
+                            <TooltipContent>
+                              {verifyBlock
+                                ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
+                                : nothingToVerify
+                                  ? tConsent("verify_no_guardian")
+                                  : tConsent("verify_action")}
+                            </TooltipContent>
                           </Tooltip>
                         )}
 

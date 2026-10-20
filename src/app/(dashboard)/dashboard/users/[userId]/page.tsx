@@ -29,6 +29,8 @@ import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import { UserRolesOverview } from "@/components/users/user-roles-overview";
 import { UserGuardianshipsCard } from "@/components/users/user-guardianships-card";
 import { hasGuardianshipsContent } from "@/lib/admin-users/guardianships";
+import { UserFamilyAccessCard } from "@/components/users/user-family-access-card";
+import { hasFamilyAccessContent } from "@/lib/admin-users/family-access";
 
 import { UserDetailHero } from "@/components/users/detail/hero";
 import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
@@ -147,6 +149,11 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);
   const canSeeAccessToggles = canManageUserAccessFlags(currentUser);
+  // Disable / revoke need `users:update_admin` AND the sensitive
+  // `legal_representative:update` (the backend enforces both).
+  const canManageFamilyAccess =
+    canSeeAccessToggles &&
+    canCapability(currentUser, "users", "legal_representative.update");
 
   const fullName = getAdminUserDisplayName(user, {
     deletedAccount: t("deletedAccount"),
@@ -399,6 +406,15 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 <UserGuardianshipsCard
                   userId={user.user_id}
                   guardianships={user.guardianships}
+                />
+              </div>
+            ) : null}
+            {hasFamilyAccessContent(user.family_access) ? (
+              <div className="mt-3.5">
+                <UserFamilyAccessCard
+                  userId={user.user_id}
+                  familyAccess={user.family_access}
+                  canManage={canManageFamilyAccess}
                 />
               </div>
             ) : null}

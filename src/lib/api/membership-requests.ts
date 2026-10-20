@@ -27,15 +27,47 @@ export type MembershipConsentGuardian = {
 
 /**
  * Consent block of a pending request. `null` (or absent) for adults.
- * Present only for minors with a dependent profile.
+ * Present for every minor (by age, not only those with a dependent profile),
+ * including teens and minors registered by a director.
  */
+export type MembershipVerifyBlock = "self_custodian" | "self_guardian";
+
+/** The 403 code verify-consent would answer for each block (reuses its copy). */
+export const VERIFY_BLOCK_CODE = {
+  self_custodian: "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY",
+  self_guardian: "GUARDIANSHIP_GUARDIAN_SELF_VERIFY",
+} as const satisfies Record<MembershipVerifyBlock, string>;
+
 export type MembershipRequestConsent = {
   required: true;
-  dependent: true;
+  /**
+   * false for a self-registered teen who has no dependent profile yet (nobody
+   * linked, so there is nothing to verify).
+   */
+  dependent: boolean;
+  /**
+   * A non-custodian guardian (pending or verified) is linked. A minor
+   * registered by a director is under club custody and has none until a parent
+   * claims them.
+   */
+  guardian_linked?: boolean;
+  /** The row verify-consent acts on; null when there is none yet. */
   guardianship_id: string | null;
   status: MembershipConsentStatus;
   evidence_uploaded: boolean;
   guardians: MembershipConsentGuardian[];
+  /**
+   * Server verdict (UI hint; verify-consent stays the authority). Absent on
+   * older backends. `false` with a null block only means there is nothing to
+   * verify yet (no form / already verified).
+   */
+  viewer_can_verify?: boolean;
+  /**
+   * Why the viewer may not verify: they registered/uploaded/received the minor
+   * in custody (`self_custodian`) or are a guardian of the child
+   * (`self_guardian`). Null when allowed or when there was nothing to verify.
+   */
+  viewer_verify_block?: MembershipVerifyBlock | null;
 };
 
 export type MembershipRequest = {
@@ -114,6 +146,7 @@ export const CONSENT_ERROR_CODES = [
   "GUARDIANSHIP_NOT_FOUND",
   "MR_CONSENT_CONFIRMATION_REQUIRED",
   "MR_CONSENT_NOT_VERIFIED",
+  "MR_APPROVE_PERMISSION_REQUIRED",
   "MR_NOT_FOUND",
   "MR_ALREADY_PENDING",
   "FILE_REQUIRED",
@@ -170,6 +203,31 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+/** Reads the verify verdict defensively: unknown values never block the UI. */
+function normalizeConsent(raw: unknown): MembershipRequestConsent | null | undefined {
+  if (!raw || typeof raw !== "object") return raw as null | undefined;
+  const consent = { ...(raw as MembershipRequestConsent) } as MembershipRequestConsent &
+    Record<string, unknown>;
+
+  if (typeof consent.viewer_can_verify !== "boolean") {
+    delete consent.viewer_can_verify;
+  }
+  if ("viewer_verify_block" in consent) {
+    const block = consent.viewer_verify_block as unknown;
+    consent.viewer_verify_block =
+      block === "self_custodian" || block === "self_guardian" ? block : null;
+  }
+  return consent;
+}
+
+function normalizeRequests(payload: unknown): MembershipRequest[] {
+  return extractList<MembershipRequest>(payload).map((request) =>
+    request && typeof request === "object" && "consent" in request
+      ? { ...request, consent: normalizeConsent(request.consent) }
+      : request,
+  );
+}
+
 // ─── API functions ────────────────────────────────────────────────────────────
 
 /**
@@ -184,7 +242,7 @@ export async function listMembershipRequests(
   const res = await apiRequest<unknown>(
     `/club-sections/${clubSectionId}/membership-requests`,
   );
-  return extractList<MembershipRequest>(res);
+  return normalizeRequests(res);
 }
 
 /**
@@ -198,7 +256,7 @@ export async function listMembershipRequestsFromClient(
   const res = await apiRequestFromClient<unknown>(
     `/club-sections/${clubSectionId}/membership-requests`,
   );
-  return extractList<MembershipRequest>(res);
+  return normalizeRequests(res);
 }
 
 /**
