@@ -8912,6 +8912,21 @@ export interface IntlMessages {
       revokeConfirm: string;
       working: string;
     };
+    sessions: {
+      title: string;
+      load: string;
+      loading: string;
+      empty: string;
+      error: string;
+      retry: string;
+      deviceBadge: string;
+      userBadge: string;
+      linkedDevice: string;
+      createdAt: string;
+      expiresAt: string;
+      ip: string;
+      agent: string;
+    };
     toasts: {
       disabled: string;
       revoked: string;

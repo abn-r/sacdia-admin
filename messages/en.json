@@ -8868,6 +8868,21 @@
       "revokeConfirm": "Revoke device",
       "working": "Working..."
     },
+    "sessions": {
+      "title": "Active sessions",
+      "load": "View active sessions",
+      "loading": "Loading...",
+      "empty": "There are no active sessions.",
+      "error": "The sessions could not be loaded.",
+      "retry": "Retry",
+      "deviceBadge": "Linked device",
+      "userBadge": "User session",
+      "linkedDevice": "Device: {label}",
+      "createdAt": "Created on",
+      "expiresAt": "Expires on",
+      "ip": "IP",
+      "agent": "Client"
+    },
     "toasts": {
       "disabled": "Own login disabled.",
       "revoked": "Device revoked."

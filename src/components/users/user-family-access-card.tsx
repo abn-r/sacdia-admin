@@ -44,6 +44,7 @@ import {
   type AdminRevokedLinkedDevice,
   type AdminSupervisedLogin,
 } from "@/lib/api/admin-users";
+import { UserSessionsList } from "@/components/users/user-sessions-list";
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 
@@ -479,6 +480,13 @@ export function UserFamilyAccessCard({
             </div>
           )}
         </div>
+
+        <UserSessionsList
+          userId={userId}
+          deviceLabels={Object.fromEntries(
+            familyAccess.linked_devices.map((d) => [d.linked_device_id, d.label]),
+          )}
+        />
       </div>
 
       {canManage && (

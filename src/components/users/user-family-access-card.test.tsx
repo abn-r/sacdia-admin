@@ -256,16 +256,31 @@ describe("UserFamilyAccessCard", () => {
     });
   });
 
+  describe("sessions", () => {
+    it("offers the on-demand sessions list without fetching it", () => {
+      renderCard(access({ linked_devices: [device()] }));
+      const sessions = screen.getByTestId("family-sessions");
+      expect(
+        within(sessions).getByRole("button", { name: f.sessions.load }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("permissions and forbidden controls", () => {
     it("without canManage there is no action at all", () => {
       renderCard(access({ linked_devices: [device()] }), false);
-      expect(screen.queryAllByRole("button")).toHaveLength(0);
+      // Only the read-only sessions loader remains.
+      expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual([f.sessions.load]);
     });
 
     it("never offers enable / reactivate / reset / password controls", () => {
       renderCard(access({ linked_devices: [device()] }));
       const names = screen.getAllByRole("button").map((b) => b.getAttribute("aria-label") ?? b.textContent);
-      expect(names).toEqual([f.login.disableAria, "Revocar el dispositivo iPad de Ana"]);
+      expect(names).toEqual([
+        f.login.disableAria,
+        "Revocar el dispositivo iPad de Ana",
+        f.sessions.load,
+      ]);
     });
   });
 

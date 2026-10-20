@@ -8868,6 +8868,21 @@
       "revokeConfirm": "Revocar dispositivo",
       "working": "Procesando..."
     },
+    "sessions": {
+      "title": "Sesiones activas",
+      "load": "Ver sesiones activas",
+      "loading": "Cargando...",
+      "empty": "No hay sesiones activas.",
+      "error": "No se pudieron cargar las sesiones.",
+      "retry": "Reintentar",
+      "deviceBadge": "Dispositivo vinculado",
+      "userBadge": "Sesión del usuario",
+      "linkedDevice": "Dispositivo: {label}",
+      "createdAt": "Creada el",
+      "expiresAt": "Vence el",
+      "ip": "IP",
+      "agent": "Cliente"
+    },
     "toasts": {
       "disabled": "Acceso propio desactivado.",
       "revoked": "Dispositivo revocado."

@@ -8868,6 +8868,21 @@
       "revokeConfirm": "Révoquer l'appareil",
       "working": "Traitement..."
     },
+    "sessions": {
+      "title": "Sessions actives",
+      "load": "Voir les sessions actives",
+      "loading": "Chargement...",
+      "empty": "Aucune session active.",
+      "error": "Impossible de charger les sessions.",
+      "retry": "Réessayer",
+      "deviceBadge": "Appareil lié",
+      "userBadge": "Session de l'utilisateur",
+      "linkedDevice": "Appareil : {label}",
+      "createdAt": "Créée le",
+      "expiresAt": "Expire le",
+      "ip": "IP",
+      "agent": "Client"
+    },
     "toasts": {
       "disabled": "Accès propre désactivé.",
       "revoked": "Appareil révoqué."
