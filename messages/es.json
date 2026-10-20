@@ -6749,6 +6749,7 @@
         "evidence_title": "Ficha firmada",
         "evidence_loading": "Cargando ficha...",
         "evidence_none": "Aún no hay una ficha subida. Sube la ficha firmada para poder verificar.",
+        "evidence_none_verify_only": "Aún no hay una ficha subida. Un director o secretario debe subirla antes de que puedas verificar.",
         "evidence_uploaded_at": "Subida el {date}",
         "evidence_uploaded_by": "por {name}",
         "evidence_image_alt": "Ficha de consentimiento firmada",

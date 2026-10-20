@@ -74,8 +74,9 @@ interface MembershipConsentVerifyDialogProps {
   onSuccess: () => void;
   /**
    * Whether the viewer may also approve (club_members:approve). When false
-   * (verify-only reviewers) the approve option is not offered and the request
-   * always sends `approve: false`.
+   * (verify-only reviewers) the approve option is not offered, the request
+   * always sends `approve: false` and the consent form cannot be uploaded or
+   * replaced (the backend rejects it).
    */
   canApprove?: boolean;
 }
@@ -314,7 +315,9 @@ export function MembershipConsentVerifyDialog({
             )}
 
             {(!evidenceExpected || evidenceNotFound) && !evidence && (
-              <p className="text-sm text-muted-foreground">{t("dialog.evidence_none")}</p>
+              <p className="text-sm text-muted-foreground">
+                {canApprove ? t("dialog.evidence_none") : t("dialog.evidence_none_verify_only")}
+              </p>
             )}
 
             {evidence && (
@@ -368,40 +371,43 @@ export function MembershipConsentVerifyDialog({
               </div>
             )}
 
-            <div className="space-y-1.5 pt-1">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
-                className="hidden"
-                data-testid="consent-file-input"
-                onChange={handleFileChange}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isBusy}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {uploadMutation.isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Upload className="size-4" />
+            {/* Verify-only reviewers (coordinators) cannot upload: the backend rejects it. */}
+            {canApprove && (
+              <div className="space-y-1.5 pt-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
+                  className="hidden"
+                  data-testid="consent-file-input"
+                  onChange={handleFileChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isBusy}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploadMutation.isPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                  {uploadMutation.isPending
+                    ? t("dialog.uploading")
+                    : hasEvidence
+                      ? t("dialog.replace")
+                      : t("dialog.upload")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
+                {fileError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fileError}
+                  </p>
                 )}
-                {uploadMutation.isPending
-                  ? t("dialog.uploading")
-                  : hasEvidence
-                    ? t("dialog.replace")
-                    : t("dialog.upload")}
-              </Button>
-              <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
-              {fileError && (
-                <p role="alert" className="text-sm text-destructive">
-                  {fileError}
-                </p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Confirmation */}

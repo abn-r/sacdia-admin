@@ -6749,6 +6749,7 @@
         "evidence_title": "Fiche signée",
         "evidence_loading": "Chargement de la fiche...",
         "evidence_none": "Aucune fiche n'a encore été téléversée. Téléversez la fiche signée pour pouvoir vérifier.",
+        "evidence_none_verify_only": "Aucune fiche n'a encore été téléversée. Un directeur ou un secrétaire doit la téléverser avant que vous puissiez vérifier.",
         "evidence_uploaded_at": "Téléversée le {date}",
         "evidence_uploaded_by": "par {name}",
         "evidence_image_alt": "Fiche de consentement signée",

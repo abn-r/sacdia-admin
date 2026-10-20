@@ -65,7 +65,7 @@ const request: MembershipRequest = {
   },
 };
 
-function renderDialog(canApprove: boolean | undefined) {
+function renderDialog(canApprove: boolean | undefined, req: MembershipRequest = request) {
   const onOpenChange = vi.fn();
   const onSuccess = vi.fn();
   const queryClient = new QueryClient({
@@ -77,7 +77,7 @@ function renderDialog(canApprove: boolean | undefined) {
         <MembershipConsentVerifyDialog
           open
           clubSectionId={42}
-          request={request}
+          request={req}
           onOpenChange={onOpenChange}
           onSuccess={onSuccess}
           {...(canApprove === undefined ? {} : { canApprove })}
@@ -164,5 +164,33 @@ describe("MembershipConsentVerifyDialog canApprove", () => {
       expect(mockToastError).toHaveBeenCalledWith(errorsMsg.GUARD_CLUB_SCOPE_REQUIRED),
     );
     expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  describe("consent form upload (verify-only reviewers cannot upload)", () => {
+    it("canApprove=false with evidence: no upload / replace control and no file input", async () => {
+      renderDialog(false);
+      await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+
+      expect(screen.queryByRole("button", { name: dialogMsg.upload })).toBeNull();
+      expect(screen.queryByRole("button", { name: dialogMsg.replace })).toBeNull();
+      expect(screen.queryByTestId("consent-file-input")).toBeNull();
+      expect(screen.queryByText(dialogMsg.upload_hint)).toBeNull();
+    });
+
+    it("canApprove=false without evidence: no upload control and a message that does not ask to upload", async () => {
+      renderDialog(false, { ...request, consent: { ...request.consent!, evidence_uploaded: false } });
+
+      expect(await screen.findByText(dialogMsg.evidence_none_verify_only)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: dialogMsg.upload })).toBeNull();
+      expect(screen.queryByTestId("consent-file-input")).toBeNull();
+    });
+
+    it("approve mode keeps the replace control (regression)", async () => {
+      renderDialog(true);
+      await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+
+      expect(screen.getByRole("button", { name: dialogMsg.replace })).toBeInTheDocument();
+      expect(screen.getByTestId("consent-file-input")).toBeInTheDocument();
+    });
   });
 });

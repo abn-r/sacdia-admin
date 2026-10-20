@@ -6749,6 +6749,7 @@
         "evidence_title": "Signed form",
         "evidence_loading": "Loading form...",
         "evidence_none": "No form has been uploaded yet. Upload the signed form to be able to verify.",
+        "evidence_none_verify_only": "No form has been uploaded yet. A director or secretary must upload it before you can verify.",
         "evidence_uploaded_at": "Uploaded on {date}",
         "evidence_uploaded_by": "by {name}",
         "evidence_image_alt": "Signed consent form",

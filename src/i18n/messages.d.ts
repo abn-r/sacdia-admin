@@ -6778,6 +6778,7 @@ export interface IntlMessages {
         evidence_title: string;
         evidence_loading: string;
         evidence_none: string;
+        evidence_none_verify_only: string;
         evidence_uploaded_at: string;
         evidence_uploaded_by: string;
         evidence_image_alt: string;

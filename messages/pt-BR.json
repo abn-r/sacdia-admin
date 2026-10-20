@@ -6749,6 +6749,7 @@
         "evidence_title": "Ficha assinada",
         "evidence_loading": "Carregando ficha...",
         "evidence_none": "Ainda não há ficha enviada. Envie a ficha assinada para poder verificar.",
+        "evidence_none_verify_only": "Ainda não há ficha enviada. Um diretor ou secretário deve enviá-la antes que você possa verificar.",
         "evidence_uploaded_at": "Enviada em {date}",
         "evidence_uploaded_by": "por {name}",
         "evidence_image_alt": "Ficha de consentimento assinada",
