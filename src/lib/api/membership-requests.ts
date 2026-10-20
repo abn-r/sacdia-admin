@@ -27,11 +27,23 @@ export type MembershipConsentGuardian = {
 
 /**
  * Consent block of a pending request. `null` (or absent) for adults.
- * Present only for minors with a dependent profile.
+ * Present for every minor (by age, not only those with a dependent profile),
+ * including teens and minors registered by a director.
  */
 export type MembershipRequestConsent = {
   required: true;
-  dependent: true;
+  /**
+   * false for a self-registered teen who has no dependent profile yet (nobody
+   * linked, so there is nothing to verify).
+   */
+  dependent: boolean;
+  /**
+   * A non-custodian guardian (pending or verified) is linked. A minor
+   * registered by a director is under club custody and has none until a parent
+   * claims them.
+   */
+  guardian_linked?: boolean;
+  /** The row verify-consent acts on; null when there is none yet. */
   guardianship_id: string | null;
   status: MembershipConsentStatus;
   evidence_uploaded: boolean;
@@ -114,6 +126,7 @@ export const CONSENT_ERROR_CODES = [
   "GUARDIANSHIP_NOT_FOUND",
   "MR_CONSENT_CONFIRMATION_REQUIRED",
   "MR_CONSENT_NOT_VERIFIED",
+  "MR_APPROVE_PERMISSION_REQUIRED",
   "MR_NOT_FOUND",
   "MR_ALREADY_PENDING",
   "FILE_REQUIRED",

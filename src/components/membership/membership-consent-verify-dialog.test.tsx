@@ -280,6 +280,38 @@ describe("MembershipConsentVerifyDialog", () => {
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
+  it("MR_APPROVE_PERMISSION_REQUIRED (403): explains it, unticks Approve and a retry only verifies", async () => {
+    mockVerify.mockRejectedValueOnce(
+      new ApiError("x", 403, {
+        code: "MR_APPROVE_PERMISSION_REQUIRED",
+        details: { should: "be ignored" },
+      }),
+    );
+    const user = userEvent.setup();
+    const { onOpenChange, onSuccess } = renderDialog(makeRequest(true));
+    await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
+    await user.click(screen.getByLabelText(dialogMsg.confirm_checkbox));
+    expect(screen.getByLabelText(dialogMsg.approve_checkbox)).toBeChecked();
+    await user.click(confirmButton());
+
+    await waitFor(() =>
+      expect(mockToastError).toHaveBeenCalledWith(errorsMsg.MR_APPROVE_PERMISSION_REQUIRED),
+    );
+    expect(onOpenChange).not.toHaveBeenCalledWith(false);
+    expect(onSuccess).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByLabelText(dialogMsg.approve_checkbox)).not.toBeChecked());
+
+    // Retry: the consent is verified without asking for approval.
+    await user.click(confirmButton());
+    await waitFor(() =>
+      expect(mockVerify).toHaveBeenLastCalledWith(42, "asg-1", {
+        confirm_paper_form_reviewed: true,
+        approve: false,
+      }),
+    );
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());
+  });
+
   it("uses the generic verify message for an unknown failure", async () => {
     mockVerify.mockRejectedValue(new Error("network down"));
     const user = userEvent.setup();

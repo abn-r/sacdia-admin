@@ -6758,6 +6758,7 @@ export interface IntlMessages {
       approve_blocked: string;
       verify_action: string;
       verify_action_aria: string;
+      verify_no_guardian: string;
       dialog: {
         title: string;
         description: string;
@@ -6801,6 +6802,7 @@ export interface IntlMessages {
         GUARDIANSHIP_GUARDIAN_SELF_VERIFY: string;
         GUARDIANSHIP_CONSENT_ALREADY_VERIFIED: string;
         GUARDIANSHIP_NOT_FOUND: string;
+        MR_APPROVE_PERMISSION_REQUIRED: string;
         MR_CONSENT_CONFIRMATION_REQUIRED: string;
         MR_CONSENT_NOT_VERIFIED: string;
         MR_NOT_FOUND: string;

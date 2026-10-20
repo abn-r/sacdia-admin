@@ -101,6 +101,14 @@ describe("membership-requests consent API", () => {
       expect(getConsentErrorCode(error)).toBe("MR_CONSENT_NOT_VERIFIED");
     });
 
+    it("recognises the verify-without-approve permission code", () => {
+      const error = new ApiError("x", 403, { code: "MR_APPROVE_PERMISSION_REQUIRED" });
+      expect(getConsentErrorCode(error)).toBe("MR_APPROVE_PERMISSION_REQUIRED");
+      expect(toConsentErrorCode("MR_APPROVE_PERMISSION_REQUIRED")).toBe(
+        "MR_APPROVE_PERMISSION_REQUIRED",
+      );
+    });
+
     it("returns null for unknown codes and non-ApiError values", () => {
       expect(getConsentErrorCode(new ApiError("x", 500, { code: "WHATEVER" }))).toBeNull();
       expect(getConsentErrorCode(new Error("x"))).toBeNull();

@@ -157,6 +157,11 @@ export function MembershipConsentVerifyDialog({
     },
     onError: (error) => {
       toast.error(errorMessage(error, "verify"));
+      // Verifying is allowed without approving (e.g. a coordinator): nothing was
+      // written, so unticking Approve lets the retry only verify the consent.
+      if (getConsentErrorCode(error) === "MR_APPROVE_PERMISSION_REQUIRED") {
+        setApprove(false);
+      }
     },
   });
 
