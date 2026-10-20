@@ -121,10 +121,15 @@ export function resolveClubGrantSections(user: AuthUser | null | undefined): Clu
   const approve: ReviewSectionOption[] = [];
   const verify: ReviewSectionOption[] = [];
 
+  // The backend guard honours only the ACTIVE club assignment's section, so any
+  // other club grant would offer a section that answers 403. No active
+  // assignment means no club authority at all.
+  const activeAssignmentId = user?.authorization?.active_assignment?.assignment_id ?? null;
   const assignments = Array.isArray(grants?.club_assignments) ? grants.club_assignments : [];
   for (const raw of assignments) {
     const grant = asRecord(raw);
     if (!grant) continue;
+    if (!activeAssignmentId || grant.assignment_id !== activeAssignmentId) continue;
     // Coordinator authority comes from the scope, never from a club grant.
     if (typeof grant.role_name === "string" && /coordinator/i.test(grant.role_name)) continue;
 

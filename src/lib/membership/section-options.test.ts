@@ -51,12 +51,22 @@ const clubGrant = (
   section: { club_section_id: sectionId, club_type_id: 1, club_type_name: type },
 });
 
-const userWith = (grants: {
-  club_assignments?: unknown[];
-  global_roles?: unknown[];
-  direct_permissions?: string[];
-}): AuthUser =>
-  ({ id: "u1", email: "u@test.com", authorization: { grants } }) as unknown as AuthUser;
+const userWith = (
+  grants: {
+    club_assignments?: unknown[];
+    global_roles?: unknown[];
+    direct_permissions?: string[];
+  },
+  // The backend honours only the ACTIVE club assignment; default to the first one.
+  activeAssignmentId: string | null = (
+    (grants.club_assignments?.[0] as { assignment_id?: string } | undefined)?.assignment_id ?? null
+  ),
+): AuthUser =>
+  ({
+    id: "u1",
+    email: "u@test.com",
+    authorization: { grants, active_assignment: { assignment_id: activeAssignmentId } },
+  }) as unknown as AuthUser;
 
 const APPROVE = "club_members:approve";
 const VERIFY = "consent:verify";
@@ -111,11 +121,41 @@ describe("resolveClubGrantSections", () => {
     expect(grants.approve).toEqual([
       { club_section_id: 30, label: "Club Águilas · Conquistadores", mode: "approve" },
     ]);
+    // Only the active assignment (section 30) counts; 31 and 32 are other assignments.
     expect(grants.verify).toEqual([
       { club_section_id: 30, label: "Club Águilas · Conquistadores", mode: "verify-only" },
-      { club_section_id: 31, label: "Club Águilas · Aventureros", mode: "verify-only" },
     ]);
     expect(grants.approveViaUnscopedList).toBe(false);
+  });
+
+  it("only the ACTIVE club assignment counts, like the backend guard", () => {
+    const grants = resolveClubGrantSections(
+      userWith(
+        {
+          club_assignments: [
+            clubGrant(50, "Club A", "Conquistadores", [APPROVE]),
+            clubGrant(51, "Club B", "Aventureros", [APPROVE, VERIFY]),
+          ],
+        },
+        "a-51",
+      ),
+    );
+
+    expect(grants.approve).toEqual([
+      { club_section_id: 51, label: "Club B · Aventureros", mode: "approve" },
+    ]);
+    expect(grants.verify).toEqual([
+      { club_section_id: 51, label: "Club B · Aventureros", mode: "verify-only" },
+    ]);
+  });
+
+  it("without an active club assignment no club grant opens a section", () => {
+    const grants = resolveClubGrantSections(
+      userWith({ club_assignments: [clubGrant(52, "Club A", "Guías", [APPROVE])] }, null),
+    );
+
+    expect(grants.approve).toEqual([]);
+    expect(grants.verify).toEqual([]);
   });
 
   it("ignores coordinator-role club grants (coordinator authority comes from the scope)", () => {
@@ -325,7 +365,6 @@ describe("loadReviewSectionOptions", () => {
     const clubGrants = resolveClubGrantSections(
       userWith({
         club_assignments: [
-          clubGrant(31, "Club Águilas", "Aventureros", [VERIFY], "secretary"),
           clubGrant(32, "Club Águilas", "Guías", [VERIFY], "secretary"),
         ],
       }),
@@ -334,8 +373,8 @@ describe("loadReviewSectionOptions", () => {
     const result = await loadReviewSectionOptions("verify-only", { clubGrants });
 
     expect(result.sections).toEqual([
-      { club_section_id: 31, label: "Club Águilas · Aventureros", mode: "verify-only" },
       { club_section_id: 32, label: "Club Águilas · Guías", mode: "verify-only" },
+      { club_section_id: 31, label: "Club Águilas · Aventureros", mode: "verify-only" },
     ]);
     expect(mockApiRequest).not.toHaveBeenCalledWith("/clubs");
   });
