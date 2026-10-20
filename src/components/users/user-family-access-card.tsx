@@ -430,7 +430,7 @@ export function UserFamilyAccessCard({
                         data-testid="family-linked-device"
                         className={revoked ? "bg-muted/30" : undefined}
                       >
-                        <TableCell className="px-3 py-2.5 align-middle">
+                        <TableCell className="px-3 py-2.5 align-middle whitespace-normal">
                           <div className="flex items-center gap-2">
                             <Smartphone className="size-4 text-muted-foreground" />
                             <div className="space-y-0.5">
@@ -455,10 +455,10 @@ export function UserFamilyAccessCard({
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm whitespace-normal">
                           {device.paired_by?.display_name || DASH}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground whitespace-normal">
                           <div className="space-y-0.5">
                             <p>{device.last_seen_at ? formatDateTime(device.last_seen_at) : DASH}</p>
                             {device.absolute_expires_at && (
@@ -470,7 +470,7 @@ export function UserFamilyAccessCard({
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle whitespace-nowrap">
+                        <TableCell className="px-3 py-2.5 align-middle whitespace-normal">
                           <div className="space-y-0.5">
                             <Badge variant={revoked ? "destructive" : "soft-success"}>
                               {t(`devices.status.${device.status}`)}
