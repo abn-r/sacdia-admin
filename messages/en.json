@@ -8805,6 +8805,7 @@
         "handle": "Username",
         "origin": "Origin",
         "enabledBy": "Enabled by",
+        "enabledByGuardian": "Supervision enabled by",
         "enabledAt": "Enabled on",
         "passwordSetBy": "Password set by",
         "pendingSince": "Pending guardian since",
@@ -8836,10 +8837,8 @@
       "empty": "There are no linked devices.",
       "columns": {
         "device": "Device",
-        "platform": "Platform",
         "pairedBy": "Linked by",
         "lastSeen": "Last activity",
-        "expires": "Expires",
         "status": "Status",
         "actions": "Actions"
       },
@@ -8852,6 +8851,7 @@
         "revoked": "Revoked"
       },
       "appVersion": "Version {version}",
+      "expiresOn": "Expires on {date}",
       "revokedOn": "Revoked on {date}",
       "revoke": "Revoke",
       "revokeAria": "Revoke the device {label}"

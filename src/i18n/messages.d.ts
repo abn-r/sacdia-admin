@@ -8849,6 +8849,7 @@ export interface IntlMessages {
         handle: string;
         origin: string;
         enabledBy: string;
+        enabledByGuardian: string;
         enabledAt: string;
         passwordSetBy: string;
         pendingSince: string;
@@ -8880,10 +8881,8 @@ export interface IntlMessages {
       empty: string;
       columns: {
         device: string;
-        platform: string;
         pairedBy: string;
         lastSeen: string;
-        expires: string;
         status: string;
         actions: string;
       };
@@ -8896,6 +8895,7 @@ export interface IntlMessages {
         revoked: string;
       };
       appVersion: string;
+      expiresOn: string;
       revokedOn: string;
       revoke: string;
       revokeAria: string;

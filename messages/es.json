@@ -8805,6 +8805,7 @@
         "handle": "Usuario",
         "origin": "Origen",
         "enabledBy": "Activado por",
+        "enabledByGuardian": "Supervisión activada por",
         "enabledAt": "Activado el",
         "passwordSetBy": "Contraseña definida por",
         "pendingSince": "Pendiente de tutor desde",
@@ -8836,10 +8837,8 @@
       "empty": "No hay dispositivos vinculados.",
       "columns": {
         "device": "Dispositivo",
-        "platform": "Plataforma",
         "pairedBy": "Vinculado por",
         "lastSeen": "Última actividad",
-        "expires": "Vence",
         "status": "Estado",
         "actions": "Acciones"
       },
@@ -8852,6 +8851,7 @@
         "revoked": "Revocado"
       },
       "appVersion": "Versión {version}",
+      "expiresOn": "Vence el {date}",
       "revokedOn": "Revocado el {date}",
       "revoke": "Revocar",
       "revokeAria": "Revocar el dispositivo {label}"

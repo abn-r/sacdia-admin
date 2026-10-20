@@ -43,12 +43,16 @@ function session(overrides: Partial<AdminUserSession> = {}): AdminUserSession {
   };
 }
 
-function renderList(deviceLabels: Record<string, string> = {}) {
-  return render(
+function listElement(deviceLabels: Record<string, string> = {}, refreshKey?: number) {
+  return (
     <NextIntlClientProvider locale="es" messages={messages}>
-      <UserSessionsList userId="u-1" deviceLabels={deviceLabels} />
-    </NextIntlClientProvider>,
+      <UserSessionsList userId="u-1" deviceLabels={deviceLabels} refreshKey={refreshKey} />
+    </NextIntlClientProvider>
   );
+}
+
+function renderList(deviceLabels: Record<string, string> = {}, refreshKey?: number) {
+  return render(listElement(deviceLabels, refreshKey));
 }
 
 describe("UserSessionsList", () => {
@@ -124,5 +128,39 @@ describe("UserSessionsList", () => {
 
     await user.click(screen.getByRole("button", { name: s.retry }));
     expect(await screen.findByTestId("user-session")).toBeInTheDocument();
+  });
+
+  describe("refreshKey", () => {
+    it("reloads an already opened list when the key changes", async () => {
+      mockList.mockResolvedValueOnce([session(), session({ sessionId: "s-2" })]).mockResolvedValue([session()]);
+      const user = userEvent.setup();
+      const view = renderList({}, 0);
+
+      await user.click(screen.getByRole("button", { name: s.load }));
+      expect(await screen.findAllByTestId("user-session")).toHaveLength(2);
+      expect(mockList).toHaveBeenCalledTimes(1);
+
+      view.rerender(listElement({}, 1));
+
+      await waitFor(() => expect(mockList).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(screen.getAllByTestId("user-session")).toHaveLength(1));
+    });
+
+    it("does not fetch when the key changes while the list was never opened", () => {
+      const view = renderList({}, 0);
+      view.rerender(listElement({}, 1));
+      expect(mockList).not.toHaveBeenCalled();
+    });
+
+    it("does not refetch on a re-render with the same key", async () => {
+      mockList.mockResolvedValue([session()]);
+      const user = userEvent.setup();
+      const view = renderList({}, 0);
+      await user.click(screen.getByRole("button", { name: s.load }));
+      await screen.findByTestId("user-session");
+
+      view.rerender(listElement({}, 0));
+      expect(mockList).toHaveBeenCalledTimes(1);
+    });
   });
 });

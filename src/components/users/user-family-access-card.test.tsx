@@ -24,6 +24,7 @@ import type {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockDisable = vi.fn<(...args: any[]) => Promise<unknown>>();
 const mockRevoke = vi.fn<(...args: any[]) => Promise<unknown>>();
+const mockListSessions = vi.fn<(...args: any[]) => Promise<unknown[]>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 vi.mock("@/lib/api/admin-users", async (importOriginal) => {
@@ -32,6 +33,7 @@ vi.mock("@/lib/api/admin-users", async (importOriginal) => {
     ...original,
     disableSupervisedLoginFromClient: (...args: unknown[]) => mockDisable(...args),
     revokeLinkedDeviceFromClient: (...args: unknown[]) => mockRevoke(...args),
+    listAdminUserSessionsFromClient: (...args: unknown[]) => mockListSessions(...args),
   };
 });
 
@@ -152,6 +154,18 @@ describe("UserFamilyAccessCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("shows the supervision row when the child has an own login", () => {
+      renderCard(access());
+      expect(screen.getByTestId("family-supervision")).toBeInTheDocument();
+    });
+
+    it("hides the supervision row for a child without an own login (devices only)", () => {
+      renderCard(access({ supervision: "active", supervised_login: null, linked_devices: [device()] }));
+      expect(screen.queryByTestId("family-supervision")).toBeNull();
+      expect(screen.queryByText(f.supervision.label)).toBeNull();
+      expect(screen.queryByText(f.supervision.none)).toBeNull();
+    });
+
     it("pending_guardian login shows its own badge and since date", () => {
       renderCard(
         access({
@@ -207,6 +221,29 @@ describe("UserFamilyAccessCard", () => {
       expect(within(byField).getByText("—")).toBeInTheDocument();
     });
 
+    it("relabels enabled_by as 'Supervisión activada por' for a self-registered teen (the guardian who linked)", () => {
+      renderCard(
+        access({
+          supervised_login: login({
+            origin: "self_registered",
+            password_set_by: "self",
+            enabled_by: { user_id: "u-g", display_name: "Laura Tutora" },
+          }),
+        }),
+      );
+      const block = screen.getByTestId("family-supervised-login");
+      expect(within(block).getByText(f.login.fields.enabledByGuardian)).toBeInTheDocument();
+      expect(within(block).queryByText(f.login.fields.enabledBy)).toBeNull();
+      expect(within(block).getByText("Laura Tutora")).toBeInTheDocument();
+    });
+
+    it("keeps 'Activado por' when the guardian enabled the login", () => {
+      renderCard(access());
+      const block = screen.getByTestId("family-supervised-login");
+      expect(within(block).getByText(f.login.fields.enabledBy)).toBeInTheDocument();
+      expect(within(block).queryByText(f.login.fields.enabledByGuardian)).toBeNull();
+    });
+
     it("with devices only: explains there is no own login", () => {
       renderCard(access({ supervised_login: null, linked_devices: [device()] }));
       expect(screen.getByText(f.login.empty)).toBeInTheDocument();
@@ -250,6 +287,25 @@ describe("UserFamilyAccessCard", () => {
       expect(within(rows[1]).getAllByText("—").length).toBeGreaterThan(0);
     });
 
+    it("fits the table: Estado and Acciones stay as columns; platform and expiry are merged into other cells", () => {
+      renderCard(access({ linked_devices: [device()] }));
+      const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);
+      expect(headers).toEqual([
+        f.devices.columns.device,
+        f.devices.columns.pairedBy,
+        f.devices.columns.lastSeen,
+        f.devices.columns.status,
+        f.devices.columns.actions,
+      ]);
+
+      const row = screen.getByTestId("family-linked-device");
+      // platform + version live in the device cell, expiry under last activity
+      const deviceCell = within(row).getAllByRole("cell")[0];
+      expect(within(deviceCell).getByText(f.devices.platform.ios)).toBeInTheDocument();
+      expect(within(deviceCell).getByText("Versión 2.4.0")).toBeInTheDocument();
+      expect(within(row).getByText(/Vence el /)).toBeInTheDocument();
+    });
+
     it("an empty device list says so when the login block exists", () => {
       renderCard(access());
       expect(screen.getByText(f.devices.empty)).toBeInTheDocument();
@@ -263,6 +319,83 @@ describe("UserFamilyAccessCard", () => {
       expect(
         within(sessions).getByRole("button", { name: f.sessions.load }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("sessions refresh after an action", () => {
+    async function openSessions(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(screen.getByRole("button", { name: f.sessions.load }));
+      await waitFor(() => expect(mockListSessions).toHaveBeenCalledTimes(1));
+      await screen.findByText(f.sessions.empty);
+    }
+
+    it("reloads an already opened sessions list after revoking a device", async () => {
+      mockListSessions.mockResolvedValue([]);
+      mockRevoke.mockResolvedValue({
+        linked_device_id: "dev-1",
+        revoked_at: "2026-10-20T12:00:00.000Z",
+        revoked_reason: "admin",
+      });
+      const user = userEvent.setup();
+      renderCard(access({ linked_devices: [device()] }));
+      await openSessions(user);
+
+      await user.click(screen.getByRole("button", { name: "Revocar el dispositivo iPad de Ana" }));
+      const dialog = await screen.findByRole("alertdialog");
+      await user.type(within(dialog).getByLabelText(f.dialog.reasonLabel), "Dispositivo perdido");
+      await user.click(within(dialog).getByRole("button", { name: f.dialog.revokeConfirm }));
+
+      await waitFor(() => expect(mockListSessions).toHaveBeenCalledTimes(2));
+      expect(mockListSessions).toHaveBeenLastCalledWith("u-1");
+    });
+
+    it("reloads an already opened sessions list after disabling the login", async () => {
+      mockListSessions.mockResolvedValue([]);
+      mockDisable.mockResolvedValue({
+        supervised_login: {
+          status: "disabled",
+          method: "handle",
+          origin: "guardian_enabled",
+          enabled_at: "2026-10-05T15:00:00.000Z",
+          disabled_at: "2026-10-20T12:00:00.000Z",
+          disabled_reason: "admin",
+          password_set_by: "guardian",
+        },
+      });
+      const user = userEvent.setup();
+      renderCard(access());
+      await openSessions(user);
+
+      await user.click(disableButton());
+      const dialog = await screen.findByRole("alertdialog");
+      await user.type(within(dialog).getByLabelText(f.dialog.reasonLabel), "Pedido del tutor");
+      await user.click(within(dialog).getByRole("button", { name: f.dialog.disableConfirm }));
+
+      await waitFor(() => expect(mockListSessions).toHaveBeenCalledTimes(2));
+    });
+
+    it("does not fetch sessions after an action if the list was never opened", async () => {
+      mockDisable.mockResolvedValue({
+        supervised_login: {
+          status: "disabled",
+          method: "handle",
+          origin: "guardian_enabled",
+          enabled_at: null,
+          disabled_at: "2026-10-20T12:00:00.000Z",
+          disabled_reason: "admin",
+          password_set_by: "guardian",
+        },
+      });
+      const user = userEvent.setup();
+      renderCard(access());
+
+      await user.click(disableButton());
+      const dialog = await screen.findByRole("alertdialog");
+      await user.type(within(dialog).getByLabelText(f.dialog.reasonLabel), "Pedido del tutor");
+      await user.click(within(dialog).getByRole("button", { name: f.dialog.disableConfirm }));
+
+      await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
+      expect(mockListSessions).not.toHaveBeenCalled();
     });
   });
 

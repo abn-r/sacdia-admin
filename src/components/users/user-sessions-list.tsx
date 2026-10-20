@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Monitor } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -24,6 +24,12 @@ interface UserSessionsListProps {
   userId: string;
   /** Labels of the linked devices of this user, keyed by `linked_device_id`. */
   deviceLabels?: Record<string, string>;
+  /**
+   * Bump it after an action that deletes sessions server-side (disable a login,
+   * revoke a device): an already opened list is reloaded; an unopened one stays
+   * idle (it fetches on demand anyway).
+   */
+  refreshKey?: number;
 }
 
 /**
@@ -31,7 +37,11 @@ interface UserSessionsListProps {
  * by a linked device of a child (`kind: "device"`) is labelled as such, so the
  * admin does not mistake it for the child's own login.
  */
-export function UserSessionsList({ userId, deviceLabels = {} }: UserSessionsListProps) {
+export function UserSessionsList({
+  userId,
+  deviceLabels = {},
+  refreshKey = 0,
+}: UserSessionsListProps) {
   const t = useTranslations("familyAccess.sessions");
   const formatDateTime = useFormatDateTime();
   const [state, setState] = useState<State>({ kind: "idle" });
@@ -44,6 +54,17 @@ export function UserSessionsList({ userId, deviceLabels = {} }: UserSessionsList
       setState({ kind: "error" });
     }
   }
+
+  // Reload when `refreshKey` changes, only if the list was already requested.
+  const lastRefreshKey = useRef(refreshKey);
+  const opened = state.kind !== "idle";
+  useEffect(() => {
+    if (lastRefreshKey.current === refreshKey) return;
+    lastRefreshKey.current = refreshKey;
+    if (opened) void load();
+    // `load` only closes over `userId`; re-run strictly on a key change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey]);
 
   return (
     <div className="space-y-2" data-testid="family-sessions">

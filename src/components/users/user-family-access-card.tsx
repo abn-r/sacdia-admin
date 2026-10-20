@@ -232,6 +232,9 @@ export function UserFamilyAccessCard({
   const [devicePatches, setDevicePatches] = useState<Record<string, DevicePatch>>({});
   const [disableOpen, setDisableOpen] = useState(false);
   const [revokeTarget, setRevokeTarget] = useState<AdminLinkedDevice | null>(null);
+  // Bumped after a successful disable/revoke: the server deletes the sessions of
+  // the login / device, so an already opened sessions list must be reloaded.
+  const [sessionsRefreshKey, setSessionsRefreshKey] = useState(0);
 
   const login: AdminSupervisedLogin | null = familyAccess.supervised_login
     ? { ...familyAccess.supervised_login, ...(loginPatch ?? {}) }
@@ -256,6 +259,7 @@ export function UserFamilyAccessCard({
       disabled_reason: result.supervised_login.disabled_reason ?? "admin",
     });
     toast.success(t("toasts.disabled"));
+    setSessionsRefreshKey((key) => key + 1);
     router.refresh();
   }
 
@@ -274,6 +278,7 @@ export function UserFamilyAccessCard({
       },
     }));
     toast.success(t("toasts.revoked"));
+    setSessionsRefreshKey((key) => key + 1);
     router.refresh();
   }
 
@@ -282,14 +287,22 @@ export function UserFamilyAccessCard({
       <div className="space-y-5">
         <p className="text-sm text-muted-foreground">{t("description")}</p>
 
-        <div className="flex flex-wrap items-center gap-2 text-sm" data-testid="family-supervision">
-          <span className="text-xs font-semibold text-muted-foreground">
-            {t("supervision.label")}
-          </span>
-          <Badge variant={familyAccess.supervision === "active" ? "soft-success" : "outline"}>
-            {supervisionLabel}
-          </Badge>
-        </div>
+        {/* Supervision is derived from the stored supervised login: a child
+            without an own login (e.g. an under-13 with linked devices) has none
+            to report, and "Sin supervisión" would be misleading. */}
+        {login && (
+          <div
+            className="flex flex-wrap items-center gap-2 text-sm"
+            data-testid="family-supervision"
+          >
+            <span className="text-xs font-semibold text-muted-foreground">
+              {t("supervision.label")}
+            </span>
+            <Badge variant={familyAccess.supervision === "active" ? "soft-success" : "outline"}>
+              {supervisionLabel}
+            </Badge>
+          </div>
+        )}
 
         <div className="space-y-2" data-testid="family-supervised-login">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -338,7 +351,13 @@ export function UserFamilyAccessCard({
               </div>
               <div>
                 <DetailField
-                  k={t("login.fields.enabledBy")}
+                  k={
+                    // For a self-registered teen `enabled_by` is the guardian who
+                    // linked them (supervision), not who created the account.
+                    login.origin === "self_registered"
+                      ? t("login.fields.enabledByGuardian")
+                      : t("login.fields.enabledBy")
+                  }
                   v={login.enabled_by?.display_name || DASH}
                 />
                 <DetailField
@@ -387,16 +406,10 @@ export function UserFamilyAccessCard({
                       {t("devices.columns.device")}
                     </TableHead>
                     <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                      {t("devices.columns.platform")}
-                    </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       {t("devices.columns.pairedBy")}
                     </TableHead>
                     <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       {t("devices.columns.lastSeen")}
-                    </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                      {t("devices.columns.expires")}
                     </TableHead>
                     <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                       {t("devices.columns.status")}
@@ -424,27 +437,40 @@ export function UserFamilyAccessCard({
                               <p className="font-medium leading-none">
                                 {device.label || DASH}
                               </p>
-                              {device.app_version && (
-                                <p className="text-xs text-muted-foreground">
-                                  {t("devices.appVersion", { version: device.app_version })}
+                              {(device.platform || device.app_version) && (
+                                <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+                                  {device.platform && (
+                                    <span>{t(`devices.platform.${device.platform}`)}</span>
+                                  )}
+                                  {device.platform && device.app_version && (
+                                    <span aria-hidden="true">·</span>
+                                  )}
+                                  {device.app_version && (
+                                    <span>
+                                      {t("devices.appVersion", { version: device.app_version })}
+                                    </span>
+                                  )}
                                 </p>
                               )}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="px-3 py-2.5 align-middle text-sm">
-                          {device.platform ? t(`devices.platform.${device.platform}`) : DASH}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm">
                           {device.paired_by?.display_name || DASH}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                          {device.last_seen_at ? formatDateTime(device.last_seen_at) : DASH}
+                          <div className="space-y-0.5">
+                            <p>{device.last_seen_at ? formatDateTime(device.last_seen_at) : DASH}</p>
+                            {device.absolute_expires_at && (
+                              <p className="text-xs">
+                                {t("devices.expiresOn", {
+                                  date: formatDate(device.absolute_expires_at),
+                                })}
+                              </p>
+                            )}
+                          </div>
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
-                          {device.absolute_expires_at ? formatDate(device.absolute_expires_at) : DASH}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle">
+                        <TableCell className="px-3 py-2.5 align-middle whitespace-nowrap">
                           <div className="space-y-0.5">
                             <Badge variant={revoked ? "destructive" : "soft-success"}>
                               {t(`devices.status.${device.status}`)}
@@ -457,7 +483,7 @@ export function UserFamilyAccessCard({
                           </div>
                         </TableCell>
                         {canManage && (
-                          <TableCell className="px-3 py-2.5 text-right align-middle">
+                          <TableCell className="px-3 py-2.5 text-right align-middle whitespace-nowrap">
                             {!revoked && (
                               <Button
                                 type="button"
@@ -483,6 +509,7 @@ export function UserFamilyAccessCard({
 
         <UserSessionsList
           userId={userId}
+          refreshKey={sessionsRefreshKey}
           deviceLabels={Object.fromEntries(
             familyAccess.linked_devices.map((d) => [d.linked_device_id, d.label]),
           )}
