@@ -6,7 +6,8 @@
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import messages from "../../../messages/es.json";
@@ -24,6 +25,7 @@ Element.prototype.scrollIntoView = Element.prototype.scrollIntoView ?? (() => {}
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockList = vi.fn<(...args: any[]) => Promise<MembershipRequest[]>>();
+const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
@@ -32,6 +34,7 @@ vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
   return {
     ...original,
     listMembershipRequestsFromClient: (...args: unknown[]) => mockList(...args),
+    getConsentEvidence: (...args: unknown[]) => mockGetEvidence(...args),
   };
 });
 
@@ -90,6 +93,12 @@ describe("MembershipRequestsClientPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockList.mockResolvedValue([pendingMinor()]);
+    mockGetEvidence.mockResolvedValue({
+      url: "https://r2.example/signed",
+      expires_in: 900,
+      content_type: "image/jpeg",
+      uploaded_at: "2026-10-02T12:00:00.000Z",
+    });
   });
 
   afterEach(() => cleanup());
@@ -136,5 +145,31 @@ describe("MembershipRequestsClientPage", () => {
     await waitFor(() =>
       expect(screen.getByText(clientMsg.load_error_permission)).toBeInTheDocument(),
     );
+  });
+
+  it("switching section loads that section's list lazily and keeps verify-only", async () => {
+    const user = userEvent.setup();
+    renderPage("verify-only");
+    await screen.findByText(consentMsg.badge_pending);
+
+    mockList.mockResolvedValueOnce([]);
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: sections[1].label }));
+
+    await waitFor(() => expect(mockList).toHaveBeenLastCalledWith(9));
+    expect(mockList).toHaveBeenCalledTimes(2);
+    expect(await screen.findByText(tableMsg.empty_title_verify_only)).toBeInTheDocument();
+  });
+
+  it("opens the consent dialog from a covered section, without the approve option", async () => {
+    const user = userEvent.setup();
+    renderPage("verify-only");
+
+    await user.click(await screen.findByRole("button", { name: consentMsg.verify_action_aria }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText(consentMsg.dialog.title)).toBeInTheDocument();
+    expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
+    await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledWith(7, "asg-minor"));
   });
 });

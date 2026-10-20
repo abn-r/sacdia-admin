@@ -36,6 +36,13 @@ interface MembershipRequestsClientPageProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+/**
+ * One section at a time: the list is fetched lazily when a section is picked
+ * (react-query, 60 s stale), never for every covered section at once. The
+ * endpoint is not paginated; a section's list is bounded by its pending
+ * requests (verify-only: just the minors with a pending form).
+ */
+
 export function MembershipRequestsClientPage({
   sections,
   mode = "approve",
