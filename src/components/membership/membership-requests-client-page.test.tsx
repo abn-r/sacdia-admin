@@ -73,14 +73,21 @@ function pendingMinor(): MembershipRequest {
   };
 }
 
-function renderPage(mode?: "approve" | "verify-only") {
+function renderPage(
+  mode?: "approve" | "verify-only",
+  pageSections: Array<{
+    club_section_id: number;
+    label: string;
+    mode?: "approve" | "verify-only";
+  }> = sections,
+) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <NextIntlClientProvider locale="es" messages={messages}>
         <TooltipProvider>
           <MembershipRequestsClientPage
-            sections={sections}
+            sections={pageSections}
             {...(mode ? { mode } : {})}
           />
         </TooltipProvider>
@@ -171,5 +178,56 @@ describe("MembershipRequestsClientPage", () => {
     expect(within(dialog).getByText(consentMsg.dialog.title)).toBeInTheDocument();
     expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
     await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledWith(7, "asg-minor"));
+  });
+
+  describe("per-section review mode (coordinator who also approves in a club)", () => {
+    const mixed = [
+      { club_section_id: 7, label: "Club Águilas · Conquistadores", mode: "verify-only" as const },
+      { club_section_id: 9, label: "Club Halcones · Aventureros", mode: "approve" as const },
+    ];
+
+    it("a coordinator-only section shows verify-only UI even on an approve page", async () => {
+      renderPage("approve", mixed);
+
+      const verify = await screen.findByRole("button", { name: consentMsg.verify_action_aria });
+      expect(verify).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: tableMsg.aria_approve })).toBeNull();
+      expect(screen.queryByRole("button", { name: tableMsg.aria_reject })).toBeNull();
+
+      const user = userEvent.setup();
+      await user.click(verify);
+      const dialog = await screen.findByRole("alertdialog");
+      expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
+    });
+
+    it("an own-club section shows the approve UI", async () => {
+      const user = userEvent.setup();
+      renderPage("approve", mixed);
+      await screen.findByRole("button", { name: consentMsg.verify_action_aria });
+
+      await user.click(screen.getByRole("combobox"));
+      await user.click(await screen.findByRole("option", { name: mixed[1].label }));
+
+      expect(
+        await screen.findByRole("button", { name: tableMsg.aria_approve }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: tableMsg.aria_reject })).toBeInTheDocument();
+    });
+
+    it("switching back from an own-club section to a coordinator one drops approve again", async () => {
+      const user = userEvent.setup();
+      renderPage("approve", [mixed[1], mixed[0]]);
+      await screen.findByRole("button", { name: tableMsg.aria_approve });
+
+      await user.click(screen.getByRole("combobox"));
+      await user.click(await screen.findByRole("option", { name: mixed[0].label }));
+
+      await waitFor(() =>
+        expect(screen.queryByRole("button", { name: tableMsg.aria_approve })).toBeNull(),
+      );
+      expect(
+        await screen.findByRole("button", { name: consentMsg.verify_action_aria }),
+      ).toBeInTheDocument();
+    });
   });
 });

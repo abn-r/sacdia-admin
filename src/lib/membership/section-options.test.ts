@@ -64,8 +64,8 @@ describe("coordinatorScopeToSectionOptions", () => {
         scopeSection(8, null, null),
       ]),
     ).toEqual([
-      { club_section_id: 7, label: "Club Águilas · Conquistadores" },
-      { club_section_id: 8, label: "Club · Sección" },
+      { club_section_id: 7, label: "Club Águilas · Conquistadores", mode: "verify-only" },
+      { club_section_id: 8, label: "Club · Sección", mode: "verify-only" },
     ]);
   });
 });
@@ -80,9 +80,92 @@ describe("loadReviewSectionOptions", () => {
 
     expect(result).toEqual({
       available: true,
-      sections: [{ club_section_id: 20, label: "Club Halcones · Aventureros" }],
+      sections: [
+        { club_section_id: 20, label: "Club Halcones · Aventureros", mode: "approve" },
+      ],
     });
     expect(mockApiRequest).not.toHaveBeenCalledWith("/coordination/me/scope");
+  });
+
+  it("approve mode + consent:verify: merges coordinator-only sections as verify-only", async () => {
+    route({
+      "/coordination/me/scope": () =>
+        scopePayload([
+          scopeSection(7, "Club Águilas", "Conquistadores"),
+          scopeSection(9, "Club Pumas", "Aventureros"),
+        ]),
+      "/clubs": () => clubsPayload,
+    });
+
+    const result = await loadReviewSectionOptions("approve", { includeCoordinatorScope: true });
+
+    expect(result.available).toBe(true);
+    expect(result.sections).toEqual([
+      { club_section_id: 20, label: "Club Halcones · Aventureros", mode: "approve" },
+      { club_section_id: 7, label: "Club Águilas · Conquistadores", mode: "verify-only" },
+      { club_section_id: 9, label: "Club Pumas · Aventureros", mode: "verify-only" },
+    ]);
+  });
+
+  it("approve mode + consent:verify: a section in both sources keeps the club (approve) mode", async () => {
+    route({
+      "/coordination/me/scope": () =>
+        scopePayload([scopeSection(20, "Club Halcones", "Aventureros")]),
+      "/clubs": () => clubsPayload,
+    });
+
+    const result = await loadReviewSectionOptions("approve", { includeCoordinatorScope: true });
+
+    expect(result.sections).toEqual([
+      { club_section_id: 20, label: "Club Halcones · Aventureros", mode: "approve" },
+    ]);
+  });
+
+  it("approve mode + consent:verify: scope failing still returns the club sections", async () => {
+    route({
+      "/coordination/me/scope": () => {
+        throw new ApiError("boom", 500, null);
+      },
+      "/clubs": () => clubsPayload,
+    });
+
+    const result = await loadReviewSectionOptions("approve", { includeCoordinatorScope: true });
+
+    expect(result.available).toBe(true);
+    expect(result.sections.map((s) => s.club_section_id)).toEqual([20]);
+  });
+
+  it("approve mode + consent:verify: /clubs failing still returns the coordinator sections", async () => {
+    route({
+      "/coordination/me/scope": () =>
+        scopePayload([scopeSection(7, "Club Águilas", "Conquistadores")]),
+      "/clubs": () => {
+        throw new ApiError("Forbidden", 403, null);
+      },
+    });
+
+    const result = await loadReviewSectionOptions("approve", { includeCoordinatorScope: true });
+
+    expect(result.available).toBe(true);
+    expect(result.sections).toEqual([
+      { club_section_id: 7, label: "Club Águilas · Conquistadores", mode: "verify-only" },
+    ]);
+  });
+
+  it("approve mode + consent:verify: unavailable only when both sources fail", async () => {
+    route({
+      "/coordination/me/scope": () => {
+        throw new ApiError("boom", 500, null);
+      },
+      "/clubs": () => {
+        throw new ApiError("nope", 500, null);
+      },
+    });
+
+    const result = await loadReviewSectionOptions("approve", { includeCoordinatorScope: true });
+
+    expect(result.available).toBe(false);
+    expect(result.sections).toEqual([]);
   });
 
   it("verify-only: the coordinator's covered sections come from /coordination/me/scope", async () => {
@@ -99,6 +182,7 @@ describe("loadReviewSectionOptions", () => {
 
     expect(result.available).toBe(true);
     expect(result.sections.map((s) => s.club_section_id)).toEqual([7, 9]);
+    expect(result.sections.every((s) => s.mode === "verify-only")).toBe(true);
   });
 
   it("verify-only: merges club-scoped sections and dedupes by id", async () => {

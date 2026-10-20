@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRequestsClientPage } from "@/components/membership/membership-requests-client-page";
 import { loadReviewSectionOptions } from "@/lib/membership/section-options";
 import { resolveMembershipReviewMode } from "@/lib/auth/membership-review-mode";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 export default async function MembershipRequestsPage() {
@@ -17,7 +18,11 @@ export default async function MembershipRequestsPage() {
   if (!mode) redirect("/dashboard");
 
   const t = await getTranslations("requests");
-  const result = await loadReviewSectionOptions(mode);
+  // A reviewer who approves through a club role AND holds consent:verify may also
+  // be a coordinator: their assigned sections join the picker (verify-only each).
+  const result = await loadReviewSectionOptions(mode, {
+    includeCoordinatorScope: canCapability(user, "requests-membership", "verify_consent"),
+  });
   const header = mode === "verify-only" ? "pageConsentVerify" : "pageMembership";
 
   return (

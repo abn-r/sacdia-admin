@@ -26,11 +26,16 @@ import type { MembershipReviewMode } from "@/lib/auth/membership-review-mode";
 type SectionOption = {
   club_section_id: number;
   label: string;
+  /** Review mode for this section; falls back to the page `mode`. */
+  mode?: MembershipReviewMode;
 };
 
 interface MembershipRequestsClientPageProps {
   sections: SectionOption[];
-  /** `verify-only` for consent:verify reviewers without club_members:approve. */
+  /**
+   * Default mode for sections that do not carry their own. `verify-only` for
+   * consent:verify reviewers without club_members:approve.
+   */
   mode?: MembershipReviewMode;
 }
 
@@ -51,6 +56,11 @@ export function MembershipRequestsClientPage({
   const [selectedSectionId, setSelectedSectionId] = useState<number>(
     sections[0]?.club_section_id ?? 0,
   );
+
+  // Per section: a coordinator-only section is verify-only even when the
+  // viewer holds club_members:approve through their own club elsewhere.
+  const sectionMode: MembershipReviewMode =
+    sections.find((section) => section.club_section_id === selectedSectionId)?.mode ?? mode;
 
   const {
     data: requests = [],
@@ -133,7 +143,7 @@ export function MembershipRequestsClientPage({
           key={selectedSectionId}
           clubSectionId={selectedSectionId}
           initialRequests={requests}
-          mode={mode}
+          mode={sectionMode}
         />
       )}
     </div>
