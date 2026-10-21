@@ -7148,7 +7148,22 @@
       "jobActivitiesReminder": "Recordatorios de actividades",
       "jobMembershipExpiry": "Expirar solicitudes de membresía",
       "jobCleanupExpired": "Cleanup sesiones/tokens vencidos",
-      "jobFcmCleanup": "Cleanup FCM tokens huérfanos"
+      "jobFcmCleanup": "Cleanup FCM tokens huérfanos",
+      "colActions": "Acciones",
+      "runNow": "Ejecutar ahora",
+      "runNowRunning": "Ejecutando…",
+      "runDialogTitle": "¿Ejecutar «{job}» ahora?",
+      "runDialogDescription": "Corre igual que la ejecución programada; si ya está corriendo se omitirá.",
+      "runDialogCancel": "Cancelar",
+      "runDialogConfirm": "Ejecutar",
+      "runResultCompleted": "Completado · {count, plural, one {# procesado} other {# procesados}}",
+      "runResultSkipped": "Omitido",
+      "runResultFailed": "Falló: {message}",
+      "runResultFailedNoMessage": "Falló",
+      "runErrorNotFound": "Este job no existe o no se puede ejecutar manualmente.",
+      "runErrorForbidden": "Solo un super administrador puede ejecutar jobs.",
+      "runErrorGeneric": "No se pudo ejecutar el job.",
+      "manualBadge": "Manual"
     },
     "overview": {
       "queuesTitle": "Colas",
@@ -7232,7 +7247,8 @@
       "jobActivitiesReminder": "Recordatorios de actividades",
       "jobMembershipExpiry": "Expirar solicitudes de membresía",
       "jobCleanupExpired": "Cleanup sesiones/tokens vencidos",
-      "jobFcmCleanup": "Cleanup FCM tokens huérfanos"
+      "jobFcmCleanup": "Cleanup FCM tokens huérfanos",
+      "manualBadge": "Manual"
     }
   },
   "settings": {

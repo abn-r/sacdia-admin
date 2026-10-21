@@ -96,6 +96,7 @@ import {
   PieChart01Icon as __Huge_PieChart01Icon,
   PillIcon as __Huge_PillIcon,
   PinIcon as __Huge_PinIcon,
+  PlayIcon as __Huge_PlayIcon,
   PlusSignIcon as __Huge_PlusSignIcon,
   PowerIcon as __Huge_PowerIcon,
   PrinterIcon as __Huge_PrinterIcon,
@@ -291,6 +292,7 @@ const ICONS = {
   PieChart01Icon: __Huge_PieChart01Icon,
   PillIcon: __Huge_PillIcon,
   PinIcon: __Huge_PinIcon,
+  PlayIcon: __Huge_PlayIcon,
   PlusSignIcon: __Huge_PlusSignIcon,
   PowerIcon: __Huge_PowerIcon,
   PrinterIcon: __Huge_PrinterIcon,
@@ -431,6 +433,7 @@ export const Phone = createLucideIcon(ICONS.TelephoneIcon, "Phone");
 export const PieChart = createLucideIcon(ICONS.PieChart01Icon, "PieChart");
 export const Pill = createLucideIcon(ICONS.PillIcon, "Pill");
 export const Pin = createLucideIcon(ICONS.PinIcon, "Pin");
+export const Play = createLucideIcon(ICONS.PlayIcon, "Play");
 export const Plus = createLucideIcon(ICONS.PlusSignIcon, "Plus");
 export const PlusCircle = createLucideIcon(ICONS.MinusPlusCircle01Icon, "PlusCircle");
 export const Power = createLucideIcon(ICONS.PowerIcon, "Power");

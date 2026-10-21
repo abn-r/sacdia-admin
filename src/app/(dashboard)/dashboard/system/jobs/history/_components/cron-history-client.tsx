@@ -37,6 +37,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { CronHistoryItem, CronHistoryPage } from "@/lib/api/analytics";
+import { isManualCronRun } from "@/lib/api/analytics";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -122,6 +123,18 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// ─── Manual Badge ─────────────────────────────────────────────────────────────
+
+function ManualBadge({ metadata }: { metadata: Record<string, unknown> | null }) {
+  const t = useTranslations("system_jobs.history");
+  if (!isManualCronRun(metadata)) return null;
+  return (
+    <Badge variant="outline" className="text-xs">
+      {t("manualBadge")}
+    </Badge>
+  );
+}
+
 // ─── Detail Dialog ────────────────────────────────────────────────────────────
 
 interface DetailDialogProps {
@@ -166,7 +179,10 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelStatus")}</p>
-                <StatusBadge status={item.status} />
+                <div className="flex items-center gap-1.5">
+                  <StatusBadge status={item.status} />
+                  <ManualBadge metadata={item.metadata} />
+                </div>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">{t("detailLabelStart")}</p>
@@ -413,7 +429,10 @@ export function CronHistoryClient({
 
                         {/* Status */}
                         <TableCell>
-                          <StatusBadge status={item.status} />
+                          <div className="flex items-center gap-1.5">
+                            <StatusBadge status={item.status} />
+                            <ManualBadge metadata={item.metadata} />
+                          </div>
                         </TableCell>
 
                         {/* Duration */}

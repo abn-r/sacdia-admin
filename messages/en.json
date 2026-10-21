@@ -7148,7 +7148,22 @@
       "jobActivitiesReminder": "Activities reminders",
       "jobMembershipExpiry": "Expire membership requests",
       "jobCleanupExpired": "Cleanup expired sessions/tokens",
-      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
+      "jobFcmCleanup": "Cleanup orphaned FCM tokens",
+      "colActions": "Actions",
+      "runNow": "Run now",
+      "runNowRunning": "Running…",
+      "runDialogTitle": "Run “{job}” now?",
+      "runDialogDescription": "Runs just like the scheduled execution; if it is already running it will be skipped.",
+      "runDialogCancel": "Cancel",
+      "runDialogConfirm": "Run",
+      "runResultCompleted": "Completed · {count} processed",
+      "runResultSkipped": "Skipped",
+      "runResultFailed": "Failed: {message}",
+      "runResultFailedNoMessage": "Failed",
+      "runErrorNotFound": "This job does not exist or cannot be run manually.",
+      "runErrorForbidden": "Only a super administrator can run jobs.",
+      "runErrorGeneric": "The job could not be run.",
+      "manualBadge": "Manual"
     },
     "overview": {
       "queuesTitle": "Queues",
@@ -7232,7 +7247,8 @@
       "jobActivitiesReminder": "Activities reminders",
       "jobMembershipExpiry": "Expire membership requests",
       "jobCleanupExpired": "Cleanup expired sessions/tokens",
-      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
+      "jobFcmCleanup": "Cleanup orphaned FCM tokens",
+      "manualBadge": "Manual"
     }
   },
   "settings": {

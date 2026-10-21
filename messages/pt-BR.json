@@ -7148,7 +7148,22 @@
       "jobActivitiesReminder": "Lembretes de atividades",
       "jobMembershipExpiry": "Expirar solicitações de adesão",
       "jobCleanupExpired": "Limpeza de sessões/tokens vencidos",
-      "jobFcmCleanup": "Limpeza de tokens FCM órfãos"
+      "jobFcmCleanup": "Limpeza de tokens FCM órfãos",
+      "colActions": "Ações",
+      "runNow": "Executar agora",
+      "runNowRunning": "Executando…",
+      "runDialogTitle": "Executar “{job}” agora?",
+      "runDialogDescription": "Roda igual à execução agendada; se já estiver em execução, será ignorado.",
+      "runDialogCancel": "Cancelar",
+      "runDialogConfirm": "Executar",
+      "runResultCompleted": "Concluído · {count, plural, one {# processado} other {# processados}}",
+      "runResultSkipped": "Ignorado",
+      "runResultFailed": "Falhou: {message}",
+      "runResultFailedNoMessage": "Falhou",
+      "runErrorNotFound": "Este job não existe ou não pode ser executado manualmente.",
+      "runErrorForbidden": "Somente um super administrador pode executar jobs.",
+      "runErrorGeneric": "Não foi possível executar o job.",
+      "manualBadge": "Manual"
     },
     "overview": {
       "queuesTitle": "Filas",
@@ -7232,7 +7247,8 @@
       "jobActivitiesReminder": "Lembretes de atividades",
       "jobMembershipExpiry": "Expirar solicitações de adesão",
       "jobCleanupExpired": "Limpeza de sessões/tokens vencidos",
-      "jobFcmCleanup": "Limpeza de tokens FCM órfãos"
+      "jobFcmCleanup": "Limpeza de tokens FCM órfãos",
+      "manualBadge": "Manual"
     }
   },
   "settings": {

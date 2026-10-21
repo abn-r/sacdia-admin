@@ -7148,7 +7148,22 @@
       "jobActivitiesReminder": "Rappels d'activités",
       "jobMembershipExpiry": "Expiration des demandes d'adhésion",
       "jobCleanupExpired": "Nettoyage des sessions/tokens expirés",
-      "jobFcmCleanup": "Nettoyage des tokens FCM orphelins"
+      "jobFcmCleanup": "Nettoyage des tokens FCM orphelins",
+      "colActions": "Actions",
+      "runNow": "Exécuter maintenant",
+      "runNowRunning": "Exécution…",
+      "runDialogTitle": "Exécuter « {job} » maintenant ?",
+      "runDialogDescription": "S’exécute comme l’exécution planifiée ; s’il est déjà en cours, il sera ignoré.",
+      "runDialogCancel": "Annuler",
+      "runDialogConfirm": "Exécuter",
+      "runResultCompleted": "Terminé · {count, plural, one {# traité} other {# traités}}",
+      "runResultSkipped": "Ignoré",
+      "runResultFailed": "Échec : {message}",
+      "runResultFailedNoMessage": "Échec",
+      "runErrorNotFound": "Ce job n’existe pas ou ne peut pas être exécuté manuellement.",
+      "runErrorForbidden": "Seul un super administrateur peut exécuter des jobs.",
+      "runErrorGeneric": "Impossible d’exécuter le job.",
+      "manualBadge": "Manuel"
     },
     "overview": {
       "queuesTitle": "Files d'attente",
@@ -7232,7 +7247,8 @@
       "jobActivitiesReminder": "Rappels d'activités",
       "jobMembershipExpiry": "Expiration des demandes d'adhésion",
       "jobCleanupExpired": "Nettoyage des sessions/tokens expirés",
-      "jobFcmCleanup": "Nettoyage des tokens FCM orphelins"
+      "jobFcmCleanup": "Nettoyage des tokens FCM orphelins",
+      "manualBadge": "Manuel"
     }
   },
   "settings": {

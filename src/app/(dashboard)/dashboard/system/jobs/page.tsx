@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { History } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
-import { getJobsOverview, getCronRuns } from "@/lib/api/analytics";
+import { getJobsOverview, getCronRuns, listCronJobs } from "@/lib/api/analytics";
 import { JobsOverviewClient } from "./_components/jobs-overview-client";
 import { CronRunsSection } from "./_components/cron-runs-section";
 import { Button } from "@/components/ui/button";
@@ -85,10 +85,20 @@ type JobsMessages = {
 };
 
 async function JobsContent({ messages }: { messages: JobsMessages }) {
-  const [bullmqResult, cronResult] = await Promise.allSettled([
+  const [bullmqResult, cronResult, cronJobsResult] = await Promise.allSettled([
     getJobsOverview(),
     getCronRuns(),
+    listCronJobs(),
   ]);
+
+  // Run-now is an enhancement: if the catalog can't be loaded, hide the action.
+  const runnableJobs =
+    cronJobsResult.status === "fulfilled"
+      ? cronJobsResult.value.filter((job) => job.runnable).map((job) => job.job_name)
+      : [];
+  if (cronJobsResult.status === "rejected") {
+    console.error("[JobsPage] Failed to load cron jobs catalog:", cronJobsResult.reason);
+  }
 
   const bullmqSection =
     bullmqResult.status === "fulfilled" ? (
@@ -102,7 +112,7 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
 
   const cronSection =
     cronResult.status === "fulfilled" ? (
-      <CronRunsSection data={cronResult.value} />
+      <CronRunsSection data={cronResult.value} runnableJobs={runnableJobs} />
     ) : (
       (() => {
         console.error("[JobsPage] Failed to load cron-runs data:", cronResult.reason);

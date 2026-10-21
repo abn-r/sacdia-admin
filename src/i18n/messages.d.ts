@@ -7178,6 +7178,21 @@ export interface IntlMessages {
       jobMembershipExpiry: string;
       jobCleanupExpired: string;
       jobFcmCleanup: string;
+      colActions: string;
+      runNow: string;
+      runNowRunning: string;
+      runDialogTitle: string;
+      runDialogDescription: string;
+      runDialogCancel: string;
+      runDialogConfirm: string;
+      runResultCompleted: string;
+      runResultSkipped: string;
+      runResultFailed: string;
+      runResultFailedNoMessage: string;
+      runErrorNotFound: string;
+      runErrorForbidden: string;
+      runErrorGeneric: string;
+      manualBadge: string;
     };
     overview: {
       queuesTitle: string;
@@ -7262,6 +7277,7 @@ export interface IntlMessages {
       jobMembershipExpiry: string;
       jobCleanupExpired: string;
       jobFcmCleanup: string;
+      manualBadge: string;
     };
   };
   settings: {

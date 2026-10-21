@@ -1,8 +1,23 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Play } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -18,7 +33,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/analytics";
+import { runCronJob } from "@/lib/api/analytics";
+import { usePermissions } from "@/lib/auth/use-permissions";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
+import { getCronRunErrorKey } from "./cron-run-errors";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,6 +78,8 @@ const JOB_I18N_KEYS: Record<CronJobKey, Parameters<CronRunsT>[0]> = {
 
 interface CronRunsSectionProps {
   data: CronRunsSummary;
+  /** Job names the backend reports as runnable on demand (GET /admin/cron-jobs). */
+  runnableJobs?: string[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -143,12 +163,84 @@ function StatusBadge({
   return badge;
 }
 
+// ─── Run Now Button ───────────────────────────────────────────────────────────
+
+function RunNowButton({
+  jobLabel,
+  busy,
+  disabled,
+  onClick,
+}: {
+  jobLabel: string;
+  busy: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations("system_jobs.cronRuns");
+  const label = busy ? t("runNowRunning") : t("runNow");
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="xs"
+      disabled={busy || disabled}
+      aria-label={`${label}: ${jobLabel}`}
+      onClick={onClick}
+      className="gap-1.5"
+    >
+      {busy ? <Loader2 className="size-3 animate-spin" /> : <Play className="size-3" />}
+      {label}
+    </Button>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function CronRunsSection({ data }: CronRunsSectionProps) {
+export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProps) {
   const t = useTranslations("system_jobs.cronRuns");
+  const router = useRouter();
+  const { isSuperAdmin } = usePermissions();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  const [confirmJob, setConfirmJob] = useState<CronJobKey | null>(null);
+  const [inFlight, setInFlight] = useState<ReadonlySet<string>>(new Set());
+
+  const runnable = new Set(runnableJobs);
+  const showActions = isSuperAdmin && runnableJobs.length > 0;
+
+  function setJobInFlight(jobName: string, active: boolean) {
+    setInFlight((prev) => {
+      const next = new Set(prev);
+      if (active) next.add(jobName);
+      else next.delete(jobName);
+      return next;
+    });
+  }
+
+  async function handleRun(jobName: CronJobKey) {
+    if (inFlight.has(jobName)) return;
+    setJobInFlight(jobName, true);
+    try {
+      const result = await runCronJob(jobName);
+      if (result.status === "completed") {
+        toast.success(t("runResultCompleted", { count: result.items_processed ?? 0 }));
+      } else if (result.status === "skipped") {
+        toast.info(t("runResultSkipped"));
+      } else {
+        toast.error(
+          result.error_message
+            ? t("runResultFailed", { message: result.error_message })
+            : t("runResultFailedNoMessage"),
+        );
+      }
+      router.refresh();
+    } catch (err) {
+      toast.error(t(getCronRunErrorKey(err)));
+    } finally {
+      setJobInFlight(jobName, false);
+    }
+  }
 
   function formatDate(iso: string | null): string {
     if (!iso) return "—";
@@ -182,7 +274,12 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                 <TableHead>{t("colLastSuccess")}</TableHead>
                 <TableHead>{t("colLastFailure")}</TableHead>
                 <TableHead className="text-right">{t("colFailureRate")}</TableHead>
-                <TableHead className="text-right pr-6">{t("colRuns7d")}</TableHead>
+                <TableHead className={showActions ? "text-right" : "text-right pr-6"}>
+                  {t("colRuns7d")}
+                </TableHead>
+                {showActions && (
+                  <TableHead className="text-right pr-6">{t("colActions")}</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -242,9 +339,29 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                     </TableCell>
 
                     {/* Runs 7d */}
-                    <TableCell className="text-right tabular-nums text-sm pr-6">
+                    <TableCell
+                      className={
+                        showActions
+                          ? "text-right tabular-nums text-sm"
+                          : "text-right tabular-nums text-sm pr-6"
+                      }
+                    >
                       {stats !== null ? formatNumber(stats.total_runs_7d) : "—"}
                     </TableCell>
+
+                    {/* Run now (super-admin only; backend enforces too) */}
+                    {showActions && (
+                      <TableCell className="text-right pr-6">
+                        {runnable.has(canonicalName) && (
+                          <RunNowButton
+                            jobLabel={t(i18nKey)}
+                            busy={inFlight.has(canonicalName)}
+                            disabled={run?.status === "running"}
+                            onClick={() => setConfirmJob(canonicalName)}
+                          />
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
@@ -252,6 +369,34 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
           </Table>
         </TooltipProvider>
       </CardContent>
+
+      <AlertDialog
+        open={confirmJob !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmJob(null);
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmJob
+                ? t("runDialogTitle", { job: t(JOB_I18N_KEYS[confirmJob]) })
+                : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{t("runDialogDescription")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("runDialogCancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmJob) void handleRun(confirmJob);
+              }}
+            >
+              {t("runDialogConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

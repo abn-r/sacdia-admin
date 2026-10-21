@@ -118,3 +118,47 @@ export async function getCronRunsHistory(params: {
   const res = await apiRequest<{ status: string; data: CronHistoryPage }>(url);
   return res.data;
 }
+
+// ─── Cron Jobs (run on demand) ────────────────────────────────────────────────
+
+export interface CronJobDefinition {
+  job_name: string;
+  schedule: string;
+  time_zone: string;
+  runnable: boolean;
+  description: string;
+}
+
+export type CronRunResultStatus = "completed" | "failed" | "skipped";
+
+export interface CronRunResult {
+  job_name: string;
+  run_id: number;
+  status: CronRunResultStatus;
+  items_processed: number | null;
+  duration_ms: number | null;
+  error_message: string | null;
+}
+
+export async function listCronJobs(): Promise<CronJobDefinition[]> {
+  const res = await apiRequest<{ data: { jobs: CronJobDefinition[] } }>(
+    "/admin/cron-jobs",
+  );
+  return res.data.jobs;
+}
+
+/** Runs a scheduled job now. Awaited by the backend, so it can take a while. */
+export async function runCronJob(jobName: string): Promise<CronRunResult> {
+  const res = await apiRequest<{ data: CronRunResult }>(
+    `/admin/cron-jobs/${encodeURIComponent(jobName)}/run`,
+    { method: "POST" },
+  );
+  return res.data;
+}
+
+/** True when a history run was triggered manually (`metadata.trigger === 'manual'`). */
+export function isManualCronRun(
+  metadata: Record<string, unknown> | null | undefined,
+): boolean {
+  return metadata?.trigger === "manual";
+}
