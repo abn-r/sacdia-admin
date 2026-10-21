@@ -39,6 +39,7 @@ import type {
   CronJobDefinition,
 } from "@/lib/api/analytics";
 import { runCronJob } from "@/lib/api/analytics";
+import { CRON_JOB_NAMES, getCronJobLabelKey } from "@/lib/system/cron-jobs";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 import {
@@ -48,45 +49,6 @@ import {
 } from "./cron-run-errors";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-const KNOWN_JOB_NAMES = [
-  "monthly-reports-auto-generate",
-  "rankings-recalculate",
-  "data-export-cleanup",
-  "member-of-month-auto-evaluate",
-  "finance-period-closing",
-  "activities-reminder",
-  "membership-requests-expiry",
-  "cleanup-expired-records",
-  "fcm-tokens-cleanup",
-] as const;
-
-type CronRunsT = ReturnType<typeof useTranslations<"system_jobs.cronRuns">>;
-type JobLabelKey = Parameters<CronRunsT>[0];
-
-/** Translated labels by job name; jobs without an entry fall back to backend data. */
-const JOB_I18N_KEYS: Record<string, JobLabelKey> = {
-  "monthly-reports-auto-generate":       "jobMonthlyReports",
-  "rankings-recalculate":                "jobRankingsRecalculate",
-  "data-export-cleanup":                 "jobDataExportCleanup",
-  "member-of-month-auto-evaluate":       "jobMemberOfMonth",
-  "finance-period-closing":              "jobFinancePeriod",
-  "activities-reminder":                 "jobActivitiesReminder",
-  "membership-requests-expiry":          "jobMembershipExpiry",
-  "cleanup-expired-records":             "jobCleanupExpired",
-  "fcm-tokens-cleanup":                  "jobFcmCleanup",
-  "annual-reports-auto-generate":        "jobAnnualReports",
-  "quarterly-reports-auto-generate":     "jobQuarterlyReports",
-  "monthly-reports-reminders":           "jobMonthlyReportsReminders",
-  "cron-alert-check":                    "jobCronAlertCheck",
-  "fcm-tokens-stale-cleanup":            "jobFcmStaleCleanup",
-  "dependent-profiles-purge":            "jobDependentProfilesPurge",
-  "family-age-transitions":              "jobFamilyAgeTransitions",
-  "pending-teen-guardian":               "jobPendingTeenGuardian",
-  "investiture-achievement-intent":      "jobInvestitureAchievementIntent",
-  "investiture-authorization-reminders": "jobInvestitureAuthReminders",
-  "ecclesiastical-year-cut":             "jobEcclesiasticalYearCut",
-};
 
 /** Jobs that can notify real people (push/email) when run. */
 const NOTIFYING_JOBS: ReadonlySet<string> = new Set([
@@ -132,7 +94,7 @@ function buildJobRows(catalog: CronJobDefinition[] | undefined, data: CronRunsSu
   }
 
   const extraNames = [
-    ...(catalog ? [] : KNOWN_JOB_NAMES),
+    ...(catalog ? [] : CRON_JOB_NAMES),
     ...data.recent.map((r) => r.job_name),
     ...data.stats.map((s) => s.job_name),
   ];
@@ -274,7 +236,7 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const showActions = isSuperAdmin && rows.some((r) => r.runnable);
 
   function jobLabel(row: JobRow): string {
-    const key = JOB_I18N_KEYS[row.name];
+    const key = getCronJobLabelKey(row.name);
     return key ? t(key) : row.description || row.name;
   }
 

@@ -7253,15 +7253,6 @@
       "detailLabelItems": "Itens processados",
       "detailLabelError": "Mensagem de erro",
       "detailLabelMetadata": "Metadados",
-      "jobMonthlyReports": "Relatórios mensais (auto-gerar)",
-      "jobRankingsRecalculate": "Classificações anuais (recalcular)",
-      "jobDataExportCleanup": "Limpeza de exports vencidos",
-      "jobMemberOfMonth": "Membro do mês (auto-avaliar)",
-      "jobFinancePeriod": "Fechamento de período financeiro",
-      "jobActivitiesReminder": "Lembretes de atividades",
-      "jobMembershipExpiry": "Expirar solicitações de adesão",
-      "jobCleanupExpired": "Limpeza de sessões/tokens vencidos",
-      "jobFcmCleanup": "Limpeza de tokens FCM órfãos",
       "manualBadge": "Manual"
     }
   },

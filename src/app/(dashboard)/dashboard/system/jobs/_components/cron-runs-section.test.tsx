@@ -485,8 +485,8 @@ describe("CronRunsSection - run now", () => {
       renderSection({ catalog: undefined });
       expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
       expect(within(rowOf(JOB)).getByText(JOB_LABEL)).toBeInTheDocument();
-      expect(screen.getAllByRole("row")).toHaveLength(1 + 9);
-      expect(screen.queryByText("annual-reports-auto-generate")).not.toBeInTheDocument();
+      expect(screen.getAllByRole("row")).toHaveLength(1 + 20);
+      expect(screen.getByText("annual-reports-auto-generate")).toBeInTheDocument();
     });
 
     it("hides the run action for non super-admin even with the full catalog", () => {

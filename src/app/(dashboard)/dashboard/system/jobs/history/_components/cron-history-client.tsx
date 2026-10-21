@@ -38,45 +38,8 @@ import {
 } from "@/components/ui/dialog";
 import type { CronHistoryItem, CronHistoryPage } from "@/lib/api/analytics";
 import { isManualCronRun } from "@/lib/api/analytics";
+import { CRON_JOB_NAMES, getCronJobLabelKey } from "@/lib/system/cron-jobs";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-type CronJobKey =
-  | "monthly-reports-auto-generate"
-  | "rankings-recalculate"
-  | "data-export-cleanup"
-  | "member-of-month-auto-evaluate"
-  | "finance-period-closing"
-  | "activities-reminder"
-  | "membership-requests-expiry"
-  | "cleanup-expired-records"
-  | "fcm-tokens-cleanup";
-
-const JOB_CANONICAL_NAMES: CronJobKey[] = [
-  "monthly-reports-auto-generate",
-  "rankings-recalculate",
-  "data-export-cleanup",
-  "member-of-month-auto-evaluate",
-  "finance-period-closing",
-  "activities-reminder",
-  "membership-requests-expiry",
-  "cleanup-expired-records",
-  "fcm-tokens-cleanup",
-];
-
-type HistoryT = ReturnType<typeof useTranslations<"system_jobs.history">>;
-const JOB_I18N_KEYS: Record<CronJobKey, Parameters<HistoryT>[0]> = {
-  "monthly-reports-auto-generate":  "jobMonthlyReports",
-  "rankings-recalculate":           "jobRankingsRecalculate",
-  "data-export-cleanup":            "jobDataExportCleanup",
-  "member-of-month-auto-evaluate":  "jobMemberOfMonth",
-  "finance-period-closing":         "jobFinancePeriod",
-  "activities-reminder":            "jobActivitiesReminder",
-  "membership-requests-expiry":     "jobMembershipExpiry",
-  "cleanup-expired-records":        "jobCleanupExpired",
-  "fcm-tokens-cleanup":             "jobFcmCleanup",
-};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -144,6 +107,7 @@ interface DetailDialogProps {
 
 function DetailDialog({ item, onClose }: DetailDialogProps) {
   const t = useTranslations("system_jobs.history");
+  const tJobs = useTranslations("system_jobs.cronRuns");
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
 
@@ -154,8 +118,8 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
   }
 
   function jobDisplayName(canonicalName: string): string {
-    const key = JOB_I18N_KEYS[canonicalName as CronJobKey];
-    return key ? t(key) : canonicalName;
+    const key = getCronJobLabelKey(canonicalName);
+    return key ? tJobs(key) : canonicalName;
   }
 
   return (
@@ -246,6 +210,7 @@ export function CronHistoryClient({
   searchParams,
 }: CronHistoryClientProps) {
   const t = useTranslations("system_jobs.history");
+  const tJobs = useTranslations("system_jobs.cronRuns");
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState<CronHistoryItem | null>(null);
   const formatDateTime = useFormatDateTime();
@@ -270,8 +235,8 @@ export function CronHistoryClient({
   ];
 
   function jobDisplayName(canonicalName: string): string {
-    const key = JOB_I18N_KEYS[canonicalName as CronJobKey];
-    return key ? t(key) : canonicalName;
+    const key = getCronJobLabelKey(canonicalName);
+    return key ? tJobs(key) : canonicalName;
   }
 
   // ── Filter helpers ─────────────────────────────────────────────────────────
@@ -321,7 +286,7 @@ export function CronHistoryClient({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{t("filterAllJobs")}</SelectItem>
-                    {JOB_CANONICAL_NAMES.map((canonicalName) => (
+                    {CRON_JOB_NAMES.map((canonicalName) => (
                       <SelectItem key={canonicalName} value={canonicalName}>
                         {jobDisplayName(canonicalName)}
                       </SelectItem>

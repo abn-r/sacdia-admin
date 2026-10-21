@@ -7282,15 +7282,6 @@ export interface IntlMessages {
       detailLabelItems: string;
       detailLabelError: string;
       detailLabelMetadata: string;
-      jobMonthlyReports: string;
-      jobRankingsRecalculate: string;
-      jobDataExportCleanup: string;
-      jobMemberOfMonth: string;
-      jobFinancePeriod: string;
-      jobActivitiesReminder: string;
-      jobMembershipExpiry: string;
-      jobCleanupExpired: string;
-      jobFcmCleanup: string;
       manualBadge: string;
     };
   };

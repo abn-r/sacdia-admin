@@ -7253,15 +7253,6 @@
       "detailLabelItems": "Items processed",
       "detailLabelError": "Error message",
       "detailLabelMetadata": "Metadata",
-      "jobMonthlyReports": "Monthly reports (auto-generate)",
-      "jobRankingsRecalculate": "Annual classifications (recalculate)",
-      "jobDataExportCleanup": "Cleanup expired exports",
-      "jobMemberOfMonth": "Member of the month (auto-evaluate)",
-      "jobFinancePeriod": "Finance period closing",
-      "jobActivitiesReminder": "Activities reminders",
-      "jobMembershipExpiry": "Expire membership requests",
-      "jobCleanupExpired": "Cleanup expired sessions/tokens",
-      "jobFcmCleanup": "Cleanup orphaned FCM tokens",
       "manualBadge": "Manual"
     }
   },
