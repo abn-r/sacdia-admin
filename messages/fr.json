@@ -6885,6 +6885,7 @@
     },
     "method": {
       "director_paper_form": "Fiche papier (directeur)",
+      "coordinator_paper_form": "Fiche papier (coordinateur)",
       "guardian_invite": "Invitation de tuteur",
       "legacy_import": "Import hérité",
       "test_placeholder": "Marqueur de test"

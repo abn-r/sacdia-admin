@@ -120,6 +120,21 @@ describe("UserGuardianshipsCard", () => {
     expect(within(item).getByText("Madre")).toBeInTheDocument();
   });
 
+  it("labels coordinator-verified paper forms", () => {
+    renderCard(block({ as_dependent: [row({ verification_method: "coordinator_paper_form" })] }));
+
+    const item = screen.getByTestId("guardianship-as-dependent");
+    expect(g.method.coordinator_paper_form).toBe("Ficha en papel (coordinador)");
+    expect(within(item).getByText(g.method.coordinator_paper_form)).toBeInTheDocument();
+  });
+
+  it("falls back to the raw value for unknown verification methods", () => {
+    renderCard(block({ as_dependent: [row({ verification_method: "some_future_method" })] }));
+
+    const item = screen.getByTestId("guardianship-as-dependent");
+    expect(within(item).getByText("some_future_method")).toBeInTheDocument();
+  });
+
   it("shows revoked rows with the translated reason", () => {
     renderCard(
       block({

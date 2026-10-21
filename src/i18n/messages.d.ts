@@ -6914,6 +6914,7 @@ export interface IntlMessages {
     };
     method: {
       director_paper_form: string;
+      coordinator_paper_form: string;
       guardian_invite: string;
       legacy_import: string;
       test_placeholder: string;

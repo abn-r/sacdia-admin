@@ -26,6 +26,7 @@ import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 const STATUS_KEYS = ["pending", "verified", "revoked"] as const;
 const METHOD_KEYS = [
   "director_paper_form",
+  "coordinator_paper_form",
   "guardian_invite",
   "legacy_import",
   "test_placeholder",

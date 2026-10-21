@@ -6885,6 +6885,7 @@
     },
     "method": {
       "director_paper_form": "Paper form (director)",
+      "coordinator_paper_form": "Paper form (coordinator)",
       "guardian_invite": "Guardian invite",
       "legacy_import": "Legacy import",
       "test_placeholder": "Test placeholder"
