@@ -5303,6 +5303,13 @@
       "emptyTitle": "No sections available",
       "emptyDescription": "No active club sections were found to manage requests."
     },
+    "pageConsentVerify": {
+      "title": "Forms to verify",
+      "description": "Signed consent forms of minors, in the sections you coordinate, waiting for your verification.",
+      "errorLoad": "Could not load your sections.",
+      "emptyTitle": "No sections assigned",
+      "emptyDescription": "You have no club sections within your coordination scope."
+    },
     "pageTransfers": {
       "title": "Transfer Requests",
       "description": "Review and approval of transfer requests between sections.",
@@ -6697,6 +6704,8 @@
     "table": {
       "count_one": "{count} pending request",
       "count_other": "{count} pending requests",
+      "count_verify_only_one": "{count} form to verify",
+      "count_verify_only_other": "{count} forms to verify",
       "refresh": "Refresh",
       "refresh_error": "Could not refresh the list",
       "col_member": "Member",
@@ -6706,6 +6715,8 @@
       "col_actions": "Actions",
       "empty_title": "No pending requests",
       "empty_description": "There are no pending membership requests for this section.",
+      "empty_title_verify_only": "No forms to verify",
+      "empty_description_verify_only": "No consent forms are waiting for verification in this section.",
       "aria_approve": "Approve membership",
       "aria_reject": "Reject membership",
       "tooltip_approve": "Approve",
@@ -6738,6 +6749,7 @@
         "evidence_title": "Signed form",
         "evidence_loading": "Loading form...",
         "evidence_none": "No form has been uploaded yet. Upload the signed form to be able to verify.",
+        "evidence_none_verify_only": "No form has been uploaded yet. A director or secretary must upload it before you can verify.",
         "evidence_uploaded_at": "Uploaded on {date}",
         "evidence_uploaded_by": "by {name}",
         "evidence_image_alt": "Signed consent form",
@@ -6751,6 +6763,7 @@
         "upload_hint": "JPG, PNG, WebP or PDF. Max 10 MB. HEIC photos are not accepted: convert them to JPG.",
         "confirm_checkbox": "I verified the signed form",
         "approve_checkbox": "Approve the membership on confirm",
+        "verify_only_note": "You only verify the consent. A director will approve the membership afterwards.",
         "cancel": "Cancel",
         "confirm": "Confirm",
         "confirming": "Confirming..."
@@ -6782,6 +6795,7 @@
         "FILE_TYPE_INVALID": "Invalid format. Use JPG, PNG, WebP or PDF.",
         "FILE_TOO_LARGE": "The file is larger than 10 MB.",
         "GUARD_PERMISSION_DENIED": "You do not have permission to perform this action.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "This section is outside your coordination scope.",
         "generic": "The action could not be completed.",
         "upload": "The form could not be uploaded.",
         "verify": "The consent could not be verified.",
@@ -6793,6 +6807,7 @@
       "section_label": "Club section",
       "section_placeholder": "Select section",
       "load_error_permission": "You do not have permission to view requests for this section.",
+      "load_error_scope": "This section is outside your coordination scope. Pick another one.",
       "load_error_generic": "Could not load membership requests."
     },
     "toasts": {

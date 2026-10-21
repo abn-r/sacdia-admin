@@ -5332,6 +5332,13 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
     };
+    pageConsentVerify: {
+      title: string;
+      description: string;
+      errorLoad: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
     pageTransfers: {
       title: string;
       description: string;
@@ -6726,6 +6733,8 @@ export interface IntlMessages {
     table: {
       count_one: string;
       count_other: string;
+      count_verify_only_one: string;
+      count_verify_only_other: string;
       refresh: string;
       refresh_error: string;
       col_member: string;
@@ -6735,6 +6744,8 @@ export interface IntlMessages {
       col_actions: string;
       empty_title: string;
       empty_description: string;
+      empty_title_verify_only: string;
+      empty_description_verify_only: string;
       aria_approve: string;
       aria_reject: string;
       tooltip_approve: string;
@@ -6767,6 +6778,7 @@ export interface IntlMessages {
         evidence_title: string;
         evidence_loading: string;
         evidence_none: string;
+        evidence_none_verify_only: string;
         evidence_uploaded_at: string;
         evidence_uploaded_by: string;
         evidence_image_alt: string;
@@ -6780,6 +6792,7 @@ export interface IntlMessages {
         upload_hint: string;
         confirm_checkbox: string;
         approve_checkbox: string;
+        verify_only_note: string;
         cancel: string;
         confirm: string;
         confirming: string;
@@ -6811,6 +6824,7 @@ export interface IntlMessages {
         FILE_TYPE_INVALID: string;
         FILE_TOO_LARGE: string;
         GUARD_PERMISSION_DENIED: string;
+        GUARD_CLUB_SCOPE_REQUIRED: string;
         generic: string;
         upload: string;
         verify: string;
@@ -6822,6 +6836,7 @@ export interface IntlMessages {
       section_label: string;
       section_placeholder: string;
       load_error_permission: string;
+      load_error_scope: string;
       load_error_generic: string;
     };
     toasts: {

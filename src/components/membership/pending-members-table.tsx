@@ -42,6 +42,7 @@ import {
 import { ApiError } from "@/lib/api/client";
 import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 import { useRoleLabel } from "@/lib/auth/role-labels";
+import type { MembershipReviewMode } from "@/lib/auth/membership-review-mode";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,11 @@ const ACTIONS_CELL_STICKY =
 interface PendingMembersTableProps {
   clubSectionId: number;
   initialRequests: MembershipRequest[];
+  /**
+   * `verify-only` (consent:verify without club_members:approve): the row keeps
+   * the consent badge and the verify action; approve / reject are not rendered.
+   */
+  mode?: MembershipReviewMode;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -90,7 +96,9 @@ interface PendingMembersTableProps {
 export function PendingMembersTable({
   clubSectionId,
   initialRequests,
+  mode = "approve",
 }: PendingMembersTableProps) {
+  const verifyOnly = mode === "verify-only";
   const t = useTranslations("membership");
   const formatDate = useFormatDate();
   const formatDatetime = useFormatDateTime();
@@ -153,7 +161,13 @@ export function PendingMembersTable({
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {t(
-            requests.length === 1 ? "table.count_one" : "table.count_other",
+            verifyOnly
+              ? requests.length === 1
+                ? "table.count_verify_only_one"
+                : "table.count_verify_only_other"
+              : requests.length === 1
+                ? "table.count_one"
+                : "table.count_other",
             { count: requests.length },
           )}
         </p>
@@ -174,8 +188,12 @@ export function PendingMembersTable({
       {requests.length === 0 ? (
         <EmptyState
           icon={UserPlus}
-          title={t("table.empty_title")}
-          description={t("table.empty_description")}
+          title={t(verifyOnly ? "table.empty_title_verify_only" : "table.empty_title")}
+          description={t(
+            verifyOnly
+              ? "table.empty_description_verify_only"
+              : "table.empty_description",
+          )}
         />
       ) : (
         /* Table */
@@ -327,44 +345,48 @@ export function PendingMembersTable({
                           </Tooltip>
                         )}
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                            <span tabIndex={consentPending ? 0 : undefined}>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-success hover:bg-success/10 hover:text-success"
-                                onClick={() => handleApprove(req)}
-                                disabled={isProcessing || isRefreshing || consentPending}
-                                aria-label={t("table.aria_approve")}
-                              >
-                                <CheckCircle2 className="size-4" />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {consentPending
-                              ? tConsent("approve_blocked")
-                              : t("table.tooltip_approve")}
-                          </TooltipContent>
-                        </Tooltip>
+                        {!verifyOnly && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+                                <span tabIndex={consentPending ? 0 : undefined}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    className="text-success hover:bg-success/10 hover:text-success"
+                                    onClick={() => handleApprove(req)}
+                                    disabled={isProcessing || isRefreshing || consentPending}
+                                    aria-label={t("table.aria_approve")}
+                                  >
+                                    <CheckCircle2 className="size-4" />
+                                  </Button>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {consentPending
+                                  ? tConsent("approve_blocked")
+                                  : t("table.tooltip_approve")}
+                              </TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              onClick={() => setRejectDialog(req)}
-                              disabled={isProcessing || isRefreshing}
-                              aria-label={t("table.aria_reject")}
-                            >
-                              <XCircle className="size-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("table.tooltip_reject")}</TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                  onClick={() => setRejectDialog(req)}
+                                  disabled={isProcessing || isRefreshing}
+                                  aria-label={t("table.aria_reject")}
+                                >
+                                  <XCircle className="size-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{t("table.tooltip_reject")}</TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -381,6 +403,7 @@ export function PendingMembersTable({
           open
           clubSectionId={clubSectionId}
           request={consentDialog}
+          canApprove={!verifyOnly}
           onOpenChange={(open) => {
             if (!open) setConsentDialog(null);
           }}
@@ -392,7 +415,7 @@ export function PendingMembersTable({
       )}
 
       {/* Reject dialog */}
-      {rejectDialog && (
+      {!verifyOnly && rejectDialog && (
         <MembershipRejectDialog
           open
           clubSectionId={clubSectionId}

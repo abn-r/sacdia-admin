@@ -144,6 +144,11 @@ describe("membership-requests consent API", () => {
       expect(getConsentErrorCode(new ApiError("x", 500, null))).toBeNull();
     });
 
+    it("recognises the out-of-scope code a coordinator gets on a section outside their assignments", () => {
+      const error = new ApiError("x", 403, { code: "GUARD_CLUB_SCOPE_REQUIRED" });
+      expect(getConsentErrorCode(error)).toBe("GUARD_CLUB_SCOPE_REQUIRED");
+    });
+
     it.each(CONSENT_ERROR_CODES)("%s is a recognised consent code", (code) => {
       expect(getConsentErrorCode(new ApiError("x", 400, { code }))).toBe(code);
     });

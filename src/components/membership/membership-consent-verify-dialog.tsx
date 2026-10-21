@@ -72,6 +72,13 @@ interface MembershipConsentVerifyDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Called after consent was verified (the list should be refreshed). */
   onSuccess: () => void;
+  /**
+   * Whether the viewer may also approve (club_members:approve). When false
+   * (verify-only reviewers) the approve option is not offered, the request
+   * always sends `approve: false` and the consent form cannot be uploaded or
+   * replaced (the backend rejects it).
+   */
+  canApprove?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -82,6 +89,7 @@ export function MembershipConsentVerifyDialog({
   request,
   onOpenChange,
   onSuccess,
+  canApprove = true,
 }: MembershipConsentVerifyDialogProps) {
   const t = useTranslations("membership.consent");
   const formatDateTime = useFormatDateTime();
@@ -95,7 +103,8 @@ export function MembershipConsentVerifyDialog({
   // the (stale) list item said there was none.
   const [uploadedHere, setUploadedHere] = useState(false);
   const [reviewed, setReviewed] = useState(false);
-  const [approve, setApprove] = useState(true);
+  const [approveChecked, setApproveChecked] = useState(true);
+  const approve = canApprove && approveChecked;
   const [fileError, setFileError] = useState<string | null>(null);
   // The signed URL lives 15 min. If the image fails to load we refetch it ONCE
   // and retry; a successful load re-arms the retry for a later expiry.
@@ -161,7 +170,7 @@ export function MembershipConsentVerifyDialog({
       // Verifying is allowed without approving (e.g. a coordinator): nothing was
       // written, so unticking Approve lets the retry only verify the consent.
       if (getConsentErrorCode(error) === "MR_APPROVE_PERMISSION_REQUIRED") {
-        setApprove(false);
+        setApproveChecked(false);
       }
     },
   });
@@ -306,7 +315,9 @@ export function MembershipConsentVerifyDialog({
             )}
 
             {(!evidenceExpected || evidenceNotFound) && !evidence && (
-              <p className="text-sm text-muted-foreground">{t("dialog.evidence_none")}</p>
+              <p className="text-sm text-muted-foreground">
+                {canApprove ? t("dialog.evidence_none") : t("dialog.evidence_none_verify_only")}
+              </p>
             )}
 
             {evidence && (
@@ -360,40 +371,43 @@ export function MembershipConsentVerifyDialog({
               </div>
             )}
 
-            <div className="space-y-1.5 pt-1">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
-                className="hidden"
-                data-testid="consent-file-input"
-                onChange={handleFileChange}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isBusy}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {uploadMutation.isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Upload className="size-4" />
+            {/* Verify-only reviewers (coordinators) cannot upload: the backend rejects it. */}
+            {canApprove && (
+              <div className="space-y-1.5 pt-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
+                  className="hidden"
+                  data-testid="consent-file-input"
+                  onChange={handleFileChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isBusy}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploadMutation.isPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Upload className="size-4" />
+                  )}
+                  {uploadMutation.isPending
+                    ? t("dialog.uploading")
+                    : hasEvidence
+                      ? t("dialog.replace")
+                      : t("dialog.upload")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
+                {fileError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fileError}
+                  </p>
                 )}
-                {uploadMutation.isPending
-                  ? t("dialog.uploading")
-                  : hasEvidence
-                    ? t("dialog.replace")
-                    : t("dialog.upload")}
-              </Button>
-              <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
-              {fileError && (
-                <p role="alert" className="text-sm text-destructive">
-                  {fileError}
-                </p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Confirmation */}
@@ -409,17 +423,22 @@ export function MembershipConsentVerifyDialog({
                 {t("dialog.confirm_checkbox")}
               </Label>
             </div>
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="consent-approve"
-                checked={approve}
-                disabled={isBusy}
-                onCheckedChange={(checked) => setApprove(checked === true)}
-              />
-              <Label htmlFor="consent-approve" className="text-sm leading-snug">
-                {t("dialog.approve_checkbox")}
-              </Label>
-            </div>
+            {canApprove && (
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="consent-approve"
+                  checked={approveChecked}
+                  disabled={isBusy}
+                  onCheckedChange={(checked) => setApproveChecked(checked === true)}
+                />
+                <Label htmlFor="consent-approve" className="text-sm leading-snug">
+                  {t("dialog.approve_checkbox")}
+                </Label>
+              </div>
+            )}
+            {!canApprove && (
+              <p className="text-xs text-muted-foreground">{t("dialog.verify_only_note")}</p>
+            )}
           </div>
         </div>
 

@@ -52,6 +52,8 @@ export const COORDINATION_MANAGE = "coordination:manage";
 export const CLUB_MEMBERS_APPROVE = "club_members:approve";
 export const CLUB_MEMBERS_REJECT = "club_members:reject";
 export const CLUB_MEMBERS_LIST_PENDING = "club_members:list_pending";
+// Verify a minor's paper consent form. Coordinators hold it without club_members:approve.
+export const CONSENT_VERIFY = "consent:verify";
 
 // --- Jerarquía Geográfica ---
 export const COUNTRIES_READ = "countries:read";

@@ -5303,6 +5303,13 @@
       "emptyTitle": "Sin secciones disponibles",
       "emptyDescription": "No se encontraron secciones de club activas para gestionar solicitudes."
     },
+    "pageConsentVerify": {
+      "title": "Fichas por verificar",
+      "description": "Fichas de consentimiento firmadas de menores, en las secciones que coordinas, esperando tu verificación.",
+      "errorLoad": "No se pudieron cargar tus secciones.",
+      "emptyTitle": "Sin secciones asignadas",
+      "emptyDescription": "No tienes secciones de club dentro de tu alcance de coordinación."
+    },
     "pageTransfers": {
       "title": "Solicitudes de Transferencia",
       "description": "Revisión y aprobación de solicitudes de transferencia entre secciones.",
@@ -6697,6 +6704,8 @@
     "table": {
       "count_one": "{count} solicitud pendiente",
       "count_other": "{count} solicitudes pendientes",
+      "count_verify_only_one": "{count} ficha por verificar",
+      "count_verify_only_other": "{count} fichas por verificar",
       "refresh": "Actualizar",
       "refresh_error": "No se pudo actualizar la lista",
       "col_member": "Miembro",
@@ -6706,6 +6715,8 @@
       "col_actions": "Acciones",
       "empty_title": "Sin solicitudes pendientes",
       "empty_description": "No hay solicitudes de membresía pendientes para esta sección.",
+      "empty_title_verify_only": "Sin fichas por verificar",
+      "empty_description_verify_only": "No hay fichas de consentimiento esperando verificación en esta sección.",
       "aria_approve": "Aprobar membresía",
       "aria_reject": "Rechazar membresía",
       "tooltip_approve": "Aprobar",
@@ -6738,6 +6749,7 @@
         "evidence_title": "Ficha firmada",
         "evidence_loading": "Cargando ficha...",
         "evidence_none": "Aún no hay una ficha subida. Sube la ficha firmada para poder verificar.",
+        "evidence_none_verify_only": "Aún no hay una ficha subida. Un director o secretario debe subirla antes de que puedas verificar.",
         "evidence_uploaded_at": "Subida el {date}",
         "evidence_uploaded_by": "por {name}",
         "evidence_image_alt": "Ficha de consentimiento firmada",
@@ -6751,6 +6763,7 @@
         "upload_hint": "JPG, PNG, WebP o PDF. Máximo 10 MB. Las fotos HEIC no se aceptan: conviértelas a JPG.",
         "confirm_checkbox": "Verifiqué la ficha firmada",
         "approve_checkbox": "Aprobar la membresía al confirmar",
+        "verify_only_note": "Solo verificas el consentimiento. Un director aprobará la membresía después.",
         "cancel": "Cancelar",
         "confirm": "Confirmar",
         "confirming": "Confirmando..."
@@ -6782,6 +6795,7 @@
         "FILE_TYPE_INVALID": "Formato no válido. Usa JPG, PNG, WebP o PDF.",
         "FILE_TOO_LARGE": "El archivo supera los 10 MB.",
         "GUARD_PERMISSION_DENIED": "No tienes permiso para realizar esta acción.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "Esta sección está fuera de tu alcance de coordinación.",
         "generic": "No se pudo completar la acción.",
         "upload": "No se pudo subir la ficha.",
         "verify": "No se pudo verificar el consentimiento.",
@@ -6793,6 +6807,7 @@
       "section_label": "Sección de club",
       "section_placeholder": "Seleccionar sección",
       "load_error_permission": "No tienes permisos para ver solicitudes de esta sección.",
+      "load_error_scope": "Esta sección está fuera de tu alcance de coordinación. Elige otra.",
       "load_error_generic": "No se pudieron cargar las solicitudes."
     },
     "toasts": {

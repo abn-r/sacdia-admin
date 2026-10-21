@@ -5303,6 +5303,13 @@
       "emptyTitle": "Aucune section disponible",
       "emptyDescription": "Aucune section de club active n'a été trouvée pour gérer les demandes."
     },
+    "pageConsentVerify": {
+      "title": "Fiches à vérifier",
+      "description": "Fiches de consentement signées de mineurs, dans les sections que vous coordonnez, en attente de votre vérification.",
+      "errorLoad": "Impossible de charger vos sections.",
+      "emptyTitle": "Aucune section assignée",
+      "emptyDescription": "Vous n’avez aucune section de club dans votre périmètre de coordination."
+    },
     "pageTransfers": {
       "title": "Demandes de transfert",
       "description": "Révision et approbation des demandes de transfert entre sections.",
@@ -6697,6 +6704,8 @@
     "table": {
       "count_one": "{count} demande en attente",
       "count_other": "{count} demandes en attente",
+      "count_verify_only_one": "{count} fiche à vérifier",
+      "count_verify_only_other": "{count} fiches à vérifier",
       "refresh": "Actualiser",
       "refresh_error": "Impossible d’actualiser la liste",
       "col_member": "Membre",
@@ -6706,6 +6715,8 @@
       "col_actions": "Actions",
       "empty_title": "Aucune demande en attente",
       "empty_description": "Il n’y a pas de demandes d’adhésion en attente pour cette section.",
+      "empty_title_verify_only": "Aucune fiche à vérifier",
+      "empty_description_verify_only": "Aucune fiche de consentement n’attend de vérification dans cette section.",
       "aria_approve": "Approuver l’adhésion",
       "aria_reject": "Refuser l’adhésion",
       "tooltip_approve": "Approuver",
@@ -6738,6 +6749,7 @@
         "evidence_title": "Fiche signée",
         "evidence_loading": "Chargement de la fiche...",
         "evidence_none": "Aucune fiche n'a encore été téléversée. Téléversez la fiche signée pour pouvoir vérifier.",
+        "evidence_none_verify_only": "Aucune fiche n'a encore été téléversée. Un directeur ou un secrétaire doit la téléverser avant que vous puissiez vérifier.",
         "evidence_uploaded_at": "Téléversée le {date}",
         "evidence_uploaded_by": "par {name}",
         "evidence_image_alt": "Fiche de consentement signée",
@@ -6751,6 +6763,7 @@
         "upload_hint": "JPG, PNG, WebP ou PDF. 10 Mo maximum. Les photos HEIC ne sont pas acceptées : convertissez-les en JPG.",
         "confirm_checkbox": "J'ai vérifié la fiche signée",
         "approve_checkbox": "Approuver l'adhésion à la confirmation",
+        "verify_only_note": "Vous vérifiez uniquement le consentement. Un directeur approuvera l’adhésion ensuite.",
         "cancel": "Annuler",
         "confirm": "Confirmer",
         "confirming": "Confirmation..."
@@ -6782,6 +6795,7 @@
         "FILE_TYPE_INVALID": "Format non valide. Utilisez JPG, PNG, WebP ou PDF.",
         "FILE_TOO_LARGE": "Le fichier dépasse 10 Mo.",
         "GUARD_PERMISSION_DENIED": "Vous n'avez pas la permission d'effectuer cette action.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "Cette section est hors de votre périmètre de coordination.",
         "generic": "L'action n'a pas pu être effectuée.",
         "upload": "La fiche n'a pas pu être téléversée.",
         "verify": "Le consentement n'a pas pu être vérifié.",
@@ -6793,6 +6807,7 @@
       "section_label": "Section du club",
       "section_placeholder": "Sélectionner une section",
       "load_error_permission": "Vous n’avez pas la permission de voir les demandes de cette section.",
+      "load_error_scope": "Cette section est hors de votre périmètre de coordination. Choisissez-en une autre.",
       "load_error_generic": "Impossible de charger les demandes d’adhésion."
     },
     "toasts": {
