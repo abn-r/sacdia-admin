@@ -11,7 +11,10 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import messages from "../../../messages/es.json";
-import type { MembershipRequest } from "@/lib/api/membership-requests";
+import type {
+  CoordinatorConsentPendingPage,
+  MembershipRequest,
+} from "@/lib/api/membership-requests";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 global.ResizeObserver = class ResizeObserver {
@@ -26,6 +29,7 @@ Element.prototype.scrollIntoView = Element.prototype.scrollIntoView ?? (() => {}
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockList = vi.fn<(...args: any[]) => Promise<MembershipRequest[]>>();
 const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
+const mockQueue = vi.fn<(...args: any[]) => Promise<CoordinatorConsentPendingPage>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
@@ -35,6 +39,7 @@ vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
     ...original,
     listMembershipRequestsFromClient: (...args: unknown[]) => mockList(...args),
     getConsentEvidence: (...args: unknown[]) => mockGetEvidence(...args),
+    listCoordinatorConsentPendingFromClient: (...args: unknown[]) => mockQueue(...args),
   };
 });
 
@@ -48,6 +53,7 @@ import { ApiError } from "@/lib/api/client";
 const clientMsg = messages.membership.client;
 const tableMsg = messages.membership.table;
 const consentMsg = messages.membership.consent;
+const queueMsg = messages.membership.queue;
 
 const sections = [
   { club_section_id: 7, label: "Club Águilas · Conquistadores" },
@@ -80,6 +86,7 @@ function renderPage(
     label: string;
     mode?: "approve" | "verify-only";
   }> = sections,
+  coordinatorQueue?: boolean,
 ) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
@@ -89,6 +96,7 @@ function renderPage(
           <MembershipRequestsClientPage
             sections={pageSections}
             {...(mode ? { mode } : {})}
+            {...(coordinatorQueue ? { coordinatorQueue } : {})}
           />
         </TooltipProvider>
       </NextIntlClientProvider>
@@ -229,5 +237,114 @@ describe("MembershipRequestsClientPage", () => {
         await screen.findByRole("button", { name: consentMsg.verify_action_aria }),
       ).toBeInTheDocument();
     });
+  });
+});
+
+describe("MembershipRequestsClientPage: coordinator queue (all my sections)", () => {
+  function queuePage(): CoordinatorConsentPendingPage {
+    return {
+      items: [
+        {
+          ...pendingMinor(),
+          assignment_id: "asg-q",
+          user_id: "u-q",
+          expires_at: null,
+          effective_expires_at: null,
+          users: { user_id: "u-q", name: "Lucía", paternal_last_name: "Gómez", email: null },
+          consent_form_uploaded_at: "2026-10-02T10:00:00.000Z",
+          club_name: "Club Águilas",
+          club_type_name: "Conquistadores",
+          district_name: null,
+        },
+      ],
+      total: 1,
+      limit: 25,
+      offset: 0,
+      by_section: [
+        {
+          club_section_id: 9,
+          club_name: "Club Halcones",
+          club_type_name: "Aventureros",
+          district_name: null,
+          pending_consent_count: 1,
+        },
+      ],
+    };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockList.mockResolvedValue([pendingMinor()]);
+    mockQueue.mockResolvedValue(queuePage());
+    mockGetEvidence.mockResolvedValue({
+      url: "https://r2.example/signed",
+      expires_in: 900,
+      content_type: "image/jpeg",
+      uploaded_at: "2026-10-02T12:00:00.000Z",
+    });
+  });
+
+  afterEach(() => cleanup());
+
+  it("defaults to the aggregate queue and does not load any per-section list", async () => {
+    renderPage("verify-only", sections, true);
+
+    expect(await screen.findByText("Lucía Gómez")).toBeInTheDocument();
+    expect(mockQueue).toHaveBeenCalledTimes(1);
+    expect(mockList).not.toHaveBeenCalled();
+    expect(screen.getByRole("combobox")).toHaveTextContent(queueMsg.all_sections);
+  });
+
+  it("without the queue flag the first section stays the default (regression)", async () => {
+    renderPage("verify-only", sections);
+
+    await screen.findByText(consentMsg.badge_pending);
+    expect(mockQueue).not.toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith(7);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("combobox"));
+    expect(screen.queryByRole("option", { name: queueMsg.all_sections })).toBeNull();
+  });
+
+  it("picking a section in the selector switches to its own list (queue kept for later)", async () => {
+    const user = userEvent.setup();
+    renderPage("verify-only", sections, true);
+    await screen.findByText("Lucía Gómez");
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: sections[1].label }));
+
+    await waitFor(() => expect(mockList).toHaveBeenCalledWith(9));
+    await screen.findByText(consentMsg.badge_pending);
+    expect(screen.queryByText("Lucía Gómez")).toBeNull();
+  });
+
+  it("the section summary chip switches to that section's list in the selector", async () => {
+    const user = userEvent.setup();
+    renderPage("verify-only", sections, true);
+    await screen.findByText("Lucía Gómez");
+
+    const summary = screen.getByRole("group", { name: queueMsg.summary_title });
+    await user.click(within(summary).getByRole("button", { name: /Club Halcones/ }));
+
+    await waitFor(() => expect(mockList).toHaveBeenCalledWith(9));
+    expect(screen.getByRole("combobox")).toHaveTextContent(sections[1].label);
+    expect(screen.queryByText("Lucía Gómez")).toBeNull();
+  });
+
+  it("can go back to all sections from the selector", async () => {
+    const user = userEvent.setup();
+    renderPage("verify-only", sections, true);
+    await screen.findByText("Lucía Gómez");
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: sections[0].label }));
+    await screen.findByText(consentMsg.badge_pending);
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: queueMsg.all_sections }));
+
+    expect(await screen.findByText("Lucía Gómez")).toBeInTheDocument();
   });
 });

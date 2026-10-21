@@ -23,6 +23,12 @@ export type ReviewSectionOptions = {
   sections: ReviewSectionOption[];
   available: boolean;
   error?: string;
+  /**
+   * The coordination scope says the viewer is a coordinator with covered
+   * sections: the aggregate consent queue (GET /coordination/me/consent-pending)
+   * applies. False when the scope was not requested, failed, or is empty.
+   */
+  coordinatorQueue: boolean;
 };
 
 type ClubSection = {
@@ -211,14 +217,21 @@ export async function loadReviewSectionOptions(
     add(coordinatorScopeToSectionOptions(scope.value.sections ?? []));
   }
 
+  const coordinatorQueue =
+    scope.status === "fulfilled" &&
+    scope.value !== null &&
+    scope.value.is_coordinator === true &&
+    (scope.value.sections?.length ?? 0) > 0;
+
   const failure = [scope, clubs].find((r) => r.status === "rejected");
   if (failure && merged.size === 0) {
     return {
       sections: [],
       available: false,
       error: errorMessage((failure as PromiseRejectedResult).reason),
+      coordinatorQueue,
     };
   }
 
-  return { sections: [...merged.values()], available: true };
+  return { sections: [...merged.values()], available: true, coordinatorQueue };
 }

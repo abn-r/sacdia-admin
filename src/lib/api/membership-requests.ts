@@ -90,6 +90,36 @@ export type MembershipRequest = {
   consent?: MembershipRequestConsent | null;
 };
 
+/**
+ * One consent form waiting for a coordinator: the per-section list item plus the
+ * labels of its section and when the current form was uploaded.
+ */
+export type CoordinatorConsentPendingItem = MembershipRequest & {
+  user_id?: string;
+  /** When the current signed form was uploaded; the queue is ordered by it (oldest first). */
+  consent_form_uploaded_at: string | null;
+  club_name: string | null;
+  club_type_name: string | null;
+  district_name: string | null;
+};
+
+/** Pending consent forms per covered section (whole queue, not just the page). */
+export type CoordinatorConsentSectionCount = {
+  club_section_id: number;
+  club_name: string | null;
+  club_type_name: string | null;
+  district_name: string | null;
+  pending_consent_count: number;
+};
+
+export type CoordinatorConsentPendingPage = {
+  items: CoordinatorConsentPendingItem[];
+  total: number;
+  limit: number;
+  offset: number;
+  by_section: CoordinatorConsentSectionCount[];
+};
+
 export type ConsentEvidenceUploadResult = {
   evidence_id: string;
   content_type: string;
@@ -267,6 +297,31 @@ export async function listMembershipRequestsFromClient(
     `/club-sections/${clubSectionId}/membership-requests`,
   );
   return normalizeRequests(res);
+}
+
+/**
+ * GET /api/v1/coordination/me/consent-pending?limit=&offset=
+ * Every consent form waiting for the caller across ALL the sections their
+ * coordinator assignments cover, oldest form first, plus per-section counts.
+ * Client-side only. Errors are read by `code`: 403 GUARD_PERMISSION_DENIED (no
+ * coordinator role carries consent:verify), 403 GUARD_CLUB_SCOPE_REQUIRED (no
+ * assignment covers any section).
+ */
+export async function listCoordinatorConsentPendingFromClient(params: {
+  limit: number;
+  offset: number;
+}): Promise<CoordinatorConsentPendingPage> {
+  const res = await apiRequestFromClient<unknown>("/coordination/me/consent-pending", {
+    params: { limit: params.limit, offset: params.offset },
+  });
+  const data = unwrapApiData<Partial<CoordinatorConsentPendingPage> | null>(res);
+  return {
+    items: normalizeRequests(data?.items ?? []) as CoordinatorConsentPendingItem[],
+    total: typeof data?.total === "number" ? data.total : 0,
+    limit: typeof data?.limit === "number" ? data.limit : params.limit,
+    offset: typeof data?.offset === "number" ? data.offset : params.offset,
+    by_section: Array.isArray(data?.by_section) ? data.by_section : [],
+  };
 }
 
 /**

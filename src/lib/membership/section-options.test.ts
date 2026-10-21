@@ -211,6 +211,7 @@ describe("loadReviewSectionOptions", () => {
 
     expect(result).toEqual({
       available: true,
+      coordinatorQueue: false,
       sections: [{ club_section_id: 20, label: "Club Halcones · Aventureros", mode: "approve" }],
     });
     expect(mockApiRequest).not.toHaveBeenCalled();
@@ -226,6 +227,7 @@ describe("loadReviewSectionOptions", () => {
 
     expect(result).toEqual({
       available: true,
+      coordinatorQueue: false,
       sections: [{ club_section_id: 20, label: "Club Halcones · Aventureros", mode: "approve" }],
     });
   });
@@ -419,5 +421,99 @@ describe("loadReviewSectionOptions", () => {
     });
 
     expect(result).toMatchObject({ available: true, sections: [] });
+  });
+});
+
+describe("loadReviewSectionOptions: coordinator queue flag", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const noGrants = () => resolveClubGrantSections(userWith({}));
+  const directorGrants = () =>
+    resolveClubGrantSections(
+      userWith({
+        club_assignments: [clubGrant(20, "Club Halcones", "Aventureros", [APPROVE, VERIFY])],
+      }),
+    );
+
+  it("verify-only coordinator with covered sections: the aggregate queue applies", async () => {
+    route({
+      "/coordination/me/scope": () =>
+        scopePayload([scopeSection(7, "Club Águilas", "Conquistadores")]),
+    });
+
+    const result = await loadReviewSectionOptions("verify-only", { clubGrants: noGrants() });
+
+    expect(result.coordinatorQueue).toBe(true);
+  });
+
+  it("approve-mode reviewer who also coordinates: the aggregate queue applies", async () => {
+    route({
+      "/coordination/me/scope": () =>
+        scopePayload([scopeSection(7, "Club Águilas", "Conquistadores")]),
+      "/clubs": () => clubsPayload,
+    });
+
+    const result = await loadReviewSectionOptions("approve", {
+      clubGrants: directorGrants(),
+      includeCoordinatorScope: true,
+    });
+
+    expect(result.coordinatorQueue).toBe(true);
+  });
+
+  it("approve mode without the coordinator scope never offers the queue", async () => {
+    route({});
+
+    const result = await loadReviewSectionOptions("approve", { clubGrants: directorGrants() });
+
+    expect(result.coordinatorQueue).toBe(false);
+    expect(mockApiRequest).not.toHaveBeenCalled();
+  });
+
+  it("a scope that says is_coordinator=false does not offer the queue", async () => {
+    route({
+      "/coordination/me/scope": () => ({
+        status: "success",
+        data: {
+          is_coordinator: false,
+          club_section_ids: [],
+          assignments: [],
+          sections: [],
+        },
+      }),
+    });
+    const clubGrants = resolveClubGrantSections(
+      userWith({ club_assignments: [clubGrant(32, "Club Águilas", "Guías", [VERIFY], "secretary")] }),
+    );
+
+    const result = await loadReviewSectionOptions("verify-only", { clubGrants });
+
+    expect(result.coordinatorQueue).toBe(false);
+    expect(result.sections.map((s) => s.club_section_id)).toEqual([32]);
+  });
+
+  it("a coordinator with no covered sections has nothing to aggregate", async () => {
+    route({
+      "/coordination/me/scope": () => ({
+        status: "success",
+        data: { is_coordinator: true, club_section_ids: [], assignments: [], sections: [] },
+      }),
+    });
+
+    const result = await loadReviewSectionOptions("verify-only", { clubGrants: noGrants() });
+
+    expect(result.coordinatorQueue).toBe(false);
+  });
+
+  it("a failing scope never offers the queue", async () => {
+    route({
+      "/coordination/me/scope": () => {
+        throw new ApiError("boom", 500, null);
+      },
+    });
+
+    const result = await loadReviewSectionOptions("verify-only", { clubGrants: noGrants() });
+
+    expect(result.coordinatorQueue).toBe(false);
   });
 });

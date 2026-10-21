@@ -52,7 +52,11 @@ export default async function MembershipRequestsPage() {
       )}
 
       {result.available && result.sections.length > 0 && (
-        <MembershipRequestsClientPage sections={result.sections} mode={mode} />
+        <MembershipRequestsClientPage
+          sections={result.sections}
+          mode={mode}
+          coordinatorQueue={result.coordinatorQueue}
+        />
       )}
     </div>
   );

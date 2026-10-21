@@ -6839,6 +6839,24 @@ export interface IntlMessages {
       load_error_scope: string;
       load_error_generic: string;
     };
+    queue: {
+      all_sections: string;
+      summary_title: string;
+      summary_hint: string;
+      count_one: string;
+      count_other: string;
+      col_club: string;
+      col_type: string;
+      col_district: string;
+      col_minor: string;
+      col_form_uploaded: string;
+      col_actions: string;
+      empty_title: string;
+      empty_description: string;
+      error_permission: string;
+      error_scope: string;
+      error_generic: string;
+    };
     toasts: {
       approved: string;
       rejected: string;

@@ -6810,6 +6810,24 @@
       "load_error_scope": "Esta sección está fuera de tu alcance de coordinación. Elige otra.",
       "load_error_generic": "No se pudieron cargar las solicitudes."
     },
+    "queue": {
+      "all_sections": "Todas mis secciones",
+      "summary_title": "Fichas por sección",
+      "summary_hint": "Toca una sección para ver solo sus fichas.",
+      "count_one": "{count} ficha por verificar en tus secciones",
+      "count_other": "{count} fichas por verificar en tus secciones",
+      "col_club": "Club",
+      "col_type": "Tipo",
+      "col_district": "Distrito",
+      "col_minor": "Menor",
+      "col_form_uploaded": "Ficha subida",
+      "col_actions": "Acciones",
+      "empty_title": "Sin fichas por verificar",
+      "empty_description": "No hay fichas de consentimiento esperando verificación en ninguna de tus secciones.",
+      "error_permission": "Tu rol de coordinador no incluye verificar consentimientos. Elige una sección para ver su lista.",
+      "error_scope": "No tienes asignaciones de coordinación activas que cubran secciones.",
+      "error_generic": "No se pudieron cargar las fichas por verificar."
+    },
     "toasts": {
       "approved": "Membresía aprobada para {name}",
       "rejected": "Solicitud de membresía rechazada para {name}"

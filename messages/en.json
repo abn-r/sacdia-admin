@@ -6810,6 +6810,24 @@
       "load_error_scope": "This section is outside your coordination scope. Pick another one.",
       "load_error_generic": "Could not load membership requests."
     },
+    "queue": {
+      "all_sections": "All my sections",
+      "summary_title": "Forms by section",
+      "summary_hint": "Tap a section to see only its forms.",
+      "count_one": "{count} form to verify across your sections",
+      "count_other": "{count} forms to verify across your sections",
+      "col_club": "Club",
+      "col_type": "Type",
+      "col_district": "District",
+      "col_minor": "Minor",
+      "col_form_uploaded": "Form uploaded",
+      "col_actions": "Actions",
+      "empty_title": "No forms to verify",
+      "empty_description": "No consent forms are waiting for verification in any of your sections.",
+      "error_permission": "Your coordinator role does not include verifying consent. Pick a section to see its list.",
+      "error_scope": "You have no active coordination assignments covering sections.",
+      "error_generic": "Could not load the forms to verify."
+    },
     "toasts": {
       "approved": "Membership approved for {name}",
       "rejected": "Membership request rejected for {name}"
