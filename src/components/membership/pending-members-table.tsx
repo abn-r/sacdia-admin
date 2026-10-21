@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   CheckCircle2,
@@ -32,6 +33,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
 import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
+import { CONSENT_QUEUE_KEY } from "@/components/membership/consent-queue-keys";
 import {
   listMembershipRequestsFromClient,
   approveMembershipRequest,
@@ -105,6 +107,7 @@ export function PendingMembersTable({
   const translateRole = useRoleLabel();
   const tConsent = useTranslations("membership.consent");
   const consentErrorMessage = useConsentErrorMessage();
+  const queryClient = useQueryClient();
 
   const getRoleName = (role?: MembershipRequest["roles"]): string => {
     const raw = role?.role_name ?? "member";
@@ -410,6 +413,9 @@ export function PendingMembersTable({
           onSuccess={() => {
             setConsentDialog(null);
             refresh();
+            // The coordinator's aggregate queue (not mounted here) now holds a
+            // verified row: mark it stale so returning to it refetches.
+            void queryClient.invalidateQueries({ queryKey: CONSENT_QUEUE_KEY });
           }}
         />
       )}

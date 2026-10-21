@@ -14,6 +14,7 @@ import {
   CONSENT_ERROR_CODES,
   getConsentErrorCode,
   getConsentEvidence,
+  listCoordinatorConsentPendingFromClient,
   listMembershipRequestsFromClient,
   toConsentErrorCode,
   uploadConsentEvidence,
@@ -231,5 +232,89 @@ describe("listMembershipRequestsFromClient (verify verdict)", () => {
 
   it("keeps adults (consent null) untouched", async () => {
     expect(await load(null)).toBeNull();
+  });
+});
+
+describe("listCoordinatorConsentPendingFromClient", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const consent = {
+    required: true,
+    dependent: true,
+    guardianship_id: "g-1",
+    status: "pending",
+    evidence_uploaded: true,
+    guardians: [],
+    viewer_can_verify: true,
+    viewer_verify_block: "something_new",
+  };
+
+  const item = {
+    assignment_id: "asg-1",
+    user_id: "u-1",
+    club_section_id: 7,
+    status: "pending",
+    created_at: "2026-10-01T00:00:00.000Z",
+    expires_at: null,
+    effective_expires_at: "2026-10-31T00:00:00.000Z",
+    users: { user_id: "u-1", name: "Ana" },
+    roles: { role_id: "r", role_name: "member" },
+    consent,
+    consent_form_uploaded_at: "2026-10-02T10:00:00.000Z",
+    club_name: "Club Águilas",
+    club_type_name: "Conquistadores",
+    district_name: null,
+  };
+
+  it("reads GET /coordination/me/consent-pending with limit and offset and unwraps the envelope", async () => {
+    mockRequest.mockResolvedValue({
+      status: "success",
+      data: {
+        items: [item],
+        total: 1,
+        limit: 25,
+        offset: 50,
+        by_section: [
+          {
+            club_section_id: 7,
+            club_name: "Club Águilas",
+            club_type_name: "Conquistadores",
+            district_name: null,
+            pending_consent_count: 1,
+          },
+        ],
+      },
+    });
+
+    const page = await listCoordinatorConsentPendingFromClient({ limit: 25, offset: 50 });
+
+    expect(mockRequest).toHaveBeenCalledWith("/coordination/me/consent-pending", {
+      params: { limit: 25, offset: 50 },
+    });
+    expect(page.total).toBe(1);
+    expect(page.offset).toBe(50);
+    expect(page.items[0].club_name).toBe("Club Águilas");
+    expect(page.items[0].consent_form_uploaded_at).toBe("2026-10-02T10:00:00.000Z");
+    expect(page.by_section[0].pending_consent_count).toBe(1);
+  });
+
+  it("normalizes the consent verdict of each item like the per-section list", async () => {
+    mockRequest.mockResolvedValue({
+      data: { items: [item], total: 1, limit: 25, offset: 0, by_section: [] },
+    });
+
+    const page = await listCoordinatorConsentPendingFromClient({ limit: 25, offset: 0 });
+
+    expect(page.items[0].consent?.viewer_verify_block).toBeNull();
+  });
+
+  it("tolerates a malformed body: empty page", async () => {
+    mockRequest.mockResolvedValue({ data: null });
+
+    const page = await listCoordinatorConsentPendingFromClient({ limit: 25, offset: 0 });
+
+    expect(page).toEqual({ items: [], total: 0, limit: 25, offset: 0, by_section: [] });
   });
 });

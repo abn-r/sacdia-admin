@@ -73,6 +73,11 @@ interface MembershipConsentVerifyDialogProps {
   /** Called after consent was verified (the list should be refreshed). */
   onSuccess: () => void;
   /**
+   * Called when verifying fails (after the error toast). Lets the parent react to
+   * codes that mean the row is stale, e.g. MR_NOT_FOUND (someone else got there first).
+   */
+  onVerifyError?: (error: unknown) => void;
+  /**
    * Whether the viewer may also approve (club_members:approve). When false
    * (verify-only reviewers) the approve option is not offered, the request
    * always sends `approve: false` and the consent form cannot be uploaded or
@@ -89,6 +94,7 @@ export function MembershipConsentVerifyDialog({
   request,
   onOpenChange,
   onSuccess,
+  onVerifyError,
   canApprove = true,
 }: MembershipConsentVerifyDialogProps) {
   const t = useTranslations("membership.consent");
@@ -172,6 +178,7 @@ export function MembershipConsentVerifyDialog({
       if (getConsentErrorCode(error) === "MR_APPROVE_PERMISSION_REQUIRED") {
         setApproveChecked(false);
       }
+      onVerifyError?.(error);
     },
   });
 
