@@ -1,8 +1,23 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Play } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -17,49 +32,103 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/analytics";
+import type {
+  CronRunsSummary,
+  CronRecentRun,
+  CronJobStats,
+  CronJobDefinition,
+} from "@/lib/api/analytics";
+import { runCronJob } from "@/lib/api/analytics";
+import { CRON_JOB_NAMES, getCronJobLabelKey } from "@/lib/system/cron-jobs";
+import { usePermissions } from "@/lib/auth/use-permissions";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
+import {
+  DETACHED_REFRESH_DELAY_MS,
+  getCronRunErrorKey,
+  isRunDetachedError,
+} from "./cron-run-errors";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type CronJobKey =
-  | "monthly-reports-auto-generate"
-  | "rankings-recalculate"
-  | "data-export-cleanup"
-  | "member-of-month-auto-evaluate"
-  | "finance-period-closing"
-  | "activities-reminder"
-  | "membership-requests-expiry"
-  | "cleanup-expired-records"
-  | "fcm-tokens-cleanup";
-
-const JOB_CANONICAL_NAMES: CronJobKey[] = [
-  "monthly-reports-auto-generate",
-  "rankings-recalculate",
-  "data-export-cleanup",
-  "member-of-month-auto-evaluate",
-  "finance-period-closing",
+/** Jobs that can notify real people (push/email) when run. */
+const NOTIFYING_JOBS: ReadonlySet<string> = new Set([
   "activities-reminder",
-  "membership-requests-expiry",
-  "cleanup-expired-records",
-  "fcm-tokens-cleanup",
-];
+  "cron-alert-check",
+  "monthly-reports-reminders",
+  "member-of-month-auto-evaluate",
+  "pending-teen-guardian",
+  "family-age-transitions",
+  "investiture-authorization-reminders",
+  "ecclesiastical-year-cut",
+]);
 
-type CronRunsT = ReturnType<typeof useTranslations<"system_jobs.cronRuns">>;
-const JOB_I18N_KEYS: Record<CronJobKey, Parameters<CronRunsT>[0]> = {
-  "monthly-reports-auto-generate":  "jobMonthlyReports",
-  "rankings-recalculate":           "jobRankingsRecalculate",
-  "data-export-cleanup":            "jobDataExportCleanup",
-  "member-of-month-auto-evaluate":  "jobMemberOfMonth",
-  "finance-period-closing":         "jobFinancePeriod",
-  "activities-reminder":            "jobActivitiesReminder",
-  "membership-requests-expiry":     "jobMembershipExpiry",
-  "cleanup-expired-records":        "jobCleanupExpired",
-  "fcm-tokens-cleanup":             "jobFcmCleanup",
-};
+/**
+ * Jobs whose re-run has a heavier side effect than a plain notification; they
+ * get a stronger, job-specific warning instead of the generic one.
+ */
+const JOB_SPECIFIC_WARNING_KEYS = {
+  "member-of-month-auto-evaluate": "runDialogMemberOfMonthWarning",
+} as const;
+
+/**
+ * A "running" row older than this is treated as stale (e.g. the process crashed
+ * and never closed it), so it must not block a manual re-run. The backend still
+ * returns "skipped" if the job is genuinely locked.
+ */
+export const STALE_RUNNING_THRESHOLD_MS = 15 * 60 * 1000;
+
+function isRunningRecently(run: CronRecentRun | null, now: number): boolean {
+  if (run?.status !== "running") return false;
+  const startedAt = new Date(run.started_at).getTime();
+  // Unparseable start: cannot prove it is stale, keep the safe (disabled) state.
+  if (Number.isNaN(startedAt)) return true;
+  return now - startedAt < STALE_RUNNING_THRESHOLD_MS;
+}
 
 interface CronRunsSectionProps {
   data: CronRunsSummary;
+  /**
+   * Scheduled jobs catalog (GET /admin/cron-jobs). Authoritative job list with
+   * schedule/description. Undefined when it could not be loaded (non super-admin
+   * gets 403, or error): the table then shows known jobs without run actions.
+   */
+  catalog?: CronJobDefinition[];
+}
+
+interface JobRow {
+  name: string;
+  description: string | null;
+  schedule: string | null;
+  timeZone: string | null;
+  runnable: boolean;
+}
+
+/** Catalog first (backend order), then jobs only seen in runs data. */
+function buildJobRows(catalog: CronJobDefinition[] | undefined, data: CronRunsSummary): JobRow[] {
+  const rows = new Map<string, JobRow>();
+
+  for (const job of catalog ?? []) {
+    rows.set(job.job_name, {
+      name: job.job_name,
+      description: job.description || null,
+      schedule: job.schedule || null,
+      timeZone: job.time_zone || null,
+      runnable: job.runnable,
+    });
+  }
+
+  const extraNames = [
+    ...(catalog ? [] : CRON_JOB_NAMES),
+    ...data.recent.map((r) => r.job_name),
+    ...data.stats.map((s) => s.job_name),
+  ];
+  for (const name of extraNames) {
+    if (!rows.has(name)) {
+      rows.set(name, { name, description: null, schedule: null, timeZone: null, runnable: false });
+    }
+  }
+
+  return [...rows.values()];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -143,12 +212,111 @@ function StatusBadge({
   return badge;
 }
 
+// ─── Run Now Button ───────────────────────────────────────────────────────────
+
+function RunNowButton({
+  jobLabel,
+  busy,
+  disabled,
+  onClick,
+}: {
+  jobLabel: string;
+  busy: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const t = useTranslations("system_jobs.cronRuns");
+  const label = busy ? t("runNowRunning") : t("runNow");
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="xs"
+      disabled={busy || disabled}
+      aria-label={`${label}: ${jobLabel}`}
+      onClick={onClick}
+      className="gap-1.5"
+    >
+      {busy ? <Loader2 className="size-3 animate-spin" /> : <Play className="size-3" />}
+      {label}
+    </Button>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function CronRunsSection({ data }: CronRunsSectionProps) {
+export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const t = useTranslations("system_jobs.cronRuns");
+  const router = useRouter();
+  const { isSuperAdmin } = usePermissions();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
+  const [confirmJob, setConfirmJob] = useState<string | null>(null);
+  const [inFlight, setInFlight] = useState<ReadonlySet<string>>(new Set());
+
+  const now = Date.now();
+  const rows = buildJobRows(catalog, data);
+  const rowsByName = new Map(rows.map((r) => [r.name, r]));
+  const showActions = isSuperAdmin && rows.some((r) => r.runnable);
+
+  const specificWarningKey =
+    confirmJob && Object.hasOwn(JOB_SPECIFIC_WARNING_KEYS, confirmJob)
+      ? JOB_SPECIFIC_WARNING_KEYS[confirmJob as keyof typeof JOB_SPECIFIC_WARNING_KEYS]
+      : undefined;
+  const warningKey =
+    specificWarningKey ??
+    (confirmJob && NOTIFYING_JOBS.has(confirmJob) ? ("runDialogNotifyWarning" as const) : undefined);
+
+  function jobLabel(row: JobRow): string {
+    const key = getCronJobLabelKey(row.name);
+    return key ? t(key) : row.description || row.name;
+  }
+
+  function setJobInFlight(jobName: string, active: boolean) {
+    setInFlight((prev) => {
+      const next = new Set(prev);
+      if (active) next.add(jobName);
+      else next.delete(jobName);
+      return next;
+    });
+  }
+
+  async function handleRun(jobName: string) {
+    if (inFlight.has(jobName)) return;
+    setJobInFlight(jobName, true);
+    try {
+      const result = await runCronJob(jobName);
+      if (result.enqueued) {
+        toast.info(t("runResultEnqueued"));
+      } else if (result.status === "completed") {
+        toast.success(
+          result.items_processed === null || result.items_processed === undefined
+            ? t("runResultCompletedNoCount")
+            : t("runResultCompleted", { count: result.items_processed }),
+        );
+      } else if (result.status === "skipped") {
+        toast.info(t("runResultSkipped"));
+      } else {
+        toast.error(
+          result.error_message
+            ? t("runResultFailed", { message: result.error_message })
+            : t("runResultFailedNoMessage"),
+        );
+      }
+      router.refresh();
+    } catch (err) {
+      if (isRunDetachedError(err)) {
+        // The request was cut but the run continues server-side: refresh later.
+        toast.info(t("runDetached"));
+        setTimeout(() => router.refresh(), DETACHED_REFRESH_DELAY_MS);
+      } else {
+        toast.error(t(getCronRunErrorKey(err)));
+      }
+    } finally {
+      setJobInFlight(jobName, false);
+    }
+  }
 
   function formatDate(iso: string | null): string {
     if (!iso) return "—";
@@ -182,12 +350,18 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                 <TableHead>{t("colLastSuccess")}</TableHead>
                 <TableHead>{t("colLastFailure")}</TableHead>
                 <TableHead className="text-right">{t("colFailureRate")}</TableHead>
-                <TableHead className="text-right pr-6">{t("colRuns7d")}</TableHead>
+                <TableHead className={showActions ? "text-right" : "text-right pr-6"}>
+                  {t("colRuns7d")}
+                </TableHead>
+                {showActions && (
+                  <TableHead className="text-right pr-6">{t("colActions")}</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {JOB_CANONICAL_NAMES.map((canonicalName) => {
-                const i18nKey = JOB_I18N_KEYS[canonicalName];
+              {rows.map((row) => {
+                const canonicalName = row.name;
+                const label = jobLabel(row);
                 const run   = recentByName.get(canonicalName) ?? null;
                 const stats = statsByName.get(canonicalName) ?? null;
 
@@ -195,10 +369,17 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                   <TableRow key={canonicalName}>
                     {/* Job name */}
                     <TableCell className="pl-6">
-                      <span className="text-sm font-medium">{t(i18nKey)}</span>
+                      <span className="text-sm font-medium" title={row.description ?? undefined}>
+                        {label}
+                      </span>
                       <span className="block text-[11px] text-muted-foreground font-mono">
                         {canonicalName}
                       </span>
+                      {row.schedule && (
+                        <span className="block text-[11px] text-muted-foreground font-mono">
+                          {row.timeZone ? `${row.schedule} · ${row.timeZone}` : row.schedule}
+                        </span>
+                      )}
                     </TableCell>
 
                     {/* Last run */}
@@ -208,10 +389,17 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
 
                     {/* Status */}
                     <TableCell>
-                      <StatusBadge
-                        status={run?.status ?? null}
-                        errorMessage={run?.error_message}
-                      />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge
+                          status={run?.status ?? null}
+                          errorMessage={run?.error_message}
+                        />
+                        {run?.trigger === "manual" && (
+                          <Badge variant="outline" className="text-xs">
+                            {t("manualBadge")}
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
 
                     {/* Duration */}
@@ -242,9 +430,29 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
                     </TableCell>
 
                     {/* Runs 7d */}
-                    <TableCell className="text-right tabular-nums text-sm pr-6">
+                    <TableCell
+                      className={
+                        showActions
+                          ? "text-right tabular-nums text-sm"
+                          : "text-right tabular-nums text-sm pr-6"
+                      }
+                    >
                       {stats !== null ? formatNumber(stats.total_runs_7d) : "—"}
                     </TableCell>
+
+                    {/* Run now (super-admin only; backend enforces too) */}
+                    {showActions && (
+                      <TableCell className="text-right pr-6">
+                        {row.runnable && (
+                          <RunNowButton
+                            jobLabel={label}
+                            busy={inFlight.has(canonicalName)}
+                            disabled={isRunningRecently(run, now)}
+                            onClick={() => setConfirmJob(canonicalName)}
+                          />
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
@@ -252,6 +460,41 @@ export function CronRunsSection({ data }: CronRunsSectionProps) {
           </Table>
         </TooltipProvider>
       </CardContent>
+
+      <AlertDialog
+        open={confirmJob !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmJob(null);
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmJob
+                ? t("runDialogTitle", {
+                    job: rowsByName.has(confirmJob) ? jobLabel(rowsByName.get(confirmJob)!) : confirmJob,
+                  })
+                : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{t("runDialogDescription")}</AlertDialogDescription>
+            {warningKey && (
+              <p className="rounded-md bg-warning-soft px-3 py-2 text-sm font-medium text-warning-soft-foreground">
+                {t(warningKey)}
+              </p>
+            )}
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("runDialogCancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmJob) void handleRun(confirmJob);
+              }}
+            >
+              {t("runDialogConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
