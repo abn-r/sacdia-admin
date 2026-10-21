@@ -25,8 +25,10 @@ export type ReviewSectionOptions = {
   error?: string;
   /**
    * The coordination scope says the viewer is a coordinator with covered
-   * sections: the aggregate consent queue (GET /coordination/me/consent-pending)
-   * applies. False when the scope was not requested, failed, or is empty.
+   * sections AND a global coordinator role carries consent:verify: the aggregate
+   * consent queue (GET /coordination/me/consent-pending) applies. False when the
+   * scope was not requested, failed, or is empty, or when consent:verify does not
+   * come from a coordinator role (the endpoint would answer 403).
    */
   coordinatorQueue: boolean;
 };
@@ -107,7 +109,16 @@ export type ClubGrantSections = {
    * there is no club-grant list to use, so `GET /clubs` stays as the picker source.
    */
   approveViaUnscopedList: boolean;
+  /**
+   * The viewer holds a global coordinator role (coordinator / zone-coordinator /
+   * general-coordinator) that carries consent:verify. Only that source is served
+   * by GET /coordination/me/consent-pending; consent:verify from a club role or a
+   * direct grant answers 403 GUARD_PERMISSION_DENIED there.
+   */
+  coordinatorRoleCanVerify: boolean;
 };
+
+const COORDINATOR_ROLE_NAMES = new Set(["coordinator", "zone-coordinator", "general-coordinator"]);
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -161,7 +172,13 @@ export function resolveClubGrantSections(user: AuthUser | null | undefined): Clu
     hasPermission(grants?.direct_permissions, CLUB_MEMBERS_APPROVE) ||
     globalRoles.some((role) => hasPermission(asRecord(role)?.permissions, CLUB_MEMBERS_APPROVE));
 
-  return { approve, verify, approveViaUnscopedList };
+  const coordinatorRoleCanVerify = globalRoles.some((role) => {
+    const record = asRecord(role);
+    const name = typeof record?.role_name === "string" ? record.role_name.trim().toLowerCase() : "";
+    return COORDINATOR_ROLE_NAMES.has(name) && hasPermission(record?.permissions, CONSENT_VERIFY);
+  });
+
+  return { approve, verify, approveViaUnscopedList, coordinatorRoleCanVerify };
 }
 
 /**
@@ -194,6 +211,7 @@ export async function loadReviewSectionOptions(
     approve: [],
     verify: [],
     approveViaUnscopedList: false,
+    coordinatorRoleCanVerify: false,
   };
   const withScope = mode === "verify-only" || options.includeCoordinatorScope === true;
   const withUnscopedList = mode === "approve" && grants.approveViaUnscopedList;
@@ -221,6 +239,7 @@ export async function loadReviewSectionOptions(
     scope.status === "fulfilled" &&
     scope.value !== null &&
     scope.value.is_coordinator === true &&
+    grants.coordinatorRoleCanVerify &&
     (scope.value.sections?.length ?? 0) > 0;
 
   const failure = [scope, clubs].find((r) => r.status === "rejected");
