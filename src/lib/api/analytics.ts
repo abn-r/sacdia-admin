@@ -126,7 +126,8 @@ export async function getCronRunsHistory(params: {
 export interface CronJobDefinition {
   job_name: string;
   schedule: string;
-  time_zone: string;
+  /** null when the job has no explicit time zone (server default applies). */
+  time_zone: string | null;
   runnable: boolean;
   description: string;
 }

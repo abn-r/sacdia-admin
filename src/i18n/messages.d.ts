@@ -7195,9 +7195,11 @@ export interface IntlMessages {
       runDialogTitle: string;
       runDialogDescription: string;
       runDialogNotifyWarning: string;
+      runDialogMemberOfMonthWarning: string;
       runDialogCancel: string;
       runDialogConfirm: string;
       runResultCompleted: string;
+      runResultCompletedNoCount: string;
       runResultSkipped: string;
       runResultFailed: string;
       runResultFailedNoMessage: string;

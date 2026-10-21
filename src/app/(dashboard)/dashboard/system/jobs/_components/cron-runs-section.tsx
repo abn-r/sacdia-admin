@@ -59,7 +59,31 @@ const NOTIFYING_JOBS: ReadonlySet<string> = new Set([
   "pending-teen-guardian",
   "family-age-transitions",
   "investiture-authorization-reminders",
+  "ecclesiastical-year-cut",
 ]);
+
+/**
+ * Jobs whose re-run has a heavier side effect than a plain notification; they
+ * get a stronger, job-specific warning instead of the generic one.
+ */
+const JOB_SPECIFIC_WARNING_KEYS = {
+  "member-of-month-auto-evaluate": "runDialogMemberOfMonthWarning",
+} as const;
+
+/**
+ * A "running" row older than this is treated as stale (e.g. the process crashed
+ * and never closed it), so it must not block a manual re-run. The backend still
+ * returns "skipped" if the job is genuinely locked.
+ */
+export const STALE_RUNNING_THRESHOLD_MS = 15 * 60 * 1000;
+
+function isRunningRecently(run: CronRecentRun | null, now: number): boolean {
+  if (run?.status !== "running") return false;
+  const startedAt = new Date(run.started_at).getTime();
+  // Unparseable start: cannot prove it is stale, keep the safe (disabled) state.
+  if (Number.isNaN(startedAt)) return true;
+  return now - startedAt < STALE_RUNNING_THRESHOLD_MS;
+}
 
 interface CronRunsSectionProps {
   data: CronRunsSummary;
@@ -231,9 +255,18 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const [confirmJob, setConfirmJob] = useState<string | null>(null);
   const [inFlight, setInFlight] = useState<ReadonlySet<string>>(new Set());
 
+  const now = Date.now();
   const rows = buildJobRows(catalog, data);
   const rowsByName = new Map(rows.map((r) => [r.name, r]));
   const showActions = isSuperAdmin && rows.some((r) => r.runnable);
+
+  const specificWarningKey =
+    confirmJob && Object.hasOwn(JOB_SPECIFIC_WARNING_KEYS, confirmJob)
+      ? JOB_SPECIFIC_WARNING_KEYS[confirmJob as keyof typeof JOB_SPECIFIC_WARNING_KEYS]
+      : undefined;
+  const warningKey =
+    specificWarningKey ??
+    (confirmJob && NOTIFYING_JOBS.has(confirmJob) ? ("runDialogNotifyWarning" as const) : undefined);
 
   function jobLabel(row: JobRow): string {
     const key = getCronJobLabelKey(row.name);
@@ -257,7 +290,11 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
       if (result.enqueued) {
         toast.info(t("runResultEnqueued"));
       } else if (result.status === "completed") {
-        toast.success(t("runResultCompleted", { count: result.items_processed ?? 0 }));
+        toast.success(
+          result.items_processed === null || result.items_processed === undefined
+            ? t("runResultCompletedNoCount")
+            : t("runResultCompleted", { count: result.items_processed }),
+        );
       } else if (result.status === "skipped") {
         toast.info(t("runResultSkipped"));
       } else {
@@ -410,7 +447,7 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                           <RunNowButton
                             jobLabel={label}
                             busy={inFlight.has(canonicalName)}
-                            disabled={run?.status === "running"}
+                            disabled={isRunningRecently(run, now)}
                             onClick={() => setConfirmJob(canonicalName)}
                           />
                         )}
@@ -440,9 +477,9 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                 : ""}
             </AlertDialogTitle>
             <AlertDialogDescription>{t("runDialogDescription")}</AlertDialogDescription>
-            {confirmJob && NOTIFYING_JOBS.has(confirmJob) && (
+            {warningKey && (
               <p className="rounded-md bg-warning-soft px-3 py-2 text-sm font-medium text-warning-soft-foreground">
-                {t("runDialogNotifyWarning")}
+                {t(warningKey)}
               </p>
             )}
           </AlertDialogHeader>

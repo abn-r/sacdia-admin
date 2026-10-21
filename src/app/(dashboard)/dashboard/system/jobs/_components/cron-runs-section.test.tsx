@@ -54,7 +54,7 @@ vi.mock("@/lib/api/analytics", async (importOriginal) => {
 });
 
 import { ApiError } from "@/lib/api/client";
-import { CronRunsSection } from "./cron-runs-section";
+import { CronRunsSection, STALE_RUNNING_THRESHOLD_MS } from "./cron-runs-section";
 import { DETACHED_REFRESH_DELAY_MS } from "./cron-run-errors";
 
 const SUPER_ADMIN: AuthUser = {
@@ -84,7 +84,8 @@ const data: CronRunsSummary = {
     {
       job_name: "fcm-tokens-cleanup",
       run_id: 2,
-      started_at: "2026-10-20T04:00:00.000Z",
+      // Just started: recomputed relative to "now" so the 15-min staleness never trips.
+      started_at: new Date().toISOString(),
       ended_at: null,
       status: "running",
       duration_ms: null,
@@ -120,17 +121,20 @@ const ALL_JOBS = [
   "ecclesiastical-year-cut",
 ];
 
+const MEMBER_OF_MONTH = "member-of-month-auto-evaluate";
+
 const NOTIFY_JOBS = [
   "activities-reminder",
   "cron-alert-check",
   "monthly-reports-reminders",
-  "member-of-month-auto-evaluate",
   "pending-teen-guardian",
   "family-age-transitions",
   "investiture-authorization-reminders",
+  "ecclesiastical-year-cut",
 ];
 
 const NOTIFY_WARNING = "Este job puede enviar avisos o correos reales.";
+const MEMBER_OF_MONTH_WARNING = messages.system_jobs.cronRuns.runDialogMemberOfMonthWarning;
 
 function def(job: string, overrides: Partial<CronJobDefinition> = {}): CronJobDefinition {
   return {
@@ -275,6 +279,21 @@ describe("CronRunsSection - run now", () => {
     ).toBeDisabled();
   });
 
+  it("enables the action when the latest run has been 'running' for longer than the threshold", () => {
+    const stale = new Date(Date.now() - STALE_RUNNING_THRESHOLD_MS - 60_000).toISOString();
+    renderSection({
+      data: {
+        ...data,
+        recent: data.recent.map((r) =>
+          r.job_name === "fcm-tokens-cleanup" ? { ...r, started_at: stale } : r,
+        ),
+      },
+    });
+    expect(
+      screen.getByRole("button", { name: /Ejecutar ahora.*FCM tokens huérfanos/i }),
+    ).toBeEnabled();
+  });
+
   it("toasts the completed result with processed items and refreshes the runs", async () => {
     renderSection();
     await confirmRun();
@@ -282,6 +301,23 @@ describe("CronRunsSection - run now", () => {
       expect(mocks.toastSuccess).toHaveBeenCalledWith("Completado · 12 procesados"),
     );
     expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("toasts a completed result without a count when items_processed is null", async () => {
+    mocks.runCronJob.mockResolvedValue(runResult({ items_processed: null }));
+    renderSection();
+    await confirmRun();
+    await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith("Completado"));
+    expect(mocks.toastSuccess).not.toHaveBeenCalledWith(expect.stringContaining("0 procesados"));
+  });
+
+  it("still shows the count when items_processed is 0", async () => {
+    mocks.runCronJob.mockResolvedValue(runResult({ items_processed: 0 }));
+    renderSection();
+    await confirmRun();
+    await waitFor(() =>
+      expect(mocks.toastSuccess).toHaveBeenCalledWith("Completado · 0 procesados"),
+    );
   });
 
   it("toasts a skipped result", async () => {
@@ -430,6 +466,17 @@ describe("CronRunsSection - run now", () => {
       ).toBeInTheDocument();
     });
 
+    it("shows only the schedule when the time zone is null", () => {
+      renderSection({
+        catalog: catalog.map((j) =>
+          j.job_name === "activities-reminder" ? { ...j, time_zone: null } : j,
+        ),
+      });
+      const row = rowOf("activities-reminder");
+      expect(within(row).getByText("0 3 * * *")).toBeInTheDocument();
+      expect(within(row).queryByText(/null/)).not.toBeInTheDocument();
+    });
+
     it("shows a dash as last run for a job that never ran", () => {
       renderSection();
       const cells = within(rowOf("annual-reports-auto-generate")).getAllByRole("cell");
@@ -511,7 +558,20 @@ describe("CronRunsSection - run now", () => {
       expect(within(dialog).getByText(NOTIFY_WARNING)).toBeInTheDocument();
     });
 
-    it.each(ALL_JOBS.filter((j) => !NOTIFY_JOBS.includes(j)))(
+    it("shows the stronger warning instead of the generic one for member-of-month", async () => {
+      renderSection({ data: idle });
+      const dialog = await openDialog(MEMBER_OF_MONTH);
+      expect(within(dialog).getByText(MEMBER_OF_MONTH_WARNING)).toBeInTheDocument();
+      expect(within(dialog).queryByText(NOTIFY_WARNING)).not.toBeInTheDocument();
+    });
+
+    it("does not show the member-of-month warning for other jobs", async () => {
+      renderSection({ data: idle });
+      const dialog = await openDialog("activities-reminder");
+      expect(within(dialog).queryByText(MEMBER_OF_MONTH_WARNING)).not.toBeInTheDocument();
+    });
+
+    it.each(ALL_JOBS.filter((j) => !NOTIFY_JOBS.includes(j) && j !== MEMBER_OF_MONTH))(
       "does not warn for %s",
       async (job) => {
         renderSection({ data: idle });
