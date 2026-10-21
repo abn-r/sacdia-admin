@@ -36,7 +36,11 @@ import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/ana
 import { runCronJob } from "@/lib/api/analytics";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
-import { getCronRunErrorKey } from "./cron-run-errors";
+import {
+  DETACHED_REFRESH_DELAY_MS,
+  getCronRunErrorKey,
+  isRunDetachedError,
+} from "./cron-run-errors";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -223,7 +227,9 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
     setJobInFlight(jobName, true);
     try {
       const result = await runCronJob(jobName);
-      if (result.status === "completed") {
+      if (result.enqueued) {
+        toast.info(t("runResultEnqueued"));
+      } else if (result.status === "completed") {
         toast.success(t("runResultCompleted", { count: result.items_processed ?? 0 }));
       } else if (result.status === "skipped") {
         toast.info(t("runResultSkipped"));
@@ -236,7 +242,13 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
       }
       router.refresh();
     } catch (err) {
-      toast.error(t(getCronRunErrorKey(err)));
+      if (isRunDetachedError(err)) {
+        // The request was cut but the run continues server-side: refresh later.
+        toast.info(t("runDetached"));
+        setTimeout(() => router.refresh(), DETACHED_REFRESH_DELAY_MS);
+      } else {
+        toast.error(t(getCronRunErrorKey(err)));
+      }
     } finally {
       setJobInFlight(jobName, false);
     }
@@ -305,10 +317,17 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
 
                     {/* Status */}
                     <TableCell>
-                      <StatusBadge
-                        status={run?.status ?? null}
-                        errorMessage={run?.error_message}
-                      />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge
+                          status={run?.status ?? null}
+                          errorMessage={run?.error_message}
+                        />
+                        {run?.trigger === "manual" && (
+                          <Badge variant="outline" className="text-xs">
+                            {t("manualBadge")}
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
 
                     {/* Duration */}

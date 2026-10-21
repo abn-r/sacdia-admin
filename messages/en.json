@@ -7160,6 +7160,8 @@
       "runResultSkipped": "Skipped",
       "runResultFailed": "Failed: {message}",
       "runResultFailedNoMessage": "Failed",
+      "runResultEnqueued": "Queued · it will run in the background",
+      "runDetached": "The run is still going on the server; check the history in a few minutes",
       "runErrorNotFound": "This job does not exist or cannot be run manually.",
       "runErrorForbidden": "Only a super administrator can run jobs.",
       "runErrorGeneric": "The job could not be run.",

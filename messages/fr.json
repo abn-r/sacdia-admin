@@ -7160,6 +7160,8 @@
       "runResultSkipped": "Ignoré",
       "runResultFailed": "Échec : {message}",
       "runResultFailedNoMessage": "Échec",
+      "runResultEnqueued": "En file d’attente · s’exécutera en arrière-plan",
+      "runDetached": "L’exécution se poursuit sur le serveur ; consultez l’historique dans quelques minutes",
       "runErrorNotFound": "Ce job n’existe pas ou ne peut pas être exécuté manuellement.",
       "runErrorForbidden": "Seul un super administrateur peut exécuter des jobs.",
       "runErrorGeneric": "Impossible d’exécuter le job.",

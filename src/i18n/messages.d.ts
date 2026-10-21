@@ -7189,6 +7189,8 @@ export interface IntlMessages {
       runResultSkipped: string;
       runResultFailed: string;
       runResultFailedNoMessage: string;
+      runResultEnqueued: string;
+      runDetached: string;
       runErrorNotFound: string;
       runErrorForbidden: string;
       runErrorGeneric: string;

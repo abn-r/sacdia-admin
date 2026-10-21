@@ -55,6 +55,8 @@ export type CronRecentRun = {
   duration_ms: number | null;
   items_processed: number | null;
   error_message: string | null;
+  trigger: "manual" | "scheduled";
+  triggered_by: string | null;
 };
 
 export type CronJobStats = {
@@ -133,7 +135,10 @@ export type CronRunResultStatus = "completed" | "failed" | "skipped";
 
 export interface CronRunResult {
   job_name: string;
-  run_id: number;
+  /** null when the job is queue-backed (the worker writes its own row later). */
+  run_id: number | null;
+  /** true when the work was only enqueued in BullMQ; the worker finishes it. */
+  enqueued: boolean;
   status: CronRunResultStatus;
   items_processed: number | null;
   duration_ms: number | null;

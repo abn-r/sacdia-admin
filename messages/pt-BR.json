@@ -7160,6 +7160,8 @@
       "runResultSkipped": "Ignorado",
       "runResultFailed": "Falhou: {message}",
       "runResultFailedNoMessage": "Falhou",
+      "runResultEnqueued": "Na fila · será executado em segundo plano",
+      "runDetached": "A execução continua no servidor; confira o histórico em alguns minutos",
       "runErrorNotFound": "Este job não existe ou não pode ser executado manualmente.",
       "runErrorForbidden": "Somente um super administrador pode executar jobs.",
       "runErrorGeneric": "Não foi possível executar o job.",
