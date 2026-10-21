@@ -91,11 +91,9 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
     listCronJobs(),
   ]);
 
-  // Run-now is an enhancement: if the catalog can't be loaded, hide the action.
-  const runnableJobs =
-    cronJobsResult.status === "fulfilled"
-      ? cronJobsResult.value.filter((job) => job.runnable).map((job) => job.job_name)
-      : [];
+  // The catalog lists every scheduled job and enables run-now. If it can't be
+  // loaded (403 for non super-admin, or error) the table falls back to known jobs.
+  const catalog = cronJobsResult.status === "fulfilled" ? cronJobsResult.value : undefined;
   if (cronJobsResult.status === "rejected") {
     console.error("[JobsPage] Failed to load cron jobs catalog:", cronJobsResult.reason);
   }
@@ -112,7 +110,7 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
 
   const cronSection =
     cronResult.status === "fulfilled" ? (
-      <CronRunsSection data={cronResult.value} runnableJobs={runnableJobs} />
+      <CronRunsSection data={cronResult.value} catalog={catalog} />
     ) : (
       (() => {
         console.error("[JobsPage] Failed to load cron-runs data:", cronResult.reason);

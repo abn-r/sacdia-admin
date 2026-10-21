@@ -32,7 +32,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { CronRunsSummary, CronRecentRun, CronJobStats } from "@/lib/api/analytics";
+import type {
+  CronRunsSummary,
+  CronRecentRun,
+  CronJobStats,
+  CronJobDefinition,
+} from "@/lib/api/analytics";
 import { runCronJob } from "@/lib/api/analytics";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
@@ -44,18 +49,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type CronJobKey =
-  | "monthly-reports-auto-generate"
-  | "rankings-recalculate"
-  | "data-export-cleanup"
-  | "member-of-month-auto-evaluate"
-  | "finance-period-closing"
-  | "activities-reminder"
-  | "membership-requests-expiry"
-  | "cleanup-expired-records"
-  | "fcm-tokens-cleanup";
-
-const JOB_CANONICAL_NAMES: CronJobKey[] = [
+const KNOWN_JOB_NAMES = [
   "monthly-reports-auto-generate",
   "rankings-recalculate",
   "data-export-cleanup",
@@ -65,25 +59,90 @@ const JOB_CANONICAL_NAMES: CronJobKey[] = [
   "membership-requests-expiry",
   "cleanup-expired-records",
   "fcm-tokens-cleanup",
-];
+] as const;
 
 type CronRunsT = ReturnType<typeof useTranslations<"system_jobs.cronRuns">>;
-const JOB_I18N_KEYS: Record<CronJobKey, Parameters<CronRunsT>[0]> = {
-  "monthly-reports-auto-generate":  "jobMonthlyReports",
-  "rankings-recalculate":           "jobRankingsRecalculate",
-  "data-export-cleanup":            "jobDataExportCleanup",
-  "member-of-month-auto-evaluate":  "jobMemberOfMonth",
-  "finance-period-closing":         "jobFinancePeriod",
-  "activities-reminder":            "jobActivitiesReminder",
-  "membership-requests-expiry":     "jobMembershipExpiry",
-  "cleanup-expired-records":        "jobCleanupExpired",
-  "fcm-tokens-cleanup":             "jobFcmCleanup",
+type JobLabelKey = Parameters<CronRunsT>[0];
+
+/** Translated labels by job name; jobs without an entry fall back to backend data. */
+const JOB_I18N_KEYS: Record<string, JobLabelKey> = {
+  "monthly-reports-auto-generate":       "jobMonthlyReports",
+  "rankings-recalculate":                "jobRankingsRecalculate",
+  "data-export-cleanup":                 "jobDataExportCleanup",
+  "member-of-month-auto-evaluate":       "jobMemberOfMonth",
+  "finance-period-closing":              "jobFinancePeriod",
+  "activities-reminder":                 "jobActivitiesReminder",
+  "membership-requests-expiry":          "jobMembershipExpiry",
+  "cleanup-expired-records":             "jobCleanupExpired",
+  "fcm-tokens-cleanup":                  "jobFcmCleanup",
+  "annual-reports-auto-generate":        "jobAnnualReports",
+  "quarterly-reports-auto-generate":     "jobQuarterlyReports",
+  "monthly-reports-reminders":           "jobMonthlyReportsReminders",
+  "cron-alert-check":                    "jobCronAlertCheck",
+  "fcm-tokens-stale-cleanup":            "jobFcmStaleCleanup",
+  "dependent-profiles-purge":            "jobDependentProfilesPurge",
+  "family-age-transitions":              "jobFamilyAgeTransitions",
+  "pending-teen-guardian":               "jobPendingTeenGuardian",
+  "investiture-achievement-intent":      "jobInvestitureAchievementIntent",
+  "investiture-authorization-reminders": "jobInvestitureAuthReminders",
+  "ecclesiastical-year-cut":             "jobEcclesiasticalYearCut",
 };
+
+/** Jobs that can notify real people (push/email) when run. */
+const NOTIFYING_JOBS: ReadonlySet<string> = new Set([
+  "activities-reminder",
+  "cron-alert-check",
+  "monthly-reports-reminders",
+  "member-of-month-auto-evaluate",
+  "pending-teen-guardian",
+  "family-age-transitions",
+  "investiture-authorization-reminders",
+]);
 
 interface CronRunsSectionProps {
   data: CronRunsSummary;
-  /** Job names the backend reports as runnable on demand (GET /admin/cron-jobs). */
-  runnableJobs?: string[];
+  /**
+   * Scheduled jobs catalog (GET /admin/cron-jobs). Authoritative job list with
+   * schedule/description. Undefined when it could not be loaded (non super-admin
+   * gets 403, or error): the table then shows known jobs without run actions.
+   */
+  catalog?: CronJobDefinition[];
+}
+
+interface JobRow {
+  name: string;
+  description: string | null;
+  schedule: string | null;
+  timeZone: string | null;
+  runnable: boolean;
+}
+
+/** Catalog first (backend order), then jobs only seen in runs data. */
+function buildJobRows(catalog: CronJobDefinition[] | undefined, data: CronRunsSummary): JobRow[] {
+  const rows = new Map<string, JobRow>();
+
+  for (const job of catalog ?? []) {
+    rows.set(job.job_name, {
+      name: job.job_name,
+      description: job.description || null,
+      schedule: job.schedule || null,
+      timeZone: job.time_zone || null,
+      runnable: job.runnable,
+    });
+  }
+
+  const extraNames = [
+    ...(catalog ? [] : KNOWN_JOB_NAMES),
+    ...data.recent.map((r) => r.job_name),
+    ...data.stats.map((s) => s.job_name),
+  ];
+  for (const name of extraNames) {
+    if (!rows.has(name)) {
+      rows.set(name, { name, description: null, schedule: null, timeZone: null, runnable: false });
+    }
+  }
+
+  return [...rows.values()];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -201,17 +260,23 @@ function RunNowButton({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProps) {
+export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const t = useTranslations("system_jobs.cronRuns");
   const router = useRouter();
   const { isSuperAdmin } = usePermissions();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
-  const [confirmJob, setConfirmJob] = useState<CronJobKey | null>(null);
+  const [confirmJob, setConfirmJob] = useState<string | null>(null);
   const [inFlight, setInFlight] = useState<ReadonlySet<string>>(new Set());
 
-  const runnable = new Set(runnableJobs);
-  const showActions = isSuperAdmin && runnableJobs.length > 0;
+  const rows = buildJobRows(catalog, data);
+  const rowsByName = new Map(rows.map((r) => [r.name, r]));
+  const showActions = isSuperAdmin && rows.some((r) => r.runnable);
+
+  function jobLabel(row: JobRow): string {
+    const key = JOB_I18N_KEYS[row.name];
+    return key ? t(key) : row.description || row.name;
+  }
 
   function setJobInFlight(jobName: string, active: boolean) {
     setInFlight((prev) => {
@@ -222,7 +287,7 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
     });
   }
 
-  async function handleRun(jobName: CronJobKey) {
+  async function handleRun(jobName: string) {
     if (inFlight.has(jobName)) return;
     setJobInFlight(jobName, true);
     try {
@@ -295,8 +360,9 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
               </TableRow>
             </TableHeader>
             <TableBody>
-              {JOB_CANONICAL_NAMES.map((canonicalName) => {
-                const i18nKey = JOB_I18N_KEYS[canonicalName];
+              {rows.map((row) => {
+                const canonicalName = row.name;
+                const label = jobLabel(row);
                 const run   = recentByName.get(canonicalName) ?? null;
                 const stats = statsByName.get(canonicalName) ?? null;
 
@@ -304,10 +370,17 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
                   <TableRow key={canonicalName}>
                     {/* Job name */}
                     <TableCell className="pl-6">
-                      <span className="text-sm font-medium">{t(i18nKey)}</span>
+                      <span className="text-sm font-medium" title={row.description ?? undefined}>
+                        {label}
+                      </span>
                       <span className="block text-[11px] text-muted-foreground font-mono">
                         {canonicalName}
                       </span>
+                      {row.schedule && (
+                        <span className="block text-[11px] text-muted-foreground font-mono">
+                          {row.timeZone ? `${row.schedule} · ${row.timeZone}` : row.schedule}
+                        </span>
+                      )}
                     </TableCell>
 
                     {/* Last run */}
@@ -371,9 +444,9 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
                     {/* Run now (super-admin only; backend enforces too) */}
                     {showActions && (
                       <TableCell className="text-right pr-6">
-                        {runnable.has(canonicalName) && (
+                        {row.runnable && (
                           <RunNowButton
-                            jobLabel={t(i18nKey)}
+                            jobLabel={label}
                             busy={inFlight.has(canonicalName)}
                             disabled={run?.status === "running"}
                             onClick={() => setConfirmJob(canonicalName)}
@@ -399,10 +472,17 @@ export function CronRunsSection({ data, runnableJobs = [] }: CronRunsSectionProp
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirmJob
-                ? t("runDialogTitle", { job: t(JOB_I18N_KEYS[confirmJob]) })
+                ? t("runDialogTitle", {
+                    job: rowsByName.has(confirmJob) ? jobLabel(rowsByName.get(confirmJob)!) : confirmJob,
+                  })
                 : ""}
             </AlertDialogTitle>
             <AlertDialogDescription>{t("runDialogDescription")}</AlertDialogDescription>
+            {confirmJob && NOTIFYING_JOBS.has(confirmJob) && (
+              <p className="rounded-md bg-warning-soft px-3 py-2 text-sm font-medium text-warning-soft-foreground">
+                {t("runDialogNotifyWarning")}
+              </p>
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("runDialogCancel")}</AlertDialogCancel>

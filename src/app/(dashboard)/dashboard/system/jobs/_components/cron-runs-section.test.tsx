@@ -13,7 +13,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../../../../../messages/es.json";
 import type { AuthUser } from "@/lib/auth/types";
-import type { CronRunsSummary } from "@/lib/api/analytics";
+import type { CronJobDefinition, CronRunsSummary } from "@/lib/api/analytics";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -97,12 +97,66 @@ const data: CronRunsSummary = {
   stats: [],
 };
 
-const runnableJobs = [JOB, "fcm-tokens-cleanup"];
+const ALL_JOBS = [
+  "activities-reminder",
+  "rankings-recalculate",
+  "annual-reports-auto-generate",
+  "cleanup-expired-records",
+  "fcm-tokens-cleanup",
+  "cron-alert-check",
+  "data-export-cleanup",
+  "finance-period-closing",
+  "dependent-profiles-purge",
+  "family-age-transitions",
+  "pending-teen-guardian",
+  "investiture-achievement-intent",
+  "investiture-authorization-reminders",
+  "member-of-month-auto-evaluate",
+  "membership-requests-expiry",
+  "monthly-reports-auto-generate",
+  "monthly-reports-reminders",
+  "fcm-tokens-stale-cleanup",
+  "quarterly-reports-auto-generate",
+  "ecclesiastical-year-cut",
+];
+
+const NOTIFY_JOBS = [
+  "activities-reminder",
+  "cron-alert-check",
+  "monthly-reports-reminders",
+  "member-of-month-auto-evaluate",
+  "pending-teen-guardian",
+  "family-age-transitions",
+  "investiture-authorization-reminders",
+];
+
+const NOTIFY_WARNING = "Este job puede enviar avisos o correos reales.";
+
+function def(job: string, overrides: Partial<CronJobDefinition> = {}): CronJobDefinition {
+  return {
+    job_name: job,
+    schedule: "0 3 * * *",
+    time_zone: "America/Mexico_City",
+    runnable: true,
+    description: `Descripción de ${job}`,
+    ...overrides,
+  };
+}
+
+const catalog: CronJobDefinition[] = ALL_JOBS.map((j) => def(j));
+
+function rowOf(job: string): HTMLElement {
+  const row = screen
+    .getAllByRole("row")
+    .find((r) => within(r).queryAllByText(job, { exact: true }).length > 0);
+  if (!row) throw new Error(`row not found: ${job}`);
+  return row;
+}
 
 function renderSection(props: Partial<React.ComponentProps<typeof CronRunsSection>> = {}) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <CronRunsSection data={data} runnableJobs={runnableJobs} {...props} />
+      <CronRunsSection data={data} catalog={catalog} {...props} />
     </NextIntlClientProvider>,
   );
 }
@@ -150,14 +204,16 @@ describe("CronRunsSection - run now", () => {
   });
 
   it("hides the action for jobs that are not runnable", () => {
-    renderSection({ runnableJobs: ["fcm-tokens-cleanup"] });
+    renderSection({
+      catalog: catalog.map((j) => (j.job_name === JOB ? { ...j, runnable: false } : j)),
+    });
     expect(
       screen.queryByRole("button", { name: /Ejecutar ahora.*Clasificaciones anuales/i }),
     ).not.toBeInTheDocument();
   });
 
-  it("hides the action when no runnable jobs are known", () => {
-    renderSection({ runnableJobs: [] });
+  it("hides the action when the catalog is unavailable", () => {
+    renderSection({ catalog: undefined });
     expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
   });
 
@@ -215,7 +271,7 @@ describe("CronRunsSection - run now", () => {
   it("disables the action for a job whose latest run is still running", () => {
     renderSection();
     expect(
-      screen.getByRole("button", { name: /Ejecutar ahora.*Cleanup FCM tokens/i }),
+      screen.getByRole("button", { name: /Ejecutar ahora.*FCM tokens huérfanos/i }),
     ).toBeDisabled();
   });
 
@@ -349,5 +405,119 @@ describe("CronRunsSection - run now", () => {
     const scheduledRow = rows.find((r) => within(r).queryByText("fcm-tokens-cleanup"));
     expect(within(manualRow as HTMLElement).getByText("Manual")).toBeInTheDocument();
     expect(within(scheduledRow as HTMLElement).queryByText("Manual")).not.toBeInTheDocument();
+  });
+
+  describe("every scheduled job from the catalog", () => {
+    it("renders a row with the run action for all 20 catalog jobs (super-admin)", () => {
+      renderSection();
+      for (const job of ALL_JOBS) {
+        expect(within(rowOf(job)).getByRole("button", { name: /Ejecutar ahora/i })).toBeInTheDocument();
+      }
+      expect(screen.getAllByRole("button", { name: /Ejecutar ahora/i })).toHaveLength(20);
+    });
+
+    it("shows the schedule and time zone per row", () => {
+      renderSection({
+        catalog: catalog.map((j) =>
+          j.job_name === "ecclesiastical-year-cut"
+            ? { ...j, schedule: "0 6 1 12 *", time_zone: "UTC" }
+            : j,
+        ),
+      });
+      expect(within(rowOf("ecclesiastical-year-cut")).getByText("0 6 1 12 * · UTC")).toBeInTheDocument();
+      expect(
+        within(rowOf("activities-reminder")).getByText("0 3 * * * · America/Mexico_City"),
+      ).toBeInTheDocument();
+    });
+
+    it("shows a dash as last run for a job that never ran", () => {
+      renderSection();
+      const cells = within(rowOf("annual-reports-auto-generate")).getAllByRole("cell");
+      expect(cells[1]).toHaveTextContent("—");
+      expect(within(rowOf("annual-reports-auto-generate")).getByText("Sin ejecuciones")).toBeInTheDocument();
+    });
+
+    it("uses the translated label when a key exists", () => {
+      renderSection();
+      expect(
+        within(rowOf("annual-reports-auto-generate")).getByText("Reportes anuales (auto-generar)"),
+      ).toBeInTheDocument();
+      expect(within(rowOf(JOB)).getByText(JOB_LABEL)).toBeInTheDocument();
+    });
+
+    it("falls back to the backend description for a job without translation", () => {
+      renderSection({ catalog: [...catalog, def("brand-new-job", { description: "Un job nuevo" })] });
+      expect(within(rowOf("brand-new-job")).getByText("Un job nuevo")).toBeInTheDocument();
+    });
+
+    it("falls back to the job name when there is no translation nor description", () => {
+      renderSection({ catalog: [...catalog, def("brand-new-job", { description: "" })] });
+      const labels = within(rowOf("brand-new-job")).getAllByText("brand-new-job");
+      expect(labels.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("lists a job present only in the runs data even if the catalog lacks it", () => {
+      renderSection({
+        data: {
+          ...data,
+          recent: [
+            ...data.recent,
+            {
+              job_name: "legacy-job",
+              run_id: 7,
+              started_at: "2026-10-20T05:00:00.000Z",
+              ended_at: null,
+              status: "completed",
+              duration_ms: 10,
+              items_processed: 1,
+              error_message: null,
+              trigger: "scheduled",
+              triggered_by: null,
+            },
+          ],
+        },
+      });
+      const row = rowOf("legacy-job");
+      expect(within(row).queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
+    });
+
+    it("falls back to the known jobs without run action when the catalog fails", () => {
+      renderSection({ catalog: undefined });
+      expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
+      expect(within(rowOf(JOB)).getByText(JOB_LABEL)).toBeInTheDocument();
+      expect(screen.getAllByRole("row")).toHaveLength(1 + 9);
+      expect(screen.queryByText("annual-reports-auto-generate")).not.toBeInTheDocument();
+    });
+
+    it("hides the run action for non super-admin even with the full catalog", () => {
+      mocks.user = ADMIN;
+      renderSection();
+      expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
+      expect(screen.getAllByRole("row")).toHaveLength(1 + 20);
+    });
+  });
+
+  describe("notification warning in the confirm dialog", () => {
+    async function openDialog(job: string) {
+      await userEvent.click(within(rowOf(job)).getByRole("button", { name: /Ejecutar ahora/i }));
+      return screen.findByRole("alertdialog");
+    }
+
+    const idle = { recent: [], stats: [] };
+
+    it.each(NOTIFY_JOBS)("warns for %s", async (job) => {
+      renderSection({ data: idle });
+      const dialog = await openDialog(job);
+      expect(within(dialog).getByText(NOTIFY_WARNING)).toBeInTheDocument();
+    });
+
+    it.each(ALL_JOBS.filter((j) => !NOTIFY_JOBS.includes(j)))(
+      "does not warn for %s",
+      async (job) => {
+        renderSection({ data: idle });
+        const dialog = await openDialog(job);
+        expect(within(dialog).queryByText(NOTIFY_WARNING)).not.toBeInTheDocument();
+      },
+    );
   });
 });
