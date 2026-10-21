@@ -52,6 +52,10 @@ const paginationMsg = messages.shared.pagination;
 
 const PAGE_SIZE = 25;
 
+/** Accessible name of a row's verify button (includes the minor's name). */
+const verifyLabel = (name: string) => queueMsg.verify_aria.replace("{name}", name);
+const ANY_VERIFY = new RegExp(`^${queueMsg.verify_aria.split("{name}")[0]}`);
+
 function item(
   assignmentId: string,
   sectionId: number,
@@ -207,9 +211,7 @@ describe("CoordinatorConsentQueue", () => {
       renderQueue();
       await screen.findByText("Zoe Pérez");
 
-      expect(
-        screen.getAllByRole("button", { name: consentMsg.verify_action_aria }),
-      ).toHaveLength(3);
+      expect(screen.getAllByRole("button", { name: ANY_VERIFY })).toHaveLength(3);
       expect(
         screen.queryByRole("button", { name: messages.membership.table.aria_approve }),
       ).toBeNull();
@@ -239,7 +241,7 @@ describe("CoordinatorConsentQueue", () => {
       });
       renderQueue();
 
-      const button = await screen.findByRole("button", { name: consentMsg.verify_action_aria });
+      const button = await screen.findByRole("button", { name: verifyLabel("Zoe Pérez") });
       expect(button).toBeDisabled();
     });
 
@@ -342,6 +344,31 @@ describe("CoordinatorConsentQueue", () => {
       ).toHaveTextContent("1");
     });
 
+    it("appends the district to the chip when present and falls back to an i18n club label", async () => {
+      mockQueue.mockResolvedValue({
+        ...firstPage(),
+        by_section: [
+          { ...bySection[0] },
+          { ...bySection[1], club_name: null },
+        ],
+      });
+      renderQueue();
+      await screen.findByText("Zoe Pérez");
+
+      const summary = screen.getByRole("group", { name: queueMsg.summary_title });
+      expect(
+        within(summary).getByRole("button", {
+          name: /Club Águilas · Conquistadores · Distrito Norte/,
+        }),
+      ).toBeInTheDocument();
+      // No club name: the translated fallback, not a hardcoded string; no district: nothing appended.
+      expect(
+        within(summary).getByRole("button", {
+          name: new RegExp(`^${queueMsg.club_fallback} · Aventureros\\s*1$`),
+        }),
+      ).toBeInTheDocument();
+    });
+
     it("clicking a section switches to that section's own list", async () => {
       const user = userEvent.setup();
       const { onSelectSection } = renderQueue();
@@ -373,9 +400,45 @@ describe("CoordinatorConsentQueue", () => {
   });
 
   describe("verify", () => {
+    // A server that remembers what was verified, so the refetch after a verify
+    // returns the truth instead of the original fixture.
+    const gone = new Set<string>();
+    function serverWithGone(base: () => CoordinatorConsentPendingPage = firstPage) {
+      mockQueue.mockImplementation(async () => {
+        const page = base();
+        const items = page.items.filter((row) => !gone.has(row.assignment_id));
+        const removed = page.items.length - items.length;
+        return {
+          ...page,
+          items,
+          total: page.total - removed,
+          by_section: page.by_section
+            .map((section) => ({
+              ...section,
+              pending_consent_count:
+                items.filter((row) => row.club_section_id === section.club_section_id).length,
+            }))
+            .filter((section) => section.pending_consent_count > 0),
+        };
+      });
+    }
+
+    beforeEach(() => {
+      gone.clear();
+      serverWithGone();
+      mockVerify.mockImplementation(async (_section: number, assignmentId: string) => {
+        gone.add(assignmentId);
+        return {
+          guardianship: { guardianship_id: "g", consent_status: "verified" },
+          assignment: null,
+          approve_error: null,
+        };
+      });
+    });
+
     async function verifyRow(user: ReturnType<typeof userEvent.setup>, rowIndex: number) {
       const row = bodyRows()[rowIndex];
-      await user.click(within(row).getByRole("button", { name: consentMsg.verify_action_aria }));
+      await user.click(within(row).getByRole("button", { name: ANY_VERIFY }));
       const dialog = await screen.findByRole("alertdialog");
       await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
       await user.click(within(dialog).getByLabelText(dialogMsg.confirm_checkbox));
@@ -389,7 +452,7 @@ describe("CoordinatorConsentQueue", () => {
       await screen.findByText("Ana Pérez");
 
       await user.click(
-        within(bodyRows()[1]).getByRole("button", { name: consentMsg.verify_action_aria }),
+        within(bodyRows()[1]).getByRole("button", { name: verifyLabel("Ana Pérez") }),
       );
 
       const dialog = await screen.findByRole("alertdialog");
@@ -412,7 +475,7 @@ describe("CoordinatorConsentQueue", () => {
       });
     });
 
-    it("removes the verified row and decrements the totals without refetching", async () => {
+    it("removes the verified row and decrements the totals at once", async () => {
       const user = userEvent.setup();
       renderQueue();
       await screen.findByText("Ana Pérez");
@@ -434,7 +497,97 @@ describe("CoordinatorConsentQueue", () => {
       const summary = screen.getByRole("group", { name: queueMsg.summary_title });
       expect(within(summary).getByRole("button", { name: /Club Águilas/ })).toHaveTextContent("1");
       expect(within(summary).getByRole("button", { name: /Club Halcones/ })).toHaveTextContent("1");
+    });
+
+    it("refetches the active page after verifying so the shrunk page refills", async () => {
+      const user = userEvent.setup();
+      renderQueue();
+      await screen.findByText("Ana Pérez");
       expect(mockQueue).toHaveBeenCalledTimes(1);
+
+      await verifyRow(user, 1);
+
+      await waitFor(() => expect(mockQueue).toHaveBeenCalledTimes(2));
+      expect(mockQueue).toHaveBeenLastCalledWith({ limit: PAGE_SIZE, offset: 0 });
+    });
+
+    it("a full page refills to 25 rows after a verify, so next does not skip a row", async () => {
+      const user = userEvent.setup();
+      let verified = false;
+      mockQueue.mockImplementation(async ({ offset }: { offset: number }) => {
+        // Server queue of 60 forms; after the verify there are 59 left.
+        const all = Array.from({ length: 60 }, (_, i) => i).filter((i) => !(verified && i === 0));
+        return {
+          items: all.slice(offset, offset + PAGE_SIZE).map((i) => item(`asg-${i}`, 7, `Menor${i}`)),
+          total: all.length,
+          limit: PAGE_SIZE,
+          offset,
+          by_section: [{ ...bySection[0], pending_consent_count: all.length }],
+        };
+      });
+      mockVerify.mockImplementation(async () => {
+        verified = true;
+        return { guardianship: { guardianship_id: "g", consent_status: "verified" }, assignment: null, approve_error: null };
+      });
+      renderQueue();
+      await screen.findByText("Menor0 Pérez");
+
+      await verifyRow(user, 0);
+
+      // The refetched first page holds Menor1..Menor25 again (25 rows).
+      await screen.findByText("Menor25 Pérez");
+      expect(bodyRows()).toHaveLength(PAGE_SIZE);
+      await user.click(screen.getByRole("button", { name: paginationMsg.nextPage }));
+      // Next starts at server offset 25 = Menor26: Menor25 was already shown.
+      expect(await screen.findByText("Menor26 Pérez")).toBeInTheDocument();
+      expect(mockQueue).toHaveBeenLastCalledWith({ limit: PAGE_SIZE, offset: 25 });
+    });
+
+    it("marks the other cached queue pages stale after a verify", async () => {
+      const user = userEvent.setup();
+      const { queryClient } = renderQueue();
+      await screen.findByText("Ana Pérez");
+      queryClient.setQueryData(["membership", "consent-queue", 25], firstPage());
+
+      await verifyRow(user, 1);
+
+      await waitFor(() =>
+        expect(
+          queryClient.getQueryState(["membership", "consent-queue", 25])?.isInvalidated,
+        ).toBe(true),
+      );
+    });
+
+    it("MR_NOT_FOUND on verify (someone else did it): closes the dialog and drops the row", async () => {
+      const user = userEvent.setup();
+      mockVerify.mockImplementation(async (_section: number, assignmentId: string) => {
+        gone.add(assignmentId);
+        throw new ApiError("not found", 404, { code: "MR_NOT_FOUND" });
+      });
+      renderQueue();
+      await screen.findByText("Ana Pérez");
+
+      await verifyRow(user, 1);
+
+      await waitFor(() => expect(screen.queryByText("Ana Pérez")).toBeNull());
+      expect(screen.queryByRole("alertdialog")).toBeNull();
+      expect(bodyRows()).toHaveLength(2);
+      await waitFor(() => expect(mockQueue).toHaveBeenCalledTimes(2));
+    });
+
+    it("other verify errors keep the row and the dialog", async () => {
+      const user = userEvent.setup();
+      mockVerify.mockRejectedValue(
+        new ApiError("nope", 409, { code: "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED" }),
+      );
+      renderQueue();
+      await screen.findByText("Ana Pérez");
+
+      await verifyRow(user, 1);
+
+      await waitFor(() => expect(mockVerify).toHaveBeenCalledOnce());
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+      expect(screen.getByText("Ana Pérez", { selector: "p" })).toBeInTheDocument();
     });
 
     it("drops a section from the summary when its last form is verified", async () => {
@@ -452,13 +605,13 @@ describe("CoordinatorConsentQueue", () => {
 
     it("shows the empty state after verifying the last form", async () => {
       const user = userEvent.setup();
-      mockQueue.mockResolvedValue({
+      serverWithGone(() => ({
         items: [item("asg-zoe", 9, "Zoe")],
         total: 1,
         limit: PAGE_SIZE,
         offset: 0,
         by_section: [{ ...bySection[1], pending_consent_count: 1 }],
-      });
+      }));
       renderQueue();
       await screen.findByText("Zoe Pérez");
 
@@ -534,6 +687,29 @@ describe("CoordinatorConsentQueue", () => {
       renderQueue();
 
       expect(await screen.findByText(queueMsg.error_generic)).toBeInTheDocument();
+    });
+
+    it("a generic error offers Retry, which reloads the queue", async () => {
+      const user = userEvent.setup();
+      mockQueue.mockRejectedValueOnce(new Error("boom"));
+      renderQueue();
+      await screen.findByText(queueMsg.error_generic);
+
+      await user.click(screen.getByRole("button", { name: queueMsg.retry }));
+
+      expect(await screen.findByText("Zoe Pérez")).toBeInTheDocument();
+      expect(screen.queryByText(queueMsg.error_generic)).toBeNull();
+      expect(mockQueue).toHaveBeenCalledTimes(2);
+    });
+
+    it("permission and scope errors do not offer Retry", async () => {
+      mockQueue.mockRejectedValue(
+        new ApiError("Forbidden resource", 403, { code: "GUARD_PERMISSION_DENIED" }),
+      );
+      renderQueue();
+      await screen.findByText(queueMsg.error_permission);
+
+      expect(screen.queryByRole("button", { name: queueMsg.retry })).toBeNull();
     });
   });
 });

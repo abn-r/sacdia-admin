@@ -20,6 +20,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
 import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
 import {
+  CONSENT_QUEUE_KEY as QUEUE_KEY,
+  SECTION_LISTS_KEY,
+} from "@/components/membership/consent-queue-keys";
+import {
   getConsentErrorCode,
   listCoordinatorConsentPendingFromClient,
   VERIFY_BLOCK_CODE,
@@ -32,9 +36,6 @@ import { useFormatDateTime } from "@/lib/format-locale";
 
 export const CONSENT_QUEUE_PAGE_SIZE = 25;
 
-const QUEUE_KEY = ["membership", "consent-queue"] as const;
-/** Per-section lists (MembershipRequestsClientPage); stale once a form is verified here. */
-const SECTION_LISTS_KEY = ["membership", "requests"] as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,8 @@ interface CoordinatorConsentQueueProps {
  * One queue of consent forms across every section the coordinator covers
  * (GET /coordination/me/consent-pending), oldest form first. Verify-only: the
  * dialog never approves nor uploads. After a verification the row is dropped and
- * the counts decremented locally; other cached pages are only marked stale.
+ * the counts decremented locally, then the active page is refetched; other cached
+ * pages are only marked stale.
  */
 export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQueueProps) {
   const t = useTranslations("membership.queue");
@@ -94,6 +96,13 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
 
   const page = query.data;
 
+  const errorCode = query.error ? getConsentErrorCode(query.error) : null;
+  // Permission / scope errors do not heal by retrying; anything else may.
+  const isGenericError =
+    query.error !== null &&
+    errorCode !== "GUARD_PERMISSION_DENIED" &&
+    errorCode !== "GUARD_CLUB_SCOPE_REQUIRED";
+
   const loadError = (() => {
     if (!query.error) return null;
     const code = getConsentErrorCode(query.error);
@@ -102,43 +111,54 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
     return t("error_generic");
   })();
 
-  function handleVerified(item: CoordinatorConsentPendingItem) {
+  /**
+   * A form left the queue (verified here, or already handled by someone else).
+   * The cached page is patched right away so the row disappears at once, then the
+   * active page is refetched: the page shrank, so it refills from the server and
+   * "next" (offset + limit) does not skip a row. Other cached pages and the
+   * per-section lists are only marked stale.
+   */
+  function handleGone(item: CoordinatorConsentPendingItem) {
     const current = queryClient.getQueryData<CoordinatorConsentPendingPage>(queryKey);
-    if (!current) return;
 
-    const items = current.items.filter((row) => row.assignment_id !== item.assignment_id);
-    if (items.length === current.items.length) return;
+    let moveToOffset: number | null = null;
+    if (current) {
+      const items = current.items.filter((row) => row.assignment_id !== item.assignment_id);
+      if (items.length !== current.items.length) {
+        const total = Math.max(0, current.total - 1);
+        const by_section = current.by_section
+          .map((section) =>
+            section.club_section_id === item.club_section_id
+              ? { ...section, pending_consent_count: section.pending_consent_count - 1 }
+              : section,
+          )
+          .filter((section) => section.pending_consent_count > 0);
 
-    const total = Math.max(0, current.total - 1);
-    const by_section = current.by_section
-      .map((section) =>
-        section.club_section_id === item.club_section_id
-          ? { ...section, pending_consent_count: section.pending_consent_count - 1 }
-          : section,
-      )
-      .filter((section) => section.pending_consent_count > 0);
+        queryClient.setQueryData<CoordinatorConsentPendingPage>(queryKey, {
+          ...current,
+          items,
+          total,
+          by_section,
+        });
 
-    queryClient.setQueryData<CoordinatorConsentPendingPage>(queryKey, {
-      ...current,
-      items,
-      total,
-      by_section,
-    });
-    // Rows shifted: other pages and the per-section lists are stale now, but
-    // nothing is refetched eagerly (the local update already shows the truth).
-    queryClient.invalidateQueries({ queryKey: QUEUE_KEY, refetchType: "none" });
-    queryClient.invalidateQueries({ queryKey: SECTION_LISTS_KEY, refetchType: "none" });
-
-    // The page emptied but forms remain elsewhere: reload instead of a blank page.
-    if (items.length === 0 && total > 0) {
-      const lastOffset = Math.floor((total - 1) / CONSENT_QUEUE_PAGE_SIZE) * CONSENT_QUEUE_PAGE_SIZE;
-      const nextOffset = Math.min(offset, lastOffset);
-      if (nextOffset === offset) {
-        void queryClient.invalidateQueries({ queryKey });
-      } else {
-        setOffset(nextOffset);
+        // The page emptied but forms remain elsewhere: go to the last page that
+        // exists instead of showing a blank one.
+        if (items.length === 0 && total > 0) {
+          const lastOffset =
+            Math.floor((total - 1) / CONSENT_QUEUE_PAGE_SIZE) * CONSENT_QUEUE_PAGE_SIZE;
+          const nextOffset = Math.min(offset, lastOffset);
+          if (nextOffset !== offset) moveToOffset = nextOffset;
+        }
       }
     }
+
+    // Moving pages: the old key must not refetch (it is about to be inactive).
+    void queryClient.invalidateQueries({
+      queryKey: QUEUE_KEY,
+      refetchType: moveToOffset === null ? "active" : "none",
+    });
+    void queryClient.invalidateQueries({ queryKey: SECTION_LISTS_KEY, refetchType: "none" });
+    if (moveToOffset !== null) setOffset(moveToOffset);
   }
 
   const hasPager = page !== undefined && (page.total > page.limit || page.offset > 0);
@@ -166,6 +186,18 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
       {!query.isPending && loadError && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
           <p className="text-sm text-destructive">{loadError}</p>
+          {isGenericError && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => void query.refetch()}
+              disabled={query.isFetching}
+            >
+              <RefreshCw className={`size-4 ${query.isFetching ? "animate-spin" : ""}`} />
+              {t("retry")}
+            </Button>
+          )}
         </div>
       )}
 
@@ -203,7 +235,13 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                     size="sm"
                     onClick={() => onSelectSection(section.club_section_id)}
                   >
-                    {`${section.club_name ?? "Club"} · ${section.club_type_name ?? "—"}`}
+                    {[
+                      section.club_name ?? t("club_fallback"),
+                      section.club_type_name ?? "—",
+                      section.district_name,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                     <Badge variant="soft-warning">{section.pending_consent_count}</Badge>
                   </Button>
                 ))}
@@ -273,7 +311,7 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                                     className="text-primary hover:bg-primary/10 hover:text-primary"
                                     onClick={() => setDialogItem(item)}
                                     disabled={verifyDisabled}
-                                    aria-label={tConsent("verify_action_aria")}
+                                    aria-label={t("verify_aria", { name: getMinorName(item.users) })}
                                   >
                                     <ShieldCheck className="size-4" />
                                   </Button>
@@ -346,7 +384,16 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
           onSuccess={() => {
             const verified = dialogItem;
             setDialogItem(null);
-            handleVerified(verified);
+            handleGone(verified);
+          }}
+          onVerifyError={(error) => {
+            // Someone else verified (or removed) this form: the row is gone for
+            // good, so drop it instead of leaving a dead action behind.
+            if (getConsentErrorCode(error) === "MR_NOT_FOUND") {
+              const gone = dialogItem;
+              setDialogItem(null);
+              handleGone(gone);
+            }
           }}
         />
       )}

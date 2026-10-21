@@ -6826,7 +6826,10 @@
       "empty_description": "Nenhuma ficha de consentimento está aguardando verificação em suas seções.",
       "error_permission": "Seu papel de coordenador não inclui verificar consentimentos. Escolha uma seção para ver a lista dela.",
       "error_scope": "Você não tem designações de coordenação ativas que cubram seções.",
-      "error_generic": "Não foi possível carregar as fichas para verificar."
+      "error_generic": "Não foi possível carregar as fichas para verificar.",
+      "club_fallback": "Clube",
+      "verify_aria": "Verificar consentimento do responsável de {name}",
+      "retry": "Tentar novamente"
     },
     "toasts": {
       "approved": "Adesão aprovada para {name}",

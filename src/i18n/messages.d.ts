@@ -6856,6 +6856,9 @@ export interface IntlMessages {
       error_permission: string;
       error_scope: string;
       error_generic: string;
+      club_fallback: string;
+      verify_aria: string;
+      retry: string;
     };
     toasts: {
       approved: string;

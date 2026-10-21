@@ -76,7 +76,7 @@ function renderTable(
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(
+  const result = render(
     <QueryClientProvider client={queryClient}>
       <NextIntlClientProvider locale="es" messages={messages}>
         <TooltipProvider>
@@ -89,6 +89,7 @@ function renderTable(
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
+  return { ...result, queryClient };
 }
 
 describe("PendingMembersTable verify-only mode", () => {
@@ -146,6 +147,23 @@ describe("PendingMembersTable verify-only mode", () => {
       approve: false,
     });
     expect(mockApprove).not.toHaveBeenCalled();
+  });
+
+  it("verifying marks the coordinator consent queue stale so it refetches when reopened", async () => {
+    const user = userEvent.setup();
+    const { queryClient } = renderTable([pendingMinor()], "verify-only");
+    queryClient.setQueryData(["membership", "consent-queue", 0], { items: [], total: 0 });
+
+    await user.click(screen.getByRole("button", { name: consentMsg.verify_action_aria }));
+    await screen.findByRole("img", { name: consentMsg.dialog.evidence_image_alt });
+    await user.click(screen.getByLabelText(consentMsg.dialog.confirm_checkbox));
+    await user.click(screen.getByRole("button", { name: consentMsg.dialog.confirm }));
+
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(["membership", "consent-queue", 0])?.isInvalidated,
+      ).toBe(true),
+    );
   });
 
   it("uses verification copy for the empty state and the count", () => {

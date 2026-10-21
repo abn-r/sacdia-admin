@@ -6826,7 +6826,10 @@
       "empty_description": "No hay fichas de consentimiento esperando verificación en ninguna de tus secciones.",
       "error_permission": "Tu rol de coordinador no incluye verificar consentimientos. Elige una sección para ver su lista.",
       "error_scope": "No tienes asignaciones de coordinación activas que cubran secciones.",
-      "error_generic": "No se pudieron cargar las fichas por verificar."
+      "error_generic": "No se pudieron cargar las fichas por verificar.",
+      "club_fallback": "Club",
+      "verify_aria": "Verificar consentimiento del tutor de {name}",
+      "retry": "Reintentar"
     },
     "toasts": {
       "approved": "Membresía aprobada para {name}",

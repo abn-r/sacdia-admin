@@ -6826,7 +6826,10 @@
       "empty_description": "Aucune fiche de consentement n'attend de vérification dans vos sections.",
       "error_permission": "Votre rôle de coordinateur n'inclut pas la vérification des consentements. Choisissez une section pour voir sa liste.",
       "error_scope": "Vous n'avez aucune affectation de coordination active couvrant des sections.",
-      "error_generic": "Impossible de charger les fiches à vérifier."
+      "error_generic": "Impossible de charger les fiches à vérifier.",
+      "club_fallback": "Club",
+      "verify_aria": "Vérifier le consentement du tuteur de {name}",
+      "retry": "Réessayer"
     },
     "toasts": {
       "approved": "Adhésion approuvée pour {name}",

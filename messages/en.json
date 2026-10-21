@@ -6826,7 +6826,10 @@
       "empty_description": "No consent forms are waiting for verification in any of your sections.",
       "error_permission": "Your coordinator role does not include verifying consent. Pick a section to see its list.",
       "error_scope": "You have no active coordination assignments covering sections.",
-      "error_generic": "Could not load the forms to verify."
+      "error_generic": "Could not load the forms to verify.",
+      "club_fallback": "Club",
+      "verify_aria": "Verify guardian consent for {name}",
+      "retry": "Retry"
     },
     "toasts": {
       "approved": "Membership approved for {name}",
