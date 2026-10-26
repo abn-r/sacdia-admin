@@ -6093,7 +6093,8 @@
       "col_status": "Statut",
       "empty_title": "Aucun article d'inventaire",
       "empty_description": "Aucun article trouvé pour les filtres sélectionnés.",
-      "category_fallback": "Catégorie {id}"
+      "category_fallback": "Catégorie {id}",
+      "col_condition": "État"
     },
     "status": {
       "active": "Actif",
@@ -6105,7 +6106,9 @@
       "edit_item": "Modifier l'article",
       "edit_sr": "Modifier",
       "delete_item": "Supprimer l'article",
-      "delete_sr": "Supprimer"
+      "delete_sr": "Supprimer",
+      "view_details": "Voir le détail",
+      "view_details_sr": "Détail"
     },
     "history": {
       "dialog_title": "Historique des modifications",
@@ -6119,7 +6122,42 @@
       "field_description": "Description",
       "field_amount": "Quantité",
       "field_category": "Catégorie",
-      "field_active": "Statut"
+      "field_active": "Statut",
+      "field_condition": "État",
+      "field_serial_number": "Numéro de série",
+      "field_purchase_date": "Date d'achat",
+      "field_estimated_value": "Valeur estimée",
+      "field_location": "Emplacement",
+      "field_assigned_to": "Responsable",
+      "field_notes": "Notes"
+    },
+    "condition": {
+      "bueno": "Bon",
+      "regular": "Moyen",
+      "malo": "Mauvais"
+    },
+    "form": {
+      "step_indicator": "Étape {current} sur {total}",
+      "step_main": "Données de l'article",
+      "step_details": "Détails supplémentaires",
+      "step_details_hint": "Tous les champs de cette étape sont facultatifs.",
+      "next": "Plus de détails",
+      "back": "Retour",
+      "condition": "État",
+      "serial_number": "Numéro de série",
+      "purchase_date": "Date d'achat",
+      "estimated_value": "Valeur estimée (MXN)",
+      "location": "Emplacement",
+      "assigned_to": "Responsable",
+      "notes": "Notes"
+    },
+    "detail": {
+      "title": "Détail de l'article",
+      "description": "Informations complètes de l'article d'inventaire.",
+      "close": "Fermer",
+      "section_general": "Général",
+      "section_extra": "Détails supplémentaires",
+      "no_value": "Non précisé"
     },
     "view": {
       "select_local_field_placeholder": "Sélectionner un champ local",
@@ -6145,13 +6183,25 @@
       "name_max": "Le nom ne peut pas dépasser {max} caractères",
       "description_max": "La description ne peut pas dépasser {max} caractères",
       "category_required": "Sélectionnez une catégorie",
-      "amount_min": "La quantité ne peut pas être négative"
+      "amount_min": "La quantité ne peut pas être négative",
+      "serial_number_max": "Le numéro de série ne peut pas dépasser {max} caractères",
+      "purchase_date_invalid": "Saisissez une date valide",
+      "estimated_value_min": "La valeur estimée ne peut pas être négative",
+      "estimated_value_invalid": "Saisissez un montant valide avec 2 décimales maximum",
+      "location_max": "L'emplacement ne peut pas dépasser {max} caractères",
+      "assigned_to_max": "Le responsable ne peut pas dépasser {max} caractères",
+      "notes_max": "Les notes ne peuvent pas dépasser {max} caractères"
     },
     "placeholders": {
       "name": "Ex. Tentes 4 personnes",
       "description": "Description optionnelle de l'article",
       "selectCategory": "Sélectionner la catégorie",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "Ex. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "Ex. Local de rangement du club",
+      "assigned_to": "Ex. Jean Dupont",
+      "notes": "Remarques sur l'état, l'usage ou l'entretien"
     }
   },
   "units_admin": {

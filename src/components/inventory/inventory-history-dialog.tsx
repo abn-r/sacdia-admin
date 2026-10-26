@@ -72,6 +72,13 @@ function getFieldLabel(
     amount: "history.field_amount",
     inventory_category_id: "history.field_category",
     active: "history.field_active",
+    condition: "history.field_condition",
+    serial_number: "history.field_serial_number",
+    purchase_date: "history.field_purchase_date",
+    estimated_value: "history.field_estimated_value",
+    location: "history.field_location",
+    assigned_to: "history.field_assigned_to",
+    notes: "history.field_notes",
   };
   const key = keyMap[field];
   return key ? t(key as Parameters<typeof t>[0]) : field;

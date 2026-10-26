@@ -14,6 +14,7 @@ import {
   listLocalFieldsForTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
+import { normalizeInventoryItem } from "@/lib/inventory/normalize-item";
 import {
   buildInventorySectionOptions,
   clubTypeIdToInstanceType,
@@ -32,33 +33,6 @@ function normalizeCategory(raw: AnyRecord): InventoryCategory {
     inventory_category_id: Number(raw.inventory_category_id ?? raw.id ?? 0),
     name: String(raw.name ?? ""),
     description: typeof raw.description === "string" ? raw.description : null,
-  };
-}
-
-function normalizeItem(raw: AnyRecord): InventoryItem {
-  const category =
-    raw.inventory_category && typeof raw.inventory_category === "object"
-      ? (raw.inventory_category as AnyRecord)
-      : null;
-
-  return {
-    inventory_id: Number(raw.inventory_id ?? raw.id ?? 0),
-    name: String(raw.name ?? ""),
-    description: typeof raw.description === "string" ? raw.description : null,
-    inventory_category_id: Number(raw.inventory_category_id ?? 0),
-    inventory_category: category
-      ? {
-          inventory_category_id: Number(category.inventory_category_id ?? 0),
-          name: String(category.name ?? ""),
-          description:
-            typeof category.description === "string" ? category.description : null,
-        }
-      : null,
-    club_id: Number(raw.club_id ?? 0),
-    amount: Number(raw.amount ?? 0),
-    active: raw.active !== false,
-    created_at: typeof raw.created_at === "string" ? raw.created_at : null,
-    updated_at: typeof raw.updated_at === "string" ? raw.updated_at : null,
   };
 }
 
@@ -145,7 +119,7 @@ export default async function InventoryPage() {
           instanceType,
         });
         const rawItems = extractArray(payload);
-        initialItems = rawItems.map(normalizeItem);
+        initialItems = rawItems.map(normalizeInventoryItem);
       } catch (err) {
         console.warn("Failed to load initial inventory items:", err);
       }

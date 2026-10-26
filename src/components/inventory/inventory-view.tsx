@@ -24,6 +24,7 @@ import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { INSTANCE_TYPE_LABELS } from "@/lib/api/inventory";
+import { normalizeInventoryItem } from "@/lib/inventory/normalize-item";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
   clubTypeIdToInstanceType,
@@ -40,33 +41,6 @@ function extractArray(payload: unknown): AnyRecord[] {
     if (Array.isArray(root.data)) return root.data as AnyRecord[];
   }
   return [];
-}
-
-function normalizeItem(raw: AnyRecord): InventoryItem {
-  const category =
-    raw.inventory_category && typeof raw.inventory_category === "object"
-      ? (raw.inventory_category as AnyRecord)
-      : null;
-
-  return {
-    inventory_id: Number(raw.inventory_id ?? raw.id ?? 0),
-    name: String(raw.name ?? ""),
-    description: typeof raw.description === "string" ? raw.description : null,
-    inventory_category_id: Number(raw.inventory_category_id ?? 0),
-    inventory_category: category
-      ? {
-          inventory_category_id: Number(category.inventory_category_id ?? 0),
-          name: String(category.name ?? ""),
-          description:
-            typeof category.description === "string" ? category.description : null,
-        }
-      : null,
-    club_id: Number(raw.club_id ?? 0),
-    amount: Number(raw.amount ?? 0),
-    active: raw.active !== false,
-    created_at: typeof raw.created_at === "string" ? raw.created_at : null,
-    updated_at: typeof raw.updated_at === "string" ? raw.updated_at : null,
-  };
 }
 
 interface InventoryViewProps {
@@ -154,7 +128,7 @@ export function InventoryView({
           { params },
         );
         const raw = extractArray(payload);
-        setItems(raw.map(normalizeItem));
+        setItems(raw.map(normalizeInventoryItem));
       } catch (err) {
         const message =
           err instanceof ApiError

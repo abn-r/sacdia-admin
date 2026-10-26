@@ -6093,7 +6093,8 @@
       "col_status": "Status",
       "empty_title": "Nenhum item de inventário",
       "empty_description": "Nenhum item encontrado para os filtros selecionados.",
-      "category_fallback": "Categoria {id}"
+      "category_fallback": "Categoria {id}",
+      "col_condition": "Condição"
     },
     "status": {
       "active": "Ativo",
@@ -6105,7 +6106,9 @@
       "edit_item": "Editar item",
       "edit_sr": "Editar",
       "delete_item": "Excluir item",
-      "delete_sr": "Excluir"
+      "delete_sr": "Excluir",
+      "view_details": "Ver detalhes",
+      "view_details_sr": "Detalhes"
     },
     "history": {
       "dialog_title": "Histórico de alterações",
@@ -6119,7 +6122,42 @@
       "field_description": "Descrição",
       "field_amount": "Quantidade",
       "field_category": "Categoria",
-      "field_active": "Status"
+      "field_active": "Status",
+      "field_condition": "Condição",
+      "field_serial_number": "Número de série",
+      "field_purchase_date": "Data de compra",
+      "field_estimated_value": "Valor estimado",
+      "field_location": "Localização",
+      "field_assigned_to": "Responsável",
+      "field_notes": "Observações"
+    },
+    "condition": {
+      "bueno": "Bom",
+      "regular": "Regular",
+      "malo": "Ruim"
+    },
+    "form": {
+      "step_indicator": "Etapa {current} de {total}",
+      "step_main": "Dados do item",
+      "step_details": "Detalhes adicionais",
+      "step_details_hint": "Todos os campos desta etapa são opcionais.",
+      "next": "Mais detalhes",
+      "back": "Voltar",
+      "condition": "Condição",
+      "serial_number": "Número de série",
+      "purchase_date": "Data de compra",
+      "estimated_value": "Valor estimado (MXN)",
+      "location": "Localização",
+      "assigned_to": "Responsável",
+      "notes": "Observações"
+    },
+    "detail": {
+      "title": "Detalhes do item",
+      "description": "Informações completas do item de inventário.",
+      "close": "Fechar",
+      "section_general": "Geral",
+      "section_extra": "Detalhes adicionais",
+      "no_value": "Não informado"
     },
     "view": {
       "select_local_field_placeholder": "Selecionar campo local",
@@ -6145,13 +6183,25 @@
       "name_max": "O nome não pode ultrapassar {max} caracteres",
       "description_max": "A descrição não pode ultrapassar {max} caracteres",
       "category_required": "Selecione uma categoria",
-      "amount_min": "A quantidade não pode ser negativa"
+      "amount_min": "A quantidade não pode ser negativa",
+      "serial_number_max": "O número de série não pode exceder {max} caracteres",
+      "purchase_date_invalid": "Informe uma data válida",
+      "estimated_value_min": "O valor estimado não pode ser negativo",
+      "estimated_value_invalid": "Informe um valor válido com no máximo 2 casas decimais",
+      "location_max": "A localização não pode exceder {max} caracteres",
+      "assigned_to_max": "O responsável não pode exceder {max} caracteres",
+      "notes_max": "As observações não podem exceder {max} caracteres"
     },
     "placeholders": {
       "name": "Ex. Barracas 4 pessoas",
       "description": "Descrição opcional do item",
       "selectCategory": "Selecionar categoria",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "Ex. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "Ex. Depósito do clube",
+      "assigned_to": "Ex. João Silva",
+      "notes": "Observações sobre estado, uso ou manutenção"
     }
   },
   "units_admin": {
