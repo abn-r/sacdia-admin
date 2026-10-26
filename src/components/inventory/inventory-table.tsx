@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Package, Pencil, Trash2, History } from "lucide-react";
+import { Eye, Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { InventoryConditionBadge } from "@/components/inventory/inventory-condition-badge";
+import { InventoryDetailDialog } from "@/components/inventory/inventory-detail-dialog";
 import { InventoryHistoryDialog } from "@/components/inventory/inventory-history-dialog";
 import type { InventoryItem } from "@/lib/api/inventory";
 
@@ -31,6 +33,8 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
   const t = useTranslations("inventory");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
+
+  const [detailItem, setDetailItem] = useState<InventoryItem | null>(null);
 
   function handleHistory(item: InventoryItem) {
     setHistoryItem(item);
@@ -55,11 +59,14 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
             <TableHead className="h-9 w-[22%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_name")}
             </TableHead>
-            <TableHead className="h-9 w-[28%] px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="h-9 w-[22%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_description")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_category")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
+              {t("table.col_condition")}
             </TableHead>
             <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_amount")}
@@ -67,7 +74,7 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
             <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_status")}
             </TableHead>
-            <TableHead className="h-9 w-32 px-3" />
+            <TableHead className="h-9 w-36 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -94,6 +101,9 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                 <TableCell className="px-3 py-2.5 align-middle">
                   <Badge variant="secondary">{categoryName}</Badge>
                 </TableCell>
+                <TableCell className="px-3 py-2.5 text-center align-middle">
+                  <InventoryConditionBadge condition={item.condition} />
+                </TableCell>
                 <TableCell className="px-3 py-2.5 text-center align-middle tabular-nums font-medium">
                   {item.amount}
                 </TableCell>
@@ -104,6 +114,15 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setDetailItem(item)}
+                      title={t("actions.view_details")}
+                    >
+                      <Eye className="size-3.5" />
+                      <span className="sr-only">{t("actions.view_details_sr")}</span>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -143,6 +162,13 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
           })}
         </TableBody>
       </Table>
+      <InventoryDetailDialog
+        open={detailItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetailItem(null);
+        }}
+        item={detailItem}
+      />
       <InventoryHistoryDialog
         open={historyOpen}
         onOpenChange={setHistoryOpen}

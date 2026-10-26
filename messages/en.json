@@ -6093,7 +6093,8 @@
       "col_status": "Status",
       "empty_title": "No inventory items",
       "empty_description": "No items found for the selected filters.",
-      "category_fallback": "Category {id}"
+      "category_fallback": "Category {id}",
+      "col_condition": "Condition"
     },
     "status": {
       "active": "Active",
@@ -6105,7 +6106,9 @@
       "edit_item": "Edit item",
       "edit_sr": "Edit",
       "delete_item": "Delete item",
-      "delete_sr": "Delete"
+      "delete_sr": "Delete",
+      "view_details": "View details",
+      "view_details_sr": "Details"
     },
     "history": {
       "dialog_title": "Change history",
@@ -6119,7 +6122,42 @@
       "field_description": "Description",
       "field_amount": "Quantity",
       "field_category": "Category",
-      "field_active": "Status"
+      "field_active": "Status",
+      "field_condition": "Condition",
+      "field_serial_number": "Serial number",
+      "field_purchase_date": "Purchase date",
+      "field_estimated_value": "Estimated value",
+      "field_location": "Location",
+      "field_assigned_to": "Assigned to",
+      "field_notes": "Notes"
+    },
+    "condition": {
+      "bueno": "Good",
+      "regular": "Fair",
+      "malo": "Poor"
+    },
+    "form": {
+      "step_indicator": "Step {current} of {total}",
+      "step_main": "Item details",
+      "step_details": "Additional details",
+      "step_details_hint": "All fields in this step are optional.",
+      "next": "More details",
+      "back": "Back",
+      "condition": "Condition",
+      "serial_number": "Serial number",
+      "purchase_date": "Purchase date",
+      "estimated_value": "Estimated value (MXN)",
+      "location": "Location",
+      "assigned_to": "Assigned to",
+      "notes": "Notes"
+    },
+    "detail": {
+      "title": "Item details",
+      "description": "Complete information for this inventory item.",
+      "close": "Close",
+      "section_general": "General",
+      "section_extra": "Additional details",
+      "no_value": "Not specified"
     },
     "view": {
       "select_local_field_placeholder": "Select local field",
@@ -6145,13 +6183,25 @@
       "name_max": "Name cannot exceed {max} characters",
       "description_max": "Description cannot exceed {max} characters",
       "category_required": "Select a category",
-      "amount_min": "Quantity cannot be negative"
+      "amount_min": "Quantity cannot be negative",
+      "serial_number_max": "Serial number cannot exceed {max} characters",
+      "purchase_date_invalid": "Enter a valid date",
+      "estimated_value_min": "Estimated value cannot be negative",
+      "estimated_value_invalid": "Enter a valid amount with at most 2 decimals",
+      "location_max": "Location cannot exceed {max} characters",
+      "assigned_to_max": "Assigned to cannot exceed {max} characters",
+      "notes_max": "Notes cannot exceed {max} characters"
     },
     "placeholders": {
       "name": "E.g. 4-person tents",
       "description": "Optional item description",
       "selectCategory": "Select category",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "E.g. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "E.g. Club storage room",
+      "assigned_to": "E.g. John Smith",
+      "notes": "Remarks about condition, usage or maintenance"
     }
   },
   "units_admin": {

@@ -6123,6 +6123,7 @@ export interface IntlMessages {
       empty_title: string;
       empty_description: string;
       category_fallback: string;
+      col_condition: string;
     };
     status: {
       active: string;
@@ -6135,6 +6136,8 @@ export interface IntlMessages {
       edit_sr: string;
       delete_item: string;
       delete_sr: string;
+      view_details: string;
+      view_details_sr: string;
     };
     history: {
       dialog_title: string;
@@ -6149,6 +6152,41 @@ export interface IntlMessages {
       field_amount: string;
       field_category: string;
       field_active: string;
+      field_condition: string;
+      field_serial_number: string;
+      field_purchase_date: string;
+      field_estimated_value: string;
+      field_location: string;
+      field_assigned_to: string;
+      field_notes: string;
+    };
+    condition: {
+      bueno: string;
+      regular: string;
+      malo: string;
+    };
+    form: {
+      step_indicator: string;
+      step_main: string;
+      step_details: string;
+      step_details_hint: string;
+      next: string;
+      back: string;
+      condition: string;
+      serial_number: string;
+      purchase_date: string;
+      estimated_value: string;
+      location: string;
+      assigned_to: string;
+      notes: string;
+    };
+    detail: {
+      title: string;
+      description: string;
+      close: string;
+      section_general: string;
+      section_extra: string;
+      no_value: string;
     };
     view: {
       select_local_field_placeholder: string;
@@ -6175,12 +6213,24 @@ export interface IntlMessages {
       description_max: string;
       category_required: string;
       amount_min: string;
+      serial_number_max: string;
+      purchase_date_invalid: string;
+      estimated_value_min: string;
+      estimated_value_invalid: string;
+      location_max: string;
+      assigned_to_max: string;
+      notes_max: string;
     };
     placeholders: {
       name: string;
       description: string;
       selectCategory: string;
       quantity: string;
+      serial_number: string;
+      estimated_value: string;
+      location: string;
+      assigned_to: string;
+      notes: string;
     };
   };
   units_admin: {

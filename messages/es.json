@@ -6093,7 +6093,8 @@
       "col_status": "Estado",
       "empty_title": "Sin ítems de inventario",
       "empty_description": "No se encontraron ítems para los filtros seleccionados.",
-      "category_fallback": "Categoría {id}"
+      "category_fallback": "Categoría {id}",
+      "col_condition": "Condición"
     },
     "status": {
       "active": "Activo",
@@ -6105,7 +6106,9 @@
       "edit_item": "Editar ítem",
       "edit_sr": "Editar",
       "delete_item": "Eliminar ítem",
-      "delete_sr": "Eliminar"
+      "delete_sr": "Eliminar",
+      "view_details": "Ver detalle",
+      "view_details_sr": "Detalle"
     },
     "history": {
       "dialog_title": "Historial de cambios",
@@ -6119,7 +6122,42 @@
       "field_description": "Descripción",
       "field_amount": "Cantidad",
       "field_category": "Categoría",
-      "field_active": "Estado"
+      "field_active": "Estado",
+      "field_condition": "Condición",
+      "field_serial_number": "Número de serie",
+      "field_purchase_date": "Fecha de compra",
+      "field_estimated_value": "Valor estimado",
+      "field_location": "Ubicación",
+      "field_assigned_to": "Responsable",
+      "field_notes": "Notas"
+    },
+    "condition": {
+      "bueno": "Bueno",
+      "regular": "Regular",
+      "malo": "Malo"
+    },
+    "form": {
+      "step_indicator": "Paso {current} de {total}",
+      "step_main": "Datos del ítem",
+      "step_details": "Detalles adicionales",
+      "step_details_hint": "Todos los campos de este paso son opcionales.",
+      "next": "Más detalles",
+      "back": "Atrás",
+      "condition": "Condición",
+      "serial_number": "Número de serie",
+      "purchase_date": "Fecha de compra",
+      "estimated_value": "Valor estimado (MXN)",
+      "location": "Ubicación",
+      "assigned_to": "Responsable",
+      "notes": "Notas"
+    },
+    "detail": {
+      "title": "Detalle del ítem",
+      "description": "Información completa del ítem de inventario.",
+      "close": "Cerrar",
+      "section_general": "General",
+      "section_extra": "Detalles adicionales",
+      "no_value": "Sin especificar"
     },
     "view": {
       "select_local_field_placeholder": "Seleccionar campo local",
@@ -6145,13 +6183,25 @@
       "name_max": "El nombre no puede superar {max} caracteres",
       "description_max": "La descripción no puede superar {max} caracteres",
       "category_required": "Selecciona una categoría",
-      "amount_min": "La cantidad no puede ser negativa"
+      "amount_min": "La cantidad no puede ser negativa",
+      "serial_number_max": "El número de serie no puede superar {max} caracteres",
+      "purchase_date_invalid": "Ingresa una fecha válida",
+      "estimated_value_min": "El valor estimado no puede ser negativo",
+      "estimated_value_invalid": "Ingresa un monto válido con máximo 2 decimales",
+      "location_max": "La ubicación no puede superar {max} caracteres",
+      "assigned_to_max": "El responsable no puede superar {max} caracteres",
+      "notes_max": "Las notas no pueden superar {max} caracteres"
     },
     "placeholders": {
       "name": "Ej. Carpas 4 personas",
       "description": "Descripción opcional del ítem",
       "selectCategory": "Seleccionar categoría",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "Ej. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "Ej. Bodega del club",
+      "assigned_to": "Ej. Juan Pérez",
+      "notes": "Observaciones sobre el estado, uso o mantenimiento"
     }
   },
   "units_admin": {
