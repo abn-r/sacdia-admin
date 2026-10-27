@@ -57,8 +57,12 @@ export const adminSystemScreens: ScreenDefinition[] = [
     "admin-system-jobs-history",
     roleOnlyAccess(CATALOG_EDITOR_ROLES),
   ),
+  // `/admin/achievements` is `@GlobalRoles('admin', 'super-admin')` +
+  // `achievements:manage`. Field roles also hold the permission, but the API
+  // answers them 403, so the page needs the role too.
   viewOnlyScreen("admin-system-achievements", {
     permissions: [ACHIEVEMENTS_MANAGE],
+    roles: [...CATALOG_EDITOR_ROLES],
   }),
   viewOnlyScreen("admin-system-audit", {
     permissions: [AUDIT_READ],

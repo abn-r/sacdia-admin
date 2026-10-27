@@ -392,6 +392,28 @@ describe("RBAC writes", () => {
   });
 });
 
+describe("achievements admin", () => {
+  // /admin/achievements is @GlobalRoles('admin', 'super-admin'): a field role
+  // that holds achievements:manage must not see a page that only answers 403.
+  it("needs an admin role on top of achievements:manage", () => {
+    for (const role of ["director-union", "assistant-union", "director-lf", "director-dia"]) {
+      const fieldRole = buildUser([role], ["achievements:manage"]);
+      expect(canViewScreen(fieldRole, "admin-system-achievements")).toBe(false);
+    }
+
+    expect(
+      canViewScreen(buildUser(["admin"], ["achievements:manage"]), "admin-system-achievements"),
+    ).toBe(true);
+    expect(
+      canViewScreen(
+        buildUser(["assistant-admin"], ["achievements:manage"]),
+        "admin-system-achievements",
+      ),
+    ).toBe(true);
+    expect(canViewScreen(buildUser(["admin"], []), "admin-system-achievements")).toBe(false);
+  });
+});
+
 describe("materials and camporees", () => {
   it("gates material verbs by their own keys (permission-only module)", () => {
     const approver = buildUser(["coordinator"], ["materiales:read", "materiales:approve"]);
