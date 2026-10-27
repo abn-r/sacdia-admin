@@ -1141,6 +1141,40 @@
     }
   },
   "auth": {
+    "reset_password": {
+      "meta_title": "Restablecer contraseña · SACDIA",
+      "brand_subtitle": "Clubes JA",
+      "title": "Crea una nueva contraseña",
+      "description": "Escribe tu nueva contraseña para tu cuenta SACDIA. Después úsala para iniciar sesión en la app.",
+      "password_label": "Nueva contraseña",
+      "confirm_label": "Confirmar contraseña",
+      "policy_hint": "Mínimo 12 caracteres, con mayúscula, minúscula, número y un símbolo (@ $ ! % * ? &).",
+      "show_password": "Mostrar contraseña",
+      "hide_password": "Ocultar contraseña",
+      "submit_idle": "Guardar contraseña",
+      "submit_loading": "Guardando…",
+      "success_title": "Contraseña actualizada",
+      "success_body": "Ya puedes iniciar sesión en la app SACDIA con tu nueva contraseña. Cerramos tus otras sesiones por seguridad.",
+      "invalid_title": "Este enlace ya no sirve",
+      "invalid_body": "El enlace venció, ya se usó o está incompleto. Pide uno nuevo desde «¿Olvidó su contraseña?» en la app.",
+      "policy": {
+        "required": "Escribe una contraseña.",
+        "min_length": "La contraseña debe tener al menos 12 caracteres.",
+        "max_length": "La contraseña no puede tener más de 128 caracteres.",
+        "uppercase": "La contraseña debe incluir al menos una mayúscula.",
+        "lowercase": "La contraseña debe incluir al menos una minúscula.",
+        "number": "La contraseña debe incluir al menos un número.",
+        "special": "La contraseña debe incluir al menos un símbolo (@ $ ! % * ? &).",
+        "first_char": "La contraseña debe empezar con una letra, un número o uno de @ $ ! % * ? &."
+      },
+      "errors": {
+        "mismatch": "Las contraseñas no coinciden.",
+        "link_invalid": "El enlace venció, ya se usó o está incompleto.",
+        "too_many_attempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+        "password_rejected": "El servidor rechazó la contraseña. Revisa los requisitos e inténtalo de nuevo.",
+        "generic": "No pudimos guardar la contraseña. Inténtalo de nuevo en unos minutos."
+      }
+    },
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bienvenido de nuevo",
