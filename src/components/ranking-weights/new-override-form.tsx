@@ -48,7 +48,7 @@ export function NewOverrideForm({
       <Select
         onValueChange={(v) => setSelected(parseInt(v, 10))}
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder={t("selectPlaceholder")} />
         </SelectTrigger>
         <SelectContent>

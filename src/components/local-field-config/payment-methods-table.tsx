@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -89,20 +90,18 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("colLocalField")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
-              <TableHead>{t("colMethod")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colMethod")}</TableHead>
               <TableHead>{t("colBank")}</TableHead>
-              <TableHead>{t("colHolder")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colHolder")}</TableHead>
               <TableHead>{t("colClabe")}</TableHead>
-              <TableHead>{t("colUpdated")}</TableHead>
-              <TableHead className="sticky right-0 w-[1%] bg-background text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
-                {t("colActions")}
-              </TableHead>
+              <TableHead className="hidden xl:table-cell">{t("colUpdated")}</TableHead>
+              <RowActionsHead className="sticky right-0 bg-card shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -126,11 +125,11 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                       {row.configured ? t("statusConfigured") : t("statusMissing")}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden xl:table-cell">
                     {row.configured ? t("methodTransfer") : "—"}
                   </TableCell>
                   <TableCell>{row.config?.bank_name?.trim() || "—"}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden xl:table-cell">
                     {row.config?.account_holder?.trim() || "—"}
                   </TableCell>
                   <TableCell className="font-mono text-xs">
@@ -138,46 +137,35 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
                       ? maskClabe(row.config?.bank_account_clabe)
                       : "—"}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                     {formatUpdatedAt(row.config?.updated_at)}
                   </TableCell>
-                  <TableCell className="sticky right-0 bg-background text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
+                  <TableCell className="sticky right-0 bg-card text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                     {row.canManage ? (
-                      <div className="flex justify-end gap-1">
-                        {row.configured ? (
-                          <>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openDialog(row, "edit")}
-                            >
-                              <Pencil data-icon="inline-start" />
-                              {t("actionEdit")}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => setDeleteTarget(row)}
-                            >
-                              <Trash2 data-icon="inline-start" />
-                              {t("actionDelete")}
-                            </Button>
-                          </>
-                        ) : (
-                          <Button
-                            type="button"
-                            variant="default"
-                            size="sm"
-                            onClick={() => openDialog(row, "create")}
-                          >
-                            <Plus data-icon="inline-start" />
-                            {t("actionCreate")}
-                          </Button>
-                        )}
-                      </div>
+                      <RowActions
+                        label={row.name}
+                        actions={[
+                          {
+                            label: t("actionCreate"),
+                            icon: Plus,
+                            onSelect: () => openDialog(row, "create"),
+                            hidden: row.configured,
+                          },
+                          {
+                            label: t("actionEdit"),
+                            icon: Pencil,
+                            onSelect: () => openDialog(row, "edit"),
+                            hidden: !row.configured,
+                          },
+                          {
+                            label: `${t("actionDelete")}…`,
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => setDeleteTarget(row),
+                            hidden: !row.configured,
+                          },
+                        ]}
+                      />
                     ) : (
                       <span className="text-xs text-muted-foreground">
                         {t("actionReadonly")}
@@ -222,11 +210,10 @@ export function PaymentMethodsTable({ rows }: PaymentMethodsTableProps) {
               {t("cancel")}
             </AlertDialogCancel>
             <Button
+              loading={isDeleting}
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
             >
-              {isDeleting && <Loader2 className="mr-2 size-4 animate-spin" />}
               {t("actionDelete")}
             </Button>
           </AlertDialogFooter>

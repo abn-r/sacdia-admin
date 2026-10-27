@@ -11,7 +11,6 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -173,8 +172,7 @@ export function VenueCreateDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2 className="size-4 animate-spin" />}
+            <Button loading={isPending} type="submit">
               Crear sede
             </Button>
           </DialogFooter>

@@ -143,7 +143,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.action")}</Label>
           <Select value={action} onValueChange={setAction}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +157,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.result")}</Label>
           <Select value={result} onValueChange={setResult}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -170,7 +170,7 @@ export function AuditLogsViewer() {
         <div className="space-y-1.5">
           <Label>{t("filters.source")}</Label>
           <Select value={source} onValueChange={setSource}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -229,9 +229,9 @@ export function AuditLogsViewer() {
               <TableRow>
                 <TableHead>{t("columns.when")}</TableHead>
                 <TableHead>{t("columns.action")}</TableHead>
-                <TableHead>{t("columns.entity")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("columns.entity")}</TableHead>
                 <TableHead>{t("columns.summary")}</TableHead>
-                <TableHead>{t("columns.actor")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("columns.actor")}</TableHead>
                 <TableHead>{t("columns.result")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -261,13 +261,13 @@ export function AuditLogsViewer() {
                           : item.action}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
+                    <TableCell className="hidden max-w-[240px] whitespace-normal break-all font-mono text-xs xl:table-cell">
                       {item.entity_type}/{item.entity_id}
                     </TableCell>
-                    <TableCell className="max-w-sm truncate text-sm">
+                    <TableCell className="min-w-[200px] max-w-[360px] whitespace-normal text-sm">
                       {item.summary ?? "—"}
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="hidden text-sm xl:table-cell">
                       {actorName ?? t("unknownActor")}
                     </TableCell>
                     <TableCell>
@@ -292,12 +292,11 @@ export function AuditLogsViewer() {
       {nextCursor ? (
         <div className="flex justify-center">
           <Button
+            loading={loadingMore}
             variant="outline"
             size="sm"
-            disabled={loadingMore}
             onClick={() => void loadPage(nextCursor, true)}
           >
-            {loadingMore ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("loadMore")}
           </Button>
         </div>

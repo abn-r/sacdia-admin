@@ -17,6 +17,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-solid: var(--primary-solid);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -47,6 +48,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
   --color-brand-primary: var(--brand-primary);
   --color-brand-primary-light: var(--brand-primary-light);
   --color-brand-primary-dark: var(--brand-primary-dark);
@@ -89,15 +92,15 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
-/* Default = Scout Vibrante (SACDIA App AppColors). Canon: DESIGN-SYSTEM.md §2. */
+/* Default = Crisp (neutros puros + acento azul del logo SACDIA). Canon: DESIGN-SYSTEM.md §2. */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
   /* Brand (exact app hex) */
-  --brand-primary: #f06151;
-  --brand-primary-light: #fde8e6;
-  --brand-primary-dark: #d94a3b;
-  --brand-primary-surface: #fff1ef;
+  --brand-primary: #0073ea;
+  --brand-primary-light: #e0efff;
+  --brand-primary-dark: #005cc0;
+  --brand-primary-surface: #eef6ff;
   --brand-secondary: #4fbf9f;
   --brand-secondary-light: #e0f5ef;
   --brand-secondary-dark: #2d8a70;
@@ -108,55 +111,64 @@
   --brand-info: #2ea0da;
 
   --background: #ffffff;
-  --foreground: #0f172a;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #0a0a0a;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #f06151;
+  --popover-foreground: #0a0a0a;
+  --primary: #0073ea;
+  /* Solid fills under white text (buttons, active steps, checked controls). */
+  --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
-  --secondary: #e0f5ef;
-  --secondary-foreground: #2d8a70;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #fff1ef;
-  --accent-foreground: #d94a3b;
+  --secondary: #f4f4f4;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent: #f4f4f4;
+  --accent-foreground: #0a0a0a;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --success: #4fbf9f;
-  --success-foreground: #0f172a;
+  --success-foreground: #0a0a0a;
   --warning: #fbbd5e;
-  --warning-foreground: #0f172a;
+  --warning-foreground: #0a0a0a;
   --info: #2ea0da;
-  --info-foreground: #0f172a;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: color-mix(in srgb, #f06151 45%, transparent);
-  --chart-1: #f06151;
-  --chart-2: #2ea0da;
+  --info-foreground: #0a0a0a;
+  --border: #ebebeb;
+  --input: #e3e3e3;
+  /* Full-strength so the focus border clears 3:1 non-text contrast; halos use ring/50. */
+  --ring: #0073ea;
+  --chart-1: #0073ea;
+  --chart-2: #f06151;
   --chart-3: #4fbf9f;
   --chart-4: #fbbd5e;
   --chart-5: #ae69ba;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #64748b;
-  --sidebar-primary: #f06151;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #5c5c5c;
+  --sidebar-primary: #0073ea;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fff1ef;
-  --sidebar-accent-foreground: #d94a3b;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: color-mix(in srgb, #f06151 45%, transparent);
+  --sidebar-accent: #ededed;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #ebebeb;
+  --sidebar-ring: #0073ea;
 
-  --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
-  --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
-  --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
-  --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+  /* Crisp elevation: hairline ring + soft contact shadow instead of borders */
+  --shadow-color: oklch(0 0 0 / 0.06);
+  --shadow-card: 0 0 0 1px oklch(0 0 0 / 0.07), 0 1px 2px 0 oklch(0 0 0 / 0.04);
+  --shadow-card-hover: 0 0 0 1px oklch(0 0 0 / 0.1), 0 2px 6px -1px oklch(0 0 0 / 0.08);
+
+  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.04);
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-sm: 0 0 0 1px oklch(0 0 0 / 0.06), 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow: 0 0 0 1px oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.06);
+  --shadow-md: 0 0 0 1px oklch(0 0 0 / 0.06), 0 4px 8px -2px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 0 0 1px oklch(0 0 0 / 0.06), 0 8px 24px -4px oklch(0 0 0 / 0.12);
+  --shadow-xl: 0 0 0 1px oklch(0 0 0 / 0.06), 0 16px 40px -8px oklch(0 0 0 / 0.16);
+  --shadow-2xl: 0 0 0 1px oklch(0 0 0 / 0.06), 0 24px 56px -12px oklch(0 0 0 / 0.22);
 
   /* Motion (canon: src/lib/animations.ts) */
   --ease-out-expo: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-expo: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-fast: 150ms;
   --duration-normal: 200ms;
@@ -171,7 +183,8 @@
   --cat-social: oklch(0.66 0.18 140);
   --section-aventureros: oklch(0.66 0.18 60);
   --section-conquistadores: oklch(0.55 0.2 260);
-  --section-guias: oklch(0.55 0.18 25);
+  /* Teal (GM emblem globe), not red: red is reserved for errors/critical state. */
+  --section-guias: oklch(0.55 0.11 185);
   --warning-soft: oklch(0.95 0.05 85);
   --warning-soft-foreground: oklch(0.4 0.15 60);
 
@@ -181,44 +194,52 @@
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #f2f2f2;
-  --card: #1a1a1a;
-  --card-foreground: #f2f2f2;
-  --popover: #1a1a1a;
-  --popover-foreground: #f2f2f2;
-  --primary: #f06151;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #141414;
+  --card-foreground: #ededed;
+  --popover: #171717;
+  --popover-foreground: #ededed;
+  /* Text/links/borders on dark surfaces need a lighter blue (6.5:1 on cards). */
+  --primary: #4c9aff;
+  /* Solid fills under white text (buttons, active steps, checked controls). */
+  --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
-  --secondary: color-mix(in srgb, #4fbf9f 20%, #1a1a1a);
-  --secondary-foreground: #e0f5ef;
-  --muted: #252525;
-  --muted-foreground: #8c8c8c;
-  --accent: #252525;
-  --accent-foreground: #f2f2f2;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ededed;
+  --muted: #232323;
+  --muted-foreground: #a1a1a1;
+  /* Menu highlight must read against popover #171717. */
+  --accent: #2a2a2a;
+  --accent-foreground: #ededed;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --success: #4fbf9f;
-  --success-foreground: #0f172a;
+  --success-foreground: #0a0a0a;
   --warning: #fbbd5e;
-  --warning-foreground: #0f172a;
+  --warning-foreground: #0a0a0a;
   --info: #2ea0da;
-  --info-foreground: #0f172a;
-  --border: #303030;
-  --input: #303030;
-  --ring: color-mix(in srgb, #f06151 55%, transparent);
-  --chart-1: #f06151;
-  --chart-2: #2ea0da;
+  --info-foreground: #0a0a0a;
+  --border: #262626;
+  --input: #2e2e2e;
+  --ring: #4c9aff;
+  --chart-1: #4c9aff;
+  --chart-2: #f06151;
   --chart-3: #4fbf9f;
   --chart-4: #fbbd5e;
   --chart-5: #ae69ba;
-  --sidebar: #1a1a1a;
-  --sidebar-foreground: #8c8c8c;
-  --sidebar-primary: #f06151;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #a1a1a1;
+  --sidebar-primary: #0073ea;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #252525;
-  --sidebar-accent-foreground: #f2f2f2;
-  --sidebar-border: #303030;
-  --sidebar-ring: color-mix(in srgb, #f06151 55%, transparent);
+  --sidebar-accent: #1f1f1f;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: #262626;
+  --sidebar-ring: #4c9aff;
+
+  --shadow-color: oklch(0 0 0 / 0.4);
+  --shadow-card: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow-card-hover: 0 0 0 1px oklch(1 0 0 / 0.12), 0 2px 6px -1px oklch(0 0 0 / 0.5);
 
   --cat-espiritual: oklch(0.7 0.18 285);
   --cat-competencia: oklch(0.74 0.21 42);
@@ -227,18 +248,18 @@
   --cat-social: oklch(0.74 0.18 140);
   --section-aventureros: oklch(0.74 0.18 60);
   --section-conquistadores: oklch(0.68 0.2 260);
-  --section-guias: oklch(0.68 0.18 25);
+  --section-guias: oklch(0.72 0.11 185);
   --warning-soft: oklch(0.35 0.05 85);
   --warning-soft-foreground: oklch(0.9 0.08 85);
 
-  --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
-  --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
-  --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
-  --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow-sm: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 2px 0 oklch(0 0 0 / 0.4);
+  --shadow: 0 0 0 1px oklch(1 0 0 / 0.08), 0 1px 3px 0 oklch(0 0 0 / 0.5);
+  --shadow-md: 0 0 0 1px oklch(1 0 0 / 0.08), 0 4px 8px -2px oklch(0 0 0 / 0.5);
+  --shadow-lg: 0 0 0 1px oklch(1 0 0 / 0.08), 0 8px 24px -4px oklch(0 0 0 / 0.5);
+  --shadow-xl: 0 0 0 1px oklch(1 0 0 / 0.08), 0 16px 40px -8px oklch(0 0 0 / 0.5);
+  --shadow-2xl: 0 0 0 1px oklch(1 0 0 / 0.08), 0 24px 56px -12px oklch(0 0 0 / 0.5);
 }
 
 @layer base {
@@ -265,6 +286,49 @@
 
 html {
   overscroll-behavior: none;
+  /* Native-feeling taps: no gray flash (controls have their own :active) and no landscape font inflation. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Row actions stay pinned to the right edge: the "⋯" is always reachable and
+   focusing it never scrolls the table sideways (hiding the name column). */
+[data-slot="table-cell"]:has([data-slot="row-actions"]),
+[data-slot="table-head"][data-row-actions] {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: var(--card);
+}
+[data-slot="table-row"]:hover > [data-slot="table-cell"]:has([data-slot="row-actions"]) {
+  background: color-mix(in oklch, var(--muted) 50%, var(--card));
+}
+/* The end fade would wash out the pinned "⋯"; a hairline shadow on the pinned
+   column is the overflow cue instead. */
+[data-slot="table-container"]:has([data-slot="row-actions"]) {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+[data-slot="table-container"][data-overflow-end]
+  :is([data-slot="table-cell"]:has([data-slot="row-actions"]), [data-slot="table-head"][data-row-actions]) {
+  box-shadow: -8px 0 8px -8px oklch(0 0 0 / 0.18);
+}
+
+/* Skip the double-tap-zoom wait so taps fire immediately. */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* iOS zooms into fields under 16px and never zooms back. Unlayered so it beats
+   text-sm utilities on touch devices only; desktop keeps the compact size. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 [data-sonner-toaster] [data-sonner-toast] {

@@ -104,10 +104,10 @@ const authMessages = messages.auth;
  * Wraps LoginForm in the providers it needs.
  * Keeps each test's render call clean.
  */
-function renderLoginForm(nextParam = "/dashboard") {
+function renderLoginForm(nextParam = "/dashboard", refreshUnavailable = false) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <LoginForm nextParam={nextParam} />
+      <LoginForm nextParam={nextParam} refreshUnavailable={refreshUnavailable} />
     </NextIntlClientProvider>,
   );
 }
@@ -171,6 +171,20 @@ describe("LoginForm", () => {
       authMessages.login.password_label,
     );
     expect(passwordInput).toHaveAttribute("type", "password");
+  });
+
+  it("shows a session notice when the refresh attempt was unavailable", () => {
+    renderLoginForm("/dashboard", true);
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      authMessages.login.session_refresh_unavailable,
+    );
+  });
+
+  it("does not show the session notice by default", () => {
+    renderLoginForm();
+
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   // ── Password visibility toggle ─────────────────────────────────────────────

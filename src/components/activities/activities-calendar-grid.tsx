@@ -213,7 +213,7 @@ export function ActivitiesCalendarGrid({
                 onClick={() => onSelectDate(date)}
                 className={cn(
                   "mb-2 inline-flex size-7 items-center justify-center rounded-full text-sm font-medium hover:bg-muted/50",
-                  isToday && "bg-primary text-primary-foreground hover:bg-primary/90",
+                  isToday && "bg-primary-solid text-primary-foreground hover:bg-primary/90",
                 )}
               >
                 {date.getDate()}

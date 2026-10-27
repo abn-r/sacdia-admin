@@ -21,12 +21,8 @@ function DeleteButton() {
   const { pending } = useFormStatus();
   const t = useTranslations("catalogs.deleteDialog");
   return (
-    <Button type="submit" variant="destructive" disabled={pending}>
-      {pending ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : (
-        <Trash2 className="size-4 mr-1.5" />
-      )}
+    <Button loading={pending} type="submit" variant="destructive">
+      <Trash2 className="size-4 mr-1.5" />
       {pending ? t("deleting") : t("delete")}
     </Button>
   );

@@ -51,7 +51,7 @@ import {
 
 // ─── Shared action state ───────────────────────────────────────────────────────
 
-export type CamporeeEventActionState = { error?: string };
+export type CamporeeEventActionState = { error?: string; field?: string };
 
 // ─── FormData helpers ──────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ async function syncRubricsFromForm(eventId: number, formData: FormData) {
  */
 function buildTemplatePayload(
   formData: FormData,
-): CreateCamporeeEventTemplatePayload | { validationError: string } {
+): CreateCamporeeEventTemplatePayload | { validationError: string; field?: string } {
   const scope = getString(formData, "scope") as TemplateScope;
   if (scope !== "union" && scope !== "local_field") {
     return { validationError: "El alcance del template es inválido." };
@@ -188,22 +188,22 @@ function buildTemplatePayload(
 
   const event_type_id = getPositiveInt(formData, "event_type_id");
   if (!event_type_id) {
-    return { validationError: "El tipo de evento es obligatorio." };
+    return { validationError: "El tipo de evento es obligatorio.", field: "event_type_id" };
   }
 
   const title = getString(formData, "title");
   if (!title) {
-    return { validationError: "El título es obligatorio." };
+    return { validationError: "El título es obligatorio.", field: "title" };
   }
 
   const max_points = getNonNegativeInt(formData, "max_points");
   if (max_points === null) {
-    return { validationError: "El puntaje máximo es obligatorio." };
+    return { validationError: "El puntaje máximo es obligatorio.", field: "max_points" };
   }
 
   const participants_mode = getString(formData, "participants_mode") as ParticipantsMode;
   if (participants_mode !== "count" && participants_mode !== "by_class") {
-    return { validationError: "El modo de participantes es inválido." };
+    return { validationError: "El modo de participantes es inválido.", field: "participants_mode" };
   }
 
   const union_id = getPositiveInt(formData, "union_id");
@@ -312,7 +312,7 @@ export async function createCamporeeEventTemplateAction(
 
   const payload = buildTemplatePayload(formData);
   if ("validationError" in payload) {
-    return { error: payload.validationError };
+    return { error: payload.validationError, field: payload.field };
   }
 
   const scopeError = await assertTemplatePayloadInActorScope(user, payload);
@@ -350,7 +350,7 @@ export async function updateCamporeeEventTemplateAction(
 
   const built = buildTemplatePayload(formData);
   if ("validationError" in built) {
-    return { error: built.validationError };
+    return { error: built.validationError, field: built.field };
   }
 
   const payload: UpdateCamporeeEventTemplatePayload = built;
@@ -409,25 +409,25 @@ export async function deleteCamporeeEventTemplateAction(
  */
 function buildInstancePayload(
   formData: FormData,
-): CreateCamporeeEventPayload | { validationError: string } {
+): CreateCamporeeEventPayload | { validationError: string; field?: string } {
   const event_type_id = getPositiveInt(formData, "event_type_id");
   if (!event_type_id) {
-    return { validationError: "El tipo de evento es obligatorio." };
+    return { validationError: "El tipo de evento es obligatorio.", field: "event_type_id" };
   }
 
   const title = getString(formData, "title");
   if (!title) {
-    return { validationError: "El título es obligatorio." };
+    return { validationError: "El título es obligatorio.", field: "title" };
   }
 
   const max_points = getNonNegativeInt(formData, "max_points");
   if (max_points === null) {
-    return { validationError: "El puntaje máximo es obligatorio." };
+    return { validationError: "El puntaje máximo es obligatorio.", field: "max_points" };
   }
 
   const participants_mode = getString(formData, "participants_mode") as ParticipantsMode;
   if (participants_mode !== "count" && participants_mode !== "by_class") {
-    return { validationError: "El modo de participantes es inválido." };
+    return { validationError: "El modo de participantes es inválido.", field: "participants_mode" };
   }
 
   const min_points = getNonNegativeInt(formData, "min_points") ?? 0;
@@ -477,7 +477,7 @@ export async function createLocalCamporeeEventAction(
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
 
   const payload = buildInstancePayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
   try {
     const created = await createLocalCamporeeEvent(camporeeId, payload);
@@ -513,7 +513,7 @@ export async function createUnionCamporeeEventAction(
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
 
   const payload = buildInstancePayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
   try {
     const created = await createUnionCamporeeEvent(camporeeId, payload);
@@ -618,7 +618,7 @@ export async function updateCamporeeEventAction(
   const isUnion = formData.get("is_union") === "true";
 
   const payload = buildInstancePayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
   try {
     await updateCamporeeEvent(id, payload);
@@ -691,9 +691,9 @@ export async function deleteCamporeeEventAction(
  */
 function buildAgendaPayload(
   formData: FormData,
-): CreateCamporeeEventPayload | { validationError: string } {
+): CreateCamporeeEventPayload | { validationError: string; field?: string } {
   const title = getString(formData, "title");
-  if (!title) return { validationError: "El título es obligatorio." };
+  if (!title) return { validationError: "El título es obligatorio.", field: "title" };
 
   const day_number = getPositiveInt(formData, "day_number") ?? 1;
   const starts_at = getOptionalString(formData, "starts_at");
@@ -702,13 +702,13 @@ function buildAgendaPayload(
   // Validate time format HH:MM if provided
   const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
   if (starts_at && !timeRegex.test(starts_at)) {
-    return { validationError: "Formato de hora de inicio inválido (HH:MM)." };
+    return { validationError: "Formato de hora de inicio inválido (HH:MM).", field: "starts_at" };
   }
   if (ends_at && !timeRegex.test(ends_at)) {
-    return { validationError: "Formato de hora de fin inválido (HH:MM)." };
+    return { validationError: "Formato de hora de fin inválido (HH:MM).", field: "ends_at" };
   }
   if (starts_at && ends_at && starts_at >= ends_at) {
-    return { validationError: "La hora de fin debe ser posterior a la hora de inicio." };
+    return { validationError: "La hora de fin debe ser posterior a la hora de inicio.", field: "ends_at" };
   }
 
   const display_category = getString(formData, "display_category") as CreateCamporeeEventPayload["display_category"];
@@ -734,6 +734,7 @@ function buildAgendaPayload(
   if (min_points > max_points) {
     return {
       validationError: "Los puntos mínimos no pueden superar los puntos máximos.",
+      field: "min_points",
     };
   }
   const penalties =
@@ -792,7 +793,7 @@ export async function createCamporeeAgendaEventAction(
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
 
   const payload = buildAgendaPayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
   payload.status = "programado";
 
   try {
@@ -829,7 +830,7 @@ export async function createUnionCamporeeAgendaEventAction(
   if (!camporeeId) return { error: "No se pudo identificar el camporee." };
 
   const payload = buildAgendaPayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
   payload.status = "programado";
 
   try {
@@ -869,7 +870,7 @@ export async function updateCamporeeAgendaEventAction(
   const isUnion = formData.get("is_union") === "true";
 
   const payload = buildAgendaPayload(formData);
-  if ("validationError" in payload) return { error: payload.validationError };
+  if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
   try {
     await updateCamporeeEvent(id, payload);
@@ -891,6 +892,35 @@ export async function updateCamporeeAgendaEventAction(
   }
 
   redirect("/dashboard/campamentos");
+}
+
+/** Route ids bound server-side to the agenda event form (see `.bind` in event-form-data). */
+export type CamporeeAgendaEventBinding = {
+  camporeeId: number;
+  eventId?: number;
+  isUnion: boolean;
+};
+
+/**
+ * Agenda event submit with the route ids bound on the server, so the form's
+ * hidden `camporee_id` / `id` / `is_union` inputs cannot redirect the write.
+ */
+export async function submitBoundCamporeeAgendaEventAction(
+  binding: CamporeeAgendaEventBinding,
+  prev: CamporeeEventActionState,
+  formData: FormData,
+): Promise<CamporeeEventActionState> {
+  formData.set("camporee_id", String(binding.camporeeId));
+  if (binding.isUnion) formData.set("is_union", "true");
+
+  if (binding.eventId) {
+    formData.set("id", String(binding.eventId));
+    return updateCamporeeAgendaEventAction(prev, formData);
+  }
+
+  return binding.isUnion
+    ? createUnionCamporeeAgendaEventAction(prev, formData)
+    : createCamporeeAgendaEventAction(prev, formData);
 }
 
 /** Cancel an event (sets status = 'cancelado'). Requires AlertDialog confirm on the caller side. */

@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
-import { RefreshCw, RotateCcw, Loader2 } from "lucide-react";
+import { RefreshCw, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -112,45 +113,31 @@ function QueueCard({ queue }: { queue: JobCounts }) {
   );
 }
 
-// ─── Retry Button with AlertDialog ────────────────────────────────────────────
+// ─── Retry confirmation dialog ────────────────────────────────────────────────
 
-interface RetryButtonProps {
-  job: FailedJob;
-  isPendingRow: boolean;
-  onConfirm: () => void;
+interface RetryDialogProps {
+  job: FailedJob | null;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (job: FailedJob) => void;
 }
 
-function RetryActionButton({ job, isPendingRow, onConfirm }: RetryButtonProps) {
+function RetryDialog({ job, onOpenChange, onConfirm }: RetryDialogProps) {
   const t = useTranslations("system_jobs.overview");
-  const isDisabled = job.job_id === null || isPendingRow;
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="xs"
-          disabled={isDisabled}
-          className="gap-1.5"
-        >
-          {isPendingRow ? (
-            <Loader2 className="size-3 animate-spin" />
-          ) : (
-            <RotateCcw className="size-3" />
-          )}
-          {isPendingRow ? t("retryLoading") : t("retryButton")}
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={job !== null} onOpenChange={onOpenChange}>
       <AlertDialogContent className="sm:max-w-sm">
         <AlertDialogHeader>
           <AlertDialogTitle>{t("retryDialogTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t("retryDialogDescription", { jobName: job.name, queue: job.queue })}
+            {job ? t("retryDialogDescription", { jobName: job.name, queue: job.queue }) : null}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("retryDialogCancel")}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>{t("retryDialogConfirm")}</AlertDialogAction>
+          <AlertDialogAction onClick={() => job && onConfirm(job)}>
+            {t("retryDialogConfirm")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -164,6 +151,7 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingRowId, setPendingRowId] = useState<string | number | null>(null);
+  const [retryTarget, setRetryTarget] = useState<FailedJob | null>(null);
   const formatDateTime = useFormatDateTime();
 
   function formatDate(timestamp: string | null): string {
@@ -215,18 +203,18 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">{t("colQueue")}</TableHead>
-                <TableHead>{t("colJob")}</TableHead>
+                <TableHead className="hidden pl-6 xl:table-cell">{t("colQueue")}</TableHead>
+                <TableHead className="pl-6 xl:pl-2">{t("colJob")}</TableHead>
                 <TableHead>{t("colReason")}</TableHead>
                 <TableHead className="text-center">{t("colAttempts")}</TableHead>
                 <TableHead>{t("colDate")}</TableHead>
-                <TableHead className="pr-6 text-right">{t("colAction")}</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {jobs.map((job, index) => (
                 <TableRow key={`${job.queue}-${job.job_id ?? index}`}>
-                  <TableCell className="pl-6">
+                  <TableCell className="hidden pl-6 xl:table-cell">
                     {job.queue === 'background-jobs' ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -244,8 +232,8 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm font-medium">{job.name}</TableCell>
-                  <TableCell className="max-w-[280px]">
+                  <TableCell className="pl-6 text-sm font-medium xl:pl-2">{job.name}</TableCell>
+                  <TableCell className="max-w-[280px] whitespace-normal">
                     {job.failed_reason ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -270,11 +258,17 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
                   <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                     {formatDate(job.timestamp)}
                   </TableCell>
-                  <TableCell className="pr-6 text-right">
-                    <RetryActionButton
-                      job={job}
-                      isPendingRow={isPending && pendingRowId === job.job_id}
-                      onConfirm={() => handleRetry(job)}
+                  <TableCell className="pr-6">
+                    <RowActions
+                      label={job.name}
+                      actions={[
+                        {
+                          label: `${isPending && pendingRowId === job.job_id ? t("retryLoading") : t("retryButton")}…`,
+                          icon: RotateCcw,
+                          disabled: job.job_id === null || (isPending && pendingRowId === job.job_id),
+                          onSelect: () => setRetryTarget(job),
+                        },
+                      ]}
                     />
                   </TableCell>
                 </TableRow>
@@ -283,6 +277,16 @@ function FailedJobsTable({ jobs }: { jobs: FailedJob[] }) {
           </Table>
         </TooltipProvider>
       </CardContent>
+      <RetryDialog
+        job={retryTarget}
+        onOpenChange={(open) => {
+          if (!open) setRetryTarget(null);
+        }}
+        onConfirm={(job) => {
+          setRetryTarget(null);
+          handleRetry(job);
+        }}
+      />
     </Card>
   );
 }

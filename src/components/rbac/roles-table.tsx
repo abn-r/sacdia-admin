@@ -10,7 +10,6 @@ import {
   Search,
   AlertTriangle,
   UserX,
-  Loader2,
   ShieldCheck,
   Users,
   ChevronRight,
@@ -25,7 +24,10 @@ import {
   type NavTranslator,
 } from "@/lib/auth/screen-catalog/screen-title";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -231,21 +233,14 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           </AlertDialogCancel>
           {!isBlocked ? (
             <AlertDialogAction
-              variant="destructive"
-              disabled={loading}
+              variant="destructive-solid"
+              loading={loading}
               onClick={(e) => {
                 e.preventDefault();
                 void handleDeactivate();
               }}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                "Desactivar"
-              )}
+              {loading ? "Procesando..." : "Desactivar"}
             </AlertDialogAction>
           ) : null}
         </AlertDialogFooter>
@@ -450,9 +445,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                       </SortableHeader>
                     </TableHead>
                     {isSuperAdmin && (
-                      <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
-                        Acciones
-                      </TableHead>
+                      <RowActionsHead className="h-9 px-3" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -512,85 +505,31 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
                         {/* active status */}
                         <TableCell className="px-3 py-2.5 align-middle">
-                          <Badge variant={role.active !== false ? "soft-success" : "outline"}>
-                            {role.active !== false ? "Activo" : "Inactivo"}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} />
                         </TableCell>
 
                         {/* actions — super-admin only */}
                         {isSuperAdmin && (
-                          <TableCell className="px-3 py-2.5 align-middle text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              {protected_ ? (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="inline-flex">
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-8 opacity-40"
-                                        disabled
-                                        aria-label={t("rolesTable.editProtectedAriaLabel")}
-                                      >
-                                        <Pencil className="size-3.5" />
-                                      </Button>
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
-                                </Tooltip>
-                              ) : (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8"
-                                      asChild
-                                    >
-                                      <Link prefetch={false} href={`/dashboard/configuration/roles/${role.role_id}`}>
-                                        <Pencil className="size-3.5" />
-                                        <span className="sr-only">Editar {role.role_name}</span>
-                                      </Link>
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Editar rol</TooltipContent>
-                                </Tooltip>
-                              )}
-
-                              {protected_ ? (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="inline-flex">
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-8 opacity-40"
-                                        disabled
-                                        aria-label="Desactivar rol protegido"
-                                      >
-                                        <Power className="size-3.5" />
-                                      </Button>
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Rol protegido — no se puede modificar desde la UI</TooltipContent>
-                                </Tooltip>
-                              ) : role.active !== false ? (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                      onClick={() => setDeactivateTarget(role)}
-                                      aria-label={`Desactivar ${role.role_name}`}
-                                    >
-                                      <Power className="size-3.5" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>Desactivar rol</TooltipContent>
-                                </Tooltip>
-                              ) : null}
-                            </div>
+                          <TableCell className="px-3 py-2.5 align-middle">
+                            <RowActions
+                              label={translateRole(role.role_name)}
+                              actions={[
+                                {
+                                  label: "Editar rol",
+                                  icon: Pencil,
+                                  href: `/dashboard/configuration/roles/${role.role_id}`,
+                                  disabled: protected_,
+                                },
+                                {
+                                  label: "Desactivar rol…",
+                                  icon: Power,
+                                  destructive: true,
+                                  onSelect: () => setDeactivateTarget(role),
+                                  disabled: protected_,
+                                  hidden: !protected_ && role.active === false,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>
@@ -641,9 +580,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={role.active !== false ? "soft-success" : "outline"} className="text-xs">
-                        {role.active !== false ? "Activo" : "Inactivo"}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} size="sm" />
                       <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"} className="text-xs">
                         {role.role_category}
                       </Badge>

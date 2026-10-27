@@ -25,6 +25,14 @@ function renderTable(items: InventoryItem[]) {
   );
 }
 
+// "Ver detalles" lives in the row-actions menu.
+async function openDetail(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: "Acciones de Carpa" }));
+  await user.click(
+    await screen.findByRole("menuitem", { name: messages.inventory.actions.view_details }),
+  );
+}
+
 describe("InventoryTable condition and detail", () => {
   afterEach(() => cleanup());
 
@@ -65,9 +73,7 @@ describe("InventoryTable condition and detail", () => {
       },
     ]);
 
-    await user.click(
-      screen.getByRole("button", { name: messages.inventory.actions.view_details_sr }),
-    );
+    await openDetail(user);
 
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText("SN-001")).toBeInTheDocument();
@@ -82,9 +88,7 @@ describe("InventoryTable condition and detail", () => {
     const user = userEvent.setup();
     renderTable([{ ...BASE }]);
 
-    await user.click(
-      screen.getByRole("button", { name: messages.inventory.actions.view_details_sr }),
-    );
+    await openDetail(user);
 
     const dialog = await screen.findByRole("dialog");
     expect(

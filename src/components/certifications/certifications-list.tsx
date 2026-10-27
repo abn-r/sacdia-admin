@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { Eye, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Table,
   TableBody,
@@ -12,8 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 
 type CertificationRow = {
   certification_id: number;
@@ -60,23 +61,28 @@ export function CertificationsList({
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_duration")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_modules")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("col_status")}
             </TableHead>
-            <TableHead className="h-9 w-12 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.map((cert) => (
             <TableRow key={cert.certification_id} className="hover:bg-muted/30">
               <TableCell className="px-3 py-2.5 align-middle">
-                <span className="font-medium">{cert.name}</span>
+                <Link
+                  href={`${detailBasePath}/${cert.certification_id}`}
+                  className="font-medium hover:underline"
+                >
+                  {cert.name}
+                </Link>
               </TableCell>
-              <TableCell className="max-w-xs px-3 py-2.5 align-middle">
-                <span className="truncate text-sm text-muted-foreground">
+              <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
+                <span className="line-clamp-3 text-sm text-muted-foreground">
                   {cert.description ?? "—"}
                 </span>
               </TableCell>
@@ -85,21 +91,23 @@ export function CertificationsList({
                   ? t("duration_weeks", { count: cert.duration_weeks })
                   : "—"}
               </TableCell>
-              <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+              <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
                 {cert.modules_count ?? "—"}
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Badge variant={cert.active !== false ? "default" : "outline"}>
-                  {cert.active !== false ? t("status_active") : t("status_inactive")}
-                </Badge>
+                <StatusBadge intent={flagStatusIntent(cert.active !== false)} label={cert.active !== false ? t("status_active") : t("status_inactive")} />
               </TableCell>
               <TableCell className="px-3 py-2.5 align-middle">
-                <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={`${detailBasePath}/${cert.certification_id}`}>
-                    <ChevronRight className="size-4" />
-                    <span className="sr-only">{t("view_detail")}</span>
-                  </Link>
-                </Button>
+                <RowActions
+                  label={cert.name}
+                  actions={[
+                    {
+                      label: t("view_detail"),
+                      icon: Eye,
+                      href: `${detailBasePath}/${cert.certification_id}`,
+                    },
+                  ]}
+                />
               </TableCell>
             </TableRow>
           ))}

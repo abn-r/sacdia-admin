@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, X, ShieldAlert, Loader2, Search } from "lucide-react";
+import { Plus, X, ShieldAlert, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useRoleLabel, type RoleTranslator } from "@/lib/auth/role-labels";
@@ -164,8 +164,8 @@ export function UserRolesPanel({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-              <ShieldAlert className="size-4 text-primary" />
+            <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+              <ShieldAlert className="size-4 text-foreground" />
             </div>
             <div>
               <CardTitle className="text-base">{t("userRolesPanel.title")}</CardTitle>
@@ -279,11 +279,11 @@ export function UserRolesPanel({
               {t("userRolesPanel.cancel")}
             </Button>
             <Button
+              loading={isPending}
               type="button"
               onClick={handleAssign}
-              disabled={isPending || !selectedRoleId}
+              disabled={!selectedRoleId}
             >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("userRolesPanel.assignRole")}
             </Button>
           </DialogFooter>
@@ -313,10 +313,9 @@ export function UserRolesPanel({
               <AlertDialogCancel disabled={isPending}>{t("userRolesPanel.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRemove}
-                disabled={isPending}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                loading={isPending}
+                variant="destructive-solid"
               >
-                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {t("userRolesPanel.remove")}
               </AlertDialogAction>
             </AlertDialogFooter>

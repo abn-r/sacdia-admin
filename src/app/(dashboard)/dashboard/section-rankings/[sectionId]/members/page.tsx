@@ -1,9 +1,6 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 import { getSectionMembers } from "@/lib/api/section-rankings";
 import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
@@ -82,14 +79,7 @@ export default async function SectionMembersPage({
           },
           { label: t("pageSectionMembers.breadcrumbCurrent", { sectionId }) },
         ]}
-      >
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/section-rankings">
-            <ArrowLeft className="size-4" />
-            {t("pageSectionMembers.back")}
-          </Link>
-        </Button>
-      </PageHeader>
+      />
 
       {/* ── Members table ── */}
       <SectionMembersTable data={members} yearId={yearId} />

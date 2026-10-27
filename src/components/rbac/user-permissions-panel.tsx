@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, X, ShieldCheck, Loader2, Search } from "lucide-react";
+import { Plus, X, ShieldCheck, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -140,8 +140,8 @@ export function UserPermissionsPanel({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
-              <ShieldCheck className="size-4 text-primary" />
+            <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+              <ShieldCheck className="size-4 text-foreground" />
             </div>
             <div>
               <CardTitle className="text-base">{t("userPermissionsPanel.title")}</CardTitle>
@@ -268,11 +268,11 @@ export function UserPermissionsPanel({
               {t("userPermissionsPanel.cancelButton")}
             </Button>
             <Button
+              loading={isPending}
               type="button"
               onClick={handleAssign}
-              disabled={isPending || !selectedPermId}
+              disabled={!selectedPermId}
             >
-              {isPending && <Loader2 className="size-4 animate-spin" />}
               {t("userPermissionsPanel.assignButton")}
             </Button>
           </DialogFooter>
@@ -305,10 +305,9 @@ export function UserPermissionsPanel({
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRemove}
-                disabled={isPending}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                loading={isPending}
+                variant="destructive-solid"
               >
-                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {t("userPermissionsPanel.removeConfirm")}
               </AlertDialogAction>
             </AlertDialogFooter>

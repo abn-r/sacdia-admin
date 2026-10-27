@@ -464,7 +464,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-primary transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
+                className="h-full rounded-full bg-primary-solid transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
                 style={{ width: `${progressPct}%` }}
                 role="progressbar"
                 aria-valuenow={progressPct}
@@ -533,7 +533,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
             <AlertDialogAction
               onClick={confirmDeleteEvidence}
               disabled={isDeletingEvidence}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeletingEvidence
                 ? t("dialogs.deleteEvidence.confirmLoading")

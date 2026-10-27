@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
-import { Loader2, Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { loginAction } from "@/lib/auth/actions";
 import type { AuthActionState } from "@/lib/auth/types";
@@ -20,17 +20,12 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
       size="lg"
       className="group w-full gap-2 text-sm font-semibold"
     >
-      {pending ? (
-        <>
-          <Loader2 className="size-4 animate-spin" />
-          {t("submit_loading")}
-        </>
-      ) : (
+      {pending ? t("submit_loading") : (
         <>
           {t("submit_idle")}
           <ArrowRight className="size-4 transition-transform motion-reduce:transition-none [@media(hover:hover)_and_(pointer:fine)]:group-hover:translate-x-0.5" />
@@ -42,9 +37,11 @@ function SubmitButton() {
 
 type Props = {
   nextParam: string;
+  /** The session could not be refreshed because the backend was unreachable. */
+  refreshUnavailable?: boolean;
 };
 
-export function LoginForm({ nextParam }: Props) {
+export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
   const t = useTranslations("auth.login");
   const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +64,7 @@ export function LoginForm({ nextParam }: Props) {
           priority
         />
         <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight text-foreground">
+          <div className="text-base font-semibold tracking-tight text-foreground">
             SACDIA
           </div>
           <div className="font-mono text-[11px] text-muted-foreground">
@@ -76,11 +73,11 @@ export function LoginForm({ nextParam }: Props) {
         </div>
       </div>
 
-      <div className="mb-2.5 font-mono text-[11px] font-semibold text-primary">
+      <div className="mb-2.5 font-mono text-[11px] font-medium text-muted-foreground">
         {t("eyebrow")}
       </div>
 
-      <h1 className="mb-2 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
+      <h1 className="mb-2 font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
         {t("welcome_title")}
       </h1>
       <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
@@ -97,6 +94,16 @@ export function LoginForm({ nextParam }: Props) {
           >
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             <span>{state.error}</span>
+          </div>
+        )}
+
+        {!state.error && refreshUnavailable && (
+          <div
+            role="status"
+            className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/50 px-3.5 py-3 text-sm text-muted-foreground"
+          >
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <span>{t("session_refresh_unavailable")}</span>
           </div>
         )}
 

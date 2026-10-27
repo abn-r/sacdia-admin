@@ -3,10 +3,12 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Trash2, Key, Loader2, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Key, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,8 +47,7 @@ import type { Permission, RbacActionState } from "@/lib/rbac/types";
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );
@@ -141,23 +142,23 @@ export function PermissionsTable({
         <>
           {/* Desktop table */}
           <div className="hidden md:block">
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[60px]">{t("permissionsTable.colId")}</TableHead>
+                    <TableHead className="hidden w-[60px] 2xl:table-cell">{t("permissionsTable.colId")}</TableHead>
                     <TableHead>{t("permissionsTable.colName")}</TableHead>
                     <TableHead>{t("permissionsTable.colKey")}</TableHead>
-                    <TableHead className="hidden md:table-cell">{t("permissionsTable.colDescription")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("permissionsTable.colDescription")}</TableHead>
                     <TableHead>{t("permissionsTable.colStatus")}</TableHead>
-                    <TableHead className="w-[100px]">{t("permissionsTable.colActions")}</TableHead>
+                    <RowActionsHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.map((perm) => (
                     <TableRow key={perm.permission_id}>
-                      <TableCell className="text-xs text-muted-foreground">{perm.permission_id}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden text-xs text-muted-foreground 2xl:table-cell">{perm.permission_id}</TableCell>
+                      <TableCell className="max-w-[260px] whitespace-normal break-words">
                         <span className="text-sm font-medium">
                           {getPermissionLabel(t, perm.permission_name)}
                         </span>
@@ -167,28 +168,34 @@ export function PermissionsTable({
                           {perm.permission_name}
                         </code>
                       </TableCell>
-                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      <TableCell className="hidden min-w-[220px] max-w-[360px] whitespace-normal text-sm text-muted-foreground xl:table-cell">
                         {getPermissionLabel(t, perm.permission_name) ===
                         perm.permission_name
                           ? (perm.description ?? "—")
                           : "—"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
-                          {perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")}
-                        </Badge>
+                        <StatusBadge intent={flagStatusIntent(perm.active !== false)} label={perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")} size="sm" />
                       </TableCell>
                       <TableCell>
-                        {canWrite ? (
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="size-8" onClick={() => setEditItem(perm)} title={t("permissionsTable.actionEdit")}>
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="size-8 text-destructive hover:text-destructive" onClick={() => setDeleteItem(perm)} title={t("permissionsTable.actionDelete")}>
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                        ) : null}
+                        <RowActions
+                          label={getPermissionLabel(t, perm.permission_name)}
+                          actions={[
+                            {
+                              label: t("permissionsTable.actionEdit"),
+                              icon: Pencil,
+                              onSelect: () => setEditItem(perm),
+                              hidden: !canWrite,
+                            },
+                            {
+                              label: `${t("permissionsTable.actionDelete")}…`,
+                              icon: Trash2,
+                              destructive: true,
+                              onSelect: () => setDeleteItem(perm),
+                              hidden: !canWrite,
+                            },
+                          ]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -228,9 +235,7 @@ export function PermissionsTable({
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                    <Badge variant={perm.active !== false ? "soft-success" : "outline"} className="text-xs">
-                      {perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")}
-                    </Badge>
+                    <StatusBadge intent={flagStatusIntent(perm.active !== false)} label={perm.active !== false ? t("permissionsTable.statusActive") : t("permissionsTable.statusInactive")} size="sm" />
                   </div>
 
                   {perm.description && (
@@ -362,14 +367,13 @@ export function PermissionsTable({
             <AlertDialogFooter>
               <AlertDialogCancel disabled={deletePending}>{t("permissionsTable.cancel")}</AlertDialogCancel>
               <AlertDialogAction
-                disabled={deletePending}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                loading={deletePending}
+                variant="destructive-solid"
                 onClick={(event) => {
                   event.preventDefault();
                   handleDelete();
                 }}
               >
-                {deletePending ? <Loader2 className="size-4 animate-spin" /> : null}
                 {t("permissionsTable.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>

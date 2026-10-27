@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,13 +111,13 @@ export function CancelDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
           <Button
+            loading={isPending}
             variant="destructive"
             onClick={handleConfirm}
-            disabled={isPending || !isValid}
+            disabled={!isValid}
           >
             {isPending ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
                 Cancelando…
               </>
             ) : (

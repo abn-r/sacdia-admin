@@ -128,10 +128,10 @@ export function ScheduleBlocksEditor({
   }, [value]);
 
   return (
-    <section className="space-y-6 rounded-xl border p-6">
+    <section className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold tracking-tight">Horario</h2>
+          <h3 className="text-sm font-medium">Horario</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Agrega uno o más horarios si el evento se repite en distintos días o franjas.
           </p>
@@ -182,7 +182,7 @@ export function ScheduleBlocksEditor({
                       updateBlock(index, { day_number: Number(day) })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecciona el día" />
                     </SelectTrigger>
                     <SelectContent>
@@ -248,7 +248,7 @@ export function ScheduleBlocksEditor({
                           })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Sin sede" />
                         </SelectTrigger>
                         <SelectContent>

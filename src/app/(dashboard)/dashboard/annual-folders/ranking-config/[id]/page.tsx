@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
-import { AnnualBudgetConfigForm } from "@/components/annual-rankings/annual-budget-config-form";
+import { RouteFormModal } from "@/components/shared/form-modal";
+import { EditRankingConfigModalContent } from "@/components/annual-rankings/edit-ranking-config-modal-content";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
+import AnnualRankingConfigPage from "../page";
 
 const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
 
@@ -12,53 +11,31 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+/**
+ * Direct load / refresh of an edit URL: the ranking-config list renders
+ * underneath and the form opens as the same modal the intercepted route shows.
+ */
 export default async function EditAnnualRankingConfigPage({ params }: PageProps) {
   const { id } = await params;
   const t = await getTranslations("annual_folders.pageRankingConfig");
-  const tNav = await getTranslations("nav.items");
   const data = await loadRankingConfigPageData();
-  const config = data.configs.find(
-    (item) => item.annual_ranking_config_id === id,
-  );
+  const config = data.configs.find((item) => item.annual_ranking_config_id === id);
 
-  const breadcrumbs = [
-    { label: tNav("dashboard"), href: "/dashboard" },
-    { label: tNav("annual_folders"), href: "/dashboard/annual-folders" },
-    { label: t("breadcrumbRankingConfig"), href: ROUTE_BASE },
-    { label: t("breadcrumbEdit") },
-  ];
-
-  if (data.loadError) {
-    return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title={t("editTitle")} breadcrumbs={breadcrumbs} />
-        <EndpointErrorBanner state="missing" detail={data.loadError} />
-      </div>
-    );
-  }
-
-  if (!config) {
+  if (!data.loadError && !config) {
     notFound();
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
+    <>
+      <AnnualRankingConfigPage />
+      <RouteFormModal
         title={t("editTitle")}
         description={t("editDescription")}
-        breadcrumbs={breadcrumbs}
-      />
-
-      <AnnualFolderSetupNotice gap={data.createGap} />
-
-      <AnnualBudgetConfigForm
-        mode="edit"
-        config={config}
-        unions={data.unions}
-        localFields={data.localFields}
-        clubTypes={data.clubTypes}
-        ecclesiasticalYears={data.ecclesiasticalYears}
-      />
-    </div>
+        className="sm:max-w-3xl"
+        dismissHref={ROUTE_BASE}
+      >
+        <EditRankingConfigModalContent data={data} config={config!} />
+      </RouteFormModal>
+    </>
   );
 }

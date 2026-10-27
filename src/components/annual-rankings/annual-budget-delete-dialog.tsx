@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -69,18 +69,11 @@ export function AnnualBudgetDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
+            variant="destructive-solid"
             onClick={handleConfirm}
-            disabled={loading}
+            loading={loading}
           >
-            {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Procesando...
-              </>
-            ) : (
-              "Eliminar"
-            )}
+            {loading ? "Procesando..." : "Eliminar"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

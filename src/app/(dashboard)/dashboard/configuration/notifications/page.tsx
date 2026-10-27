@@ -65,8 +65,8 @@ export default async function ConfigurationNotificationsPage() {
           <Link key={section.href} href={section.href}>
             <Card className="h-full transition-colors hover:bg-muted/50">
               <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <section.icon className="size-5 text-primary" />
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <section.icon className="size-5 text-foreground" />
                 </div>
                 <div>
                   <CardTitle className="text-sm">{section.title}</CardTitle>

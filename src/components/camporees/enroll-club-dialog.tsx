@@ -313,7 +313,7 @@ export function EnrollClubDialog({
               onValueChange={setClubId}
               disabled={isLoadingClubs || isSubmitting || clubs.length === 0}
             >
-              <SelectTrigger id="enroll-club-select" aria-required="true">
+              <SelectTrigger id="enroll-club-select" aria-required="true" className="w-full">
                 <SelectValue
                   placeholder={
                     isLoadingClubs
@@ -364,7 +364,7 @@ export function EnrollClubDialog({
                 eligibleSections.length === 0
               }
             >
-              <SelectTrigger id="enroll-section-select" aria-required="true">
+              <SelectTrigger id="enroll-section-select" aria-required="true" className="w-full">
                 <SelectValue
                   placeholder={
                     !clubId

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -13,6 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Dialog,
   DialogContent,
@@ -98,14 +99,25 @@ function OverrideRowActions({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <>
+      <RowActions
+        label={String(row.club_type_id)}
+        actions={[
+          {
+            label: t("editButton"),
+            icon: Pencil,
+            onSelect: () => setEditOpen(true),
+          },
+          {
+            label: `${t("deleteButton")}…`,
+            icon: Trash2,
+            destructive: true,
+            onSelect: () => setDeleteOpen(true),
+          },
+        ]}
+      />
       {/* Edit */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogTrigger asChild>
-          <Button size="xs" variant="outline">
-            {t("editButton")}
-          </Button>
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("editOverrideTitle")}</DialogTitle>
@@ -141,13 +153,6 @@ function OverrideRowActions({
 
       {/* Delete */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <Button
-          size="xs"
-          variant="destructive"
-          onClick={() => setDeleteOpen(true)}
-        >
-          {t("deleteButton")}
-        </Button>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("deleteOverrideTitle")}</AlertDialogTitle>
@@ -160,23 +165,18 @@ function OverrideRowActions({
               {t("cancelButton")}
             </AlertDialogCancel>
             <Button
+              loading={isDeleting}
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
             >
-              {isDeleting ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  {t("deletingLabel")}
-                </>
-              ) : (
+              {isDeleting ? t("deletingLabel") : (
                 t("deleteButton")
               )}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }
 
@@ -298,7 +298,7 @@ export function RankingWeightsClientPage({
                   <TableHead>{t("colCamporee")}</TableHead>
                   <TableHead>{t("colEvidence")}</TableHead>
                   <TableHead>{t("colSuma")}</TableHead>
-                  <TableHead>{t("colAcciones")}</TableHead>
+                  <RowActionsHead />
                 </TableRow>
               </TableHeader>
               <TableBody>

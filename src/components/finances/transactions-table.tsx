@@ -1,15 +1,8 @@
 "use client";
 
-import { Pencil, Trash2, MoreHorizontal, Image as ImageIcon } from "lucide-react";
+import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -19,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   SortableHeader,
   type SortDirection,
@@ -218,10 +212,10 @@ export function TransactionsTable({
                 {t("table.colCategory")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colSection")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -247,10 +241,10 @@ export function TransactionsTable({
                 {t("table.colAmount")}
               </SortableHeader>
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colEvidence")}
             </TableHead>
-            <TableHead className="h-9 w-12 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -263,8 +257,8 @@ export function TransactionsTable({
                 <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                   {formatDate(finance.finance_date, { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </TableCell>
-                <TableCell className="max-w-xs px-3 py-2.5 align-middle">
-                  <span className="truncate text-sm">
+                <TableCell className="max-w-xs whitespace-normal px-3 py-2.5 align-middle">
+                  <span className="text-sm">
                     {finance.description ?? <span className="text-muted-foreground">—</span>}
                   </span>
                 </TableCell>
@@ -273,10 +267,10 @@ export function TransactionsTable({
                     {finance.finances_categories?.name ?? "—"}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   <span className="text-sm">{getSectionLabel(finance)}</span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
                   {monthName(finance.month)}/{finance.year}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
@@ -297,7 +291,7 @@ export function TransactionsTable({
                     {formatAmount(Math.abs(finance.amount))}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   {evidenceCount > 0 ? (
                     <Button
                       type="button"
@@ -314,43 +308,34 @@ export function TransactionsTable({
                   )}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  {evidenceCount > 0 || onEdit || onDelete ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreHorizontal className="size-4" />
-                          <span className="sr-only">{t("table.actionsLabel")}</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {evidenceCount > 0 && (
-                          <>
-                            <DropdownMenuItem onClick={() => onViewEvidence(finance)}>
-                              <ImageIcon className="size-4" />
-                              {t("table.actionViewEvidence")}
-                            </DropdownMenuItem>
-                            {(onEdit || onDelete) ? <DropdownMenuSeparator /> : null}
-                          </>
-                        )}
-                        {onEdit ? (
-                          <DropdownMenuItem onClick={() => onEdit(finance)}>
-                            <Pencil className="size-4" />
-                            {t("table.actionEdit")}
-                          </DropdownMenuItem>
-                        ) : null}
-                        {onEdit && onDelete ? <DropdownMenuSeparator /> : null}
-                        {onDelete ? (
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => onDelete(finance)}
-                          >
-                            <Trash2 className="size-4" />
-                            {t("table.actionDelete")}
-                          </DropdownMenuItem>
-                        ) : null}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : null}
+                  <RowActions
+                    label={
+                      finance.description ??
+                      finance.finances_categories?.name ??
+                      `#${finance.finance_id}`
+                    }
+                    actions={[
+                      {
+                        label: t("table.actionViewEvidence"),
+                        icon: ImageIcon,
+                        onSelect: () => onViewEvidence(finance),
+                        hidden: evidenceCount === 0,
+                      },
+                      {
+                        label: t("table.actionEdit"),
+                        icon: Pencil,
+                        onSelect: () => onEdit?.(finance),
+                        hidden: !onEdit,
+                      },
+                      {
+                        label: `${t("table.actionDelete")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => onDelete?.(finance),
+                        hidden: !onDelete,
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             );

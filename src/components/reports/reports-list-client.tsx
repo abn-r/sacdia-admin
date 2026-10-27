@@ -15,7 +15,6 @@ import {
   Plus,
   RefreshCw,
   Filter,
-  Loader2,
   FileText,
   ChevronRight,
 } from "lucide-react";
@@ -38,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import {
   listMonthlyReports,
@@ -75,7 +75,7 @@ function ReportStatusBadge({ status }: { status: ReportStatus }) {
 
 function ReportsTableSkeleton({ headers }: { headers: string[] }) {
   return (
-    <div className="rounded-md border">
+    <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -353,15 +353,11 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
           </Select>
 
           <Button
+            loading={createMutation.isPending}
             size="sm"
             onClick={() => createMutation.mutate()}
-            disabled={createMutation.isPending}
           >
-            {createMutation.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Plus className="size-4" />
-            )}
+            <Plus className="size-4" />
             {t("list.newReport")}
           </Button>
         </div>
@@ -389,7 +385,7 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     <TableHead>{t("list.tableHeaderStatus")}</TableHead>
                     <TableHead className="hidden md:table-cell">{t("list.tableHeaderGenerated")}</TableHead>
                     <TableHead className="hidden md:table-cell">{t("list.tableHeaderSubmitted")}</TableHead>
-                    <TableHead className="w-[200px]">{t("list.tableHeaderActions")}</TableHead>
+                    <RowActionsHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -402,7 +398,12 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                     return (
                       <TableRow key={report.report_id}>
                         <TableCell className="font-medium">
-                          {t(`months.${report.month}` as Parameters<typeof t>[0])}
+                          <Link
+                            href={`/dashboard/reports/${report.report_id}`}
+                            className="hover:underline"
+                          >
+                            {t(`months.${report.month}` as Parameters<typeof t>[0])}
+                          </Link>
                         </TableCell>
                         <TableCell className="tabular-nums">{report.year}</TableCell>
                         <TableCell>
@@ -415,66 +416,37 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                           {report.submitted_at ? formatDate(report.submitted_at, REPORTS_DATE_OPTIONS) : "—"}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5">
-                            <Button variant="ghost" size="xs" asChild>
-                              <Link href={`/dashboard/reports/${report.report_id}`}>
-                                {isSubmitted ? (
-                                  <Eye className="size-3" />
-                                ) : (
-                                  <Pencil className="size-3" />
-                                )}
-                                {isSubmitted ? t("list.actionView") : t("list.actionEdit")}
-                              </Link>
-                            </Button>
-
-                            {!isSubmitted && (
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => generateMutation.mutate(report)}
-                                disabled={isDisabled}
-                              >
-                                {loadingAction === "generate" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Zap className="size-3" />
-                                )}
-                                {t("list.actionGenerate")}
-                              </Button>
-                            )}
-
-                            {isGenerated && (
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => submitMutation.mutate(report)}
-                                disabled={isDisabled}
-                              >
-                                {loadingAction === "submit" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Send className="size-3" />
-                                )}
-                                {t("list.actionSend")}
-                              </Button>
-                            )}
-
-                            {(isGenerated || isSubmitted) && (
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => handleDownloadPdf(report)}
-                                disabled={isDisabled}
-                              >
-                                {loadingAction === "pdf" ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : (
-                                  <Download className="size-3" />
-                                )}
-                                {t("list.actionPdf")}
-                              </Button>
-                            )}
-                          </div>
+                          <RowActions
+                            label={`${t(`months.${report.month}` as Parameters<typeof t>[0])} ${report.year}`}
+                            actions={[
+                              {
+                                label: isSubmitted ? t("list.actionView") : t("list.actionEdit"),
+                                icon: isSubmitted ? Eye : Pencil,
+                                href: `/dashboard/reports/${report.report_id}`,
+                              },
+                              {
+                                label: t("list.actionGenerate"),
+                                icon: Zap,
+                                onSelect: () => generateMutation.mutate(report),
+                                disabled: isDisabled,
+                                hidden: isSubmitted,
+                              },
+                              {
+                                label: t("list.actionSend"),
+                                icon: Send,
+                                onSelect: () => submitMutation.mutate(report),
+                                disabled: isDisabled,
+                                hidden: !isGenerated,
+                              },
+                              {
+                                label: t("list.actionPdf"),
+                                icon: Download,
+                                onSelect: () => handleDownloadPdf(report),
+                                disabled: isDisabled,
+                                hidden: !(isGenerated || isSubmitted),
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );
@@ -496,8 +468,8 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
                 <li key={report.report_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <FileText className="size-5 text-primary" aria-hidden="true" />
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <FileText className="size-5 text-foreground" aria-hidden="true" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
@@ -549,48 +521,39 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
 
                       {!isSubmitted && (
                         <Button
+                          loading={loadingAction === "generate"}
                           variant="outline"
                           size="xs"
                           onClick={() => generateMutation.mutate(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "generate" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Zap className="size-3" />
-                          )}
+                          <Zap className="size-3" />
                           {t("list.actionGenerate")}
                         </Button>
                       )}
 
                       {isGenerated && (
                         <Button
+                          loading={loadingAction === "submit"}
                           variant="outline"
                           size="xs"
                           onClick={() => submitMutation.mutate(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "submit" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Send className="size-3" />
-                          )}
+                          <Send className="size-3" />
                           {t("list.actionSend")}
                         </Button>
                       )}
 
                       {(isGenerated || isSubmitted) && (
                         <Button
+                          loading={loadingAction === "pdf"}
                           variant="outline"
                           size="xs"
                           onClick={() => handleDownloadPdf(report)}
                           disabled={isDisabled}
                         >
-                          {loadingAction === "pdf" ? (
-                            <Loader2 className="size-3 animate-spin" />
-                          ) : (
-                            <Download className="size-3" />
-                          )}
+                          <Download className="size-3" />
                           {t("list.actionPdf")}
                         </Button>
                       )}

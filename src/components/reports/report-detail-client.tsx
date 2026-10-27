@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  Loader2,
   Download,
   Send,
   Zap,
@@ -251,45 +250,35 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {!isSubmitted && (
             <Button
+              loading={generating}
               size="sm"
               variant="outline"
               onClick={handleGenerate}
-              disabled={generating || submitting}
+              disabled={submitting}
             >
-              {generating ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Zap className="size-4" />
-              )}
+              <Zap className="size-4" />
               {isGenerated ? t("detail.actionRegenerate") : t("detail.actionGenerate")}
             </Button>
           )}
           {isGenerated && !isSubmitted && (
             <Button
+              loading={submitting}
               size="sm"
               onClick={handleSubmit}
-              disabled={generating || submitting}
+              disabled={generating}
             >
-              {submitting ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Send className="size-4" />
-              )}
+              <Send className="size-4" />
               {t("detail.actionSendToField")}
             </Button>
           )}
           {(isGenerated || isSubmitted) && (
             <Button
+              loading={downloadingPdf}
               size="sm"
               variant="outline"
               onClick={handleDownloadPdf}
-              disabled={downloadingPdf}
             >
-              {downloadingPdf ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Download className="size-4" />
-              )}
+              <Download className="size-4" />
               {t("detail.actionDownloadPdf")}
             </Button>
           )}

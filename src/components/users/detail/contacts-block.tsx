@@ -65,7 +65,7 @@ export function ContactsBlock({
                 <div
                   className={cn(
                     "grid size-12 shrink-0 place-items-center rounded-xl font-semibold text-white",
-                    c.primary ? "bg-primary" : "bg-info",
+                    c.primary ? "bg-primary-solid" : "bg-info",
                   )}
                   aria-hidden
                 >

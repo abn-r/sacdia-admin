@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -74,7 +76,7 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
             <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_status")}
             </TableHead>
-            <TableHead className="h-9 w-36 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -108,54 +110,37 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                   {item.amount}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-center align-middle">
-                  <Badge variant={item.active !== false ? "default" : "outline"}>
-                    {item.active !== false ? t("status.active") : t("status.inactive")}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("status.active") : t("status.inactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setDetailItem(item)}
-                      title={t("actions.view_details")}
-                    >
-                      <Eye className="size-3.5" />
-                      <span className="sr-only">{t("actions.view_details_sr")}</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleHistory(item)}
-                      title={t("actions.view_history")}
-                    >
-                      <History className="size-3.5" />
-                      <span className="sr-only">{t("actions.history_sr")}</span>
-                    </Button>
-                    {onEdit && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onEdit(item)}
-                        title={t("actions.edit_item")}
-                      >
-                        <Pencil className="size-3.5" />
-                        <span className="sr-only">{t("actions.edit_sr")}</span>
-                      </Button>
-                    )}
-                    {onDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onDelete(item)}
-                        title={t("actions.delete_item")}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="size-3.5" />
-                        <span className="sr-only">{t("actions.delete_sr")}</span>
-                      </Button>
-                    )}
-                  </div>
+                  <RowActions
+                    label={item.name}
+                    actions={[
+                      {
+                        label: t("actions.view_details"),
+                        icon: Eye,
+                        onSelect: () => setDetailItem(item),
+                      },
+                      {
+                        label: t("actions.view_history"),
+                        icon: History,
+                        onSelect: () => handleHistory(item),
+                      },
+                      {
+                        label: t("actions.edit_item"),
+                        icon: Pencil,
+                        onSelect: () => onEdit?.(item),
+                        hidden: !onEdit,
+                      },
+                      {
+                        label: `${t("actions.delete_item")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => onDelete?.(item),
+                        hidden: !onDelete,
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             );

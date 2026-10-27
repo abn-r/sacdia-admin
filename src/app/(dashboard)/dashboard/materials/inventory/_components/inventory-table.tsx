@@ -11,9 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { toneBadgeProps } from "@/components/materials/badge-tones";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { MoneyFormat } from "@/components/materials/money-format";
 import { ProductFormSheet } from "./product-form-sheet";
 import { DeleteProductDialog } from "./delete-product-dialog";
@@ -48,27 +48,25 @@ export function InventoryTable({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-md border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-5">SKU</TableHead>
+              <TableHead className="pl-5 hidden xl:table-cell">SKU</TableHead>
               <TableHead>{t("colProduct")}</TableHead>
-              {showLocalFieldColumn && <TableHead>{t("colLocalField")}</TableHead>}
-              <TableHead>{t("colProgram")}</TableHead>
+              {showLocalFieldColumn && <TableHead className="hidden xl:table-cell">{t("colLocalField")}</TableHead>}
+              <TableHead className="hidden xl:table-cell">{t("colProgram")}</TableHead>
               <TableHead>{t("colCategory")}</TableHead>
               <TableHead className="text-right">{t("colPrice")}</TableHead>
               <TableHead className="text-right">{t("colStock")}</TableHead>
               <TableHead>{t("colStatus")}</TableHead>
-              <TableHead className="sticky right-0 z-20 w-[88px] border-l bg-background">
-                {t("colActions")}
-              </TableHead>
+              <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {products.map((product) => (
               <TableRow key={product.id}>
-                <TableCell className="pl-5">
+                <TableCell className="pl-5 hidden xl:table-cell">
                   <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
                 </TableCell>
                 <TableCell>
@@ -84,14 +82,14 @@ export function InventoryTable({
 
                 {/* Local field (admin merged view only) */}
                 {showLocalFieldColumn && (
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                     {lfNameById.get(product.local_field_id) ??
                       `LF-${product.local_field_id}`}
                   </TableCell>
                 )}
 
                 {/* Programa */}
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                   {product.programa?.label ?? "—"}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -112,32 +110,25 @@ export function InventoryTable({
 
                 {/* Estado */}
                 <TableCell>
-                  {product.active ? (
-                    <Badge {...toneBadgeProps("success")}>{t("statusActive")}</Badge>
-                  ) : (
-                    <Badge variant="secondary">{t("statusInactive")}</Badge>
-                  )}
+                  <StatusBadge intent={flagStatusIntent(product.active)} label={product.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
-                <TableCell className="sticky right-0 z-10 border-l bg-background">
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("editAriaLabel")}
-                      onClick={() => setEditTarget(product)}
-                    >
-                      <Pencil className="size-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-destructive hover:text-destructive"
-                      aria-label={t("deactivateAriaLabel")}
-                      onClick={() => setDeleteTarget(product)}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  </div>
+                <TableCell className="sticky right-0 z-10 border-l bg-card">
+                  <RowActions
+                    label={product.title}
+                    actions={[
+                      {
+                        label: t("editAriaLabel"),
+                        icon: Pencil,
+                        onSelect: () => setEditTarget(product),
+                      },
+                      {
+                        label: `${t("deactivateAriaLabel")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setDeleteTarget(product),
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}

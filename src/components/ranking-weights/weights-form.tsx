@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WeightInput } from "./weight-input";
 import { WeightSumIndicator } from "./weight-sum-indicator";
@@ -82,13 +81,8 @@ export function WeightsForm({
 
       <div className="flex items-center justify-between gap-4">
         <WeightSumIndicator sum={sum} />
-        <Button type="submit" disabled={!ok || busy}>
-          {busy ? (
-            <>
-              <Loader2 className="animate-spin" />
-              {t("saving")}
-            </>
-          ) : (
+        <Button loading={busy} type="submit" disabled={!ok}>
+          {busy ? t("saving") : (
             submitLabel
           )}
         </Button>

@@ -3,14 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle2,
-  XCircle,
-  History,
-  Eye,
-  Loader2,
-  FileSearch,
-} from "lucide-react";
+import { History, Eye, FileSearch } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
@@ -74,7 +67,7 @@ type DialogState =
 
 // ─── Row actions ──────────────────────────────────────────────────────────────
 
-interface RowActionsProps {
+interface EvidenceRowActionsProps {
   item: EvidenceItem;
   onApprove: () => void;
   onReject: () => void;
@@ -82,92 +75,36 @@ interface RowActionsProps {
   onHistory: () => void;
 }
 
-function RowActions({
+function EvidenceRowActions({
   item,
   onApprove,
   onReject,
   onDetail,
   onHistory,
-}: RowActionsProps) {
+}: EvidenceRowActionsProps) {
   const t = useTranslations("evidence_review.table");
-  const [isApproving, setIsApproving] = useState(false);
   const pending = isPending(item.status, item.type);
 
-  void setIsApproving;
-
   return (
-    <div className="flex items-center justify-end gap-1">
-      {/* Detail */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onDetail}
-            aria-label={t("action_view_files")}
-          >
-            <Eye className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t("action_view_files")}</TooltipContent>
-      </Tooltip>
-
-      {/* History */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onHistory}
-            aria-label={t("action_view_history")}
-          >
-            <History className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t("action_view_history")}</TooltipContent>
-      </Tooltip>
-
-      {/* Approve — only when pending */}
-      {pending && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-success hover:bg-success/10 hover:text-success"
-              onClick={onApprove}
-              disabled={isApproving}
-              aria-label={t("action_approve")}
-            >
-              {isApproving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="size-4" />
-              )}
+    <RowActions
+      label={item.member_name}
+      actions={[
+        { label: t("action_view_files"), icon: Eye, onSelect: onDetail },
+        { label: t("action_view_history"), icon: History, onSelect: onHistory },
+      ]}
+      primary={
+        pending ? (
+          <>
+            <Button variant="outline" size="sm" onClick={onReject}>
+              {t("action_reject")}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t("action_approve")}</TooltipContent>
-        </Tooltip>
-      )}
-
-      {/* Reject — only when pending */}
-      {pending && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={onReject}
-              aria-label={t("action_reject")}
-            >
-              <XCircle className="size-4" />
+            <Button size="sm" onClick={onApprove}>
+              {t("action_approve")}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t("action_reject")}</TooltipContent>
-        </Tooltip>
-      )}
-    </div>
+          </>
+        ) : undefined
+      }
+    />
   );
 }
 
@@ -265,30 +202,28 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_member")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_type")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_entity")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_section")}
               </TableHead>
               <TableHead className="h-9 min-w-48 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_description")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_files")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_submitted")}
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("col_status")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-                {t("col_actions")}
-              </TableHead>
+              <RowActionsHead className="h-9 w-56 px-3" />
             </TableRow>
           </TableHeader>
 
@@ -319,7 +254,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     <span className="font-medium">{item.member_name}</span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                     <EvidenceTypeBadge type={item.type} />
                   </TableCell>
 
@@ -327,7 +262,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     <span className="font-medium">{getEvidenceEntityName(item)}</span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                     {getEvidenceSectionName(item)}
                   </TableCell>
 
@@ -337,11 +272,11 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                     </span>
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
                     {item.file_count}
                   </TableCell>
 
-                  <TableCell className="px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle tabular-nums text-sm text-muted-foreground">
                     {item.submitted_at ? formatDate(item.submitted_at) : "—"}
                   </TableCell>
 
@@ -350,7 +285,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
                   </TableCell>
 
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <RowActions
+                    <EvidenceRowActions
                       item={item}
                       onApprove={() => setDialog({ kind: "approve", item })}
                       onReject={() => setDialog({ kind: "reject", item })}

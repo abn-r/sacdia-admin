@@ -22,7 +22,10 @@ import {
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
-export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function DashboardLayout({
+  children,
+  modal,
+}: Readonly<{ children: ReactNode; modal: ReactNode }>) {
   const initialUser = await requireAdminUser();
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -90,6 +93,7 @@ export default async function DashboardLayout({ children }: Readonly<{ children:
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
             {canOpenPage ? children : <PageAccessForbidden />}
           </div>
+          {modal}
         </SidebarInset>
       </SidebarProvider>
       </QueryProvider>

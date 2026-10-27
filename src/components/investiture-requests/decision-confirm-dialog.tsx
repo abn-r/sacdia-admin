@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,14 +52,13 @@ export function DecisionConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting}>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
-            disabled={isSubmitting}
+            loading={isSubmitting}
             onClick={(event) => {
               // Keep the dialog open until the request settles.
               event.preventDefault();
               onConfirm();
             }}
           >
-            {isSubmitting && <Loader2 className="animate-spin" aria-hidden="true" />}
             {isSubmitting ? t("confirming") : t("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>

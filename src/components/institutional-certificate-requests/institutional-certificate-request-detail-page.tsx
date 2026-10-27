@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ExternalLink,
   FileText,
@@ -192,10 +190,8 @@ type DialogAction = "approve" | "reject" | null;
 
 export function InstitutionalCertificateRequestDetailPage({
   request,
-  listHref = "/dashboard/institutional-certificate-requests",
 }: {
   request: InstitutionalCertificateRequest;
-  listHref?: string;
 }) {
   const router = useRouter();
   const tLabels = useTranslations("institutional_certificate_requests.labels");
@@ -217,13 +213,6 @@ export function InstitutionalCertificateRequestDetailPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <Button variant="ghost" size="sm" className="w-fit" asChild>
-        <Link href={listHref}>
-          <ArrowLeft aria-hidden="true" />
-          Volver a bandeja institucional
-        </Link>
-      </Button>
-
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
         {/* Proof viewer */}
         {request.batch_id ? (
@@ -250,7 +239,6 @@ export function InstitutionalCertificateRequestDetailPage({
             <CardHeader>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <CardTitle className="text-xl">{request.applicant_name}</CardTitle>
                   <p className="text-sm text-muted-foreground">
                     ID {request.request_id.slice(0, 8).toUpperCase()} · Rev. {request.revision}
                   </p>

@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -63,30 +62,19 @@ export default async function CatalogCertificationDetailPage({
           { label: t("title"), href: "/dashboard/catalogs/certifications" },
           { label: name },
         ]}
-        actions={
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/catalogs/certifications">
-              <ArrowLeft className="size-4" />
-              {t("back")}
-            </Link>
-          </Button>
-        }
       />
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-4 pt-6">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <ShieldCheck className="size-5 text-primary" />
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+            <ShieldCheck className="size-5 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold">{name}</h2>
             {description ? (
               <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
             ) : null}
           </div>
-          <Badge variant={isActive ? "default" : "outline"}>
-            {isActive ? t("statusActive") : t("statusInactive")}
-          </Badge>
+          <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("statusActive") : t("statusInactive")} />
         </CardContent>
       </Card>
 

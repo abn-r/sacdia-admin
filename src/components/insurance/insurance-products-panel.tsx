@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Plus, RefreshCw, Shield } from "lucide-react";
+import { Plus, RefreshCw, Shield } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -310,11 +310,11 @@ export function InsuranceProductsPanel() {
               {t("cancel")}
             </Button>
             <Button
+              loading={saving}
               type="button"
               onClick={() => void save()}
-              disabled={saving || !form.name.trim()}
+              disabled={!form.name.trim()}
             >
-              {saving && <Loader2 className="size-4 animate-spin" />}
               {t("save")}
             </Button>
           </DialogFooter>

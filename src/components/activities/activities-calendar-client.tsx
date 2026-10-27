@@ -393,7 +393,7 @@ export function ActivitiesCalendarClient({
         <div className="space-y-2">
           <Label htmlFor="activities-local-field">{tCal("filterLocalField")}</Label>
           <Select value={localFieldId} onValueChange={handleLocalFieldChange}>
-            <SelectTrigger id="activities-local-field">
+            <SelectTrigger id="activities-local-field" className="w-full">
               <SelectValue placeholder={tCal("filterLocalFieldAll")} />
             </SelectTrigger>
             <SelectContent>
@@ -414,7 +414,7 @@ export function ActivitiesCalendarClient({
             onValueChange={handleClubChange}
             disabled={filteredClubs.length === 0}
           >
-            <SelectTrigger id="activities-club">
+            <SelectTrigger id="activities-club" className="w-full">
               <SelectValue placeholder={t("view.selectClubPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
@@ -435,7 +435,7 @@ export function ActivitiesCalendarClient({
             onValueChange={handleSectionChange}
             disabled={!selectedClubId || availableSections.length === 0}
           >
-            <SelectTrigger id="activities-section">
+            <SelectTrigger id="activities-section" className="w-full">
               <SelectValue placeholder={tCal("filterSectionPlaceholder")} />
             </SelectTrigger>
             <SelectContent>

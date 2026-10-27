@@ -184,11 +184,11 @@ export async function UsersTable({
               <TableRow>
                 <TableHead className="pl-6">{t("list.columns.user")}</TableHead>
                 <TableHead className="hidden md:table-cell">{t("list.columns.roles")}</TableHead>
-                <TableHead className="hidden lg:table-cell">{t("list.columns.location")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("list.columns.location")}</TableHead>
                 <TableHead>{t("list.columns.status")}</TableHead>
                 <TableHead className="hidden sm:table-cell">{t("list.columns.access")}</TableHead>
                 {showAdministrativeCompletion ? (
-                  <TableHead className="hidden lg:table-cell">{t("list.columns.postRegistration")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">{t("list.columns.postRegistration")}</TableHead>
                 ) : null}
                 <TableHead className="hidden pr-6 md:table-cell">{t("list.columns.registrationDate")}</TableHead>
               </TableRow>
@@ -235,7 +235,7 @@ export async function UsersTable({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="hidden max-w-[200px] lg:table-cell">
+                    <TableCell className="hidden max-w-[200px] xl:table-cell">
                       <LocationCell user={user} />
                     </TableCell>
                     <TableCell>
@@ -252,7 +252,7 @@ export async function UsersTable({
                       </div>
                     </TableCell>
                     {showAdministrativeCompletion ? (
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         <StatusBadge
                           intent={flagStatusIntent(Boolean(user.post_registration?.complete))}
                           label={

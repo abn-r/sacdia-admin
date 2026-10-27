@@ -255,20 +255,16 @@ export function RequirementReviewDetail({
                             {evidence.original_filename}
                           </span>
                           <Button
+                            loading={downloadingId === evidence.evidence_id}
                             type="button"
                             size="sm"
                             variant="outline"
                             aria-label={`${t("detail.viewEvidence")} ${evidence.original_filename}`}
-                            disabled={downloadingId === evidence.evidence_id}
                             onClick={() =>
                               void handleViewEvidence(evidence.evidence_id)
                             }
                           >
-                            {downloadingId === evidence.evidence_id ? (
-                              <Loader2 className="size-3.5 animate-spin" />
-                            ) : (
-                              <ExternalLink className="size-3.5" />
-                            )}
+                            <ExternalLink className="size-3.5" />
                             {t("detail.viewEvidence")}
                           </Button>
                         </li>

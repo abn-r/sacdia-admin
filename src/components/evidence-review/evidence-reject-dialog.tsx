@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { XCircle, Loader2 } from "lucide-react";
+import { XCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -136,8 +136,7 @@ export function EvidenceRejectDialog({
               >
                 {t("rejectDialog.cancel")}
               </Button>
-              <Button type="submit" variant="destructive" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              <Button loading={isSubmitting} type="submit" variant="destructive">
                 {t("rejectDialog.confirm")}
               </Button>
             </DialogFooter>

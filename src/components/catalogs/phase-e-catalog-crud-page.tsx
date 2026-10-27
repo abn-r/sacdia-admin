@@ -20,8 +20,6 @@ import {
 } from "react";
 import {
   Eye,
-  Loader2,
-  MoreHorizontal,
   RefreshCcw,
   Pencil,
   Plus,
@@ -35,7 +33,8 @@ import { deriveClassOptionsFromSectionModules } from "@/lib/catalogs/club-ideals
 
 export type { ClassModuleParentOption, ClassSectionModuleOption };
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -57,12 +56,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Select,
   SelectContent,
@@ -186,8 +180,7 @@ export interface PhaseECatalogCrudPageProps {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );
@@ -198,11 +191,10 @@ function DeleteButton() {
   const t = useTranslations("catalogs.phaseE");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      variant="destructive-solid"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("delete")}
     </Button>
   );
@@ -1171,27 +1163,25 @@ export function PhaseECatalogCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
                     {showClassSectionModule && <TableHead>{t("colModule")}</TableHead>}
                     {(showClassModuleParent || showClassSectionModule) && (
-                      <TableHead>{t("colClass")}</TableHead>
+                      <TableHead className={showClassSectionModule ? "hidden xl:table-cell" : undefined}>{t("colClass")}</TableHead>
                     )}
-                    {showClubType && <TableHead>{t("colClubType")}</TableHead>}
+                    {showClubType && <TableHead className="hidden xl:table-cell">{t("colClubType")}</TableHead>}
                     {includeDescription && <TableHead>{t("colDescription")}</TableHead>}
-                    {showClassConfig && <TableHead>{t("colDuration")}</TableHead>}
-                    {showClassConfig && <TableHead>{t("colAvailability")}</TableHead>}
+                    {showClassConfig && <TableHead className="hidden xl:table-cell">{t("colDuration")}</TableHead>}
+                    {showClassConfig && <TableHead className="hidden xl:table-cell">{t("colAvailability")}</TableHead>}
                     {isMasterHonorsCrud && (
-                      <TableHead>{masterHonorsT("colRulesSummary")}</TableHead>
+                      <TableHead className="hidden xl:table-cell">{masterHonorsT("colRulesSummary")}</TableHead>
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete || detailPathPrefix) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -1203,7 +1193,7 @@ export function PhaseECatalogCrudPage({
 
                     return (
                       <TableRow key={rowKey}>
-                        <TableCell className="font-medium">
+                        <TableCell className="max-w-[280px] whitespace-normal font-medium">
                           {detailPathPrefix && itemId ? (
                             <Link
                               href={`${detailPathPrefix}/${itemId}`}
@@ -1221,12 +1211,12 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {(showClassModuleParent || showClassSectionModule) && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className={showClassSectionModule ? "hidden text-sm text-muted-foreground xl:table-cell" : "text-sm text-muted-foreground"}>
                             {resolveClassName(item)}
                           </TableCell>
                         )}
                         {showClubType && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
                             {(() => {
                               const clubTypeId = resolveClubTypeId(item);
                               if (!clubTypeId) return "—";
@@ -1238,12 +1228,12 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {includeDescription && (
-                          <TableCell className="max-w-[380px] text-sm text-muted-foreground">
+                          <TableCell className="min-w-[200px] max-w-[380px] whitespace-normal text-sm text-muted-foreground">
                             {toText(item.description) ?? "—"}
                           </TableCell>
                         )}
                         {showClassConfig && (
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="hidden text-sm text-muted-foreground xl:table-cell">
                             {formatClassDurationRange(
                               toPositiveInt(item.min_duration_years) ?? 1,
                               toPositiveInt(item.max_duration_years) ?? 1,
@@ -1252,7 +1242,7 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {showClassConfig && (
-                          <TableCell className="max-w-[260px] text-sm text-muted-foreground">
+                          <TableCell className="hidden min-w-[160px] max-w-[260px] whitespace-normal text-sm text-muted-foreground xl:table-cell">
                             {formatClassAvailabilityUntil(
                               toPositiveInt(item.available_until_year_id),
                               displayLabels,
@@ -1261,7 +1251,7 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         )}
                         {isMasterHonorsCrud ? (
-                          <TableCell className="max-w-[260px] whitespace-pre-line text-sm text-muted-foreground">
+                          <TableCell className="hidden max-w-[260px] whitespace-pre-line text-sm text-muted-foreground xl:table-cell">
                             {(() => {
                               const summary = getMasterHonorsSummary(item);
                               if (summary.kind === "empty") {
@@ -1275,123 +1265,47 @@ export function PhaseECatalogCrudPage({
                           </TableCell>
                         ) : null}
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "soft-success" : "outline"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete || detailPathPrefix) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
-                            <div className="hidden gap-1 md:flex">
-                              {detailPathPrefix && itemId ? (
-                                <Button variant="ghost" size="icon" className="size-8" asChild>
-                                  <Link
-                                    href={`${detailPathPrefix}/${itemId}`}
-                                    title={t("viewDetail")}
-                                  >
-                                    <Eye className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              ) : null}
-                              {canEdit && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  disabled={!itemId}
-                                  onClick={() => handleEditOpen(item)}
-                                  title={t("edit")}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Button>
-                              )}
-                              {hasRecalculateAction && canEdit && itemId ? (
-                                <form action={recalculateFormAction} className="inline">
-                                  <input
-                                    type="hidden"
-                                    name="id"
-                                    value={String(itemId)}
-                                  />
-                                <Button
-                                  type="submit"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 gap-1.5"
-                                  aria-label={masterHonorsT("recalculateNow")}
-                                  title={masterHonorsT("recalculateNow")}
-                                >
-                                  <RefreshCcw className="size-3.5" />
-                                  <span className="hidden md:inline">{masterHonorsT("recalculateNow")}</span>
-                                </Button>
-                              </form>
-                            ) : null}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("delete")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                  {detailPathPrefix && itemId ? (
-                                    <DropdownMenuItem asChild>
-                                      <Link href={`${detailPathPrefix}/${itemId}`}>
-                                        <Eye className="size-4" />
-                                        {t("viewDetail")}
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  ) : null}
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      onSelect={() => handleEditOpen(item)}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("edit")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  {hasRecalculateAction && canEdit && itemId ? (
-                                    <DropdownMenuItem
-                                      onSelect={(event) => {
-                                        event.preventDefault();
-                                        const recalculateForm = document.getElementById(
-                                          `recalculate-master-honor-${itemId}`,
-                                        ) as HTMLFormElement | null;
-                                        recalculateForm?.requestSubmit();
-                                      }}
-                                    >
-                                      <RefreshCcw className="size-4" />
-                                      {masterHonorsT("recalculateNow")}
-                                    </DropdownMenuItem>
-                                  ) : null}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      {t("delete")}
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
+                            <RowActions
+                              label={itemName}
+                              actions={[
+                                {
+                                  label: t("viewDetail"),
+                                  icon: Eye,
+                                  href: `${detailPathPrefix}/${itemId}`,
+                                  hidden: !(detailPathPrefix && itemId),
+                                },
+                                {
+                                  label: t("edit"),
+                                  icon: Pencil,
+                                  onSelect: () => handleEditOpen(item),
+                                  hidden: !canEdit,
+                                  disabled: !itemId,
+                                },
+                                {
+                                  label: masterHonorsT("recalculateNow"),
+                                  icon: RefreshCcw,
+                                  onSelect: () => {
+                                    const recalculateForm = document.getElementById(
+                                      `recalculate-master-honor-${itemId}`,
+                                    ) as HTMLFormElement | null;
+                                    recalculateForm?.requestSubmit();
+                                  },
+                                  hidden: !(hasRecalculateAction && canEdit && itemId),
+                                },
+                                {
+                                  label: `${t("delete")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                             {itemId && hasRecalculateAction ? (
                               <form
                                 id={`recalculate-master-honor-${itemId}`}

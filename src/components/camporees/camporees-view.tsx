@@ -3,8 +3,9 @@
 
 import Link from "next/link";
 import { useState, useCallback } from "react";
-import { Plus, ChevronRight, Trash2, RefreshCw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, Eye, Trash2, RefreshCw } from "lucide-react";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import dynamic from "next/dynamic";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { DeleteCamporeeDialog } from "@/components/camporees/delete-camporee-dialog";
 import type { CamporeeFormDialogProps } from "@/components/camporees/camporee-form-dialog";
 
@@ -157,7 +159,7 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("list.colStatus")}
                 </TableHead>
-                <TableHead className="h-9 w-28 px-3" />
+                <RowActionsHead className="h-9 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -166,7 +168,13 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                 return (
                   <TableRow key={id} className="hover:bg-muted/30">
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <span className="font-medium">{camporee.name}</span>
+                      <Link
+                        prefetch={false}
+                        href={`/dashboard/campamentos/${id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {camporee.name}
+                      </Link>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                       {formatDate(camporee.start_date, locale)}
@@ -180,32 +188,25 @@ export function CampoReesView({ initialCamporees }: CampoReesViewProps) {
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge
-                        variant={camporee.active !== false ? "soft-success" : "outline"}
-                        className="text-xs"
-                      >
-                        {camporee.active !== false ? t("list.statusActive") : t("list.statusInactive")}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(camporee.active !== false)} label={camporee.active !== false ? t("list.statusActive") : t("list.statusInactive")} size="sm" />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(camporee)}
-                          title={t("list.deleteTitle")}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="size-3.5" />
-                          <span className="sr-only">{t("list.deleteLabel")}</span>
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" asChild>
-                          <Link prefetch={false} href={`${`/dashboard/campamentos/`}${id}`}>
-                            <ChevronRight className="size-4" />
-                            <span className="sr-only">{t("list.viewDetail")}</span>
-                          </Link>
-                        </Button>
-                      </div>
+                      <RowActions
+                        label={camporee.name}
+                        actions={[
+                          {
+                            label: t("list.viewDetail"),
+                            icon: Eye,
+                            href: `/dashboard/campamentos/${id}`,
+                          },
+                          {
+                            label: `${t("list.deleteLabel")}…`,
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => handleDelete(camporee),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

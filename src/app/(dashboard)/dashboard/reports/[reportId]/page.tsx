@@ -1,8 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ReportDetailClient } from "@/components/reports/report-detail-client";
 import { ApiError } from "@/lib/api/client";
@@ -52,14 +49,14 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={pageTitle} description={t("pageDetail.description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/reports">
-            <ArrowLeft className="size-4" />
-            {t("pageDetail.back_link")}
-          </Link>
-        </Button>
-      </PageHeader>
+      <PageHeader
+        title={pageTitle}
+        description={t("pageDetail.description")}
+        breadcrumbs={[
+          { label: t("page.title"), href: "/dashboard/reports" },
+          { label: pageTitle },
+        ]}
+      />
 
       <ReportDetailClient report={report} />
     </div>

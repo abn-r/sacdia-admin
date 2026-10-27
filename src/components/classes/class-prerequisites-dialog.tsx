@@ -165,12 +165,8 @@ export function ClassPrerequisitesDialog({
                     </SelectContent>
                   </Select>
                 </div>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Plus className="size-4" />
-                  )}
+                <Button loading={submitting} type="submit">
+                  <Plus className="size-4" />
                   Agregar
                 </Button>
               </form>

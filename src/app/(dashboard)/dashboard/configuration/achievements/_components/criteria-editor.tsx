@@ -64,7 +64,7 @@ function ThresholdEditor({
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
@@ -86,7 +86,7 @@ function ThresholdEditor({
               onChange({ ...value, operator: operator as CriteriaOperator })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
@@ -132,7 +132,7 @@ function StreakEditor({
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
@@ -167,7 +167,7 @@ function StreakEditor({
               onChange({ ...value, streak_unit: streak_unit as StreakUnit })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={t("placeholderUnit")} />
             </SelectTrigger>
             <SelectContent>
@@ -238,7 +238,7 @@ function CompoundConditionRow({
           value={condition.event}
           onValueChange={(event) => onChange({ ...condition, event })}
         >
-          <SelectTrigger className="h-8 text-sm">
+          <SelectTrigger className="h-8 text-sm w-full">
             <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
@@ -260,7 +260,7 @@ function CompoundConditionRow({
               onChange({ ...condition, operator: operator as CriteriaOperator })
             }
           >
-            <SelectTrigger className="h-8 text-sm">
+            <SelectTrigger className="h-8 text-sm w-full">
               <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
@@ -392,7 +392,7 @@ function MilestoneEditor({
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>
@@ -423,7 +423,7 @@ function MilestoneEditor({
               onChange({ ...value, operator: operator as CriteriaOperator })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={t("placeholderOperator")} />
             </SelectTrigger>
             <SelectContent>
@@ -465,7 +465,7 @@ function CollectionEditor({
           value={value.event}
           onValueChange={(event) => onChange({ ...value, event })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder={t("placeholderEvent")} />
           </SelectTrigger>
           <SelectContent>

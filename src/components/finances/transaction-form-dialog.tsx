@@ -6,7 +6,6 @@ import type { SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -495,8 +494,7 @@ export function TransactionFormDialog({
               >
                 {t("form.cancelButton")}
               </Button>
-              <Button type="submit" disabled={isSubmitting || loadingCategories}>
-                {isSubmitting && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+              <Button loading={isSubmitting} type="submit" disabled={loadingCategories}>
                 {isEdit ? t("form.saveButton") : t("form.createButton")}
               </Button>
             </DialogFooter>

@@ -60,17 +60,13 @@ export function CamporeeOrderReviewTray({
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("tray.refresh")}
         </Button>
       </div>

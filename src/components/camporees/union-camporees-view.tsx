@@ -5,7 +5,8 @@ import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Plus, Pencil, Trash2, RefreshCw, Tent, Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { useLocale, useTranslations } from "next-intl";
 import { formatCalendarDate } from "@/lib/format-locale";
 import { listUnionCamporees } from "@/lib/api/camporees";
@@ -158,7 +160,7 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colName")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colUnion")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
@@ -167,13 +169,13 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colEndDate")}
                 </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colPlace")}
                 </TableHead>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("unionList.colStatus")}
                 </TableHead>
-                <TableHead className="h-9 w-24 px-3" />
+                <RowActionsHead className="h-9 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -181,10 +183,15 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                 const id = camporee.union_camporee_id ?? camporee.id ?? 0;
                 return (
                   <TableRow key={id} className="hover:bg-muted/30">
-                    <TableCell className="px-3 py-2.5 align-middle">
-                      <span className="font-medium">{camporee.name}</span>
+                    <TableCell className="max-w-[300px] whitespace-normal px-3 py-2.5 align-middle">
+                      <Link
+                        href={`/dashboard/campamentos/union/${id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {camporee.name}
+                      </Link>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                       {camporee.union_name ?? "—"}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
@@ -193,52 +200,36 @@ export function UnionCampoReesView({ initialCamporees, unions }: UnionCampoReesV
                     <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
                       {formatDate(camporee.end_date, locale)}
                     </TableCell>
-                    <TableCell className="max-w-[160px] px-3 py-2.5 align-middle">
+                    <TableCell className="hidden xl:table-cell max-w-[160px] px-3 py-2.5 align-middle">
                       <span className="truncate text-sm text-muted-foreground">
                         {camporee.union_camporee_place ?? camporee.place ?? "—"}
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <Badge
-                        variant={camporee.active !== false ? "soft-success" : "outline"}
-                        className="text-xs"
-                      >
-                        {camporee.active !== false ? t("unionList.statusActive") : t("unionList.statusInactive")}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(camporee.active !== false)} label={camporee.active !== false ? t("unionList.statusActive") : t("unionList.statusInactive")} size="sm" />
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          asChild
-                          title="Ver detalle"
-                        >
-                          <Link href={`/dashboard/campamentos/union/${id}`}>
-                            <Eye className="size-3.5" />
-                            <span className="sr-only">Ver detalle</span>
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleEdit(camporee)}
-                          title={t("unionList.editTitle")}
-                        >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">{t("unionList.editLabel")}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(camporee)}
-                          title={t("unionList.deleteTitle")}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="size-3.5" />
-                          <span className="sr-only">{t("unionList.deleteLabel")}</span>
-                        </Button>
-                      </div>
+                      <RowActions
+                        label={camporee.name}
+                        actions={[
+                          {
+                            label: t("list.viewDetail"),
+                            icon: Eye,
+                            href: `/dashboard/campamentos/union/${id}`,
+                          },
+                          {
+                            label: t("unionList.editLabel"),
+                            icon: Pencil,
+                            onSelect: () => handleEdit(camporee),
+                          },
+                          {
+                            label: `${t("unionList.deleteLabel")}…`,
+                            icon: Trash2,
+                            destructive: true,
+                            onSelect: () => handleDelete(camporee),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

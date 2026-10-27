@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -116,10 +116,9 @@ export function ReceiptReviewActions({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <Button variant="default" onClick={handleApprove} disabled={isPending}>
+            <Button loading={isPending} variant="default" onClick={handleApprove}>
               {isPending ? (
                 <>
-                  <Loader2 className="mr-1.5 size-4 animate-spin" />
                   Aprobando...
                 </>
               ) : (
@@ -155,13 +154,13 @@ export function ReceiptReviewActions({
               Volver
             </AlertDialogCancel>
             <Button
+              loading={isPending}
               variant="destructive"
               onClick={handleReject}
-              disabled={isPending || rejectReason.trim().length === 0}
+              disabled={rejectReason.trim().length === 0}
             >
               {isPending ? (
                 <>
-                  <Loader2 className="mr-1.5 size-4 animate-spin" />
                   Rechazando...
                 </>
               ) : (

@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { MemberRow } from "@/components/clubs/detail/member-row";
 import { clubLocationName } from "@/components/clubs/detail/location";
 import {
@@ -42,9 +43,7 @@ export function GeneralTab({ data }: GeneralTabProps) {
             <DetailField
               k={t("labelStatus")}
               v={
-                <Badge variant={club.active !== false ? "soft" : "outline"}>
-                  {club.active !== false ? t("statusActive") : t("statusInactive")}
-                </Badge>
+                <StatusBadge intent={flagStatusIntent(club.active !== false)} label={club.active !== false ? t("statusActive") : t("statusInactive")} />
               }
             />
             <DetailField k={t("labelAddress")} v={address} muted={!address} />
@@ -70,9 +69,7 @@ export function GeneralTab({ data }: GeneralTabProps) {
               num={padNum(index + 2)}
               title={group.sectionName}
               action={
-                <Badge variant={sectionActive ? "soft" : "outline"}>
-                  {sectionActive ? t("statusActive") : t("statusInactive")}
-                </Badge>
+                <StatusBadge intent={flagStatusIntent(sectionActive)} label={sectionActive ? t("statusActive") : t("statusInactive")} />
               }
             >
               <DetailCols2 className="sm:grid-cols-3">

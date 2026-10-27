@@ -17,7 +17,6 @@ import {
   CheckCircle2,
   Download,
   FileSpreadsheet,
-  Loader2,
   Upload,
   XCircle,
 } from "lucide-react";
@@ -435,12 +434,10 @@ export function ClubsBulkImport({
 
             <div className="flex items-center justify-end gap-2">
               <Button
+                loading={isPending}
                 onClick={handleSubmit}
-                disabled={validRows.length === 0 || isPending}
+                disabled={validRows.length === 0}
               >
-                {isPending && (
-                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                )}
                 {t("submitButton", { count: validRows.length })}
               </Button>
             </div>

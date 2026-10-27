@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
+import { Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
@@ -155,30 +155,21 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         title={activity.name}
         description={t("pageDetail.description")}
         breadcrumbs={[
-          { label: t("pageDetail.back_link"), href: "/dashboard/clubs/activities" },
+          { label: t("page.title"), href: "/dashboard/clubs/activities" },
           { label: activity.name },
         ]}
         actions={
-          <>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/clubs/activities">
-                <ArrowLeft className="size-4" />
-                {t("pageDetail.back_link")}
-              </Link>
-            </Button>
-            <ActivityDetailActions activity={activity} />
-          </>
+          <ActivityDetailActions activity={activity} />
         }
       />
 
       {/* Summary card */}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <Calendar className="size-6 text-primary" />
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
+            <Calendar className="size-6 text-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold">{activity.name}</h2>
             {activity.description && (
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {activity.description}
@@ -190,9 +181,7 @@ export default async function ActivityDetailPage({ params }: { params: Params })
               <Badge variant="soft-success">{t("series.badge")}</Badge>
             ) : null}
             <Badge variant="secondary">{typeLabel}</Badge>
-            <Badge variant={activity.active ? "soft-success" : "outline"}>
-              {activity.active ? t("pageDetail.badge_active") : t("pageDetail.badge_inactive")}
-            </Badge>
+            <StatusBadge intent={flagStatusIntent(activity.active)} label={activity.active ? t("pageDetail.badge_active") : t("pageDetail.badge_inactive")} />
           </div>
         </CardContent>
       </Card>

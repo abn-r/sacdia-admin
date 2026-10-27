@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -153,11 +153,10 @@ export function CamporeeApprovalDialog({
                 Cancelar
               </Button>
               <Button
+                loading={isPending}
                 type="submit"
                 variant={isReject ? "destructive" : "default"}
-                disabled={isPending}
               >
-                {isPending && <Loader2 className="size-4 animate-spin" />}
                 {isReject ? "Rechazar" : "Aprobar"}
               </Button>
             </DialogFooter>

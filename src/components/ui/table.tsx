@@ -3,12 +3,18 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useEdgeFade } from "@/hooks/use-edge-fade"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  const { attach, edges, style } = useEdgeFade()
   return (
     <div
+      ref={attach}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      data-overflow-start={edges.start || undefined}
+      data-overflow-end={edges.end || undefined}
+      className="relative w-full overflow-x-auto overscroll-x-contain"
+      style={style}
     >
       <table
         data-slot="table"

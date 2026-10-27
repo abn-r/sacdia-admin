@@ -3,7 +3,6 @@
 import { useActionState, useEffect, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +14,7 @@ import type { ClubSectionMember } from "@/lib/api/clubs";
 function SuccessionSubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="sm" className="w-full" disabled={pending}>
-      {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}
+    <Button loading={pending} type="submit" size="sm" className="w-full">
       {label}
     </Button>
   );

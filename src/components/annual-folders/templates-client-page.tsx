@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -611,7 +612,7 @@ export function TemplatesClientPage({
             <AlertDialogAction
               onClick={confirmDeleteTemplate}
               disabled={isDeletingTemplate}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeletingTemplate ? t("templatesClientPage.deleteDraftLoading") : t("templatesClientPage.deleteDraftButton")}
             </AlertDialogAction>
@@ -811,9 +812,7 @@ export function TemplatesClientPage({
                     <TableHead className="w-24 text-center">
                       {t("templates.tableColMaxPts")}
                     </TableHead>
-                    <TableHead className="w-20 text-right">
-                      {t("templates.tableColActions")}
-                    </TableHead>
+                    <RowActionsHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -845,39 +844,28 @@ export function TemplatesClientPage({
                         {section.max_points}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {activeTemplateIsDraft ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => handleEditSection(section)}
-                                title={t("templates.editSection")}
-                              >
-                                <Pencil className="size-3.5" />
-                                <span className="sr-only">
-                                  {t("templates.editSection")}
-                                </span>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => handleDeleteSection(section)}
-                                title={t("templates.deleteSection")}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="size-3.5" />
-                                <span className="sr-only">
-                                  {t("templates.deleteSection")}
-                                </span>
-                              </Button>
-                            </>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              Bloqueada
-                            </span>
-                          )}
-                        </div>
+                        {activeTemplateIsDraft ? (
+                          <RowActions
+                            label={section.name}
+                            actions={[
+                              {
+                                label: t("templates.editSection"),
+                                icon: Pencil,
+                                onSelect: () => handleEditSection(section),
+                              },
+                              {
+                                label: `${t("templates.deleteSection")}…`,
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => handleDeleteSection(section),
+                              },
+                            ]}
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Bloqueada
+                          </span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -995,7 +983,7 @@ export function TemplatesClientPage({
               <AlertDialogAction
                 onClick={confirmDeleteSection}
                 disabled={isDeletingSection}
-                className="bg-destructive text-white hover:bg-destructive/90"
+                variant="destructive-solid"
               >
                 {isDeletingSection
                   ? t("templates.deletingSectionLoading")
@@ -1195,12 +1183,12 @@ export function TemplatesClientPage({
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("templates.tableColName")}</TableHead>
-                  <TableHead>{t("templates.tableColClubType")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">{t("templates.tableColClubType")}</TableHead>
                   <TableHead>
                     {t("templates.tableColEcclesiasticalYear")}
                   </TableHead>
                   <TableHead>{t("templates.tableColOwner")}</TableHead>
-                  <TableHead className="w-24 text-center">
+                  <TableHead className="hidden w-24 text-center xl:table-cell">
                     {t("templates.tableColSections")}
                   </TableHead>
                   <TableHead className="w-16 text-center">
@@ -1218,10 +1206,10 @@ export function TemplatesClientPage({
                     className="cursor-pointer"
                     onClick={() => handleOpenTemplate(template)}
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="max-w-[300px] whitespace-normal font-medium">
                       {template.name}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="hidden text-muted-foreground xl:table-cell">
                       {template.club_type?.name ??
                         `Tipo ${template.club_type_id}`}
                     </TableCell>
@@ -1246,7 +1234,7 @@ export function TemplatesClientPage({
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden text-center xl:table-cell">
                       <span className="text-sm text-muted-foreground">
                         {template.sections?.length ?? "—"}
                       </span>

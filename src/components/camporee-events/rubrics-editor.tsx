@@ -70,7 +70,7 @@ export function RubricsEditor({
   }
 
   return (
-    <section className="space-y-6 rounded-xl border p-6">
+    <section className="space-y-4">
       <input type="hidden" name={enabledFieldName} value={enabled ? "on" : ""} />
       <input type="hidden" name={rubricsFieldName} value={JSON.stringify(value)} />
       {enabled && !isValid && (
@@ -87,7 +87,7 @@ export function RubricsEditor({
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h2 className="text-base font-semibold tracking-tight">Puntaje por rúbricas</h2>
+          <h3 className="text-sm font-medium">Puntaje por rúbricas</h3>
           <p className="text-sm text-muted-foreground">
             Activa esta opción cuando el evento aporte puntos reales al camporee.
           </p>

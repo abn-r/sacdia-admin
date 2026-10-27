@@ -8,8 +8,6 @@ import {
   Download,
   ExternalLink,
   FileText,
-  Loader2,
-  MoreHorizontal,
   Radio,
   Pencil,
   Plus,
@@ -50,13 +48,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -65,11 +57,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
@@ -282,11 +269,10 @@ function DeleteButton() {
   const { pending } = useFormStatus();
   return (
     <Button
+      loading={pending}
       type="submit"
       variant="destructive"
-      disabled={pending}
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       Eliminar
     </Button>
   );
@@ -464,7 +450,7 @@ function ResourceFormFields({
             disabled={isEdit}
             required
           >
-            <SelectTrigger id="res-type">
+            <SelectTrigger id="res-type" className="w-full">
               <SelectValue placeholder={t("placeholders.selectType")} />
             </SelectTrigger>
             <SelectContent>
@@ -494,7 +480,7 @@ function ResourceFormFields({
               "none"
             }
           >
-            <SelectTrigger id="res-category">
+            <SelectTrigger id="res-category" className="w-full">
               <SelectValue placeholder={t("placeholders.selectCategory")} />
             </SelectTrigger>
             <SelectContent>
@@ -518,7 +504,7 @@ function ResourceFormFields({
             name="club_type_id"
             defaultValue={pickClubTypeIdValue(item)}
           >
-            <SelectTrigger id="res-club-type">
+            <SelectTrigger id="res-club-type" className="w-full">
               <SelectValue placeholder={t("placeholders.selectClubType")} />
             </SelectTrigger>
             <SelectContent>
@@ -546,7 +532,7 @@ function ResourceFormFields({
             onValueChange={(v) => setScopeLevel(v as ScopeLevel)}
             disabled={isEdit || scopeLevelLocked}
           >
-            <SelectTrigger id="res-scope-level">
+            <SelectTrigger id="res-scope-level" className="w-full">
               <SelectValue placeholder={t("placeholders.selectScope")} />
             </SelectTrigger>
             <SelectContent>
@@ -615,7 +601,7 @@ function ResourceFormFields({
                 defaultValue={currentScopeIdValue || undefined}
                 required
               >
-                <SelectTrigger id="res-scope-id">
+                <SelectTrigger id="res-scope-id" className="w-full">
                   <SelectValue placeholder={t("placeholders.selectUnion")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -643,7 +629,7 @@ function ResourceFormFields({
               defaultValue={currentScopeIdValue || undefined}
               required
             >
-              <SelectTrigger id="res-scope-id">
+              <SelectTrigger id="res-scope-id" className="w-full">
                 <SelectValue placeholder={t("placeholders.selectLocalField")} />
               </SelectTrigger>
               <SelectContent>
@@ -681,7 +667,7 @@ function ResourceFormFields({
               onChange={handleFileChange}
               className="block w-full cursor-pointer text-sm text-muted-foreground
                 file:mr-3 file:cursor-pointer file:rounded-md file:border-0
-                file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-medium
+                file:bg-primary-solid file:px-3 file:py-1.5 file:text-xs file:font-medium
                 file:text-primary-foreground hover:file:bg-primary/90"
             />
             <p className="mt-2 text-xs text-muted-foreground">
@@ -1276,18 +1262,16 @@ export function ResourcesCrudPage({
                     <TableHead className="min-w-[160px] h-9 px-3 text-xs font-medium text-muted-foreground">
                       Alcance
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Club
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Subido por
                     </TableHead>
-                    <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                    <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                       Fecha
                     </TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[110px] border-l bg-card h-9 px-3 text-xs font-medium text-muted-foreground">
-                      Acciones
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 h-9 border-l bg-card px-3" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1307,7 +1291,7 @@ export function ResourcesCrudPage({
 
                     return (
                       <TableRow key={rowKey} className="transition-colors hover:bg-muted/30">
-                        <TableCell className="px-3 py-2.5 align-middle">
+                        <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
                           <div className="flex flex-col gap-0.5">
                             <span className="font-medium text-sm">{title}</span>
                             {fileSize && (
@@ -1329,126 +1313,43 @@ export function ResourcesCrudPage({
                             localFields={localFields}
                           />
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {clubTypeLabel}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {uploader}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                           {formatDate(item.created_at)}
                         </TableCell>
                         <TableCell className="sticky right-0 z-10 border-l bg-card px-3 py-2.5 align-middle">
-                          {/* Desktop: icon buttons */}
-                          <div className="hidden items-center gap-0.5 md:flex">
-                            {type !== "text" && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-muted-foreground hover:text-foreground"
-                                    disabled={!itemId}
-                                    onClick={() => handleOpenSignedUrl(item)}
-                                  >
-                                    {type === "video_link" ? (
-                                      <ExternalLink className="size-3.5" />
-                                    ) : (
-                                      <Download className="size-3.5" />
-                                    )}
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {type === "video_link" ? "Abrir enlace" : "Descargar"}
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-
-                            {canEdit && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-muted-foreground hover:text-foreground"
-                                    disabled={!itemId}
-                                    onClick={() => setEditItem(item)}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Editar</TooltipContent>
-                              </Tooltip>
-                            )}
-
-                            {canDelete && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-destructive/70 hover:text-destructive"
-                                    disabled={!itemId}
-                                    onClick={() => setDeleteItem(item)}
-                                  >
-                                    <Trash2 className="size-3.5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Eliminar</TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-
-                          {/* Mobile: dropdown */}
-                          <div className="md:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  title="Acciones"
-                                >
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {type !== "text" && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    onSelect={() => handleOpenSignedUrl(item)}
-                                  >
-                                    {type === "video_link" ? (
-                                      <ExternalLink className="size-4" />
-                                    ) : (
-                                      <Download className="size-4" />
-                                    )}
-                                    {type === "video_link" ? "Abrir enlace" : "Descargar"}
-                                  </DropdownMenuItem>
-                                )}
-                                {(canEdit || canDelete) && <DropdownMenuSeparator />}
-                                {canEdit && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    onSelect={() => setEditItem(item)}
-                                  >
-                                    <Pencil className="size-4" />
-                                    Editar
-                                  </DropdownMenuItem>
-                                )}
-                                {canDelete && (
-                                  <DropdownMenuItem
-                                    disabled={!itemId}
-                                    variant="destructive"
-                                    onSelect={() => setDeleteItem(item)}
-                                  >
-                                    <Trash2 className="size-4" />
-                                    Eliminar
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <RowActions
+                            label={title}
+                            actions={[
+                              {
+                                label: type === "video_link" ? "Abrir enlace" : "Descargar",
+                                icon: type === "video_link" ? ExternalLink : Download,
+                                onSelect: () => handleOpenSignedUrl(item),
+                                hidden: type === "text",
+                                disabled: !itemId,
+                              },
+                              {
+                                label: "Editar",
+                                icon: Pencil,
+                                onSelect: () => setEditItem(item),
+                                hidden: !canEdit,
+                                disabled: !itemId,
+                              },
+                              {
+                                label: "Eliminar…",
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => setDeleteItem(item),
+                                hidden: !canDelete,
+                                disabled: !itemId,
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );
@@ -1519,12 +1420,10 @@ export function ResourcesCrudPage({
                   Cancelar
                 </Button>
                 <Button
+                  loading={(createSubmitting || createActionPending)}
                   type="submit"
                   disabled={createSubmitting || createActionPending || !!createFileSizeError}
                 >
-                  {(createSubmitting || createActionPending) && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
                   Subir recurso
                 </Button>
               </DialogFooter>
@@ -1580,12 +1479,10 @@ export function ResourcesCrudPage({
                   Cancelar
                 </Button>
                 <Button
+                  loading={(editSubmitting || updateActionPending)}
                   type="submit"
                   disabled={editSubmitting || updateActionPending || !!editFileSizeError}
                 >
-                  {(editSubmitting || updateActionPending) && (
-                    <Loader2 className="size-4 animate-spin" />
-                  )}
                   Guardar cambios
                 </Button>
               </DialogFooter>

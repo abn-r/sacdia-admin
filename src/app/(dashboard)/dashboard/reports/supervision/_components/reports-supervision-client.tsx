@@ -8,11 +8,12 @@ import {
   ChevronRight,
   FileText,
   Download,
-  Loader2,
+  Eye,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Select,
@@ -312,64 +313,64 @@ export function ReportsSupervisionClient({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("tableColClub")}</TableHead>
-                <TableHead>{t("tableColType")}</TableHead>
-                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColLocalField")}</TableHead>
                 <TableHead>{t("tableColPeriod")}</TableHead>
                 <TableHead>{t("tableColStatus")}</TableHead>
-                <TableHead>{t("tableColGenerated")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColGenerated")}</TableHead>
                 <TableHead>{t("tableColSubmitted")}</TableHead>
-                <TableHead className="text-right">{t("tableColActions")}</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.monthly_report_id}>
                   <TableCell className="font-medium">
-                    {item.club_name ?? "—"}
+                    <Link
+                      href={`/dashboard/reports/${item.monthly_report_id}`}
+                      className="hover:underline"
+                    >
+                      {item.club_name ?? "—"}
+                    </Link>
                     {item.member_count !== null && (
                       <span className="ml-1.5 text-xs text-muted-foreground">
                         {t("memberCount", { count: item.member_count })}
                       </span>
                     )}
                   </TableCell>
-                  <TableCell>{item.club_type ?? "—"}</TableCell>
-                  <TableCell>{item.local_field ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
                     {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
                   <TableCell>
                     <ReportStatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell>{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
                   <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/dashboard/reports/${item.monthly_report_id}`}>
-                          {t("actionView")}
-                        </Link>
-                      </Button>
-                      {item.status !== "draft" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDownloadPdf(item)}
-                          disabled={downloadingReportId === item.monthly_report_id}
-                        >
-                          {downloadingReportId === item.monthly_report_id ? (
-                            <Loader2 className="mr-1 size-3.5 animate-spin" />
-                          ) : (
-                            <Download className="mr-1 size-3.5" />
-                          )}
-                          {t("actionPdf")}
-                        </Button>
-                      )}
-                    </div>
+                    <RowActions
+                      label={item.club_name ?? String(item.monthly_report_id)}
+                      actions={[
+                        {
+                          label: t("actionView"),
+                          icon: Eye,
+                          href: `/dashboard/reports/${item.monthly_report_id}`,
+                        },
+                        {
+                          label: t("actionPdf"),
+                          icon: Download,
+                          onSelect: () => handleDownloadPdf(item),
+                          disabled: downloadingReportId === item.monthly_report_id,
+                          hidden: item.status === "draft",
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

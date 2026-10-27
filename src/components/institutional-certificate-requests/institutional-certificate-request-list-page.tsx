@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { InstitutionalRequestStatusBadge } from "@/components/institutional-certificate-requests/institutional-certificate-request-badges";
 import type {
   InstitutionalCertificateRequest,
@@ -151,7 +152,7 @@ export function InstitutionalCertificateRequestListPage({
                   <TableHead>{tLabels("certificateDate")}</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Bloqueos</TableHead>
-                  <TableHead className="text-right">Acción</TableHead>
+                  <RowActionsHead className="w-32" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -184,16 +185,22 @@ export function InstitutionalCertificateRequestListPage({
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" asChild>
-                        <Link
-                          href={`${detailBasePath}/${req.request_id}`}
-                          prefetch={false}
-                        >
-                          Revisar
-                          <ArrowRight aria-hidden="true" />
-                        </Link>
-                      </Button>
+                    <TableCell>
+                      <RowActions
+                        label={req.applicant_name}
+                        actions={[]}
+                        primary={
+                          <Button size="sm" asChild>
+                            <Link
+                              href={`${detailBasePath}/${req.request_id}`}
+                              prefetch={false}
+                            >
+                              Revisar
+                              <ArrowRight aria-hidden="true" />
+                            </Link>
+                          </Button>
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

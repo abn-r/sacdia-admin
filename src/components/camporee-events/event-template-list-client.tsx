@@ -19,13 +19,13 @@ import {
   Search,
   Pencil,
   Trash2,
-  Loader2,
-  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Select,
   SelectContent,
@@ -41,12 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -118,11 +113,10 @@ function DeleteButton() {
   const t = useTranslations("camporeeEvents.templates");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      variant="destructive-solid"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("buttonDelete")}
     </Button>
   );
@@ -319,20 +313,18 @@ export function EventTemplateListClient({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("colTitle")}</TableHead>
                     <TableHead>{t("colScope")}</TableHead>
-                    <TableHead>{t("colEventType")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("colEventType")}</TableHead>
                     <TableHead className="w-[100px]">{t("colMaxPoints")}</TableHead>
-                    <TableHead>{t("colParticipants")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("colParticipants")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -350,87 +342,41 @@ export function EventTemplateListClient({
 
                     return (
                       <TableRow key={rowKey}>
-                        <TableCell className="font-medium">{titleText}</TableCell>
+                        <TableCell className="max-w-[300px] whitespace-normal font-medium">{titleText}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
                             {scopeLabel(item.scope)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{eventTypeName}</TableCell>
+                        <TableCell className="hidden xl:table-cell">{eventTypeName}</TableCell>
                         <TableCell>{String(item.max_points ?? "—")}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                           {participantsSummary(item)}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "soft-success" : "outline"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
-                            <div className="hidden gap-1 md:flex">
-                              {canEdit && itemId && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  asChild
-                                  title={t("editActionTitle")}
-                                >
-                                  <Link prefetch={false}
-                                    href={`${`/dashboard/campamentos/plantillas/`}${itemId}/edit`}
-                                  >
-                                    <Pencil className="size-3.5" />
-                                  </Link>
-                                </Button>
-                              )}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("deleteActionTitle")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8">
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {canEdit && itemId && (
-                                    <DropdownMenuItem asChild>
-                                      <Link prefetch={false}
-                                        href={`${`/dashboard/campamentos/plantillas/`}${itemId}/edit`}
-                                      >
-                                        <Pencil className="size-4" />
-                                        Editar
-                                      </Link>
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      Eliminar
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
+                            <RowActions
+                              label={titleText}
+                              actions={[
+                                {
+                                  label: t("editActionTitle"),
+                                  icon: Pencil,
+                                  href: `/dashboard/campamentos/plantillas/${itemId}/edit`,
+                                  hidden: !(canEdit && itemId),
+                                },
+                                {
+                                  label: `${t("deleteActionTitle")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>

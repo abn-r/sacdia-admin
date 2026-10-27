@@ -242,7 +242,7 @@ export function ClubIdealsPageClient({
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) =>
                     header.column.id === "search" || header.column.id === "club_type_id" ? null : (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(header.column.columnDef.header, header.getContext())}
@@ -258,7 +258,7 @@ export function ClubIdealsPageClient({
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) =>
                       cell.column.id === "search" || cell.column.id === "club_type_id" ? null : (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ),

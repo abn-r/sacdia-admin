@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { ArrowLeft, MapPin, Users } from "lucide-react";
-import Link from "next/link";
+import { MapPin, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -26,8 +24,6 @@ interface ClubDetailHeroProps {
   church?: string;
   address?: string;
   sectionNames: string[];
-  backHref: string;
-  backLabel: string;
   statusActiveLabel: string;
   statusInactiveLabel: string;
   metaLabels: {
@@ -47,31 +43,26 @@ export function ClubDetailHero({
   church,
   address,
   sectionNames,
-  backHref,
-  backLabel,
   statusActiveLabel,
   statusInactiveLabel,
   metaLabels,
 }: ClubDetailHeroProps) {
   return (
     <Card className="gap-4 p-6 sm:p-7">
-      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr_auto]">
+      <div className="grid items-start gap-4 sm:grid-cols-[112px_1fr] sm:gap-6">
         <div
-          className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted"
+          className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted sm:size-[104px] sm:rounded-2xl"
           aria-hidden
         >
-          <span
-            className="select-none font-medium text-muted-foreground"
-            style={{ fontSize: Math.round(104 * 0.36) }}
-          >
+          <span className="select-none text-[23px] font-medium text-muted-foreground sm:text-[37px]">
             {clubInitials(name)}
           </span>
         </div>
 
         <div className="min-w-0">
-          <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
+          <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             {name}
-          </h2>
+          </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {localField ? (
@@ -135,15 +126,6 @@ export function ClubDetailHero({
             ))}
           </div>
         </div>
-
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          <Button asChild variant="outline" size="sm">
-            <Link href={backHref} prefetch={false}>
-              <ArrowLeft className="size-4" />
-              {backLabel}
-            </Link>
-          </Button>
-        </div>
       </div>
     </Card>
   );
@@ -156,7 +138,7 @@ function Dot() {
 type MetaChipTone = "success" | "primary" | "neutral" | "muted";
 
 const metaChipToneClasses: Record<MetaChipTone, string> = {
-  success: "border-primary/20 bg-primary/10 text-primary",
+  success: "border-success/30 bg-success/10 text-[color-mix(in_oklch,var(--success),black_35%)] dark:text-success",
   primary: "border-border/80 bg-background text-foreground shadow-xs",
   neutral: "border-border/60 bg-background/80 text-foreground",
   muted: "border-border bg-muted/60 text-muted-foreground",
@@ -186,7 +168,7 @@ function MetaChip({
       {pulse ? (
         <span className="relative flex size-1.5 shrink-0">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/40 opacity-75" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
+          <span className="relative inline-flex size-1.5 rounded-full bg-primary-solid" />
         </span>
       ) : null}
       <span className="truncate">

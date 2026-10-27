@@ -5,7 +5,10 @@ import { Plus, Pencil, Trash2, Package, Search } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import {
   Table,
   TableBody,
@@ -254,11 +257,7 @@ export function CatalogCrudPage({
 
                       {/* Acciones — last column (only when mutations allowed) */}
                       {lastColIsActions && (
-                        <TableHead
-                          className={`${TH_BASE} ${COL_LAST} w-[108px]`}
-                        >
-                          {tCrud("colActions")}
-                        </TableHead>
+                        <RowActionsHead className={`${TH_BASE} ${COL_LAST}`} />
                       )}
                     </TableRow>
                   </TableHeader>
@@ -323,43 +322,32 @@ export function CatalogCrudPage({
                           <TableCell
                             className={lastColIsActions ? COL_MID : COL_LAST}
                           >
-                            <Badge
-                              variant={item.active !== false ? "success" : "secondary"}
-                              className="text-xs"
-                            >
-                              {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                            </Badge>
+                            <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
                           </TableCell>
 
                           {/* Acciones — last column */}
                           {lastColIsActions && (
                             <TableCell className={COL_LAST}>
-                              <div className="flex gap-1">
-                                {showEdit ? (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="hover:bg-muted max-md:min-h-[44px] max-md:min-w-[44px]"
-                                    disabled={!itemId}
-                                    onClick={() => setEditItem(item)}
-                                    aria-label={tCrud("editRecord")}
-                                  >
-                                    <Pencil className="size-4" aria-hidden="true" />
-                                  </Button>
-                                ) : null}
-                                {showDelete ? (
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-destructive hover:bg-muted hover:text-destructive max-md:min-h-[44px] max-md:min-w-[44px]"
-                                    disabled={!itemId}
-                                    onClick={() => setDeleteItem(item)}
-                                    aria-label={tCrud("deleteRecord")}
-                                  >
-                                    <Trash2 className="size-4" aria-hidden="true" />
-                                  </Button>
-                                ) : null}
-                              </div>
+                              <RowActions
+                                label={String(item[config.nameField] ?? itemId ?? "")}
+                                actions={[
+                                  {
+                                    label: tCrud("edit"),
+                                    icon: Pencil,
+                                    onSelect: () => setEditItem(item),
+                                    hidden: !showEdit,
+                                    disabled: !itemId,
+                                  },
+                                  {
+                                    label: `${tCrud("delete")}…`,
+                                    icon: Trash2,
+                                    destructive: true,
+                                    onSelect: () => setDeleteItem(item),
+                                    hidden: !showDelete,
+                                    disabled: !itemId,
+                                  },
+                                ]}
+                              />
                             </TableCell>
                           )}
                         </TableRow>
@@ -424,12 +412,7 @@ export function CatalogCrudPage({
 
                     {/* Status badge */}
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <Badge
-                        variant={item.active !== false ? "success" : "secondary"}
-                        className="text-xs"
-                      >
-                        {item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                      </Badge>
+                      <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
                     </div>
 
                     {/* Secondary data fields */}

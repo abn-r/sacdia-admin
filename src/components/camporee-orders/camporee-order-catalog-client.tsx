@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { BookOpen, Loader2, Plus, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -226,17 +228,13 @@ export function CamporeeOrderCatalogClient() {
           <span />
         )}
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("tray.refresh")}
         </Button>
       </div>
@@ -283,7 +281,7 @@ export function CamporeeOrderCatalogClient() {
                         <Badge variant="secondary">{t("catalog.readOnly")}</Badge>
                       )}
                       {!product.active && (
-                        <Badge variant="outline">{t("catalog.inactive")}</Badge>
+                        <StatusBadge intent={flagStatusIntent(false)} label={t("catalog.inactive")} />
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
@@ -351,6 +349,7 @@ export function CamporeeOrderCatalogClient() {
                 }
               >
                 <SelectTrigger
+                  className="w-full"
                   id="product-size-scheme"
                   aria-label={t("catalog.fieldSizeScheme")}
                 >
@@ -379,6 +378,7 @@ export function CamporeeOrderCatalogClient() {
                     }}
                   >
                     <SelectTrigger
+                      className="w-full"
                       id="product-owner-scope"
                       aria-label={t("catalog.fieldOwnerScope")}
                     >
@@ -402,6 +402,7 @@ export function CamporeeOrderCatalogClient() {
                     onValueChange={(value) => setOwnerId(Number(value))}
                   >
                     <SelectTrigger
+                      className="w-full"
                       id="product-owner-territory"
                       aria-label={t("catalog.fieldOwnerTerritory")}
                     >
@@ -429,13 +430,11 @@ export function CamporeeOrderCatalogClient() {
               {t("detail.cancel")}
             </Button>
             <Button
+              loading={saving}
               type="button"
-              disabled={
-                !title.trim() || saving || (!editProduct && !createOwnerFields)
-              }
+              disabled={!title.trim() || (!editProduct && !createOwnerFields)}
               onClick={() => void saveProduct()}
             >
-              {saving ? <Loader2 className="size-4 animate-spin" /> : null}
               {t("catalog.save")}
             </Button>
           </DialogFooter>

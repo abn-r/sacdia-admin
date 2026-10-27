@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import {
   buildRefreshPath,
+  canAttemptSessionRefresh,
   getCurrentUser,
-  hasRefreshToken,
 } from "@/lib/auth/session";
 import { hasAdminRole } from "@/lib/auth/roles";
 
@@ -17,7 +17,7 @@ export default async function AuthLayout({
     redirect("/dashboard");
   }
 
-  if (!user && (await hasRefreshToken())) {
+  if (!user && (await canAttemptSessionRefresh())) {
     redirect(buildRefreshPath("/dashboard"));
   }
 

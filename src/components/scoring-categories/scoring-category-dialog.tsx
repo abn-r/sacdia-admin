@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,10 +210,9 @@ export function ScoringCategoryDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button loading={isSubmitting} type="submit">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" />
                   Guardando...
                 </>
               ) : isEdit ? (

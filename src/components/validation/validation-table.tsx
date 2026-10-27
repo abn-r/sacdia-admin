@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, XCircle, History, ClipboardList } from "lucide-react";
+import { History, ClipboardList } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ValidationStatusBadge } from "@/components/validation/validation-status-badge";
 import { ValidationReviewDialog } from "@/components/validation/validation-review-dialog";
@@ -103,9 +103,7 @@ export function ValidationTable({
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("table.columns.status")}
               </TableHead>
-              <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">
-                {t("table.columns.actions")}
-              </TableHead>
+              <RowActionsHead className="h-9 w-56 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,62 +129,39 @@ export function ValidationTable({
                     <ValidationStatusBadge status={v.status} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="flex items-center justify-end gap-1">
-                      {/* History */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => setDialog({ type: "history", validation: v })}
-                            aria-label={t("table.actions.viewHistory")}
-                          >
-                            <History className="size-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{t("table.actions.viewHistory")}</TooltipContent>
-                      </Tooltip>
-
-                      {/* Approve — only for PENDING */}
-                      {isPending && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                    <RowActions
+                      label={name}
+                      actions={[
+                        {
+                          label: t("table.actions.viewHistory"),
+                          icon: History,
+                          onSelect: () => setDialog({ type: "history", validation: v }),
+                        },
+                      ]}
+                      primary={
+                        isPending ? (
+                          <>
                             <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-success hover:bg-success/10 hover:text-success"
-                              onClick={() =>
-                                setDialog({ type: "review", validation: v, action: "APPROVED" })
-                              }
-                              aria-label={t("table.actions.approve")}
-                            >
-                              <CheckCircle2 className="size-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("table.actions.approve")}</TooltipContent>
-                        </Tooltip>
-                      )}
-
-                      {/* Reject — only for PENDING */}
-                      {isPending && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              variant="outline"
+                              size="sm"
                               onClick={() =>
                                 setDialog({ type: "review", validation: v, action: "REJECTED" })
                               }
-                              aria-label={t("table.actions.reject")}
                             >
-                              <XCircle className="size-4" />
+                              {t("table.actions.reject")}
                             </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("table.actions.reject")}</TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                setDialog({ type: "review", validation: v, action: "APPROVED" })
+                              }
+                            >
+                              {t("table.actions.approve")}
+                            </Button>
+                          </>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               );

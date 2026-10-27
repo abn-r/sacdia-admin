@@ -497,11 +497,11 @@
     },
     "success": {
       "op_create_title": "Record created",
-      "op_create_description": "The record was created successfully.",
+      "op_create_description": "The record was created.",
       "op_update_title": "Record updated",
-      "op_update_description": "The record was updated successfully.",
+      "op_update_description": "The record was updated.",
       "op_delete_title": "Record deleted",
-      "op_delete_description": "The record was deleted successfully."
+      "op_delete_description": "The record was deleted."
     },
     "crudPage": {
       "readOnly": "Read only",
@@ -1181,7 +1181,7 @@
       "welcome_description": "Enter your credentials to access your club's panel.",
       "eyebrow": "Admin · Access",
       "email_label": "Email",
-      "email_placeholder": "admin@sacdia.org",
+      "email_placeholder": "correo@sacdia.com",
       "password_label": "Password",
       "submit_idle": "Sign in",
       "submit_loading": "Verifying…",
@@ -1191,7 +1191,8 @@
       "verse_text": "“I can do all things through Christ who strengthens me.”",
       "brand_description": "Platform for Adventurer, Pathfinder and Master Guide clubs. Memberships, classes, honors and finance in one place.",
       "version_label": "v1.0 · 2026",
-      "region_label": "North Pacific Association"
+      "region_label": "North Pacific Association",
+      "session_refresh_unavailable": "We couldn't renew your session because the server didn't respond. Sign in again or try again in a few minutes."
     },
     "validation": {
       "email_invalid": "Enter a valid email",
@@ -1255,15 +1256,15 @@
       "no_catalog_types": "There are no active club types in the catalog."
     },
     "success": {
-      "section_created": "Section created successfully",
+      "section_created": "Section created",
       "section_created_short": "Section created",
-      "section_updated": "Section updated successfully",
-      "assignment_created": "Assignment created successfully",
-      "class_assignment_created": "Class assigned successfully",
-      "class_assignment_updated": "Class assignment updated successfully",
-      "class_assignment_revoked": "Class assignment revoked successfully",
-      "assignment_removed": "Assignment removed successfully",
-      "role_updated": "Role updated successfully",
+      "section_updated": "Section updated",
+      "assignment_created": "Assignment created",
+      "class_assignment_created": "Class assigned",
+      "class_assignment_updated": "Class assignment updated",
+      "class_assignment_revoked": "Class assignment revoked",
+      "assignment_removed": "Assignment removed",
+      "role_updated": "Role updated",
       "retry_failed_sections": "You can continue to the club detail and retry the failed sections",
       "section_toggled": "Section status updated."
     },
@@ -1293,6 +1294,8 @@
     },
     "create": {
       "cardTitle": "Club data",
+      "cancel": "Cancel",
+      "stepIncomplete": "Fill in the required fields to continue.",
       "submitButton": "Create club",
       "placeholderName": "Club name",
       "placeholderDescription": "Optional description",
@@ -1572,7 +1575,7 @@
       },
       "actions": {
         "missingFields": "Complete all required fields.",
-        "roleAssigned": "Role assigned successfully.",
+        "roleAssigned": "Role assigned.",
         "roleAssignFailed": "Could not assign role.",
         "roleRevoked": "Role removed.",
         "roleRevokeFailed": "Could not remove role.",
@@ -1580,7 +1583,7 @@
         "counselorAssignFailed": "Could not assign counselor.",
         "counselorRevoked": "Counselor removed.",
         "counselorRevokeFailed": "Could not remove counselor.",
-        "sectionCreated": "Section enabled successfully.",
+        "sectionCreated": "Section enabled.",
         "sectionCreateFailed": "Could not enable the section.",
         "invalidClubType": "Invalid club type.",
         "invalidSoulsTarget": "Souls target must be a non-negative integer.",
@@ -1660,6 +1663,7 @@
       },
       "new": {
         "title": "Create club",
+        "description": "Register a club and choose its sections.",
         "back": "Back"
       },
       "v2": {
@@ -1792,13 +1796,25 @@
       "home": {
         "title": "Home",
         "description": "What needs attention in your scope.",
-        "honorsAction": "Review honors",
-        "activitiesAction": "Open activities",
-        "summary": {
-          "childrenReported": "{reported, number} of {total, number} {level, select, division {divisions} union {unions} local_field {local fields} other {clubs}} submitted this month’s report.",
-          "sectionsReported": "{submitted, number} of {expected, number} sections submitted this month’s report.",
-          "noClosedMonth": "There’s no closed month to measure reports yet.",
-          "nonOperationalClubs": "{count, plural, one {# non-operational club.} other {# non-operational clubs.}}"
+        "kpis": {
+          "label": "Scope indicators",
+          "reports": {
+            "label": "Monthly reports",
+            "caption": "{submitted, number} of {expected, number} sections"
+          },
+          "clubs": {
+            "label": "Operational clubs",
+            "total": "/ {total, number}",
+            "caption": "{count, plural, =0 {All active this month} other {# with no activity this month}}"
+          },
+          "people": {
+            "label": "Active people",
+            "caption": "{count, number} with an app account"
+          },
+          "enrollments": {
+            "label": "Class enrollments",
+            "caption": "{count, plural, one {# distinct person} other {# distinct people}}"
+          }
         },
         "gapTable": {
           "title": "{level, select, division {Divisions} union {Unions} local_field {Local fields} other {Clubs}}",
@@ -1806,62 +1822,33 @@
           "columns": {
             "name": "Name",
             "reports": "Reports",
-            "nonOperational": "Non-operational",
-            "pending": "Pending"
+            "operational": "Operational"
           },
-          "missingCount": "{count, plural, one {# missing} other {# missing}}",
-          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}",
-          "emptyDescription": "Nothing is registered at this level yet."
+          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}"
         },
-        "pendingTitle": "Pending",
-        "review": "Review",
-        "dispatchTitle": "To do",
-        "dispatchEmptyTitle": "Nothing pending in your scope",
-        "dispatchEmptyDescription": "New requests and validations show up here.",
-        "laggingTitle": "Clubs falling behind",
-        "lagReason": {
-          "missingReport": "No report this month",
-          "nonOperational": "Non-operational"
-        },
-        "periodContextTitle": "Period context"
+        "stats": {
+          "label": "Other period indicators",
+          "activities": "Activities registered",
+          "honorsPending": "Honors in review",
+          "honorsApproved": "Honors approved"
+        }
       },
       "attention": {
         "title": "Needs attention",
-        "description": "Operational queues without an aggregated total.",
         "roleAssignments": "Pending role assignments",
         "transfers": "Pending transfers",
         "classValidations": "Class validations",
         "honorsReview": "Honor reviews",
-        "annualFolders": "Union pending folders"
+        "annualFolders": "Union pending folders",
+        "total": "{count, plural, one {# pending} other {# pending}}",
+        "empty": "All caught up"
       },
       "formation": {
-        "title": "Formation",
-        "description": "{enrollments} enrollments · {people} distinct people",
+        "title": "Training by class",
         "chartAriaLabel": "Enrollments by class and club type",
-        "chartSeries": "Enrollments",
-        "tableTitle": "Equivalent tabular detail",
-        "tableClass": "Class",
-        "tableClubType": "Club type",
-        "tableEnrollments": "Enrollments",
-        "emptyTitle": "No enrollments recorded",
-        "emptyDescription": "There are no class enrollments in the current scope."
-      },
-      "honors": {
-        "title": "Honors",
-        "inProgress": "In progress",
-        "pendingReview": "Pending review",
-        "approved": "Approved",
-        "attribution": {
-          "current_affiliation": "Attributed by current affiliation",
-          "unavailable": "Unavailable for the selected year"
-        }
-      },
-      "activities": {
-        "title": "Activities",
-        "description": "Registered activities; does not imply execution or attendance.",
-        "registered": "Registered",
-        "jointRegistered": "Joint registered",
-        "participatingSections": "Participating sections"
+        "summary": "{enrollments, number} enrollments from {people, number} people across {classes, number} classes.",
+        "legendLabel": "Club types",
+        "emptyTitle": "No class enrollments in this scope"
       },
       "dataQuality": {
         "title": "Data quality",
@@ -1920,7 +1907,7 @@
     "success": {
       "user_approved_title": "User approved",
       "user_rejected_title": "User rejected",
-      "decision_recorded": "The decision was recorded successfully."
+      "decision_recorded": "The decision was recorded."
     }
   },
   "notifications": {
@@ -1939,9 +1926,9 @@
       "instance_id_invalid": "The selected section is invalid"
     },
     "success": {
-      "sent": "Notification sent successfully",
-      "broadcast_sent": "Broadcast sent successfully",
-      "club_sent": "Club notification sent successfully"
+      "sent": "Notification sent",
+      "broadcast_sent": "Broadcast sent",
+      "club_sent": "Club notification sent"
     },
     "forms": {
       "direct_title": "Direct send",
@@ -2242,14 +2229,14 @@
       "uuid_invalid": "Select a valid user."
     },
     "success": {
-      "permissions_updated": "Permissions updated successfully"
+      "permissions_updated": "Permissions updated"
     },
     "toasts": {
-      "role_assigned": "Role assigned successfully.",
-      "role_removed": "Role removed successfully.",
-      "permission_assigned": "Permission assigned successfully.",
-      "permission_removed": "Permission removed successfully.",
-      "role_deactivated": "Role \"{name}\" deactivated successfully."
+      "role_assigned": "Role assigned.",
+      "role_removed": "Role removed.",
+      "permission_assigned": "Permission assigned.",
+      "permission_removed": "Permission removed.",
+      "role_deactivated": "Role \"{name}\" deactivated."
     },
     "roleForm": {
       "generalInfo": "General information",
@@ -2834,7 +2821,7 @@
       "tierLabel": "Tier:",
       "noImageLabel": "No image",
       "removeAriaLabel": "Remove image",
-      "toastSuccess": "Achievement image updated successfully.",
+      "toastSuccess": "Achievement image updated.",
       "toastError": "Could not upload the image. Try again.",
       "toastSaveFirst": "Save the achievement first to upload an image.",
       "validateTypeError": "Only PNG or WebP images are allowed.",
@@ -3089,13 +3076,13 @@
     "toasts": {
       "payment_updated": "Payment updated",
       "payment_created": "Payment recorded",
-      "camporee_deleted": "Camporee deleted successfully",
-      "union_camporee_updated": "Union camporee updated successfully",
-      "union_camporee_created": "Union camporee created successfully",
-      "union_camporee_deleted": "Union camporee deleted successfully",
+      "camporee_deleted": "Camporee deleted",
+      "union_camporee_updated": "Union camporee updated",
+      "union_camporee_created": "Union camporee created",
+      "union_camporee_deleted": "Union camporee deleted",
       "member_registered": "Member registered in the camporee",
-      "camporee_updated": "Camporee updated successfully",
-      "camporee_created": "Camporee created successfully",
+      "camporee_updated": "Camporee updated",
+      "camporee_created": "Camporee created",
       "club_enrolled": "Club enrolled in the camporee"
     },
     "errors": {
@@ -3334,7 +3321,14 @@
       "descriptionEdit": "Update the event details. Changes will appear on the camporee schedule.",
       "backToEvents": "Back to events",
       "descriptionPlaceholder": "Brief event description for participants",
-      "capacityPlaceholder": "No limit"
+      "capacityPlaceholder": "No limit",
+      "stepIncomplete": "Complete the required fields in this step to continue.",
+      "steps": {
+        "general": "General details",
+        "schedule": "Schedule & venue",
+        "leader": "Lead & preparation",
+        "scoring": "Points & status"
+      }
     },
     "unionList": {
       "countSingular": "camporee",
@@ -3544,6 +3538,12 @@
       "enroll": "Enroll club"
     },
     "paymentDialog": {
+      "descriptionCreate": "Record a payment for an enrolled member and attach its receipt.",
+      "descriptionEdit": "Update the payment details and its receipt.",
+      "steps": {
+        "details": "Payment details",
+        "voucher": "Receipt"
+      },
       "titleCreate": "Record payment",
       "titleEdit": "Edit payment",
       "labelMember": "Member",
@@ -3589,7 +3589,9 @@
       "errorUploadFailed": "Failed to upload voucher.",
       "errorRemoveFailed": "Failed to remove voucher.",
       "toastUploaded": "Voucher uploaded",
-      "toastRemoved": "Voucher removed"
+      "toastRemoved": "Voucher removed",
+      "savedPendingVoucher": "The payment is already recorded; only the voucher is missing. Try the upload again.",
+      "retryUpload": "Retry upload"
     },
     "registerMemberDialog": {
       "title": "Register member",
@@ -3686,8 +3688,8 @@
       "local_field": "Local field"
     },
     "success": {
-      "member_registered": "Member registered successfully",
-      "member_removed": "Member removed successfully"
+      "member_registered": "Member registered",
+      "member_removed": "Member removed"
     }
   },
   "resources": {
@@ -3782,7 +3784,7 @@
       "toasts": {
         "verb_approved": "approved",
         "verb_rejected": "rejected",
-        "succeeded_count": "{count} {verb} successfully",
+        "succeeded_count": "{count} {verb}",
         "failed_count": "{count} failed"
       },
       "errors": {
@@ -3795,7 +3797,7 @@
       }
     },
     "toasts": {
-      "evidence_approved": "Evidence approved successfully",
+      "evidence_approved": "Evidence approved",
       "evidence_rejected": "Evidence rejected"
     },
     "errors": {
@@ -3888,15 +3890,15 @@
   },
   "users": {
     "toasts": {
-      "access_updated": "Access updated successfully.",
+      "access_updated": "Access updated.",
       "access_update_failed": "Could not update access. Try again.",
       "approval_updated": "Approval status updated.",
       "approval_update_failed": "Could not update approval. Try again.",
-      "mfa_reset": "MFA reset successfully",
+      "mfa_reset": "MFA reset",
       "mfa_reset_failed": "Could not reset MFA",
       "mfa_disabled": "MFA disabled",
       "mfa_disable_failed": "Could not disable MFA",
-      "session_revoked": "Session revoked successfully.",
+      "session_revoked": "Session revoked.",
       "session_revoke_failed": "Could not revoke the session. Try again.",
       "all_sessions_revoked": "All sessions were revoked.",
       "all_sessions_revoke_failed": "Could not revoke sessions. Try again."
@@ -4109,6 +4111,7 @@
         "title": "Add user",
         "description": "Create a new user and send them an invitation by email.",
         "breadcrumb": "Add user",
+        "steps": {"person": "Person", "access": "Role and location"},
         "fields": {
           "name": "First name",
           "paternal_last_name": "Paternal last name",
@@ -4412,7 +4415,7 @@
           "internalError": "Internal error"
         },
         "toast": {
-          "success": "All users were created successfully.",
+          "success": "All users were created.",
           "partialSuccess": "Upload completed with some errors. Review the results.",
           "allFailed": "No users could be created. Check the file data.",
           "fileTooLarge": "File too large (max. 5 MB).",
@@ -4426,25 +4429,25 @@
   },
   "annual_folders": {
     "toasts": {
-      "section_deleted": "Section deleted successfully",
-      "section_evaluated": "Section evaluated successfully",
+      "section_deleted": "Section deleted",
+      "section_evaluated": "Section evaluated",
       "file_required": "Select a file to upload",
-      "evidence_uploaded": "Evidence uploaded successfully",
+      "evidence_uploaded": "Evidence uploaded",
       "rankings_recalculated": "Classifications recalculated: {count} clubs updated",
-      "section_updated": "Section updated successfully",
-      "section_created": "Section created successfully",
-      "category_deleted": "Category deleted successfully",
-      "evidence_deleted": "Evidence deleted successfully",
+      "section_updated": "Section updated",
+      "section_created": "Section created",
+      "category_deleted": "Category deleted",
+      "evidence_deleted": "Evidence deleted",
       "folder_submitted": "Folder submitted for review",
-      "folder_closed": "Folder closed successfully",
-      "section_reopened": "Section reopened successfully",
-      "category_updated": "Category updated successfully",
-      "category_created": "Category created successfully",
-      "template_updated": "Template updated successfully",
-      "template_created": "Template created successfully",
+      "folder_closed": "Folder closed",
+      "section_reopened": "Section reopened",
+      "category_updated": "Category updated",
+      "category_created": "Category created",
+      "template_updated": "Template updated",
+      "template_created": "Template created",
       "owner_catalogs_load_failed": "Could not load owner catalogs",
       "section_submitted": "Section submitted for review",
-      "folder_created": "Annual folder created successfully"
+      "folder_created": "Annual folder created"
     },
     "errors": {
       "recalculate_rankings": "Error recalculating the classifications",
@@ -4720,6 +4723,10 @@
       "emptyDescription": "Create the first configuration to define how annual points are distributed."
     },
     "budgetConfigForm": {
+      "steps": {
+        "scope": "Scope and total",
+        "sections": "Sections"
+      },
       "sectionsAllocationLabel": "Distribution across sections"
     },
     "budgetSectionCard": {
@@ -4814,9 +4821,9 @@
   },
   "folders": {
     "toasts": {
-      "deleted": "Folder deleted successfully",
-      "updated": "Folder updated successfully",
-      "created": "Folder created successfully"
+      "deleted": "Folder deleted",
+      "updated": "Folder updated",
+      "created": "Folder created"
     },
     "statusBadge": {
       "active": "Active",
@@ -5066,9 +5073,9 @@
   },
   "reports": {
     "toasts": {
-      "manual_data_saved": "Manual data saved successfully.",
-      "report_generated": "Report generated successfully. Data has been frozen.",
-      "report_sent": "Report sent to the field successfully.",
+      "manual_data_saved": "Manual data saved.",
+      "report_generated": "Report generated. Data has been frozen.",
+      "report_sent": "Report sent to the field.",
       "data_updated": "Data updated."
     },
     "errors": {
@@ -5364,9 +5371,9 @@
   },
   "insurance": {
     "toasts": {
-      "updated": "Insurance updated successfully",
-      "created": "Insurance registered successfully",
-      "deactivated": "Insurance deactivated successfully"
+      "updated": "Insurance updated",
+      "created": "Insurance registered",
+      "deactivated": "Insurance deactivated"
     },
     "errors": {
       "save_failed": "Error saving the insurance",
@@ -5475,9 +5482,9 @@
   "finances": {
     "toasts": {
       "categories_load_failed": "Could not load the categories",
-      "transaction_updated": "Transaction updated successfully",
-      "transaction_created": "Transaction created successfully",
-      "transaction_deleted": "Transaction deleted successfully",
+      "transaction_updated": "Transaction updated",
+      "transaction_created": "Transaction created",
+      "transaction_deleted": "Transaction deleted",
       "evidence_upload_failed": "Could not upload the evidence files"
     },
     "validation": {
@@ -5872,9 +5879,9 @@
   },
   "activities": {
     "toasts": {
-      "updated": "Activity updated successfully",
-      "created": "Activity created successfully",
-      "deleted": "Activity deleted successfully"
+      "updated": "Activity updated",
+      "created": "Activity created",
+      "deleted": "Activity deleted"
     },
     "series": {
       "toggle": "Repeat this activity",
@@ -6076,7 +6083,7 @@
   },
   "year_end": {
     "toasts": {
-      "year_closed": "Ecclesiastical year closed successfully"
+      "year_closed": "Ecclesiastical year closed"
     },
     "errors": {
       "preview_failed": "Could not get the preview.",
@@ -6108,9 +6115,9 @@
   },
   "inventory": {
     "toasts": {
-      "item_deleted": "Item deleted successfully",
-      "item_updated": "Item updated successfully",
-      "item_created": "Item created successfully"
+      "item_deleted": "Item deleted",
+      "item_updated": "Item updated",
+      "item_created": "Item created"
     },
     "errors": {
       "delete_failed": "Could not delete the item",
@@ -6252,10 +6259,10 @@
       "deactivate_unit_failed": "Could not deactivate the unit"
     },
     "toasts": {
-      "member_added": "Member added successfully",
+      "member_added": "Member added",
       "member_removed": "Member removed from the unit",
       "weekly_record_created": "Weekly record created",
-      "unit_deactivated": "Unit deactivated successfully"
+      "unit_deactivated": "Unit deactivated"
     },
     "memberCombobox": {
       "searchPlaceholder": "Search by name...",
@@ -6344,6 +6351,18 @@
     }
   },
   "shared": {
+    "notFound": {
+      "title": "We couldn't find this page",
+      "description": "The address doesn't exist or is no longer available.",
+      "backHome": "Go to home"
+    },
+    "formModal": {
+      "close": "Close",
+      "stepOf": "Step {current} of {total}",
+      "back": "Back",
+      "continue": "Continue",
+      "stepIncomplete": "Complete the required fields in this step."
+    },
     "errors": {
       "unexpected": "Unexpected error",
       "dashboardTitle": "Something went wrong",
@@ -6390,7 +6409,11 @@
     "uiPrimitives": {
       "close": "Close",
       "more": "More",
-      "toggleSidebar": "Toggle Sidebar"
+      "rowActions": "Actions for {name}",
+      "rowActionsColumn": "Actions",
+      "toggleSidebar": "Toggle Sidebar",
+      "sidebarTitle": "Menu",
+      "sidebarDescription": "Main panel navigation."
     }
   },
   "translations": {
@@ -7316,7 +7339,7 @@
       "retryDialogCancel": "Cancel",
       "retryDialogConfirm": "Retry",
       "retrySuccess": "Job retried",
-      "retrySuccessDescription": "The job \"{name}\" was successfully re-queued.",
+      "retrySuccessDescription": "The job \"{name}\" was re-queued.",
       "retryErrorTitle": "Retry error",
       "retryErrorFallback": "Unknown error when retrying the job.",
       "queueNotifications": "Notifications",
@@ -7716,6 +7739,7 @@
       "deleteConfirmTitle": "Delete template?",
       "deleteConfirmDesc": "Template \"{name}\" will be deleted. Existing instances are not affected.",
       "backToList": "Back to templates",
+      "stepIncomplete": "Complete the required fields in this step to continue.",
       "loadError": "Could not load event templates.",
       "filterScope": "Scope",
       "filterEventType": "Event type",
@@ -7831,7 +7855,7 @@
         "clabePlaceholder": "18 digits",
         "clabeHelp": "CLABE must be exactly 18 numeric digits.",
         "save": "Save changes",
-        "saveSuccess": "Payment methods updated successfully.",
+        "saveSuccess": "Payment methods updated.",
         "saveError": "Failed to update payment methods.",
         "loadError": "Failed to load configuration.",
         "deliveryHint": "For shipping cost and pickup address, use",

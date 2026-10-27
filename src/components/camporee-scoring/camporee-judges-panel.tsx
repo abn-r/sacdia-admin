@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Check,
   ChevronsUpDown,
-  Loader2,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -700,16 +699,12 @@ export function CamporeeJudgesPanel({
                 {t("closeAdd")}
               </Button>
               <Button
+                loading={isAddPending}
                 type="submit"
-                disabled={!selectedUserId || isAddPending}
+                disabled={!selectedUserId}
                 className="rounded-full px-6"
               >
-                {isAddPending ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" aria-hidden />
-                    {t("addingButton")}
-                  </>
-                ) : (
+                {isAddPending ? t("addingButton") : (
                   t("addButton")
                 )}
               </Button>
@@ -790,7 +785,7 @@ export function CamporeeJudgesPanel({
               {t("removeCancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
+              variant="destructive-solid"
               disabled={isPending || !removingJudge}
               onClick={(event) => {
                 event.preventDefault();

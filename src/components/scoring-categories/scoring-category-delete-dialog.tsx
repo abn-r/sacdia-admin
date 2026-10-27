@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,13 +70,12 @@ export function ScoringCategoryDeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
           <Button
+            loading={isDeleting}
             variant="destructive"
             onClick={handleConfirm}
-            disabled={isDeleting}
           >
             {isDeleting ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
                 Eliminando...
               </>
             ) : (

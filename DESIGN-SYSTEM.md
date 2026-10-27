@@ -21,12 +21,35 @@
 
 > **Actualizado 2026-06-24 — Alineación con SACDIA App**. Paleta desde `sacdia-app/lib/core/theme/app_colors.dart`:
 
-> - **Primary** SACDIA Red `#F06151` para botones principales, AppBar, enlaces y navegación.
+> - **Primary** SACDIA Blue `#0073EA` para botones principales, AppBar, enlaces y navegación.
 > - **Secondary/Success** SACDIA Green `#4FBF9F` para completado, progreso y estados positivos.
 > - **Accent/Warning** SACDIA Yellow `#FBBD5E` para logros, recompensas y estados en progreso.
 > - **Light mode** usa superficies blancas/slate de la app (`#FFFFFF`, `#F8FAFC`, `#E2E8F0`).
 > - **Dark mode** usa true black/OLED de la app (`#000000`, `#1A1A1A`, `#252525`, `#303030`).
 > - Los valores de marca son exactos; los `*-foreground` del panel se ajustan cuando hace falta para mantener contraste legible en web.
+
+> **Actualizado 2026-10-15 — Crisp redesign** (rama `feat/admin-redesign`). Dirección visual: crisp/minimal (estilo Linear/Vercel).
+> - Acento = azul del logo SACDIA `#0073EA` (contraste blanco ≈4.6:1). Solo en CTA primario, enlaces, foco y gráficas.
+> - Dos tokens de azul: `--primary` (texto, enlaces, bordes, foco, tintes `bg-primary/10`) y `--primary-solid` (rellenos bajo texto blanco: Button default, Badge default, checkbox/switch marcados, paso activo). En claro ambos `#0073EA`; en oscuro `--primary` = `#4C9AFF` (6.5:1 sobre tarjetas) y `--primary-solid` sigue `#0073EA`. Relleno sólido = `bg-primary-solid`, nunca `bg-primary`.
+> - Neutros puros (sin tinte slate): texto `#0A0A0A`, secundario `#666666`, bordes `#EBEBEB`. Dark: `#0A0A0A` / `#141414` / `#262626`.
+> - Hover y activo de navegación son **neutros** (`--accent`, `--sidebar-accent`), nunca azul tenue.
+> - `--secondary` pasa a neutro (`#F4F4F4`); el verde vive solo en `--success`.
+> - Elevación por sombra: `shadow-card` (anillo 1px + contacto) en Card en lugar de `ring`/borde. Sombras `--shadow-*` con anillo hairline.
+> - `--radius: 0.5rem` (8px). Button y Select trigger press `scale(0.96)`.
+> - Destructivo: `variant="destructive-solid"` (rojo relleno) solo para la confirmación final de una acción irreversible (footer de AlertDialog); `variant="destructive"` (rojo suave) para eliminar en línea o en filas. Nunca `className="bg-destructive ..."` a mano.
+> - Móvil: el modal de formulario es una hoja inferior (`max-sm`), con foco inicial en el diálogo (no en la X ni en el primer campo). Filtros con `flex-wrap` y campos a ancho completo en móvil, nunca scroll horizontal. Campos ≥16px en `pointer: coarse` (evita zoom de iOS), sin resaltado de toque, `touch-action: manipulation` en controles, `theme-color` por esquema. Atajos de teclado (`⌘J`) solo con `pointer: fine`.
+> - Feedback: toasts neutros (sin `richColors`), color solo en el ícono por tipo. Texto corto y en pasado, sin "correctamente/exitosamente/con éxito" ("Sección creada"). Errores en página con `EndpointErrorBanner`: título del estado + detalle debajo, `role="alert"`, sin badge.
+> - Acciones en tablas: siempre `RowActions` + `RowActionsHead` (`src/components/shared/row-actions.tsx`). **A · CRUD**: el nombre enlaza al detalle; un solo menú "⋯" alineado a la derecha con acciones normales primero y destructivas al final tras un separador ("Eliminar…" si sigue confirmación). **B · Colas de revisión**: hasta 2 botones de texto de decisión vía `primary` (negativo `outline`, positivo relleno) + "⋯" para lo demás. Prohibido: íconos sueltos (ojo/lápiz/papelera), botones de texto sueltos en la celda, acciones que solo aparecen con hover. Condiciones con `hidden`, no armando el arreglo condicionalmente. Controles de datos en línea (Switch, input) no son acciones y se quedan en su celda.
+> - Carga en botones: `<Button loading={pending}>` (deshabilita, `aria-busy`, spinner en lugar del ícono, sin atenuar). Nunca `{pending && <Loader2/>}` dentro de un Button. `AlertDialogAction` acepta la misma prop `loading`. Solo los spinners fuera de botones usan `Loader2`.
+> - Foco: `--ring` es el azul pleno (claro `#0073EA`, oscuro `#4C9AFF`) para que el borde de foco supere 3:1; el halo usa `ring-ring/50`. `Skeleton` usa `rounded-md` por defecto. En oscuro `--accent` `#2A2A2A` y `--muted` `#232323` para que el resaltado de menús y los skeletons se distingan de popover/tarjeta.
+> - Campos (Input, Textarea, Select, NativeSelect, InputGroup, Combobox chips): fondo `bg-background` + `shadow-2xs` (dark: `bg-input/30`), no relleno gris.
+> - `StatusBadge` `neutral`/`info`/`success`/`warning`: pill neutro con borde; el color vive solo en el ícono. `destructive`, `primary` y `progress-*` conservan tinte.
+> - En formularios de página, `SelectTrigger` lleva `className="w-full"` para alinear con los inputs.
+> - Estados booleanos (activo/inactivo, habilitado, completado) siempre con `StatusBadge intent={flagStatusIntent(bool)}`; nunca `Badge` `default`/`soft` (azul) para estados.
+> - Cuadros decorativos de íconos: `bg-muted` + ícono `text-foreground`. `bg-primary/10` solo para estados seleccionado/actual (ej. día de hoy, opción elegida).
+> - Tablas: el scroll horizontal y su difuminado de borde viven en `<Table>`; el marco es `DataTableShell` (o `overflow-hidden rounded-xl border-transparent bg-card shadow-card`). Columnas secundarias se ocultan con `hidden lg|xl:table-cell` para caber a ~1200px con sidebar abierto; textos largos con `whitespace-normal` + `max-w-*`. En tablas TanStack, la clase va en `meta: { className }` de la columna y la página la aplica a `TableHead` y `TableCell` (tipado en `src/types/tanstack-table.d.ts`).
+> - Detalle de entidad: `PageHeader` solo con breadcrumbs y el hero lleva el `h1` (nombre de la entidad). Sin botón "Volver" si hay breadcrumb.
+> - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
 
 > **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
 
@@ -85,10 +108,10 @@ El sistema usa CSS custom properties expuestas a Tailwind v4 desde `src/app/glob
 
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--brand-primary` | `#F06151` | SACDIA Red: botones principales, AppBar, enlaces, navegación |
-| `--brand-primary-light` | `#FDE8E6` | Badges/chips/selecciones suaves |
-| `--brand-primary-dark` | `#D94A3B` | Énfasis y pressed states |
-| `--brand-primary-surface` | `#FFF1EF` | Hover y selecciones muy sutiles |
+| `--brand-primary` | `#0073EA` | SACDIA Blue: botones principales, AppBar, enlaces, navegación |
+| `--brand-primary-light` | `#E0EFFF` | Badges/chips/selecciones suaves |
+| `--brand-primary-dark` | `#005CC0` | Énfasis y pressed states |
+| `--brand-primary-surface` | `#EEF6FF` | Hover y selecciones muy sutiles |
 | `--brand-secondary` | `#4FBF9F` | SACDIA Green: éxito, completado, progreso |
 | `--brand-secondary-light` | `#E0F5EF` | Fondos success suaves |
 | `--brand-secondary-dark` | `#2D8A70` | Texto success |
@@ -104,22 +127,22 @@ Estos tokens también están expuestos como clases Tailwind `brand-*` (`bg-brand
 
 | Token | Light Mode | Dark Mode | Uso |
 |-------|-----------|-----------|-----|
-| `--background` | `#FFFFFF` | `#000000` | Fondo general |
-| `--foreground` | `#0F172A` | `#F2F2F2` | Texto principal |
-| `--card` | `#FFFFFF` | `#1A1A1A` | Cards, modales, bottom sheets |
-| `--card-foreground` | `#0F172A` | `#F2F2F2` | Texto en tarjetas |
-| `--popover` | `#FFFFFF` | `#1A1A1A` | Popovers/menus |
-| `--muted` | `#F8FAFC` | `#252525` | Superficies secundarias |
-| `--muted-foreground` | `#64748B` | `#8C8C8C` | Texto secundario/auxiliar |
-| `--accent` | `#FFF1EF` | `#252525` | Hover backgrounds / selección sutil |
-| `--secondary` | `#E0F5EF` | `color-mix(... #4FBF9F 20%, #1A1A1A)` | Botones/badges secundarios con tono green SACDIA |
+| `--background` | `#FFFFFF` | `#0A0A0A` | Fondo general |
+| `--foreground` | `#0A0A0A` | `#EDEDED` | Texto principal |
+| `--card` | `#FFFFFF` | `#141414` | Cards, modales, bottom sheets |
+| `--card-foreground` | `#0A0A0A` | `#EDEDED` | Texto en tarjetas |
+| `--popover` | `#FFFFFF` | `#171717` | Popovers/menus |
+| `--muted` | `#F5F5F5` | `#1C1C1C` | Superficies secundarias |
+| `--muted-foreground` | `#666666` | `#A1A1A1` | Texto secundario/auxiliar |
+| `--accent` | `#F4F4F4` | `#1F1F1F` | Hover backgrounds / selección sutil (neutro) |
+| `--secondary` | `#F4F4F4` | `#1F1F1F` | Botones/badges secundarios neutros |
 
 ### 2.3 Colores Semánticos
 
 | Token | Light | Dark | Clase Tailwind | Uso |
 |-------|-------|------|----------------|-----|
-| `--primary` | `#F06151` | `#F06151` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
-| `--secondary` | `#E0F5EF` | green tint sobre `#1A1A1A` | `text-secondary`, `bg-secondary` | Acción secundaria/chips con tono green suave |
+| `--primary` | `#0073EA` | `#0073EA` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
+| `--secondary` | `#F4F4F4` | `#1F1F1F` | `text-secondary`, `bg-secondary` | Acción secundaria/chips neutros |
 | `--destructive` | `#DC2626` | `#DC2626` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
 | `--success` | `#4FBF9F` | `#4FBF9F` | `text-success`, `bg-success` | Estados activos/completados |
 | `--warning` | `#FBBD5E` | `#FBBD5E` | `text-warning`, `bg-warning` | Advertencias, pendientes, logros |
@@ -131,9 +154,9 @@ Cada semántico mantiene un `*-foreground` pareado para texto sobre fondo pleno.
 
 | Token | Light | Dark |
 |-------|-------|------|
-| `--border` | `#E2E8F0` | `#303030` |
-| `--input` | `#E2E8F0` | `#303030` |
-| `--ring` | `color-mix(in srgb, #F06151 45%, transparent)` | `color-mix(in srgb, #F06151 55%, transparent)` |
+| `--border` | `#EBEBEB` | `#262626` |
+| `--input` | `#E3E3E3` | `#2E2E2E` |
+| `--ring` | `color-mix(in srgb, #0073EA 45%, transparent)` | `color-mix(in srgb, #0073EA 55%, transparent)` |
 | `--disabled-bg` | `#F1F5F9` | `#252525` |
 | `--disabled-foreground` | `#94A3B8` | `#5C5C5C` |
 
@@ -143,24 +166,24 @@ Los 5 chart tokens forman la paleta ordenada para `StatusBadge progress-*`, dash
 
 | Token | Valor | Uso semántico |
 |-------|-------|---------------|
-| `--chart-1` | `#F06151` | Primary / etapa 1 |
-| `--chart-2` | `#2EA0DA` | Info / etapa 2 |
+| `--chart-1` | `#0073EA` | Primary / etapa 1 |
+| `--chart-2` | `#F06151` | Coral / etapa 2 |
 | `--chart-3` | `#4FBF9F` | Success / etapa 3 |
 | `--chart-4` | `#FBBD5E` | Warning / recompensa |
 | `--chart-5` | `#AE69BA` | Morado complementario (clase Viajero) |
 
 ### 2.6 Colores de Sidebar
 
-El sidebar mantiene el patrón de navegación con pill activo, ahora con SACDIA Red.
+El sidebar es neutro: el ítem activo usa fondo gris (`--sidebar-accent`) y texto fuerte, sin azul.
 
 | Token | Light | Dark | Uso |
 |-------|-------|------|-----|
-| `--sidebar` | `#FFFFFF` | `#1A1A1A` | Fondo del sidebar |
-| `--sidebar-foreground` | `#64748B` | `#8C8C8C` | Texto normal |
-| `--sidebar-primary` | `#F06151` | `#F06151` | Item activo |
-| `--sidebar-primary-foreground` | `#0F172A` | `#0F172A` | Texto sobre item activo |
-| `--sidebar-accent` | `#FFF1EF` | `#252525` | Hover de items inactivos |
-| `--sidebar-border` | `#E2E8F0` | `#303030` | Divider/borde |
+| `--sidebar` | `#FAFAFA` | `#0A0A0A` | Fondo del sidebar |
+| `--sidebar-foreground` | `#5C5C5C` | `#A1A1A1` | Texto normal |
+| `--sidebar-primary` | `#0073EA` | `#0073EA` | Item activo |
+| `--sidebar-primary-foreground` | `#FFFFFF` | `#FFFFFF` | Texto sobre `sidebar-primary` |
+| `--sidebar-accent` | `#EDEDED` | `#1F1F1F` | Hover e ítem activo |
+| `--sidebar-border` | `#EBEBEB` | `#262626` | Divider/borde |
 
 ### 2.7 Reglas de Uso de Color
 
@@ -234,7 +257,7 @@ Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en
 
 ### 4.1 Radios de Borde
 
-Base `0.625rem` (10px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
+Base `0.5rem` (8px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
 
 | Rol | Clase | Componentes |
 |-----|-------|-------------|
@@ -684,38 +707,44 @@ Los siguientes componentes estan instalados en `src/components/ui/` pero se usan
 
 ## 6. Patrones de CRUD
 
-### 6.1 Crear / Editar -> Flujo por paginas (obligatorio)
+### 6.1 Crear / Editar -> Modal sobre el listado (intercepting routes)
 
-**REGLA**: Crear y Editar usan paginas dedicadas (`/new` y `/[id]`).  
-No usar `Dialog` como patron principal de CRUD.
+> **Actualizado 2026-10-15.** Reemplaza la regla anterior de "pagina dedicada obligatoria".
 
-```tsx
-// Listado -> alta
-<Link href={`${routeBase}/new`}>
-  <Button>
-    <Plus className="mr-2 h-4 w-4" />
-    Nuevo elemento
-  </Button>
-</Link>
+**REGLA**: Crear y Editar abren un **modal sobre el listado** usando *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se puede compartir y Back cierra el modal. Una navegacion directa o recarga **tambien** abre el modal, con el listado renderizado debajo; nunca se muestra como pagina suelta.
 
-// Listado -> edicion
-<Link href={`${routeBase}/${itemId}`}>
-  <Button variant="ghost" size="icon" className="h-8 w-8">
-    <Pencil className="h-3.5 w-3.5" />
-  </Button>
-</Link>
+**Piezas** (`src/components/shared/form-modal.tsx`):
+
+| Pieza | Uso |
+|-------|-----|
+| `RouteFormModal` | Dialog del formulario. Cierre (Esc, overlay, X, Cancelar) anima la salida y hace `router.back()`; con `dismissHref` (carga directa) hace `router.replace(dismissHref)`. |
+| `FormModalSteps` | Tira de pasos numerados bajo el encabezado. Solo etiquetas; la navegacion vive en el footer. |
+| `FormModalBody` | Cuerpo con scroll (`overscroll-contain`). `stepKey` + `direction` animan el cambio de paso. |
+| `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha. |
+| `useFormModal(listHref)` | `close()` en Cancelar, `complete()` al guardar (cierra y refresca). Funciona igual en modal y en pagina. |
+
+**Estructura de rutas** (slot `@modal` en `src/app/(dashboard)/`):
+
+```
+src/app/(dashboard)/
+├── layout.tsx                         ← recibe { children, modal }
+├── @modal/default.tsx                 ← null
+├── @modal/[...catchAll]/page.tsx      ← null (limpia el slot al navegar)
+├── @modal/(.)dashboard/users/new/page.tsx   ← RouteFormModal + form
+└── dashboard/users/new/page.tsx             ← <UsersPage /> debajo + RouteFormModal dismissHref="/dashboard/users"
 ```
 
-**Comportamiento esperado del flujo por paginas:**
-- Crear (`/new`): submit -> POST -> `toast.success` -> redirect al listado.
-- Editar (`/[id]`): submit -> PUT/PATCH -> `toast.success` -> redirect al listado.
-- Mantener `PageHeader`, boton "Volver" y estado loading del submit.
+La carga de datos se extrae a un loader compartido (`src/lib/<dominio>/*-form-data.ts`) que usan ambas rutas; devuelve `null` si el actor no tiene permiso.
+
+**Pasos**: formularios con más de ~6 campos o con grupos claros se dividen en pasos (máx. 3–4). "Continuar" valida solo los campos del paso actual; Enter en un paso intermedio avanza en vez de enviar. Con server actions, todos los pasos quedan montados (`hidden`) para que el `FormData` lleve todo, y los `fieldErrors` del servidor regresan al paso que los contiene. Componentes pesados (mapa) se montan al visitar su paso.
+
+**Motion**: entrada 200ms `--ease-out-expo` (fade + `zoom-in-95`), salida 150ms. Overlay `bg-black/40` (dark `/60`), sin blur. Cambio de paso: fade + desplazamiento de 8px desde el lado de origen; con reduced motion solo fade.
+
+**Referencias**: `users/new` (react-hook-form, 2 pasos) y `clubs/new` (server action + mapa, 3 pasos).
 
 ### 6.1.1 Dialog — Excepciones Permitidas
 
-**Regla rapida (auditoria 2026-05-11):**
-- `Dialog` OK: ≤4 campos planos, sin relaciones complejas, sin uploads, sin tabs.
-- Pagina dedicada obligatoria: >4 campos, O cualquier relacion entre entidades, O imagen/upload, O tabs dentro del formulario.
+> **Nota 2026-10-15**: las reglas de abajo sobre "pagina dedicada" quedan superadas por §6.1. Los `Dialog` de esta seccion siguen siendo validos para acciones secundarias que no tienen ruta propia.
 
 La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
 

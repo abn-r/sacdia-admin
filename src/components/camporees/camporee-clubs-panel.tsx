@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, CheckCircle2, Loader2, Trash2, XCircle } from "lucide-react";
+import { Building2, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -15,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   cancelClubEnrollment,
   cancelUnionClubEnrollment,
@@ -269,7 +269,7 @@ export function CamporeeClubsPanel({
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("clubsPanel.colDate")}
               </TableHead>
-              <TableHead className="h-9 w-28 px-3" />
+              <RowActionsHead className="h-9 w-72 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -294,65 +294,43 @@ export function CamporeeClubsPanel({
                     {formatDate(club.created_at)}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="flex items-center justify-end gap-1">
-                      {isPending && (
-                        <>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-success hover:bg-success/10 hover:text-success"
-                                onClick={() => handleApprove(club.camporee_club_id)}
-                                disabled={isApproving}
-                                aria-label={t("clubsPanel.approveLabel")}
-                              >
-                                {isApproving ? (
-                                  <Loader2 className="size-4 animate-spin" />
-                                ) : (
-                                  <CheckCircle2 className="size-4" />
-                                )}
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("clubsPanel.approveLabel")}</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => setDialog({ club, mode: "reject" })}
-                                aria-label={t("clubsPanel.rejectLabel")}
-                              >
-                                <XCircle className="size-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>{t("clubsPanel.rejectLabel")}</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-
-                      {isCancellable && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                    <RowActions
+                      label={
+                        club.section_name ??
+                        club.club_name ??
+                        t("clubsPanel.fallbackClub", { id: club.camporee_club_id })
+                      }
+                      actions={[
+                        {
+                          label: t("clubsPanel.cancelLabel"),
+                          icon: Trash2,
+                          destructive: true,
+                          disabled: cancellingId === club.camporee_club_id,
+                          hidden: !isCancellable,
+                          onSelect: () => handleCancel(club.camporee_club_id, club.section_name),
+                        },
+                      ]}
+                      primary={
+                        isPending ? (
+                          <>
                             <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => handleCancel(club.camporee_club_id, club.section_name)}
-                              disabled={cancellingId === club.camporee_club_id}
-                              aria-label={t("clubsPanel.cancelLabel")}
-                              className="text-destructive hover:text-destructive"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setDialog({ club, mode: "reject" })}
                             >
-                              <Trash2 className="size-3.5" />
-                              <span className="sr-only">{t("clubsPanel.cancelLabel")}</span>
+                              {t("clubsPanel.rejectLabel")}
                             </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{t("clubsPanel.cancelLabel")}</TooltipContent>
-                        </Tooltip>
-                      )}
-                    </div>
+                            <Button
+                              size="sm"
+                              loading={isApproving}
+                              onClick={() => handleApprove(club.camporee_club_id)}
+                            >
+                              {t("clubsPanel.approveLabel")}
+                            </Button>
+                          </>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               );

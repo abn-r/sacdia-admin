@@ -41,7 +41,7 @@ export default async function InstitutionalCertificateRequestDetailRoute({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={t("title")}
+        title={request?.applicant_name ?? t("title")}
         description={t("description", { requestId: requestId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
           { label: "Dashboard", href: "/dashboard" },
@@ -49,7 +49,7 @@ export default async function InstitutionalCertificateRequestDetailRoute({
             label: t("breadcrumbList"),
             href: "/dashboard/institutional-certificate-requests",
           },
-          { label: requestId.slice(0, 8).toUpperCase() },
+          { label: request?.applicant_name ?? requestId.slice(0, 8).toUpperCase() },
         ]}
       />
 

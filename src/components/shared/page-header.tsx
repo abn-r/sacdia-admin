@@ -8,7 +8,8 @@ export interface PageHeaderBreadcrumb {
 }
 
 export interface PageHeaderProps {
-  title: string;
+  /** Omit on detail pages whose hero already carries the h1; breadcrumbs still render. */
+  title?: string;
   description?: string;
   breadcrumbs?: PageHeaderBreadcrumb[];
   children?: React.ReactNode;
@@ -51,13 +52,17 @@ export function PageHeader({
         </nav>
       )}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
-          <h1 className="font-semibold text-2xl text-foreground tracking-tight sm:text-3xl">{title}</h1>
-          {description && <p className="max-w-prose text-muted-foreground text-sm">{description}</p>}
+      {(title || rightSlot) && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          {title ? (
+            <div className="min-w-0 space-y-1">
+              <h1 className="font-semibold text-2xl text-foreground tracking-tight sm:text-3xl">{title}</h1>
+              {description && <p className="max-w-prose text-muted-foreground text-sm">{description}</p>}
+            </div>
+          ) : null}
+          {rightSlot && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{rightSlot}</div>}
         </div>
-        {rightSlot && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{rightSlot}</div>}
-      </div>
+      )}
     </header>
   );
 }

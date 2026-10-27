@@ -7,8 +7,6 @@ import { useTranslations } from "next-intl";
 import {
   Eye,
   EyeOff,
-  Loader2,
-  MoreHorizontal,
   Pencil,
   Plus,
   RefreshCw,
@@ -18,6 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -36,20 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -133,12 +120,11 @@ function DeleteButton({ label }: { label: string }) {
   const [pending, setPending] = useState(false);
   return (
     <Button
+      loading={pending}
       type="submit"
       variant="destructive"
       onClick={() => setPending(true)}
-      disabled={pending}
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {label}
     </Button>
   );
@@ -245,24 +231,13 @@ export function AchievementsCrudPage({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard/configuration/achievements">{t("breadcrumbRoot")}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{categoryName}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <PageHeader
         title={categoryName}
         description={t("pageDescription")}
+        breadcrumbs={[
+          { label: t("breadcrumbRoot"), href: "/dashboard/configuration/achievements" },
+          { label: categoryName },
+        ]}
         actions={
           <Button asChild>
             <Link href={`/dashboard/configuration/achievements/${categoryId}/new`}>
@@ -377,21 +352,19 @@ export function AchievementsCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("tableColBadge")}</TableHead>
                     <TableHead>{t("tableColName")}</TableHead>
-                    <TableHead>{t("tableColType")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
                     <TableHead>{t("tableColTier")}</TableHead>
                     <TableHead>{t("tableColPoints")}</TableHead>
-                    <TableHead>{t("tableColScope")}</TableHead>
-                    <TableHead>{t("tableColSecret")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColScope")}</TableHead>
+                    <TableHead className="hidden xl:table-cell">{t("tableColSecret")}</TableHead>
                     <TableHead>{t("tableColStatus")}</TableHead>
-                    <TableHead className="sticky right-0 z-20 w-[120px] border-l bg-background text-xs font-medium text-muted-foreground">
-                      {t("tableColActions")}
-                    </TableHead>
+                    <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -433,9 +406,9 @@ export function AchievementsCrudPage({
                           </div>
                         </TableCell>
 
-                        <TableCell className="font-medium">{achName}</TableCell>
+                        <TableCell className="max-w-[280px] whitespace-normal font-medium">{achName}</TableCell>
 
-                        <TableCell>
+                        <TableCell className="hidden xl:table-cell">
                           {type ? (
                             <Badge variant="secondary" className="text-xs">
                               {tPreview(`typeLabels.${type}`)}
@@ -471,11 +444,11 @@ export function AchievementsCrudPage({
                           {item.points != null ? String(item.points) : "—"}
                         </TableCell>
 
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground hidden xl:table-cell">
                           {toText(item.scope) ?? "—"}
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell className="hidden xl:table-cell">
                           {item.secret ? (
                             <EyeOff className="size-4 text-muted-foreground" aria-label={t("ariaSecret")} />
                           ) : (
@@ -487,89 +460,28 @@ export function AchievementsCrudPage({
                         </TableCell>
 
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "success" : "secondary"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
 
-                        <TableCell className="sticky right-0 z-10 border-l bg-background">
-                          <div className="hidden gap-1 md:flex">
-                            {achId ? (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                                asChild
-                                title={t("actionEdit")}
-                              >
-                                <Link
-                                  href={`/dashboard/configuration/achievements/${categoryId}/${achId}/edit`}
-                                  prefetch={false}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Link>
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                                disabled
-                                title={t("actionEdit")}
-                              >
-                                <Pencil className="size-3.5" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 text-destructive hover:text-destructive"
-                              disabled={!achId}
-                              onClick={() => setDeleteItem(item)}
-                              title={t("actionDelete")}
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
-                          </div>
-
-                          <div className="md:hidden">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-8">
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {achId ? (
-                                  <DropdownMenuItem asChild>
-                                    <Link
-                                      href={`/dashboard/configuration/achievements/${categoryId}/${achId}/edit`}
-                                      prefetch={false}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("actionEdit")}
-                                    </Link>
-                                  </DropdownMenuItem>
-                                ) : (
-                                  <DropdownMenuItem disabled>
-                                    <Pencil className="size-4" />
-                                    {t("actionEdit")}
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
-                                  disabled={!achId}
-                                  variant="destructive"
-                                  onSelect={() => setDeleteItem(item)}
-                                >
-                                  <Trash2 className="size-4" />
-                                  {t("actionDelete")}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                        <TableCell className="sticky right-0 z-10 border-l bg-card">
+                          <RowActions
+                            label={achName}
+                            actions={[
+                              {
+                                label: t("actionEdit"),
+                                icon: Pencil,
+                                href: `/dashboard/configuration/achievements/${categoryId}/${achId}/edit`,
+                                disabled: !achId,
+                              },
+                              {
+                                label: `${t("actionDelete")}…`,
+                                icon: Trash2,
+                                destructive: true,
+                                onSelect: () => setDeleteItem(item),
+                                disabled: !achId,
+                              },
+                            ]}
+                          />
                         </TableCell>
                       </TableRow>
                     );

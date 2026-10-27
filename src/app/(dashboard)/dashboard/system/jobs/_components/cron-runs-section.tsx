@@ -346,11 +346,17 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                 <TableHead>{t("colLastRun")}</TableHead>
                 <TableHead>{t("colStatus")}</TableHead>
                 <TableHead>{t("colDuration")}</TableHead>
-                <TableHead className="text-right">{t("colItems")}</TableHead>
-                <TableHead>{t("colLastSuccess")}</TableHead>
-                <TableHead>{t("colLastFailure")}</TableHead>
+                <TableHead className="hidden text-right xl:table-cell">{t("colItems")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("colLastSuccess")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("colLastFailure")}</TableHead>
                 <TableHead className="text-right">{t("colFailureRate")}</TableHead>
-                <TableHead className={showActions ? "text-right" : "text-right pr-6"}>
+                <TableHead
+                  className={
+                    showActions
+                      ? "hidden text-right xl:table-cell"
+                      : "hidden text-right pr-6 xl:table-cell"
+                  }
+                >
                   {t("colRuns7d")}
                 </TableHead>
                 {showActions && (
@@ -408,19 +414,19 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                     </TableCell>
 
                     {/* Items processed */}
-                    <TableCell className="text-right tabular-nums text-sm">
+                    <TableCell className="hidden text-right tabular-nums text-sm xl:table-cell">
                       {run?.items_processed !== undefined && run.items_processed !== null
                         ? formatNumber(run.items_processed)
                         : "—"}
                     </TableCell>
 
                     {/* Last success */}
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                    <TableCell className="hidden text-sm text-muted-foreground whitespace-nowrap xl:table-cell">
                       {formatDate(stats?.last_success ?? null)}
                     </TableCell>
 
                     {/* Last failure */}
-                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                    <TableCell className="hidden text-sm text-muted-foreground whitespace-nowrap xl:table-cell">
                       {formatDate(stats?.last_failure ?? null)}
                     </TableCell>
 
@@ -433,8 +439,8 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                     <TableCell
                       className={
                         showActions
-                          ? "text-right tabular-nums text-sm"
-                          : "text-right tabular-nums text-sm pr-6"
+                          ? "hidden text-right tabular-nums text-sm xl:table-cell"
+                          : "hidden text-right tabular-nums text-sm pr-6 xl:table-cell"
                       }
                     >
                       {stats !== null ? formatNumber(stats.total_runs_7d) : "—"}

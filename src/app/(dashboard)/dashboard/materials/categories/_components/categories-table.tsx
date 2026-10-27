@@ -11,9 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { toneBadgeProps } from "@/components/materials/badge-tones";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { CategoryFormSheet } from "./category-form-sheet";
 import { DeleteCategoryDialog } from "./delete-category-dialog";
 import type { MaterialCategoryAdmin } from "@/lib/types/materials";
@@ -33,13 +33,13 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 Slug
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Nombre
               </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
                 Ícono
               </TableHead>
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground text-right">
@@ -51,13 +51,13 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Estado
               </TableHead>
-              <TableHead className="h-9 w-24 px-3" />
+              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {categorias.map((cat) => (
               <TableRow key={cat.id} className="hover:bg-muted/30">
-                <TableCell className="px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
                   <span className="font-mono text-xs text-muted-foreground">
                     {cat.slug}
                   </span>
@@ -65,7 +65,7 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                 <TableCell className="px-3 py-2.5 align-middle text-sm font-medium">
                   {cat.label}
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground">
                   {cat.icon ?? "—"}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-right tabular-nums text-sm">
@@ -75,29 +75,25 @@ export function CategoriesTable({ categorias }: CategoriesTableProps) {
                   {cat.product_count}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge {...(cat.active ? toneBadgeProps("success") : { variant: "secondary" as const })}>
-                    {cat.active ? t("statusActive") : t("statusInactive")}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? t("statusActive") : t("statusInactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("editAriaLabel")}
-                      onClick={() => setEditTarget(cat)}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("deleteAriaLabel")}
-                      onClick={() => setDeleteTarget(cat)}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button>
-                  </div>
+                  <RowActions
+                    label={cat.label}
+                    actions={[
+                      {
+                        label: t("editAriaLabel"),
+                        icon: Pencil,
+                        onSelect: () => setEditTarget(cat),
+                      },
+                      {
+                        label: `${t("deleteAriaLabel")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => setDeleteTarget(cat),
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}

@@ -125,7 +125,7 @@ export function ParticipantsField({
       <div className="space-y-2">
         <Label>{l.modeLabel}</Label>
         <Select value={mode} onValueChange={(v) => onModeChange(v as ParticipantsMode)}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -175,7 +175,7 @@ export function ParticipantsField({
                   value={row.class_id > 0 ? String(row.class_id) : ""}
                   onValueChange={(v) => updateClassRow(index, "class_id", v)}
                 >
-                  <SelectTrigger className="h-8 text-sm">
+                  <SelectTrigger className="h-8 text-sm w-full">
                     <SelectValue placeholder={l.classPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>

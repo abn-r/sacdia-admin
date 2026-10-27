@@ -5,15 +5,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import {
   FolderOpen,
-  Loader2,
-  MoreHorizontal,
   Pencil,
   Plus,
   Search,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,12 +41,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -112,8 +106,7 @@ function getDefaultActive(item?: CategoryRecord | null): boolean {
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="size-4 animate-spin" />}
+    <Button loading={pending} type="submit">
       {label}
     </Button>
   );
@@ -124,11 +117,10 @@ function DeleteButton() {
   const t = useTranslations("resources.categoriesCrud");
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending}
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      variant="destructive-solid"
     >
-      {pending && <Loader2 className="size-4 animate-spin" />}
       {t("delete")}
     </Button>
   );
@@ -366,7 +358,7 @@ export function ResourceCategoriesCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -374,9 +366,7 @@ export function ResourceCategoriesCrudPage({
                     <TableHead>{t("colDescription")}</TableHead>
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete) && (
-                      <TableHead className="sticky right-0 z-20 w-[100px] border-l bg-background">
-                        {t("colActions")}
-                      </TableHead>
+                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -396,78 +386,33 @@ export function ResourceCategoriesCrudPage({
                           {description}
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant={item.active !== false ? "default" : "outline"}
-                            className="text-xs"
-                          >
-                            {item.active !== false ? t("statusActive") : t("statusInactive")}
-                          </Badge>
+                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-background">
-                            <div className="hidden gap-1 md:flex">
-                              {canEdit && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8"
-                                  disabled={!itemId}
-                                  onClick={() => {
+                          <TableCell className="sticky right-0 z-10 border-l bg-card">
+                            <RowActions
+                              label={name}
+                              actions={[
+                                {
+                                  label: t("edit"),
+                                  icon: Pencil,
+                                  onSelect: () => {
                                     setEditItem(item);
                                     setEditActiveChecked(getDefaultActive(item));
-                                  }}
-                                  title={t("edit")}
-                                >
-                                  <Pencil className="size-3.5" />
-                                </Button>
-                              )}
-                              {canDelete && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-destructive hover:text-destructive"
-                                  disabled={!itemId}
-                                  onClick={() => setDeleteItem(item)}
-                                  title={t("delete")}
-                                >
-                                  <Trash2 className="size-3.5" />
-                                </Button>
-                              )}
-                            </div>
-
-                            <div className="md:hidden">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="size-8" title={t("colActions")}>
-                                    <MoreHorizontal className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  {canEdit && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      onSelect={() => {
-                                        setEditItem(item);
-                                        setEditActiveChecked(getDefaultActive(item));
-                                      }}
-                                    >
-                                      <Pencil className="size-4" />
-                                      {t("edit")}
-                                    </DropdownMenuItem>
-                                  )}
-                                  {canDelete && (
-                                    <DropdownMenuItem
-                                      disabled={!itemId}
-                                      variant="destructive"
-                                      onSelect={() => setDeleteItem(item)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                      {t("delete")}
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                                  },
+                                  hidden: !canEdit,
+                                  disabled: !itemId,
+                                },
+                                {
+                                  label: `${t("delete")}…`,
+                                  icon: Trash2,
+                                  destructive: true,
+                                  onSelect: () => setDeleteItem(item),
+                                  hidden: !canDelete,
+                                  disabled: !itemId,
+                                },
+                              ]}
+                            />
                           </TableCell>
                         )}
                       </TableRow>

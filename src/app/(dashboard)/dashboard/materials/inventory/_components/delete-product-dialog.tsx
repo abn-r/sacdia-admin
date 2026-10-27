@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -80,15 +80,11 @@ export function DeleteProductDialog({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <Button
+            loading={isPending}
             variant="destructive"
             onClick={handleConfirm}
-            disabled={isPending}
           >
-            {isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Trash2 className="size-4" />
-            )}
+            <Trash2 className="size-4" />
             Desactivar
           </Button>
         </AlertDialogFooter>

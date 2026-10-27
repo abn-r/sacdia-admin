@@ -1,6 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpDown, Award, BookOpen, Inbox, Trophy, UserPlus } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
+import {
+  ArrowUpDown,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  Inbox,
+  Trophy,
+  UserPlus,
+} from "lucide-react";
 import type { OperationsQueueId, OperationsWorkItem } from "@/lib/dashboard/operations-home";
 
 const QUEUE_ICONS: Record<OperationsQueueId, typeof Inbox> = {
@@ -14,57 +22,68 @@ const QUEUE_ICONS: Record<OperationsQueueId, typeof Inbox> = {
 export interface OperationsWorkQueueProps {
   headingId: string;
   title: string;
-  reviewLabel: string;
   labels: Record<OperationsQueueId, string>;
   /** Already filtered to queues with work that the user can open. */
   items: OperationsWorkItem[];
+  /** Formatted sum of all item counts, shown in the heading pill. */
+  total: string;
+  /** Screen-reader text for the pill ("7 pendientes"). */
+  totalLabel: string;
   /** Formats a queue count with the active locale. */
   formatCount: (value: number) => string;
-  /** When set, an empty queue shows this state; otherwise the block is omitted. */
-  empty?: { title: string; description: string };
+  /** Short positive line shown when nothing is pending. */
+  emptyLabel: string;
 }
 
 export function OperationsWorkQueue({
   headingId,
   title,
-  reviewLabel,
   labels,
   items,
+  total,
+  totalLabel,
   formatCount,
-  empty,
+  emptyLabel,
 }: OperationsWorkQueueProps) {
-  if (items.length === 0 && !empty) {
-    return null;
-  }
-
   return (
-    <section aria-labelledby={headingId} className="space-y-3">
-      <h2 id={headingId} className="font-semibold text-base tracking-tight">
-        {title}
-      </h2>
-      {items.length === 0 && empty ? (
-        <EmptyState icon={Inbox} title={empty.title} description={empty.description} />
+    <section aria-labelledby={headingId} className="flex min-w-0 flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <h2 id={headingId} className="font-semibold text-base tracking-tight">
+          {title}
+        </h2>
+        {items.length > 0 ? (
+          <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-xs tabular-nums">
+            <span aria-hidden>{total}</span>
+            <span className="sr-only">{totalLabel}</span>
+          </span>
+        ) : null}
+      </div>
+      {items.length === 0 ? (
+        <p className="flex items-center gap-2 rounded-xl bg-card p-4 text-sm shadow-card">
+          <CheckCircle2
+            className="size-4 shrink-0 text-[color-mix(in_oklch,var(--success),black_15%)] dark:text-success"
+            aria-hidden
+          />
+          {emptyLabel}
+        </p>
       ) : (
-        <ul className="divide-y divide-border rounded-xl border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl bg-card shadow-card">
           {items.map((item) => {
             const Icon = QUEUE_ICONS[item.id];
             return (
               <li key={item.id}>
                 <Link
                   href={item.href}
-                  className="flex items-center justify-between gap-3 px-4 py-3 transition-colors duration-150 hover:bg-muted/60 motion-reduce:transition-none"
+                  className="flex items-center gap-3 px-4 py-3 outline-none transition-colors duration-150 hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset motion-reduce:transition-none"
                 >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                    <span className="truncate font-medium text-sm">{labels[item.id]}</span>
+                  <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                  <span className="min-w-0 flex-1 truncate font-medium text-sm">
+                    {labels[item.id]}
                   </span>
-                  <span className="flex shrink-0 items-center gap-3 text-sm">
-                    <span className="font-semibold tabular-nums">{formatCount(item.count)}</span>
-                    <span className="inline-flex items-center gap-1 text-primary">
-                      {reviewLabel}
-                      <ArrowRight className="size-3.5" aria-hidden />
-                    </span>
+                  <span className="font-semibold text-sm tabular-nums">
+                    {formatCount(item.count)}
                   </span>
+                  <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
                 </Link>
               </li>
             );

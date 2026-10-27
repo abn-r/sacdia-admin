@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -157,7 +158,7 @@ export function CertificationsAdminPanel({
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 {t("table.versions")}
               </TableHead>
-              <TableHead className="h-9 w-48 px-3" />
+              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -183,15 +184,15 @@ export function CertificationsAdminPanel({
                 const isCreatingDraft = creatingDraftForId === certification.certification_id;
                 return (
                   <TableRow key={certification.certification_id} className="hover:bg-muted/30">
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="min-w-[220px] max-w-[360px] whitespace-normal px-3 py-2.5 align-middle">
                       <span className="font-medium">{certification.name}</span>
                       {certification.description && (
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
                           {certification.description}
                         </p>
                       )}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="whitespace-normal px-3 py-2.5 align-middle">
                       {certification.certification_versions.length === 0 ? (
                         <span className="text-xs text-muted-foreground">
                           {t("table.noVersions")}
@@ -219,16 +220,20 @@ export function CertificationsAdminPanel({
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 align-middle text-right">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isCreatingDraft}
-                        onClick={() => handleCreateDraft(summary)}
-                      >
-                        {isCreatingDraft ? t("table.creatingDraft") : t("table.createDraft")}
-                      </Button>
+                    <TableCell className="px-3 py-2.5 align-middle">
+                      <RowActions
+                        label={certification.name}
+                        actions={[
+                          {
+                            label: isCreatingDraft
+                              ? t("table.creatingDraft")
+                              : t("table.createDraft"),
+                            icon: Plus,
+                            disabled: isCreatingDraft,
+                            onSelect: () => handleCreateDraft(summary),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

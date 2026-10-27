@@ -1,10 +1,8 @@
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import {
   Building2,
   Banknote,
   ShoppingBag,
-  ChevronLeft,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,7 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { getOrder, listReceipts } from "@/lib/api/materials";
 import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -41,6 +38,7 @@ export default async function ComprobantesDetailPage({
 }) {
   const { folio } = await params;
   const t = await getTranslations("materials.pages.receiptsDetail");
+  const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
 
   // Guard: only users with validate-receipt permission can access this route
@@ -68,18 +66,14 @@ export default async function ComprobantesDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Back link */}
-      <Button variant="ghost" size="sm" className="-ml-1" asChild>
-        <Link href="/dashboard/materials/receipts">
-          <ChevronLeft className="mr-1 size-4" />
-          {t("backLink")}
-        </Link>
-      </Button>
-
       {/* Page header */}
       <PageHeader
         title={t("title", { folio: orden.folio_referencia ?? folio })}
         description={t("description")}
+        breadcrumbs={[
+          { label: tNav("materials_receipts"), href: "/dashboard/materials/receipts" },
+          { label: orden.folio_referencia ?? folio },
+        ]}
         actions={<StatusBadge estado={orden.estado} />}
       />
 

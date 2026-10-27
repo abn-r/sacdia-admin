@@ -317,8 +317,8 @@ function IdleView({
             : "border-border bg-muted/30 hover:border-primary/50 hover:bg-muted/50",
         )}
       >
-        <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
-          <Upload className="size-7 text-primary" aria-hidden="true" />
+        <div className="flex size-14 items-center justify-center rounded-full bg-muted">
+          <Upload className="size-7 text-foreground" aria-hidden="true" />
         </div>
 
         <div className="space-y-1">
@@ -347,14 +347,10 @@ function IdleView({
           variant="outline"
           size="sm"
           onClick={onDownloadTemplate}
-          disabled={isDownloading}
+          loading={isDownloading}
           className="gap-2"
         >
-          {isDownloading ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <Download className="size-4" aria-hidden="true" />
-          )}
+          <Download className="size-4" aria-hidden="true" />
           {t("downloadTemplate")}
         </Button>
       </div>
@@ -389,7 +385,7 @@ function PreviewView({ file, rows, total, onSubmit, onCancel, t }: PreviewViewPr
         </div>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -508,7 +504,7 @@ function ResultsView({ data, filter, onFilterChange, onReset, t }: ResultsViewPr
       </div>
 
       {/* Results table */}
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>

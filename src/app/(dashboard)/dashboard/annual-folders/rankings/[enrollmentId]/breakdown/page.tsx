@@ -22,6 +22,7 @@ export default async function BreakdownPage({
 }: PageProps) {
   await requireAdminUser();
   const t = await getTranslations("annual_folders");
+  const tNav = await getTranslations("nav.items");
 
   const { enrollmentId } = await params;
   const { year_id } = await searchParams;
@@ -54,6 +55,10 @@ export default async function BreakdownPage({
       <PageHeader
         title={t("pageRankingsBreakdown.title")}
         description={t("pageRankingsBreakdown.description", { enrollmentId })}
+        breadcrumbs={[
+          { label: tNav("annual_folders_rankings"), href: "/dashboard/annual-folders/rankings" },
+          { label: t("pageRankingsBreakdown.title") },
+        ]}
       />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}

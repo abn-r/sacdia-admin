@@ -1,16 +1,11 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
+import { RowActions } from "@/components/shared/row-actions";
 import type { AdminHonorCategoryRow } from "@/lib/catalogs/honor-categories/types";
 
 export type HonorCategoryColumnLabels = {
@@ -52,13 +47,15 @@ export function getHonorCategoryColumns({
     {
       accessorKey: "name",
       header: () => labels.name,
+      meta: { className: "max-w-[280px] whitespace-normal" },
       cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
     },
     {
       accessorKey: "description",
       header: () => labels.description,
+      meta: { className: "min-w-[200px] max-w-[420px] whitespace-normal" },
       cell: ({ row }) => (
-        <span className="line-clamp-1 text-muted-foreground text-sm">
+        <span className="line-clamp-2 text-muted-foreground text-sm">
           {row.original.description ?? "—"}
         </span>
       ),
@@ -72,9 +69,7 @@ export function getHonorCategoryColumns({
       accessorKey: "active",
       header: () => labels.status,
       cell: ({ row }) => (
-        <Badge variant={row.original.active ? "default" : "secondary"}>
-          {row.original.active ? labels.active : labels.inactive}
-        </Badge>
+        <StatusBadge intent={flagStatusIntent(row.original.active)} label={row.original.active ? labels.active : labels.inactive} />
       ),
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
@@ -85,37 +80,30 @@ export function getHonorCategoryColumns({
     },
     {
       id: "actions",
-      header: () => labels.actions,
+      header: () => <span className="sr-only">{labels.actions}</span>,
+      meta: { className: "sticky right-0 z-10 w-12 bg-card text-right" },
       cell: ({ row }) => {
         const category = row.original;
 
-        if (!canEdit && !canDelete) {
-          return <span className="text-muted-foreground text-xs">—</span>;
-        }
-
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{labels.actions}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {canEdit ? (
-                <DropdownMenuItem onClick={() => onEdit(category)}>
-                  <Pencil className="size-4" />
-                  {labels.edit}
-                </DropdownMenuItem>
-              ) : null}
-              {canDelete ? (
-                <DropdownMenuItem variant="destructive" onClick={() => onDelete(category)}>
-                  <Trash2 className="size-4" />
-                  {labels.delete}
-                </DropdownMenuItem>
-              ) : null}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            label={category.name}
+            actions={[
+              {
+                label: labels.edit,
+                icon: Pencil,
+                onSelect: () => onEdit(category),
+                hidden: !canEdit,
+              },
+              {
+                label: `${labels.delete}…`,
+                icon: Trash2,
+                destructive: true,
+                onSelect: () => onDelete(category),
+                hidden: !canDelete,
+              },
+            ]}
+          />
         );
       },
     },

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   filterLocalFieldsByTerritory,
@@ -86,7 +87,11 @@ async function listRankingConfigUnionsForScope(
   return [];
 }
 
-export async function loadRankingConfigPageData(): Promise<RankingConfigPageData> {
+/**
+ * Memoized per request: on a direct load of `/ranking-config/new` both the list
+ * underneath and the modal call it, and they share one round of API calls.
+ */
+export const loadRankingConfigPageData = cache(async function loadRankingConfigPageData(): Promise<RankingConfigPageData> {
   const user = await requireAdminUser();
 
   let loadError: string | null = null;
@@ -153,4 +158,4 @@ export async function loadRankingConfigPageData(): Promise<RankingConfigPageData
     ecclesiasticalYears,
     createGap,
   };
-}
+});

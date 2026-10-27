@@ -19,8 +19,8 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/components/shared/page-header", () => ({
-  PageHeader: ({ title }: { title: string }) => <header>{title}</header>,
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock("@/components/camporee-events/venue-create-dialog", () => ({

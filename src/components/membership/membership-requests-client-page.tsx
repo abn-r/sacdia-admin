@@ -117,7 +117,7 @@ export function MembershipRequestsClientPage({
           value={String(view)}
           onValueChange={(value) => setView(value === ALL_SECTIONS ? ALL_SECTIONS : Number(value))}
         >
-          <SelectTrigger id="section-select">
+          <SelectTrigger id="section-select" className="w-full">
             <SelectValue placeholder={t("client.section_placeholder")} />
           </SelectTrigger>
           <SelectContent>

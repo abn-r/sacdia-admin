@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   Calendar,
   Layers,
-  LockOpen,
   MailCheck,
   ShieldCheck,
 } from "lucide-react";
@@ -89,6 +88,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const currentUser = await requireAdminUser();
   const t = await getTranslations("users.pages.detail");
   const tRoles = await getTranslations("roles");
+  const tNav = await getTranslations("nav.items");
   const translateRole = buildRoleTranslator(tRoles);
   const locale = await getLocale();
   const dateLocale = locale.startsWith("es") ? "es-MX" : locale;
@@ -255,7 +255,12 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t("title")} description={t("subtitle")} />
+      <PageHeader
+        breadcrumbs={[
+          { label: tNav("users"), href: "/dashboard/users" },
+          { label: fullName },
+        ]}
+      />
 
       <UserDetailHero
         user={user}
@@ -265,8 +270,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         ageLabel={age !== null ? t("ageYears", { count: age }) : null}
         primaryAssignment={primaryAssignment}
         roleLabels={roleLabels}
-        backHref="/dashboard/users"
-        backLabel={t("back")}
         statusActiveLabel={t("statusActive")}
         statusInactiveLabel={t("statusInactive")}
         metaLabels={{
@@ -654,18 +657,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
               },
               {
                 items: [
-                  <Button
-                    key="back"
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                  >
-                    <Link href="/dashboard/users">
-                      <LockOpen className="size-4" />
-                      {t("back")}
-                    </Link>
-                  </Button>,
                   <Button
                     key="post-link"
                     asChild

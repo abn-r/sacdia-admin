@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,10 +80,9 @@ export function DeleteTransactionDialog({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isDeleting}
-            className="bg-destructive text-white hover:bg-destructive/90"
+            loading={isDeleting}
+            variant="destructive-solid"
           >
-            {isDeleting && <Loader2 className="size-4 animate-spin" />}
             {t("delete.confirmButton")}
           </AlertDialogAction>
         </AlertDialogFooter>

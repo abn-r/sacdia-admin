@@ -332,11 +332,11 @@ export function InsuranceCyclesPanel() {
               {t("cancel")}
             </Button>
             <Button
+              loading={saving}
               type="button"
               onClick={() => void save()}
-              disabled={saving || !canSave}
+              disabled={!canSave}
             >
-              {saving && <Loader2 className="size-4 animate-spin" />}
               {t("save")}
             </Button>
           </DialogFooter>

@@ -4,9 +4,6 @@ import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  CheckCircle2,
-  XCircle,
-  Loader2,
   RefreshCw,
   UserPlus,
   Clock,
@@ -29,6 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RowActions } from "@/components/shared/row-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
@@ -316,81 +314,75 @@ export function PendingMembersTable({
                       data-testid="actions-cell"
                       className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY}`}
                     >
-                      <div className="flex items-center justify-end gap-1">
-                        {isProcessing && (
-                          <Loader2 className="size-4 animate-spin text-muted-foreground" />
-                        )}
-
-                        {consentPending && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                              <span tabIndex={verifyDisabled ? 0 : undefined}>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  className="text-primary hover:bg-primary/10 hover:text-primary"
-                                  onClick={() => setConsentDialog(req)}
-                                  disabled={isProcessing || isRefreshing || verifyDisabled}
-                                  aria-label={tConsent("verify_action_aria")}
-                                >
-                                  <ShieldCheck className="size-4" />
-                                </Button>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {verifyBlock
-                                ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
-                                : nothingToVerify
-                                  ? tConsent("verify_no_guardian")
-                                  : tConsent("verify_action")}
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
-                        {!verifyOnly && (
+                      <RowActions
+                        label={getUserName(req.users)}
+                        actions={[]}
+                        primary={
                           <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                                <span tabIndex={consentPending ? 0 : undefined}>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className="text-success hover:bg-success/10 hover:text-success"
-                                    onClick={() => handleApprove(req)}
-                                    disabled={isProcessing || isRefreshing || consentPending}
-                                    aria-label={t("table.aria_approve")}
-                                  >
-                                    <CheckCircle2 className="size-4" />
-                                  </Button>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {consentPending
-                                  ? tConsent("approve_blocked")
-                                  : t("table.tooltip_approve")}
-                              </TooltipContent>
-                            </Tooltip>
+                            {consentPending && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+                                  <span tabIndex={verifyDisabled ? 0 : undefined}>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setConsentDialog(req)}
+                                      disabled={isProcessing || isRefreshing || verifyDisabled}
+                                      aria-label={tConsent("verify_action_aria")}
+                                    >
+                                      <ShieldCheck className="size-4" />
+                                      {tConsent("verify_action")}
+                                    </Button>
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {verifyBlock
+                                    ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
+                                    : nothingToVerify
+                                      ? tConsent("verify_no_guardian")
+                                      : tConsent("verify_action")}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
 
-                            <Tooltip>
-                              <TooltipTrigger asChild>
+                            {!verifyOnly && (
+                              <>
                                 <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                  variant="outline"
+                                  size="sm"
                                   onClick={() => setRejectDialog(req)}
                                   disabled={isProcessing || isRefreshing}
                                   aria-label={t("table.aria_reject")}
                                 >
-                                  <XCircle className="size-4" />
+                                  {t("table.tooltip_reject")}
                                 </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{t("table.tooltip_reject")}</TooltipContent>
-                            </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+                                    <span tabIndex={consentPending ? 0 : undefined}>
+                                      <Button
+                                        size="sm"
+                                        loading={isProcessing}
+                                        onClick={() => handleApprove(req)}
+                                        disabled={isProcessing || isRefreshing || consentPending}
+                                        aria-label={t("table.aria_approve")}
+                                      >
+                                        {t("table.tooltip_approve")}
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {consentPending
+                                      ? tConsent("approve_blocked")
+                                      : t("table.tooltip_approve")}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </>
+                            )}
                           </>
-                        )}
-                      </div>
+                        }
+                      />
                     </TableCell>
                   </TableRow>
                 );

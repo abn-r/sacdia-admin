@@ -130,8 +130,6 @@ export function ClubDetailView({
   return (
     <div className="space-y-5">
       <PageHeader
-        title={t("fallbackTitle")}
-        description={t("description")}
         breadcrumbs={[
           { label: tList("title"), href: "/dashboard/clubs" },
           { label: clubName },
@@ -146,8 +144,6 @@ export function ClubDetailView({
         church={church}
         address={address}
         sectionNames={sectionNames}
-        backHref="/dashboard/clubs"
-        backLabel={t("back")}
         statusActiveLabel={tGeneral("statusActive")}
         statusInactiveLabel={tGeneral("statusInactive")}
         metaLabels={{

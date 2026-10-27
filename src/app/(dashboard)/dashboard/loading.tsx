@@ -15,16 +15,26 @@ export default function DashboardLoading() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-8">
-        <Skeleton className="h-4 w-80 max-w-full" />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <Skeleton key={index} className="h-32 rounded-xl" />
+        ))}
+      </div>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-3">
         <div className="space-y-3">
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-56 w-full rounded-xl" />
         </div>
         <div className="space-y-3">
-          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-5 w-36" />
           <Skeleton className="h-40 w-full rounded-xl" />
         </div>
+      </div>
+
+      <div className="space-y-3">
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-48 w-full rounded-xl" />
       </div>
     </div>
   );

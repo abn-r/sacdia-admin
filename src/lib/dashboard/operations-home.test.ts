@@ -12,15 +12,17 @@ vi.mock("@/lib/auth/require-page-access", () => ({
 
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import {
+  attentionTotal,
   buildWorkQueue,
   childGap,
-  dispatchSummary,
+  clubTypeColor,
+  groupClassesByClubType,
+  homeSectionOrder,
   hrefPath,
-  laggingClubs,
   OPERATIONS_QUEUE_HREFS,
+  progressTone,
   rankChildrenByGap,
   resolveHomeMode,
-  supervisionSummary,
   visibleWorkQueue,
 } from "@/lib/dashboard/operations-home";
 
@@ -170,103 +172,82 @@ describe("rankChildrenByGap", () => {
   });
 });
 
-describe("laggingClubs", () => {
-  it("keeps only children with a gap and names each reason", () => {
-    const rows = laggingClubs(
-      [
-        child(1, "Al día"),
-        child(2, "Ambos", { reports: { missing_sections: 1 }, nonOperational: 1 }),
-        child(3, "Solo informe", { reports: { missing_sections: 2 } }),
-      ],
-      true,
-    );
+describe("progressTone", () => {
+  it("maps coverage to destructive, warning and success thresholds", () => {
+    expect(progressTone(0)).toBe("destructive");
+    expect(progressTone(49.9)).toBe("destructive");
+    expect(progressTone(50)).toBe("warning");
+    expect(progressTone(79.99)).toBe("warning");
+    expect(progressTone(80)).toBe("success");
+    expect(progressTone(100)).toBe("success");
+  });
 
-    expect(rows.map((row) => [row.child.name, row.reasons])).toEqual([
-      ["Solo informe", ["missingReport"]],
-      ["Ambos", ["missingReport", "nonOperational"]],
-    ]);
+  it("has no tone without a value", () => {
+    expect(progressTone(null)).toBe("none");
+    expect(progressTone(undefined)).toBe("none");
   });
 });
 
-describe("supervisionSummary", () => {
-  it("counts children that reported, ignoring those that expected nothing", () => {
-    const messages = supervisionSummary(
-      [
-        child(1, "A"),
-        child(2, "B", { reports: { submitted_sections: 1, missing_sections: 1 } }),
-        child(3, "C", { reports: { expected_sections: 0, submitted_sections: 0 } }),
-      ],
-      "local_field",
-      metrics({ nonOperational: 2 }),
-      true,
-    );
-
-    expect(messages).toEqual([
-      { key: "childrenReported", values: { reported: 1, total: 2, level: "local_field" } },
-      { key: "nonOperationalClubs", values: { count: 2 } },
-    ]);
+describe("homeSectionOrder", () => {
+  it("puts the attention queue first in dispatch mode", () => {
+    expect(homeSectionOrder("dispatch")).toEqual(["attention", "breakdown"]);
   });
 
-  it("does not count generated reports that were never submitted as delivered", () => {
-    const messages = supervisionSummary(
-      [
-        child(1, "A", {
-          reports: {
-            expected_sections: 2,
-            submitted_sections: 0,
-            generated_sections: 2,
-            missing_sections: 0,
-            coverage_pct: 0,
-          },
-        }),
-      ],
-      "division",
-      metrics(),
-      true,
-    );
-
-    expect(messages).toEqual([
-      { key: "childrenReported", values: { reported: 0, total: 1, level: "division" } },
-    ]);
-  });
-
-  it("says there is no closed month and skips the report count", () => {
-    expect(supervisionSummary([child(1, "A")], "union", metrics(), false)).toEqual([
-      { key: "noClosedMonth", values: {} },
-    ]);
-  });
-
-  it("omits the report sentence when no child expected a report", () => {
-    expect(
-      supervisionSummary(
-        [child(1, "A", { reports: { expected_sections: 0 } })],
-        "club",
-        metrics(),
-        true,
-      ),
-    ).toEqual([]);
+  it("puts the territorial breakdown first in supervision mode", () => {
+    expect(homeSectionOrder("supervise")).toEqual(["breakdown", "attention"]);
   });
 });
 
-describe("dispatchSummary", () => {
-  it("reports submitted over expected sections and non-operational clubs", () => {
+describe("attentionTotal", () => {
+  it("adds every visible queue count", () => {
     expect(
-      dispatchSummary(
-        metrics({ reports: { expected_sections: 20, submitted_sections: 18 }, nonOperational: 1 }),
-        true,
-      ),
-    ).toEqual([
-      { key: "sectionsReported", values: { submitted: 18, expected: 20 } },
-      { key: "nonOperationalClubs", values: { count: 1 } },
+      attentionTotal([
+        { id: "roles", count: 2, href: "/a" },
+        { id: "folders", count: 5, href: "/b" },
+      ]),
+    ).toBe(7);
+    expect(attentionTotal([])).toBe(0);
+  });
+});
+
+describe("class formation grouping", () => {
+  const item = (
+    class_id: number,
+    club_type_id: number,
+    club_type_name: string,
+    enrollment_count: number,
+    display_order = class_id,
+  ) => ({
+    class_id,
+    class_name: `Clase ${class_id}`,
+    club_type_id,
+    club_type_name,
+    display_order,
+    enrollment_count,
+  });
+
+  it("colors each club type with its section token", () => {
+    expect(clubTypeColor("Aventureros", 0)).toBe("var(--section-aventureros)");
+    expect(clubTypeColor("Conquistadores", 0)).toBe("var(--section-conquistadores)");
+    expect(clubTypeColor("Guías Mayores", 0)).toBe("var(--section-guias)");
+    expect(clubTypeColor("Pathfinders", 2)).toBe("var(--chart-3)");
+  });
+
+  it("groups by club type in display order and drops empty classes", () => {
+    const groups = groupClassesByClubType([
+      item(3, 2, "Conquistadores", 4, 2),
+      item(1, 2, "Conquistadores", 6, 1),
+      item(2, 2, "Conquistadores", 0, 3),
+      item(7, 1, "Aventureros", 3, 4),
+      item(9, 5, "Otro club", 1, 5),
     ]);
-  });
 
-  it("says there is no closed month", () => {
-    expect(dispatchSummary(metrics(), false)).toEqual([{ key: "noClosedMonth", values: {} }]);
-  });
-
-  it("omits the report sentence when no section expected a report", () => {
-    expect(dispatchSummary(metrics({ reports: { expected_sections: 0 } }), true)).toEqual([]);
+    expect(groups.map((group) => [group.name, group.total, group.color])).toEqual([
+      ["Conquistadores", 10, "var(--section-conquistadores)"],
+      ["Aventureros", 3, "var(--section-aventureros)"],
+      ["Otro club", 1, "var(--chart-1)"],
+    ]);
+    expect(groups[0]?.items.map((row) => row.class_id)).toEqual([1, 3]);
   });
 });
 

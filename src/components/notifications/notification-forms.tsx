@@ -49,17 +49,13 @@ function SubmitButton({
   const { pending } = useFormStatus();
   return (
     <Button
+      loading={pending}
       type="submit"
-      disabled={pending || disabled}
+      disabled={disabled}
       aria-busy={pending}
       className={cn("w-full sm:w-auto", className)}
     >
-      {pending ? (
-        <>
-          <Loader2 className="size-4 animate-spin" />
-          {pendingLabel}
-        </>
-      ) : (
+      {pending ? pendingLabel : (
         label
       )}
     </Button>
@@ -658,6 +654,7 @@ export function ClubNotificationForm({
           </Label>
           <Select name="instance_target" required>
             <SelectTrigger
+              className="w-full"
               id="club_instance_target"
               aria-invalid={ariaInvalid("instance_id")}
               aria-describedby={describedBy("instance_id")}

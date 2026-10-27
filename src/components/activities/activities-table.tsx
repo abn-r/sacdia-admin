@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Table,
   TableBody,
@@ -61,16 +63,16 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPlace")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colAudience")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colMode")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colStatus")}
             </TableHead>
-            <TableHead className="h-9 w-32 px-3" />
+            <RowActionsHead className="h-9 px-3" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,8 +88,14 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
 
             return (
               <TableRow key={activity.activity_id} className="hover:bg-muted/30">
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <span className="font-medium">{activity.name}</span>
+                <TableCell className="max-w-[320px] whitespace-normal px-3 py-2.5 align-middle">
+                  <Link
+                    prefetch={false}
+                    href={activityDetailPath(activity.activity_id)}
+                    className="font-medium hover:text-primary hover:underline underline-offset-4"
+                  >
+                    {activity.name}
+                  </Link>
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
                   <Badge variant="secondary">{typeLabel}</Badge>
@@ -100,7 +108,7 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                     {activity.activity_place ?? "—"}
                   </span>
                 </TableCell>
-                <TableCell className="max-w-[220px] px-3 py-2.5 align-middle">
+                <TableCell className="hidden xl:table-cell max-w-[220px] px-3 py-2.5 align-middle">
                   <span className="line-clamp-2 text-sm text-muted-foreground">
                     {activityAudienceText(activity, {
                       all: t("audience.all"),
@@ -109,46 +117,36 @@ export function ActivitiesTable({ items, onEdit, onDelete }: ActivitiesTableProp
                     })}
                   </span>
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle text-sm">
+                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm">
                   {platformLabel}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge variant={activity.active !== false ? "soft-success" : "outline"}>
-                    {activity.active !== false ? t("table.statusActive") : t("table.statusInactive")}
-                  </Badge>
+                  <StatusBadge intent={flagStatusIntent(activity.active !== false)} label={activity.active !== false ? t("table.statusActive") : t("table.statusInactive")} />
                 </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle">
-                  <div className="flex items-center gap-1">
-                    {onEdit && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onEdit(activity)}
-                        title={t("table.editTitle")}
-                      >
-                        <Pencil className="size-3.5" />
-                        <span className="sr-only">{t("table.editLabel")}</span>
-                      </Button>
-                    )}
-                    {onDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => onDelete(activity)}
-                        title={t("table.deleteTitle")}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="size-3.5" />
-                        <span className="sr-only">{t("table.deleteLabel")}</span>
-                      </Button>
-                    )}
-                    <Button variant="ghost" size="icon-sm" asChild>
-                      <Link prefetch={false} href={activityDetailPath(activity.activity_id)}>
-                        <ChevronRight className="size-4" />
-                        <span className="sr-only">{t("table.viewDetail")}</span>
-                      </Link>
-                    </Button>
-                  </div>
+                  <RowActions
+                    label={activity.name}
+                    actions={[
+                      {
+                        label: t("table.viewDetail"),
+                        icon: Eye,
+                        href: activityDetailPath(activity.activity_id),
+                      },
+                      {
+                        label: t("table.editLabel"),
+                        icon: Pencil,
+                        onSelect: () => onEdit?.(activity),
+                        hidden: !onEdit,
+                      },
+                      {
+                        label: `${t("table.deleteLabel")}…`,
+                        icon: Trash2,
+                        destructive: true,
+                        onSelect: () => onDelete?.(activity),
+                        hidden: !onDelete,
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             );

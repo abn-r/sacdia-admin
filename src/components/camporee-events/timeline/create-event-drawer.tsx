@@ -103,7 +103,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
             <TabsContent value="catalog" className="mt-4 space-y-2">
               <Label className="text-[12px]">Plantilla disponible</Label>
               <Select>
-                <SelectTrigger><SelectValue placeholder="Elegir del catálogo…" /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Elegir del catálogo…" /></SelectTrigger>
                 <SelectContent>
                   {data.templates.map((t) => (
                     <SelectItem key={t.id} value={t.id}>
@@ -164,7 +164,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
             <div className="space-y-1.5">
               <Label className="text-[12px] font-semibold">Día</Label>
               <Select value={String(day)} onValueChange={(v) => setDay(parseInt(v))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {data.days.map((d) => (
                     <SelectItem key={d.id} value={String(d.numero)}>
@@ -215,7 +215,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
             <div className="space-y-1.5">
               <Label className="text-[12px] font-semibold">Sede</Label>
               <Select defaultValue={data.venues[3]?.id}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {data.venues.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
@@ -228,7 +228,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
             <div className="space-y-1.5">
               <Label className="text-[12px] font-semibold">Responsable</Label>
               <Select defaultValue="erick">
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="erick">Erick Mora</SelectItem>
                   <SelectItem value="karla">Karla Soto</SelectItem>

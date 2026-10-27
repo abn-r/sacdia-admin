@@ -6,7 +6,10 @@ import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2, Tags, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import {
@@ -396,9 +399,7 @@ export function ScoringCategoriesTable({
                     {tTable("colStatus")}
                   </SortableHeader>
                 </TableHead>
-                <TableHead className="h-9 px-3 w-[100px] text-xs font-medium text-muted-foreground">
-                  {tTable("colActions")}
-                </TableHead>
+                <RowActionsHead className="h-9 px-3" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -448,39 +449,30 @@ export function ScoringCategoriesTable({
                           )}
                         </div>
                       ) : (
-                        <Badge
-                          variant={cat.active ? "success" : "secondary"}
-                          className="text-xs"
-                        >
-                          {cat.active ? tTable("statusActive") : tTable("statusInactive")}
-                        </Badge>
+                        <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? tTable("statusActive") : tTable("statusInactive")} size="sm" />
                       )}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 align-middle">
                       {isEditable ? (
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 hover:bg-muted"
-                            onClick={() => setEditCategory(cat)}
-                            title={tTable("edit")}
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-destructive hover:text-destructive hover:bg-muted"
-                            onClick={() => {
-                              setDeleteCategory(cat);
-                              setDeleteOpen(true);
-                            }}
-                            title={tTable("delete")}
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
+                        <RowActions
+                          label={cat.name}
+                          actions={[
+                            {
+                              label: tTable("edit"),
+                              icon: Pencil,
+                              onSelect: () => setEditCategory(cat),
+                            },
+                            {
+                              label: `${tTable("delete")}…`,
+                              icon: Trash2,
+                              destructive: true,
+                              onSelect: () => {
+                                setDeleteCategory(cat);
+                                setDeleteOpen(true);
+                              },
+                            },
+                          ]}
+                        />
                       ) : (
                         <span className="text-xs text-muted-foreground">
                           {tTable("readOnly")}

@@ -1,189 +1,96 @@
-"use client";
+import type { ClassTypeGroup } from "@/lib/dashboard/operations-home";
 
-import { useMemo } from "react";
-import { useTranslations } from "next-intl";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { EmptyState } from "@/components/shared/empty-state";
-import { GraduationCap } from "lucide-react";
-import type { ClassBreakdownItem } from "@/lib/api/operations-dashboard";
-import { useFormatNumber } from "@/lib/format-locale";
-import { cn } from "@/lib/utils";
-
-interface ClassEnrollmentsChartProps {
-  items: ClassBreakdownItem[];
-  showTable?: boolean;
-  compact?: boolean;
-}
-
-const TYPE_COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-] as const;
-
-type ClassTypeGroup = {
-  id: number;
-  name: string;
-  color: string;
-  total: number;
-  items: ClassBreakdownItem[];
-};
-
-function groupByClubType(items: ClassBreakdownItem[]): ClassTypeGroup[] {
-  const groups: ClassTypeGroup[] = [];
-  const indexByType = new Map<number, number>();
-
-  for (const item of items) {
-    const existing = indexByType.get(item.club_type_id);
-    if (existing === undefined) {
-      indexByType.set(item.club_type_id, groups.length);
-      groups.push({
-        id: item.club_type_id,
-        name: item.club_type_name,
-        color: TYPE_COLORS[groups.length % TYPE_COLORS.length],
-        total: item.enrollment_count,
-        items: [item],
-      });
-      continue;
-    }
-
-    groups[existing].items.push(item);
-    groups[existing].total += item.enrollment_count;
-  }
-
-  return groups;
+export interface ClassEnrollmentsChartProps {
+  headingId: string;
+  title: string;
+  /** Accessible name of the chart figure. */
+  chartLabel: string;
+  /** Screen-reader summary of the totals. */
+  summary: string;
+  legendLabel: string;
+  emptyLabel: string;
+  /** Classes with enrollments, grouped and colored by club type. */
+  groups: ClassTypeGroup[];
+  formatCount: (value: number) => string;
 }
 
 export function ClassEnrollmentsChart({
-  items,
-  showTable = true,
-  compact = false,
+  headingId,
+  title,
+  chartLabel,
+  summary,
+  legendLabel,
+  emptyLabel,
+  groups,
+  formatCount,
 }: ClassEnrollmentsChartProps) {
-  const t = useTranslations("dashboardHub.operations.formation");
-  const formatNumber = useFormatNumber();
-
-  const sorted = useMemo(
-    () => [...items].sort((a, b) => a.display_order - b.display_order || a.class_id - b.class_id),
-    [items],
+  const maxCount = Math.max(
+    0,
+    ...groups.flatMap((group) => group.items.map((item) => item.enrollment_count)),
   );
-
-  const groups = useMemo(() => {
-    const visible = compact
-      ? sorted.filter((item) => item.enrollment_count > 0)
-      : sorted;
-    return groupByClubType(visible);
-  }, [compact, sorted]);
-
-  const maxCount = useMemo(
-    () => Math.max(0, ...groups.flatMap((group) => group.items.map((item) => item.enrollment_count))),
-    [groups],
-  );
-
-  if (sorted.length === 0) {
-    return (
-      <EmptyState
-        icon={GraduationCap}
-        title={t("emptyTitle")}
-        description={t("emptyDescription")}
-      />
-    );
-  }
-
-  if (groups.length === 0) {
-    return (
-      <EmptyState
-        icon={GraduationCap}
-        title={t("emptyTitle")}
-        description={t("emptyDescription")}
-      />
-    );
-  }
 
   return (
-    <div className={compact ? "space-y-3" : "space-y-6"}>
-      <div
-        aria-label={t("chartAriaLabel")}
-        role="group"
-        className={cn("space-y-4", compact && "space-y-3")}
-      >
-        {groups.map((group) => (
-          <section key={group.id} className="space-y-2" aria-label={group.name}>
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="flex min-w-0 items-center gap-2 font-medium text-foreground text-xs">
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <h2 id={headingId} className="font-semibold text-base tracking-tight">
+          {title}
+        </h2>
+        {groups.length > 0 ? (
+          <ul aria-label={legendLabel} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            {groups.map((group) => (
+              <li key={group.id} className="flex items-center gap-1.5 text-muted-foreground">
                 <span
                   className="size-2 shrink-0 rounded-full"
                   style={{ backgroundColor: group.color }}
                   aria-hidden
                 />
-                <span className="truncate">{group.name}</span>
-              </p>
-              <p className="shrink-0 tabular-nums text-muted-foreground text-xs">
-                {formatNumber(group.total)}
-              </p>
-            </div>
-            <ul className="space-y-1.5">
-              {group.items.map((item) => {
-                const ratio = maxCount > 0 ? item.enrollment_count / maxCount : 0;
-                return (
-                  <li
-                    key={`${item.class_id}-${item.club_type_id}`}
-                    className="grid grid-cols-[minmax(0,1fr)_2.5rem] items-center gap-x-3 gap-y-1"
-                  >
-                    <p className="truncate text-muted-foreground text-xs">{item.class_name}</p>
-                    <p className="text-right font-medium text-foreground text-xs tabular-nums">
-                      {formatNumber(item.enrollment_count)}
-                    </p>
-                    <div className="col-span-2 h-2 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full w-full origin-left rounded-full"
-                        style={{
-                          backgroundColor: group.color,
-                          transform: `scaleX(${ratio})`,
-                        }}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
+                {group.name}
+                <span className="font-medium text-foreground tabular-nums">
+                  {formatCount(group.total)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
-
-      {showTable ? (
-        <div>
-          <h3 className="mb-2 font-medium text-sm">{t("tableTitle")}</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("tableClass")}</TableHead>
-                <TableHead>{t("tableClubType")}</TableHead>
-                <TableHead className="text-right">{t("tableEnrollments")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sorted.map((item) => (
-                <TableRow key={`${item.class_id}-${item.club_type_id}`}>
-                  <TableCell>{item.class_name}</TableCell>
-                  <TableCell>{item.club_type_name}</TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatNumber(item.enrollment_count)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : null}
-    </div>
+      <div className="rounded-xl bg-card p-4 shadow-card">
+        {groups.length === 0 ? (
+          <p className="text-muted-foreground text-sm">{emptyLabel}</p>
+        ) : (
+          <figure aria-label={chartLabel} className="space-y-4">
+            <figcaption className="sr-only">{summary}</figcaption>
+            {groups.map((group) => (
+              <ul key={group.id} aria-label={group.name} className="space-y-2">
+                {group.items.map((item) => {
+                  const ratio = maxCount > 0 ? item.enrollment_count / maxCount : 0;
+                  return (
+                    <li
+                      key={`${item.club_type_id}-${item.class_id}`}
+                      data-club-type={group.name}
+                      className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_3rem]"
+                    >
+                      <span className="truncate text-muted-foreground">{item.class_name}</span>
+                      <span aria-hidden className="h-2 overflow-hidden rounded-full bg-muted">
+                        <span
+                          data-slot="formation-bar"
+                          className="block h-full rounded-full"
+                          style={{
+                            width: `${Math.max(ratio * 100, 1.5)}%`,
+                            backgroundColor: group.color,
+                          }}
+                        />
+                      </span>
+                      <span className="text-right font-medium tabular-nums">
+                        {formatCount(item.enrollment_count)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ))}
+          </figure>
+        )}
+      </div>
+    </section>
   );
 }

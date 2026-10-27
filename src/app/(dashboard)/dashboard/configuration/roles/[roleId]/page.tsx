@@ -1,9 +1,7 @@
-import Link from "next/link";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { redirect, notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -56,11 +54,6 @@ export default async function ConfigurationEditRolePage({ params }: EditRolePage
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard/configuration/roles" aria-label={t("backAriaLabel")}>
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
         <PageHeader
           title={
             role

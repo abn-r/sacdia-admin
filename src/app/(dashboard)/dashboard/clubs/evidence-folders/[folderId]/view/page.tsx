@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -37,21 +36,26 @@ export default async function ClubsEvidenceFolderViewPage({
       err instanceof ApiError ? err.message : t("loadError");
   }
 
+  const folderClub = folder?.club_enrollment?.club_section?.club?.name;
+  const folderSection =
+    folder?.club_enrollment?.club_section?.name ??
+    folder?.club_enrollment?.club_section?.club_type?.name;
+  const folderTitle =
+    folderClub && folderSection
+      ? `${folderClub} · ${folderSection}`
+      : (folderClub ?? t("titleDetail"));
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" asChild>
-          <Link href={clubsEvidenceFolderPath(folderId)}>
-            <ChevronLeft className="size-4" />
-            {t("titleDetail")}
-          </Link>
-        </Button>
-
-        <PageHeader
-          title={t("titleDetail")}
-          description={t("descriptionDetail")}
-        />
-      </div>
+      <PageHeader
+        title={folderTitle}
+        description={t("descriptionDetail")}
+        breadcrumbs={[
+          { label: t("titleList"), href: CLUBS_EVIDENCE_FOLDERS_BASE },
+          { label: folderTitle, href: clubsEvidenceFolderPath(folderId) },
+          { label: t("titleDetail") },
+        ]}
+      />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 

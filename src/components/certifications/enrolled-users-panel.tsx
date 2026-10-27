@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Users, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { UserProgressDialog } from "@/components/certifications/user-progress-dialog";
 import { apiRequestFromClient } from "@/lib/api/client";
 import { toast } from "sonner";
@@ -137,7 +137,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
               <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                 Completado
               </TableHead>
-              <TableHead className="h-9 w-12 px-3" />
+              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -166,7 +166,7 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full bg-primary transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
+                            className="h-full rounded-full bg-primary-solid transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
                             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                           />
                         </div>
@@ -186,16 +186,17 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
                     )}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      disabled={isLoading}
-                      onClick={() => handleViewProgress(enrollment)}
-                      title="Ver progreso detallado"
-                    >
-                      <BarChart3 className="size-4" />
-                      <span className="sr-only">Ver progreso</span>
-                    </Button>
+                    <RowActions
+                      label={displayName}
+                      actions={[
+                        {
+                          label: "Ver progreso",
+                          icon: BarChart3,
+                          disabled: isLoading,
+                          onSelect: () => handleViewProgress(enrollment),
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               );

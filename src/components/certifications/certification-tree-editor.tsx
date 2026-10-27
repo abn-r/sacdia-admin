@@ -596,7 +596,7 @@ export function CertificationTreeEditor({
                                   })
                                 }
                               >
-                                <SelectTrigger id={`component-type-${component._key}`}>
+                                <SelectTrigger id={`component-type-${component._key}`} className="w-full">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

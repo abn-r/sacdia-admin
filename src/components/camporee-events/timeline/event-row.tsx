@@ -13,7 +13,6 @@ import {
   Trophy,
   XCircle,
   Trash2,
-  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -227,7 +226,7 @@ export function EventRow({
         {/* Leader */}
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="size-7">
-            <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-bold">
+            <AvatarFallback className="text-[10px] bg-primary-solid text-primary-foreground font-bold">
               {initials(event.leaderName)}
             </AvatarFallback>
           </Avatar>
@@ -361,12 +360,12 @@ export function EventRow({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
             <Button
+              loading={isPending}
               variant="outline"
               onClick={handleConfirmCancel}
-              disabled={isPending}
               className="border-warning text-warning hover:bg-warning/10"
             >
-              {isPending ? <Loader2 className="size-4 animate-spin" /> : <XCircle className="size-4" />}
+              <XCircle className="size-4" />
               Confirmar cancelación
             </Button>
           </AlertDialogFooter>
@@ -388,11 +387,11 @@ export function EventRow({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
             <Button
+              loading={isPending}
               variant="destructive"
               onClick={handleConfirmDelete}
-              disabled={isPending}
             >
-              {isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+              <Trash2 className="size-4" />
               Eliminar
             </Button>
           </AlertDialogFooter>

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -242,19 +243,19 @@ export function MemberOfMonthSupervisionClient({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("tableColMember")}</TableHead>
                 <TableHead>{t("tableColSection")}</TableHead>
-                <TableHead>{t("tableColClubType")}</TableHead>
-                <TableHead>{t("tableColClub")}</TableHead>
-                <TableHead>{t("tableColLocalField")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColClubType")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColClub")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("tableColLocalField")}</TableHead>
                 <TableHead>{t("tableColPeriod")}</TableHead>
                 <TableHead className="text-right">{t("tableColPoints")}</TableHead>
                 <TableHead>{t("tableColNotified")}</TableHead>
-                <TableHead className="text-right">{t("tableColActions")}</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -279,9 +280,9 @@ export function MemberOfMonthSupervisionClient({
                     </div>
                   </TableCell>
                   <TableCell>{item.section_name ?? "—"}</TableCell>
-                  <TableCell>{item.club_type ?? "—"}</TableCell>
-                  <TableCell>{item.club_name ?? "—"}</TableCell>
-                  <TableCell>{item.local_field ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.club_name ?? "—"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
                   <TableCell className="capitalize">
                     {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
                   </TableCell>
@@ -292,23 +293,24 @@ export function MemberOfMonthSupervisionClient({
                     <NotifiedBadge notified={item.notified} />
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={item.club_id === null}
-                        onClick={() => {
-                          if (item.club_id === null) return;
-                          setDialogTarget({
-                            clubId: item.club_id,
-                            sectionId: item.club_section_id,
-                            sectionName: item.section_name ?? "sección",
-                          });
-                        }}
-                      >
-                        {t("reevaluateButton")}
-                      </Button>
-                    </div>
+                    <RowActions
+                      label={item.user_name ?? "—"}
+                      actions={[
+                        {
+                          label: t("reevaluateButton"),
+                          icon: RefreshCw,
+                          disabled: item.club_id === null,
+                          onSelect: () => {
+                            if (item.club_id === null) return;
+                            setDialogTarget({
+                              clubId: item.club_id,
+                              sectionId: item.club_section_id,
+                              sectionName: item.section_name ?? "sección",
+                            });
+                          },
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

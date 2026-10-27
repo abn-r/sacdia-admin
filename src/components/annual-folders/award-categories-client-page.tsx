@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Table,
@@ -357,7 +360,7 @@ export function AwardCategoriesClientPage({
                               Nombre
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">Tipo club</TableHead>
+                          <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">Tipo club</TableHead>
                           <TableHead
                             className="h-9 w-24 px-3 text-center"
                             aria-sort={sortField === "min_points" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -375,10 +378,10 @@ export function AwardCategoriesClientPage({
                             </SortableHeader>
                           </TableHead>
                           {/* 8.4-C composite % columns */}
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center xl:table-cell text-xs font-medium text-muted-foreground">
                             % Min
                           </TableHead>
-                          <TableHead className="hidden h-9 w-24 px-3 text-center lg:table-cell text-xs font-medium text-muted-foreground">
+                          <TableHead className="hidden h-9 w-24 px-3 text-center xl:table-cell text-xs font-medium text-muted-foreground">
                             % Max
                           </TableHead>
                           {/* 8.4-C Phase C tier column */}
@@ -393,7 +396,7 @@ export function AwardCategoriesClientPage({
                               Estado
                             </SortableHeader>
                           </TableHead>
-                          <TableHead className="h-9 w-20 px-3 text-right text-xs font-medium text-muted-foreground">Acciones</TableHead>
+                          <RowActionsHead className="h-9 px-3" />
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -424,7 +427,7 @@ export function AwardCategoriesClientPage({
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="hidden xl:table-cell text-sm text-muted-foreground">
                               {clubTypeLabel(cat.club_type_id, clubTypes)}
                             </TableCell>
                             <TableCell className="text-center text-sm">
@@ -440,10 +443,10 @@ export function AwardCategoriesClientPage({
                               )}
                             </TableCell>
                             {/* 8.4-C composite % cells */}
-                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            <TableCell className="hidden text-center text-sm text-muted-foreground xl:table-cell">
                               {formatPct(cat.min_composite_pct)}
                             </TableCell>
-                            <TableCell className="hidden text-center text-sm text-muted-foreground lg:table-cell">
+                            <TableCell className="hidden text-center text-sm text-muted-foreground xl:table-cell">
                               {formatPct(cat.max_composite_pct)}
                             </TableCell>
                             {/* 8.4-C Phase C tier cell */}
@@ -460,36 +463,26 @@ export function AwardCategoriesClientPage({
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge
-                                variant={cat.active ? "success" : "secondary"}
-                                className="text-xs"
-                              >
-                                {cat.active ? "Activa" : "Inactiva"}
-                              </Badge>
+                              <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? "Activa" : "Inactiva"} size="sm" />
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  onClick={() => handleEdit(cat)}
-                                  title={t("awardCategoriesClient.editCategoryTitle")}
-                                  disabled={cat.is_legacy}
-                                >
-                                  <Pencil className="size-3.5" />
-                                  <span className="sr-only">Editar</span>
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  onClick={() => handleDelete(cat)}
-                                  title={t("awardCategoriesClient.deleteCategoryTitle")}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="size-3.5" />
-                                  <span className="sr-only">Eliminar</span>
-                                </Button>
-                              </div>
+                              <RowActions
+                                label={cat.name}
+                                actions={[
+                                  {
+                                    label: "Editar",
+                                    icon: Pencil,
+                                    onSelect: () => handleEdit(cat),
+                                    disabled: cat.is_legacy,
+                                  },
+                                  {
+                                    label: "Eliminar…",
+                                    icon: Trash2,
+                                    destructive: true,
+                                    onSelect: () => handleDelete(cat),
+                                  },
+                                ]}
+                              />
                             </TableCell>
                           </TableRow>
                         ))}
@@ -550,12 +543,7 @@ export function AwardCategoriesClientPage({
                           </div>
 
                           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                            <Badge
-                              variant={cat.active ? "success" : "secondary"}
-                              className="text-xs"
-                            >
-                              {cat.active ? "Activa" : "Inactiva"}
-                            </Badge>
+                            <StatusBadge intent={flagStatusIntent(cat.active)} label={cat.active ? "Activa" : "Inactiva"} size="sm" />
                             {cat.tier !== null && (
                               <Badge
                                 variant={TIER_BADGE_VARIANT[cat.tier]}
@@ -636,7 +624,7 @@ export function AwardCategoriesClientPage({
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              variant="destructive-solid"
             >
               {isDeleting
                 ? t("dialogs.deleteCategory.confirmLoading")

@@ -1221,6 +1221,7 @@ export interface IntlMessages {
       brand_description: string;
       version_label: string;
       region_label: string;
+      session_refresh_unavailable: string;
     };
     validation: {
       email_invalid: string;
@@ -1322,6 +1323,8 @@ export interface IntlMessages {
     };
     create: {
       cardTitle: string;
+      cancel: string;
+      stepIncomplete: string;
       submitButton: string;
       placeholderName: string;
       placeholderDescription: string;
@@ -1689,6 +1692,7 @@ export interface IntlMessages {
       };
       new: {
         title: string;
+        description: string;
         back: string;
       };
       v2: {
@@ -1821,13 +1825,25 @@ export interface IntlMessages {
       home: {
         title: string;
         description: string;
-        honorsAction: string;
-        activitiesAction: string;
-        summary: {
-          childrenReported: string;
-          sectionsReported: string;
-          noClosedMonth: string;
-          nonOperationalClubs: string;
+        kpis: {
+          label: string;
+          reports: {
+            label: string;
+            caption: string;
+          };
+          clubs: {
+            label: string;
+            total: string;
+            caption: string;
+          };
+          people: {
+            label: string;
+            caption: string;
+          };
+          enrollments: {
+            label: string;
+            caption: string;
+          };
         };
         gapTable: {
           title: string;
@@ -1835,62 +1851,33 @@ export interface IntlMessages {
           columns: {
             name: string;
             reports: string;
-            nonOperational: string;
-            pending: string;
+            operational: string;
           };
-          missingCount: string;
           emptyTitle: string;
-          emptyDescription: string;
         };
-        pendingTitle: string;
-        review: string;
-        dispatchTitle: string;
-        dispatchEmptyTitle: string;
-        dispatchEmptyDescription: string;
-        laggingTitle: string;
-        lagReason: {
-          missingReport: string;
-          nonOperational: string;
+        stats: {
+          label: string;
+          activities: string;
+          honorsPending: string;
+          honorsApproved: string;
         };
-        periodContextTitle: string;
       };
       attention: {
         title: string;
-        description: string;
         roleAssignments: string;
         transfers: string;
         classValidations: string;
         honorsReview: string;
         annualFolders: string;
+        total: string;
+        empty: string;
       };
       formation: {
         title: string;
-        description: string;
         chartAriaLabel: string;
-        chartSeries: string;
-        tableTitle: string;
-        tableClass: string;
-        tableClubType: string;
-        tableEnrollments: string;
+        summary: string;
+        legendLabel: string;
         emptyTitle: string;
-        emptyDescription: string;
-      };
-      honors: {
-        title: string;
-        inProgress: string;
-        pendingReview: string;
-        approved: string;
-        attribution: {
-          current_affiliation: string;
-          unavailable: string;
-        };
-      };
-      activities: {
-        title: string;
-        description: string;
-        registered: string;
-        jointRegistered: string;
-        participatingSections: string;
       };
       dataQuality: {
         title: string;
@@ -3364,6 +3351,13 @@ export interface IntlMessages {
       backToEvents: string;
       descriptionPlaceholder: string;
       capacityPlaceholder: string;
+      stepIncomplete: string;
+      steps: {
+        general: string;
+        schedule: string;
+        leader: string;
+        scoring: string;
+      };
     };
     unionList: {
       countSingular: string;
@@ -3573,6 +3567,12 @@ export interface IntlMessages {
       enroll: string;
     };
     paymentDialog: {
+      descriptionCreate: string;
+      descriptionEdit: string;
+      steps: {
+        details: string;
+        voucher: string;
+      };
       titleCreate: string;
       titleEdit: string;
       labelMember: string;
@@ -3619,6 +3619,8 @@ export interface IntlMessages {
       errorRemoveFailed: string;
       toastUploaded: string;
       toastRemoved: string;
+      savedPendingVoucher: string;
+      retryUpload: string;
     };
     registerMemberDialog: {
       title: string;
@@ -4138,6 +4140,10 @@ export interface IntlMessages {
         title: string;
         description: string;
         breadcrumb: string;
+        steps: {
+          person: string;
+          access: string;
+        };
         fields: {
           name: string;
           paternal_last_name: string;
@@ -4749,6 +4755,10 @@ export interface IntlMessages {
       emptyDescription: string;
     };
     budgetConfigForm: {
+      steps: {
+        scope: string;
+        sections: string;
+      };
       sectionsAllocationLabel: string;
     };
     budgetSectionCard: {
@@ -6373,6 +6383,18 @@ export interface IntlMessages {
     };
   };
   shared: {
+    notFound: {
+      title: string;
+      description: string;
+      backHome: string;
+    };
+    formModal: {
+      close: string;
+      stepOf: string;
+      back: string;
+      continue: string;
+      stepIncomplete: string;
+    };
     errors: {
       unexpected: string;
       dashboardTitle: string;
@@ -6419,7 +6441,11 @@ export interface IntlMessages {
     uiPrimitives: {
       close: string;
       more: string;
+      rowActions: string;
+      rowActionsColumn: string;
       toggleSidebar: string;
+      sidebarTitle: string;
+      sidebarDescription: string;
     };
   };
   translations: {
@@ -7760,6 +7786,7 @@ export interface IntlMessages {
       deleteConfirmTitle: string;
       deleteConfirmDesc: string;
       backToList: string;
+      stepIncomplete: string;
       loadError: string;
       filterScope: string;
       filterEventType: string;

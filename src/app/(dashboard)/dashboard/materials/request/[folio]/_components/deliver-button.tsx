@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Truck, Loader2 } from "lucide-react";
+import { Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deliverOrder } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
@@ -37,15 +37,14 @@ export function DeliverButton({ folio, fullWidth = false }: DeliverButtonProps) 
 
   return (
     <Button
+      loading={isPending}
       variant="default"
       size="sm"
-      disabled={isPending}
       onClick={handleDeliver}
       className={fullWidth ? "w-full" : undefined}
     >
       {isPending ? (
         <>
-          <Loader2 className="size-4 animate-spin" />
           Registrando…
         </>
       ) : (

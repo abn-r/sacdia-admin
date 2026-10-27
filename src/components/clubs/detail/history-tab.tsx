@@ -186,12 +186,11 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
       {nextCursor ? (
         <div className="flex justify-center pt-2">
           <Button
+            loading={loadingMore}
             variant="outline"
             size="sm"
-            disabled={loadingMore}
             onClick={() => void loadPage(nextCursor, true)}
           >
-            {loadingMore ? <Loader2 className="size-4 animate-spin" /> : null}
             {t("loadMore")}
           </Button>
         </div>

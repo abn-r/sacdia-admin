@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { UserPlus } from "lucide-react";
+import { Power, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import {
   Card,
   CardContent,
@@ -416,7 +417,7 @@ export function CoordinationAssignmentsPanel({
                 <TableHead>{t("fields.type")}</TableHead>
                 <TableHead>{t("fields.scope")}</TableHead>
                 <TableHead>{t("fields.status")}</TableHead>
-                <TableHead className="text-right">{t("fields.actions")}</TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -453,16 +454,22 @@ export function CoordinationAssignmentsPanel({
                     />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={pendingId === assignment.assignment_id}
-                      onClick={() => handleToggle(assignment)}
-                    >
-                      {assignment.active
-                        ? t("actions.deactivate")
-                        : t("actions.activate")}
-                    </Button>
+                    <RowActions
+                      label={
+                        formatCoordinatorName(assignment.users) ||
+                        String(assignment.user_id)
+                      }
+                      actions={[
+                        {
+                          label: assignment.active
+                            ? t("actions.deactivate")
+                            : t("actions.activate"),
+                          icon: Power,
+                          onSelect: () => handleToggle(assignment),
+                          disabled: pendingId === assignment.assignment_id,
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

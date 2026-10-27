@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -476,9 +477,7 @@ export function EventJudgeAssignmentsPanel({
                 <TableHead className="text-right tabular-nums">{t("colCovered")}</TableHead>
                 <TableHead className="text-right tabular-nums">{t("colPending")}</TableHead>
                 <TableHead>{t("colPrimaryJudges")}</TableHead>
-                <TableHead className="w-[1%] whitespace-nowrap text-right">
-                  <span className="sr-only">{t("colActions")}</span>
-                </TableHead>
+                <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -541,20 +540,17 @@ export function EventJudgeAssignmentsPanel({
                         {judgesLabel}
                       </p>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="gap-1"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          openEvent(summary.event.camporee_event_id);
-                        }}
-                      >
-                        {t("openEvent")}
-                        <ChevronRight className="size-4" aria-hidden />
-                      </Button>
+                    <TableCell onClick={(event) => event.stopPropagation()}>
+                      <RowActions
+                        label={summary.event.title}
+                        actions={[
+                          {
+                            label: t("openEvent"),
+                            icon: ChevronRight,
+                            onSelect: () => openEvent(summary.event.camporee_event_id),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 );

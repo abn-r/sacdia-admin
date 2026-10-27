@@ -40,8 +40,8 @@ function ModuleNode({ mod, defaultOpen = false }: ModuleNodeProps) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/30"
         onClick={() => setOpen((prev) => !prev)}
       >
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <BookOpen className="size-4 text-primary" />
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <BookOpen className="size-4 text-foreground" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{mod.title}</p>

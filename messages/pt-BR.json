@@ -497,11 +497,11 @@
     },
     "success": {
       "op_create_title": "Registro criado",
-      "op_create_description": "O registro foi criado com sucesso.",
+      "op_create_description": "O registro foi criado.",
       "op_update_title": "Registro atualizado",
-      "op_update_description": "O registro foi atualizado com sucesso.",
+      "op_update_description": "O registro foi atualizado.",
       "op_delete_title": "Registro excluído",
-      "op_delete_description": "O registro foi excluído com sucesso."
+      "op_delete_description": "O registro foi excluído."
     },
     "crudPage": {
       "readOnly": "Somente leitura",
@@ -1180,7 +1180,7 @@
       "welcome_title": "Bem-vindo de volta",
       "welcome_description": "Insira suas credenciais para acessar o painel do seu clube.",
       "email_label": "E-mail",
-      "email_placeholder": "admin@sacdia.org",
+      "email_placeholder": "correo@sacdia.com",
       "password_label": "Senha",
       "submit_idle": "Entrar",
       "submit_loading": "Verificando…",
@@ -1191,7 +1191,8 @@
       "verse_text": "“Tudo posso naquele que me fortalece.”",
       "brand_description": "Plataforma para clubes de Aventureiros, Desbravadores e Guias Mestres. Inscrições, classes, especialidades e finanças em um só lugar.",
       "version_label": "v1.0 · 2026",
-      "region_label": "Associação Norte · Pacífico"
+      "region_label": "Associação Norte · Pacífico",
+      "session_refresh_unavailable": "Não foi possível renovar sua sessão porque o servidor não respondeu. Entre novamente ou tente em alguns minutos."
     },
     "validation": {
       "email_invalid": "Insira um e-mail válido",
@@ -1255,15 +1256,15 @@
       "no_catalog_types": "Não há tipos de clube ativos no catálogo."
     },
     "success": {
-      "section_created": "Seção criada com sucesso",
+      "section_created": "Seção criada",
       "section_created_short": "Seção criada",
-      "section_updated": "Seção atualizada com sucesso",
-      "assignment_created": "Atribuição criada com sucesso",
-      "class_assignment_created": "Classe atribuída com sucesso",
-      "class_assignment_updated": "Atribuição de classe atualizada com sucesso",
-      "class_assignment_revoked": "Atribuição de classe revogada com sucesso",
-      "assignment_removed": "Atribuição removida com sucesso",
-      "role_updated": "Papel atualizado com sucesso",
+      "section_updated": "Seção atualizada",
+      "assignment_created": "Atribuição criada",
+      "class_assignment_created": "Classe atribuída",
+      "class_assignment_updated": "Atribuição de classe atualizada",
+      "class_assignment_revoked": "Atribuição de classe revogada",
+      "assignment_removed": "Atribuição removida",
+      "role_updated": "Papel atualizado",
       "retry_failed_sections": "Você pode continuar no detalhe do clube e tentar novamente as seções que falharam",
       "section_toggled": "Status da seção atualizado."
     },
@@ -1293,6 +1294,8 @@
     },
     "create": {
       "cardTitle": "Dados do clube",
+      "cancel": "Cancelar",
+      "stepIncomplete": "Preencha os campos obrigatórios para continuar.",
       "submitButton": "Criar clube",
       "placeholderName": "Nome do clube",
       "placeholderDescription": "Descrição opcional",
@@ -1572,7 +1575,7 @@
       },
       "actions": {
         "missingFields": "Preencha todos os campos obrigatórios.",
-        "roleAssigned": "Função atribuída com sucesso.",
+        "roleAssigned": "Função atribuída.",
         "roleAssignFailed": "Não foi possível atribuir a função.",
         "roleRevoked": "Função removida.",
         "roleRevokeFailed": "Não foi possível remover a função.",
@@ -1580,7 +1583,7 @@
         "counselorAssignFailed": "Não foi possível atribuir o conselheiro.",
         "counselorRevoked": "Conselheiro removido.",
         "counselorRevokeFailed": "Não foi possível remover o conselheiro.",
-        "sectionCreated": "Seção habilitada com sucesso.",
+        "sectionCreated": "Seção habilitada.",
         "sectionCreateFailed": "Não foi possível habilitar a seção.",
         "invalidClubType": "Tipo de clube inválido.",
         "invalidSoulsTarget": "A meta de almas deve ser um inteiro não negativo.",
@@ -1660,6 +1663,7 @@
       },
       "new": {
         "title": "Criar clube",
+        "description": "Cadastre um clube e escolha suas seções.",
         "back": "Voltar"
       },
       "v2": {
@@ -1792,13 +1796,25 @@
       "home": {
         "title": "Início",
         "description": "O que precisa de atenção no seu escopo.",
-        "honorsAction": "Revisar especialidades",
-        "activitiesAction": "Ver atividades",
-        "summary": {
-          "childrenReported": "{reported, number} de {total, number} {level, select, division {divisões} union {uniões} local_field {campos locais} other {clubes}} entregaram o relatório do mês.",
-          "sectionsReported": "{submitted, number} de {expected, number} seções entregaram o relatório do mês.",
-          "noClosedMonth": "Ainda não há um mês fechado para medir os relatórios.",
-          "nonOperationalClubs": "{count, plural, one {# clube não operacional.} other {# clubes não operacionais.}}"
+        "kpis": {
+          "label": "Indicadores do escopo",
+          "reports": {
+            "label": "Relatórios do mês",
+            "caption": "{submitted, number} de {expected, number} seções"
+          },
+          "clubs": {
+            "label": "Clubes operacionais",
+            "total": "/ {total, number}",
+            "caption": "{count, plural, =0 {Todos com atividade neste mês} one {# sem atividade neste mês} other {# sem atividade neste mês}}"
+          },
+          "people": {
+            "label": "Pessoas ativas",
+            "caption": "{count, number} com conta no app"
+          },
+          "enrollments": {
+            "label": "Inscrições em classes",
+            "caption": "{count, plural, one {# pessoa distinta} other {# pessoas distintas}}"
+          }
         },
         "gapTable": {
           "title": "{level, select, division {Divisões} union {Uniões} local_field {Campos locais} other {Clubes}}",
@@ -1806,62 +1822,33 @@
           "columns": {
             "name": "Nome",
             "reports": "Relatórios",
-            "nonOperational": "Não operacionais",
-            "pending": "Pendentes"
+            "operational": "Operacionais"
           },
-          "missingCount": "{count, plural, one {falta #} other {faltam #}}",
-          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}",
-          "emptyDescription": "Ainda não há registros neste nível."
+          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}"
         },
-        "pendingTitle": "Pendentes",
-        "review": "Revisar",
-        "dispatchTitle": "Para atender",
-        "dispatchEmptyTitle": "Nada pendente no seu escopo",
-        "dispatchEmptyDescription": "Novas solicitações e validações aparecem aqui.",
-        "laggingTitle": "Clubes atrasados",
-        "lagReason": {
-          "missingReport": "Sem relatório do mês",
-          "nonOperational": "Não operacional"
-        },
-        "periodContextTitle": "Contexto do período"
+        "stats": {
+          "label": "Outros indicadores do período",
+          "activities": "Atividades registradas",
+          "honorsPending": "Especialidades em revisão",
+          "honorsApproved": "Especialidades aprovadas"
+        }
       },
       "attention": {
         "title": "Requer atenção",
-        "description": "Filas operacionais sem total agregado.",
         "roleAssignments": "Atribuições pendentes",
         "transfers": "Transferências pendentes",
         "classValidations": "Validações de classe",
         "honorsReview": "Revisões de especialidades",
-        "annualFolders": "Pastas pendentes da União"
+        "annualFolders": "Pastas pendentes da União",
+        "total": "{count, plural, one {# pendente} other {# pendentes}}",
+        "empty": "Tudo em dia"
       },
       "formation": {
-        "title": "Formação",
-        "description": "{enrollments} matrículas · {people} pessoas distintas",
-        "chartAriaLabel": "Matrículas por classe e tipo de clube",
-        "chartSeries": "Matrículas",
-        "tableTitle": "Detalhe tabular equivalente",
-        "tableClass": "Classe",
-        "tableClubType": "Tipo de clube",
-        "tableEnrollments": "Matrículas",
-        "emptyTitle": "Sem matrículas registradas",
-        "emptyDescription": "Não há matrículas por classe no escopo atual."
-      },
-      "honors": {
-        "title": "Especialidades",
-        "inProgress": "Em progresso",
-        "pendingReview": "Em revisão",
-        "approved": "Aprovadas",
-        "attribution": {
-          "current_affiliation": "Atribuição por afiliação atual",
-          "unavailable": "Indisponível para o ano selecionado"
-        }
-      },
-      "activities": {
-        "title": "Atividades",
-        "description": "Atividades registradas; não implica execução nem participação.",
-        "registered": "Registradas",
-        "jointRegistered": "Conjuntas registradas",
-        "participatingSections": "Seções participantes"
+        "title": "Formação por classe",
+        "chartAriaLabel": "Inscrições por classe e tipo de clube",
+        "summary": "{enrollments, number} inscrições de {people, number} pessoas em {classes, number} classes.",
+        "legendLabel": "Tipos de clube",
+        "emptyTitle": "Sem inscrições em classes neste escopo"
       },
       "dataQuality": {
         "title": "Qualidade dos dados",
@@ -1920,7 +1907,7 @@
     "success": {
       "user_approved_title": "Usuário aprovado",
       "user_rejected_title": "Usuário rejeitado",
-      "decision_recorded": "A decisão foi registrada com sucesso."
+      "decision_recorded": "A decisão foi registrada."
     }
   },
   "notifications": {
@@ -1939,9 +1926,9 @@
       "instance_id_invalid": "A seção selecionada é inválida"
     },
     "success": {
-      "sent": "Notificação enviada com sucesso",
-      "broadcast_sent": "Broadcast enviado com sucesso",
-      "club_sent": "Notificação do clube enviada com sucesso"
+      "sent": "Notificação enviada",
+      "broadcast_sent": "Broadcast enviado",
+      "club_sent": "Notificação do clube enviada"
     },
     "forms": {
       "direct_title": "Envio direto",
@@ -2242,14 +2229,14 @@
       "uuid_invalid": "Selecione um usuário válido."
     },
     "success": {
-      "permissions_updated": "Permissões atualizadas com sucesso"
+      "permissions_updated": "Permissões atualizadas"
     },
     "toasts": {
-      "role_assigned": "Papel atribuído com sucesso.",
-      "role_removed": "Papel removido com sucesso.",
-      "permission_assigned": "Permissão atribuída com sucesso.",
-      "permission_removed": "Permissão removida com sucesso.",
-      "role_deactivated": "Papel \"{name}\" desativado com sucesso."
+      "role_assigned": "Papel atribuído.",
+      "role_removed": "Papel removido.",
+      "permission_assigned": "Permissão atribuída.",
+      "permission_removed": "Permissão removida.",
+      "role_deactivated": "Papel \"{name}\" desativado."
     },
     "roleForm": {
       "generalInfo": "Informações gerais",
@@ -2834,7 +2821,7 @@
       "tierLabel": "Nível:",
       "noImageLabel": "Sem imagem",
       "removeAriaLabel": "Remover imagem",
-      "toastSuccess": "Imagem da conquista atualizada com sucesso.",
+      "toastSuccess": "Imagem da conquista atualizada.",
       "toastError": "Não foi possível enviar a imagem. Tente novamente.",
       "toastSaveFirst": "Salve a conquista primeiro para poder enviar a imagem.",
       "validateTypeError": "Apenas imagens PNG ou WebP são permitidas.",
@@ -3089,13 +3076,13 @@
     "toasts": {
       "payment_updated": "Pagamento atualizado",
       "payment_created": "Pagamento registrado",
-      "camporee_deleted": "Campori excluído com sucesso",
-      "union_camporee_updated": "Campori de união atualizado com sucesso",
-      "union_camporee_created": "Campori de união criado com sucesso",
-      "union_camporee_deleted": "Campori de união excluído com sucesso",
+      "camporee_deleted": "Campori excluído",
+      "union_camporee_updated": "Campori de união atualizado",
+      "union_camporee_created": "Campori de união criado",
+      "union_camporee_deleted": "Campori de união excluído",
       "member_registered": "Membro registrado no campori",
-      "camporee_updated": "Campori atualizado com sucesso",
-      "camporee_created": "Campori criado com sucesso",
+      "camporee_updated": "Campori atualizado",
+      "camporee_created": "Campori criado",
       "club_enrolled": "Clube inscrito no campori"
     },
     "errors": {
@@ -3334,7 +3321,14 @@
       "descriptionEdit": "Atualize os dados do evento. As alterações aparecerão na agenda do campori.",
       "backToEvents": "Voltar aos eventos",
       "descriptionPlaceholder": "Breve descrição do evento para os participantes",
-      "capacityPlaceholder": "Sem limite"
+      "capacityPlaceholder": "Sem limite",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa para continuar.",
+      "steps": {
+        "general": "Dados gerais",
+        "schedule": "Horário e local",
+        "leader": "Responsável e preparação",
+        "scoring": "Pontos e status"
+      }
     },
     "unionList": {
       "countSingular": "campori",
@@ -3544,6 +3538,12 @@
       "enroll": "Inscrever clube"
     },
     "paymentDialog": {
+      "descriptionCreate": "Registre o pagamento de um membro inscrito e anexe o comprovante.",
+      "descriptionEdit": "Atualize os dados do pagamento e o comprovante.",
+      "steps": {
+        "details": "Dados do pagamento",
+        "voucher": "Comprovante"
+      },
       "titleCreate": "Registrar pagamento",
       "titleEdit": "Editar pagamento",
       "labelMember": "Membro",
@@ -3589,7 +3589,9 @@
       "errorUploadFailed": "Não foi possível enviar o comprovante.",
       "errorRemoveFailed": "Não foi possível remover o comprovante.",
       "toastUploaded": "Comprovante enviado",
-      "toastRemoved": "Comprovante removido"
+      "toastRemoved": "Comprovante removido",
+      "savedPendingVoucher": "O pagamento já foi registrado; falta apenas o comprovante. Tente enviar novamente.",
+      "retryUpload": "Tentar envio novamente"
     },
     "registerMemberDialog": {
       "title": "Registrar membro",
@@ -3686,8 +3688,8 @@
       "local_field": "Campo local"
     },
     "success": {
-      "member_registered": "Membro registrado com sucesso",
-      "member_removed": "Membro removido com sucesso"
+      "member_registered": "Membro registrado",
+      "member_removed": "Membro removido"
     }
   },
   "resources": {
@@ -3782,7 +3784,7 @@
       "toasts": {
         "verb_approved": "aprovadas",
         "verb_rejected": "rejeitadas",
-        "succeeded_count": "{count} {verb} com sucesso",
+        "succeeded_count": "{count} {verb}",
         "failed_count": "{count} falharam"
       },
       "errors": {
@@ -3795,7 +3797,7 @@
       }
     },
     "toasts": {
-      "evidence_approved": "Evidência aprovada com sucesso",
+      "evidence_approved": "Evidência aprovada",
       "evidence_rejected": "Evidência rejeitada"
     },
     "errors": {
@@ -3888,15 +3890,15 @@
   },
   "users": {
     "toasts": {
-      "access_updated": "Acesso atualizado com sucesso.",
+      "access_updated": "Acesso atualizado.",
       "access_update_failed": "Não foi possível atualizar o acesso. Tente novamente.",
       "approval_updated": "Status de aprovação atualizado.",
       "approval_update_failed": "Não foi possível atualizar a aprovação. Tente novamente.",
-      "mfa_reset": "MFA redefinido com sucesso",
+      "mfa_reset": "MFA redefinido",
       "mfa_reset_failed": "Não foi possível redefinir o MFA",
       "mfa_disabled": "MFA desativado",
       "mfa_disable_failed": "Não foi possível desativar o MFA",
-      "session_revoked": "Sessão revogada com sucesso.",
+      "session_revoked": "Sessão revogada.",
       "session_revoke_failed": "Não foi possível revogar a sessão. Tente novamente.",
       "all_sessions_revoked": "Todas as sessões foram revogadas.",
       "all_sessions_revoke_failed": "Não foi possível revogar as sessões. Tente novamente."
@@ -4109,6 +4111,7 @@
         "title": "Adicionar usuário",
         "description": "Criar um novo usuário e enviar um convite por e-mail.",
         "breadcrumb": "Adicionar usuário",
+        "steps": {"person": "Pessoa", "access": "Função e localização"},
         "fields": {
           "name": "Nome",
           "paternal_last_name": "Sobrenome paterno",
@@ -4412,7 +4415,7 @@
           "internalError": "Erro interno"
         },
         "toast": {
-          "success": "Todos os usuários foram criados com sucesso.",
+          "success": "Todos os usuários foram criados.",
           "partialSuccess": "Envio concluído com alguns erros. Revise os resultados.",
           "allFailed": "Nenhum usuário pôde ser criado. Verifique os dados do arquivo.",
           "fileTooLarge": "Arquivo muito grande (máx. 5 MB).",
@@ -4426,25 +4429,25 @@
   },
   "annual_folders": {
     "toasts": {
-      "section_deleted": "Seção excluída com sucesso",
-      "section_evaluated": "Seção avaliada com sucesso",
+      "section_deleted": "Seção excluída",
+      "section_evaluated": "Seção avaliada",
       "file_required": "Selecione um arquivo para enviar",
-      "evidence_uploaded": "Evidência enviada com sucesso",
+      "evidence_uploaded": "Evidência enviada",
       "rankings_recalculated": "Classificações recalculados: {count} clubes atualizados",
-      "section_updated": "Seção atualizada com sucesso",
-      "section_created": "Seção criada com sucesso",
-      "category_deleted": "Categoria excluída com sucesso",
-      "evidence_deleted": "Evidência excluída com sucesso",
+      "section_updated": "Seção atualizada",
+      "section_created": "Seção criada",
+      "category_deleted": "Categoria excluída",
+      "evidence_deleted": "Evidência excluída",
       "folder_submitted": "Pasta enviada para revisão",
-      "folder_closed": "Pasta fechada com sucesso",
-      "section_reopened": "Seção reaberta com sucesso",
-      "category_updated": "Categoria atualizada com sucesso",
-      "category_created": "Categoria criada com sucesso",
-      "template_updated": "Modelo atualizado com sucesso",
-      "template_created": "Modelo criado com sucesso",
+      "folder_closed": "Pasta fechada",
+      "section_reopened": "Seção reaberta",
+      "category_updated": "Categoria atualizada",
+      "category_created": "Categoria criada",
+      "template_updated": "Modelo atualizado",
+      "template_created": "Modelo criado",
       "owner_catalogs_load_failed": "Não foi possível carregar os catálogos do proprietário",
       "section_submitted": "Seção enviada para revisão",
-      "folder_created": "Pasta anual criada com sucesso"
+      "folder_created": "Pasta anual criada"
     },
     "errors": {
       "recalculate_rankings": "Erro ao recalcular os classificações",
@@ -4720,6 +4723,10 @@
       "emptyDescription": "Crie a primeira configuração para definir como os pontos anuais são distribuídos."
     },
     "budgetConfigForm": {
+      "steps": {
+        "scope": "Escopo e total",
+        "sections": "Seções"
+      },
       "sectionsAllocationLabel": "Distribuição entre seções"
     },
     "budgetSectionCard": {
@@ -4814,9 +4821,9 @@
   },
   "folders": {
     "toasts": {
-      "deleted": "Pasta excluída com sucesso",
-      "updated": "Pasta atualizada com sucesso",
-      "created": "Pasta criada com sucesso"
+      "deleted": "Pasta excluída",
+      "updated": "Pasta atualizada",
+      "created": "Pasta criada"
     },
     "statusBadge": {
       "active": "Ativa",
@@ -5066,9 +5073,9 @@
   },
   "reports": {
     "toasts": {
-      "manual_data_saved": "Dados manuais salvos com sucesso.",
-      "report_generated": "Relatório gerado com sucesso. Os dados foram congelados.",
-      "report_sent": "Relatório enviado ao campo com sucesso.",
+      "manual_data_saved": "Dados manuais salvos.",
+      "report_generated": "Relatório gerado. Os dados foram congelados.",
+      "report_sent": "Relatório enviado ao campo.",
       "data_updated": "Dados atualizados."
     },
     "errors": {
@@ -5364,9 +5371,9 @@
   },
   "insurance": {
     "toasts": {
-      "updated": "Seguro atualizado com sucesso",
-      "created": "Seguro registrado com sucesso",
-      "deactivated": "Seguro desativado com sucesso"
+      "updated": "Seguro atualizado",
+      "created": "Seguro registrado",
+      "deactivated": "Seguro desativado"
     },
     "errors": {
       "save_failed": "Erro ao salvar o seguro",
@@ -5475,9 +5482,9 @@
   "finances": {
     "toasts": {
       "categories_load_failed": "Não foi possível carregar as categorias",
-      "transaction_updated": "Movimento atualizado com sucesso",
-      "transaction_created": "Movimento criado com sucesso",
-      "transaction_deleted": "Movimento excluído com sucesso",
+      "transaction_updated": "Movimento atualizado",
+      "transaction_created": "Movimento criado",
+      "transaction_deleted": "Movimento excluído",
       "evidence_upload_failed": "Não foi possível enviar as evidências"
     },
     "validation": {
@@ -5872,9 +5879,9 @@
   },
   "activities": {
     "toasts": {
-      "updated": "Atividade atualizada com sucesso",
-      "created": "Atividade criada com sucesso",
-      "deleted": "Atividade excluída com sucesso"
+      "updated": "Atividade atualizada",
+      "created": "Atividade criada",
+      "deleted": "Atividade excluída"
     },
     "series": {
       "toggle": "Repetir esta atividade",
@@ -6076,7 +6083,7 @@
   },
   "year_end": {
     "toasts": {
-      "year_closed": "Ano eclesiástico encerrado com sucesso"
+      "year_closed": "Ano eclesiástico encerrado"
     },
     "errors": {
       "preview_failed": "Não foi possível obter a pré-visualização.",
@@ -6108,9 +6115,9 @@
   },
   "inventory": {
     "toasts": {
-      "item_deleted": "Item excluído com sucesso",
-      "item_updated": "Item atualizado com sucesso",
-      "item_created": "Item criado com sucesso"
+      "item_deleted": "Item excluído",
+      "item_updated": "Item atualizado",
+      "item_created": "Item criado"
     },
     "errors": {
       "delete_failed": "Não foi possível excluir o item",
@@ -6252,10 +6259,10 @@
       "deactivate_unit_failed": "Não foi possível desativar a unidade"
     },
     "toasts": {
-      "member_added": "Membro adicionado com sucesso",
+      "member_added": "Membro adicionado",
       "member_removed": "Membro removido da unidade",
       "weekly_record_created": "Registro semanal criado",
-      "unit_deactivated": "Unidade desativada com sucesso"
+      "unit_deactivated": "Unidade desativada"
     },
     "memberCombobox": {
       "searchPlaceholder": "Buscar por nome...",
@@ -6344,6 +6351,18 @@
     }
   },
   "shared": {
+    "notFound": {
+      "title": "Não encontramos esta página",
+      "description": "O endereço não existe ou não está mais disponível.",
+      "backHome": "Ir para o início"
+    },
+    "formModal": {
+      "close": "Fechar",
+      "stepOf": "Etapa {current} de {total}",
+      "back": "Voltar",
+      "continue": "Continuar",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa."
+    },
     "errors": {
       "unexpected": "Erro inesperado",
       "dashboardTitle": "Algo deu errado",
@@ -6390,7 +6409,11 @@
     "uiPrimitives": {
       "close": "Fechar",
       "more": "Mais",
-      "toggleSidebar": "Alternar barra lateral"
+      "rowActions": "Ações de {name}",
+      "rowActionsColumn": "Ações",
+      "toggleSidebar": "Alternar barra lateral",
+      "sidebarTitle": "Menu",
+      "sidebarDescription": "Navegação principal do painel."
     }
   },
   "translations": {
@@ -7316,7 +7339,7 @@
       "retryDialogCancel": "Cancelar",
       "retryDialogConfirm": "Tentar novamente",
       "retrySuccess": "Job reenfileirado",
-      "retrySuccessDescription": "O job \"{name}\" foi reenfileirado com sucesso.",
+      "retrySuccessDescription": "O job \"{name}\" foi reenfileirado.",
       "retryErrorTitle": "Erro ao tentar novamente",
       "retryErrorFallback": "Erro desconhecido ao tentar novamente o job.",
       "queueNotifications": "Notificações",
@@ -7716,6 +7739,7 @@
       "deleteConfirmTitle": "Excluir modelo?",
       "deleteConfirmDesc": "O modelo \"{name}\" será excluído. As instâncias existentes não serão afetadas.",
       "backToList": "Voltar aos modelos",
+      "stepIncomplete": "Preencha os campos obrigatórios desta etapa para continuar.",
       "loadError": "Não foi possível carregar os modelos de evento.",
       "filterScope": "Escopo",
       "filterEventType": "Tipo de evento",
@@ -7831,7 +7855,7 @@
         "clabePlaceholder": "18 dígitos",
         "clabeHelp": "A CLABE deve ter exatamente 18 dígitos numéricos.",
         "save": "Salvar alterações",
-        "saveSuccess": "Métodos de pagamento atualizados com sucesso.",
+        "saveSuccess": "Métodos de pagamento atualizados.",
         "saveError": "Erro ao atualizar os métodos de pagamento.",
         "loadError": "Erro ao carregar a configuração.",
         "deliveryHint": "Para custo de envio e endereço de retirada, use",

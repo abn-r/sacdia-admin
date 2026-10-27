@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { XCircle, Loader2 } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Dialog,
@@ -149,8 +149,7 @@ export function MembershipRejectDialog({
               >
                 {t("dialogs.reject.cancel")}
               </Button>
-              <Button type="submit" variant="destructive" disabled={isPending}>
-                {isPending && <Loader2 className="size-4 animate-spin" />}
+              <Button loading={isPending} type="submit" variant="destructive">
                 {isPending ? t("dialogs.reject.confirming") : t("dialogs.reject.confirm")}
               </Button>
             </DialogFooter>

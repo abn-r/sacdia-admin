@@ -122,17 +122,13 @@ export function PaymentOrdersTray() {
           </select>
         </div>
         <Button
+          loading={loading}
           type="button"
           variant="outline"
           size="sm"
           onClick={() => void load()}
-          disabled={loading}
         >
-          {loading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4" />
-          )}
+          <RefreshCw className="size-4" />
           {t("tray.refresh")}
         </Button>
       </div>

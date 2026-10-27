@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { Mail, MapPin, ArrowLeft, Shield, Users } from "lucide-react";
-import Link from "next/link";
+import { Mail, MapPin, Shield, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UserAvatar } from "@/components/users/user-avatar";
 import { cn } from "@/lib/utils";
@@ -16,8 +14,6 @@ interface HeroProps {
   ageLabel?: string | null;
   primaryAssignment: ClubAssignmentSummary | null;
   roleLabels: string[];
-  backHref: string;
-  backLabel: string;
   statusActiveLabel: string;
   statusInactiveLabel: string;
   metaLabels: {
@@ -43,8 +39,6 @@ export function UserDetailHero({
   ageLabel,
   primaryAssignment,
   roleLabels,
-  backHref,
-  backLabel,
   statusActiveLabel,
   statusInactiveLabel,
   metaLabels,
@@ -57,7 +51,7 @@ export function UserDetailHero({
 
   return (
     <Card className="gap-4 p-6 sm:p-7">
-      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr_auto]">
+      <div className="grid items-start gap-6 sm:grid-cols-[112px_1fr]">
         <div className="relative">
           <UserAvatar
             src={user.user_image}
@@ -70,9 +64,9 @@ export function UserDetailHero({
         </div>
 
         <div className="min-w-0">
-          <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
+          <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
             {fullName}
-          </h2>
+          </h1>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {secondaryIdentityLabel ? (
@@ -139,14 +133,6 @@ export function UserDetailHero({
           </div>
         </div>
 
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          <Button asChild variant="outline" size="sm">
-            <Link href={backHref} prefetch={false}>
-              <ArrowLeft className="size-4" />
-              {backLabel}
-            </Link>
-          </Button>
-        </div>
       </div>
     </Card>
   );
@@ -159,7 +145,7 @@ function Dot() {
 type MetaChipTone = "success" | "primary" | "neutral" | "muted";
 
 const metaChipToneClasses: Record<MetaChipTone, string> = {
-  success: "border-primary/20 bg-primary/10 text-primary",
+  success: "border-success/30 bg-success/10 text-[color-mix(in_oklch,var(--success),black_35%)] dark:text-success",
   primary: "border-border/80 bg-background text-foreground shadow-xs",
   neutral: "border-border/60 bg-background/80 text-foreground",
   muted: "border-border bg-muted/60 text-muted-foreground",
@@ -189,7 +175,7 @@ function MetaChip({
       {pulse ? (
         <span className="relative flex size-1.5 shrink-0">
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/40 opacity-75" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
+          <span className="relative inline-flex size-1.5 rounded-full bg-primary-solid" />
         </span>
       ) : null}
       <span className="truncate">
