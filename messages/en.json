@@ -1141,6 +1141,40 @@
     }
   },
   "auth": {
+    "reset_password": {
+      "meta_title": "Reset password · SACDIA",
+      "brand_subtitle": "JA Clubs",
+      "title": "Create a new password",
+      "description": "Enter a new password for your SACDIA account. Then use it to sign in to the app.",
+      "password_label": "New password",
+      "confirm_label": "Confirm password",
+      "policy_hint": "At least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol (@ $ ! % * ? &).",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+      "submit_idle": "Save password",
+      "submit_loading": "Saving…",
+      "success_title": "Password updated",
+      "success_body": "You can now sign in to the SACDIA app with your new password. We signed you out of your other sessions for security.",
+      "invalid_title": "This link no longer works",
+      "invalid_body": "The link expired, was already used or is incomplete. Request a new one from \"Forgot your password?\" in the app.",
+      "policy": {
+        "required": "Enter a password.",
+        "min_length": "The password must be at least 12 characters long.",
+        "max_length": "The password can't be longer than 128 characters.",
+        "uppercase": "The password must include at least one uppercase letter.",
+        "lowercase": "The password must include at least one lowercase letter.",
+        "number": "The password must include at least one number.",
+        "special": "The password must include at least one symbol (@ $ ! % * ? &).",
+        "first_char": "The password must start with a letter, a number or one of @ $ ! % * ? &."
+      },
+      "errors": {
+        "mismatch": "The passwords don't match.",
+        "link_invalid": "The link expired, was already used or is incomplete.",
+        "too_many_attempts": "Too many attempts. Wait a minute and try again.",
+        "password_rejected": "The server rejected the password. Check the requirements and try again.",
+        "generic": "We couldn't save the password. Try again in a few minutes."
+      }
+    },
     "login": {
       "brand_subtitle": "Administrative System",
       "welcome_title": "Welcome back",

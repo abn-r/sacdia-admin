@@ -1141,6 +1141,40 @@
     }
   },
   "auth": {
+    "reset_password": {
+      "meta_title": "Redefinir senha · SACDIA",
+      "brand_subtitle": "Clubes JA",
+      "title": "Crie uma nova senha",
+      "description": "Digite uma nova senha para sua conta SACDIA. Depois use-a para entrar no app.",
+      "password_label": "Nova senha",
+      "confirm_label": "Confirmar senha",
+      "policy_hint": "No mínimo 12 caracteres, com letra maiúscula, minúscula, número e um símbolo (@ $ ! % * ? &).",
+      "show_password": "Mostrar senha",
+      "hide_password": "Ocultar senha",
+      "submit_idle": "Salvar senha",
+      "submit_loading": "Salvando…",
+      "success_title": "Senha atualizada",
+      "success_body": "Agora você pode entrar no app SACDIA com sua nova senha. Por segurança, encerramos suas outras sessões.",
+      "invalid_title": "Este link não funciona mais",
+      "invalid_body": "O link expirou, já foi usado ou está incompleto. Peça um novo em \"Esqueceu sua senha?\" no app.",
+      "policy": {
+        "required": "Digite uma senha.",
+        "min_length": "A senha deve ter pelo menos 12 caracteres.",
+        "max_length": "A senha não pode ter mais de 128 caracteres.",
+        "uppercase": "A senha deve incluir pelo menos uma letra maiúscula.",
+        "lowercase": "A senha deve incluir pelo menos uma letra minúscula.",
+        "number": "A senha deve incluir pelo menos um número.",
+        "special": "A senha deve incluir pelo menos um símbolo (@ $ ! % * ? &).",
+        "first_char": "A senha deve começar com uma letra, um número ou um de @ $ ! % * ? &."
+      },
+      "errors": {
+        "mismatch": "As senhas não coincidem.",
+        "link_invalid": "O link expirou, já foi usado ou está incompleto.",
+        "too_many_attempts": "Muitas tentativas. Aguarde um minuto e tente novamente.",
+        "password_rejected": "O servidor recusou a senha. Verifique os requisitos e tente novamente.",
+        "generic": "Não foi possível salvar a senha. Tente novamente em alguns minutos."
+      }
+    },
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bem-vindo de volta",

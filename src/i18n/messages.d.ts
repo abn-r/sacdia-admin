@@ -1170,6 +1170,40 @@ export interface IntlMessages {
     };
   };
   auth: {
+    reset_password: {
+      meta_title: string;
+      brand_subtitle: string;
+      title: string;
+      description: string;
+      password_label: string;
+      confirm_label: string;
+      policy_hint: string;
+      show_password: string;
+      hide_password: string;
+      submit_idle: string;
+      submit_loading: string;
+      success_title: string;
+      success_body: string;
+      invalid_title: string;
+      invalid_body: string;
+      policy: {
+        required: string;
+        min_length: string;
+        max_length: string;
+        uppercase: string;
+        lowercase: string;
+        number: string;
+        special: string;
+        first_char: string;
+      };
+      errors: {
+        mismatch: string;
+        link_invalid: string;
+        too_many_attempts: string;
+        password_rejected: string;
+        generic: string;
+      };
+    };
     login: {
       brand_subtitle: string;
       welcome_title: string;
