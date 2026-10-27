@@ -90,7 +90,19 @@ const STUB_ITEM: InventoryItem = {
   active: true,
 };
 
+const STUB_EXTENDED_ITEM: InventoryItem = {
+  ...STUB_ITEM,
+  condition: "regular",
+  serial_number: "SN-001",
+  purchase_date: "2024-03-15",
+  estimated_value: 1250.5,
+  location: "Bodega del club",
+  assigned_to: "Juan Pérez",
+  notes: "Revisar costuras",
+};
+
 const inventoryMessages = messages.inventory;
+const formMessages = messages.inventory.form;
 const validationMessages = messages.inventory.validation;
 
 // ---------------------------------------------------------------------------
@@ -126,6 +138,17 @@ function renderDialog({
   );
 
   return { onOpenChange, onSuccess, ...utils };
+}
+
+async function fillInput(element: HTMLElement, value: string) {
+  await act(async () => {
+    fireEvent.change(element, { target: { value } });
+  });
+}
+
+async function goToDetailsStep() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: formMessages.next }));
 }
 
 async function submitForm() {
@@ -410,5 +433,294 @@ describe("InventoryFormDialog", () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(mockCreateInventoryItem).not.toHaveBeenCalled();
+  });
+});
+
+describe("InventoryFormDialog — condition and extended fields", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCreateInventoryItem.mockResolvedValue({ ...STUB_ITEM });
+    mockUpdateInventoryItem.mockResolvedValue({ ...STUB_ITEM });
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  async function fillValidName(name = "Ítem válido") {
+    await fillInput(
+      screen.getByPlaceholderText(inventoryMessages.placeholders.name),
+      name,
+    );
+  }
+
+  // ── Default condition and omitted optional fields ─────────────────────────
+
+  it("defaults condition to 'bueno' and omits empty extended fields on create", async () => {
+    renderDialog();
+    await fillValidName();
+    await submitForm();
+
+    await waitFor(() => expect(mockCreateInventoryItem).toHaveBeenCalledOnce());
+
+    const [, payload] = mockCreateInventoryItem.mock.calls[0] as [
+      number,
+      Record<string, unknown>,
+    ];
+    expect(payload.condition).toBe("bueno");
+    for (const key of [
+      "serial_number",
+      "purchase_date",
+      "estimated_value",
+      "location",
+      "assigned_to",
+      "notes",
+    ]) {
+      expect(payload).not.toHaveProperty(key);
+    }
+  });
+
+  it("shows the default condition in the select trigger", () => {
+    renderDialog();
+    expect(screen.getByRole("combobox", { name: formMessages.condition })).toHaveTextContent(
+      messages.inventory.condition.bueno,
+    );
+  });
+
+  // ── Steps ─────────────────────────────────────────────────────────────────
+
+  it("starts on the main step and reveals the details step on 'next'", async () => {
+    renderDialog();
+    await fillValidName();
+
+    const serial = screen.getByLabelText(formMessages.serial_number);
+    expect(serial).not.toBeVisible();
+
+    await goToDetailsStep();
+
+    expect(serial).toBeVisible();
+    expect(screen.getByLabelText(formMessages.notes)).toBeVisible();
+    expect(screen.getByRole("button", { name: formMessages.back })).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: formMessages.back }));
+    expect(serial).not.toBeVisible();
+  });
+
+  it("does not advance to the details step while the main step is invalid", async () => {
+    renderDialog();
+
+    await goToDetailsStep();
+
+    expect(screen.getByLabelText(formMessages.serial_number)).not.toBeVisible();
+    expect(
+      screen.getByPlaceholderText(inventoryMessages.placeholders.name),
+    ).toHaveAttribute("aria-invalid", "true");
+  });
+
+  // ── Create with extended fields ───────────────────────────────────────────
+
+  it("sends all extended fields on create", async () => {
+    renderDialog();
+    await fillValidName("Linterna");
+    await goToDetailsStep();
+
+    await fillInput(screen.getByLabelText(formMessages.serial_number), "  SN-777 ");
+    await fillInput(screen.getByLabelText(formMessages.purchase_date), "2025-01-20");
+    await fillInput(screen.getByLabelText(formMessages.estimated_value), "349.99");
+    await fillInput(screen.getByLabelText(formMessages.location), "Armario 2");
+    await fillInput(screen.getByLabelText(formMessages.assigned_to), "María López");
+    await fillInput(screen.getByLabelText(formMessages.notes), "Pilas nuevas");
+
+    await submitForm();
+
+    await waitFor(() => expect(mockCreateInventoryItem).toHaveBeenCalledOnce());
+
+    const [, payload] = mockCreateInventoryItem.mock.calls[0] as [number, unknown];
+    expect(payload).toMatchObject({
+      name: "Linterna",
+      condition: "bueno",
+      serial_number: "SN-777",
+      purchase_date: "2025-01-20",
+      estimated_value: 349.99,
+      location: "Armario 2",
+      assigned_to: "María López",
+      notes: "Pilas nuevas",
+      instanceType: "pathf",
+    });
+  });
+
+  it("accepts an estimated value of 0", async () => {
+    renderDialog();
+    await fillValidName();
+    await goToDetailsStep();
+    await fillInput(screen.getByLabelText(formMessages.estimated_value), "0");
+
+    await submitForm();
+
+    await waitFor(() => expect(mockCreateInventoryItem).toHaveBeenCalledOnce());
+    const [, payload] = mockCreateInventoryItem.mock.calls[0] as [
+      number,
+      { estimated_value?: number },
+    ];
+    expect(payload.estimated_value).toBe(0);
+  });
+
+  // ── Edit: populate, keep, clear ───────────────────────────────────────────
+
+  it("populates the extended fields and condition when editing", async () => {
+    renderDialog({ item: STUB_EXTENDED_ITEM });
+
+    expect(screen.getByRole("combobox", { name: formMessages.condition })).toHaveTextContent(
+      messages.inventory.condition.regular,
+    );
+
+    expect(screen.getByLabelText(formMessages.serial_number)).toHaveValue("SN-001");
+    expect(screen.getByLabelText(formMessages.purchase_date)).toHaveValue("2024-03-15");
+    expect(screen.getByLabelText(formMessages.estimated_value)).toHaveValue(1250.5);
+    expect(screen.getByLabelText(formMessages.location)).toHaveValue("Bodega del club");
+    expect(screen.getByLabelText(formMessages.assigned_to)).toHaveValue("Juan Pérez");
+    expect(screen.getByLabelText(formMessages.notes)).toHaveValue("Revisar costuras");
+  });
+
+  it("re-sends the existing extended values untouched on save", async () => {
+    renderDialog({ item: STUB_EXTENDED_ITEM });
+    await submitForm();
+
+    await waitFor(() => expect(mockUpdateInventoryItem).toHaveBeenCalledOnce());
+    const [, payload] = mockUpdateInventoryItem.mock.calls[0] as [number, unknown];
+    expect(payload).toMatchObject({
+      condition: "regular",
+      serial_number: "SN-001",
+      purchase_date: "2024-03-15",
+      estimated_value: 1250.5,
+      location: "Bodega del club",
+      assigned_to: "Juan Pérez",
+      notes: "Revisar costuras",
+    });
+  });
+
+  it("sends null for every extended field cleared on edit", async () => {
+    renderDialog({ item: STUB_EXTENDED_ITEM });
+
+    for (const label of [
+      formMessages.serial_number,
+      formMessages.purchase_date,
+      formMessages.estimated_value,
+      formMessages.location,
+      formMessages.assigned_to,
+      formMessages.notes,
+    ]) {
+      await fillInput(screen.getByLabelText(label), "");
+    }
+
+    await submitForm();
+
+    await waitFor(() => expect(mockUpdateInventoryItem).toHaveBeenCalledOnce());
+    const [calledId, payload] = mockUpdateInventoryItem.mock.calls[0] as [number, unknown];
+    expect(calledId).toBe(STUB_ITEM.inventory_id);
+    expect(payload).toMatchObject({
+      condition: "regular",
+      serial_number: null,
+      purchase_date: null,
+      estimated_value: null,
+      location: null,
+      assigned_to: null,
+      notes: null,
+    });
+  });
+
+  it("defaults the condition to 'bueno' when editing an item without one", async () => {
+    renderDialog({ item: STUB_ITEM });
+    await submitForm();
+
+    await waitFor(() => expect(mockUpdateInventoryItem).toHaveBeenCalledOnce());
+    const [, payload] = mockUpdateInventoryItem.mock.calls[0] as [
+      number,
+      { condition: string },
+    ];
+    expect(payload.condition).toBe("bueno");
+  });
+
+  // ── Validation ────────────────────────────────────────────────────────────
+
+  it("rejects a negative estimated value and shows the details step", async () => {
+    renderDialog();
+    await fillValidName();
+    await goToDetailsStep();
+
+    const value = screen.getByLabelText(formMessages.estimated_value);
+    await fillInput(value, "-5");
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: formMessages.back }));
+    expect(value).not.toBeVisible();
+
+    await submitForm();
+
+    await waitFor(() => {
+      expect(value).toHaveAttribute("aria-invalid", "true");
+    });
+    expect(value).toBeVisible();
+    expect(
+      screen.getByText(messages.inventory.validation.estimated_value_min),
+    ).toBeInTheDocument();
+    expect(mockCreateInventoryItem).not.toHaveBeenCalled();
+  });
+
+  it("rejects an estimated value with more than 2 decimals", async () => {
+    renderDialog();
+    await fillValidName();
+    await goToDetailsStep();
+
+    await fillInput(screen.getByLabelText(formMessages.estimated_value), "10.999");
+    await submitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(messages.inventory.validation.estimated_value_invalid),
+      ).toBeInTheDocument();
+    });
+    expect(mockCreateInventoryItem).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["serial_number", 101, "serial_number_max", 100],
+    ["location", 151, "location_max", 150],
+    ["assigned_to", 151, "assigned_to_max", 150],
+    ["notes", 2001, "notes_max", 2000],
+  ] as const)(
+    "rejects %s longer than the limit",
+    async (field, length, messageKey, max) => {
+      renderDialog();
+      await fillValidName();
+      await goToDetailsStep();
+
+      await fillInput(screen.getByLabelText(formMessages[field]), "x".repeat(length));
+      await submitForm();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            messages.inventory.validation[messageKey].replace("{max}", String(max)),
+          ),
+        ).toBeInTheDocument();
+      });
+      expect(mockCreateInventoryItem).not.toHaveBeenCalled();
+    },
+  );
+
+  it("accepts values exactly at the length limits", async () => {
+    renderDialog();
+    await fillValidName();
+    await goToDetailsStep();
+
+    await fillInput(screen.getByLabelText(formMessages.serial_number), "x".repeat(100));
+    await fillInput(screen.getByLabelText(formMessages.location), "x".repeat(150));
+    await fillInput(screen.getByLabelText(formMessages.assigned_to), "x".repeat(150));
+    await fillInput(screen.getByLabelText(formMessages.notes), "x".repeat(2000));
+    await submitForm();
+
+    await waitFor(() => expect(mockCreateInventoryItem).toHaveBeenCalledOnce());
   });
 });

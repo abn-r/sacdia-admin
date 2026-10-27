@@ -258,3 +258,43 @@ export async function backfillCoordinatorAssignments(
   );
   return unwrapApiData<CoordinatorBackfillResult>(payload);
 }
+
+// ─── Caller's own coordination scope ─────────────────────────────────────────
+
+export type CoordinatorScopeSection = {
+  club_section_id: number;
+  name: string | null;
+  club_type_id: number;
+  club_type_name: string | null;
+  club_id: number | null;
+  club_name: string | null;
+  district_id: number | null;
+  district_name: string | null;
+  local_field_id: number | null;
+  local_field_name: string | null;
+};
+
+export type CoordinatorScope = {
+  is_coordinator: boolean;
+  club_section_ids: number[];
+  assignments: Array<{
+    assignment_id: string;
+    assignment_type: CoordinatorAssignmentType;
+    local_field_id: number;
+    zone_id: number | null;
+    club_type_id: number | null;
+    club_section_id: number | null;
+  }>;
+  /** Active sections covered by the caller's assignments (GENERAL / ZONE / SECTION expanded). */
+  sections: CoordinatorScopeSection[];
+};
+
+/**
+ * GET /api/v1/coordination/me/scope
+ * Self-scoped (JWT only, no RBAC permission): the sections the caller
+ * coordinates. Server-side (SSR).
+ */
+export async function getMyCoordinatorScope(): Promise<CoordinatorScope> {
+  const payload = await apiRequest<unknown>("/coordination/me/scope");
+  return unwrapApiData<CoordinatorScope>(payload);
+}

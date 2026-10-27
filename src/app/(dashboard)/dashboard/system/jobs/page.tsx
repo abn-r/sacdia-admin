@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { History } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
-import { getJobsOverview, getCronRuns } from "@/lib/api/analytics";
+import { getJobsOverview, getCronRuns, listCronJobs } from "@/lib/api/analytics";
 import { JobsOverviewClient } from "./_components/jobs-overview-client";
 import { CronRunsSection } from "./_components/cron-runs-section";
 import { Button } from "@/components/ui/button";
@@ -85,10 +86,22 @@ type JobsMessages = {
 };
 
 async function JobsContent({ messages }: { messages: JobsMessages }) {
-  const [bullmqResult, cronResult] = await Promise.allSettled([
+  const [bullmqResult, cronResult, cronJobsResult] = await Promise.allSettled([
     getJobsOverview(),
     getCronRuns(),
+    listCronJobs(),
   ]);
+
+  // The catalog lists every scheduled job and enables run-now. If it can't be
+  // loaded (403 for non super-admin, or error) the table falls back to known jobs.
+  const catalog = cronJobsResult.status === "fulfilled" ? cronJobsResult.value : undefined;
+  // 403 is expected for non super-admins: not worth an error log on every load.
+  if (
+    cronJobsResult.status === "rejected" &&
+    !(cronJobsResult.reason instanceof ApiError && cronJobsResult.reason.status === 403)
+  ) {
+    console.error("[JobsPage] Failed to load cron jobs catalog:", cronJobsResult.reason);
+  }
 
   const bullmqSection =
     bullmqResult.status === "fulfilled" ? (
@@ -102,7 +115,7 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
 
   const cronSection =
     cronResult.status === "fulfilled" ? (
-      <CronRunsSection data={cronResult.value} />
+      <CronRunsSection data={cronResult.value} catalog={catalog} />
     ) : (
       (() => {
         console.error("[JobsPage] Failed to load cron-runs data:", cronResult.reason);

@@ -5,6 +5,8 @@ type ActionErrorOptions = {
 };
 
 const DOMAIN_ERROR_MESSAGES: Record<string, string> = {
+  MR_CONSENT_NOT_VERIFIED:
+    "El miembro es menor y el consentimiento de su tutor aún no está verificado. Verifica el consentimiento del tutor antes de activar el rol.",
   CAMPOREE_EVENT_RESPONSIBLE_REQUIRED:
     "Para publicar hace falta un responsable del roster de personal del camporee. El nombre o usuario de la ficha no alcanza. Guarda el evento como Programado.",
   CAMPOREE_EVENT_HONOR_NOT_FOUND:

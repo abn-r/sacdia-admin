@@ -1170,6 +1170,40 @@ export interface IntlMessages {
     };
   };
   auth: {
+    reset_password: {
+      meta_title: string;
+      brand_subtitle: string;
+      title: string;
+      description: string;
+      password_label: string;
+      confirm_label: string;
+      policy_hint: string;
+      show_password: string;
+      hide_password: string;
+      submit_idle: string;
+      submit_loading: string;
+      success_title: string;
+      success_body: string;
+      invalid_title: string;
+      invalid_body: string;
+      policy: {
+        required: string;
+        min_length: string;
+        max_length: string;
+        uppercase: string;
+        lowercase: string;
+        number: string;
+        special: string;
+        first_char: string;
+      };
+      errors: {
+        mismatch: string;
+        link_invalid: string;
+        too_many_attempts: string;
+        password_rejected: string;
+        generic: string;
+      };
+    };
     login: {
       brand_subtitle: string;
       welcome_title: string;
@@ -1500,6 +1534,9 @@ export interface IntlMessages {
         continuationsClass: string;
         continuationsPathComplete: string;
         continuationsBlocked: string;
+        continuationsBlockedReasons: {
+          MR_CONSENT_NOT_VERIFIED: string;
+        };
         continuationsSubmit: string;
         continuationsLoadError: string;
         continuationsSubmitError: string;
@@ -4284,7 +4321,8 @@ export interface IntlMessages {
           contactsEmpty: string;
           contactsMissingPayload: string;
           legalRepTitle: string;
-          legalRepEmpty: string;
+          legalRepLegacyTitle: string;
+          legalRepLegacyNote: string;
           pastoralTitle: string;
           pastoralEmpty: string;
           healthTitle: string;
@@ -4335,6 +4373,8 @@ export interface IntlMessages {
           appSub: string;
           panelLabel: string;
           panelSub: string;
+          dependentLabel: string;
+          dependentSub: string;
         };
         deletedAccount: string;
         anonymizedAccount: string;
@@ -5336,6 +5376,13 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
     };
+    pageConsentVerify: {
+      title: string;
+      description: string;
+      errorLoad: string;
+      emptyTitle: string;
+      emptyDescription: string;
+    };
     pageTransfers: {
       title: string;
       description: string;
@@ -6120,6 +6167,7 @@ export interface IntlMessages {
       empty_title: string;
       empty_description: string;
       category_fallback: string;
+      col_condition: string;
     };
     status: {
       active: string;
@@ -6132,6 +6180,8 @@ export interface IntlMessages {
       edit_sr: string;
       delete_item: string;
       delete_sr: string;
+      view_details: string;
+      view_details_sr: string;
     };
     history: {
       dialog_title: string;
@@ -6146,6 +6196,41 @@ export interface IntlMessages {
       field_amount: string;
       field_category: string;
       field_active: string;
+      field_condition: string;
+      field_serial_number: string;
+      field_purchase_date: string;
+      field_estimated_value: string;
+      field_location: string;
+      field_assigned_to: string;
+      field_notes: string;
+    };
+    condition: {
+      bueno: string;
+      regular: string;
+      malo: string;
+    };
+    form: {
+      step_indicator: string;
+      step_main: string;
+      step_details: string;
+      step_details_hint: string;
+      next: string;
+      back: string;
+      condition: string;
+      serial_number: string;
+      purchase_date: string;
+      estimated_value: string;
+      location: string;
+      assigned_to: string;
+      notes: string;
+    };
+    detail: {
+      title: string;
+      description: string;
+      close: string;
+      section_general: string;
+      section_extra: string;
+      no_value: string;
     };
     view: {
       select_local_field_placeholder: string;
@@ -6172,12 +6257,24 @@ export interface IntlMessages {
       description_max: string;
       category_required: string;
       amount_min: string;
+      serial_number_max: string;
+      purchase_date_invalid: string;
+      estimated_value_min: string;
+      estimated_value_invalid: string;
+      location_max: string;
+      assigned_to_max: string;
+      notes_max: string;
     };
     placeholders: {
       name: string;
       description: string;
       selectCategory: string;
       quantity: string;
+      serial_number: string;
+      estimated_value: string;
+      location: string;
+      assigned_to: string;
+      notes: string;
     };
   };
   units_admin: {
@@ -6746,6 +6843,8 @@ export interface IntlMessages {
     table: {
       count_one: string;
       count_other: string;
+      count_verify_only_one: string;
+      count_verify_only_other: string;
       refresh: string;
       refresh_error: string;
       col_member: string;
@@ -6755,6 +6854,8 @@ export interface IntlMessages {
       col_actions: string;
       empty_title: string;
       empty_description: string;
+      empty_title_verify_only: string;
+      empty_description_verify_only: string;
       aria_approve: string;
       aria_reject: string;
       tooltip_approve: string;
@@ -6771,11 +6872,103 @@ export interface IntlMessages {
         confirming: string;
       };
     };
+    consent: {
+      badge_pending: string;
+      expiry_extended_hint: string;
+      badge_verified: string;
+      approve_blocked: string;
+      verify_action: string;
+      verify_action_aria: string;
+      verify_no_guardian: string;
+      dialog: {
+        title: string;
+        description: string;
+        guardians_label: string;
+        guardian_primary: string;
+        evidence_title: string;
+        evidence_loading: string;
+        evidence_none: string;
+        evidence_none_verify_only: string;
+        evidence_uploaded_at: string;
+        evidence_uploaded_by: string;
+        evidence_image_alt: string;
+        evidence_open_pdf: string;
+        evidence_open_new_tab: string;
+        evidence_expiry_note: string;
+        evidence_reload: string;
+        upload: string;
+        replace: string;
+        uploading: string;
+        upload_hint: string;
+        confirm_checkbox: string;
+        approve_checkbox: string;
+        verify_only_note: string;
+        cancel: string;
+        confirm: string;
+        confirming: string;
+      };
+      toasts: {
+        evidence_uploaded: string;
+        verified: string;
+        verified_approved: string;
+        approve_failed: string;
+      };
+      validation: {
+        type: string;
+        size: string;
+      };
+      errors: {
+        GUARDIANSHIP_EVIDENCE_NOT_FOUND: string;
+        GUARDIANSHIP_EVIDENCE_REQUIRED: string;
+        GUARDIANSHIP_EVIDENCE_UNAVAILABLE: string;
+        GUARDIANSHIP_CUSTODIAN_SELF_VERIFY: string;
+        GUARDIANSHIP_GUARDIAN_SELF_VERIFY: string;
+        GUARDIANSHIP_CONSENT_ALREADY_VERIFIED: string;
+        GUARDIANSHIP_NOT_FOUND: string;
+        MR_APPROVE_PERMISSION_REQUIRED: string;
+        MR_CONSENT_CONFIRMATION_REQUIRED: string;
+        MR_CONSENT_NOT_VERIFIED: string;
+        MR_NOT_FOUND: string;
+        MR_ALREADY_PENDING: string;
+        FILE_REQUIRED: string;
+        FILE_TYPE_INVALID: string;
+        FILE_TOO_LARGE: string;
+        GUARD_PERMISSION_DENIED: string;
+        GUARD_CLUB_SCOPE_REQUIRED: string;
+        generic: string;
+        upload: string;
+        verify: string;
+        approve: string;
+        evidence_load: string;
+      };
+    };
     client: {
       section_label: string;
       section_placeholder: string;
       load_error_permission: string;
+      load_error_scope: string;
       load_error_generic: string;
+    };
+    queue: {
+      all_sections: string;
+      summary_title: string;
+      summary_hint: string;
+      count_one: string;
+      count_other: string;
+      col_club: string;
+      col_type: string;
+      col_district: string;
+      col_minor: string;
+      col_form_uploaded: string;
+      col_actions: string;
+      empty_title: string;
+      empty_description: string;
+      error_permission: string;
+      error_scope: string;
+      error_generic: string;
+      club_fallback: string;
+      verify_aria: string;
+      retry: string;
     };
     toasts: {
       approved: string;
@@ -6784,6 +6977,79 @@ export interface IntlMessages {
     errors: {
       approve: string;
       reject: string;
+    };
+  };
+  guardianships: {
+    title: string;
+    description: string;
+    asDependent: {
+      title: string;
+      empty: string;
+    };
+    asGuardian: {
+      title: string;
+      empty: string;
+    };
+    profile: {
+      title: string;
+      createdAt: string;
+      createdBy: string;
+      frozenAt: string;
+      purgeAfter: string;
+      active: string;
+    };
+    fields: {
+      guardian: string;
+      email: string;
+      custodianClub: string;
+      externalName: string;
+      relationship: string;
+      status: string;
+      method: string;
+      verifiedAt: string;
+      verifiedBy: string;
+      evidence: string;
+      createdAt: string;
+      revokedAt: string;
+      revokedReason: string;
+      birthday: string;
+    };
+    badges: {
+      primary: string;
+      custodian: string;
+      testData: string;
+      revoked: string;
+    };
+    status: {
+      pending: string;
+      verified: string;
+      revoked: string;
+    };
+    method: {
+      director_paper_form: string;
+      coordinator_paper_form: string;
+      guardian_invite: string;
+      legacy_import: string;
+      test_placeholder: string;
+    };
+    revokedReason: {
+      guardian_left: string;
+      removed_by_primary: string;
+      guardian_account_closed: string;
+      claimed: string;
+      admin: string;
+      released: string;
+    };
+    evidence: {
+      missing: string;
+      view: string;
+      loading: string;
+      open: string;
+      expiryNote: string;
+      error: string;
+      unavailable: string;
+      notFound: string;
+      denied: string;
     };
   };
   sla: {
@@ -7044,6 +7310,37 @@ export interface IntlMessages {
       jobMembershipExpiry: string;
       jobCleanupExpired: string;
       jobFcmCleanup: string;
+      jobAnnualReports: string;
+      jobQuarterlyReports: string;
+      jobMonthlyReportsReminders: string;
+      jobCronAlertCheck: string;
+      jobFcmStaleCleanup: string;
+      jobDependentProfilesPurge: string;
+      jobFamilyAgeTransitions: string;
+      jobPendingTeenGuardian: string;
+      jobInvestitureAchievementIntent: string;
+      jobInvestitureAuthReminders: string;
+      jobEcclesiasticalYearCut: string;
+      colActions: string;
+      runNow: string;
+      runNowRunning: string;
+      runDialogTitle: string;
+      runDialogDescription: string;
+      runDialogNotifyWarning: string;
+      runDialogMemberOfMonthWarning: string;
+      runDialogCancel: string;
+      runDialogConfirm: string;
+      runResultCompleted: string;
+      runResultCompletedNoCount: string;
+      runResultSkipped: string;
+      runResultFailed: string;
+      runResultFailedNoMessage: string;
+      runResultEnqueued: string;
+      runDetached: string;
+      runErrorNotFound: string;
+      runErrorForbidden: string;
+      runErrorGeneric: string;
+      manualBadge: string;
     };
     overview: {
       queuesTitle: string;
@@ -7119,15 +7416,7 @@ export interface IntlMessages {
       detailLabelItems: string;
       detailLabelError: string;
       detailLabelMetadata: string;
-      jobMonthlyReports: string;
-      jobRankingsRecalculate: string;
-      jobDataExportCleanup: string;
-      jobMemberOfMonth: string;
-      jobFinancePeriod: string;
-      jobActivitiesReminder: string;
-      jobMembershipExpiry: string;
-      jobCleanupExpired: string;
-      jobFcmCleanup: string;
+      manualBadge: string;
     };
   };
   settings: {
@@ -8706,6 +8995,122 @@ export interface IntlMessages {
         assigning: string;
         assigned: string;
       };
+    };
+  };
+  familyAccess: {
+    title: string;
+    description: string;
+    supervision: {
+      label: string;
+      active: string;
+      pending_guardian: string;
+      none: string;
+    };
+    login: {
+      title: string;
+      empty: string;
+      status: {
+        active: string;
+        pending_guardian: string;
+        disabled: string;
+      };
+      fields: {
+        status: string;
+        method: string;
+        handle: string;
+        origin: string;
+        enabledBy: string;
+        enabledByGuardian: string;
+        enabledAt: string;
+        passwordSetBy: string;
+        pendingSince: string;
+        disabledAt: string;
+        disabledReason: string;
+      };
+      method: {
+        email: string;
+        handle: string;
+      };
+      origin: {
+        self_registered: string;
+        guardian_enabled: string;
+      };
+      passwordSetBy: {
+        guardian: string;
+        self: string;
+      };
+      disabledReason: {
+        guardian: string;
+        admin: string;
+        unlinked_purged: string;
+      };
+      disable: string;
+      disableAria: string;
+    };
+    devices: {
+      title: string;
+      empty: string;
+      columns: {
+        device: string;
+        pairedBy: string;
+        lastSeen: string;
+        status: string;
+        actions: string;
+      };
+      platform: {
+        ios: string;
+        android: string;
+      };
+      status: {
+        active: string;
+        revoked: string;
+      };
+      appVersion: string;
+      expiresOn: string;
+      revokedOn: string;
+      revoke: string;
+      revokeAria: string;
+    };
+    dialog: {
+      disableTitle: string;
+      disableDescription: string;
+      revokeTitle: string;
+      revokeDescription: string;
+      reasonLabel: string;
+      reasonHint: string;
+      reasonPlaceholder: string;
+      reasonTooShort: string;
+      cancel: string;
+      disableConfirm: string;
+      revokeConfirm: string;
+      working: string;
+    };
+    sessions: {
+      title: string;
+      load: string;
+      loading: string;
+      empty: string;
+      error: string;
+      retry: string;
+      deviceBadge: string;
+      userBadge: string;
+      linkedDevice: string;
+      createdAt: string;
+      expiresAt: string;
+      ip: string;
+      agent: string;
+    };
+    toasts: {
+      disabled: string;
+      revoked: string;
+    };
+    errors: {
+      ADMIN_USER_NOT_FOUND: string;
+      SUPERVISED_LOGIN_NOT_FOUND: string;
+      DEVICE_NOT_FOUND: string;
+      forbidden: string;
+      invalid_reason: string;
+      generic: string;
     };
   };
 }

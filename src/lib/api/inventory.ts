@@ -32,6 +32,12 @@ export type InventoryCategory = {
   description?: string | null;
 };
 
+export const INVENTORY_CONDITIONS = ["bueno", "regular", "malo"] as const;
+
+export type InventoryCondition = (typeof INVENTORY_CONDITIONS)[number];
+
+export const DEFAULT_INVENTORY_CONDITION: InventoryCondition = "bueno";
+
 export type InventoryItem = {
   inventory_id: number;
   name: string;
@@ -41,11 +47,31 @@ export type InventoryItem = {
   club_id: number;
   amount: number;
   active: boolean;
+  condition?: InventoryCondition;
+  serial_number?: string | null;
+  purchase_date?: string | null;
+  estimated_value?: number | null;
+  location?: string | null;
+  assigned_to?: string | null;
+  notes?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 };
 
-export type CreateInventoryPayload = {
+/** Optional extended fields shared by the create and update payloads. */
+type InventoryExtendedFields<Clearable extends null = never> = {
+  condition?: InventoryCondition;
+  serial_number?: string | Clearable;
+  /** Calendar date, `YYYY-MM-DD`. */
+  purchase_date?: string | Clearable;
+  /** Money, >= 0, 2 decimals. */
+  estimated_value?: number | Clearable;
+  location?: string | Clearable;
+  assigned_to?: string | Clearable;
+  notes?: string | Clearable;
+};
+
+export type CreateInventoryPayload = InventoryExtendedFields & {
   name: string;
   description?: string;
   inventory_category_id: number;
@@ -53,7 +79,8 @@ export type CreateInventoryPayload = {
   instanceType: InstanceType;
 };
 
-export type UpdateInventoryPayload = {
+/** On update, a cleared extended field is sent as `null`. */
+export type UpdateInventoryPayload = InventoryExtendedFields<null> & {
   name?: string;
   description?: string;
   inventory_category_id?: number;

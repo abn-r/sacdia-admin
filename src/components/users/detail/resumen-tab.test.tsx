@@ -23,7 +23,10 @@ function stubHealthProps(): ResumenTabProps["healthProps"] {
   };
 }
 
-function renderResumen(showAccessFlags: boolean) {
+function renderResumen(
+  showAccessFlags: boolean,
+  extra: Partial<ResumenTabProps> = {},
+) {
   return render(
     <UserDetailResumenTab
       identityTitle="Identidad"
@@ -62,12 +65,13 @@ function renderResumen(showAccessFlags: boolean) {
         missingPayloadMessage: "Sin payload",
       }}
       showLegalRep={false}
-      legalRepTitle="Representante"
-      legalRepEmpty="Sin representante"
+      legalRepTitle="Representante legal (heredado)"
+      legalRepLegacyNote="Registro heredado, solo lectura."
       legalRep={null}
       legalNameLabel="Nombre"
       legalPhoneLabel="Teléfono"
       legalRelationshipLabel="Parentesco"
+      {...extra}
     />,
   );
 }
@@ -94,5 +98,68 @@ describe("UserDetailResumenTab access flags", () => {
     expect(screen.queryByText("Estado")).not.toBeInTheDocument();
     expect(screen.queryByText("Acceso al panel administrativo")).not.toBeInTheDocument();
     expect(screen.getByText("Director de campo")).toBeInTheDocument();
+  });
+});
+
+describe("UserDetailResumenTab dependent profile", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("replaces the login toggles with a 'no own access' notice", () => {
+    renderResumen(true, {
+      dependentAccess: {
+        label: "Sin acceso propio",
+        sub: "Gestionado por su tutor",
+      },
+    });
+
+    expect(screen.getByTestId("dependent-no-access")).toBeInTheDocument();
+    expect(screen.getByText("Sin acceso propio")).toBeInTheDocument();
+    expect(screen.getByText("Gestionado por su tutor")).toBeInTheDocument();
+    expect(screen.queryByText("App móvil")).not.toBeInTheDocument();
+    expect(screen.queryByText("Acceso al cliente móvil")).not.toBeInTheDocument();
+    expect(screen.queryByText("Habilitado para iniciar sesión")).not.toBeInTheDocument();
+    // System roles stay visible
+    expect(screen.getByText("Director de campo")).toBeInTheDocument();
+  });
+
+  it("shows the notice even when the actor cannot see the access flags", () => {
+    renderResumen(false, {
+      dependentAccess: { label: "Sin acceso propio", sub: "Gestionado por su tutor" },
+    });
+    expect(screen.getByTestId("dependent-no-access")).toBeInTheDocument();
+  });
+
+  it("keeps the toggles for regular accounts", () => {
+    renderResumen(true, { dependentAccess: null });
+    expect(screen.queryByTestId("dependent-no-access")).not.toBeInTheDocument();
+    expect(screen.getByText("App móvil")).toBeInTheDocument();
+  });
+});
+
+describe("UserDetailResumenTab legacy legal representative", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  const legalRep = { fullName: "Rosa Díaz", phone: "555-0100", relationship: "Tía" };
+
+  it("hides the whole section when there is no legacy row", () => {
+    renderResumen(true, { showLegalRep: true, legalRep: null });
+    expect(screen.queryByText("Representante legal (heredado)")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sin representante/)).not.toBeInTheDocument();
+  });
+
+  it("keeps showing an existing legacy row, labelled as legacy", () => {
+    renderResumen(true, { showLegalRep: true, legalRep });
+    expect(screen.getByText("Representante legal (heredado)")).toBeInTheDocument();
+    expect(screen.getByText("Registro heredado, solo lectura.")).toBeInTheDocument();
+    expect(screen.getByText("Rosa Díaz")).toBeInTheDocument();
+  });
+
+  it("stays hidden without the legal_representative capability", () => {
+    renderResumen(true, { showLegalRep: false, legalRep });
+    expect(screen.queryByText("Rosa Díaz")).not.toBeInTheDocument();
   });
 });

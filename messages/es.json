@@ -1141,6 +1141,40 @@
     }
   },
   "auth": {
+    "reset_password": {
+      "meta_title": "Restablecer contraseña · SACDIA",
+      "brand_subtitle": "Clubes JA",
+      "title": "Crea una nueva contraseña",
+      "description": "Escribe tu nueva contraseña para tu cuenta SACDIA. Después úsala para iniciar sesión en la app.",
+      "password_label": "Nueva contraseña",
+      "confirm_label": "Confirmar contraseña",
+      "policy_hint": "Mínimo 12 caracteres, con mayúscula, minúscula, número y un símbolo (@ $ ! % * ? &).",
+      "show_password": "Mostrar contraseña",
+      "hide_password": "Ocultar contraseña",
+      "submit_idle": "Guardar contraseña",
+      "submit_loading": "Guardando…",
+      "success_title": "Contraseña actualizada",
+      "success_body": "Ya puedes iniciar sesión en la app SACDIA con tu nueva contraseña. Cerramos tus otras sesiones por seguridad.",
+      "invalid_title": "Este enlace ya no sirve",
+      "invalid_body": "El enlace venció, ya se usó o está incompleto. Pide uno nuevo desde «¿Olvidó su contraseña?» en la app.",
+      "policy": {
+        "required": "Escribe una contraseña.",
+        "min_length": "La contraseña debe tener al menos 12 caracteres.",
+        "max_length": "La contraseña no puede tener más de 128 caracteres.",
+        "uppercase": "La contraseña debe incluir al menos una mayúscula.",
+        "lowercase": "La contraseña debe incluir al menos una minúscula.",
+        "number": "La contraseña debe incluir al menos un número.",
+        "special": "La contraseña debe incluir al menos un símbolo (@ $ ! % * ? &).",
+        "first_char": "La contraseña debe empezar con una letra, un número o uno de @ $ ! % * ? &."
+      },
+      "errors": {
+        "mismatch": "Las contraseñas no coinciden.",
+        "link_invalid": "El enlace venció, ya se usó o está incompleto.",
+        "too_many_attempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+        "password_rejected": "El servidor rechazó la contraseña. Revisa los requisitos e inténtalo de nuevo.",
+        "generic": "No pudimos guardar la contraseña. Inténtalo de nuevo en unos minutos."
+      }
+    },
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bienvenido de nuevo",
@@ -1471,6 +1505,9 @@
         "continuationsClass": "Clase sugerida",
         "continuationsPathComplete": "Recorrido completo",
         "continuationsBlocked": "No elegible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "Es menor y el consentimiento del tutor aún no está verificado. Verifícalo para poder inscribirlo."
+        },
         "continuationsSubmit": "Inscribir seleccionados",
         "continuationsLoadError": "No se pudo cargar la lista de continuaciones.",
         "continuationsSubmitError": "No se pudo inscribir a los seleccionados.",
@@ -4252,7 +4289,8 @@
           "contactsEmpty": "Sin contactos de emergencia registrados.",
           "contactsMissingPayload": "No se pudieron cargar los contactos.",
           "legalRepTitle": "Representante legal",
-          "legalRepEmpty": "Sin representante legal registrado.",
+          "legalRepLegacyTitle": "Representante legal (heredado)",
+          "legalRepLegacyNote": "Registro heredado, solo lectura. Las relaciones actuales se gestionan en Tutorías.",
           "pastoralTitle": "Roles de club",
           "pastoralEmpty": "Sin roles de club registrados.",
           "healthTitle": "Salud",
@@ -4302,7 +4340,9 @@
           "appLabel": "App móvil",
           "appSub": "Acceso al cliente móvil",
           "panelLabel": "Panel admin",
-          "panelSub": "Acceso al panel administrativo"
+          "panelSub": "Acceso al panel administrativo",
+          "dependentLabel": "Sin acceso propio",
+          "dependentSub": "Gestionado por su tutor"
         },
         "deletedAccount": "Cuenta eliminada",
         "anonymizedAccount": "Datos personales anonimizados",
@@ -5304,6 +5344,13 @@
       "emptyTitle": "Sin secciones disponibles",
       "emptyDescription": "No se encontraron secciones de club activas para gestionar solicitudes."
     },
+    "pageConsentVerify": {
+      "title": "Fichas por verificar",
+      "description": "Fichas de consentimiento firmadas de menores, en las secciones que coordinas, esperando tu verificación.",
+      "errorLoad": "No se pudieron cargar tus secciones.",
+      "emptyTitle": "Sin secciones asignadas",
+      "emptyDescription": "No tienes secciones de club dentro de tu alcance de coordinación."
+    },
     "pageTransfers": {
       "title": "Solicitudes de Transferencia",
       "description": "Revisión y aprobación de solicitudes de transferencia entre secciones.",
@@ -6087,7 +6134,8 @@
       "col_status": "Estado",
       "empty_title": "Sin ítems de inventario",
       "empty_description": "No se encontraron ítems para los filtros seleccionados.",
-      "category_fallback": "Categoría {id}"
+      "category_fallback": "Categoría {id}",
+      "col_condition": "Condición"
     },
     "status": {
       "active": "Activo",
@@ -6099,7 +6147,9 @@
       "edit_item": "Editar ítem",
       "edit_sr": "Editar",
       "delete_item": "Eliminar ítem",
-      "delete_sr": "Eliminar"
+      "delete_sr": "Eliminar",
+      "view_details": "Ver detalle",
+      "view_details_sr": "Detalle"
     },
     "history": {
       "dialog_title": "Historial de cambios",
@@ -6113,7 +6163,42 @@
       "field_description": "Descripción",
       "field_amount": "Cantidad",
       "field_category": "Categoría",
-      "field_active": "Estado"
+      "field_active": "Estado",
+      "field_condition": "Condición",
+      "field_serial_number": "Número de serie",
+      "field_purchase_date": "Fecha de compra",
+      "field_estimated_value": "Valor estimado",
+      "field_location": "Ubicación",
+      "field_assigned_to": "Responsable",
+      "field_notes": "Notas"
+    },
+    "condition": {
+      "bueno": "Bueno",
+      "regular": "Regular",
+      "malo": "Malo"
+    },
+    "form": {
+      "step_indicator": "Paso {current} de {total}",
+      "step_main": "Datos del ítem",
+      "step_details": "Detalles adicionales",
+      "step_details_hint": "Todos los campos de este paso son opcionales.",
+      "next": "Más detalles",
+      "back": "Atrás",
+      "condition": "Condición",
+      "serial_number": "Número de serie",
+      "purchase_date": "Fecha de compra",
+      "estimated_value": "Valor estimado (MXN)",
+      "location": "Ubicación",
+      "assigned_to": "Responsable",
+      "notes": "Notas"
+    },
+    "detail": {
+      "title": "Detalle del ítem",
+      "description": "Información completa del ítem de inventario.",
+      "close": "Cerrar",
+      "section_general": "General",
+      "section_extra": "Detalles adicionales",
+      "no_value": "Sin especificar"
     },
     "view": {
       "select_local_field_placeholder": "Seleccionar campo local",
@@ -6139,13 +6224,25 @@
       "name_max": "El nombre no puede superar {max} caracteres",
       "description_max": "La descripción no puede superar {max} caracteres",
       "category_required": "Selecciona una categoría",
-      "amount_min": "La cantidad no puede ser negativa"
+      "amount_min": "La cantidad no puede ser negativa",
+      "serial_number_max": "El número de serie no puede superar {max} caracteres",
+      "purchase_date_invalid": "Ingresa una fecha válida",
+      "estimated_value_min": "El valor estimado no puede ser negativo",
+      "estimated_value_invalid": "Ingresa un monto válido con máximo 2 decimales",
+      "location_max": "La ubicación no puede superar {max} caracteres",
+      "assigned_to_max": "El responsable no puede superar {max} caracteres",
+      "notes_max": "Las notas no pueden superar {max} caracteres"
     },
     "placeholders": {
       "name": "Ej. Carpas 4 personas",
       "description": "Descripción opcional del ítem",
       "selectCategory": "Seleccionar categoría",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "Ej. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "Ej. Bodega del club",
+      "assigned_to": "Ej. Juan Pérez",
+      "notes": "Observaciones sobre el estado, uso o mantenimiento"
     }
   },
   "units_admin": {
@@ -6714,6 +6811,8 @@
     "table": {
       "count_one": "{count} solicitud pendiente",
       "count_other": "{count} solicitudes pendientes",
+      "count_verify_only_one": "{count} ficha por verificar",
+      "count_verify_only_other": "{count} fichas por verificar",
       "refresh": "Actualizar",
       "refresh_error": "No se pudo actualizar la lista",
       "col_member": "Miembro",
@@ -6723,6 +6822,8 @@
       "col_actions": "Acciones",
       "empty_title": "Sin solicitudes pendientes",
       "empty_description": "No hay solicitudes de membresía pendientes para esta sección.",
+      "empty_title_verify_only": "Sin fichas por verificar",
+      "empty_description_verify_only": "No hay fichas de consentimiento esperando verificación en esta sección.",
       "aria_approve": "Aprobar membresía",
       "aria_reject": "Rechazar membresía",
       "tooltip_approve": "Aprobar",
@@ -6739,11 +6840,103 @@
         "confirming": "Rechazando..."
       }
     },
+    "consent": {
+      "badge_pending": "Menor · consentimiento pendiente",
+      "expiry_extended_hint": "Se extiende mientras el consentimiento está pendiente",
+      "badge_verified": "Menor · consentimiento verificado",
+      "approve_blocked": "No se puede aprobar hasta verificar el consentimiento del tutor.",
+      "verify_action": "Verificar consentimiento",
+      "verify_action_aria": "Verificar consentimiento del tutor",
+      "verify_no_guardian": "Aún no hay un tutor vinculado: no hay nada que verificar.",
+      "dialog": {
+        "title": "Verificar consentimiento del tutor",
+        "description": "{userName} es menor de edad. Revisa la ficha firmada por su tutor antes de confirmar.",
+        "guardians_label": "Tutores registrados",
+        "guardian_primary": "Principal",
+        "evidence_title": "Ficha firmada",
+        "evidence_loading": "Cargando ficha...",
+        "evidence_none": "Aún no hay una ficha subida. Sube la ficha firmada para poder verificar.",
+        "evidence_none_verify_only": "Aún no hay una ficha subida. Un director o secretario debe subirla antes de que puedas verificar.",
+        "evidence_uploaded_at": "Subida el {date}",
+        "evidence_uploaded_by": "por {name}",
+        "evidence_image_alt": "Ficha de consentimiento firmada",
+        "evidence_open_pdf": "Abrir ficha en PDF",
+        "evidence_open_new_tab": "Abrir en una pestaña nueva",
+        "evidence_expiry_note": "El enlace a la ficha es temporal y vence en unos minutos.",
+        "evidence_reload": "Recargar",
+        "upload": "Subir ficha",
+        "replace": "Reemplazar ficha",
+        "uploading": "Subiendo...",
+        "upload_hint": "JPG, PNG, WebP o PDF. Máximo 10 MB. Las fotos HEIC no se aceptan: conviértelas a JPG.",
+        "confirm_checkbox": "Verifiqué la ficha firmada",
+        "approve_checkbox": "Aprobar la membresía al confirmar",
+        "verify_only_note": "Solo verificas el consentimiento. Un director aprobará la membresía después.",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "confirming": "Confirmando..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Ficha subida correctamente",
+        "verified": "Consentimiento verificado para {name}",
+        "verified_approved": "Consentimiento verificado y membresía aprobada para {name}",
+        "approve_failed": "Consentimiento verificado, pero no se pudo aprobar la solicitud: {reason}"
+      },
+      "validation": {
+        "type": "Formato no válido. Usa JPG, PNG, WebP o PDF (HEIC no se acepta).",
+        "size": "El archivo supera los 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "No hay una ficha firmada subida para este menor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Sube la ficha firmada antes de verificar el consentimiento.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Las fichas no se pueden guardar ni consultar por ahora. Inténtalo más tarde.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "Un menor bajo custodia del club debe ser verificado por otra persona autorizada del club, distinta de quien lo registró, subió la ficha o lo recibió en custodia.",
+        "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "Quien verifica no puede ser un tutor del menor. Pide a otra persona autorizada del club que verifique la ficha.",
+        "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "El consentimiento ya fue verificado: la ficha no se puede reemplazar. Si cambia el tutor, se debe registrar una nueva tutoría.",
+        "GUARDIANSHIP_NOT_FOUND": "No se encontró una tutoría activa para este menor.",
+        "MR_APPROVE_PERMISSION_REQUIRED": "No tienes permiso para aprobar membresías. Desmarca «Aprobar» para solo verificar el consentimiento; un director aprobará después.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "Debes confirmar que revisaste la ficha firmada.",
+        "MR_CONSENT_NOT_VERIFIED": "El consentimiento del tutor aún no está verificado. Verifícalo antes de aprobar.",
+        "MR_NOT_FOUND": "La solicitud ya no existe o no pertenece a esta sección.",
+        "MR_ALREADY_PENDING": "La solicitud ya fue procesada. Actualiza la lista.",
+        "FILE_REQUIRED": "Selecciona un archivo.",
+        "FILE_TYPE_INVALID": "Formato no válido. Usa JPG, PNG, WebP o PDF.",
+        "FILE_TOO_LARGE": "El archivo supera los 10 MB.",
+        "GUARD_PERMISSION_DENIED": "No tienes permiso para realizar esta acción.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "Esta sección está fuera de tu alcance de coordinación.",
+        "generic": "No se pudo completar la acción.",
+        "upload": "No se pudo subir la ficha.",
+        "verify": "No se pudo verificar el consentimiento.",
+        "approve": "Ocurrió un error al aprobar la solicitud",
+        "evidence_load": "No se pudo cargar la ficha."
+      }
+    },
     "client": {
       "section_label": "Sección de club",
       "section_placeholder": "Seleccionar sección",
       "load_error_permission": "No tienes permisos para ver solicitudes de esta sección.",
+      "load_error_scope": "Esta sección está fuera de tu alcance de coordinación. Elige otra.",
       "load_error_generic": "No se pudieron cargar las solicitudes."
+    },
+    "queue": {
+      "all_sections": "Todas mis secciones",
+      "summary_title": "Fichas por sección",
+      "summary_hint": "Toca una sección para ver solo sus fichas.",
+      "count_one": "{count} ficha por verificar en tus secciones",
+      "count_other": "{count} fichas por verificar en tus secciones",
+      "col_club": "Club",
+      "col_type": "Tipo",
+      "col_district": "Distrito",
+      "col_minor": "Menor",
+      "col_form_uploaded": "Ficha subida",
+      "col_actions": "Acciones",
+      "empty_title": "Sin fichas por verificar",
+      "empty_description": "No hay fichas de consentimiento esperando verificación en ninguna de tus secciones.",
+      "error_permission": "Tu rol de coordinador no incluye verificar consentimientos. Elige una sección para ver su lista.",
+      "error_scope": "No tienes asignaciones de coordinación activas que cubran secciones.",
+      "error_generic": "No se pudieron cargar las fichas por verificar.",
+      "club_fallback": "Club",
+      "verify_aria": "Verificar consentimiento del tutor de {name}",
+      "retry": "Reintentar"
     },
     "toasts": {
       "approved": "Membresía aprobada para {name}",
@@ -6752,6 +6945,79 @@
     "errors": {
       "approve": "Ocurrió un error al aprobar la solicitud",
       "reject": "Ocurrió un error al rechazar la solicitud"
+    }
+  },
+  "guardianships": {
+    "title": "Tutorías",
+    "description": "Relaciones de tutoría del usuario como menor y como tutor.",
+    "asDependent": {
+      "title": "Tutores de este perfil",
+      "empty": "Este perfil no tiene tutorías registradas."
+    },
+    "asGuardian": {
+      "title": "Menores a su cargo",
+      "empty": "Este usuario no es tutor de ningún menor."
+    },
+    "profile": {
+      "title": "Perfil de menor",
+      "createdAt": "Creado el",
+      "createdBy": "Creado por",
+      "frozenAt": "Congelado desde",
+      "purgeAfter": "Se eliminará a partir del",
+      "active": "Activo"
+    },
+    "fields": {
+      "guardian": "Tutor",
+      "email": "Correo",
+      "custodianClub": "Custodia del club",
+      "externalName": "Tutor externo (sin cuenta)",
+      "relationship": "Parentesco",
+      "status": "Estado",
+      "method": "Método de verificación",
+      "verifiedAt": "Verificado el",
+      "verifiedBy": "Verificado por",
+      "evidence": "Ficha firmada",
+      "createdAt": "Registrada el",
+      "revokedAt": "Revocada el",
+      "revokedReason": "Motivo de revocación",
+      "birthday": "Nacimiento"
+    },
+    "badges": {
+      "primary": "Principal",
+      "custodian": "Custodia",
+      "testData": "Datos de prueba",
+      "revoked": "Revocada"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "verified": "Verificado",
+      "revoked": "Revocado"
+    },
+    "method": {
+      "director_paper_form": "Ficha en papel (director)",
+      "coordinator_paper_form": "Ficha en papel (coordinador)",
+      "guardian_invite": "Invitación de tutor",
+      "legacy_import": "Importación heredada",
+      "test_placeholder": "Marcador de prueba"
+    },
+    "revokedReason": {
+      "guardian_left": "El tutor salió",
+      "removed_by_primary": "Removido por el tutor principal",
+      "guardian_account_closed": "Cuenta del tutor cerrada",
+      "claimed": "Reclamado por otro tutor",
+      "admin": "Administración",
+      "released": "Liberado"
+    },
+    "evidence": {
+      "missing": "Sin ficha",
+      "view": "Ver ficha",
+      "loading": "Cargando...",
+      "open": "Abrir ficha",
+      "expiryNote": "El enlace es temporal y vence en unos minutos.",
+      "error": "No se pudo abrir la ficha.",
+      "unavailable": "Las fichas no están disponibles por ahora.",
+      "notFound": "No hay una ficha firmada para esta tutoría.",
+      "denied": "No tienes permiso para ver esta ficha."
     }
   },
   "sla": {
@@ -7011,7 +7277,38 @@
       "jobActivitiesReminder": "Recordatorios de actividades",
       "jobMembershipExpiry": "Expirar solicitudes de membresía",
       "jobCleanupExpired": "Cleanup sesiones/tokens vencidos",
-      "jobFcmCleanup": "Cleanup FCM tokens huérfanos"
+      "jobFcmCleanup": "Cleanup FCM tokens huérfanos",
+      "jobAnnualReports": "Reportes anuales (auto-generar)",
+      "jobQuarterlyReports": "Reportes trimestrales (auto-generar)",
+      "jobMonthlyReportsReminders": "Recordatorios de reportes mensuales",
+      "jobCronAlertCheck": "Verificación de alertas de cron",
+      "jobFcmStaleCleanup": "Cleanup FCM tokens inactivos",
+      "jobDependentProfilesPurge": "Depuración de perfiles de dependientes",
+      "jobFamilyAgeTransitions": "Transiciones de edad familiar",
+      "jobPendingTeenGuardian": "Adolescentes pendientes de tutor",
+      "jobInvestitureAchievementIntent": "Intención de logro de investidura",
+      "jobInvestitureAuthReminders": "Recordatorios de autorización de investidura",
+      "jobEcclesiasticalYearCut": "Corte del año eclesiástico",
+      "colActions": "Acciones",
+      "runNow": "Ejecutar ahora",
+      "runNowRunning": "Ejecutando…",
+      "runDialogTitle": "¿Ejecutar «{job}» ahora?",
+      "runDialogDescription": "Corre igual que la ejecución programada; si ya está corriendo se omitirá.",
+      "runDialogNotifyWarning": "Este job puede enviar avisos o correos reales.",
+      "runDialogMemberOfMonthWarning": "Atención: volver a ejecutarlo vuelve a crear los ganadores del mes anterior y a notificar de nuevo a cada ganador y director de club.",
+      "runDialogCancel": "Cancelar",
+      "runDialogConfirm": "Ejecutar",
+      "runResultCompleted": "Completado · {count, plural, one {# procesado} other {# procesados}}",
+      "runResultCompletedNoCount": "Completado",
+      "runResultSkipped": "Omitido",
+      "runResultFailed": "Falló: {message}",
+      "runResultFailedNoMessage": "Falló",
+      "runResultEnqueued": "En cola · se ejecutará en segundo plano",
+      "runDetached": "La ejecución sigue en el servidor; revisa el historial en unos minutos",
+      "runErrorNotFound": "Este job no existe o no se puede ejecutar manualmente.",
+      "runErrorForbidden": "Solo un super administrador puede ejecutar jobs.",
+      "runErrorGeneric": "No se pudo ejecutar el job.",
+      "manualBadge": "Manual"
     },
     "overview": {
       "queuesTitle": "Colas",
@@ -7087,15 +7384,7 @@
       "detailLabelItems": "Items procesados",
       "detailLabelError": "Mensaje de error",
       "detailLabelMetadata": "Metadata",
-      "jobMonthlyReports": "Reportes mensuales (auto-generar)",
-      "jobRankingsRecalculate": "Clasificaciones anuales (recalcular)",
-      "jobDataExportCleanup": "Cleanup exportes vencidos",
-      "jobMemberOfMonth": "Miembro del mes (auto-evaluar)",
-      "jobFinancePeriod": "Cierre de periodo financiero",
-      "jobActivitiesReminder": "Recordatorios de actividades",
-      "jobMembershipExpiry": "Expirar solicitudes de membresía",
-      "jobCleanupExpired": "Cleanup sesiones/tokens vencidos",
-      "jobFcmCleanup": "Cleanup FCM tokens huérfanos"
+      "manualBadge": "Manual"
     }
   },
   "settings": {
@@ -8659,6 +8948,122 @@
         "assigning": "Asignando…",
         "assigned": "Pastor asignado."
       }
+    }
+  },
+  "familyAccess": {
+    "title": "Acceso familiar",
+    "description": "Acceso propio del menor y dispositivos vinculados por su tutor. Solo el tutor activa un acceso o cambia su contraseña: desde aquí únicamente se puede desactivar o revocar.",
+    "supervision": {
+      "label": "Supervisión del tutor",
+      "active": "Activa",
+      "pending_guardian": "Pendiente de tutor",
+      "none": "Sin supervisión"
+    },
+    "login": {
+      "title": "Acceso propio",
+      "empty": "Este perfil no tiene un acceso propio.",
+      "status": {
+        "active": "Activa",
+        "pending_guardian": "Pendiente de tutor",
+        "disabled": "Desactivada"
+      },
+      "fields": {
+        "status": "Estado",
+        "method": "Método de ingreso",
+        "handle": "Usuario",
+        "origin": "Origen",
+        "enabledBy": "Activado por",
+        "enabledByGuardian": "Supervisión activada por",
+        "enabledAt": "Activado el",
+        "passwordSetBy": "Contraseña definida por",
+        "pendingSince": "Pendiente de tutor desde",
+        "disabledAt": "Desactivado el",
+        "disabledReason": "Motivo de la desactivación"
+      },
+      "method": {
+        "email": "Correo",
+        "handle": "Usuario"
+      },
+      "origin": {
+        "self_registered": "Registro propio",
+        "guardian_enabled": "Activado por el tutor"
+      },
+      "passwordSetBy": {
+        "guardian": "El tutor",
+        "self": "El menor"
+      },
+      "disabledReason": {
+        "guardian": "Desactivado por el tutor",
+        "admin": "Desactivado por administración",
+        "unlinked_purged": "Sin tutor vinculado (depuración automática)"
+      },
+      "disable": "Desactivar",
+      "disableAria": "Desactivar el acceso propio"
+    },
+    "devices": {
+      "title": "Dispositivos vinculados",
+      "empty": "No hay dispositivos vinculados.",
+      "columns": {
+        "device": "Dispositivo",
+        "pairedBy": "Vinculado por",
+        "lastSeen": "Última actividad",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Activo",
+        "revoked": "Revocado"
+      },
+      "appVersion": "Versión {version}",
+      "expiresOn": "Vence el {date}",
+      "revokedOn": "Revocado el {date}",
+      "revoke": "Revocar",
+      "revokeAria": "Revocar el dispositivo {label}"
+    },
+    "dialog": {
+      "disableTitle": "¿Desactivar el acceso propio?",
+      "disableDescription": "El menor perderá el acceso de inmediato y sus sesiones se cerrarán. Solo su tutor podrá reactivarlo. Los tutores verificados recibirán un aviso.",
+      "revokeTitle": "¿Revocar el dispositivo vinculado?",
+      "revokeDescription": "El dispositivo «{label}» dejará de tener acceso de inmediato. Los tutores verificados recibirán un aviso.",
+      "reasonLabel": "Motivo (obligatorio)",
+      "reasonHint": "Mínimo 5 caracteres. Queda registrado en la auditoría.",
+      "reasonPlaceholder": "Describe el motivo de esta acción...",
+      "reasonTooShort": "El motivo debe tener al menos 5 caracteres.",
+      "cancel": "Cancelar",
+      "disableConfirm": "Desactivar acceso",
+      "revokeConfirm": "Revocar dispositivo",
+      "working": "Procesando..."
+    },
+    "sessions": {
+      "title": "Sesiones activas",
+      "load": "Ver sesiones activas",
+      "loading": "Cargando...",
+      "empty": "No hay sesiones activas.",
+      "error": "No se pudieron cargar las sesiones.",
+      "retry": "Reintentar",
+      "deviceBadge": "Dispositivo vinculado",
+      "userBadge": "Sesión del usuario",
+      "linkedDevice": "Dispositivo: {label}",
+      "createdAt": "Creada el",
+      "expiresAt": "Vence el",
+      "ip": "IP",
+      "agent": "Cliente"
+    },
+    "toasts": {
+      "disabled": "Acceso propio desactivado.",
+      "revoked": "Dispositivo revocado."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "El usuario ya no existe o está fuera de tu alcance.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "Este perfil no tiene un acceso propio que desactivar.",
+      "DEVICE_NOT_FOUND": "El dispositivo ya no existe o no pertenece a este perfil.",
+      "forbidden": "No tienes permiso para gestionar el acceso familiar de este usuario.",
+      "invalid_reason": "El motivo debe tener entre 5 y 500 caracteres.",
+      "generic": "No se pudo completar la acción. Inténtalo de nuevo."
     }
   }
 }

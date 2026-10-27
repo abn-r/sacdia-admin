@@ -55,6 +55,8 @@ export type CronRecentRun = {
   duration_ms: number | null;
   items_processed: number | null;
   error_message: string | null;
+  trigger: "manual" | "scheduled";
+  triggered_by: string | null;
 };
 
 export type CronJobStats = {
@@ -117,4 +119,52 @@ export async function getCronRunsHistory(params: {
   const url = `/admin/analytics/cron-runs/history${qs.toString() ? `?${qs}` : ""}`;
   const res = await apiRequest<{ status: string; data: CronHistoryPage }>(url);
   return res.data;
+}
+
+// ─── Cron Jobs (run on demand) ────────────────────────────────────────────────
+
+export interface CronJobDefinition {
+  job_name: string;
+  schedule: string;
+  /** null when the job has no explicit time zone (server default applies). */
+  time_zone: string | null;
+  runnable: boolean;
+  description: string;
+}
+
+export type CronRunResultStatus = "completed" | "failed" | "skipped";
+
+export interface CronRunResult {
+  job_name: string;
+  /** null when the job is queue-backed (the worker writes its own row later). */
+  run_id: number | null;
+  /** true when the work was only enqueued in BullMQ; the worker finishes it. */
+  enqueued: boolean;
+  status: CronRunResultStatus;
+  items_processed: number | null;
+  duration_ms: number | null;
+  error_message: string | null;
+}
+
+export async function listCronJobs(): Promise<CronJobDefinition[]> {
+  const res = await apiRequest<{ data: { jobs: CronJobDefinition[] } }>(
+    "/admin/cron-jobs",
+  );
+  return res.data.jobs;
+}
+
+/** Runs a scheduled job now. Awaited by the backend, so it can take a while. */
+export async function runCronJob(jobName: string): Promise<CronRunResult> {
+  const res = await apiRequest<{ data: CronRunResult }>(
+    `/admin/cron-jobs/${encodeURIComponent(jobName)}/run`,
+    { method: "POST" },
+  );
+  return res.data;
+}
+
+/** True when a history run was triggered manually (`metadata.trigger === 'manual'`). */
+export function isManualCronRun(
+  metadata: Record<string, unknown> | null | undefined,
+): boolean {
+  return metadata?.trigger === "manual";
 }

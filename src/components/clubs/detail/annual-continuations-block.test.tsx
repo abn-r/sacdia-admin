@@ -49,6 +49,14 @@ const BLOCKED: ContinuationListItem = {
   suggested_class: { status: "blocked", code: "ANNUAL_CLASS_POLICY_UNRESOLVED" },
 };
 
+const CONSENT_BLOCKED: ContinuationListItem = {
+  ...BLOCKED,
+  user_id: "user-minor-no-consent",
+  name: "Mia Menor",
+  blocked_reason: "MR_CONSENT_NOT_VERIFIED",
+  suggested_class: { status: "resolved", class_id: 201, code: "AMG" },
+};
+
 function renderBlock() {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
@@ -116,5 +124,49 @@ describe("AnnualContinuationsBlock", () => {
         "Inscritos: 1. Recorrido completo: 0. Bloqueados: 0. Fallidos: 0.",
       ),
     ).toBeTruthy();
+  });
+
+  it("shows a translated reason when the list marks consent as not verified", async () => {
+    mockList.mockResolvedValue([ELIGIBLE, CONSENT_BLOCKED]);
+    renderBlock();
+
+    await waitFor(() => {
+      expect(screen.getByText("Mia Menor")).toBeTruthy();
+    });
+    expect(
+      screen.getByText(messages.clubs.detail.sections.continuationsBlockedReasons.MR_CONSENT_NOT_VERIFIED),
+    ).toBeTruthy();
+    expect(screen.queryByText("MR_CONSENT_NOT_VERIFIED")).toBeNull();
+  });
+
+  it("lists blocked-by-consent users after submit with a translated reason", async () => {
+    const user = userEvent.setup();
+    mockSubmit.mockResolvedValue([
+      {
+        user_id: ELIGIBLE.user_id,
+        outcome: "blocked",
+        club_section_id: 101,
+        ecclesiastical_year_id: 2026,
+        enrollment_id: null,
+        error_code: "MR_CONSENT_NOT_VERIFIED",
+      },
+    ]);
+    renderBlock();
+
+    await waitFor(() => {
+      expect(screen.getByText("Eva Ávila Cruz")).toBeTruthy();
+    });
+    await user.click(screen.getAllByRole("checkbox")[0]!);
+    await user.click(
+      screen.getByRole("button", { name: messages.clubs.detail.sections.continuationsSubmit }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Eva Ávila Cruz: .*consentimiento/,
+        ),
+      ).toBeTruthy();
+    });
   });
 });

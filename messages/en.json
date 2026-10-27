@@ -1141,6 +1141,40 @@
     }
   },
   "auth": {
+    "reset_password": {
+      "meta_title": "Reset password · SACDIA",
+      "brand_subtitle": "JA Clubs",
+      "title": "Create a new password",
+      "description": "Enter a new password for your SACDIA account. Then use it to sign in to the app.",
+      "password_label": "New password",
+      "confirm_label": "Confirm password",
+      "policy_hint": "At least 12 characters, with an uppercase letter, a lowercase letter, a number and a symbol (@ $ ! % * ? &).",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+      "submit_idle": "Save password",
+      "submit_loading": "Saving…",
+      "success_title": "Password updated",
+      "success_body": "You can now sign in to the SACDIA app with your new password. We signed you out of your other sessions for security.",
+      "invalid_title": "This link no longer works",
+      "invalid_body": "The link expired, was already used or is incomplete. Request a new one from \"Forgot your password?\" in the app.",
+      "policy": {
+        "required": "Enter a password.",
+        "min_length": "The password must be at least 12 characters long.",
+        "max_length": "The password can't be longer than 128 characters.",
+        "uppercase": "The password must include at least one uppercase letter.",
+        "lowercase": "The password must include at least one lowercase letter.",
+        "number": "The password must include at least one number.",
+        "special": "The password must include at least one symbol (@ $ ! % * ? &).",
+        "first_char": "The password must start with a letter, a number or one of @ $ ! % * ? &."
+      },
+      "errors": {
+        "mismatch": "The passwords don't match.",
+        "link_invalid": "The link expired, was already used or is incomplete.",
+        "too_many_attempts": "Too many attempts. Wait a minute and try again.",
+        "password_rejected": "The server rejected the password. Check the requirements and try again.",
+        "generic": "We couldn't save the password. Try again in a few minutes."
+      }
+    },
     "login": {
       "brand_subtitle": "Administrative System",
       "welcome_title": "Welcome back",
@@ -1471,6 +1505,9 @@
         "continuationsClass": "Suggested class",
         "continuationsPathComplete": "Path complete",
         "continuationsBlocked": "Not eligible",
+        "continuationsBlockedReasons": {
+          "MR_CONSENT_NOT_VERIFIED": "This is a minor and the guardian's consent is not verified yet. Verify it before enrolling."
+        },
         "continuationsSubmit": "Enroll selected",
         "continuationsLoadError": "Could not load the continuations list.",
         "continuationsSubmitError": "Could not enroll the selected members.",
@@ -4252,7 +4289,8 @@
           "contactsEmpty": "No emergency contacts registered.",
           "contactsMissingPayload": "Could not load contacts.",
           "legalRepTitle": "Legal representative",
-          "legalRepEmpty": "No legal representative registered.",
+          "legalRepLegacyTitle": "Legal representative (legacy)",
+          "legalRepLegacyNote": "Legacy read-only record. Current relationships are managed under Guardianships.",
           "pastoralTitle": "Club roles",
           "pastoralEmpty": "No club roles registered.",
           "healthTitle": "Health",
@@ -4302,7 +4340,9 @@
           "appLabel": "Mobile app",
           "appSub": "Access to mobile client",
           "panelLabel": "Admin panel",
-          "panelSub": "Access to the admin panel"
+          "panelSub": "Access to the admin panel",
+          "dependentLabel": "No own access",
+          "dependentSub": "Managed by their guardian"
         },
         "deletedAccount": "Deleted account",
         "anonymizedAccount": "Personal data anonymized",
@@ -5304,6 +5344,13 @@
       "emptyTitle": "No sections available",
       "emptyDescription": "No active club sections were found to manage requests."
     },
+    "pageConsentVerify": {
+      "title": "Forms to verify",
+      "description": "Signed consent forms of minors, in the sections you coordinate, waiting for your verification.",
+      "errorLoad": "Could not load your sections.",
+      "emptyTitle": "No sections assigned",
+      "emptyDescription": "You have no club sections within your coordination scope."
+    },
     "pageTransfers": {
       "title": "Transfer Requests",
       "description": "Review and approval of transfer requests between sections.",
@@ -6087,7 +6134,8 @@
       "col_status": "Status",
       "empty_title": "No inventory items",
       "empty_description": "No items found for the selected filters.",
-      "category_fallback": "Category {id}"
+      "category_fallback": "Category {id}",
+      "col_condition": "Condition"
     },
     "status": {
       "active": "Active",
@@ -6099,7 +6147,9 @@
       "edit_item": "Edit item",
       "edit_sr": "Edit",
       "delete_item": "Delete item",
-      "delete_sr": "Delete"
+      "delete_sr": "Delete",
+      "view_details": "View details",
+      "view_details_sr": "Details"
     },
     "history": {
       "dialog_title": "Change history",
@@ -6113,7 +6163,42 @@
       "field_description": "Description",
       "field_amount": "Quantity",
       "field_category": "Category",
-      "field_active": "Status"
+      "field_active": "Status",
+      "field_condition": "Condition",
+      "field_serial_number": "Serial number",
+      "field_purchase_date": "Purchase date",
+      "field_estimated_value": "Estimated value",
+      "field_location": "Location",
+      "field_assigned_to": "Assigned to",
+      "field_notes": "Notes"
+    },
+    "condition": {
+      "bueno": "Good",
+      "regular": "Fair",
+      "malo": "Poor"
+    },
+    "form": {
+      "step_indicator": "Step {current} of {total}",
+      "step_main": "Item details",
+      "step_details": "Additional details",
+      "step_details_hint": "All fields in this step are optional.",
+      "next": "More details",
+      "back": "Back",
+      "condition": "Condition",
+      "serial_number": "Serial number",
+      "purchase_date": "Purchase date",
+      "estimated_value": "Estimated value (MXN)",
+      "location": "Location",
+      "assigned_to": "Assigned to",
+      "notes": "Notes"
+    },
+    "detail": {
+      "title": "Item details",
+      "description": "Complete information for this inventory item.",
+      "close": "Close",
+      "section_general": "General",
+      "section_extra": "Additional details",
+      "no_value": "Not specified"
     },
     "view": {
       "select_local_field_placeholder": "Select local field",
@@ -6139,13 +6224,25 @@
       "name_max": "Name cannot exceed {max} characters",
       "description_max": "Description cannot exceed {max} characters",
       "category_required": "Select a category",
-      "amount_min": "Quantity cannot be negative"
+      "amount_min": "Quantity cannot be negative",
+      "serial_number_max": "Serial number cannot exceed {max} characters",
+      "purchase_date_invalid": "Enter a valid date",
+      "estimated_value_min": "Estimated value cannot be negative",
+      "estimated_value_invalid": "Enter a valid amount with at most 2 decimals",
+      "location_max": "Location cannot exceed {max} characters",
+      "assigned_to_max": "Assigned to cannot exceed {max} characters",
+      "notes_max": "Notes cannot exceed {max} characters"
     },
     "placeholders": {
       "name": "E.g. 4-person tents",
       "description": "Optional item description",
       "selectCategory": "Select category",
-      "quantity": "0"
+      "quantity": "0",
+      "serial_number": "E.g. SN-2024-001",
+      "estimated_value": "0.00",
+      "location": "E.g. Club storage room",
+      "assigned_to": "E.g. John Smith",
+      "notes": "Remarks about condition, usage or maintenance"
     }
   },
   "units_admin": {
@@ -6714,6 +6811,8 @@
     "table": {
       "count_one": "{count} pending request",
       "count_other": "{count} pending requests",
+      "count_verify_only_one": "{count} form to verify",
+      "count_verify_only_other": "{count} forms to verify",
       "refresh": "Refresh",
       "refresh_error": "Could not refresh the list",
       "col_member": "Member",
@@ -6723,6 +6822,8 @@
       "col_actions": "Actions",
       "empty_title": "No pending requests",
       "empty_description": "There are no pending membership requests for this section.",
+      "empty_title_verify_only": "No forms to verify",
+      "empty_description_verify_only": "No consent forms are waiting for verification in this section.",
       "aria_approve": "Approve membership",
       "aria_reject": "Reject membership",
       "tooltip_approve": "Approve",
@@ -6739,11 +6840,103 @@
         "confirming": "Rejecting..."
       }
     },
+    "consent": {
+      "badge_pending": "Minor · consent pending",
+      "expiry_extended_hint": "Extended while consent is pending",
+      "badge_verified": "Minor · consent verified",
+      "approve_blocked": "Cannot approve until the guardian's consent is verified.",
+      "verify_action": "Verify consent",
+      "verify_action_aria": "Verify guardian consent",
+      "verify_no_guardian": "No guardian is linked yet: there is nothing to verify.",
+      "dialog": {
+        "title": "Verify guardian consent",
+        "description": "{userName} is a minor. Review the form signed by their guardian before confirming.",
+        "guardians_label": "Registered guardians",
+        "guardian_primary": "Primary",
+        "evidence_title": "Signed form",
+        "evidence_loading": "Loading form...",
+        "evidence_none": "No form has been uploaded yet. Upload the signed form to be able to verify.",
+        "evidence_none_verify_only": "No form has been uploaded yet. A director or secretary must upload it before you can verify.",
+        "evidence_uploaded_at": "Uploaded on {date}",
+        "evidence_uploaded_by": "by {name}",
+        "evidence_image_alt": "Signed consent form",
+        "evidence_open_pdf": "Open form as PDF",
+        "evidence_open_new_tab": "Open in a new tab",
+        "evidence_expiry_note": "The link to the form is temporary and expires in a few minutes.",
+        "evidence_reload": "Reload",
+        "upload": "Upload form",
+        "replace": "Replace form",
+        "uploading": "Uploading...",
+        "upload_hint": "JPG, PNG, WebP or PDF. Max 10 MB. HEIC photos are not accepted: convert them to JPG.",
+        "confirm_checkbox": "I verified the signed form",
+        "approve_checkbox": "Approve the membership on confirm",
+        "verify_only_note": "You only verify the consent. A director will approve the membership afterwards.",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "confirming": "Confirming..."
+      },
+      "toasts": {
+        "evidence_uploaded": "Form uploaded successfully",
+        "verified": "Consent verified for {name}",
+        "verified_approved": "Consent verified and membership approved for {name}",
+        "approve_failed": "Consent verified, but the request could not be approved: {reason}"
+      },
+      "validation": {
+        "type": "Invalid format. Use JPG, PNG, WebP or PDF (HEIC is not accepted).",
+        "size": "The file is larger than 10 MB."
+      },
+      "errors": {
+        "GUARDIANSHIP_EVIDENCE_NOT_FOUND": "There is no signed form uploaded for this minor.",
+        "GUARDIANSHIP_EVIDENCE_REQUIRED": "Upload the signed form before verifying the consent.",
+        "GUARDIANSHIP_EVIDENCE_UNAVAILABLE": "Forms cannot be stored or read right now. Try again later.",
+        "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY": "A minor under club custody must be verified by another authorized person of the club, not by whoever registered them, uploaded the form or took the minor into custody.",
+        "GUARDIANSHIP_GUARDIAN_SELF_VERIFY": "The person verifying cannot be a guardian of the minor. Ask another authorized person of the club to verify the form.",
+        "GUARDIANSHIP_CONSENT_ALREADY_VERIFIED": "Consent is already verified, so the form cannot be replaced. If the guardian changes, a new guardianship must be registered.",
+        "GUARDIANSHIP_NOT_FOUND": "No active guardianship was found for this minor.",
+        "MR_APPROVE_PERMISSION_REQUIRED": "You do not have permission to approve memberships. Untick \"Approve\" to only verify the consent; a director will approve afterwards.",
+        "MR_CONSENT_CONFIRMATION_REQUIRED": "You must confirm that you reviewed the signed form.",
+        "MR_CONSENT_NOT_VERIFIED": "The guardian's consent is not verified yet. Verify it before approving.",
+        "MR_NOT_FOUND": "The request no longer exists or does not belong to this section.",
+        "MR_ALREADY_PENDING": "The request was already processed. Refresh the list.",
+        "FILE_REQUIRED": "Select a file.",
+        "FILE_TYPE_INVALID": "Invalid format. Use JPG, PNG, WebP or PDF.",
+        "FILE_TOO_LARGE": "The file is larger than 10 MB.",
+        "GUARD_PERMISSION_DENIED": "You do not have permission to perform this action.",
+        "GUARD_CLUB_SCOPE_REQUIRED": "This section is outside your coordination scope.",
+        "generic": "The action could not be completed.",
+        "upload": "The form could not be uploaded.",
+        "verify": "The consent could not be verified.",
+        "approve": "An error occurred while approving the request",
+        "evidence_load": "The form could not be loaded."
+      }
+    },
     "client": {
       "section_label": "Club section",
       "section_placeholder": "Select section",
       "load_error_permission": "You do not have permission to view requests for this section.",
+      "load_error_scope": "This section is outside your coordination scope. Pick another one.",
       "load_error_generic": "Could not load membership requests."
+    },
+    "queue": {
+      "all_sections": "All my sections",
+      "summary_title": "Forms by section",
+      "summary_hint": "Tap a section to see only its forms.",
+      "count_one": "{count} form to verify across your sections",
+      "count_other": "{count} forms to verify across your sections",
+      "col_club": "Club",
+      "col_type": "Type",
+      "col_district": "District",
+      "col_minor": "Minor",
+      "col_form_uploaded": "Form uploaded",
+      "col_actions": "Actions",
+      "empty_title": "No forms to verify",
+      "empty_description": "No consent forms are waiting for verification in any of your sections.",
+      "error_permission": "Your coordinator role does not include verifying consent. Pick a section to see its list.",
+      "error_scope": "You have no active coordination assignments covering sections.",
+      "error_generic": "Could not load the forms to verify.",
+      "club_fallback": "Club",
+      "verify_aria": "Verify guardian consent for {name}",
+      "retry": "Retry"
     },
     "toasts": {
       "approved": "Membership approved for {name}",
@@ -6752,6 +6945,79 @@
     "errors": {
       "approve": "An error occurred while approving the request",
       "reject": "An error occurred while rejecting the request"
+    }
+  },
+  "guardianships": {
+    "title": "Guardianships",
+    "description": "The user's guardianship relationships as a minor and as a guardian.",
+    "asDependent": {
+      "title": "Guardians of this profile",
+      "empty": "This profile has no guardianships on record."
+    },
+    "asGuardian": {
+      "title": "Minors in their care",
+      "empty": "This user is not a guardian of any minor."
+    },
+    "profile": {
+      "title": "Minor profile",
+      "createdAt": "Created on",
+      "createdBy": "Created by",
+      "frozenAt": "Frozen since",
+      "purgeAfter": "Scheduled for deletion from",
+      "active": "Active"
+    },
+    "fields": {
+      "guardian": "Guardian",
+      "email": "Email",
+      "custodianClub": "Club custody",
+      "externalName": "External guardian (no account)",
+      "relationship": "Relationship",
+      "status": "Status",
+      "method": "Verification method",
+      "verifiedAt": "Verified on",
+      "verifiedBy": "Verified by",
+      "evidence": "Signed form",
+      "createdAt": "Registered on",
+      "revokedAt": "Revoked on",
+      "revokedReason": "Revocation reason",
+      "birthday": "Birthday"
+    },
+    "badges": {
+      "primary": "Primary",
+      "custodian": "Custody",
+      "testData": "Test data",
+      "revoked": "Revoked"
+    },
+    "status": {
+      "pending": "Pending",
+      "verified": "Verified",
+      "revoked": "Revoked"
+    },
+    "method": {
+      "director_paper_form": "Paper form (director)",
+      "coordinator_paper_form": "Paper form (coordinator)",
+      "guardian_invite": "Guardian invite",
+      "legacy_import": "Legacy import",
+      "test_placeholder": "Test placeholder"
+    },
+    "revokedReason": {
+      "guardian_left": "Guardian left",
+      "removed_by_primary": "Removed by the primary guardian",
+      "guardian_account_closed": "Guardian account closed",
+      "claimed": "Claimed by another guardian",
+      "admin": "Administration",
+      "released": "Released"
+    },
+    "evidence": {
+      "missing": "No form",
+      "view": "View form",
+      "loading": "Loading...",
+      "open": "Open form",
+      "expiryNote": "The link is temporary and expires in a few minutes.",
+      "error": "The form could not be opened.",
+      "unavailable": "Forms are not available right now.",
+      "notFound": "There is no signed form for this guardianship.",
+      "denied": "You do not have permission to view this form."
     }
   },
   "sla": {
@@ -7011,7 +7277,38 @@
       "jobActivitiesReminder": "Activities reminders",
       "jobMembershipExpiry": "Expire membership requests",
       "jobCleanupExpired": "Cleanup expired sessions/tokens",
-      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
+      "jobFcmCleanup": "Cleanup orphaned FCM tokens",
+      "jobAnnualReports": "Annual reports (auto-generate)",
+      "jobQuarterlyReports": "Quarterly reports (auto-generate)",
+      "jobMonthlyReportsReminders": "Monthly report reminders",
+      "jobCronAlertCheck": "Cron alert check",
+      "jobFcmStaleCleanup": "Cleanup stale FCM tokens",
+      "jobDependentProfilesPurge": "Dependent profiles purge",
+      "jobFamilyAgeTransitions": "Family age transitions",
+      "jobPendingTeenGuardian": "Pending teen guardian",
+      "jobInvestitureAchievementIntent": "Investiture achievement intent",
+      "jobInvestitureAuthReminders": "Investiture authorization reminders",
+      "jobEcclesiasticalYearCut": "Ecclesiastical year cut",
+      "colActions": "Actions",
+      "runNow": "Run now",
+      "runNowRunning": "Running…",
+      "runDialogTitle": "Run “{job}” now?",
+      "runDialogDescription": "Runs just like the scheduled execution; if it is already running it will be skipped.",
+      "runDialogNotifyWarning": "This job may send real notices or emails.",
+      "runDialogMemberOfMonthWarning": "Warning: running this again re-creates the previous month's winners and notifies every winner and club director again.",
+      "runDialogCancel": "Cancel",
+      "runDialogConfirm": "Run",
+      "runResultCompleted": "Completed · {count} processed",
+      "runResultCompletedNoCount": "Completed",
+      "runResultSkipped": "Skipped",
+      "runResultFailed": "Failed: {message}",
+      "runResultFailedNoMessage": "Failed",
+      "runResultEnqueued": "Queued · it will run in the background",
+      "runDetached": "The run is still going on the server; check the history in a few minutes",
+      "runErrorNotFound": "This job does not exist or cannot be run manually.",
+      "runErrorForbidden": "Only a super administrator can run jobs.",
+      "runErrorGeneric": "The job could not be run.",
+      "manualBadge": "Manual"
     },
     "overview": {
       "queuesTitle": "Queues",
@@ -7087,15 +7384,7 @@
       "detailLabelItems": "Items processed",
       "detailLabelError": "Error message",
       "detailLabelMetadata": "Metadata",
-      "jobMonthlyReports": "Monthly reports (auto-generate)",
-      "jobRankingsRecalculate": "Annual classifications (recalculate)",
-      "jobDataExportCleanup": "Cleanup expired exports",
-      "jobMemberOfMonth": "Member of the month (auto-evaluate)",
-      "jobFinancePeriod": "Finance period closing",
-      "jobActivitiesReminder": "Activities reminders",
-      "jobMembershipExpiry": "Expire membership requests",
-      "jobCleanupExpired": "Cleanup expired sessions/tokens",
-      "jobFcmCleanup": "Cleanup orphaned FCM tokens"
+      "manualBadge": "Manual"
     }
   },
   "settings": {
@@ -8659,6 +8948,122 @@
         "assigning": "Assigning…",
         "assigned": "Pastor assigned."
       }
+    }
+  },
+  "familyAccess": {
+    "title": "Family access",
+    "description": "The minor's own login and the devices linked by their guardian. Only the guardian turns an access on or changes its password: from here you can only disable or revoke.",
+    "supervision": {
+      "label": "Guardian supervision",
+      "active": "Active",
+      "pending_guardian": "Pending guardian",
+      "none": "No supervision"
+    },
+    "login": {
+      "title": "Own login",
+      "empty": "This profile has no own login.",
+      "status": {
+        "active": "Active",
+        "pending_guardian": "Pending guardian",
+        "disabled": "Disabled"
+      },
+      "fields": {
+        "status": "Status",
+        "method": "Sign-in method",
+        "handle": "Username",
+        "origin": "Origin",
+        "enabledBy": "Enabled by",
+        "enabledByGuardian": "Supervision enabled by",
+        "enabledAt": "Enabled on",
+        "passwordSetBy": "Password set by",
+        "pendingSince": "Pending guardian since",
+        "disabledAt": "Disabled on",
+        "disabledReason": "Reason for disabling"
+      },
+      "method": {
+        "email": "Email",
+        "handle": "Username"
+      },
+      "origin": {
+        "self_registered": "Self-registered",
+        "guardian_enabled": "Enabled by the guardian"
+      },
+      "passwordSetBy": {
+        "guardian": "The guardian",
+        "self": "The minor"
+      },
+      "disabledReason": {
+        "guardian": "Disabled by the guardian",
+        "admin": "Disabled by administration",
+        "unlinked_purged": "No linked guardian (automatic cleanup)"
+      },
+      "disable": "Disable",
+      "disableAria": "Disable the own login"
+    },
+    "devices": {
+      "title": "Linked devices",
+      "empty": "There are no linked devices.",
+      "columns": {
+        "device": "Device",
+        "pairedBy": "Linked by",
+        "lastSeen": "Last activity",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "platform": {
+        "ios": "iOS",
+        "android": "Android"
+      },
+      "status": {
+        "active": "Active",
+        "revoked": "Revoked"
+      },
+      "appVersion": "Version {version}",
+      "expiresOn": "Expires on {date}",
+      "revokedOn": "Revoked on {date}",
+      "revoke": "Revoke",
+      "revokeAria": "Revoke the device {label}"
+    },
+    "dialog": {
+      "disableTitle": "Disable the own login?",
+      "disableDescription": "The minor will lose access immediately and their sessions will be closed. Only their guardian can turn it back on. Verified guardians will be notified.",
+      "revokeTitle": "Revoke the linked device?",
+      "revokeDescription": "The device \"{label}\" will lose access immediately. Verified guardians will be notified.",
+      "reasonLabel": "Reason (required)",
+      "reasonHint": "At least 5 characters. It is recorded in the audit log.",
+      "reasonPlaceholder": "Describe the reason for this action...",
+      "reasonTooShort": "The reason must be at least 5 characters long.",
+      "cancel": "Cancel",
+      "disableConfirm": "Disable access",
+      "revokeConfirm": "Revoke device",
+      "working": "Working..."
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "load": "View active sessions",
+      "loading": "Loading...",
+      "empty": "There are no active sessions.",
+      "error": "The sessions could not be loaded.",
+      "retry": "Retry",
+      "deviceBadge": "Linked device",
+      "userBadge": "User session",
+      "linkedDevice": "Device: {label}",
+      "createdAt": "Created on",
+      "expiresAt": "Expires on",
+      "ip": "IP",
+      "agent": "Client"
+    },
+    "toasts": {
+      "disabled": "Own login disabled.",
+      "revoked": "Device revoked."
+    },
+    "errors": {
+      "ADMIN_USER_NOT_FOUND": "The user no longer exists or is outside your scope.",
+      "SUPERVISED_LOGIN_NOT_FOUND": "This profile has no own login to disable.",
+      "DEVICE_NOT_FOUND": "The device no longer exists or does not belong to this profile.",
+      "forbidden": "You do not have permission to manage this user's family access.",
+      "invalid_reason": "The reason must be between 5 and 500 characters long.",
+      "generic": "The action could not be completed. Please try again."
     }
   }
 }

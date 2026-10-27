@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Package, Pencil, Trash2, History } from "lucide-react";
+import { Eye, Package, Pencil, Trash2, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -16,6 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { InventoryConditionBadge } from "@/components/inventory/inventory-condition-badge";
+import { InventoryDetailDialog } from "@/components/inventory/inventory-detail-dialog";
 import { InventoryHistoryDialog } from "@/components/inventory/inventory-history-dialog";
 import type { InventoryItem } from "@/lib/api/inventory";
 
@@ -33,6 +35,8 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
   const t = useTranslations("inventory");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
+
+  const [detailItem, setDetailItem] = useState<InventoryItem | null>(null);
 
   function handleHistory(item: InventoryItem) {
     setHistoryItem(item);
@@ -57,11 +61,14 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
             <TableHead className="h-9 w-[22%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_name")}
             </TableHead>
-            <TableHead className="h-9 w-[28%] px-3 text-xs font-medium text-muted-foreground">
+            <TableHead className="h-9 w-[22%] px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_description")}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.col_category")}
+            </TableHead>
+            <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
+              {t("table.col_condition")}
             </TableHead>
             <TableHead className="h-9 px-3 text-center text-xs font-medium text-muted-foreground">
               {t("table.col_amount")}
@@ -96,6 +103,9 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                 <TableCell className="px-3 py-2.5 align-middle">
                   <Badge variant="secondary">{categoryName}</Badge>
                 </TableCell>
+                <TableCell className="px-3 py-2.5 text-center align-middle">
+                  <InventoryConditionBadge condition={item.condition} />
+                </TableCell>
                 <TableCell className="px-3 py-2.5 text-center align-middle tabular-nums font-medium">
                   {item.amount}
                 </TableCell>
@@ -106,6 +116,11 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
                   <RowActions
                     label={item.name}
                     actions={[
+                      {
+                        label: t("actions.view_details"),
+                        icon: Eye,
+                        onSelect: () => setDetailItem(item),
+                      },
                       {
                         label: t("actions.view_history"),
                         icon: History,
@@ -132,6 +147,13 @@ export function InventoryTable({ items, onEdit, onDelete }: InventoryTableProps)
           })}
         </TableBody>
       </Table>
+      <InventoryDetailDialog
+        open={detailItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetailItem(null);
+        }}
+        item={detailItem}
+      />
       <InventoryHistoryDialog
         open={historyOpen}
         onOpenChange={setHistoryOpen}
