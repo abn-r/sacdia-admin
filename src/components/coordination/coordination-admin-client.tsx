@@ -16,17 +16,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { getActionErrorMessage } from "@/lib/api/action-error";
-import { listAdminClubTypes } from "@/lib/api/admin-club-types";
-import { listAdminDistricts } from "@/lib/api/admin-districts";
+import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
 import {
   listCoordinationZones,
   listCoordinatorAssignments,
   type CoordinationZone,
   type CoordinatorAssignment,
 } from "@/lib/api/coordination";
+import {
+  listDistricts,
+  type District,
+  type LocalField,
+} from "@/lib/api/geography";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
 import type { AdminDistrict } from "@/lib/catalogs/districts/types";
-import type { LocalField } from "@/lib/api/geography";
 import {
   canAdminFilterByLocalField,
   type AdminTerritoryScope,
@@ -35,6 +39,33 @@ import { fetchClubsList, getClubListId } from "@/lib/clubs/fetch-list";
 import { CoordinationZonesPanel } from "@/components/coordination/coordination-zones-panel";
 import { CoordinationAssignmentsPanel } from "@/components/coordination/coordination-assignments-panel";
 import { CoordinationBackfillDialog } from "@/components/coordination/coordination-backfill-dialog";
+
+// The pickers only offer active districts and club types, so they read the
+// public catalogs. /admin/districts and /admin/club-types admit only catalog
+// editors (admin, assistant-admin, super-admin): a local field or union
+// director got 403 there, and the whole page failed to load.
+async function loadActiveDistricts(localFieldId: number): Promise<AdminDistrict[]> {
+  const rows = unwrapApiData<District[]>(await listDistricts(localFieldId));
+  return rows.map((row) => ({
+    district_id: row.district_id,
+    name: row.name,
+    local_field_id: row.local_field_id,
+    active: true,
+    created_at: null,
+    modified_at: null,
+  }));
+}
+
+async function loadActiveClubTypes(): Promise<AdminClubType[]> {
+  const rows = unwrapApiData<ClubType[]>(await listClubTypes());
+  return rows.map((row) => ({
+    club_type_id: row.club_type_id,
+    name: row.name,
+    active: true,
+    created_at: null,
+    modified_at: null,
+  }));
+}
 
 type CoordinationAdminClientProps = {
   localFields: LocalField[];
@@ -80,8 +111,8 @@ export function CoordinationAdminClient({
         await Promise.all([
           listCoordinationZones(localFieldId),
           listCoordinatorAssignments(localFieldId),
-          listAdminDistricts({ localFieldId }),
-          listAdminClubTypes(),
+          loadActiveDistricts(localFieldId),
+          loadActiveClubTypes(),
           fetchClubsList({
             page: 1,
             limit: 100,
