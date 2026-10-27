@@ -349,8 +349,11 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
         <FormModalSteps steps={[t("steps.person"), t("steps.access")]} current={step} />
         <FormModalBody stepKey={step} direction={direction}>
+        {/* Each step needs its own key. Without it React reuses the step-1
+            Controllers for step 2 with new names, and react-hook-form
+            unregisters the old names, dropping the step-1 values. */}
         {step === 0 ? (
-        <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">
+        <div key="person" className="grid gap-x-4 gap-y-5 md:grid-cols-2">
           {/* Name */}
           <FormField
             control={form.control}
@@ -449,7 +452,7 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
           />
         </div>
         ) : (
-        <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">
+        <div key="access" className="grid gap-x-4 gap-y-5 md:grid-cols-2">
           {/* Role */}
           <FormField
             control={form.control}
