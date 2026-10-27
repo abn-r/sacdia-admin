@@ -2,7 +2,9 @@
   "access": {
     "page": {
       "forbiddenTitle": "Sin acceso a esta sección",
-      "forbiddenDescription": "Tu rol no incluye los permisos necesarios para abrir esta página."
+      "forbiddenDescription": "Tu rol no incluye los permisos necesarios para abrir esta página.",
+      "unconfiguredTerritoryTitle": "Tu cuenta no tiene un territorio asignado",
+      "unconfiguredTerritoryDescription": "Tu rol necesita una unión, un campo local o una división para operar el panel. Pide a un super-admin que configure tu territorio."
     }
   },
   "nav": {

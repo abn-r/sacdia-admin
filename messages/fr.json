@@ -2,7 +2,9 @@
   "access": {
     "page": {
       "forbiddenTitle": "Vous ne pouvez pas ouvrir cette section",
-      "forbiddenDescription": "Votre rôle n’inclut pas les autorisations nécessaires pour ouvrir cette page."
+      "forbiddenDescription": "Votre rôle n’inclut pas les autorisations nécessaires pour ouvrir cette page.",
+      "unconfiguredTerritoryTitle": "Votre compte n’a aucun territoire attribué",
+      "unconfiguredTerritoryDescription": "Votre rôle a besoin d’une union, d’un champ local ou d’une division pour utiliser le panneau. Demandez à un super-admin de configurer votre territoire."
     }
   },
   "nav": {

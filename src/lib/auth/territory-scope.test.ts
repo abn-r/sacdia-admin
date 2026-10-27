@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   filterUnionsByTerritory,
+  isTerritoryUnconfigured,
   resolveAdminTerritoryScope,
   unionOptionFromTerritory,
 } from "./territory-scope";
@@ -90,4 +91,36 @@ describe("resolveAdminTerritoryScope", () => {
       name: "Unión Norte",
     });
   });
+});
+
+describe("isTerritoryUnconfigured", () => {
+  // Mirrors the backend resolveActorTerritoryScope: a territorial or admin
+  // role without its anchor is "unconfigured" and must be blocked.
+  it.each([
+    ["admin", {}],
+    ["assistant-admin", {}],
+    ["director-dia", {}],
+    ["director-union", {}],
+    ["director-lf", { union: { id: 20 } }],
+  ])("blocks %s without its territory", (role, global) => {
+    expect(isTerritoryUnconfigured(userWithRoles(role, global))).toBe(true);
+  });
+
+  it.each([
+    ["admin", { union: { id: 20 } }],
+    ["admin", { local_field: { id: 4 } }],
+    ["admin", { division: { id: 1 } }],
+    ["director-dia", { division: { id: 1 } }],
+    ["director-union", { union: { id: 20 } }],
+    ["director-lf", { local_field: { id: 4 } }],
+  ])("lets %s with its anchor through", (role, global) => {
+    expect(isTerritoryUnconfigured(userWithRoles(role, global))).toBe(false);
+  });
+
+  it.each(["super-admin", "coordinator", "pastor"])(
+    "does not apply to %s",
+    (role) => {
+      expect(isTerritoryUnconfigured(userWithRoles(role, {}))).toBe(false);
+    },
+  );
 });

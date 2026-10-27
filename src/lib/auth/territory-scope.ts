@@ -70,6 +70,34 @@ function hasAnyRole(roles: Set<string>, allowed: Set<string>): boolean {
   return false;
 }
 
+/**
+ * True when a territorial or admin role has no territory to anchor to.
+ *
+ * Mirrors the backend `resolveActorTerritoryScope`, which answers
+ * `unconfigured` and fails closed (403 ADMIN_USER_SCOPE_MISSING). Only
+ * super-admin is global; admin and assistant-admin anchor to their union,
+ * then local field, then division (canon: modelo-autorizacion.md). The panel
+ * blocks these accounts instead of treating them as global.
+ */
+export function isTerritoryUnconfigured(
+  user: Pick<AuthUser, "authorization"> | null | undefined,
+): boolean {
+  const roles = new Set(extractRoles(user as AuthUser | null | undefined));
+  const globalScope = readEffectiveGlobalScope(user);
+  const localFieldId = toPositiveNumber(globalScope?.local_field?.id);
+  const unionId = toPositiveNumber(globalScope?.union?.id);
+  const divisionId = toPositiveNumber(globalScope?.division?.id);
+
+  if (hasAnyRole(roles, SUPER_ADMIN_ROLES)) return false;
+  if (hasAnyRole(roles, DIVISION_ROLES)) return !divisionId;
+  if (hasAnyRole(roles, UNION_ROLES)) return !unionId;
+  if (hasAnyRole(roles, LOCAL_FIELD_ROLES)) return !localFieldId;
+  if (hasAnyRole(roles, ADMIN_SCOPE_ROLES)) {
+    return !unionId && !localFieldId && !divisionId;
+  }
+  return false;
+}
+
 export function resolveAdminTerritoryScope(
   user: Pick<AuthUser, "authorization"> | null | undefined,
 ): AdminTerritoryScope {
