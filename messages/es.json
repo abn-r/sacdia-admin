@@ -6281,6 +6281,7 @@
       "club_type_required": "Selecciona el tipo de club",
       "club_section_required": "Selecciona la sección",
       "activity_place_required": "El lugar es obligatorio",
+      "activity_date_required": "Elige la fecha de la actividad",
       "image_invalid": "Ingresa una URL válida que empiece con http:// o https://"
     },
     "audience": {
