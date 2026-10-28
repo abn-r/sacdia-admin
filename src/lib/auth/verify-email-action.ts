@@ -29,9 +29,16 @@ function errorCode(error: ApiError): string | undefined {
  * (`POST /auth/verify-email/confirm`). Public: the person may be signed out.
  */
 export async function verifyEmailAction(
-  _prev: VerifyEmailState,
+  prev: VerifyEmailState,
   formData: FormData,
 ): Promise<VerifyEmailState> {
+  // useActionState queues a second submit (double click or tap) and shows its
+  // result. The first one already spent the token, so keep its success
+  // instead of asking again and showing "link invalid".
+  if (prev.success) {
+    return prev;
+  }
+
   const t = await getTranslations("auth.verify_email");
 
   const token = String(formData.get("token") ?? "").trim();

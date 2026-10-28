@@ -79,6 +79,15 @@ describe("resetPasswordAction", () => {
     expect(apiRequestMock).not.toHaveBeenCalled();
   });
 
+  it("keeps a previous success without calling the API again", async () => {
+    const state = await resetPasswordAction(
+      { success: true },
+      form({ token: "tok-1", password: VALID, confirm: VALID }),
+    );
+    expect(state).toEqual({ success: true });
+    expect(apiRequestMock).not.toHaveBeenCalled();
+  });
+
   it("without a token the link is invalid", async () => {
     const state = await resetPasswordAction(
       {},
