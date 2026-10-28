@@ -2259,7 +2259,8 @@
       "role_removed": "Role removed.",
       "permission_assigned": "Permission assigned.",
       "permission_removed": "Permission removed.",
-      "role_deactivated": "Role \"{name}\" deactivated."
+      "role_deactivated": "Role \"{name}\" deactivated.",
+      "role_created": "Role \"{name}\" created."
     },
     "roleForm": {
       "generalInfo": "General information",
@@ -2321,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Edit protected role",
-      "editRoleAriaLabel": "Edit {name}"
+      "editRoleAriaLabel": "Edit {name}",
+      "permissionsViewAria": "View {count, plural, one {# permission} other {# permissions}} of {name}",
+      "permissionsCount": "{count, plural, one {# permission} other {# permissions}}",
+      "permissionsAssigned": "{count, plural, one {# permission assigned} other {# permissions assigned}}"
     },
     "copyPermissions": {
       "button": "Copy permissions",

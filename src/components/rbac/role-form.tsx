@@ -8,6 +8,7 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,6 +150,7 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       }
 
       if (result?.ok) {
+        toast.success(t("toasts.role_created", { name: roleName.trim() }));
         modal.complete();
       }
     });

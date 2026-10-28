@@ -2259,7 +2259,8 @@
       "role_removed": "Papel removido.",
       "permission_assigned": "Permissão atribuída.",
       "permission_removed": "Permissão removida.",
-      "role_deactivated": "Papel \"{name}\" desativado."
+      "role_deactivated": "Papel \"{name}\" desativado.",
+      "role_created": "Papel \"{name}\" criado."
     },
     "roleForm": {
       "generalInfo": "Informações gerais",
@@ -2321,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Editar papel protegido",
-      "editRoleAriaLabel": "Editar {name}"
+      "editRoleAriaLabel": "Editar {name}",
+      "permissionsViewAria": "Ver {count, plural, one {# permissão} other {# permissões}} de {name}",
+      "permissionsCount": "{count, plural, one {# permissão} other {# permissões}}",
+      "permissionsAssigned": "{count, plural, one {# permissão atribuída} other {# permissões atribuídas}}"
     },
     "copyPermissions": {
       "button": "Copiar permissões",

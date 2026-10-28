@@ -2289,6 +2289,7 @@ export interface IntlMessages {
       permission_assigned: string;
       permission_removed: string;
       role_deactivated: string;
+      role_created: string;
     };
     roleForm: {
       generalInfo: string;
@@ -2351,6 +2352,9 @@ export interface IntlMessages {
     rolesTable: {
       editProtectedAriaLabel: string;
       editRoleAriaLabel: string;
+      permissionsViewAria: string;
+      permissionsCount: string;
+      permissionsAssigned: string;
     };
     copyPermissions: {
       button: string;
