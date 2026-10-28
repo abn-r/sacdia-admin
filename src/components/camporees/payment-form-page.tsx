@@ -81,6 +81,7 @@ import {
   getSelectablePaymentMembers,
 } from "@/lib/camporees/member-display";
 import { persistCamporeePayment } from "@/lib/camporees/persist-payment";
+import { joinPaymentNotes, splitPaymentNotes } from "@/lib/camporees/payment-notes";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -173,6 +174,10 @@ export function PaymentFormPage({
     [initialMembers],
   );
 
+  // The `field_payment_order:<uuid>` marker is a technical link to the payment
+  // order: kept out of the editable notes and written back on save.
+  const paymentNotes = useMemo(() => splitPaymentNotes(payment?.notes), [payment?.notes]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
     defaultValues: {
@@ -189,7 +194,7 @@ export function PaymentFormPage({
       })(),
       payment_type: (payment?.payment_type ?? "inscription") as PaymentType,
       reference: payment?.reference ?? "",
-      notes: payment?.notes ?? "",
+      notes: paymentNotes.userNotes,
       paid_at: toDateInputValue(payment?.paid_at),
     },
   });
@@ -291,7 +296,7 @@ export function PaymentFormPage({
         amount: values.amount,
         payment_type: values.payment_type,
         reference: values.reference || undefined,
-        notes: values.notes || undefined,
+        notes: joinPaymentNotes(values.notes, paymentNotes.orderId),
         paid_at: values.paid_at || undefined,
       };
 
@@ -597,6 +602,13 @@ export function PaymentFormPage({
                           {...field}
                         />
                       </FormControl>
+                      {paymentNotes.orderId ? (
+                        <p className="text-xs text-muted-foreground">
+                          {payment?.reference
+                            ? t("paymentDialog.orderHint", { folio: payment.reference })
+                            : t("paymentDialog.orderHintUnknown")}
+                        </p>
+                      ) : null}
                       <FormMessage />
                     </FormItem>
                   )}

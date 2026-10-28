@@ -3726,6 +3726,8 @@ export interface IntlMessages {
       labelPaidAt: string;
       labelNotes: string;
       placeholderNotes: string;
+      orderHint: string;
+      orderHintUnknown: string;
       cancel: string;
       saving: string;
       registering: string;

@@ -3697,6 +3697,8 @@
       "labelPaidAt": "Data do pagamento",
       "labelNotes": "Notas",
       "placeholderNotes": "Observações opcionais",
+      "orderHint": "Pago com a ordem {folio}.",
+      "orderHintUnknown": "Pago com uma ordem de pagamento.",
       "cancel": "Cancelar",
       "saving": "Salvando...",
       "registering": "Registrando...",
