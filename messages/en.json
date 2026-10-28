@@ -2438,7 +2438,10 @@
         "otherGroup": "Other permissions",
         "requiresRoles": "The API requires role: {roles}. The grant only takes effect for roles that satisfy it.",
         "bundleUpdatedTitle": "Screen updated",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Added: {permissions}.",
+        "bundleChangesRemoved": "Removed: {permissions}.",
+        "bundleChangesMore": "and {count} more"
       },
       "permissions": {
         "title": "Permissions catalog",

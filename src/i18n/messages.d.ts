@@ -2468,6 +2468,9 @@ export interface IntlMessages {
         requiresRoles: string;
         bundleUpdatedTitle: string;
         bundleUpdatedDesc: string;
+        bundleChangesAdded: string;
+        bundleChangesRemoved: string;
+        bundleChangesMore: string;
       };
       permissions: {
         title: string;

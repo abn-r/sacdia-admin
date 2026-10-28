@@ -31,6 +31,7 @@ import { useRoleLabel } from "@/lib/auth/role-labels";
 import { groupByScreen, type ScreenKeyGroup } from "@/lib/auth/screen-catalog";
 import {
   bundleState,
+  diffGrantedKeys,
   planBundle,
   planToggle,
   type MatrixPlan,
@@ -65,6 +66,8 @@ interface PermissionsMatrixProps {
 /** roleId → granted permission ids */
 type Selections = Record<string, Set<string>>;
 
+const MAX_LISTED_PERMISSIONS = 4;
+
 const MATRIX_TOAST_CLASSNAMES = {
   toast: "min-w-[min(22rem,calc(100vw-2rem))] max-w-md",
   title: "font-medium",
@@ -81,6 +84,12 @@ function buildInitialSelections(roles: Role[]): Selections {
     );
   }
   return out;
+}
+
+/** "Screen · Role. Added: …. Removed: …." — the change sentences only when there are any. */
+function bulkToastDescription(base: string, changes: Array<string | null>): string {
+  const sentences = changes.filter((sentence): sentence is string => Boolean(sentence));
+  return sentences.length > 0 ? `${base}. ${sentences.join(" ")}` : base;
 }
 
 function cellKey(roleId: string, permissionId: string) {
@@ -174,6 +183,15 @@ export function PermissionsMatrix({
     );
   }
 
+  /** "A, B, C y 2 más" with readable labels; capped so the toast stays short. */
+  function formatKeyList(keys: string[]): string {
+    const shown = keys.slice(0, MAX_LISTED_PERMISSIONS).map((key) => getPermissionLabel(tRbac, key));
+    const rest = keys.length - shown.length;
+    return rest > 0
+      ? `${shown.join(", ")} ${t("bundleChangesMore", { count: rest })}`
+      : shown.join(", ");
+  }
+
   /** Applies a full-set plan with one PUT; rolls back on error. */
   async function applyBulk(
     role: Role,
@@ -182,6 +200,7 @@ export function PermissionsMatrix({
     screenTitle: string,
   ) {
     const previous = selections[role.role_id] ?? new Set<string>();
+    const { added, removed } = diffGrantedKeys(grantedKeys(role.role_id), plan.next);
     const nextIds = new Set(idsFromKeys(plan.next));
     // Keep ids the catalog does not know about (orphans outside this group).
     for (const id of previous) {
@@ -210,10 +229,18 @@ export function PermissionsMatrix({
     }
 
     toast.message(t("bundleUpdatedTitle"), {
-      description: t("bundleUpdatedDesc", {
-        screen: screenTitle,
-        role: translateRole(role.role_name),
-      }),
+      description: bulkToastDescription(
+        t("bundleUpdatedDesc", {
+          screen: screenTitle,
+          role: translateRole(role.role_name),
+        }),
+        [
+          added.length > 0 ? t("bundleChangesAdded", { permissions: formatKeyList(added) }) : null,
+          removed.length > 0
+            ? t("bundleChangesRemoved", { permissions: formatKeyList(removed) })
+            : null,
+        ],
+      ),
       classNames: MATRIX_TOAST_CLASSNAMES,
     });
   }
@@ -439,10 +466,6 @@ export function PermissionsMatrix({
                                 : "flex cursor-default items-center justify-center"
                             }
                           >
-                            <span className="sr-only">
-                              {t("fullScreen")} · {title} ·{" "}
-                              {translateRole(role.role_name)}
-                            </span>
                             {pending ? (
                               <Loader2
                                 className="size-4 animate-spin text-muted-foreground"
@@ -463,6 +486,7 @@ export function PermissionsMatrix({
                                 }
                                 disabled={!canWrite}
                                 title={t("fullScreen")}
+                                aria-label={`${t("fullScreen")} · ${title} · ${translateRole(role.role_name)}`}
                               />
                             )}
                           </Label>
@@ -512,10 +536,6 @@ export function PermissionsMatrix({
                                   : "flex cursor-default items-center justify-center"
                               }
                             >
-                              <span className="sr-only">
-                                {getPermissionLabel(tRbac, permission.permission_name)}{" "}
-                                · {translateRole(role.role_name)}
-                              </span>
                               {pending ? (
                                 <Loader2
                                   className="size-4 animate-spin text-muted-foreground"
@@ -529,6 +549,7 @@ export function PermissionsMatrix({
                                     void togglePermission(role, permission, group)
                                   }
                                   disabled={pending || !canWrite}
+                                  aria-label={`${getPermissionLabel(tRbac, permission.permission_name)} · ${translateRole(role.role_name)}`}
                                 />
                               )}
                             </Label>

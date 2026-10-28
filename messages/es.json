@@ -2438,7 +2438,10 @@
         "otherGroup": "Otros permisos",
         "requiresRoles": "El API exige rol: {roles}. El permiso solo surte efecto en roles que lo cumplan.",
         "bundleUpdatedTitle": "Pantalla actualizada",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Se agregaron: {permissions}.",
+        "bundleChangesRemoved": "Se quitaron: {permissions}.",
+        "bundleChangesMore": "y {count} más"
       },
       "permissions": {
         "title": "Catálogo de permisos",

@@ -100,3 +100,19 @@ export function bundleState(
   if (count === 0) return "none";
   return count === keysInGroup.length ? "all" : "some";
 }
+
+export type GrantedKeysDiff = { added: string[]; removed: string[] };
+
+/**
+ * What a full-set plan changes compared with what the role has now. Lets the UI
+ * tell the user about cascades (e.g. granting a verb also grants the screen's
+ * `viewAny` permission).
+ */
+export function diffGrantedKeys(
+  before: ReadonlySet<string>,
+  after: ReadonlySet<string>,
+): GrantedKeysDiff {
+  const added = [...after].filter((key) => !before.has(key)).sort();
+  const removed = [...before].filter((key) => !after.has(key)).sort();
+  return { added, removed };
+}

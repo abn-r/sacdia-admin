@@ -2438,7 +2438,10 @@
         "otherGroup": "Outras permissões",
         "requiresRoles": "A API exige o papel: {roles}. A permissão só tem efeito em papéis que o cumpram.",
         "bundleUpdatedTitle": "Tela atualizada",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Adicionadas: {permissions}.",
+        "bundleChangesRemoved": "Removidas: {permissions}.",
+        "bundleChangesMore": "e mais {count}"
       },
       "permissions": {
         "title": "Catálogo de permissões",
