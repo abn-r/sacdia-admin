@@ -985,7 +985,11 @@
         "title": "Categorias de finanças",
         "description": "Catálogo de categorias para classificar transações financeiras.",
         "entityLabel": "Categoria",
-        "loadError": "Não foi possível carregar as categorias de finanças."
+        "loadError": "Não foi possível carregar as categorias de finanças.",
+        "typeLabel": "Tipo",
+        "typePlaceholder": "Selecione um tipo",
+        "typeIncome": "Receita",
+        "typeExpense": "Despesa"
       },
       "inventoryCategories": {
         "title": "Categorias de inventário",

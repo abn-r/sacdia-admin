@@ -134,6 +134,15 @@ export type ClassClubTypeOption = {
   name: string;
 };
 
+/** Mandatory select persisted on the record itself (e.g. finance category type). */
+export type CatalogTypeField = {
+  /** FormData key and record property (e.g. "type"). */
+  name: string;
+  label: string;
+  placeholder: string;
+  options: Array<{ value: string; label: string }>;
+};
+
 export interface PhaseECatalogCrudPageProps {
   /** Page title shown in PageHeader */
   title: string;
@@ -173,6 +182,8 @@ export interface PhaseECatalogCrudPageProps {
   detailPathPrefix?: string;
   /** Optional master-honors extras to render rule controls and recalc action. */
   masterHonorsConfig?: MasterHonorsCrudExtras;
+  /** Adds a required select (form field + list column), e.g. income/expense. */
+  typeField?: CatalogTypeField;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -218,6 +229,14 @@ interface FormFieldsProps {
   masterHonorsConfig?: MasterHonorsCrudExtras;
   masterHonorsPayload?: MasterHonorPayload;
   onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
+  typeField?: CatalogTypeField;
+}
+
+/** Resolves the stored value of a type field (0 is a valid value) to its select key. */
+export function resolveTypeFieldValue(raw: unknown): string {
+  if (typeof raw === "number" && Number.isFinite(raw)) return String(raw);
+  if (typeof raw === "string" && raw.trim() !== "") return raw.trim();
+  return "";
 }
 
 function CatalogFormFields({
@@ -236,6 +255,7 @@ function CatalogFormFields({
   masterHonorsConfig,
   masterHonorsPayload,
   onMasterHonorsPayloadChange,
+  typeField,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
   const nameVal = typeof item?.name === "string" ? item.name : "";
@@ -287,6 +307,28 @@ function CatalogFormFields({
             defaultValue={descVal}
             placeholder={t("fieldDescriptionPlaceholder")}
           />
+        </div>
+      )}
+
+      {typeField && (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-${typeField.name}`}>
+            {typeField.label} <span className="text-destructive">*</span>
+          </Label>
+          <select
+            id={`${idPrefix}-${typeField.name}`}
+            name={typeField.name}
+            defaultValue={resolveTypeFieldValue(item?.[typeField.name])}
+            required
+            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">{typeField.placeholder}</option>
+            {typeField.options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -709,6 +751,7 @@ export function PhaseECatalogCrudPage({
   classSectionModuleOptions,
   detailPathPrefix,
   masterHonorsConfig,
+  typeField,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -1168,6 +1211,7 @@ export function PhaseECatalogCrudPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
+                    {typeField && <TableHead>{typeField.label}</TableHead>}
                     {showClassSectionModule && <TableHead>{t("colModule")}</TableHead>}
                     {(showClassModuleParent || showClassSectionModule) && (
                       <TableHead className={showClassSectionModule ? "hidden xl:table-cell" : undefined}>{t("colClass")}</TableHead>
@@ -1205,6 +1249,13 @@ export function PhaseECatalogCrudPage({
                             itemName
                           )}
                         </TableCell>
+                        {typeField && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {typeField.options.find(
+                              (option) => option.value === resolveTypeFieldValue(item[typeField.name]),
+                            )?.label ?? "—"}
+                          </TableCell>
+                        )}
                         {showClassSectionModule && (
                           <TableCell className="text-sm text-muted-foreground">
                             {resolveModuleName(item)}
@@ -1367,6 +1418,7 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={createMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
+                  typeField={typeField}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>
@@ -1414,6 +1466,7 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={editMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
+                  typeField={typeField}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>

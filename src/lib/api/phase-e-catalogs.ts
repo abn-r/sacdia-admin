@@ -162,6 +162,8 @@ export async function deleteAdminClassSection(id: number) {
 export type AdminFinanceCategory = {
   finance_category_id: number;
   name: string;
+  /** 0 = income, 1 = expense */
+  type?: number;
   active?: boolean;
   translations?: CatalogTranslation[];
 };
@@ -170,11 +172,13 @@ export async function listAdminFinanceCategories(params?: Record<string, string 
   return apiRequest<unknown>("/admin/finance-categories", { params });
 }
 
-export async function createAdminFinanceCategory(payload: NameOnlyPayload) {
+export type FinanceCategoryPayload = NameOnlyPayload & { type: number };
+
+export async function createAdminFinanceCategory(payload: FinanceCategoryPayload) {
   return apiRequest("/admin/finance-categories", { method: "POST", body: payload });
 }
 
-export async function updateAdminFinanceCategory(id: number, payload: Partial<NameOnlyPayload>) {
+export async function updateAdminFinanceCategory(id: number, payload: Partial<FinanceCategoryPayload>) {
   return apiRequest(`/admin/finance-categories/${id}`, { method: "PATCH", body: payload });
 }
 

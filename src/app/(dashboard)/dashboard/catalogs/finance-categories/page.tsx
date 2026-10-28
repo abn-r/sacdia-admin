@@ -33,6 +33,10 @@ import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-for
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import {
+  FINANCE_CATEGORY_TYPE_EXPENSE,
+  FINANCE_CATEGORY_TYPE_INCOME,
+} from "@/lib/phase-e-catalogs/finance-category-type";
+import {
   createFinanceCategoryAction,
   updateFinanceCategoryAction,
   deleteFinanceCategoryAction,
@@ -90,6 +94,15 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
         entityLabel={t("entityLabel")}
         emptyIcon={<DollarSign />}
         includeDescription={false}
+        typeField={{
+          name: "type",
+          label: t("typeLabel"),
+          placeholder: t("typePlaceholder"),
+          options: [
+            { value: String(FINANCE_CATEGORY_TYPE_INCOME), label: t("typeIncome") },
+            { value: String(FINANCE_CATEGORY_TYPE_EXPENSE), label: t("typeExpense") },
+          ],
+        }}
         idField="finance_category_id"
         nameField="name"
         items={items}

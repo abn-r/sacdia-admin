@@ -985,7 +985,11 @@
         "title": "Finance categories",
         "description": "Catalog of categories for classifying financial transactions.",
         "entityLabel": "Category",
-        "loadError": "Could not load finance categories."
+        "loadError": "Could not load finance categories.",
+        "typeLabel": "Type",
+        "typePlaceholder": "Select a type",
+        "typeIncome": "Income",
+        "typeExpense": "Expense"
       },
       "inventoryCategories": {
         "title": "Inventory categories",

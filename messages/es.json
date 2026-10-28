@@ -985,7 +985,11 @@
         "title": "Categorías de finanzas",
         "description": "Catálogo de categorías para clasificar transacciones financieras.",
         "entityLabel": "Categoría",
-        "loadError": "No se pudieron cargar las categorías de finanzas."
+        "loadError": "No se pudieron cargar las categorías de finanzas.",
+        "typeLabel": "Tipo",
+        "typePlaceholder": "Selecciona un tipo",
+        "typeIncome": "Ingreso",
+        "typeExpense": "Egreso"
       },
       "inventoryCategories": {
         "title": "Categorías de inventario",

@@ -47,6 +47,7 @@ import {
   type MasterHonorApplicabilityScope,
 } from "@/lib/api/phase-e-catalogs";
 import { parseClassConfigFormData } from "@/lib/classes/class-config";
+import { buildFinanceCategoryExtra } from "@/lib/phase-e-catalogs/finance-category-type";
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
@@ -364,6 +365,7 @@ function makeActions(
     delete: (id: number) => Promise<unknown>;
   },
   hasDescription = true,
+  buildExtra?: (formData: FormData, mode: "create" | "update") => Record<string, unknown>,
 ) {
   async function createAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
@@ -374,7 +376,10 @@ function makeActions(
       const payload = hasDescription
         ? buildTranslatableCreate(formData)
         : buildNameOnlyCreate(formData);
-      await api.create(payload as Record<string, unknown>);
+      await api.create({
+        ...(payload as Record<string, unknown>),
+        ...(buildExtra ? buildExtra(formData, "create") : {}),
+      });
     } catch (error) {
       return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: routePath }) };
     }
@@ -393,7 +398,10 @@ function makeActions(
       const payload = hasDescription
         ? buildTranslatableUpdate(formData)
         : buildNameOnlyUpdate(formData);
-      await api.update(id, payload);
+      await api.update(id, {
+        ...payload,
+        ...(buildExtra ? buildExtra(formData, "update") : {}),
+      });
     } catch (error) {
       return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
@@ -601,7 +609,8 @@ const finCatActions = makeActions(
     update: (id, p) => updateAdminFinanceCategory(id, p),
     delete: (id) => deleteAdminFinanceCategory(id),
   },
-  false, // name only
+  false, // name only (+ mandatory `type`, see buildFinanceCategoryExtra)
+  buildFinanceCategoryExtra,
 );
 
 export const createFinanceCategoryAction = finCatActions.createAction;

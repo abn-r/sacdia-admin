@@ -1015,6 +1015,10 @@ export interface IntlMessages {
         description: string;
         entityLabel: string;
         loadError: string;
+        typeLabel: string;
+        typePlaceholder: string;
+        typeIncome: string;
+        typeExpense: string;
       };
       inventoryCategories: {
         title: string;
