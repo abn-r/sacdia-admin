@@ -3049,12 +3049,12 @@
         "emptyNoFiltersDescription": "Créez le premier succès pour cette catégorie.",
         "emptyFiltersTitle": "Aucun résultat",
         "emptyFiltersDescription": "Aucun succès ne correspond aux filtres.",
-        "deleteTitle": "Supprimer le succès ?",
-        "deleteDescription": "Le succès \"{name}\" sera supprimé. Cette action est irréversible.",
+        "deleteTitle": "Désactiver le succès ?",
+        "deleteDescription": "Le succès \"{name}\" sera désactivé et restera dans la liste comme inactif. Vous pouvez le réactiver en le modifiant.",
         "deleteCancelButton": "Annuler",
-        "deleteConfirmButton": "Supprimer",
+        "deleteConfirmButton": "Désactiver",
         "actionEdit": "Modifier",
-        "actionDelete": "Supprimer"
+        "actionDelete": "Désactiver"
       },
       "categories": {
         "pageTitle": "Succès",
@@ -3085,12 +3085,12 @@
         "emptyNoFiltersDescription": "Créez la première catégorie pour organiser les succès.",
         "emptyFiltersTitle": "Aucun résultat",
         "emptyFiltersDescription": "Aucune catégorie ne correspond aux filtres.",
-        "deleteTitle": "Supprimer la catégorie ?",
-        "deleteDescription": "La catégorie \"{name}\" sera supprimée. Cette action est irréversible.",
+        "deleteTitle": "Désactiver la catégorie ?",
+        "deleteDescription": "La catégorie \"{name}\" sera désactivée et restera dans la liste comme inactive. Une catégorie ne peut être désactivée que si elle n'a aucun succès actif.",
         "deleteCancelButton": "Annuler",
-        "deleteConfirmButton": "Supprimer",
+        "deleteConfirmButton": "Désactiver",
         "actionEdit": "Modifier",
-        "actionDelete": "Supprimer"
+        "actionDelete": "Désactiver"
       }
     }
   },

@@ -3049,12 +3049,12 @@
         "emptyNoFiltersDescription": "Crea el primer logro para esta categoría.",
         "emptyFiltersTitle": "Sin resultados",
         "emptyFiltersDescription": "No hay logros que coincidan con los filtros.",
-        "deleteTitle": "¿Eliminar logro?",
-        "deleteDescription": "Se eliminará el logro \"{name}\". Esta acción no puede deshacerse.",
+        "deleteTitle": "¿Desactivar logro?",
+        "deleteDescription": "El logro \"{name}\" se desactivará y quedará en el listado como inactivo. Puedes reactivarlo editándolo.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Eliminar",
+        "deleteConfirmButton": "Desactivar",
         "actionEdit": "Editar",
-        "actionDelete": "Eliminar"
+        "actionDelete": "Desactivar"
       },
       "categories": {
         "pageTitle": "Logros",
@@ -3085,12 +3085,12 @@
         "emptyNoFiltersDescription": "Crea la primera categoría para organizar los logros.",
         "emptyFiltersTitle": "Sin resultados",
         "emptyFiltersDescription": "No hay categorías que coincidan con los filtros.",
-        "deleteTitle": "¿Eliminar categoría?",
-        "deleteDescription": "Se eliminará la categoría \"{name}\". Esta acción no puede deshacerse.",
+        "deleteTitle": "¿Desactivar categoría?",
+        "deleteDescription": "La categoría \"{name}\" se desactivará y quedará en el listado como inactiva. Solo se puede desactivar si no tiene logros activos.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Eliminar",
+        "deleteConfirmButton": "Desactivar",
         "actionEdit": "Editar",
-        "actionDelete": "Eliminar"
+        "actionDelete": "Desactivar"
       }
     }
   },

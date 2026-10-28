@@ -3049,12 +3049,12 @@
         "emptyNoFiltersDescription": "Crie a primeira conquista para esta categoria.",
         "emptyFiltersTitle": "Sem resultados",
         "emptyFiltersDescription": "Nenhuma conquista corresponde aos filtros.",
-        "deleteTitle": "Excluir conquista?",
-        "deleteDescription": "A conquista \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteTitle": "Desativar conquista?",
+        "deleteDescription": "A conquista \"{name}\" será desativada e continuará na lista como inativa. Você pode reativá-la editando-a.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Excluir",
+        "deleteConfirmButton": "Desativar",
         "actionEdit": "Editar",
-        "actionDelete": "Excluir"
+        "actionDelete": "Desativar"
       },
       "categories": {
         "pageTitle": "Conquistas",
@@ -3085,12 +3085,12 @@
         "emptyNoFiltersDescription": "Crie a primeira categoria para organizar as conquistas.",
         "emptyFiltersTitle": "Sem resultados",
         "emptyFiltersDescription": "Nenhuma categoria corresponde aos filtros.",
-        "deleteTitle": "Excluir categoria?",
-        "deleteDescription": "A categoria \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteTitle": "Desativar categoria?",
+        "deleteDescription": "A categoria \"{name}\" será desativada e continuará na lista como inativa. Uma categoria só pode ser desativada se não tiver conquistas ativas.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Excluir",
+        "deleteConfirmButton": "Desativar",
         "actionEdit": "Editar",
-        "actionDelete": "Excluir"
+        "actionDelete": "Desativar"
       }
     }
   },

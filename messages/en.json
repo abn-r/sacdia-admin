@@ -3049,12 +3049,12 @@
         "emptyNoFiltersDescription": "Create the first achievement for this category.",
         "emptyFiltersTitle": "No results",
         "emptyFiltersDescription": "No achievements match the filters.",
-        "deleteTitle": "Delete achievement?",
-        "deleteDescription": "The achievement \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteTitle": "Deactivate achievement?",
+        "deleteDescription": "The achievement \"{name}\" will be deactivated and will stay in the list as inactive. You can reactivate it by editing it.",
         "deleteCancelButton": "Cancel",
-        "deleteConfirmButton": "Delete",
+        "deleteConfirmButton": "Deactivate",
         "actionEdit": "Edit",
-        "actionDelete": "Delete"
+        "actionDelete": "Deactivate"
       },
       "categories": {
         "pageTitle": "Achievements",
@@ -3085,12 +3085,12 @@
         "emptyNoFiltersDescription": "Create the first category to organize achievements.",
         "emptyFiltersTitle": "No results",
         "emptyFiltersDescription": "No categories match the filters.",
-        "deleteTitle": "Delete category?",
-        "deleteDescription": "The category \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteTitle": "Deactivate category?",
+        "deleteDescription": "The category \"{name}\" will be deactivated and will stay in the list as inactive. A category can only be deactivated when it has no active achievements.",
         "deleteCancelButton": "Cancel",
-        "deleteConfirmButton": "Delete",
+        "deleteConfirmButton": "Deactivate",
         "actionEdit": "Edit",
-        "actionDelete": "Delete"
+        "actionDelete": "Deactivate"
       }
     }
   },
