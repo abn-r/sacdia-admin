@@ -2240,7 +2240,7 @@
       "permission_name_required": "O nome da permissão é obrigatório",
       "permission_name_format": "O formato deve ser resource:action (minúsculas, separado por :)",
       "role_name_required": "O nome do papel é obrigatório",
-      "role_name_format": "O nome deve ter entre 3 e 64 caracteres minúsculos (letras, números e hífens)",
+      "role_name_format": "O nome deve ter entre 3 e 64 caracteres: somente letras minúsculas e hífens, sem começar nem terminar com hífen",
       "role_name_reserved": "Não é possível criar um papel com o nome 'super-admin'",
       "description_min_length": "A descrição deve ter pelo menos 10 caracteres",
       "description_max_length": "A descrição não pode exceder 500 caracteres",
@@ -2266,8 +2266,8 @@
       "editGeneralInfoDesc": "O nome e a categoria do papel são imutáveis após a criação.",
       "roleName": "Nome do papel",
       "roleNamePlaceholder": "ex: club-director",
-      "roleNameTitle": "Somente minúsculas, números e hífens, entre 3 e 64 caracteres",
-      "roleNameHint": "Formato: letras minúsculas, números e hífens (a-z0-9-). Este identificador é imutável após criado.",
+      "roleNameTitle": "Somente letras minúsculas e hífens, entre 3 e 64 caracteres",
+      "roleNameHint": "Formato: somente letras minúsculas e hífens (a-z-), sem começar nem terminar com hífen. Números não são permitidos. Este identificador é imutável após criado.",
       "roleNameImmutableTooltip": "O nome do papel é imutável. Crie um novo se precisar alterá-lo.",
       "category": "Categoria",
       "categoryGlobal": "GLOBAL — aplica-se em toda a plataforma",
@@ -5098,12 +5098,16 @@
     "toasts": {
       "manual_data_saved": "Dados manuais salvos.",
       "report_generated": "Relatório gerado. Os dados foram congelados.",
+      "report_generating": "Gerando relatório…",
+      "report_regenerating": "Regenerando relatório…",
+      "report_regenerated": "Relatório regenerado. O PDF foi atualizado.",
       "report_sent": "Relatório enviado ao campo.",
       "data_updated": "Dados atualizados."
     },
     "errors": {
       "save_manual_data": "Erro ao salvar os dados manuais.",
       "generate_report": "Erro ao gerar o relatório.",
+      "job_timeout": "O relatório ainda está sendo processado. Recarregue a página em instantes para ver o resultado.",
       "send_report": "Erro ao enviar o relatório.",
       "load_reports": "Erro ao carregar os relatórios.",
       "create_report": "Erro ao criar o relatório.",
@@ -5180,7 +5184,20 @@
       "fieldActivities": "Atividades",
       "fieldHonorsEarned": "Especialidades obtidas",
       "fieldClassesCompleted": "Classes concluídas",
-      "fieldAttendanceRate": "Presença média"
+      "fieldAttendanceRate": "Presença média",
+      "fieldHonorsStarted": "Especialidades iniciadas",
+      "fieldHonorsCompleted": "Especialidades concluídas",
+      "fieldIncome": "Receitas do mês",
+      "fieldExpenses": "Despesas do mês",
+      "fieldBalance": "Saldo do mês",
+      "fieldTotalBalance": "Saldo total",
+      "fieldTransactions": "Transações",
+      "fieldMeetingDays": "Dias de reunião",
+      "sectionDirectiva": "Diretoria",
+      "sectionActivities": "Atividades do mês",
+      "sectionHonors": "Especialidades do mês",
+      "honorValidated": "Validada",
+      "honorPending": "Pendente"
     },
     "manualData": {
       "sectionAdmin": "Administração",
@@ -5437,7 +5454,10 @@
       "refresh_tooltip": "Atualizar",
       "prompt_select": "Selecione um clube e uma seção para ver os seguros.",
       "loading": "Carregando seguros...",
-      "insured_count": "{insured} de {total} {total, plural, one {membro} other {membros}} com seguro registrado"
+      "insured_count": "{insured} de {total} {total, plural, one {membro} other {membros}} com seguro registrado",
+      "legacy_disabled_title": "O cadastro manual de seguros está desativado neste Campo Local",
+      "legacy_disabled_description": "Este Campo Local usa ordens de pagamento: a cobertura é criada quando a ordem é aprovada. Os seguros já cadastrados ainda podem ser editados.",
+      "legacy_disabled_link": "Ir para Ordens de pagamento"
     },
     "expiring": {
       "filter_label": "Vencem em",
@@ -8429,7 +8449,10 @@
       "authorizeWarning": "Ação excepcional e auditada.",
       "authorizePlaceholder": "Motivo da autorização (obrigatório)",
       "confirmAuthorize": "Confirmar autorização",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "approveConfirmTitle": "Aprovar comprovante",
+      "approveConfirmDescription": "O comprovante do pedido {folio} no valor de {amount} será aprovado. O pedido passará para pago.",
+      "approveConfirmAction": "Confirmar aprovação"
     },
     "catalog": {
       "empty": "Nenhum produto no catálogo territorial",
@@ -8582,7 +8605,11 @@
       "openDetail": "Ver detalhe",
       "close": "Fechar",
       "deliver": "Entregar",
-      "markPaid": "Marcar pago"
+      "markPaid": "Marcar pago",
+      "markPaidConfirmTitle": "Marcar folio como pago",
+      "markPaidConfirmDescription": "O pagamento do folio {folio} no valor de {amount} será registrado. Confira se a cobrança está correta antes de confirmar.",
+      "markPaidConfirmAction": "Confirmar pagamento",
+      "cancel": "Cancelar"
     },
     "catalog": {
       "title": "Catálogo e horários",
