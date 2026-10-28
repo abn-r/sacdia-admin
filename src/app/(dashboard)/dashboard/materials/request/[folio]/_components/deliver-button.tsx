@@ -21,18 +21,22 @@ export function DeliverButton({ folio, fullWidth = false }: DeliverButtonProps) 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  async function handleDeliver() {
-    try {
-      await deliverOrder(folio);
-      toast.success("Solicitud marcada como entregada.");
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "Error al registrar entrega.";
-      toast.error(message);
-    }
+  // Same as ApproveButton: pending from the click until the refreshed page
+  // arrives, so a double click cannot hit 409 on an already delivered order.
+  function handleDeliver() {
+    startTransition(async () => {
+      try {
+        await deliverOrder(folio);
+        toast.success("Solicitud marcada como entregada.");
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch (err) {
+        const message =
+          err instanceof ApiError ? err.message : "Error al registrar entrega.";
+        toast.error(message);
+      }
+    });
   }
 
   return (
@@ -40,6 +44,7 @@ export function DeliverButton({ folio, fullWidth = false }: DeliverButtonProps) 
       loading={isPending}
       variant="default"
       size="sm"
+      disabled={isPending}
       onClick={handleDeliver}
       className={fullWidth ? "w-full" : undefined}
     >
