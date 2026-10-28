@@ -4512,6 +4512,7 @@
     },
     "templates": {
       "backTitle": "Volver a plantillas",
+      "yearFallback": "Año {id}",
       "backSrOnly": "Volver",
       "sectionSingular": "sección",
       "sectionPlural": "secciones",

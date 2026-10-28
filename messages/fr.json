@@ -4512,6 +4512,7 @@
     },
     "templates": {
       "backTitle": "Retour aux modèles",
+      "yearFallback": "Année {id}",
       "backSrOnly": "Retour",
       "sectionSingular": "section",
       "sectionPlural": "sections",
@@ -4600,7 +4601,7 @@
       "descriptionDraft": "Enregistrez le modèle comme brouillon. Ajoutez ensuite les sections et publiez-le depuis le détail lorsqu’il est complet.",
       "descriptionEdit": "Modifiez les données du brouillon de dossier annuel de preuves.",
       "budgetTitle": "Budget provenant du classement",
-      "budgetMissing": "Aucune configuration annuelle de classement ne s’applique à cette combinaison. Configurez-la avant de publier.",
+      "budgetMissing": "Aucune configuration annuelle de classement ne s'applique à cette combinaison. Configurez-la avant de publier.",
       "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration du classement. Les sections doivent répartir exactement ce total.",
       "budgetPending": "Sélectionnez le type de club, l’année et le propriétaire pour résoudre le budget annuel.",
       "submitDraft": "Enregistrer le brouillon",

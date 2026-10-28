@@ -85,7 +85,13 @@ export type FolderTemplate = {
   owner_union_id: number | null;
   owner_local_field_id: number | null;
   club_type?: { club_type_id: number; name: string } | null;
-  ecclesiastical_year?: { ecclesiastical_year_id: number; name: string } | null;
+  /** Relation embedded by the backend: ids and dates only, there is no name. */
+  ecclesiastical_year?: {
+    year_id: number;
+    start_date: string;
+    end_date: string;
+    active?: boolean;
+  } | null;
   /** Populated when the template is fetched with relations. */
   owner_union?: { union_id: number; name: string } | null;
   owner_local_field?: { local_field_id: number; name: string } | null;

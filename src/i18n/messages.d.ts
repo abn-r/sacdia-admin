@@ -4544,6 +4544,7 @@ export interface IntlMessages {
     };
     templates: {
       backTitle: string;
+      yearFallback: string;
       backSrOnly: string;
       sectionSingular: string;
       sectionPlural: string;

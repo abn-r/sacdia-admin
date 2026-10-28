@@ -4512,6 +4512,7 @@
     },
     "templates": {
       "backTitle": "Voltar para modelos",
+      "yearFallback": "Ano {id}",
       "backSrOnly": "Voltar",
       "sectionSingular": "seção",
       "sectionPlural": "seções",

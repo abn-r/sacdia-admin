@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
+import { resolveTemplateYearLabel } from "@/lib/annual-folders/ecclesiastical-year-label";
 import { Button } from "@/components/ui/button";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
@@ -209,6 +210,11 @@ export function TemplatesClientPage({
   const cannotCreateTemplate =
     folderSetupGap?.id === "years" || folderSetupGap?.id === "club-types";
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const templateYearLabel = (template: FolderTemplate) =>
+    resolveTemplateYearLabel(template, ecclesiasticalYears, (id) =>
+      t("templates.yearFallback", { id }),
+    );
 
   // Template CRUD state
   const [templateFormOpen, setTemplateFormOpen] = useState(false);
@@ -659,8 +665,7 @@ export function TemplatesClientPage({
                 </span>
                 <span aria-hidden>·</span>
                 <span>
-                  {activeTemplate.ecclesiastical_year?.name ??
-                    `Año ${activeTemplate.ecclesiastical_year_id}`}
+                  {templateYearLabel(activeTemplate)}
                 </span>
                 <span aria-hidden>·</span>
                 <span>
@@ -1233,8 +1238,7 @@ export function TemplatesClientPage({
                         `Tipo ${template.club_type_id}`}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {template.ecclesiastical_year?.name ??
-                        `Año ${template.ecclesiastical_year_id}`}
+                      {templateYearLabel(template)}
                     </TableCell>
                     <TableCell>
                       {template.owner_union_id !== null &&
@@ -1350,8 +1354,7 @@ export function TemplatesClientPage({
                         {template.club_type?.name ??
                           `Tipo ${template.club_type_id}`}
                         {" · "}
-                        {template.ecclesiastical_year?.name ??
-                          `Año ${template.ecclesiastical_year_id}`}
+                        {templateYearLabel(template)}
                       </span>
                     </button>
                     <div className="flex shrink-0 items-center gap-1.5">

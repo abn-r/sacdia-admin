@@ -4512,6 +4512,7 @@
     },
     "templates": {
       "backTitle": "Back to templates",
+      "yearFallback": "Year {id}",
       "backSrOnly": "Back",
       "sectionSingular": "section",
       "sectionPlural": "sections",
