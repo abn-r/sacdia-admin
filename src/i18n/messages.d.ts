@@ -281,6 +281,12 @@ export interface IntlMessages {
       switchToLight: string;
       switchToDark: string;
       switchTheme: string;
+      cycleLabel: string;
+      modes: {
+        light: string;
+        dark: string;
+        system: string;
+      };
     };
     a11y: {
       skipToContent: string;

@@ -251,7 +251,13 @@
     "themeToggle": {
       "switchToLight": "Switch to light mode",
       "switchToDark": "Switch to dark mode",
-      "switchTheme": "Toggle theme"
+      "switchTheme": "Toggle theme",
+      "cycleLabel": "Current theme: {theme}. Click to change theme.",
+      "modes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
     },
     "a11y": {
       "skipToContent": "Skip to main content"

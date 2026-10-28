@@ -3,13 +3,17 @@
  *
  * The dialog receives initial data as props (fetched server-side by the class
  * detail page) and performs mutations directly against the class-honors API
- * client, updating local state on success — no next-intl dependency, no
+ * client, updating local state on success — only the shared Dialog primitive needs next-intl, no
  * network fetch-on-mount to mock.
  */
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+
+// The shared Dialog primitive localizes its close button via next-intl.
+const UI_MESSAGES = { shared: { uiPrimitives: { close: "Cerrar" } } };
 
 // ---------------------------------------------------------------------------
 // jsdom polyfills (Radix Dialog/Select use ResizeObserver, scrollIntoView,
@@ -133,7 +137,11 @@ function renderDialog(overrides: Partial<React.ComponentProps<typeof ClassHonors
     canDelete: true,
     ...overrides,
   };
-  return render(<ClassHonorsDialog {...props} />);
+  return render(
+    <NextIntlClientProvider locale="es" messages={UI_MESSAGES}>
+      <ClassHonorsDialog {...props} />
+    </NextIntlClientProvider>,
+  );
 }
 
 async function openDialog() {

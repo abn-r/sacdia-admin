@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -9,6 +10,7 @@ import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 const THEME_CYCLE = ["light", "dark", "system"] as const;
 
 export function ThemeSwitcher() {
+  const t = useTranslations("nav.themeToggle");
   const { themeMode, setPreference } = usePreferencesStore(
     useShallow((state) => ({
       themeMode: state.values.theme_mode,
@@ -29,7 +31,7 @@ export function ThemeSwitcher() {
       variant="ghost"
       className="text-muted-foreground hover:text-foreground [&_svg]:text-current"
       onClick={cycleTheme}
-      aria-label={`Current theme: ${themeMode}. Click to cycle themes`}
+      aria-label={t("cycleLabel", { theme: t(`modes.${themeMode}`) })}
     >
       {/* SYSTEM */}
       <Monitor className="hidden [html[data-theme-mode=system]_&]:block" />

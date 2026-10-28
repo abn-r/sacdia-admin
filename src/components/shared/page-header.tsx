@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,13 +26,14 @@ export function PageHeader({
   actions,
   className,
 }: PageHeaderProps) {
+  const t = useTranslations("shared.pageHeader");
   const rightSlot = actions ?? children;
 
   return (
     <header className={cn("space-y-3", className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav
-          aria-label="Breadcrumb"
+          aria-label={t("breadcrumbNav")}
           className="flex flex-wrap items-center gap-1 text-muted-foreground text-xs"
         >
           {breadcrumbs.map((crumb, idx) => {
