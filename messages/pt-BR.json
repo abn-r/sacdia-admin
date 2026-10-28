@@ -2061,10 +2061,15 @@
       "type_broadcast": "Broadcast",
       "type_user": "Usuário",
       "type_club": "Clube",
+      "type_section_role": "Função na seção",
+      "type_global_role": "Função global",
       "target_all": "Todos",
       "target_user": "Usuário",
       "target_user_unknown": "Usuário não encontrado",
-      "target_club_section": "Seção de clube"
+      "target_club_section": "Seção de clube",
+      "target_section_role": "Função na seção",
+      "target_global_role": "Função global",
+      "sender_system": "Sistema"
     },
     "page": {
       "title": "Notificações",

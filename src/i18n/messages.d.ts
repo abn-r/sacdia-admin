@@ -2090,10 +2090,15 @@ export interface IntlMessages {
       type_broadcast: string;
       type_user: string;
       type_club: string;
+      type_section_role: string;
+      type_global_role: string;
       target_all: string;
       target_user: string;
       target_user_unknown: string;
       target_club_section: string;
+      target_section_role: string;
+      target_global_role: string;
+      sender_system: string;
     };
     page: {
       title: string;

@@ -1320,7 +1320,7 @@
     "validation": {
       "field_required": "El campo {field} es obligatorio",
       "field_invalid": "El campo {field} no es válido",
-      "coordinates_incomplete": "Para guardar coordenadas debe capturar latitud y longitud",
+      "coordinates_incomplete": "Para guardar coordenadas, captura latitud y longitud",
       "coordinates_invalid": "Las coordenadas no son válidas",
       "club_name_required": "El nombre del club es obligatorio",
       "club_type_required": "Tipo de club obligatorio",
@@ -1350,7 +1350,7 @@
       "class_assignment_revoked": "Asignación de clase revocada",
       "assignment_removed": "Asignación removida",
       "role_updated": "Rol actualizado",
-      "retry_failed_sections": "Puede continuar al detalle del club y reintentar las secciones fallidas",
+      "retry_failed_sections": "Puedes continuar al detalle del club y reintentar las secciones fallidas",
       "section_toggled": "Estado de la sección actualizado."
     },
     "fields": {
@@ -1982,14 +1982,14 @@
       "invalid_decision_title": "Decisión inválida",
       "invalid_decision_description": "El valor de la decisión no es válido.",
       "too_many_requests_title": "Demasiadas solicitudes",
-      "too_many_requests_description": "Espere un momento antes de intentarlo de nuevo.",
+      "too_many_requests_description": "Espera un momento antes de intentarlo de nuevo.",
       "forbidden_title": "Sin permisos",
-      "forbidden_description": "No tiene permisos para realizar esta acción.",
+      "forbidden_description": "No tienes permisos para realizar esta acción.",
       "endpoint_unavailable_title": "Servicio no disponible",
       "endpoint_unavailable_description": "La aprobación no está disponible en este momento. Intenta más tarde.",
       "processing_title": "Error al procesar",
       "unexpected_title": "Error inesperado",
-      "unexpected_description": "No se pudo procesar la aprobación. Intente de nuevo."
+      "unexpected_description": "No se pudo procesar la aprobación. Intenta de nuevo."
     },
     "success": {
       "user_approved_title": "Usuario aprobado",
@@ -2000,27 +2000,27 @@
   "notifications": {
     "errors": {
       "send_failed": "No se pudo enviar la notificación",
-      "broadcast_failed": "No se pudo enviar el broadcast",
+      "broadcast_failed": "No se pudo enviar la difusión general",
       "club_send_failed": "No se pudo enviar la notificación al club"
     },
     "validation": {
       "user_id_required": "Selecciona un miembro",
-      "title_required": "Ingrese el título",
-      "body_required": "Ingrese el mensaje",
-      "instance_type_required": "Seleccione el tipo de club",
+      "title_required": "Ingresa el título",
+      "body_required": "Ingresa el mensaje",
+      "instance_type_required": "Selecciona el tipo de club",
       "instance_type_invalid": "El tipo de club no es válido",
       "instance_id_required": "Selecciona una sección",
       "instance_id_invalid": "La sección seleccionada no es válida"
     },
     "success": {
       "sent": "Notificación enviada",
-      "broadcast_sent": "Broadcast enviado",
+      "broadcast_sent": "Difusión general enviada",
       "club_sent": "Notificación de club enviada"
     },
     "forms": {
       "direct_title": "Envío directo",
       "direct_description": "Enviar una notificación push a un usuario específico.",
-      "broadcast_title": "Broadcast",
+      "broadcast_title": "Difusión general",
       "broadcast_description": "Enviar notificación push a todos los usuarios registrados.",
       "broadcast_warning": "Esta acción enviará la notificación a todos los usuarios con token FCM registrado.",
       "club_title": "Por club",
@@ -2033,7 +2033,7 @@
       "placeholder_user_id": "Buscar miembro...",
       "label_title": "Título",
       "placeholder_title_notification": "Título de la notificación",
-      "placeholder_title_broadcast": "Título del broadcast",
+      "placeholder_title_broadcast": "Título de la difusión general",
       "label_body": "Mensaje",
       "placeholder_body": "Contenido del mensaje",
       "label_instance_type": "Tipo de club",
@@ -2044,7 +2044,7 @@
       "label_instance_id": "Sección",
       "placeholder_instance_id": "Selecciona una sección",
       "submit_send": "Enviar notificación",
-      "submit_broadcast": "Enviar broadcast",
+      "submit_broadcast": "Enviar difusión general",
       "submit_club": "Enviar a club"
     },
     "history": {
@@ -2058,13 +2058,18 @@
       "empty_title": "Sin historial",
       "empty_description": "Aún no se han enviado notificaciones.",
       "error_load": "No se pudo cargar el historial de notificaciones.",
-      "type_broadcast": "Broadcast",
+      "type_broadcast": "Difusión general",
       "type_user": "Usuario",
       "type_club": "Club",
+      "type_section_role": "Rol en sección",
+      "type_global_role": "Rol global",
       "target_all": "Todos",
       "target_user": "Usuario",
       "target_user_unknown": "Usuario no encontrado",
-      "target_club_section": "Sección de club"
+      "target_club_section": "Sección de club",
+      "target_section_role": "Rol en sección",
+      "target_global_role": "Rol global",
+      "sender_system": "Sistema"
     },
     "page": {
       "title": "Notificaciones",
@@ -2082,11 +2087,11 @@
       "update_failed": "No se pudo actualizar la unidad"
     },
     "validation": {
-      "name_required": "Ingrese el nombre",
-      "club_type_required": "Seleccione el tipo de club",
-      "club_section_required": "Seleccione la sección del club",
-      "member_required": "Seleccione un miembro para {field}",
-      "member_invalid": "Seleccione un miembro válido para {field}"
+      "name_required": "Ingresa el nombre",
+      "club_type_required": "Selecciona el tipo de club",
+      "club_section_required": "Selecciona la sección del club",
+      "member_required": "Selecciona un miembro para {field}",
+      "member_invalid": "Selecciona un miembro válido para {field}"
     },
     "fields": {
       "captain": "Capitán",
@@ -2097,9 +2102,9 @@
   },
   "honors": {
     "errors": {
-      "no_permission_create": "No tiene permisos para crear especialidades.",
-      "no_permission_update": "No tiene permisos para editar especialidades.",
-      "no_permission_delete": "No tiene permisos para eliminar especialidades.",
+      "no_permission_create": "No tienes permisos para crear especialidades.",
+      "no_permission_update": "No tienes permisos para editar especialidades.",
+      "no_permission_delete": "No tienes permisos para eliminar especialidades.",
       "create_failed": "No se pudo crear la especialidad",
       "update_failed": "No se pudo actualizar la especialidad",
       "delete_failed": "No se pudo eliminar la especialidad",
@@ -2272,9 +2277,9 @@
   },
   "honor_categories": {
     "errors": {
-      "no_permission_create": "No tiene permisos para crear categorías de especialidades.",
-      "no_permission_update": "No tiene permisos para editar categorías de especialidades.",
-      "no_permission_delete": "No tiene permisos para eliminar categorías de especialidades.",
+      "no_permission_create": "No tienes permisos para crear categorías de especialidades.",
+      "no_permission_update": "No tienes permisos para editar categorías de especialidades.",
+      "no_permission_delete": "No tienes permisos para eliminar categorías de especialidades.",
       "create_failed": "No se pudo crear la categoría",
       "update_failed": "No se pudo actualizar la categoría",
       "delete_failed": "No se pudo eliminar la categoría"
@@ -2775,7 +2780,7 @@
       "inventory:update": "Editar ítem",
       "inventory:delete": "Eliminar ítem",
       "notifications:send": "Enviar directa",
-      "notifications:broadcast": "Enviar broadcast",
+      "notifications:broadcast": "Enviar difusión general",
       "notifications:club": "Enviar por club",
       "reports:read": "Leer reportes mensuales",
       "reports:download": "Descargar PDF de reportes",
@@ -2931,9 +2936,9 @@
   },
   "resource_categories": {
     "errors": {
-      "no_permission_create": "No tiene permisos para crear categorías de recursos.",
-      "no_permission_update": "No tiene permisos para editar categorías de recursos.",
-      "no_permission_delete": "No tiene permisos para eliminar categorías de recursos.",
+      "no_permission_create": "No tienes permisos para crear categorías de recursos.",
+      "no_permission_update": "No tienes permisos para editar categorías de recursos.",
+      "no_permission_delete": "No tienes permisos para eliminar categorías de recursos.",
       "create_failed": "No se pudo crear la categoría.",
       "update_failed": "No se pudo actualizar la categoría.",
       "delete_failed": "No se pudo eliminar la categoría."
@@ -3856,7 +3861,7 @@
       }
     },
     "validation": {
-      "member_required": "Seleccione un miembro",
+      "member_required": "Selecciona un miembro",
       "amount_positive": "El monto debe ser mayor a cero",
       "name_required": "El nombre es obligatorio",
       "start_date_required": "La fecha de inicio es obligatoria",
@@ -8222,7 +8227,7 @@
         "validationFailed": "Revisa los campos marcados antes de enviar.",
         "tabsShort": {
           "direct": "Directo",
-          "broadcast": "Broadcast",
+          "broadcast": "Difusión general",
           "club": "Club"
         }
       },
@@ -8239,7 +8244,7 @@
         },
         "send": {
           "title": "Enviar",
-          "description": "Envío directo, broadcast o por club."
+          "description": "Envío directo, difusión general o por club."
         },
         "history": {
           "title": "Historial",
@@ -9213,7 +9218,7 @@
       "pastor_club_not_found": "Club no encontrado",
       "pastor_church_not_found": "La iglesia del club no está disponible",
       "pastor_not_assigned": "Ese pastor no está asignado a este distrito",
-      "request_forbidden": "No tiene permiso para esta solicitud de investidura",
+      "request_forbidden": "No tienes permiso para esta solicitud de investidura",
       "time_zone_invalid": "La zona horaria de la solicitud no es válida",
       "section_not_found": "Sección no encontrada",
       "outside_section": "La persona no pertenece a esta sección",

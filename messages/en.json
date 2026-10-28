@@ -2061,10 +2061,15 @@
       "type_broadcast": "Broadcast",
       "type_user": "User",
       "type_club": "Club",
+      "type_section_role": "Section role",
+      "type_global_role": "Global role",
       "target_all": "All",
       "target_user": "User",
       "target_user_unknown": "User not found",
-      "target_club_section": "Club section"
+      "target_club_section": "Club section",
+      "target_section_role": "Section role",
+      "target_global_role": "Global role",
+      "sender_system": "System"
     },
     "page": {
       "title": "Notifications",
