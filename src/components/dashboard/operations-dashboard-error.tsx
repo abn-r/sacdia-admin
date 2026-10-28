@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, Key, ServerOff } from "lucide-react";
+import { AlertCircle, Key, MapPin, ServerOff } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { ApiError } from "@/lib/api/client";
+import { isScopeMissingError, type ApiErrorInfo } from "@/lib/api/error-code";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,7 +18,7 @@ type ErrorKind =
   | "rate-limited"
   | "server";
 
-function classifyError(error: ApiError): ErrorKind {
+function classifyError(error: ApiErrorInfo): ErrorKind {
   if (error.status === 401) return "auth";
   if (error.status === 403) return "forbidden";
   if (error.status === 400) return "bad-request";
@@ -27,12 +28,26 @@ function classifyError(error: ApiError): ErrorKind {
 }
 
 interface OperationsDashboardErrorProps {
-  error: ApiError;
+  /** Built with `toApiErrorInfo`: an ApiError instance loses its status as a prop. */
+  error: ApiErrorInfo;
 }
 
 export function OperationsDashboardError({ error }: OperationsDashboardErrorProps) {
   const t = useTranslations("dashboardHub.operations.errors");
   const kind = classifyError(error);
+
+  if (isScopeMissingError(error)) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("title")} />
+        <EmptyState
+          icon={MapPin}
+          title={t("scopeMissingTitle")}
+          description={t("scopeMissingDescription")}
+        />
+      </div>
+    );
+  }
 
   if (kind === "forbidden") {
     return (

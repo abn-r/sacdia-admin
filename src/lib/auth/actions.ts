@@ -49,6 +49,10 @@ function getLoginErrorMessage(
     }
   }
 
+  if (error.status === 429) {
+    return t("errors.too_many_attempts");
+  }
+
   if (error.status >= 500) {
     return t("errors.server_unavailable");
   }

@@ -1208,6 +1208,7 @@
       "connection": "Connection error. Contact the system administrator.",
       "session_no_permissions": "Your session does not have permissions to open the administrative panel.",
       "server_unavailable": "The server did not respond correctly. Try again in a few minutes.",
+      "too_many_attempts": "Too many sign-in attempts. Wait a minute and try again.",
       "generic_login": "Sign-in error. Please try again.",
       "login_failed": "Unable to sign in. Please try again.",
       "profile_validation_failed": "Incomplete sign-in. The profile could not be validated.",
@@ -1867,6 +1868,8 @@
       "errors": {
         "title": "Operations overview",
         "forbiddenDescription": "You are not authorized to query this territory.",
+        "scopeMissingTitle": "No assigned sections",
+        "scopeMissingDescription": "Your account has no territory or assigned sections yet. Once an administrator sets up your scope, the operations overview will show here.",
         "notFoundDescription": "The requested year or territory was not found.",
         "rateLimitedDescription": "Too many requests. Try again in a moment.",
         "authTitle": "Session required",

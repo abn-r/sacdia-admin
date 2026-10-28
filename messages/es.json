@@ -1208,6 +1208,7 @@
       "connection": "Error de conexión. Contacta al administrador del sistema.",
       "session_no_permissions": "Tu sesión no tiene permisos para abrir el panel administrativo.",
       "server_unavailable": "El servidor no respondió correctamente. Intenta nuevamente en unos minutos.",
+      "too_many_attempts": "Demasiados intentos de inicio de sesión. Espera un minuto e inténtalo de nuevo.",
       "generic_login": "Error al iniciar sesión. Intenta nuevamente.",
       "login_failed": "No fue posible iniciar sesión. Intenta nuevamente.",
       "profile_validation_failed": "Inicio de sesión incompleto. No se pudo validar el perfil.",
@@ -1867,6 +1868,8 @@
       "errors": {
         "title": "Panorama operativo",
         "forbiddenDescription": "No tienes alcance para consultar este territorio.",
+        "scopeMissingTitle": "Sin secciones asignadas",
+        "scopeMissingDescription": "Tu cuenta aún no tiene un territorio ni secciones asignadas. Cuando un administrador configure tu alcance, aquí verás el panorama operativo.",
         "notFoundDescription": "No se encontró el año o territorio solicitado.",
         "rateLimitedDescription": "Demasiadas solicitudes. Intenta de nuevo en unos momentos.",
         "authTitle": "Sesión requerida",

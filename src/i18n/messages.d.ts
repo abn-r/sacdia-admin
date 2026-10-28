@@ -1237,6 +1237,7 @@ export interface IntlMessages {
       connection: string;
       session_no_permissions: string;
       server_unavailable: string;
+      too_many_attempts: string;
       generic_login: string;
       login_failed: string;
       profile_validation_failed: string;
@@ -1896,6 +1897,8 @@ export interface IntlMessages {
       errors: {
         title: string;
         forbiddenDescription: string;
+        scopeMissingTitle: string;
+        scopeMissingDescription: string;
         notFoundDescription: string;
         rateLimitedDescription: string;
         authTitle: string;

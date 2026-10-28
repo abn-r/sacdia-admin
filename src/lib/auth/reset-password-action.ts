@@ -2,6 +2,7 @@
 
 import { getTranslations } from "next-intl/server";
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { apiErrorCode } from "@/lib/api/error-code";
 import {
   checkNewPassword,
   type PasswordPolicyIssue,
@@ -31,15 +32,6 @@ const INVALID_LINK_CODES = new Set([
   "AUTH_PASSWORD_RESET_TOKEN_INVALID",
   "AUTH_PASSWORD_RESET_TOKEN_EXPIRED",
 ]);
-
-function errorCode(error: ApiError): string | undefined {
-  const payload = error.payload;
-  if (payload && typeof payload === "object" && "code" in payload) {
-    const code = (payload as { code?: unknown }).code;
-    return typeof code === "string" ? code : undefined;
-  }
-  return undefined;
-}
 
 /**
  * Sets a new password with the token from the reset email
@@ -76,7 +68,7 @@ export async function resetPasswordAction(
     return { success: true };
   } catch (error) {
     if (error instanceof ApiError) {
-      const code = errorCode(error);
+      const code = apiErrorCode(error);
       if (code && INVALID_LINK_CODES.has(code)) {
         return { error: t("errors.link_invalid"), linkInvalid: true };
       }

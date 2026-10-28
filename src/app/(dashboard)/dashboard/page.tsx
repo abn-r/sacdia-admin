@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ApiError } from "@/lib/api/client";
+import { toApiErrorInfo } from "@/lib/api/error-code";
 import {
   fetchOperationsDashboard,
   parseOperationsDashboardSearchParams,
@@ -42,7 +43,7 @@ export default async function DashboardHomePage({
   }
 
   if (apiError) {
-    return <OperationsDashboardError error={apiError} />;
+    return <OperationsDashboardError error={toApiErrorInfo(apiError)} />;
   }
 
   return <OperationsDashboardView data={data!} query={query} user={user} />;

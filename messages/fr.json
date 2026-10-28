@@ -1208,6 +1208,7 @@
       "connection": "Erreur de connexion. Contactez l'administrateur du système.",
       "session_no_permissions": "Votre session n'a pas les autorisations pour ouvrir le panneau administratif.",
       "server_unavailable": "Le serveur n'a pas répondu correctement. Réessayez dans quelques minutes.",
+      "too_many_attempts": "Trop de tentatives de connexion. Attendez une minute et réessayez.",
       "generic_login": "Erreur de connexion. Réessayez.",
       "login_failed": "Impossible de se connecter. Réessayez.",
       "profile_validation_failed": "Connexion incomplète. Le profil n'a pas pu être validé.",
@@ -1867,6 +1868,8 @@
       "errors": {
         "title": "Panorama opérationnel",
         "forbiddenDescription": "Vous n'êtes pas autorisé à consulter ce territoire.",
+        "scopeMissingTitle": "Aucune section assignée",
+        "scopeMissingDescription": "Votre compte n'a pas encore de territoire ni de sections assignées. Lorsqu'un administrateur aura configuré votre périmètre, la vue opérationnelle s'affichera ici.",
         "notFoundDescription": "L'année ou le territoire demandé est introuvable.",
         "rateLimitedDescription": "Trop de requêtes. Réessayez dans un instant.",
         "authTitle": "Session requise",
