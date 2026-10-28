@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastors by district"
     },
     "breadcrumbs": {
+      "home": "Home",
       "dashboard": "Dashboard",
       "users": "Users",
       "catalogs": "Catalogs",
@@ -8846,7 +8847,7 @@
       "titleFallback": "Investiture request",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Home",
       "breadcrumbList": "Investiture authorizations",
       "windowClosedBanner": "The local field's window is closed. Ask the local field to extend it so you can authorize.",
       "readOnlyNotice": "You can view this request, but you are not allowed to authorize its members.",

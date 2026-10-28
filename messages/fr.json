@@ -157,6 +157,7 @@
       "investiture_pastors": "Pasteurs par district"
     },
     "breadcrumbs": {
+      "home": "Accueil",
       "dashboard": "Tableau de bord",
       "users": "Utilisateurs",
       "catalogs": "Catalogues",
@@ -8846,7 +8847,7 @@
       "titleFallback": "Demande d'investiture",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Accueil",
       "breadcrumbList": "Autorisations d'investiture",
       "windowClosedBanner": "La fenêtre du champ local est fermée. Demandez au champ local de la prolonger pour pouvoir autoriser.",
       "readOnlyNotice": "Vous pouvez consulter cette demande, mais vous n'avez pas le droit d'autoriser ses membres.",

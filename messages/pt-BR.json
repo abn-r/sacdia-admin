@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
+      "home": "Início",
       "dashboard": "Painel",
       "users": "Usuários",
       "catalogs": "Catálogos",
@@ -8846,7 +8847,7 @@
       "titleFallback": "Solicitação de investidura",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Início",
       "breadcrumbList": "Autorizações de investidura",
       "windowClosedBanner": "A janela do campo local está fechada. Peça ao campo local que a amplie para poder autorizar.",
       "readOnlyNotice": "Você pode consultar esta solicitação, mas não tem permissão para autorizar seus integrantes.",

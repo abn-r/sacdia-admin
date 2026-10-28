@@ -186,6 +186,7 @@ export interface IntlMessages {
       investiture_pastors: string;
     };
     breadcrumbs: {
+      home: string;
       dashboard: string;
       users: string;
       catalogs: string;

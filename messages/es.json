@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
+      "home": "Inicio",
       "dashboard": "Dashboard",
       "users": "Usuarios",
       "catalogs": "Catálogos",
@@ -8846,7 +8847,7 @@
       "titleFallback": "Solicitud de investidura",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Inicio",
       "breadcrumbList": "Autorizaciones de investidura",
       "windowClosedBanner": "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
       "readOnlyNotice": "Puedes consultar esta solicitud, pero no tienes permiso para autorizar a sus integrantes.",

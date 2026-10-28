@@ -19,6 +19,7 @@ export default async function CertificateBulkImportDetailRoute({
 }: CertificateBulkImportDetailRouteProps) {
   await requireAdminUser();
   const t = await getTranslations("certificate_bulk_imports.detailPage");
+  const tCrumbs = await getTranslations("nav.breadcrumbs");
   const { batchId } = await params;
 
   let batch = null;
@@ -45,7 +46,7 @@ export default async function CertificateBulkImportDetailRoute({
         title={batch ? formatUserName(batch.user) : t("title")}
         description={t("description", { batchId: batchId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: tCrumbs("home"), href: "/dashboard" },
           { label: t("breadcrumbList"), href: "/dashboard/certificate-bulk-imports" },
           { label: batch ? formatUserName(batch.user) : batchId.slice(0, 8).toUpperCase() },
         ]}
