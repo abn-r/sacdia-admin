@@ -5729,8 +5729,7 @@
         "tabModules": "Modules et sections",
         "tabUsers": "Utilisateurs inscrits",
         "programCardTitle": "Structure du programme",
-        "enrolledCardTitle": "Utilisateurs inscrits",
-        "enrollmentsEndpointMissing": "Le point de terminaison des certifications n’inclut pas la liste des utilisateurs inscrits dans la réponse de détail. Consultez directement le profil de chaque utilisateur."
+        "enrolledCardTitle": "Utilisateurs inscrits"
       }
     },
     "enrolledUsers": {

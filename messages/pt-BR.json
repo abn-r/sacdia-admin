@@ -5729,8 +5729,7 @@
         "tabModules": "Módulos e seções",
         "tabUsers": "Usuários inscritos",
         "programCardTitle": "Estrutura do programa",
-        "enrolledCardTitle": "Usuários inscritos",
-        "enrollmentsEndpointMissing": "O endpoint de certificações não inclui a lista de usuários inscritos na resposta de detalhes. Consulte diretamente o perfil de cada usuário."
+        "enrolledCardTitle": "Usuários inscritos"
       }
     },
     "enrolledUsers": {

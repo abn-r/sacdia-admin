@@ -5729,8 +5729,7 @@
         "tabModules": "Modules & sections",
         "tabUsers": "Enrolled users",
         "programCardTitle": "Program structure",
-        "enrolledCardTitle": "Enrolled users",
-        "enrollmentsEndpointMissing": "The certifications endpoint does not include the enrolled users list in the detail response. Check directly from each user's profile."
+        "enrolledCardTitle": "Enrolled users"
       }
     },
     "enrolledUsers": {

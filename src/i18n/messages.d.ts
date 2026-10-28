@@ -5762,7 +5762,6 @@ export interface IntlMessages {
         tabUsers: string;
         programCardTitle: string;
         enrolledCardTitle: string;
-        enrollmentsEndpointMissing: string;
       };
     };
     enrolledUsers: {
