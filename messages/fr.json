@@ -6791,10 +6791,10 @@
       "newOverrideTitle": "Nouveau remplacement",
       "overridesEmpty": "Aucun remplacement configuré. Tous les types de clubs utilisent le défaut global.",
       "colClubType": "Type de club",
-      "colFolder": "Dossier",
-      "colFinance": "Finance",
+      "colFolder": "Dossier annuel",
+      "colFinance": "Finances",
       "colCamporee": "Camporée",
-      "colEvidence": "Preuve",
+      "colEvidence": "Preuves",
       "colSuma": "Somme",
       "colAcciones": "Actions",
       "editButton": "Modifier",
@@ -6810,7 +6810,12 @@
       "overrideDeleteError": "Erreur lors de la suppression du remplacement"
     },
     "form": {
-      "saving": "Enregistrement..."
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "folder": "Dossier annuel",
+      "finance": "Finances",
+      "camporee": "Camporée",
+      "evidence": "Preuves"
     },
     "sum": {
       "label": "Somme : {sum}"
@@ -6823,7 +6828,7 @@
     "pages": {
       "list": {
         "title": "Pondérations du classement",
-        "description": "Configurez la pondération de chaque dimension (dossier, finance, camporee, preuve) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
+        "description": "Configurez la pondération de chaque dimension (dossier annuel, finances, camporée, preuves) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
         "loadFailed": "Impossible de charger les pondérations du classement. Vérifiez la connexion au serveur.",
         "emptyTitle": "Aucune configuration",
         "emptyDescription": "Aucune configuration de poids trouvée."

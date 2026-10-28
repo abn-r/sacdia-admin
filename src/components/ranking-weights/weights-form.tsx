@@ -27,7 +27,7 @@ interface WeightsFormProps {
 
 export function WeightsForm({
   initial,
-  submitLabel = "Guardar",
+  submitLabel,
   onSubmit,
 }: WeightsFormProps) {
   const t = useTranslations("rankingWeights.form");
@@ -55,25 +55,25 @@ export function WeightsForm({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <WeightInput
           id="folder"
-          label="Folder"
+          label={t("folder")}
           value={v.folder_weight}
           onChange={(n) => setV({ ...v, folder_weight: n })}
         />
         <WeightInput
           id="finance"
-          label="Finance"
+          label={t("finance")}
           value={v.finance_weight}
           onChange={(n) => setV({ ...v, finance_weight: n })}
         />
         <WeightInput
           id="camporee"
-          label="Camporee"
+          label={t("camporee")}
           value={v.camporee_weight}
           onChange={(n) => setV({ ...v, camporee_weight: n })}
         />
         <WeightInput
           id="evidence"
-          label="Evidence"
+          label={t("evidence")}
           value={v.evidence_weight}
           onChange={(n) => setV({ ...v, evidence_weight: n })}
         />
@@ -82,9 +82,7 @@ export function WeightsForm({
       <div className="flex items-center justify-between gap-4">
         <WeightSumIndicator sum={sum} />
         <Button loading={busy} type="submit" disabled={!ok}>
-          {busy ? t("saving") : (
-            submitLabel
-          )}
+          {busy ? t("saving") : (submitLabel ?? t("save"))}
         </Button>
       </div>
     </form>

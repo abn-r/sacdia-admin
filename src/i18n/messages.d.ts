@@ -6843,6 +6843,11 @@ export interface IntlMessages {
     };
     form: {
       saving: string;
+      save: string;
+      folder: string;
+      finance: string;
+      camporee: string;
+      evidence: string;
     };
     sum: {
       label: string;

@@ -6780,19 +6780,19 @@
   "rankingWeights": {
     "clientPage": {
       "clubTypeFallback": "Type {id}",
-      "defaultGlobalTitle": "Global default",
+      "defaultGlobalTitle": "Default weights",
       "defaultGlobalDescription": "Weights applied to all club types that do not have a configured override. The sum must be exactly 100.",
-      "defaultGlobalUpdated": "Global default updated",
-      "defaultGlobalUpdateError": "Error updating the default",
-      "defaultGlobalNotFound": "Global default not found. Contact the system administrator.",
-      "overridesTitle": "Overrides by club type",
+      "defaultGlobalUpdated": "Default weights updated",
+      "defaultGlobalUpdateError": "Error updating the default weights",
+      "defaultGlobalNotFound": "Default weights not found. Contact the system administrator.",
+      "overridesTitle": "Club type overrides",
       "overridesDescription": "Specific weights that replace the default for a given club type.",
       "addOverride": "Add override",
       "newOverrideTitle": "New override",
-      "overridesEmpty": "No overrides configured. All club types use the global default.",
+      "overridesEmpty": "No overrides configured. All club types use the default weights.",
       "colClubType": "Club type",
-      "colFolder": "Folder",
-      "colFinance": "Finance",
+      "colFolder": "Annual folder",
+      "colFinance": "Finances",
       "colCamporee": "Camporee",
       "colEvidence": "Evidence",
       "colSuma": "Sum",
@@ -6803,14 +6803,19 @@
       "overrideUpdateError": "Error updating the override",
       "deleteButton": "Delete",
       "deleteOverrideTitle": "Delete override?",
-      "deleteOverrideDescription": "This action cannot be undone. The club type will revert to using the global default weights.",
+      "deleteOverrideDescription": "This action cannot be undone. The club type will revert to using the default weights.",
       "cancelButton": "Cancel",
       "deletingLabel": "Deleting...",
       "overrideDeleted": "Override deleted",
       "overrideDeleteError": "Error deleting the override"
     },
     "form": {
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "save": "Save",
+      "folder": "Annual folder",
+      "finance": "Finances",
+      "camporee": "Camporee",
+      "evidence": "Evidence"
     },
     "sum": {
       "label": "Sum: {sum}"
@@ -6823,7 +6828,7 @@
     "pages": {
       "list": {
         "title": "Classification weights",
-        "description": "Configure the weight of each dimension (folder, finance, camporee, evidence) for the annual classification calculation. The sum of the 4 weights must be exactly 100.",
+        "description": "Configure the weight of each dimension (annual folder, finances, camporee, evidence) for the annual classification calculation. The sum of the 4 weights must be exactly 100.",
         "loadFailed": "Could not load classification weights. Check the server connection.",
         "emptyTitle": "No configuration",
         "emptyDescription": "No weight configurations found."
@@ -7146,8 +7151,8 @@
       "compositeScore": "Institutional composite score",
       "weightsApplied": "Applied weights",
       "weightsSource": "Source",
-      "weightsSourceDefault": "Global default",
-      "weightsSourceOverride": "Override by club type",
+      "weightsSourceDefault": "Default weights",
+      "weightsSourceOverride": "Club type override",
       "componentFolder": "Folders",
       "componentFinance": "Finance",
       "componentCamporee": "Camporees",

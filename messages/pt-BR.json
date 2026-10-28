@@ -6791,10 +6791,10 @@
       "newOverrideTitle": "Nova substituição",
       "overridesEmpty": "Nenhuma substituição configurada. Todos os tipos de clube usam o padrão global.",
       "colClubType": "Tipo de clube",
-      "colFolder": "Pasta",
+      "colFolder": "Pasta anual",
       "colFinance": "Finanças",
       "colCamporee": "Camporee",
-      "colEvidence": "Evidência",
+      "colEvidence": "Evidências",
       "colSuma": "Soma",
       "colAcciones": "Ações",
       "editButton": "Editar",
@@ -6810,7 +6810,12 @@
       "overrideDeleteError": "Erro ao excluir a substituição"
     },
     "form": {
-      "saving": "Salvando..."
+      "saving": "Salvando...",
+      "save": "Salvar",
+      "folder": "Pasta anual",
+      "finance": "Finanças",
+      "camporee": "Camporee",
+      "evidence": "Evidências"
     },
     "sum": {
       "label": "Soma: {sum}"
@@ -6823,7 +6828,7 @@
     "pages": {
       "list": {
         "title": "Pesos de classificação",
-        "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
+        "description": "Configure a ponderação de cada dimensão (pasta anual, finanças, camporee, evidências) para o cálculo da classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
         "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
         "emptyTitle": "Sem configuração",
         "emptyDescription": "Nenhuma configuração de pesos encontrada."

@@ -6780,37 +6780,42 @@
   "rankingWeights": {
     "clientPage": {
       "clubTypeFallback": "Tipo {id}",
-      "defaultGlobalTitle": "Default global",
-      "defaultGlobalDescription": "Pesos aplicados a todos los tipos de club que no tienen un override configurado. La suma debe ser exactamente 100.",
-      "defaultGlobalUpdated": "Default global actualizado",
-      "defaultGlobalUpdateError": "Error al actualizar el default",
-      "defaultGlobalNotFound": "Default global no encontrado. Contacta al administrador del sistema.",
-      "overridesTitle": "Overrides por tipo de club",
-      "overridesDescription": "Pesos específicos que reemplazan el default para un tipo de club determinado.",
-      "addOverride": "Agregar override",
-      "newOverrideTitle": "Nuevo override",
-      "overridesEmpty": "No hay overrides configurados. Todos los tipos de club usan el default global.",
+      "defaultGlobalTitle": "Valores generales",
+      "defaultGlobalDescription": "Pesos aplicados a todos los tipos de club que no tienen un ajuste configurado. La suma debe ser exactamente 100.",
+      "defaultGlobalUpdated": "Valores generales actualizados",
+      "defaultGlobalUpdateError": "Error al actualizar los valores generales",
+      "defaultGlobalNotFound": "Valores generales no encontrados. Contacta al administrador del sistema.",
+      "overridesTitle": "Ajustes por tipo de club",
+      "overridesDescription": "Pesos específicos que reemplazan los valores generales para un tipo de club determinado.",
+      "addOverride": "Agregar ajuste",
+      "newOverrideTitle": "Nuevo ajuste",
+      "overridesEmpty": "No hay ajustes configurados. Todos los tipos de club usan los valores generales.",
       "colClubType": "Tipo de club",
-      "colFolder": "Folder",
-      "colFinance": "Finance",
+      "colFolder": "Carpeta anual",
+      "colFinance": "Finanzas",
       "colCamporee": "Camporee",
-      "colEvidence": "Evidence",
+      "colEvidence": "Evidencias",
       "colSuma": "Suma",
       "colAcciones": "Acciones",
       "editButton": "Editar",
-      "editOverrideTitle": "Editar override",
-      "overrideUpdated": "Override actualizado",
-      "overrideUpdateError": "Error al actualizar el override",
+      "editOverrideTitle": "Editar ajuste",
+      "overrideUpdated": "Ajuste actualizado",
+      "overrideUpdateError": "Error al actualizar el ajuste",
       "deleteButton": "Eliminar",
-      "deleteOverrideTitle": "¿Eliminar override?",
-      "deleteOverrideDescription": "Esta acción no se puede deshacer. El tipo de club volverá a usar los pesos del default global.",
+      "deleteOverrideTitle": "¿Eliminar ajuste?",
+      "deleteOverrideDescription": "Esta acción no se puede deshacer. El tipo de club volverá a usar los pesos de los valores generales.",
       "cancelButton": "Cancelar",
       "deletingLabel": "Eliminando...",
-      "overrideDeleted": "Override eliminado",
-      "overrideDeleteError": "Error al eliminar el override"
+      "overrideDeleted": "Ajuste eliminado",
+      "overrideDeleteError": "Error al eliminar el ajuste"
     },
     "form": {
-      "saving": "Guardando..."
+      "saving": "Guardando...",
+      "save": "Guardar",
+      "folder": "Carpeta anual",
+      "finance": "Finanzas",
+      "camporee": "Camporee",
+      "evidence": "Evidencias"
     },
     "sum": {
       "label": "Suma: {sum}"
@@ -6818,12 +6823,12 @@
     "override": {
       "selectPlaceholder": "Seleccionar tipo de club",
       "noTypesAvailable": "Sin tipos disponibles",
-      "createLabel": "Crear override"
+      "createLabel": "Crear ajuste"
     },
     "pages": {
       "list": {
         "title": "Pesos de clasificación",
-        "description": "Configura la ponderación de cada dimensión (folder, finance, camporee, evidence) para el cálculo del clasificación anual. La suma de los 4 pesos debe ser exactamente 100.",
+        "description": "Configura la ponderación de cada dimensión (carpeta anual, finanzas, camporee, evidencias) para el cálculo de la clasificación anual. La suma de los 4 pesos debe ser exactamente 100.",
         "loadFailed": "No se pudieron cargar los pesos de clasificación. Verifica la conexión con el servidor.",
         "emptyTitle": "Sin configuración",
         "emptyDescription": "No se encontraron configuraciones de pesos."
@@ -7146,8 +7151,8 @@
       "compositeScore": "Puntaje compuesto institucional",
       "weightsApplied": "Pesos aplicados",
       "weightsSource": "Fuente",
-      "weightsSourceDefault": "Default global",
-      "weightsSourceOverride": "Override por tipo de club",
+      "weightsSourceDefault": "Valores generales",
+      "weightsSourceOverride": "Ajuste por tipo de club",
       "componentFolder": "Carpetas",
       "componentFinance": "Finanzas",
       "componentCamporee": "Camporees",

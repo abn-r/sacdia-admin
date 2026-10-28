@@ -68,3 +68,36 @@ describe("RankingWeightsClientPage overrides table", () => {
     expect(screen.getByRole("cell", { name: "Tipo 9" })).toBeInTheDocument();
   });
 });
+
+describe("RankingWeightsClientPage copy", () => {
+  afterEach(() => cleanup());
+
+  it("uses Spanish labels for the dimensions, sections and actions", () => {
+    renderPage([{ club_type_id: 1, name: "Conquistadores" }]);
+
+    expect(screen.getByText("Valores generales")).toBeInTheDocument();
+    expect(screen.getByText("Ajustes por tipo de club")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Agregar ajuste/ })).toBeInTheDocument();
+
+    // Default weights form inputs
+    expect(screen.getByLabelText("Carpeta anual")).toBeInTheDocument();
+    expect(screen.getByLabelText("Finanzas")).toBeInTheDocument();
+    expect(screen.getByLabelText("Camporee")).toBeInTheDocument();
+    expect(screen.getByLabelText("Evidencias")).toBeInTheDocument();
+
+    // Overrides table headers
+    expect(screen.getByRole("columnheader", { name: "Carpeta anual" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Finanzas" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Evidencias" })).toBeInTheDocument();
+  });
+
+  it("does not leak English dimension names", () => {
+    renderPage([{ club_type_id: 1, name: "Conquistadores" }]);
+
+    expect(screen.queryByText("Folder")).not.toBeInTheDocument();
+    expect(screen.queryByText("Finance")).not.toBeInTheDocument();
+    expect(screen.queryByText("Evidence")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Default global/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/override/i)).not.toBeInTheDocument();
+  });
+});
