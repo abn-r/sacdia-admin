@@ -61,6 +61,8 @@ export type UserRole = {
 export type RbacActionState = {
   ok?: boolean;
   error?: string;
+  /** Form field the error belongs to (e.g. "role_name"), when known. */
+  field?: string;
   success?: string;
 };
 

@@ -41,6 +41,7 @@ import {
 import { PermissionPicker } from "@/components/rbac/permission-picker";
 import { pickerScreenIdForKey } from "@/lib/rbac/permission-picker-groups";
 import { createRoleAction, updateRoleAction } from "@/lib/rbac/actions";
+import { ROLE_NAME_MAX_LENGTH, validateRoleName } from "@/lib/rbac/role-name";
 import type { Permission, Role, RbacActionState } from "@/lib/rbac/types";
 
 const ROLES_PATH = "/dashboard/configuration/roles";
@@ -62,28 +63,37 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
   const [roleCategory, setRoleCategory] = useState<"GLOBAL" | "CLUB">("GLOBAL");
   const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [roleNameError, setRoleNameError] = useState<string | null>(null);
 
   const steps = [t("roleForm.generalInfo"), t("roleForm.permissions")];
   const lastStep = steps.length - 1;
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
 
-  // Client-side validation mirrors server-side
-  function validate(): string | null {
-    if (!roleName.trim()) return t("validation.role_name_required");
-    if (!/^[a-z][a-z0-9-]{1,62}[a-z0-9]$/.test(roleName.trim())) {
-      return t("validation.role_name_format");
-    }
-    if (roleName.trim() === "super-admin") {
-      return t("validation.role_name_reserved");
+  // Client-side validation mirrors server-side (and the backend DTO).
+  type Validation = { field: "role_name" | null; message: string };
+  function validate(): Validation | null {
+    const nameError = validateRoleName(roleName.trim());
+    if (nameError) {
+      return { field: "role_name", message: t(`validation.role_name_${nameError}`) };
     }
     if (description.trim().length < 10) {
-      return t("validation.description_min_length");
+      return { field: null, message: t("validation.description_min_length") };
     }
     if (description.trim().length > MAX_DESCRIPTION) {
-      return t("validation.description_max_length");
+      return { field: null, message: t("validation.description_max_length") };
     }
     return null;
+  }
+
+  function showValidation(v: Validation) {
+    if (v.field === "role_name") {
+      setRoleNameError(v.message);
+      setError(null);
+    } else {
+      setRoleNameError(null);
+      setError(v.message);
+    }
   }
 
   function goTo(next: number) {
@@ -93,12 +103,13 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
 
   // Every client-side rule belongs to the general step.
   function goNext() {
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
+    const validation = validate();
+    if (validation) {
+      showValidation(validation);
       return;
     }
     setError(null);
+    setRoleNameError(null);
     goTo(Math.min(step + 1, lastStep));
   }
 
@@ -109,13 +120,14 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
       goNext();
       return;
     }
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
+    const validation = validate();
+    if (validation) {
+      showValidation(validation);
       goTo(0);
       return;
     }
     setError(null);
+    setRoleNameError(null);
 
     const formData = new FormData();
     formData.set("role_name", roleName.trim());
@@ -126,7 +138,13 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
     startTransition(async () => {
       const result = await createRoleAction({} as RbacActionState, formData);
       if (result?.error) {
-        setError(result.error);
+        if (result.field === "role_name") {
+          setRoleNameError(result.error);
+          setError(null);
+          goTo(0);
+        } else {
+          setError(result.error);
+        }
         return;
       }
 
@@ -159,14 +177,26 @@ export function CreateRoleForm({ allPermissions }: CreateRoleFormProps) {
               <Input
                 id="role_name"
                 value={roleName}
-                onChange={(e) => setRoleName(e.target.value)}
+                onChange={(e) => {
+                  setRoleName(e.target.value);
+                  if (roleNameError) setRoleNameError(null);
+                }}
                 placeholder={t("roleForm.roleNamePlaceholder")}
-                pattern="^[a-z][a-z0-9-]{1,62}[a-z0-9]$"
                 title={t("roleForm.roleNameTitle")}
+                maxLength={ROLE_NAME_MAX_LENGTH}
                 autoComplete="off"
+                aria-invalid={roleNameError ? true : undefined}
+                aria-describedby={roleNameError ? "role_name-error" : "role_name-hint"}
                 required
               />
-              <p className="text-xs text-muted-foreground">{t("roleForm.roleNameHint")}</p>
+              {roleNameError ? (
+                <p id="role_name-error" role="alert" className="text-xs text-destructive">
+                  {roleNameError}
+                </p>
+              ) : null}
+              <p id="role_name-hint" className="text-xs text-muted-foreground">
+                {t("roleForm.roleNameHint")}
+              </p>
             </div>
 
             {/* role_category */}
