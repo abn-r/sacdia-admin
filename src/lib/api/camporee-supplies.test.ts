@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/api/client";
 import {
   createCamporeeSupplyProduct,
   getCamporeeSupplyCatalog,
+  isSupplyLineFullyDelivered,
   listCamporeeSupplyPlans,
   markCamporeeSupplyPaymentPaid,
   updateCamporeeSupplyProduct,
@@ -138,5 +139,22 @@ describe("camporee-supplies api", () => {
       method: "PATCH",
       body: { active: false },
     });
+  });
+});
+
+describe("isSupplyLineFullyDelivered", () => {
+  it("is true when delivered reaches the ordered quantity", () => {
+    expect(isSupplyLineFullyDelivered({ qty: "2000.000", delivered_qty: "2000.000" })).toBe(true);
+    expect(isSupplyLineFullyDelivered({ qty: "4.000", delivered_qty: "5.000" })).toBe(true);
+  });
+
+  it("is false while something is pending", () => {
+    expect(isSupplyLineFullyDelivered({ qty: "4.000", delivered_qty: "0.000" })).toBe(false);
+    expect(isSupplyLineFullyDelivered({ qty: "2000.000", delivered_qty: "1999.500" })).toBe(false);
+  });
+
+  it("does not treat zero or malformed quantities as delivered", () => {
+    expect(isSupplyLineFullyDelivered({ qty: "0.000", delivered_qty: "0.000" })).toBe(false);
+    expect(isSupplyLineFullyDelivered({ qty: "abc", delivered_qty: "1" })).toBe(false);
   });
 });

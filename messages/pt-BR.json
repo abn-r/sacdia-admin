@@ -8655,7 +8655,8 @@
       "colKind": "Tipo",
       "colTotal": "Total",
       "colPayStatus": "Pagamento",
-      "deliverQty": "Quantidade a entregar"
+      "deliverQty": "Quantidade a entregar",
+      "lineDelivered": "Entrega completa"
     },
     "reports": {
       "kitchen": "Relatório de cozinha",

@@ -8703,6 +8703,7 @@ export interface IntlMessages {
       colTotal: string;
       colPayStatus: string;
       deliverQty: string;
+      lineDelivered: string;
     };
     reports: {
       kitchen: string;

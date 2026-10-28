@@ -39,6 +39,7 @@ import {
   getCamporeeSupplyCashReport,
   getCamporeeSupplyCatalog,
   getCamporeeSupplyKitchenReport,
+  isSupplyLineFullyDelivered,
   listCamporeeSupplyPlans,
   markCamporeeSupplyPaymentPaid,
   updateCamporeeSupplyProduct,
@@ -514,27 +515,33 @@ export function CamporeeSuppliesTab({
                           <td className="px-2 py-2">{line.delivered_qty}</td>
                           {canDeliver && (
                             <td className="px-2 py-2">
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  aria-label={t("plans.deliverQty")}
-                                  className="w-24"
-                                  inputMode="decimal"
-                                  value={deliverQty[line.line_id] ?? ""}
-                                  onChange={(event) =>
-                                    setDeliverQty((current) => ({
-                                      ...current,
-                                      [line.line_id]: event.target.value,
-                                    }))
-                                  }
-                                />
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  onClick={() => void deliver(line.line_id)}
-                                >
-                                  {t("actions.deliver")}
-                                </Button>
-                              </div>
+                              {isSupplyLineFullyDelivered(line) ? (
+                                <span className="text-muted-foreground text-xs">
+                                  {t("plans.lineDelivered")}
+                                </span>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    aria-label={t("plans.deliverQty")}
+                                    className="w-24"
+                                    inputMode="decimal"
+                                    value={deliverQty[line.line_id] ?? ""}
+                                    onChange={(event) =>
+                                      setDeliverQty((current) => ({
+                                        ...current,
+                                        [line.line_id]: event.target.value,
+                                      }))
+                                    }
+                                  />
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={() => void deliver(line.line_id)}
+                                  >
+                                    {t("actions.deliver")}
+                                  </Button>
+                                </div>
+                              )}
                             </td>
                           )}
                         </tr>
