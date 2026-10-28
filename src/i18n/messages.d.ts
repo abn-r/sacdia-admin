@@ -6139,7 +6139,7 @@ export interface IntlMessages {
       club_type_required: string;
       club_section_required: string;
       activity_place_required: string;
-      image_required: string;
+      image_invalid: string;
     };
     audience: {
       label: string;

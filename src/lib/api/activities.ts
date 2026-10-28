@@ -82,7 +82,7 @@ export type CreateActivityPayload = {
   activity_date?: string;
   activity_end_date?: string;
   activity_place: string;
-  image: string;
+  image?: string;
   platform?: number;
   activity_type_id: number;
   link_meet?: string;
@@ -99,8 +99,7 @@ export type RecurrencePayload = {
   until?: string;
 };
 
-export type CreateActivitySeriesPayload = Omit<CreateActivityPayload, "image"> & {
-  image?: string;
+export type CreateActivitySeriesPayload = CreateActivityPayload & {
   recurrence: RecurrencePayload;
   activity_date: string;
 };

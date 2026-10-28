@@ -266,3 +266,24 @@ export const ACTIVITIES_BASE_PATH = "/dashboard/clubs/activities";
 export function activityDetailPath(activityId: number): string {
   return `${ACTIVITIES_BASE_PATH}/${activityId}`;
 }
+
+/**
+ * The activity image is optional in the API. An empty value is valid; a value must be an
+ * absolute http(s) URL (the backend rejects anything else with a 400).
+ */
+export function isEmptyOrHttpUrl(value: string | undefined): boolean {
+  const trimmed = value?.trim() ?? "";
+  if (trimmed === "") return true;
+  try {
+    const url = new URL(trimmed);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/** Trimmed value, or `undefined` when empty so the field is omitted from the payload. */
+export function optionalText(value: string | undefined): string | undefined {
+  const trimmed = value?.trim() ?? "";
+  return trimmed === "" ? undefined : trimmed;
+}

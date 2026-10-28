@@ -6107,7 +6107,7 @@
       "club_type_required": "Selecciona el tipo de club",
       "club_section_required": "Selecciona la sección",
       "activity_place_required": "El lugar es obligatorio",
-      "image_required": "La URL de imagen es obligatoria"
+      "image_invalid": "Ingresa una URL válida que empiece con http:// o https://"
     },
     "audience": {
       "label": "¿Para quién es?",
