@@ -4513,6 +4513,8 @@
     "templates": {
       "backTitle": "Volver a plantillas",
       "yearFallback": "Año {id}",
+      "noRankingConfig": "No existe una configuración de ranking aplicable para esta plantilla. Configura primero el componente «{component}».",
+      "rankingComponentAnnualFolder": "Carpeta anual de evidencias",
       "backSrOnly": "Volver",
       "sectionSingular": "sección",
       "sectionPlural": "secciones",

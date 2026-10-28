@@ -4513,6 +4513,8 @@
     "templates": {
       "backTitle": "Back to templates",
       "yearFallback": "Year {id}",
+      "noRankingConfig": "There is no ranking configuration that applies to this template. Configure the “{component}” component first.",
+      "rankingComponentAnnualFolder": "Annual evidence folder",
       "backSrOnly": "Back",
       "sectionSingular": "section",
       "sectionPlural": "sections",

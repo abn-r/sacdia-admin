@@ -779,7 +779,9 @@ export function TemplatesClientPage({
           </div>
           <p className="mt-1 text-xs opacity-80">
             {requiredRankingPoints == null
-              ? "No existe una configuración de ranking aplicable para esta plantilla. Configura primero el componente annual_evidence_folder."
+              ? t("templates.noRankingConfig", {
+                  component: t("templates.rankingComponentAnnualFolder"),
+                })
               : sectionPointsMatch
                 ? "La plantilla está alineada con el puntaje anual configurado."
                 : "No se podrá activar ni crear carpetas hasta que las secciones sumen exactamente el total requerido."}

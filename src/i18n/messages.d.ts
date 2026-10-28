@@ -4545,6 +4545,8 @@ export interface IntlMessages {
     templates: {
       backTitle: string;
       yearFallback: string;
+      noRankingConfig: string;
+      rankingComponentAnnualFolder: string;
       backSrOnly: string;
       sectionSingular: string;
       sectionPlural: string;

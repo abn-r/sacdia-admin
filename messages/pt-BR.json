@@ -4513,6 +4513,8 @@
     "templates": {
       "backTitle": "Voltar para modelos",
       "yearFallback": "Ano {id}",
+      "noRankingConfig": "Não existe uma configuração de ranking aplicável a este modelo. Configure primeiro o componente “{component}”.",
+      "rankingComponentAnnualFolder": "Pasta anual de evidências",
       "backSrOnly": "Voltar",
       "sectionSingular": "seção",
       "sectionPlural": "seções",

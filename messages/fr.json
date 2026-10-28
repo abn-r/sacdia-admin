@@ -4513,6 +4513,8 @@
     "templates": {
       "backTitle": "Retour aux modèles",
       "yearFallback": "Année {id}",
+      "noRankingConfig": "Aucune configuration de classement ne s'applique à ce modèle. Configurez d'abord le composant « {component} ».",
+      "rankingComponentAnnualFolder": "Dossier annuel de preuves",
       "backSrOnly": "Retour",
       "sectionSingular": "section",
       "sectionPlural": "sections",
