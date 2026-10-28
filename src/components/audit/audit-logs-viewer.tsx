@@ -34,6 +34,11 @@ import {
   type AdminAuditLogListQuery,
 } from "@/lib/api/audit-logs";
 import {
+  describeAuditRoute,
+  shortAuditId,
+  type AuditRouteInfo,
+} from "@/lib/audit/describe-audit-route";
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -41,14 +46,19 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const KNOWN_ACTIONS = new Set(["CREATED", "UPDATED", "DELETED"]);
+const KNOWN_ACTIONS = new Set(["CREATED", "UPDATED", "DELETED", "DEACTIVATED"]);
+
+/** "Eliminado" only when the row is really removed; a deactivation reads "Desactivado". */
+function displayAction(action: string, route: AuditRouteInfo | null): string {
+  return route?.softDelete && action === "DELETED" ? "DEACTIVATED" : action;
+}
 
 function actionVariant(
   action: string,
 ): "soft-success" | "soft-info" | "soft-destructive" | "outline" {
   if (action === "CREATED") return "soft-success";
   if (action === "UPDATED") return "soft-info";
-  if (action === "DELETED") return "soft-destructive";
+  if (action === "DELETED" || action === "DEACTIVATED") return "soft-destructive";
   return "outline";
 }
 
@@ -125,6 +135,7 @@ export function AuditLogsViewer() {
     }
   }
 
+  const detailRoute = detail ? describeAuditRoute(detail) : null;
   const apiError = error instanceof ApiError ? error : null;
   const errorMessage = apiError?.message ?? (typeof error === "string" ? error : null);
 
@@ -239,6 +250,8 @@ export function AuditLogsViewer() {
               {items.map((item) => {
                 const created = new Date(item.created_at);
                 const actorName = formatAuditActorName(item.actor);
+                const route = describeAuditRoute(item);
+                const shownAction = displayAction(item.action, route);
                 return (
                   <TableRow
                     key={item.audit_log_id}
@@ -255,17 +268,30 @@ export function AuditLogsViewer() {
                       })}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={actionVariant(item.action)}>
-                        {KNOWN_ACTIONS.has(item.action)
-                          ? t(`action.${item.action}` as "action.CREATED")
-                          : item.action}
+                      <Badge variant={actionVariant(shownAction)}>
+                        {KNOWN_ACTIONS.has(shownAction)
+                          ? t(`action.${shownAction}` as "action.CREATED")
+                          : shownAction}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden max-w-[240px] whitespace-normal break-all font-mono text-xs xl:table-cell">
-                      {item.entity_type}/{item.entity_id}
+                      {route ? (
+                        <span title={`${item.entity_type}/${item.entity_id}`}>
+                          <span className="font-sans text-sm">
+                            {t(`entities.${route.entityKind}`)}
+                          </span>{" "}
+                          <span className="text-muted-foreground">
+                            {shortAuditId(item.entity_id)}
+                          </span>
+                        </span>
+                      ) : (
+                        <>
+                          {item.entity_type}/{item.entity_id}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell className="min-w-[200px] max-w-[360px] whitespace-normal text-sm">
-                      {item.summary ?? "—"}
+                      {route ? t(`routes.${route.routeKey}`) : (item.summary ?? "—")}
                     </TableCell>
                     <TableCell className="hidden text-sm xl:table-cell">
                       {actorName ?? t("unknownActor")}
@@ -313,6 +339,18 @@ export function AuditLogsViewer() {
           ) : null}
           {detail ? (
             <dl className="mt-4 space-y-3 text-sm">
+              {detailRoute ? (
+                <div>
+                  <dt className="text-muted-foreground">{t("columns.summary")}</dt>
+                  <dd className="font-medium">{t(`routes.${detailRoute.routeKey}`)}</dd>
+                </div>
+              ) : null}
+              {detail.summary ? (
+                <div>
+                  <dt className="text-muted-foreground">{t("rawSummary")}</dt>
+                  <dd className="break-all font-mono text-xs">{detail.summary}</dd>
+                </div>
+              ) : null}
               <div>
                 <dt className="text-muted-foreground">{t("columns.entity")}</dt>
                 <dd className="font-mono text-xs">

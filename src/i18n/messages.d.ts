@@ -8413,6 +8413,28 @@ export interface IntlMessages {
       correlation: string;
       changes: string;
       requestContext: string;
+      rawSummary: string;
+      routes: {
+        permissionCreated: string;
+        permissionUpdated: string;
+        permissionDeactivated: string;
+        roleCreated: string;
+        roleUpdated: string;
+        roleDeactivated: string;
+        rolePermissionsAdded: string;
+        rolePermissionsReplaced: string;
+        rolePermissionRemoved: string;
+        userPermissionGranted: string;
+        userPermissionRemoved: string;
+        userRoleAssigned: string;
+        userRoleRemoved: string;
+        adminBootstrapped: string;
+      };
+      entities: {
+        role: string;
+        permission: string;
+        user: string;
+      };
       columns: {
         when: string;
         action: string;
@@ -8435,6 +8457,7 @@ export interface IntlMessages {
         CREATED: string;
         UPDATED: string;
         DELETED: string;
+        DEACTIVATED: string;
       };
       result: {
         succeeded: string;

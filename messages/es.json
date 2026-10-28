@@ -8366,6 +8366,28 @@
       "correlation": "Correlación",
       "changes": "Cambios",
       "requestContext": "Contexto HTTP",
+      "rawSummary": "Resumen técnico",
+      "routes": {
+        "permissionCreated": "Permiso creado",
+        "permissionUpdated": "Permiso actualizado",
+        "permissionDeactivated": "Permiso desactivado",
+        "roleCreated": "Rol creado",
+        "roleUpdated": "Rol actualizado",
+        "roleDeactivated": "Rol desactivado",
+        "rolePermissionsAdded": "Permisos agregados a un rol",
+        "rolePermissionsReplaced": "Permisos de un rol reemplazados",
+        "rolePermissionRemoved": "Permiso quitado de un rol",
+        "userPermissionGranted": "Permiso directo asignado a un usuario",
+        "userPermissionRemoved": "Permiso directo quitado a un usuario",
+        "userRoleAssigned": "Rol asignado a un usuario",
+        "userRoleRemoved": "Rol quitado a un usuario",
+        "adminBootstrapped": "Administrador inicial configurado"
+      },
+      "entities": {
+        "role": "Rol",
+        "permission": "Permiso",
+        "user": "Usuario"
+      },
       "columns": {
         "when": "Cuándo",
         "action": "Acción",
@@ -8387,7 +8409,8 @@
       "action": {
         "CREATED": "Creado",
         "UPDATED": "Actualizado",
-        "DELETED": "Eliminado"
+        "DELETED": "Eliminado",
+        "DEACTIVATED": "Desactivado"
       },
       "result": {
         "succeeded": "OK",
