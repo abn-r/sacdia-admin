@@ -35,6 +35,9 @@ import {
 import { useTranslations } from "next-intl";
 import { createInsurance, updateInsurance, INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
 import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
+import { ApiError } from "@/lib/api/client";
+import { apiErrorCode } from "@/lib/api/error-code";
+import { FIELD_PAYMENT_ORDER_LEGACY_DISABLED } from "@/lib/insurance/payment-orders-flag";
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
@@ -77,6 +80,8 @@ export interface InsuranceFormDialogProps {
   onOpenChange: (open: boolean) => void;
   member: MemberInsurance | null;
   onSuccess: () => void;
+  /** Called on 409 FIELD_PAYMENT_ORDER_LEGACY_DISABLED (manual registration replaced by payment orders). */
+  onLegacyDisabled?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -86,6 +91,7 @@ export function InsuranceFormDialog({
   onOpenChange,
   member,
   onSuccess,
+  onLegacyDisabled,
 }: InsuranceFormDialogProps) {
   const ins = member?.insurance ?? null;
   const isEdit = !!ins;
@@ -170,6 +176,14 @@ export function InsuranceFormDialog({
       const message =
         err instanceof Error ? err.message : t("errors.save_failed");
       toast.error(message);
+      if (
+        err instanceof ApiError &&
+        err.status === 409 &&
+        apiErrorCode(err) === FIELD_PAYMENT_ORDER_LEGACY_DISABLED
+      ) {
+        onLegacyDisabled?.();
+        onOpenChange(false);
+      }
     } finally {
       setIsSubmitting(false);
     }

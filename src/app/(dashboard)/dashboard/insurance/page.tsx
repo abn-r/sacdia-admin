@@ -17,6 +17,10 @@ import {
 } from "@/lib/auth/territory-scope";
 import type { LocalField } from "@/lib/api/geography";
 import type { MemberInsurance } from "@/lib/api/insurance";
+import {
+  FIELD_PAYMENT_ORDERS_FLAG_KEY,
+  parsePaymentOrdersLocalFieldIds,
+} from "@/lib/insurance/payment-orders-flag";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -142,6 +146,21 @@ export default async function InsurancePage() {
   const localFieldsResult = await listLocalFieldsForTerritory(user).catch(() => []);
   localFields = localFieldsResult;
 
+  // Local Fields on payment orders: manual registration answers 409 there. The only
+  // readable source is system-config (admin / super-admin); any other role gets 403 and
+  // the view learns the block from the first 409 instead.
+  let paymentOrdersLocalFieldIds: number[] = [];
+  try {
+    const flag = await apiRequest<unknown>(
+      `/system-config/${FIELD_PAYMENT_ORDERS_FLAG_KEY}`,
+    );
+    const root = (flag && typeof flag === "object" ? flag : {}) as AnyRecord;
+    const row = (root.data && typeof root.data === "object" ? root.data : root) as AnyRecord;
+    paymentOrdersLocalFieldIds = parsePaymentOrdersLocalFieldIds(row.config_value);
+  } catch {
+    paymentOrdersLocalFieldIds = [];
+  }
+
   if (territoryScope.level === "local_field") {
     initialLocalFieldId = territoryScope.localFieldId;
   }
@@ -251,6 +270,7 @@ export default async function InsurancePage() {
           }
           initialSectionId={initialSectionId}
           initialLocalFieldId={initialLocalFieldId}
+          paymentOrdersLocalFieldIds={paymentOrdersLocalFieldIds}
         />
       )}
     </div>
