@@ -9025,6 +9025,7 @@ export interface IntlMessages {
         empty: string;
         full: string;
         assign: string;
+        assignAria: string;
       };
       pastor: {
         canAuthorize: string;
