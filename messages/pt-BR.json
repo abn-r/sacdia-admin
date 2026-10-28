@@ -4392,7 +4392,8 @@
           "title": "Arraste e solte seu arquivo aqui",
           "subtitle": "ou clique para selecionar no seu computador",
           "browse": "Selecionar arquivo",
-          "accept": "Formatos aceitos: .xlsx, .csv. Máx. 5 MB e 500 linhas"
+          "accept": "Formatos aceitos: .xlsx, .csv. Máx. 5 MB e 500 linhas",
+          "columns": "Colunas obrigatórias: {columns}"
         },
         "preview": {
           "title": "Pré-visualização do arquivo",
@@ -4400,7 +4401,7 @@
           "showingRowsOf": "Mostrando {shown} de {total} linhas",
           "moreColumns": "colunas a mais",
           "headersOk": "Cabeçalhos corretos",
-          "headersInvalid": "O arquivo não contém a coluna 'email' obrigatória.",
+          "headersInvalid": "Faltam colunas no arquivo: {missing}. Baixe o modelo para ver o formato.",
           "emptyFile": "O arquivo não contém linhas de dados.",
           "tooManyRows": "O arquivo excede o máximo de 500 linhas."
         },

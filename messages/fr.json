@@ -4392,7 +4392,8 @@
           "title": "Glissez-déposez votre fichier ici",
           "subtitle": "ou cliquez pour le sélectionner sur votre ordinateur",
           "browse": "Sélectionner un fichier",
-          "accept": "Formats acceptés : .xlsx, .csv. Max. 5 Mo et 500 lignes"
+          "accept": "Formats acceptés : .xlsx, .csv. Max. 5 Mo et 500 lignes",
+          "columns": "Colonnes requises : {columns}"
         },
         "preview": {
           "title": "Aperçu du fichier",
@@ -4400,7 +4401,7 @@
           "showingRowsOf": "Affichage de {shown} sur {total} lignes",
           "moreColumns": "colonnes supplémentaires",
           "headersOk": "En-têtes valides",
-          "headersInvalid": "Le fichier ne contient pas la colonne 'email' requise.",
+          "headersInvalid": "Colonnes manquantes dans le fichier : {missing}. Téléchargez le modèle pour voir le format.",
           "emptyFile": "Le fichier ne contient aucune ligne de données.",
           "tooManyRows": "Le fichier dépasse le maximum de 500 lignes."
         },

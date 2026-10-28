@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -23,6 +24,11 @@ import {
   type BulkUserRowResult,
   type BulkUsersResult,
 } from "@/lib/api/admin-users";
+import {
+  BULK_USER_HEADERS,
+  checkBulkUsersMatrix,
+  type BulkPreviewRow,
+} from "@/lib/users/bulk-upload-file";
 
 // ─── Error code → human label map ─────────────────────────────────────────────
 
@@ -44,18 +50,23 @@ function resolveErrorLabel(code: string | undefined, message: string | undefined
 
 // ─── Preview row shape ─────────────────────────────────────────────────────────
 
-type PreviewRow = Record<string, unknown>;
+type PreviewRow = BulkPreviewRow;
 
-const REQUIRED_HEADERS = ["email"] as const;
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-const MAX_ROWS = 500;
 const PREVIEW_ROWS = 5;
 const PREVIEW_COLS = ["email", "name", "paternal_last_name", "role"] as const;
 
 // ─── State machine ─────────────────────────────────────────────────────────────
 
 type IdleState = { phase: "idle" };
-type PreviewingState = { phase: "previewing"; file: File; rows: PreviewRow[]; total: number };
+type PreviewingState = {
+  phase: "previewing";
+  file: File;
+  rows: PreviewRow[];
+  total: number;
+  /** Why the last upload was rejected; stays on screen, unlike a toast. */
+  uploadError?: string;
+};
 type UploadingState = { phase: "uploading"; file: File };
 type ResultsState = { phase: "results"; data: BulkUsersResult };
 
@@ -113,32 +124,34 @@ export function BulkUploadClient() {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: "array", cellDates: false });
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet) as PreviewRow[];
+      // header: 1 keeps the real header row, so an empty first cell or a
+      // trailing empty column no longer hides a column.
+      const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+        header: 1,
+        defval: "",
+        blankrows: false,
+      });
+      const check = checkBulkUsersMatrix(matrix);
 
-      if (!Array.isArray(json) || json.length === 0) {
-        toast.error(t("toast.fileEmpty"));
-        return;
-      }
-
-      const firstRow = json[0];
-      const hasRequiredHeaders = REQUIRED_HEADERS.every((h) => h in firstRow);
-      if (!hasRequiredHeaders) {
-        toast.error(t("preview.headersInvalid"));
-        return;
-      }
-
-      if (json.length > MAX_ROWS) {
-        toast.error(t("toast.tooManyRows"));
+      if (!check.ok) {
+        if (check.reason === "missing-headers") {
+          toast.error(t("preview.headersInvalid", { missing: check.missing.join(", ") }));
+        } else if (check.reason === "too-many-rows") {
+          toast.error(t("toast.tooManyRows"));
+        } else {
+          toast.error(t("toast.fileEmpty"));
+        }
         return;
       }
 
       setState({
         phase: "previewing",
         file,
-        rows: json.slice(0, PREVIEW_ROWS),
-        total: json.length,
+        rows: check.rows.slice(0, PREVIEW_ROWS),
+        total: check.total,
       });
-    } catch {
+    } catch (error) {
+      console.error("[bulk-upload] could not read the file", error);
       toast.error(t("toast.generic"));
     }
   }, [t]);
@@ -197,22 +210,26 @@ export function BulkUploadClient() {
         toast.warning(t("toast.partialSuccess"));
       }
     } catch (err) {
+      let message = t("toast.generic");
       if (err instanceof ApiError) {
         if (err.status === 400) {
-          toast.error(err.message || t("toast.generic"));
+          message = err.message || message;
         } else if (err.status === 403) {
-          toast.error("No tienes permisos para esta operación");
+          message = "No tienes permisos para esta operación";
         } else if (err.status === 413) {
-          toast.error(t("toast.fileTooLarge"));
-        } else {
-          toast.error(t("toast.generic"));
+          message = t("toast.fileTooLarge");
         }
-      } else {
-        toast.error(t("toast.generic"));
       }
+      toast.error(message);
 
-      // Go back to previewing so user can retry or cancel
-      setState({ phase: "previewing", file, rows: state.rows ?? [], total: state.total ?? 0 });
+      // Back to the preview, with the reason on screen, to retry or cancel.
+      setState({
+        phase: "previewing",
+        file,
+        rows: state.rows ?? [],
+        total: state.total ?? 0,
+        uploadError: message,
+      });
     }
   }, [state, t]);
 
@@ -257,6 +274,7 @@ export function BulkUploadClient() {
       file={state.file}
       rows={state.rows}
       total={state.total}
+      uploadError={state.uploadError}
       onSubmit={handleSubmit}
       onCancel={handleReset}
       t={t}
@@ -325,6 +343,9 @@ function IdleView({
           <p className="text-sm font-medium text-foreground">{t("dropZone.title")}</p>
           <p className="text-xs text-muted-foreground">{t("dropZone.subtitle")}</p>
           <p className="text-xs text-muted-foreground">{t("dropZone.accept")}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("dropZone.columns", { columns: BULK_USER_HEADERS.join(", ") })}
+          </p>
         </div>
 
         <label htmlFor="bulk-file-input">
@@ -364,12 +385,13 @@ interface PreviewViewProps {
   file: File;
   rows: PreviewRow[];
   total: number;
+  uploadError?: string;
   onSubmit: () => Promise<void>;
   onCancel: () => void;
   t: ReturnType<typeof useTranslations<"users.pages.bulk">>;
 }
 
-function PreviewView({ file, rows, total, onSubmit, onCancel, t }: PreviewViewProps) {
+function PreviewView({ file, rows, total, uploadError, onSubmit, onCancel, t }: PreviewViewProps) {
   const extraCols = Object.keys(rows[0] ?? {}).filter((k) => !PREVIEW_COLS.includes(k as typeof PREVIEW_COLS[number]));
   const hasExtra = extraCols.length > 0;
 
@@ -404,7 +426,7 @@ function PreviewView({ file, rows, total, onSubmit, onCancel, t }: PreviewViewPr
               <TableRow key={idx}>
                 {PREVIEW_COLS.map((col) => (
                   <TableCell key={col} className="max-w-[180px] truncate">
-                    {row[col] != null ? String(row[col]) : (
+                    {row[col] ? row[col] : (
                       <span className="text-muted-foreground italic">—</span>
                     )}
                   </TableCell>
@@ -415,6 +437,12 @@ function PreviewView({ file, rows, total, onSubmit, onCancel, t }: PreviewViewPr
           </TableBody>
         </Table>
       </div>
+
+      {uploadError && (
+        <Alert variant="destructive">
+          <AlertDescription>{uploadError}</AlertDescription>
+        </Alert>
+      )}
 
       {total > PREVIEW_ROWS && (
         <p className="text-xs text-muted-foreground text-center">

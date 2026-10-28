@@ -43,42 +43,47 @@ export function ReceiptReviewActions({
 
   // ─── Approve ────────────────────────────────────────────────────────────────
 
-  async function handleApprove() {
-    try {
-      await approveReceipt(folio, comprobanteId);
-      toast.success("Comprobante aprobado. Solicitud marcada como pagada.");
-      setApproveOpen(false);
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "Error al aprobar el comprobante.";
-      toast.error(message);
-    }
+  // Pending from the click until the refreshed page arrives (see ApproveButton).
+  function handleApprove() {
+    startTransition(async () => {
+      try {
+        await approveReceipt(folio, comprobanteId);
+        toast.success("Comprobante aprobado. Solicitud marcada como pagada.");
+        startTransition(() => {
+          setApproveOpen(false);
+          router.refresh();
+        });
+      } catch (err) {
+        const message =
+          err instanceof ApiError ? err.message : "Error al aprobar el comprobante.";
+        toast.error(message);
+      }
+    });
   }
 
   // ─── Reject ─────────────────────────────────────────────────────────────────
 
-  async function handleReject() {
+  function handleReject() {
     const trimmed = rejectReason.trim();
     if (!trimmed) {
       toast.error("El motivo de rechazo es obligatorio.");
       return;
     }
-    try {
-      await rejectReceipt(folio, comprobanteId, trimmed);
-      toast.success("Comprobante rechazado.");
-      setRejectOpen(false);
-      setRejectReason("");
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "Error al rechazar el comprobante.";
-      toast.error(message);
-    }
+    startTransition(async () => {
+      try {
+        await rejectReceipt(folio, comprobanteId, trimmed);
+        toast.success("Comprobante rechazado.");
+        startTransition(() => {
+          setRejectOpen(false);
+          setRejectReason("");
+          router.refresh();
+        });
+      } catch (err) {
+        const message =
+          err instanceof ApiError ? err.message : "Error al rechazar el comprobante.";
+        toast.error(message);
+      }
+    });
   }
 
   return (

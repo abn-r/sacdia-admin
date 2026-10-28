@@ -4392,7 +4392,8 @@
           "title": "Arrastra y suelta tu archivo aquí",
           "subtitle": "o haz clic para seleccionar desde tu equipo",
           "browse": "Seleccionar archivo",
-          "accept": "Formatos aceptados: .xlsx, .csv — Máx. 5 MB y 500 filas"
+          "accept": "Formatos aceptados: .xlsx, .csv — Máx. 5 MB y 500 filas",
+          "columns": "Columnas requeridas: {columns}"
         },
         "preview": {
           "title": "Vista previa del archivo",
@@ -4400,7 +4401,7 @@
           "showingRowsOf": "Mostrando {shown} de {total} filas",
           "moreColumns": "columnas más",
           "headersOk": "Cabeceras correctas",
-          "headersInvalid": "El archivo no contiene la columna 'email' requerida.",
+          "headersInvalid": "Faltan columnas en el archivo: {missing}. Descarga la plantilla para ver el formato.",
           "emptyFile": "El archivo no contiene filas de datos.",
           "tooManyRows": "El archivo supera el máximo de 500 filas."
         },

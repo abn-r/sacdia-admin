@@ -6,6 +6,11 @@ import { listResourceCategories } from "@/lib/api/resources";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
+  pageResourceCategories,
+  parseCategoryStatus,
+  type CategoryListMeta,
+} from "@/lib/resources/category-list";
+import {
   createResourceCategoryAction,
   deleteResourceCategoryAction,
   updateResourceCategoryAction,
@@ -14,12 +19,6 @@ import {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type GenericRecord = Record<string, unknown>;
 
-type PageMeta = {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-};
 
 function readParam(
   raw: Record<string, string | string[] | undefined>,
@@ -41,12 +40,6 @@ function readPositiveNumber(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function toPositiveNumber(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return parsed;
-}
-
 function toRecord(value: unknown): GenericRecord | null {
   if (!value || typeof value !== "object") return null;
   return value as GenericRecord;
@@ -61,25 +54,6 @@ function extractItems(payload: unknown): GenericRecord[] {
   if (nestedData && Array.isArray(nestedData.data)) return nestedData.data as GenericRecord[];
   if (nestedData && Array.isArray(nestedData.items)) return nestedData.items as GenericRecord[];
   return [];
-}
-
-function extractMeta(payload: unknown, fallbackPage: number, fallbackLimit: number, fallbackTotal: number): PageMeta {
-  const root = toRecord(payload);
-  const nestedData = toRecord(root?.data);
-  const metaRecord = toRecord(nestedData?.meta) ?? toRecord(root?.meta) ?? nestedData;
-
-  const page = toPositiveNumber(metaRecord?.page) ?? fallbackPage;
-  const limit = toPositiveNumber(metaRecord?.limit) ?? fallbackLimit;
-  const total =
-    toPositiveNumber(metaRecord?.total) ??
-    toPositiveNumber(metaRecord?.count) ??
-    fallbackTotal;
-  const totalPages =
-    toPositiveNumber(metaRecord?.totalPages) ??
-    toPositiveNumber(metaRecord?.total_pages) ??
-    Math.max(1, Math.ceil(total / Math.max(limit, 1)));
-
-  return { page, limit, total, totalPages };
 }
 
 export default async function ResourceCategoriesPage({
@@ -104,13 +78,17 @@ export default async function ResourceCategoriesPage({
   const limit = readPositiveNumber(raw, "limit") ?? 20;
 
   let items: GenericRecord[] = [];
-  let meta: PageMeta = { page, limit, total: 0, totalPages: 1 };
+  let meta: CategoryListMeta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
 
   try {
-    const payload = await listResourceCategories({ page, limit });
-    items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    const payload = await listResourceCategories({ includeInactive: true });
+    ({ items, meta } = pageResourceCategories(extractItems(payload), {
+      status: parseCategoryStatus(readParam(raw, "active")),
+      search: readParam(raw, "search"),
+      page,
+      limit,
+    }));
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
       items = [];

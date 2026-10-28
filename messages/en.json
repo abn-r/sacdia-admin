@@ -4392,7 +4392,8 @@
           "title": "Drag and drop your file here",
           "subtitle": "or click to browse from your computer",
           "browse": "Browse file",
-          "accept": "Accepted formats: .xlsx, .csv — Max. 5 MB and 500 rows"
+          "accept": "Accepted formats: .xlsx, .csv — Max. 5 MB and 500 rows",
+          "columns": "Required columns: {columns}"
         },
         "preview": {
           "title": "File preview",
@@ -4400,7 +4401,7 @@
           "showingRowsOf": "Showing {shown} of {total} rows",
           "moreColumns": "more columns",
           "headersOk": "Valid headers",
-          "headersInvalid": "The file is missing the required 'email' column.",
+          "headersInvalid": "The file is missing columns: {missing}. Download the template to see the format.",
           "emptyFile": "The file contains no data rows.",
           "tooManyRows": "The file exceeds the maximum of 500 rows."
         },

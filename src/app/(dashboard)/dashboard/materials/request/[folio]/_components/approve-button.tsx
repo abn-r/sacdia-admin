@@ -36,37 +36,27 @@ export function ApproveButton({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  async function handleApprove() {
-    try {
-      await approveOrder(folio);
-      toast.success("Solicitud aprobada correctamente.");
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        const details = (err as ApiError & { details?: unknown }).details;
-        if (err.status === 409 && details) {
-          const affected = Array.isArray(details)
-            ? details
-                .map(
-                  (d: {
-                    product_id?: string;
-                    required?: number;
-                    available?: number;
-                  }) =>
-                    `Producto ${d.product_id}: requiere ${d.required}, disponible ${d.available}`,
-                )
-                .join("; ")
-            : String(details);
-          toast.error(`Stock insuficiente: ${affected}`);
-        } else {
-          toast.error(err.message || "Error al aprobar la solicitud.");
-        }
-      } else {
-        toast.error("Error al aprobar la solicitud.");
+  // The whole action runs inside the transition: the button stays disabled
+  // from the click until the refreshed page arrives, so a second click cannot
+  // re-post an order that is already approved (409).
+  function handleApprove() {
+    startTransition(async () => {
+      try {
+        await approveOrder(folio);
+        toast.success("Solicitud aprobada correctamente.");
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch (err) {
+        // The stock-shortage detail never reaches the client in production
+        // (the backend filter strips it), so show the backend message.
+        toast.error(
+          err instanceof ApiError && err.message
+            ? err.message
+            : "Error al aprobar la solicitud.",
+        );
       }
-    }
+    });
   }
 
   const isDisabled = disabled || isPending;

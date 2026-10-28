@@ -76,18 +76,19 @@ export type ResourceListQuery = {
 };
 
 export type ResourceCategoryListQuery = {
-  active?: boolean;
-  page?: number;
-  limit?: number;
+  /**
+   * Also list deactivated categories. The backend honors it only for callers
+   * with resource_categories:update; it returns every row in one array (no
+   * server filter or pagination; see lib/resources/category-list.ts).
+   */
+  includeInactive?: boolean;
 };
 
 // ─── Resource Categories API ──────────────────────────────────────────────────
 
 function buildCategoryListParams(query: ResourceCategoryListQuery) {
   const params: Record<string, string | number | boolean | undefined> = {};
-  if (typeof query.active === "boolean") params.active = query.active;
-  if (typeof query.page === "number" && query.page > 0) params.page = Math.floor(query.page);
-  if (typeof query.limit === "number" && query.limit > 0) params.limit = Math.min(500, Math.floor(query.limit));
+  if (query.includeInactive) params.includeInactive = true;
   return params;
 }
 
