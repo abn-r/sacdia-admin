@@ -6,7 +6,7 @@
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
@@ -201,6 +201,100 @@ describe("CamporeeOrderCatalogClient", () => {
         owner_scope: "DIVISION",
         owner_division_id: 4,
       });
+    });
+  });
+
+  describe("product list", () => {
+    function product(overrides: Record<string, unknown> = {}) {
+      return {
+        camporee_order_product_id: "p1",
+        owner_scope: "DIVISION",
+        owner_division_id: 4,
+        owner_union_id: null,
+        owner_local_field_id: null,
+        title: "Playera evento",
+        description: null,
+        size_scheme: "LETTER",
+        club_type_id: null,
+        active: true,
+        options: [],
+        ...overrides,
+      };
+    }
+
+    async function renderWithProducts(products: ReturnType<typeof product>[]) {
+      mocks.user = DIVISION_ADMIN;
+      mocks.listProducts.mockResolvedValue(products);
+      renderCatalog();
+      await screen.findByText(products[0]!.title as string);
+    }
+
+    it("shows the size scheme with its translated label, not the raw enum", async () => {
+      await renderWithProducts([product({ size_scheme: "LETTER" })]);
+
+      expect(screen.getByText(catalog.sizeScheme.LETTER)).toBeInTheDocument();
+      expect(screen.queryByText("LETTER")).not.toBeInTheDocument();
+    });
+
+    it("labels the status column and shows Activo / Inactivo for every product", async () => {
+      await renderWithProducts([
+        product(),
+        product({ camporee_order_product_id: "p2", title: "Gorra", active: false }),
+      ]);
+
+      expect(screen.getByRole("columnheader", { name: catalog.colStatus })).toBeInTheDocument();
+      expect(catalog.colStatus).toBe("Estado");
+      expect(screen.getByText(catalog.active)).toBeInTheDocument();
+      expect(screen.getByText(catalog.inactive)).toBeInTheDocument();
+    });
+
+    it("asks for confirmation before deactivating and does nothing until confirmed", async () => {
+      await renderWithProducts([product()]);
+
+      await userEvent.click(screen.getByRole("button", { name: catalog.deactivate }));
+
+      const dialog = await screen.findByRole("alertdialog");
+      expect(dialog).toHaveTextContent(catalog.deactivateConfirmTitle);
+      expect(dialog).toHaveTextContent("Playera evento");
+      expect(mocks.updateProduct).not.toHaveBeenCalled();
+
+      await userEvent.click(within(dialog).getByRole("button", { name: catalog.deactivate }));
+
+      await waitFor(() => {
+        expect(mocks.updateProduct).toHaveBeenCalledWith("p1", { active: false });
+      });
+    });
+
+    it("does not deactivate when the confirmation is cancelled", async () => {
+      await renderWithProducts([product()]);
+
+      await userEvent.click(screen.getByRole("button", { name: catalog.deactivate }));
+      const dialog = await screen.findByRole("alertdialog");
+      await userEvent.click(within(dialog).getByRole("button", { name: messages.camporee_orders.detail.cancel }));
+
+      await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+      expect(mocks.updateProduct).not.toHaveBeenCalled();
+    });
+
+    it("lets the owner activate an inactive product again", async () => {
+      await renderWithProducts([product({ active: false })]);
+
+      expect(screen.queryByRole("button", { name: catalog.deactivate })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: catalog.activate }));
+
+      await waitFor(() => {
+        expect(mocks.updateProduct).toHaveBeenCalledWith("p1", { active: true });
+      });
+    });
+
+    it("offers no activate/deactivate actions for products the actor does not own", async () => {
+      await renderWithProducts([
+        product({ owner_scope: "UNION", owner_division_id: null, owner_union_id: 8 }),
+      ]);
+
+      expect(screen.getByText(catalog.readOnly)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: catalog.deactivate })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: catalog.activate })).not.toBeInTheDocument();
     });
   });
 });

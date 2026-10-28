@@ -8857,6 +8857,11 @@ export interface IntlMessages {
       colStatus: string;
       readOnly: string;
       inactive: string;
+      active: string;
+      activate: string;
+      activated: string;
+      deactivateConfirmTitle: string;
+      deactivateConfirmDescription: string;
       edit: string;
       deactivate: string;
       save: string;
