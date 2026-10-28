@@ -248,7 +248,7 @@ export default async function ResourcesPage({
   const [resourcesResult, categoriesResult, clubTypesResult, unionsResult, localFieldsResult] =
     await Promise.allSettled([
       listResources({ page, limit, resource_type: resourceType, resource_category_id: categoryId, club_type_id: clubTypeId, scope_level: scopeLevel, search }),
-      listResourceCategories({ limit: 500 }),
+      listResourceCategories(),
       listClubTypes(),
       listUnionsForTerritory(user),
       listLocalFieldsForTerritory(user),
