@@ -73,21 +73,23 @@ vi.mock("@/components/ui/button", () => ({
   Button: ({
     children,
     asChild,
-    loading: _loading,
-    variant: _variant,
-    size: _size,
-    ...props
+    ...rest
   }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean;
     loading?: boolean;
     variant?: string;
     size?: string;
-  }) =>
-    asChild && React.isValidElement(children) ? (
+  }) => {
+    const props: Record<string, unknown> = { ...rest };
+    delete props.loading;
+    delete props.variant;
+    delete props.size;
+    return asChild && React.isValidElement(children) ? (
       React.cloneElement(children as React.ReactElement<Record<string, unknown>>, props)
     ) : (
       <button {...props}>{children}</button>
-    ),
+    );
+  },
 }));
 
 vi.mock("@/components/ui/status-badge", () => ({
