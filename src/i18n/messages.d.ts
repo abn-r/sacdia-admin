@@ -2814,6 +2814,14 @@ export interface IntlMessages {
     };
   };
   achievements: {
+    toasts: {
+      categoryCreated: string;
+      categoryUpdated: string;
+      categoryDeactivated: string;
+      achievementCreated: string;
+      achievementUpdated: string;
+      achievementDeactivated: string;
+    };
     errors: {
       create_category_failed: string;
       update_category_failed: string;

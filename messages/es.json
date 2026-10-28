@@ -2785,6 +2785,14 @@
     }
   },
   "achievements": {
+    "toasts": {
+      "categoryCreated": "Categoría creada",
+      "categoryUpdated": "Categoría actualizada",
+      "categoryDeactivated": "Categoría desactivada",
+      "achievementCreated": "Logro creado",
+      "achievementUpdated": "Logro actualizado",
+      "achievementDeactivated": "Logro desactivado"
+    },
     "errors": {
       "create_category_failed": "No se pudo crear la categoría",
       "update_category_failed": "No se pudo actualizar la categoría",

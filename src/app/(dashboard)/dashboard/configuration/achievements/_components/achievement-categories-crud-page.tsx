@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Pencil,
   Plus,
@@ -106,6 +107,7 @@ export function AchievementCategoriesCrudPage({
   deleteAction,
 }: Props) {
   const t = useTranslations("achievements.crud.categories");
+  const tToast = useTranslations("achievements.toasts");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -117,9 +119,40 @@ export function AchievementCategoriesCrudPage({
   const [editItem, setEditItem] = useState<CategoryRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<CategoryRecord | null>(null);
 
-  const [createState, createFormAction] = useActionState<AchievementActionState, FormData>(createAction, {});
-  const [updateState, updateFormAction] = useActionState<AchievementActionState, FormData>(updateAction, {});
-  const [deleteState, deleteFormAction] = useActionState<AchievementActionState, FormData>(deleteAction, {});
+  // Each wrapper runs the server action, then gives feedback and closes the dialog on success.
+  const [createState, createFormAction] = useActionState<AchievementActionState, FormData>(
+    async (prev, formData) => {
+      const result = await createAction(prev, formData);
+      if (result.ok) {
+        toast.success(tToast("categoryCreated"));
+        setCreateOpen(false);
+      }
+      return result;
+    },
+    {},
+  );
+  const [updateState, updateFormAction] = useActionState<AchievementActionState, FormData>(
+    async (prev, formData) => {
+      const result = await updateAction(prev, formData);
+      if (result.ok) {
+        toast.success(tToast("categoryUpdated"));
+        setEditItem(null);
+      }
+      return result;
+    },
+    {},
+  );
+  const [deleteState, deleteFormAction] = useActionState<AchievementActionState, FormData>(
+    async (prev, formData) => {
+      const result = await deleteAction(prev, formData);
+      if (result.ok) {
+        toast.success(tToast("categoryDeactivated"));
+        setDeleteItem(null);
+      }
+      return result;
+    },
+    {},
+  );
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Eye,
   EyeOff,
@@ -141,6 +142,7 @@ export function AchievementsCrudPage({
 }: Props) {
   const t = useTranslations("achievements.crud.list");
   const tPreview = useTranslations("achievements.cards.preview");
+  const tToast = useTranslations("achievements.toasts");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -151,7 +153,14 @@ export function AchievementsCrudPage({
   const [deleteItem, setDeleteItem] = useState<AchievementRecord | null>(null);
 
   const [deleteState, deleteFormAction] = useActionState<AchievementActionState, FormData>(
-    deleteAction,
+    async (prev, formData) => {
+      const result = await deleteAction(prev, formData);
+      if (result.ok) {
+        toast.success(tToast("achievementDeactivated"));
+        setDeleteItem(null);
+      }
+      return result;
+    },
     {},
   );
 
