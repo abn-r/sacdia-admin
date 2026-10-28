@@ -5280,6 +5280,10 @@ export interface IntlMessages {
       actionRegenerate: string;
       actionGenerate: string;
       actionSendToField: string;
+      sendConfirmTitle: string;
+      sendConfirmDescription: string;
+      sendConfirmDescriptionNoClub: string;
+      sendConfirmCancel: string;
       actionDownloadPdf: string;
       actionViewPdf: string;
       tabAutoData: string;

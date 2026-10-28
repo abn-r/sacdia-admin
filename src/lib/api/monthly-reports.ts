@@ -114,7 +114,23 @@ export type MonthlyReport = {
   pdf_template_version?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  /** Only present on GET :id; names the club and club type of the enrollment. */
+  club_enrollment?: {
+    club_section?: {
+      clubs?: { name?: string | null } | null;
+      club_types?: { name?: string | null } | null;
+    } | null;
+  } | null;
 };
+
+/** "Club Águilas (Conquistadores)" for the confirmation copy; null when the API sent neither. */
+export function formatMonthlyReportClubLabel(report: MonthlyReport): string | null {
+  const section = report.club_enrollment?.club_section;
+  const club = section?.clubs?.name?.trim();
+  const clubType = section?.club_types?.name?.trim();
+  if (club && clubType) return `${club} (${clubType})`;
+  return club || clubType || null;
+}
 
 type ApiEnvelope<T> = { status: string; data: T };
 
