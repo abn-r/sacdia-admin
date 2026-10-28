@@ -4410,6 +4410,7 @@ export interface IntlMessages {
           subtitle: string;
           browse: string;
           accept: string;
+          columns: string;
         };
         preview: {
           title: string;
