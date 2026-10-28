@@ -19,36 +19,21 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { InstitutionalRequestStatusBadge } from "@/components/institutional-certificate-requests/institutional-certificate-request-badges";
+import { useFormatDate } from "@/lib/format-locale";
 import type {
   InstitutionalCertificateRequest,
   InstitutionalCertificateRequestStatus,
 } from "@/lib/api/institutional-certificate-requests";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatDate(value?: string | null): string {
-  if (!value) return "—";
-  const civil = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  const date = civil
-    ? new Date(Number(civil[1]), Number(civil[2]) - 1, Number(civil[3]))
-    : new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
 // ─── Component ───────────────────────────────────────────────────────────────
 
 type StatusFilter = InstitutionalCertificateRequestStatus | "all";
 
-const STATUS_FILTERS: Array<[StatusFilter, string]> = [
-  ["all", "Todos"],
-  ["PENDING_REVIEW", "Pendientes"],
-  ["APPROVED", "Aprobadas"],
-  ["REJECTED", "Rechazadas"],
+const STATUS_FILTERS: Array<[StatusFilter, "all" | "pending" | "approved" | "rejected"]> = [
+  ["all", "all"],
+  ["PENDING_REVIEW", "pending"],
+  ["APPROVED", "approved"],
+  ["REJECTED", "rejected"],
 ];
 
 interface InstitutionalCertificateRequestListPageProps {
@@ -64,6 +49,7 @@ export function InstitutionalCertificateRequestListPage({
 }: InstitutionalCertificateRequestListPageProps) {
   const t = useTranslations("institutional_certificate_requests.page");
   const tLabels = useTranslations("institutional_certificate_requests.labels");
+  const formatDateValue = useFormatDate();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
@@ -96,21 +82,18 @@ export function InstitutionalCertificateRequestListPage({
     <div className="flex flex-col gap-4">
       {/* KPI row */}
       <div className="grid gap-3 md:grid-cols-4">
-        <KpiCard label="Total" value={total} hint={tLabels("totalHint")} />
-        <KpiCard label="Pendientes" value={pending} hint="Esperando revisión" />
-        <KpiCard label="Aprobadas" value={approved} hint="Validación institucional" />
-        <KpiCard label="Rechazadas" value={rejected} hint="Solicitudes rechazadas" />
+        <KpiCard label={t("kpiTotal")} value={total} hint={tLabels("totalHint")} />
+        <KpiCard label={t("filters.pending")} value={pending} hint={t("kpiPendingHint")} />
+        <KpiCard label={t("filters.approved")} value={approved} hint={t("kpiApprovedHint")} />
+        <KpiCard label={t("filters.rejected")} value={rejected} hint={t("kpiRejectedHint")} />
       </div>
 
       <Card className="py-0">
         <CardHeader className="border-b px-4 py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <CardTitle>Bandeja institucional GM</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Validaciones institucionales de GM-02 y GM-03. La aprobación aquí es validación
-                institucional, no inscripción de clase.
-              </p>
+              <CardTitle>{t("title")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("cardDescription")}</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative">
@@ -121,12 +104,12 @@ export function InstitutionalCertificateRequestListPage({
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar solicitante, clase..."
+                  placeholder={t("searchPlaceholder")}
                   className="pl-8 sm:w-64"
                 />
               </div>
               <div className="flex flex-wrap gap-1">
-                {STATUS_FILTERS.map(([value, label]) => (
+                {STATUS_FILTERS.map(([value, filterKey]) => (
                   <Button
                     key={value}
                     type="button"
@@ -134,7 +117,7 @@ export function InstitutionalCertificateRequestListPage({
                     size="sm"
                     onClick={() => setStatusFilter(value)}
                   >
-                    {label}
+                    {t(`filters.${filterKey}`)}
                   </Button>
                 ))}
               </div>
@@ -147,11 +130,11 @@ export function InstitutionalCertificateRequestListPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Solicitante</TableHead>
-                  <TableHead>Clase</TableHead>
+                  <TableHead>{tLabels("applicant")}</TableHead>
+                  <TableHead>{tLabels("class")}</TableHead>
                   <TableHead>{tLabels("certificateDate")}</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Bloqueos</TableHead>
+                  <TableHead>{t("colStatus")}</TableHead>
+                  <TableHead>{t("colBlockers")}</TableHead>
                   <RowActionsHead className="w-32" />
                 </TableRow>
               </TableHeader>
@@ -171,7 +154,7 @@ export function InstitutionalCertificateRequestListPage({
                       </Badge>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {formatDate(req.completed_at)}
+                      {req.completed_at ? formatDateValue(req.completed_at) : "—"}
                     </TableCell>
                     <TableCell>
                       <InstitutionalRequestStatusBadge status={req.status} />
@@ -179,7 +162,7 @@ export function InstitutionalCertificateRequestListPage({
                     <TableCell>
                       {req.approval_blockers?.length > 0 ? (
                         <Badge variant="secondary">
-                          {req.approval_blockers.length} bloq.
+                          {t("blockersCount", { count: req.approval_blockers.length })}
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
@@ -195,7 +178,7 @@ export function InstitutionalCertificateRequestListPage({
                               href={`${detailBasePath}/${req.request_id}`}
                               prefetch={false}
                             >
-                              Revisar
+                              {t("review")}
                               <ArrowRight aria-hidden="true" />
                             </Link>
                           </Button>
@@ -212,8 +195,8 @@ export function InstitutionalCertificateRequestListPage({
             <div className="p-6">
               <EmptyState
                 icon={Search}
-                title="Sin resultados"
-                description="No hay solicitudes que coincidan con el filtro."
+                title={t("noResultsTitle")}
+                description={t("noResultsDescription")}
                 variant="no-results"
               />
             </div>

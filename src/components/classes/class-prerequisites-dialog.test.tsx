@@ -17,6 +17,10 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+
+// The shared Dialog primitive localizes its close button via next-intl.
+const UI_MESSAGES = { shared: { uiPrimitives: { close: "Cerrar" } } };
 
 // ---------------------------------------------------------------------------
 // jsdom polyfills (Radix Dialog/Select use ResizeObserver, scrollIntoView,
@@ -107,7 +111,11 @@ function renderDialog(
     canDelete: true,
     ...overrides,
   };
-  return render(<ClassPrerequisitesDialog {...props} />);
+  return render(
+    <NextIntlClientProvider locale="es" messages={UI_MESSAGES}>
+      <ClassPrerequisitesDialog {...props} />
+    </NextIntlClientProvider>,
+  );
 }
 
 async function openDialog() {

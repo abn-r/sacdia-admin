@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useFormatQuantity } from "@/lib/format-locale";
 import { toast } from "sonner";
 import { Inbox, Loader2, RefreshCw } from "lucide-react";
 
@@ -80,6 +81,7 @@ export function CamporeeSuppliesTab({
   camporeeType = "local",
 }: CamporeeSuppliesTabProps) {
   const t = useTranslations("camporee_supplies");
+  const formatQty = useFormatQuantity();
   const { user } = useAuth();
   const screenId = camporeeScreenId(camporeeType);
   const canConfigure = canCapability(user, screenId, "supplies.configure");
@@ -511,8 +513,8 @@ export function CamporeeSuppliesTab({
                             {line.slot_label} {line.deliver_time}
                           </td>
                           <td className="px-2 py-2">{line.product_name}</td>
-                          <td className="px-2 py-2">{line.qty}</td>
-                          <td className="px-2 py-2">{line.delivered_qty}</td>
+                          <td className="px-2 py-2">{formatQty(line.qty)}</td>
+                          <td className="px-2 py-2">{formatQty(line.delivered_qty)}</td>
                           {canDeliver && (
                             <td className="px-2 py-2">
                               {isSupplyLineFullyDelivered(line) ? (
@@ -630,8 +632,8 @@ export function CamporeeSuppliesTab({
                       </td>
                       <td className="px-3 py-2">{row.product_name}</td>
                       <td className="px-3 py-2">{row.club_name}</td>
-                      <td className="px-3 py-2">{row.qty}</td>
-                      <td className="px-3 py-2">{row.delivered_qty}</td>
+                      <td className="px-3 py-2">{formatQty(row.qty)}</td>
+                      <td className="px-3 py-2">{formatQty(row.delivered_qty)}</td>
                     </tr>
                   ))}
                 </tbody>

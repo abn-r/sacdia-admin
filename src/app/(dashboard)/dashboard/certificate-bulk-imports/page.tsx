@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -10,6 +11,11 @@ import {
 } from "@/lib/api/certificate-bulk-imports";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("certificate_bulk_imports.page");
+  return { title: t("title") };
+}
 
 export default async function CertificateBulkImportsPage() {
   await requireAdminUser();

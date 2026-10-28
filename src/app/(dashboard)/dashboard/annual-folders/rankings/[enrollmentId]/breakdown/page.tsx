@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { BreakdownView } from "@/components/rankings/breakdown-view";
 import { PageHeader } from "@/components/shared/page-header";
@@ -15,6 +16,11 @@ interface PageProps {
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("annual_folders");
+  return { title: t("pageRankingsBreakdown.title") };
+}
 
 export default async function BreakdownPage({
   params,

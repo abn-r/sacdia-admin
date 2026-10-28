@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CalendarOff } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -7,6 +8,11 @@ import { YearEndClientPage } from "@/components/year-end/year-end-client-page";
 import { listEcclesiasticalYears, type EcclesiasticalYear } from "@/lib/api/catalogs";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("year_end");
+  return { title: t("page.title") };
+}
 
 export default async function YearEndPage() {
   await requireAdminUser();

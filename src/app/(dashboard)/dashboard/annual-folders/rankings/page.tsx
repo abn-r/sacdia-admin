@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { TrendingUp } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
@@ -80,6 +81,11 @@ async function listRankingLocalFieldsForScope(user: Awaited<ReturnType<typeof re
   }
 
   return listLocalFields();
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("annual_folders");
+  return { title: t("pageRankings.title") };
 }
 
 export default async function RankingsPage() {

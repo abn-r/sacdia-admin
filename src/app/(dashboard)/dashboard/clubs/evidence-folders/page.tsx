@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -47,6 +48,11 @@ const EvaluationClientPage = dynamic(
     ),
   },
 );
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("annual_folders.pageFolders");
+  return { title: t("titleList") };
+}
 
 export default async function ClubsEvidenceFoldersPage() {
   const t = await getTranslations("annual_folders.pageFolders");

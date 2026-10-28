@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import Link from "next/link";
@@ -84,6 +85,20 @@ import type { UserRole, Role } from "@/lib/rbac/types";
 import { PageHeader } from "@/components/shared/page-header";
 
 type Params = Promise<{ userId: string }>;
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const t = await getTranslations("users.pages.detail");
+  const { userId } = await params;
+  const user = await getAdminUserDetail(userId).catch(() => null);
+  const fallback = t("title");
+  if (!user) return { title: fallback };
+  return {
+    title: getAdminUserDisplayName(user, {
+      deletedAccount: t("deletedAccount"),
+      fallback,
+    }),
+  };
+}
 
 export default async function UserDetailPage({ params }: { params: Params }) {
   const currentUser = await requireAdminUser();

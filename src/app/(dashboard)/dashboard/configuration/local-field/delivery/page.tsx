@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -22,6 +23,11 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function resolveLfParam(raw: unknown): number | undefined {
   const n = typeof raw === "string" ? parseInt(raw, 10) : NaN;
   return Number.isFinite(n) && n > 0 ? n : undefined;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("localFieldConfig.pages.delivery");
+  return { title: t("title") };
 }
 
 export default async function LocalFieldDeliveryPage({

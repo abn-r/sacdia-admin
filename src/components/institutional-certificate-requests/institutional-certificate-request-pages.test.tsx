@@ -4,6 +4,8 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
+import enMessages from "../../../messages/en.json";
+import frMessages from "../../../messages/fr.json";
 import type { InstitutionalCertificateRequest } from "@/lib/api/institutional-certificate-requests";
 
 const session = vi.hoisted(() => ({
@@ -258,5 +260,59 @@ describe("institutional certificate inbox screens", () => {
     expect(
       screen.queryByRole("button", { name: /^rechazar$/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders the inbox list from the active locale instead of hardcoded Spanish", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <InstitutionalCertificateRequestListPage requests={[pending, rejected]} total={2} />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText("GM institutional inbox")).toBeInTheDocument();
+    expect(screen.getByText(/not class enrollment/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search applicant, class...")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "All" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Pending" })).toBeInTheDocument();
+    expect(screen.getByText("Awaiting review")).toBeInTheDocument();
+    expect(screen.getByText("Institutional validation")).toBeInTheDocument();
+    expect(screen.getByText("Rejected requests")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Applicant" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Blockers" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /review/i })).toHaveLength(2);
+    // Status badges come from the same locale (rejected row + filter button)
+    expect(screen.getAllByText("Rejected").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("localizes the status badge, blocker count and no-results state", async () => {
+    const user = userEvent.setup();
+    render(
+      <NextIntlClientProvider locale="fr" messages={frMessages}>
+        <InstitutionalCertificateRequestListPage
+          requests={[{ ...pending, approval_blockers: ["a", "b"] }]}
+          total={1}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getAllByText("En attente").length).toBeGreaterThan(0);
+    expect(screen.getByText("2 blocages")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Rejetées" }));
+    expect(screen.getByText("Aucun résultat")).toBeInTheDocument();
+  });
+
+  it("localizes the detail panel copy", async () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <InstitutionalCertificateRequestDetailPage request={pending} />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByText("ID 11111111 · Rev. 0")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reject" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Approve validation" })).toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: "Proof" })).toBeInTheDocument();
   });
 });

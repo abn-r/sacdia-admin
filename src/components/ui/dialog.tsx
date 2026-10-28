@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "radix-ui"
+import { useTranslations } from "next-intl"
 
 import { cn } from "@/lib/utils"
 import { SURFACE_MOTION_CLASSES } from "@/lib/animations"
@@ -65,6 +66,8 @@ function DialogContent({
   showCloseButton?: boolean
   overlayInstant?: boolean
 }) {
+  const t = useTranslations("shared.uiPrimitives")
+
   return (
     <DialogPortal>
       <DialogOverlay instant={overlayInstant} />
@@ -86,7 +89,7 @@ function DialogContent({
               size="icon-sm"
             >
               <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t("close")}</span>
             </Button>
           </DialogPrimitive.Close>
         )}

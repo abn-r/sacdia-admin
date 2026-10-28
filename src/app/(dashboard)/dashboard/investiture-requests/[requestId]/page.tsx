@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -14,6 +15,11 @@ import { requireAdminUser } from "@/lib/auth/session";
 
 interface RouteProps {
   params: Promise<{ requestId: string }>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("investiture_requests");
+  return { title: t("detail.titleFallback") };
 }
 
 export default async function InvestitureRequestDetailRoute({ params }: RouteProps) {

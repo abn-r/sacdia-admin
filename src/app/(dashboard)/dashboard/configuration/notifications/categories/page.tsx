@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -6,6 +7,11 @@ import { requireAdminUser } from "@/lib/auth/session";
 import { getNotificationCategorySettings } from "@/lib/api/notifications";
 import { buildDefaultCategorySettings } from "@/lib/notifications/categories";
 import { ApiError } from "@/lib/api/client";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("configuration.notifications");
+  return { title: t("sections.categories.title") };
+}
 
 export default async function ConfigurationNotificationsCategoriesPage() {
   await requireAdminUser();

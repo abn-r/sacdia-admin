@@ -35,6 +35,7 @@ import {
 } from "@/lib/api/audit-logs";
 import {
   describeAuditRoute,
+  hasAuditEntityId,
   shortAuditId,
   type AuditRouteInfo,
 } from "@/lib/audit/describe-audit-route";
@@ -46,10 +47,21 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const KNOWN_ACTIONS = new Set(["CREATED", "UPDATED", "DELETED", "DEACTIVATED"]);
+const KNOWN_ACTIONS = new Set([
+  "CREATED",
+  "UPDATED",
+  "DELETED",
+  "DEACTIVATED",
+  "LOGIN",
+  "LOGOUT",
+]);
 
-/** "Eliminado" only when the row is really removed; a deactivation reads "Desactivado". */
+/**
+ * "Eliminado" only when the row is really removed; a deactivation reads
+ * "Desactivado" and session events read "Inicio/Cierre de sesión", not "Creado".
+ */
 function displayAction(action: string, route: AuditRouteInfo | null): string {
+  if (route?.action) return route.action;
   return route?.softDelete && action === "DELETED" ? "DEACTIVATED" : action;
 }
 
@@ -280,9 +292,11 @@ export function AuditLogsViewer() {
                           <span className="font-sans text-sm">
                             {t(`entities.${route.entityKind}`)}
                           </span>{" "}
-                          <span className="text-muted-foreground">
-                            {shortAuditId(item.entity_id)}
-                          </span>
+                          {hasAuditEntityId(item.entity_id) ? (
+                            <span className="text-muted-foreground">
+                              {shortAuditId(item.entity_id)}
+                            </span>
+                          ) : null}
                         </span>
                       ) : (
                         <>

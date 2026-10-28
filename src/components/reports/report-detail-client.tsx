@@ -10,6 +10,16 @@ import {
   Zap,
   ExternalLink,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -22,6 +32,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManualDataForm } from "@/components/reports/manual-data-form";
 import {
+  formatMonthlyReportClubLabel,
   generateReport,
   regenerateReport,
   submitReport,
@@ -206,6 +217,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
   const [report, setReport] = useState<MonthlyReport>(initialReport);
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmSendOpen, setConfirmSendOpen] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const formatNumber = useFormatNumber();
   const mountedRef = useRef(true);
@@ -226,6 +238,8 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
 
   const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]);
   const isSubmitted = report.status === "submitted";
+  const period = `${monthName} ${report.year}`;
+  const clubLabel = formatMonthlyReportClubLabel(report);
   const isGenerated = report.status === "generated";
 
   const handleGenerate = useCallback(async () => {
@@ -293,6 +307,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
       toast.error(message);
     } finally {
       setSubmitting(false);
+      setConfirmSendOpen(false);
     }
   }, [report.report_id, router, t]);
 
@@ -411,7 +426,7 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
             <Button
               loading={submitting}
               size="sm"
-              onClick={handleSubmit}
+              onClick={() => setConfirmSendOpen(true)}
               disabled={generating}
             >
               <Send className="size-4" />
@@ -497,6 +512,39 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
           </TabsContent>
         )}
       </Tabs>
+
+      <AlertDialog
+        open={confirmSendOpen}
+        onOpenChange={(open) => {
+          if (!submitting) setConfirmSendOpen(open);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("detail.sendConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {clubLabel
+                ? t("detail.sendConfirmDescription", { period, club: clubLabel })
+                : t("detail.sendConfirmDescriptionNoClub", { period })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={submitting}>
+              {t("detail.sendConfirmCancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              loading={submitting}
+              onClick={(event) => {
+                // Keep the dialog open while the request is in flight.
+                event.preventDefault();
+                void handleSubmit();
+              }}
+            >
+              {t("detail.actionSendToField")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

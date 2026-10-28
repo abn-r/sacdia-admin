@@ -254,6 +254,37 @@ export function formatNumber(
 }
 
 /**
+ * API decimals arrive as strings with the column scale ("2.000", "0.500").
+ * Returns null when the value is empty or not a finite number.
+ */
+export function parseDecimalQuantity(
+  value: string | number | null | undefined,
+): number | null {
+  if (value == null) return null;
+  if (typeof value === "string" && value.trim() === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/**
+ * Quantity for display: locale decimal separator, no trailing zeros
+ * ("2.000" -> "2", "2.500" -> "2.5" in es/en, "2,5" in fr/pt-BR).
+ * Display only: compare quantities with parseDecimalQuantity, never with this.
+ */
+export function formatQuantity(
+  value: string | number | null | undefined,
+  locale: Locale | string,
+  maxFractionDigits = 3,
+): string {
+  const parsed = parseDecimalQuantity(value);
+  if (parsed === null) return "—";
+  return formatNumber(parsed, locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxFractionDigits,
+  });
+}
+
+/**
  * A 0-100 percentage rounded to `maxFractionDigits` (default 1) with the locale's
  * decimal separator. The sign is glued to the number (no locale-specific NNBSP) so
  * SSR and the browser render the same string. Non-finite values render as "—".
@@ -294,6 +325,12 @@ export function useFormatNumber() {
   const locale = useLocale();
   return (value: number, options?: Intl.NumberFormatOptions) =>
     formatNumber(value, locale, options);
+}
+
+export function useFormatQuantity() {
+  const locale = useLocale();
+  return (value: string | number | null | undefined, maxFractionDigits?: number) =>
+    formatQuantity(value, locale, maxFractionDigits);
 }
 
 export function useFormatCurrency() {

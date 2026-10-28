@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell, History, Tags } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -9,6 +10,11 @@ import { requireAdminUser } from "@/lib/auth/session";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { getNotificationStats } from "@/lib/api/notifications";
 import { ApiError } from "@/lib/api/client";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("configuration.notifications");
+  return { title: t("title") };
+}
 
 export default async function ConfigurationNotificationsPage() {
   const user = await requireAdminUser();

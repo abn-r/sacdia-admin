@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ShieldCheck, Clock } from "lucide-react";
@@ -125,6 +126,11 @@ function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("insurance");
+  return { title: t("page.title") };
+}
 
 export default async function InsurancePage() {
   const user = await requireAdminUser();

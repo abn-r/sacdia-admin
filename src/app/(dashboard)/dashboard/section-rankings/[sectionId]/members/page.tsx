@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -12,6 +13,11 @@ type Params = Promise<{ sectionId: string }>;
 type SearchParams = Promise<{ year_id?: string }>;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rankings");
+  return { title: t("pageSectionMembers.title") };
+}
 
 export default async function SectionMembersPage({
   params,

@@ -70,12 +70,13 @@ import type { Role } from "@/lib/rbac/types";
 // ─── Alert component — may not exist yet, using inline div fallback ──────────
 // The admin uses a generic Alert from shadcn. We check for it and fallback gracefully.
 function ReadOnlyAlert() {
+  const t = useTranslations("rbac.rolesTable");
   return (
     <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/5 p-4 text-sm">
       <ShieldCheck className="mt-0.5 size-4 shrink-0 text-info" />
       <p className="text-muted-foreground">
-        <span className="font-medium text-foreground">Vista de solo lectura.</span>{" "}
-        Contacta un super-admin para crear o modificar roles.
+        <span className="font-medium text-foreground">{t("readOnlyTitle")}</span>{" "}
+        {t("readOnlyHint")}
       </p>
     </div>
   );
@@ -161,6 +162,7 @@ function parseUsersCount(errorMessage: string): number | null {
 
 function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogProps) {
   const t = useTranslations("rbac");
+  const tTable = useTranslations("rbac.rolesTable");
   const translateRole = useRoleLabel();
   const [loading, setLoading] = useState(false);
   const [blockError, setBlockError] = useState<{ usersCount: number } | null>(null);
@@ -211,24 +213,23 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
           </AlertDialogMedia>
           <AlertDialogTitle>
             {isBlocked
-              ? `No se puede desactivar "${role.role_name}"`
-              : `¿Desactivar el rol "${role.role_name}"?`}
+              ? tTable("dialogBlockedTitle", { name: role.role_name })
+              : tTable("dialogConfirmTitle", { name: role.role_name })}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {isBlocked ? (
-              <>
-                Este rol está asignado a{" "}
-                <strong className="text-foreground">{blockError.usersCount} usuario{blockError.usersCount !== 1 ? "s" : ""}</strong>.
-                Para desactivarlo, primero reasigna esos usuarios a otro rol.
-              </>
+              tTable.rich("dialogBlockedDescription", {
+                count: blockError.usersCount,
+                b: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+              })
             ) : (
-              "El rol no se eliminará, pero dejará de estar disponible para asignar. Puedes reactivarlo después."
+              tTable("dialogConfirmDescription")
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => { setBlockError(null); onClose(); }}>
-            {isBlocked ? "Cerrar" : "Cancelar"}
+            {isBlocked ? tTable("dialogClose") : tTable("dialogCancel")}
           </AlertDialogCancel>
           {!isBlocked ? (
             <AlertDialogAction
@@ -239,7 +240,7 @@ function DeactivateDialog({ role, open, onClose, onSuccess }: DeactivateDialogPr
                 void handleDeactivate();
               }}
             >
-              {loading ? "Procesando..." : "Desactivar"}
+              {loading ? tTable("dialogProcessing") : tTable("dialogDeactivate")}
             </AlertDialogAction>
           ) : null}
         </AlertDialogFooter>
@@ -259,6 +260,7 @@ interface RolesTableProps {
 
 export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
   const t = useTranslations("rbac");
+  const tTable = useTranslations("rbac.rolesTable");
   const translateRole = useRoleLabel();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ActiveFilter>("true");
@@ -321,13 +323,13 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
     const protected_ = isProtected(role);
     return [
       {
-        label: "Editar rol",
+        label: tTable("actionEdit"),
         icon: Pencil,
         href: `/dashboard/configuration/roles/${role.role_id}`,
         disabled: protected_,
       },
       {
-        label: "Desactivar rol…",
+        label: tTable("actionDeactivate"),
         icon: Power,
         destructive: true,
         onSelect: () => setDeactivateTarget(role),
@@ -348,16 +350,16 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
           onValueChange={(v) => setActiveTab(v as ActiveFilter)}
         >
           <TabsList variant="line">
-            <TabsTrigger value="true">Activos</TabsTrigger>
-            <TabsTrigger value="false">Inactivos</TabsTrigger>
-            <TabsTrigger value="all">Todos</TabsTrigger>
+            <TabsTrigger value="true">{tTable("tabActive")}</TabsTrigger>
+            <TabsTrigger value="false">{tTable("tabInactive")}</TabsTrigger>
+            <TabsTrigger value="all">{tTable("tabAll")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="relative max-w-xs w-full">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar roles..."
+            placeholder={tTable("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8"
@@ -368,13 +370,13 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
       {filtered.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
-          title={search ? `Sin resultados para "${search}"` : "Sin roles"}
+          title={search ? tTable("emptySearchTitle", { query: search }) : tTable("emptyTitle")}
           description={
             search
-              ? "Intenta con otro término de búsqueda."
+              ? tTable("emptySearchDescription")
               : activeTab === "false"
-                ? "No hay roles inactivos."
-                : "No se encontraron roles registrados."
+                ? tTable("emptyInactiveDescription")
+                : tTable("emptyDescription")
           }
         />
       ) : (
@@ -401,7 +403,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         direction={sortDirection}
                         onSort={handleSort}
                       >
-                        Nombre
+                        {tTable("colName")}
                       </SortableHeader>
                     </TableHead>
                     <TableHead
@@ -420,11 +422,11 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         direction={sortDirection}
                         onSort={handleSort}
                       >
-                        Categoría
+                        {tTable("colCategory")}
                       </SortableHeader>
                     </TableHead>
                     <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground hidden md:table-cell">
-                      Descripción
+                      {tTable("colDescription")}
                     </TableHead>
                     <TableHead
                       className="h-9 px-3"
@@ -442,7 +444,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         direction={sortDirection}
                         onSort={handleSort}
                       >
-                        Permisos
+                        {tTable("colPermissions")}
                       </SortableHeader>
                     </TableHead>
                     <TableHead
@@ -461,7 +463,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                         direction={sortDirection}
                         onSort={handleSort}
                       >
-                        Estado
+                        {tTable("colStatus")}
                       </SortableHeader>
                     </TableHead>
                     {isSuperAdmin && (
@@ -485,7 +487,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                                 <TooltipTrigger asChild>
                                   <Lock className="size-3.5 shrink-0 text-muted-foreground" />
                                 </TooltipTrigger>
-                                <TooltipContent>Rol protegido del sistema</TooltipContent>
+                                <TooltipContent>{tTable("protectedTooltip")}</TooltipContent>
                               </Tooltip>
                             )}
                             <div className="flex flex-col">
@@ -525,7 +527,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
                         {/* active status */}
                         <TableCell className="px-3 py-2.5 align-middle">
-                          <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} />
+                          <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? tTable("statusActive") : tTable("statusInactive")} />
                         </TableCell>
 
                         {/* actions — super-admin only */}
@@ -546,7 +548,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
           </div>
 
           {/* Mobile: descriptive cards */}
-          <ul className="space-y-3 md:hidden" aria-label="Lista de roles">
+          <ul className="space-y-3 md:hidden" aria-label={tTable("listAria")}>
             {filtered.map((role) => {
               const protected_ = isProtected(role);
               const permCount = role.role_permissions?.length ?? 0;
@@ -585,24 +587,24 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? "Activo" : "Inactivo"} size="sm" />
+                      <StatusBadge intent={flagStatusIntent(role.active !== false)} label={role.active !== false ? tTable("statusActive") : tTable("statusInactive")} size="sm" />
                       <Badge variant={role.role_category === "GLOBAL" ? "secondary" : "outline"} className="text-xs">
                         {role.role_category}
                       </Badge>
                       {protected_ && (
                         <Badge variant="outline" className="text-xs">
-                          Protegido
+                          {tTable("protectedBadge")}
                         </Badge>
                       )}
                     </div>
 
                     <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                       <div>
-                        <dt className="text-muted-foreground">Permisos</dt>
+                        <dt className="text-muted-foreground">{tTable("colPermissions")}</dt>
                         <dd>{permCount}</dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground">Categoría</dt>
+                        <dt className="text-muted-foreground">{tTable("colCategory")}</dt>
                         <dd>{role.role_category}</dd>
                       </div>
                     </dl>
@@ -625,9 +627,11 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
       {/* Footer count */}
       <p className="text-sm text-muted-foreground">
-        Mostrando{" "}
-        <span className="font-medium text-foreground">{filtered.length}</span> de{" "}
-        <span className="font-medium text-foreground">{roles.length}</span> roles
+        {tTable.rich("footerCount", {
+          shown: filtered.length,
+          total: roles.length,
+          b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+        })}
       </p>
 
       {/* Deactivate AlertDialog */}

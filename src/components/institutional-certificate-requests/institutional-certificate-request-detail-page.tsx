@@ -24,37 +24,10 @@ import {
   getCertificateBulkImportFileDownloadUrl,
   type FileDownloadUrl,
 } from "@/lib/api/certificate-bulk-imports";
+import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 import type { InstitutionalCertificateRequest } from "@/lib/api/institutional-certificate-requests";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatDate(value?: string | null): string {
-  if (!value) return "—";
-  const civil = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  const date = civil
-    ? new Date(Number(civil[1]), Number(civil[2]) - 1, Number(civil[3]))
-    : new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
-function formatDateTime(value?: string | null): string {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-}
 
 function isImageFileName(name: string): boolean {
   return /\.(png|jpe?g|webp|gif)$/i.test(name);
@@ -140,7 +113,7 @@ function SignedProofViewer({
   }
 
   const { download_url } = state.data;
-  const name = fileName ?? "Comprobante";
+  const name = fileName ?? tLabels("proof");
   const isImage = isImageFileName(name) || isImageUrl(download_url);
   const isPdf = isPdfUrl(download_url);
 
@@ -175,7 +148,7 @@ function SignedProofViewer({
           ) : (
             <div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
               <ImageIcon aria-hidden="true" />
-              <p className="text-sm">Vista previa no disponible para este tipo de archivo.</p>
+              <p className="text-sm">{tLabels("previewUnavailable")}</p>
             </div>
           )}
         </div>
@@ -196,6 +169,8 @@ export function InstitutionalCertificateRequestDetailPage({
   const router = useRouter();
   const tLabels = useTranslations("institutional_certificate_requests.labels");
   const tDialog = useTranslations("institutional_certificate_requests.actionDialog");
+  const formatDateValue = useFormatDate();
+  const formatDateTimeValue = useFormatDateTime();
   const { canCapability } = useScreenAccess();
   const canApprove = canCapability("institutional-certificate-requests", "approve");
   const canReject = canCapability("institutional-certificate-requests", "reject");
@@ -226,7 +201,7 @@ export function InstitutionalCertificateRequestDetailPage({
               <EmptyState
                 icon={FileText}
                 title={tLabels("proofNotAvailable")}
-                description="El comprobante no puede mostrarse porque la solicitud no incluye el lote de origen."
+                description={tLabels("proofNoBatch")}
                 variant="no-results"
               />
             </CardContent>
@@ -240,7 +215,10 @@ export function InstitutionalCertificateRequestDetailPage({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm text-muted-foreground">
-                    ID {request.request_id.slice(0, 8).toUpperCase()} · Rev. {request.revision}
+                    {tLabels("requestMeta", {
+                      id: request.request_id.slice(0, 8).toUpperCase(),
+                      revision: request.revision,
+                    })}
                   </p>
                 </div>
                 <InstitutionalRequestStatusBadge status={request.status} />
@@ -256,12 +234,12 @@ export function InstitutionalCertificateRequestDetailPage({
                 />
                 <DataItem
                   label={tLabels("certificateDate")}
-                  value={formatDate(request.completed_at)}
+                  value={request.completed_at ? formatDateValue(request.completed_at) : "—"}
                 />
                 {request.reviewed_at && (
                   <DataItem
                     label={tLabels("reviewedAt")}
-                    value={formatDateTime(request.reviewed_at)}
+                    value={formatDateTimeValue(request.reviewed_at)}
                   />
                 )}
               </dl>
@@ -311,13 +289,13 @@ export function InstitutionalCertificateRequestDetailPage({
                       onClick={() => setDialogAction("reject")}
                     >
                       <XCircle aria-hidden="true" />
-                      Rechazar
+                      {tDialog("reject")}
                     </Button>
                   )}
                   {canApprove && (
                     <Button onClick={() => setDialogAction("approve")}>
                       <CheckCircle2 aria-hidden="true" />
-                      Aprobar validación
+                      {tDialog("approve")}
                     </Button>
                   )}
                 </div>
@@ -347,7 +325,10 @@ export function InstitutionalCertificateRequestDetailPage({
                             : event.action}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {formatDateTime(event.created_at)} · Rev. {event.revision}
+                          {tLabels("eventMeta", {
+                            date: formatDateTimeValue(event.created_at),
+                            revision: event.revision,
+                          })}
                         </span>
                       </div>
                       {event.comment && (
@@ -378,8 +359,12 @@ export function InstitutionalCertificateRequestDetailPage({
           }
           description={
             dialogAction === "approve"
-              ? `Confirmar validación institucional para ${request.applicant_name} — ${request.class_name} (${request.asset_code}). La aprobación NO crea una inscripción de clase.`
-              : `Rechazar la solicitud de validación de ${request.applicant_name}.`
+              ? tDialog("approveDescription", {
+                  applicant: request.applicant_name,
+                  class: request.class_name,
+                  code: request.asset_code,
+                })
+              : tDialog("rejectDescription", { applicant: request.applicant_name })
           }
           onOpenChange={(open) => !open && setDialogAction(null)}
           onSuccess={handleSuccess}

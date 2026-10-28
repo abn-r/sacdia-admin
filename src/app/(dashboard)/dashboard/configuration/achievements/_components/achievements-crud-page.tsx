@@ -16,6 +16,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -118,17 +119,7 @@ function pickBadgeUrl(item: AchievementRecord): string | null {
 }
 
 function DeleteButton({ label }: { label: string }) {
-  const [pending, setPending] = useState(false);
-  return (
-    <Button
-      loading={pending}
-      type="submit"
-      variant="destructive"
-      onClick={() => setPending(true)}
-    >
-      {label}
-    </Button>
-  );
+  return <FormSubmitButton variant="destructive">{label}</FormSubmitButton>;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────

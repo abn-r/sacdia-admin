@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DollarSign } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -70,6 +71,11 @@ async function fetchClubs(
     }
     return { clubs: [], fetchError: { kind: "unexpected" } };
   }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("finances");
+  return { title: t("page.title") };
 }
 
 export default async function FinancesPage() {

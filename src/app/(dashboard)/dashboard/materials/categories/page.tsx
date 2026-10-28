@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Tag } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -11,6 +12,11 @@ import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import type { MaterialCategoryAdmin } from "@/lib/types/materials";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("materials.pages.categories");
+  return { title: t("title") };
+}
 
 export default async function CategoriesPage() {
   const t = await getTranslations("materials.pages.categories");

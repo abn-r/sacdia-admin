@@ -1,11 +1,8 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { InstitutionalCertificateRequestStatus } from "@/lib/api/institutional-certificate-requests";
-
-const STATUS_LABELS: Record<InstitutionalCertificateRequestStatus, string> = {
-  PENDING_REVIEW: "Pendiente",
-  APPROVED: "Validación aprobada",
-  REJECTED: "Rechazada",
-};
 
 function variantForStatus(
   status: InstitutionalCertificateRequestStatus,
@@ -20,9 +17,10 @@ export function InstitutionalRequestStatusBadge({
 }: {
   status: InstitutionalCertificateRequestStatus;
 }) {
+  const t = useTranslations("institutional_certificate_requests.status");
   return (
     <Badge variant={variantForStatus(status)}>
-      {STATUS_LABELS[status] ?? status}
+      {t.has(status) ? t(status) : status}
     </Badge>
   );
 }

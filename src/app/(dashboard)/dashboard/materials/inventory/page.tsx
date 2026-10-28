@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Package } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -54,6 +55,11 @@ function resolveLfParam(raw: unknown): number | undefined {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("materials.pages.inventory");
+  return { title: t("title") };
+}
 
 export default async function InventarioPage({
   searchParams,

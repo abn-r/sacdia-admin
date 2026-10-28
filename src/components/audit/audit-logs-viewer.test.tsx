@@ -74,4 +74,57 @@ describe("AuditLogsViewer", () => {
     );
     expect(screen.getByText("Creado")).toBeInTheDocument();
   });
+
+  it("fetches the list once per filter set instead of refetching on re-render", async () => {
+    mockList.mockResolvedValue({ items: [row({})], next_cursor: null });
+    renderViewer();
+
+    await waitFor(() => expect(screen.getByText("Rol desactivado")).toBeInTheDocument());
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(mockList).toHaveBeenCalledTimes(1);
+  });
+
+  it("labels a login as a session event instead of a creation", async () => {
+    mockList.mockResolvedValue({
+      items: [
+        row({
+          audit_log_id: "l1",
+          entity_type: "auth",
+          entity_id: "-",
+          action: "CREATED",
+          summary: "POST /api/v1/auth/login",
+        }),
+      ],
+      next_cursor: null,
+    });
+    renderViewer();
+
+    await waitFor(() => expect(screen.getAllByText("Inicio de sesión").length).toBe(2));
+    expect(screen.queryByText("Creado")).toBeNull();
+    expect(screen.queryByText("auth/-")).toBeNull();
+    expect(screen.queryByText(/POST \/api\/v1\/auth\/login/)).toBeNull();
+  });
+
+  it("shows a readable entity and label for a folder template update", async () => {
+    mockList.mockResolvedValue({
+      items: [
+        row({
+          audit_log_id: "t1",
+          entity_type: "annual-folders",
+          entity_id: "9c1d2e3f-0000-4000-8000-000000000000",
+          action: "UPDATED",
+          summary: "PATCH /api/v1/annual-folders/templates/[REDACTED]",
+        }),
+      ],
+      next_cursor: null,
+    });
+    renderViewer();
+
+    await waitFor(() =>
+      expect(screen.getByText("Plantilla de carpeta actualizada")).toBeInTheDocument(),
+    );
+    expect(screen.getByText("Plantilla de carpeta")).toBeInTheDocument();
+    expect(screen.getByText("9c1d2e3f…")).toBeInTheDocument();
+    expect(screen.queryByText(/REDACTED/)).toBeNull();
+  });
 });

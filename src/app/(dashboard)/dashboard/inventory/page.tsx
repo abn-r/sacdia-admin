@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Package } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -34,6 +35,11 @@ function normalizeCategory(raw: AnyRecord): InventoryCategory {
     name: String(raw.name ?? ""),
     description: typeof raw.description === "string" ? raw.description : null,
   };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("inventory");
+  return { title: t("page.title") };
 }
 
 export default async function InventoryPage() {

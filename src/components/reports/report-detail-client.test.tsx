@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ReportDetailClient } from "./report-detail-client";
 import type { MonthlyReport } from "@/lib/api/monthly-reports";
 
@@ -29,7 +29,8 @@ const {
 }));
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
+    values ? `${key} ${JSON.stringify(values)}` : key,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -69,9 +70,26 @@ vi.mock("@/components/reports/manual-data-form", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-    <button {...props}>{children}</button>
-  ),
+  Button: ({
+    children,
+    asChild,
+    ...rest
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    asChild?: boolean;
+    loading?: boolean;
+    variant?: string;
+    size?: string;
+  }) => {
+    const props: Record<string, unknown> = { ...rest };
+    delete props.loading;
+    delete props.variant;
+    delete props.size;
+    return asChild && React.isValidElement(children) ? (
+      React.cloneElement(children as React.ReactElement<Record<string, unknown>>, props)
+    ) : (
+      <button {...props}>{children}</button>
+    );
+  },
 }));
 
 vi.mock("@/components/ui/status-badge", () => ({
@@ -330,5 +348,66 @@ describe("ReportDetailClient queued (202) jobs", () => {
     const isDone = waitForReportMock.mock.calls[0][1] as (r: MonthlyReport) => boolean;
     expect(isDone(baseReport)).toBe(false);
     expect(isDone(generated)).toBe(true);
+  });
+});
+
+describe("ReportDetailClient send to field confirmation", () => {
+  const generated: MonthlyReport = {
+    ...baseReport,
+    status: "generated",
+    generated_at: "2026-07-31T12:00:00.000Z",
+    club_enrollment: {
+      club_section: {
+        clubs: { name: "Águilas" },
+        club_types: { name: "Conquistadores" },
+      },
+    },
+  };
+
+  it("asks for confirmation naming club, club type and period before sending", async () => {
+    render(<ReportDetailClient report={generated} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    expect(submitReportMock).not.toHaveBeenCalled();
+    expect(within(dialog).getByText("detail.sendConfirmTitle")).toBeInTheDocument();
+    const description = within(dialog).getByText(/detail\.sendConfirmDescription /);
+    expect(description.textContent).toContain("Águilas (Conquistadores)");
+    expect(description.textContent).toContain("months.7");
+    expect(description.textContent).toContain("2026");
+  });
+
+  it("does not send when the confirmation is cancelled", async () => {
+    render(<ReportDetailClient report={generated} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "detail.sendConfirmCancel" }));
+
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    expect(submitReportMock).not.toHaveBeenCalled();
+  });
+
+  it("submits only after the user confirms", async () => {
+    const submitted = { ...generated, status: "submitted" as const };
+    submitReportMock.mockResolvedValueOnce(submitted);
+
+    render(<ReportDetailClient report={generated} />);
+    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "detail.actionSendToField" }));
+
+    await waitFor(() => expect(submitReportMock).toHaveBeenCalledWith(generated.report_id));
+    await waitFor(() => expect(toastSuccessMock).toHaveBeenCalledWith("toasts.report_sent"));
+  });
+
+  it("falls back to a period-only message when the API sends no club info", async () => {
+    render(<ReportDetailClient report={{ ...generated, club_enrollment: null }} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
+    const dialog = await screen.findByRole("alertdialog");
+
+    expect(within(dialog).getByText(/detail\.sendConfirmDescriptionNoClub/)).toBeInTheDocument();
   });
 });

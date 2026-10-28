@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
+import enMessages from "../../../messages/en.json";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 
@@ -166,5 +167,37 @@ describe("RankingsClientPage", () => {
 
     expect(screen.getAllByText("Diamante").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/9,500/).length).toBeGreaterThan(0);
+  });
+
+  it("renders the table column headers from the Spanish messages", () => {
+    renderPage();
+
+    for (const name of ["Posición", "Club", "Tipo", "Puntos", "Progreso", "Rango", "Componentes"]) {
+      expect(screen.getByRole("columnheader", { name: new RegExp(name) })).toBeInTheDocument();
+    }
+  });
+
+  it("renders the table column headers in the active locale", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={enMessages}>
+        <RankingsClientPage
+          initialRankings={RANKINGS}
+          clubTypes={CLUB_TYPES}
+          ecclesiasticalYears={YEARS}
+          localFields={LOCAL_FIELDS}
+          initialClubTypeId={2}
+          initialYearId={1}
+          initialLocalFieldId={10}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    for (const name of ["Position", "Club", "Type", "Points", "Progress", "Tier", "Components"]) {
+      expect(screen.getByRole("columnheader", { name: new RegExp(name) })).toBeInTheDocument();
+    }
+    expect(screen.queryByRole("columnheader", { name: /Posición/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Recalculate rankings/ })).toBeInTheDocument();
+    expect(screen.getAllByTitle("1st place").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("View details").length).toBeGreaterThan(0);
   });
 });

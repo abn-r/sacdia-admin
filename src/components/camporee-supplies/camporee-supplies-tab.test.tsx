@@ -229,4 +229,59 @@ describe("CamporeeSuppliesTab", () => {
     expect(screen.getAllByRole("button", { name: "Entregar" })).toHaveLength(1);
     expect(screen.getAllByLabelText("Cantidad a entregar")).toHaveLength(1);
   });
+
+  it("shows plan line quantities without trailing zeros", async () => {
+    const user = userEvent.setup();
+    mockListPlans.mockResolvedValue([STUB_PLAN]);
+    renderTab();
+    await screen.findByText("INS20260001");
+
+    await user.click(screen.getByRole("button", { name: "Ver detalle" }));
+
+    const row = screen.getByText("2026-08-29").closest("tr") as HTMLElement;
+    const cells = within(row).getAllByRole("cell");
+    expect(cells[3]).toHaveTextContent(/^4$/);
+    expect(cells[4]).toHaveTextContent(/^0$/);
+    expect(screen.queryByText("4.000")).toBeNull();
+    expect(screen.queryByText("0.000")).toBeNull();
+  });
+
+  it("shows kitchen report quantities without trailing zeros and keeps real fractions", async () => {
+    mockKitchen.mockResolvedValue({
+      timezone: "America/Mexico_City",
+      date: null,
+      rows: [
+        {
+          date: "2026-08-29",
+          slot_label: "Almuerzo",
+          deliver_time: "13:00",
+          product_name: "Arroz",
+          uom: "KG",
+          club_name: "Panteras",
+          qty: "2.000",
+          delivered_qty: "0.000",
+          line_total_centavos: 1000,
+        },
+        {
+          date: "2026-08-29",
+          slot_label: "Cena",
+          deliver_time: "19:00",
+          product_name: "Frijol",
+          uom: "KG",
+          club_name: "Panteras",
+          qty: "6.000",
+          delivered_qty: "2.500",
+          line_total_centavos: 1000,
+        },
+      ],
+    });
+    renderTab();
+
+    const rice = (await screen.findByText("Arroz")).closest("tr") as HTMLElement;
+    const beans = screen.getByText("Frijol").closest("tr") as HTMLElement;
+    expect(within(rice).getAllByRole("cell")[4]).toHaveTextContent(/^2$/);
+    expect(within(rice).getAllByRole("cell")[5]).toHaveTextContent(/^0$/);
+    expect(within(beans).getAllByRole("cell")[4]).toHaveTextContent(/^6$/);
+    expect(within(beans).getAllByRole("cell")[5]).toHaveTextContent(/^2\.5$/);
+  });
 });

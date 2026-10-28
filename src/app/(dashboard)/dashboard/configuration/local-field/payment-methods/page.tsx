@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -18,6 +19,11 @@ import {
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { buildPaymentMethodRows } from "@/lib/local-field-config/payment-method-rows";
 import type { LocalFieldOption, MaterialConfig } from "@/lib/types/materials";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("localFieldConfig.pages.paymentMethods");
+  return { title: t("title") };
+}
 
 export default async function LocalFieldPaymentMethodsPage() {
   const t = await getTranslations("localFieldConfig.pages.paymentMethods");

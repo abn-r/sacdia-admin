@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
@@ -49,6 +50,11 @@ function readClassId(item: Record<string, unknown>): number | null {
   const raw = item.class_id;
   const parsed = typeof raw === "number" ? raw : Number(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.classModules");
+  return { title: t("title") };
 }
 
 export default async function AdminClassModulesPage({ searchParams }: { searchParams: SearchParams }) {

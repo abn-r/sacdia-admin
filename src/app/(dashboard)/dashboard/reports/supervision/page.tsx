@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ClipboardList } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -35,6 +36,11 @@ interface SupervisionPageProps {
     status?: string;
     page?: string;
   }>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("reports");
+  return { title: t("supervision.page_title") };
 }
 
 export default async function ReportsSupervisionPage({

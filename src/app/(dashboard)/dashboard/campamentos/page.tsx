@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Tent } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -23,6 +24,11 @@ function extractCamporees(payload: unknown): Camporee[] {
     }
   }
   return [];
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("camporees.pages.list");
+  return { title: t("title") };
 }
 
 export default async function CamporeesPage() {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -62,6 +63,11 @@ function extractArray(payload: unknown): AnyRecord[] {
     if (Array.isArray(root.data)) return root.data as AnyRecord[];
   }
   return [];
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("annual_folders");
+  return { title: t("pageTemplates.title") };
 }
 
 export default async function ClubsEvidenceFolderTemplatesPage() {

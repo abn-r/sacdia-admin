@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
@@ -13,8 +13,24 @@ export interface SortableHeaderProps<TField extends string> {
   direction?: SortDirection;
   onSort: (field: TField, direction: SortDirection) => void;
   children: ReactNode;
+  /**
+   * Visible column label used in the accessible name ("Sort by <label>").
+   * Defaults to the text content of `children`; falls back to the field key
+   * only when neither is available.
+   */
+  label?: string;
   align?: "left" | "right";
   className?: string;
+}
+
+/** Extracts the plain text of a ReactNode (strings, numbers, nested elements). */
+export function getNodeText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return Children.toArray(node).map(getNodeText).join("");
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    return getNodeText(node.props.children);
+  }
+  return "";
 }
 
 export function SortableHeader<TField extends string>({
@@ -23,10 +39,13 @@ export function SortableHeader<TField extends string>({
   direction,
   onSort,
   children,
+  label,
   align = "left",
   className,
 }: SortableHeaderProps<TField>) {
   const t = useTranslations("shared.sortable");
+
+  const columnLabel = (label ?? getNodeText(children)).trim() || field;
 
   const isActive = activeField === field;
   const nextDirection: SortDirection =
@@ -40,9 +59,9 @@ export function SortableHeader<TField extends string>({
 
   const ariaLabel = isActive
     ? direction === "asc"
-      ? t("sortedAscending", { field })
-      : t("sortedDescending", { field })
-    : t("sortBy", { field });
+      ? t("sortedAscending", { field: columnLabel })
+      : t("sortedDescending", { field: columnLabel })
+    : t("sortBy", { field: columnLabel });
 
   return (
     <button

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -45,6 +46,11 @@ function normalizeCertification(item: GenericRecord) {
     modules_count: modulesCount,
     active: item.active !== false,
   };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("certifications.pages.list");
+  return { title: t("title") };
 }
 
 export default async function CertificationsPage() {

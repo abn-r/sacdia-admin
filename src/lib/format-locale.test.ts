@@ -5,8 +5,10 @@ import {
   formatDate,
   formatMxnAmount,
   formatPercentValue,
+  formatQuantity,
   formatTabularNumber,
   formatTimestamp,
+  parseDecimalQuantity,
   parseIsoDateParts,
 } from "@/lib/format-locale";
 
@@ -104,5 +106,41 @@ describe("formatPercentValue", () => {
 
   it("devuelve un guion para valores no finitos", () => {
     expect(formatPercentValue(Number.NaN, "es")).toBe("—");
+  });
+});
+
+describe("parseDecimalQuantity", () => {
+  it("parses API decimal strings and numbers", () => {
+    expect(parseDecimalQuantity("2.000")).toBe(2);
+    expect(parseDecimalQuantity("0.500")).toBe(0.5);
+    expect(parseDecimalQuantity(6)).toBe(6);
+  });
+
+  it("returns null for empty or non numeric input", () => {
+    expect(parseDecimalQuantity("")).toBeNull();
+    expect(parseDecimalQuantity("  ")).toBeNull();
+    expect(parseDecimalQuantity("abc")).toBeNull();
+    expect(parseDecimalQuantity(null)).toBeNull();
+    expect(parseDecimalQuantity(undefined)).toBeNull();
+  });
+});
+
+describe("formatQuantity", () => {
+  it("drops trailing zeros of API decimals", () => {
+    expect(formatQuantity("2.000", "es")).toBe("2");
+    expect(formatQuantity("6.000", "es")).toBe("6");
+    expect(formatQuantity("0.000", "es")).toBe("0");
+  });
+
+  it("keeps real fractions with the locale separator", () => {
+    expect(formatQuantity("2.500", "es")).toBe("2.5");
+    expect(formatQuantity("2.500", "en")).toBe("2.5");
+    expect(formatQuantity("2.500", "fr")).toBe("2,5");
+    expect(formatQuantity("0.125", "pt-BR")).toBe("0,125");
+  });
+
+  it("falls back to a dash when there is no number", () => {
+    expect(formatQuantity(null, "es")).toBe("—");
+    expect(formatQuantity("n/a", "es")).toBe("—");
   });
 });

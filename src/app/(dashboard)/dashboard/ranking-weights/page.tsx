@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Settings2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -12,6 +13,11 @@ import { fetchRankingWeights } from "@/lib/api/ranking-weights";
 import type { RankingWeights } from "@/lib/api/ranking-weights";
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rankingWeights.pages.list");
+  return { title: t("title") };
+}
 
 export default async function RankingWeightsPage() {
   await requireAdminUser();

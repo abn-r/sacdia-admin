@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { BulkUploadClient } from "@/components/users/bulk-upload-client";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("users.pages.bulk");
+  return { title: t("title") };
+}
 
 export default async function BulkUploadPage() {
   const currentUser = await requireAdminUser();
