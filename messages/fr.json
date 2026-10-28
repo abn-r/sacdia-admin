@@ -309,7 +309,7 @@
     "assignments": {
       "newTitle": "Nouvelle assignation",
       "newDescription": "L'autorité finale est toujours résolue en sections de club.",
-      "directorConflictRule": "Règle : si l'utilisateur est déjà directeur d'une section, le backend refuse de l'assigner comme coordinateur de cette même section.",
+      "directorConflictRule": "Règle : si l’utilisateur est déjà directeur d’une section, il ne peut pas être assigné comme coordinateur de cette même section.",
       "title": "Assignations actives",
       "description": "Un coordinateur peut cumuler plusieurs périmètres ; l'app recevra le périmètre combiné.",
       "empty": "Aucune assignation enregistrée.",
@@ -489,7 +489,7 @@
     },
     "errors": {
       "entity_not_supported": "Entité non prise en charge",
-      "read_only_catalog": "Ce catalogue est en lecture seule dans l'API officielle",
+      "read_only_catalog": "Ce catalogue est en lecture seule",
       "op_create_failed": "Impossible de créer l'enregistrement",
       "op_update_failed": "Impossible de mettre à jour l'enregistrement",
       "op_delete_failed": "Impossible de supprimer l'enregistrement",
@@ -965,7 +965,7 @@
         "cardDescriptionTitle": "Description",
         "noDescription": "Aucune description enregistrée.",
         "cardHonorsTitle": "Spécialités dans cette catégorie",
-        "noHonors": "Aucune spécialité trouvée pour cette catégorie, ou le point de terminaison n'a pas répondu.",
+        "noHonors": "Aucune spécialité trouvée pour cette catégorie.",
         "tableId": "ID",
         "tableName": "Nom",
         "tableLevel": "Niveau",
@@ -1629,7 +1629,7 @@
         "statusActive": "Actif",
         "statusInactive": "Inactif",
         "mobileListLabel": "Liste des clubs",
-        "endpointError": "Point de terminaison non disponible",
+        "endpointError": "Impossible de charger les clubs",
         "cannotShow": "Impossible d’afficher les clubs",
         "emptyTitle": "Aucun club enregistré",
         "emptyDescription": "Créez le premier club pour commencer.",
@@ -1921,8 +1921,8 @@
       "too_many_requests_description": "Veuillez patienter avant de réessayer.",
       "forbidden_title": "Sans permissions",
       "forbidden_description": "Vous n'avez pas la permission d'effectuer cette action.",
-      "endpoint_unavailable_title": "Point de terminaison indisponible",
-      "endpoint_unavailable_description": "Le point de terminaison d'approbation n'est pas disponible pour le moment.",
+      "endpoint_unavailable_title": "Service indisponible",
+      "endpoint_unavailable_description": "L’approbation n’est pas disponible pour le moment. Réessayez plus tard.",
       "processing_title": "Erreur de traitement",
       "unexpected_title": "Erreur inattendue",
       "unexpected_description": "L'approbation n'a pas pu être traitée. Veuillez réessayer."
@@ -2361,7 +2361,7 @@
       "selectAllInBucket": "Sélectionner {bucket} de {resource}",
       "destructiveAction": "Action destructive",
       "otherGroup": "Autres permissions",
-      "requiresRoles": "L’API exige le rôle : {roles}",
+      "requiresRoles": "Nécessite le rôle : {roles}",
       "surfaceFilterLabel": "Surface",
       "surfaceAll": "Toutes",
       "surfaceAdmin": "Panel",
@@ -2436,7 +2436,7 @@
         "readOnlyBanner": "Vue en lecture seule. Seul un super administrateur peut modifier la matrice.",
         "fullScreen": "Écran complet",
         "otherGroup": "Autres permissions",
-        "requiresRoles": "L’API exige le rôle : {roles}. La permission n’a d’effet que pour les rôles qui le satisfont.",
+        "requiresRoles": "Nécessite le rôle : {roles}. La permission n’a d’effet que pour les rôles qui le satisfont.",
         "bundleUpdatedTitle": "Écran mis à jour",
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Ajoutées : {permissions}.",
@@ -5747,7 +5747,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Moteur de certifications configurables",
-    "panelDescription": "Crée des certifications, construis des versions brouillon (règles d'éligibilité, modules, sections et composants) et publie-les. Les versions existantes sont chargées depuis le backend : les versions publiées et retirées s'ouvrent en lecture seule et les brouillons restent modifiables.",
+    "panelDescription": "Crée des certifications, construis des versions brouillon (règles d’éligibilité, modules, sections et composants) et publie-les. Les versions publiées et retirées s’ouvrent en lecture seule et les brouillons restent modifiables.",
     "newCertificationButton": "Nouvelle certification",
     "workbenchDescription": "Modifie les métadonnées, les règles d'éligibilité et la structure de cette version. Une version publiée ou retirée ne peut plus être modifiée : clone-la pour créer un nouveau brouillon.",
     "immutableNotice": "Cette version n'est pas en brouillon et est en lecture seule. Utilise « Cloner » pour créer un nouveau brouillon modifiable.",
@@ -5902,7 +5902,7 @@
       "trigger": "Publier",
       "title": "Publier la version",
       "confirmDescription": "Cette version sera publiée et la version publiée précédente (le cas échéant) sera automatiquement retirée. Cette action ne peut pas être annulée depuis ici.",
-      "notReadyDescription": "Cette version ne remplit pas encore les critères de publication (il faut au moins une règle d'éligibilité et au moins un module avec des sections et des composants). Le backend refusera la publication tant qu'elle n'est pas complète.",
+      "notReadyDescription": "Cette version ne remplit pas encore les critères de publication (il faut au moins une règle d’éligibilité et au moins un module avec des sections et des composants). Elle ne peut pas être publiée tant qu’elle n’est pas complète.",
       "readyHint": "Remplit les critères de publication.",
       "notReadyHint": "Il manque des règles d'éligibilité ou une structure pour publier.",
       "cancel": "Annuler",
@@ -6767,7 +6767,7 @@
         "description": "Configurez la pondération de chaque dimension (dossier, finance, camporee, preuve) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
         "loadFailed": "Impossible de charger les pondérations du classement. Vérifiez la connexion au serveur.",
         "emptyTitle": "Aucune configuration",
-        "emptyDescription": "Aucune configuration de pondération trouvée. Le backend aurait dû créer un défaut global au démarrage."
+        "emptyDescription": "Aucune configuration de poids trouvée."
       }
     }
   },
@@ -6831,7 +6831,7 @@
         "statPoints": "Points requis",
         "tabStructure": "Structure du programme",
         "structureCardTitle": "Modules et sections",
-        "modulesEndpointMissing": "Le point de terminaison des classes n’a pas retourné de modules dans la réponse de détail. Les modules se chargent depuis GET /classes/:id — vérifiez que le backend les inclut.",
+        "modulesEndpointMissing": "Cette classe n’a aucun module à afficher.",
         "labelDuration": "Durée configurée",
         "labelAvailableFrom": "Début de disponibilité",
         "labelAvailableUntil": "Fin de disponibilité",
@@ -6842,7 +6842,7 @@
       "title": "Expiration manuelle des classes",
       "description": "Exécute une simulation ou applique l’expiration des inscriptions qui ont dépassé la durée maximale.",
       "yearLabel": "Année ecclésiastique de référence",
-      "currentYearOption": "Utiliser l’année active du backend",
+      "currentYearOption": "Utiliser l’année active",
       "dryRun": "Simuler",
       "apply": "Appliquer l’expiration",
       "modeDryRun": "simulation",
@@ -7108,7 +7108,7 @@
       "emptyNoYearTitle": "Aucune année ecclésiastique active",
       "emptyNoYearDescription": "Configurez une année ecclésiastique active dans le catalogue pour voir les classements.",
       "emptyTitle": "Impossible d'afficher les classements",
-      "emptyDescription": "Le point de terminaison des classements n'est pas disponible pour l'instant."
+      "emptyDescription": "Les classements ne sont pas disponibles pour l’instant."
     },
     "pageMemberBreakdown": {
       "back": "Retour aux classements",
@@ -7146,7 +7146,7 @@
       "emptyNoYearTitle": "Aucune année ecclésiastique active",
       "emptyNoYearDescription": "Configurez une année ecclésiastique active dans le catalogue pour voir les classements.",
       "emptyTitle": "Impossible d'afficher les classements de sections",
-      "emptyDescription": "Le point de terminaison des classements de sections n'est pas disponible pour l'instant."
+      "emptyDescription": "Les classements de sections ne sont pas disponibles pour l’instant."
     },
     "pageSectionMembers": {
       "title": "Membres de la section",
@@ -8365,7 +8365,7 @@
       "title": "Audit",
       "description": "Journal des mutations. Super-admin uniquement.",
       "loading": "Chargement de l’audit…",
-      "loadError": "Impossible de charger l’audit. La liste globale n’est pas encore dans l’API.",
+      "loadError": "Impossible de charger l’audit. Réessayez plus tard.",
       "emptyTitle": "Aucun événement",
       "emptyDescription": "Aucune ligne d’audit pour ces filtres.",
       "loadMore": "Charger plus",

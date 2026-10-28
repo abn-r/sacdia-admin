@@ -309,7 +309,7 @@
     "assignments": {
       "newTitle": "New assignment",
       "newDescription": "Final authority is always resolved to club sections.",
-      "directorConflictRule": "Rule: if the user is already director of a section, the backend rejects assigning them as coordinator of that same section.",
+      "directorConflictRule": "Rule: if the user is already director of a section, they cannot be assigned as coordinator of that same section.",
       "title": "Active assignments",
       "description": "A coordinator can accumulate several scopes; the app receives the combined scope.",
       "empty": "No assignments registered.",
@@ -489,7 +489,7 @@
     },
     "errors": {
       "entity_not_supported": "Unsupported entity",
-      "read_only_catalog": "This catalog is read-only in the official API",
+      "read_only_catalog": "This catalog is read-only",
       "op_create_failed": "Could not create the record",
       "op_update_failed": "Could not update the record",
       "op_delete_failed": "Could not delete the record",
@@ -965,7 +965,7 @@
         "cardDescriptionTitle": "Description",
         "noDescription": "No description recorded.",
         "cardHonorsTitle": "Honors in this category",
-        "noHonors": "No honors found for this category, or the endpoint did not respond.",
+        "noHonors": "No honors found for this category.",
         "tableId": "ID",
         "tableName": "Name",
         "tableLevel": "Level",
@@ -1629,7 +1629,7 @@
         "statusActive": "Active",
         "statusInactive": "Inactive",
         "mobileListLabel": "Clubs list",
-        "endpointError": "Endpoint unavailable",
+        "endpointError": "Could not load the clubs",
         "cannotShow": "Cannot display clubs",
         "emptyTitle": "No clubs registered",
         "emptyDescription": "Create the first club to get started.",
@@ -1921,8 +1921,8 @@
       "too_many_requests_description": "Please wait a moment before trying again.",
       "forbidden_title": "No permissions",
       "forbidden_description": "You do not have permission to perform this action.",
-      "endpoint_unavailable_title": "Endpoint unavailable",
-      "endpoint_unavailable_description": "The approval endpoint is not available at the moment.",
+      "endpoint_unavailable_title": "Service unavailable",
+      "endpoint_unavailable_description": "Approval is not available at the moment. Please try again later.",
       "processing_title": "Processing error",
       "unexpected_title": "Unexpected error",
       "unexpected_description": "The approval could not be processed. Please try again."
@@ -2361,7 +2361,7 @@
       "selectAllInBucket": "Select {bucket} in {resource}",
       "destructiveAction": "Destructive action",
       "otherGroup": "Other permissions",
-      "requiresRoles": "The API requires role: {roles}",
+      "requiresRoles": "Requires role: {roles}",
       "surfaceFilterLabel": "Surface",
       "surfaceAll": "All",
       "surfaceAdmin": "Admin",
@@ -2436,7 +2436,7 @@
         "readOnlyBanner": "Read-only view. Only a super administrator can change the matrix.",
         "fullScreen": "Full screen",
         "otherGroup": "Other permissions",
-        "requiresRoles": "The API requires role: {roles}. The grant only takes effect for roles that satisfy it.",
+        "requiresRoles": "Requires role: {roles}. The grant only takes effect for roles that satisfy it.",
         "bundleUpdatedTitle": "Screen updated",
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Added: {permissions}.",
@@ -5747,7 +5747,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Configurable certifications engine",
-    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Existing versions are loaded from the backend: published and retired versions open read-only and drafts remain editable.",
+    "panelDescription": "Create certifications, build draft versions (eligibility rules, modules, sections and components) and publish them. Published and retired versions open read-only and drafts remain editable.",
     "newCertificationButton": "New certification",
     "workbenchDescription": "Edit metadata, eligibility rules and structure for this version. A published or retired version can no longer be changed: clone it to create a new draft.",
     "immutableNotice": "This version is not in draft and is read-only. Use \"Clone\" to create a new editable draft.",
@@ -5902,7 +5902,7 @@
       "trigger": "Publish",
       "title": "Publish version",
       "confirmDescription": "This version will be published and the previous published version (if any) will be retired automatically. This action cannot be undone from here.",
-      "notReadyDescription": "This version does not yet meet the publish criteria (it needs at least one eligibility rule and at least one module with sections and components). The backend will reject publishing until it is complete.",
+      "notReadyDescription": "This version does not yet meet the publish criteria (it needs at least one eligibility rule and at least one module with sections and components). It cannot be published until it is complete.",
       "readyHint": "Meets the publish criteria.",
       "notReadyHint": "Missing eligibility rules or structure to publish.",
       "cancel": "Cancel",
@@ -6767,7 +6767,7 @@
         "description": "Configure the weight of each dimension (folder, finance, camporee, evidence) for the annual classification calculation. The sum of the 4 weights must be exactly 100.",
         "loadFailed": "Could not load classification weights. Check the server connection.",
         "emptyTitle": "No configuration",
-        "emptyDescription": "No weight configurations found. The backend should have created a global default at startup."
+        "emptyDescription": "No weight configurations found."
       }
     }
   },
@@ -6831,7 +6831,7 @@
         "statPoints": "Required points",
         "tabStructure": "Program structure",
         "structureCardTitle": "Modules & sections",
-        "modulesEndpointMissing": "The classes endpoint did not return modules in the detail response. Modules load from GET /classes/:id — verify the backend includes them.",
+        "modulesEndpointMissing": "This class has no modules to show.",
         "labelDuration": "Configured duration",
         "labelAvailableFrom": "Availability start",
         "labelAvailableUntil": "Availability end",
@@ -6842,7 +6842,7 @@
       "title": "Manual class expiration",
       "description": "Run a simulation or apply expiration for enrollments that exceeded the maximum duration.",
       "yearLabel": "Cutoff ecclesiastical year",
-      "currentYearOption": "Use backend active year",
+      "currentYearOption": "Use active year",
       "dryRun": "Dry run",
       "apply": "Apply expiration",
       "modeDryRun": "dry run",
@@ -7108,7 +7108,7 @@
       "emptyNoYearTitle": "No active ecclesiastical year",
       "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view classifications.",
       "emptyTitle": "Classifications cannot be displayed",
-      "emptyDescription": "The classifications endpoint is not available at this time."
+      "emptyDescription": "Classifications are not available at this time."
     },
     "pageMemberBreakdown": {
       "back": "Back to classifications",
@@ -7146,7 +7146,7 @@
       "emptyNoYearTitle": "No active ecclesiastical year",
       "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view classifications.",
       "emptyTitle": "Section classifications cannot be displayed",
-      "emptyDescription": "The section classifications endpoint is not available at this time."
+      "emptyDescription": "Section classifications are not available at this time."
     },
     "pageSectionMembers": {
       "title": "Section members",
@@ -8365,7 +8365,7 @@
       "title": "Audit log",
       "description": "System mutation trail. Super-admin only.",
       "loading": "Loading audit log…",
-      "loadError": "Could not load the audit log. The global list is not on the API yet.",
+      "loadError": "Could not load the audit log. Please try again later.",
       "emptyTitle": "No events",
       "emptyDescription": "No audit rows match these filters.",
       "loadMore": "Load more",

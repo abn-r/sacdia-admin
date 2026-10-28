@@ -30,13 +30,14 @@ function extractErrorCode(error: ApiError): string | undefined {
 export function getActionErrorMessage(
   error: unknown,
   fallbackMessage: string,
-  options: ActionErrorOptions = {},
+  // Kept for call-site compatibility: the route label is no longer shown to users.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options: ActionErrorOptions = {},
 ) {
   if (!(error instanceof ApiError)) {
     return error instanceof Error ? error.message : fallbackMessage;
   }
 
-  const endpointLabel = options.endpointLabel ? ` (${options.endpointLabel})` : "";
   const domainCode = extractErrorCode(error);
   if (domainCode && DOMAIN_ERROR_MESSAGES[domainCode]) {
     return DOMAIN_ERROR_MESSAGES[domainCode];
@@ -47,7 +48,7 @@ export function getActionErrorMessage(
   }
 
   if (error.status === 404 || error.status === 405) {
-    return `El endpoint no está disponible en este entorno${endpointLabel}.`;
+    return "Esta acción no está disponible en este momento.";
   }
 
   if (error.status === 409) {
@@ -59,11 +60,11 @@ export function getActionErrorMessage(
   }
 
   if (error.status === 429) {
-    return "Demasiadas solicitudes al backend. Intenta nuevamente en unos segundos.";
+    return "Demasiadas solicitudes. Intenta nuevamente en unos segundos.";
   }
 
   if (error.status >= 500) {
-    return "El backend no está disponible temporalmente. Intenta de nuevo más tarde.";
+    return "El servicio no está disponible temporalmente. Intenta de nuevo más tarde.";
   }
 
   return error.message || fallbackMessage;

@@ -309,7 +309,7 @@
     "assignments": {
       "newTitle": "Nova atribuição",
       "newDescription": "A autoridade final sempre é resolvida para seções de clube.",
-      "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, o backend rejeita atribuí-lo como coordenador dessa mesma seção.",
+      "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, não pode ser atribuído como coordenador dessa mesma seção.",
       "title": "Atribuições ativas",
       "description": "Um coordenador pode acumular vários escopos; o app receberá o escopo combinado.",
       "empty": "Não há atribuições registradas.",
@@ -489,7 +489,7 @@
     },
     "errors": {
       "entity_not_supported": "Entidade não suportada",
-      "read_only_catalog": "Este catálogo é somente leitura na API oficial",
+      "read_only_catalog": "Este catálogo é somente leitura",
       "op_create_failed": "Não foi possível criar o registro",
       "op_update_failed": "Não foi possível atualizar o registro",
       "op_delete_failed": "Não foi possível excluir o registro",
@@ -965,7 +965,7 @@
         "cardDescriptionTitle": "Descrição",
         "noDescription": "Sem descrição registrada.",
         "cardHonorsTitle": "Especialidades nesta categoria",
-        "noHonors": "Nenhuma especialidade encontrada para esta categoria, ou o endpoint não respondeu.",
+        "noHonors": "Nenhuma especialidade encontrada para esta categoria.",
         "tableId": "ID",
         "tableName": "Nome",
         "tableLevel": "Nível",
@@ -1629,7 +1629,7 @@
         "statusActive": "Ativo",
         "statusInactive": "Inativo",
         "mobileListLabel": "Lista de clubes",
-        "endpointError": "Endpoint indisponível",
+        "endpointError": "Não foi possível carregar os clubes",
         "cannotShow": "Não é possível exibir clubes",
         "emptyTitle": "Nenhum clube registrado",
         "emptyDescription": "Crie o primeiro clube para começar.",
@@ -1921,8 +1921,8 @@
       "too_many_requests_description": "Aguarde um momento antes de tentar novamente.",
       "forbidden_title": "Sem permissões",
       "forbidden_description": "Você não tem permissão para realizar esta ação.",
-      "endpoint_unavailable_title": "Endpoint indisponível",
-      "endpoint_unavailable_description": "O endpoint de aprovação não está disponível no momento.",
+      "endpoint_unavailable_title": "Serviço indisponível",
+      "endpoint_unavailable_description": "A aprovação não está disponível no momento. Tente novamente mais tarde.",
       "processing_title": "Erro ao processar",
       "unexpected_title": "Erro inesperado",
       "unexpected_description": "Não foi possível processar a aprovação. Tente novamente."
@@ -2361,7 +2361,7 @@
       "selectAllInBucket": "Selecionar {bucket} de {resource}",
       "destructiveAction": "Ação destrutiva",
       "otherGroup": "Outras permissões",
-      "requiresRoles": "A API exige o papel: {roles}",
+      "requiresRoles": "Requer o papel: {roles}",
       "surfaceFilterLabel": "Superfície",
       "surfaceAll": "Todas",
       "surfaceAdmin": "Painel",
@@ -2436,7 +2436,7 @@
         "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode alterar a matriz.",
         "fullScreen": "Tela completa",
         "otherGroup": "Outras permissões",
-        "requiresRoles": "A API exige o papel: {roles}. A permissão só tem efeito em papéis que o cumpram.",
+        "requiresRoles": "Requer o papel: {roles}. A permissão só tem efeito em papéis que a cumpram.",
         "bundleUpdatedTitle": "Tela atualizada",
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Adicionadas: {permissions}.",
@@ -4489,7 +4489,7 @@
       "folder_created": "Pasta anual criada"
     },
     "errors": {
-      "recalculate_rankings": "Erro ao recalcular os classificações",
+      "recalculate_rankings": "Erro ao recalcular as classificações",
       "save_evaluation_failed": "Não foi possível salvar a avaliação",
       "upload_evidence_failed": "Erro ao enviar a evidência",
       "save_section_failed": "Erro ao salvar a seção",
@@ -5747,7 +5747,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Motor de certificações configuráveis",
-    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões existentes são carregadas do backend: as publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
+    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
     "newCertificationButton": "Nova certificação",
     "workbenchDescription": "Edite metadados, regras de elegibilidade e estrutura desta versão. Uma versão publicada ou retirada não pode mais ser alterada: clone-a para criar um novo rascunho.",
     "immutableNotice": "Esta versão não está em rascunho e é somente leitura. Use \"Clonar\" para criar um novo rascunho editável.",
@@ -5902,7 +5902,7 @@
       "trigger": "Publicar",
       "title": "Publicar versão",
       "confirmDescription": "Esta versão será publicada e a versão publicada anterior (se houver) será retirada automaticamente. Esta ação não pode ser desfeita por aqui.",
-      "notReadyDescription": "Esta versão ainda não atende ao critério de publicação (é necessária pelo menos uma regra de elegibilidade e pelo menos um módulo com seções e componentes). O backend rejeitará a publicação até que esteja completa.",
+      "notReadyDescription": "Esta versão ainda não atende ao critério de publicação (é necessária pelo menos uma regra de elegibilidade e pelo menos um módulo com seções e componentes). Ela não pode ser publicada até que esteja completa.",
       "readyHint": "Atende ao critério de publicação.",
       "notReadyHint": "Faltam regras de elegibilidade ou estrutura para publicar.",
       "cancel": "Cancelar",
@@ -6767,7 +6767,7 @@
         "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
         "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
         "emptyTitle": "Sem configuração",
-        "emptyDescription": "Nenhuma configuração de pesos encontrada. O backend deveria ter criado um padrão global ao iniciar."
+        "emptyDescription": "Nenhuma configuração de pesos encontrada."
       }
     }
   },
@@ -6831,7 +6831,7 @@
         "statPoints": "Pontos necessários",
         "tabStructure": "Estrutura do programa",
         "structureCardTitle": "Módulos e seções",
-        "modulesEndpointMissing": "O endpoint de classes não retornou módulos na resposta de detalhes. Os módulos são carregados de GET /classes/:id — verifique se o backend os inclui.",
+        "modulesEndpointMissing": "Esta classe não tem módulos para exibir.",
         "labelDuration": "Duração configurada",
         "labelAvailableFrom": "Início da disponibilidade",
         "labelAvailableUntil": "Fim da disponibilidade",
@@ -6842,7 +6842,7 @@
       "title": "Expiração manual de classes",
       "description": "Execute uma simulação ou aplique a expiração das inscrições que excederam a duração máxima.",
       "yearLabel": "Ano eclesiástico de corte",
-      "currentYearOption": "Usar ano ativo do backend",
+      "currentYearOption": "Usar ano ativo",
       "dryRun": "Simular",
       "apply": "Aplicar expiração",
       "modeDryRun": "simulação",
@@ -7106,9 +7106,9 @@
       "title": "Classificação de membros",
       "description": "Classificação geral por categoria com composite calculado.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
-      "emptyTitle": "Não é possível exibir os classificações",
-      "emptyDescription": "O endpoint de classificações não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver as classificações.",
+      "emptyTitle": "Não é possível exibir as classificações",
+      "emptyDescription": "As classificações não estão disponíveis no momento."
     },
     "pageMemberBreakdown": {
       "back": "Voltar para classificações",
@@ -7144,9 +7144,9 @@
       "title": "Classificação de seções",
       "description": "Classificação geral de seções por composite score.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
-      "emptyTitle": "Não é possível exibir os classificações de seções",
-      "emptyDescription": "O endpoint de classificações de seções não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver as classificações.",
+      "emptyTitle": "Não é possível exibir as classificações de seções",
+      "emptyDescription": "As classificações de seções não estão disponíveis no momento."
     },
     "pageSectionMembers": {
       "title": "Membros da seção",
@@ -8365,7 +8365,7 @@
       "title": "Auditoria",
       "description": "Trilha de mutações do sistema. Apenas super-admin.",
       "loading": "Carregando auditoria…",
-      "loadError": "Não foi possível carregar a auditoria. A lista global ainda não está na API.",
+      "loadError": "Não foi possível carregar a auditoria. Tente novamente mais tarde.",
       "emptyTitle": "Sem eventos",
       "emptyDescription": "Não há linhas de auditoria para estes filtros.",
       "loadMore": "Carregar mais",
