@@ -7499,6 +7499,65 @@
       "emptyTitle": "Aucun envoi en attente",
       "emptyDescription": "Aucun envoi par certificat n’attend d’être examiné."
     },
+    "list": {
+      "kpiPendingBatches": "Lots en attente",
+      "kpiPendingBatchesHint": "{total} dans la file",
+      "kpiRowsToReview": "Lignes à examiner",
+      "kpiRowsToReviewHint": "Prêtes pour décision",
+      "kpiWithCorrections": "Avec corrections",
+      "kpiWithCorrectionsHint": "Renvoyés au membre",
+      "kpiTotalLoaded": "Total téléversé",
+      "kpiTotalLoadedHint": "Tous les lots",
+      "listDescription": "Examinez l’OCR, les justificatifs et les lignes détectées.",
+      "searchPlaceholder": "Rechercher un membre ou un lot",
+      "filterAll": "Tous",
+      "filterPending": "En attente",
+      "filterPartial": "Partiels",
+      "filterCorrection": "Correction",
+      "colBatch": "Lot",
+      "colMember": "Membre",
+      "colSubmitted": "Envoyé",
+      "colStatus": "Statut",
+      "colProgress": "Progression",
+      "noEmail": "Sans e-mail",
+      "review": "Examiner",
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Aucun lot ne correspond au filtre actuel."
+    },
+    "batchStatus": {
+      "DRAFT": "Brouillon",
+      "READY_TO_SUBMIT": "Prêt",
+      "SUBMITTED": "En attente",
+      "PARTIALLY_APPROVED": "Partiel",
+      "APPROVED": "Approuvé",
+      "REJECTED": "Rejeté",
+      "NEEDS_CORRECTION": "À corriger"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "À examiner",
+      "READY": "Prêt",
+      "SUBMITTED": "En attente",
+      "APPROVED": "Approuvée",
+      "REJECTED": "Rejetée",
+      "RESUBMITTED": "Soumise à nouveau"
+    },
+    "itemType": {
+      "HONOR": "Spécialité",
+      "CLASS": "Classe"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Brouillon créé",
+      "ITEM_ADDED": "Ligne ajoutée",
+      "ITEM_UPDATED": "Ligne mise à jour",
+      "ITEM_REMOVED": "Ligne supprimée",
+      "ITEM_RESUBMITTED": "Ligne soumise à nouveau",
+      "BATCH_SUBMITTED": "Lot envoyé",
+      "OCR_QUEUED": "Lecture en file d’attente",
+      "OCR_PROCESSED": "Lecture terminée",
+      "OCR_FAILED": "Échec de la lecture",
+      "ITEM_APPROVED": "Ligne approuvée",
+      "ITEM_REJECTED": "Ligne rejetée"
+    },
     "detailPage": {
       "title": "Révision de l’envoi par certificat",
       "description": "Lot {batchId} : justificatifs, lignes OCR et audit.",

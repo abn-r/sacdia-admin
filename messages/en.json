@@ -7499,6 +7499,65 @@
       "emptyTitle": "No pending uploads",
       "emptyDescription": "No certificate uploads are waiting for review."
     },
+    "list": {
+      "kpiPendingBatches": "Pending batches",
+      "kpiPendingBatchesHint": "{total} in the tray",
+      "kpiRowsToReview": "Rows to review",
+      "kpiRowsToReviewHint": "Ready for decision",
+      "kpiWithCorrections": "With corrections",
+      "kpiWithCorrectionsHint": "Returned to the member",
+      "kpiTotalLoaded": "Total uploaded",
+      "kpiTotalLoadedHint": "All batches",
+      "listDescription": "Review OCR, proofs and detected rows.",
+      "searchPlaceholder": "Search member or batch",
+      "filterAll": "All",
+      "filterPending": "Pending",
+      "filterPartial": "Partial",
+      "filterCorrection": "Correction",
+      "colBatch": "Batch",
+      "colMember": "Member",
+      "colSubmitted": "Submitted",
+      "colStatus": "Status",
+      "colProgress": "Progress",
+      "noEmail": "No email",
+      "review": "Review",
+      "noResultsTitle": "No results",
+      "noResultsDescription": "No batches match the current filter."
+    },
+    "batchStatus": {
+      "DRAFT": "Draft",
+      "READY_TO_SUBMIT": "Ready",
+      "SUBMITTED": "Pending",
+      "PARTIALLY_APPROVED": "Partial",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "NEEDS_CORRECTION": "Needs correction"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "Review",
+      "READY": "Ready",
+      "SUBMITTED": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "RESUBMITTED": "Resubmitted"
+    },
+    "itemType": {
+      "HONOR": "Honor",
+      "CLASS": "Class"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Draft created",
+      "ITEM_ADDED": "Row added",
+      "ITEM_UPDATED": "Row updated",
+      "ITEM_REMOVED": "Row removed",
+      "ITEM_RESUBMITTED": "Row resubmitted",
+      "BATCH_SUBMITTED": "Batch submitted",
+      "OCR_QUEUED": "Reading queued",
+      "OCR_PROCESSED": "Reading completed",
+      "OCR_FAILED": "Reading failed",
+      "ITEM_APPROVED": "Row approved",
+      "ITEM_REJECTED": "Row rejected"
+    },
     "detailPage": {
       "title": "Certificate upload review",
       "description": "Batch {batchId}: proofs, OCR rows and audit.",

@@ -369,6 +369,7 @@ function ItemRow({
 
 function AuditTimeline({ batch }: { batch: CertificateBulkImportBatch }) {
   const t = useTranslations("certificate_bulk_imports.auditTimeline");
+  const tActions = useTranslations("certificate_bulk_imports.eventActions");
   const events = batch.events ?? [];
   if (events.length === 0) {
     return (
@@ -383,15 +384,20 @@ function AuditTimeline({ batch }: { batch: CertificateBulkImportBatch }) {
 
   return (
     <div className="flex flex-col gap-3">
-      {events.map((event) => (
-        <div key={event.event_id} className="rounded-xl border bg-card p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <Badge variant="outline">{event.action}</Badge>
-            <span className="text-xs text-muted-foreground">{formatDateTime(event.created_at)}</span>
+      {events.map((event) => {
+        const actionKey = event.action as Parameters<typeof tActions>[0];
+        return (
+          <div key={event.event_id} className="rounded-xl border bg-card p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Badge variant="outline">
+                {tActions.has(actionKey) ? tActions(actionKey) : event.action}
+              </Badge>
+              <span className="text-xs text-muted-foreground">{formatDateTime(event.created_at)}</span>
+            </div>
+            {event.comment && <p className="mt-2 text-sm text-muted-foreground">{event.comment}</p>}
           </div>
-          {event.comment && <p className="mt-2 text-sm text-muted-foreground">{event.comment}</p>}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

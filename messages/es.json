@@ -7499,6 +7499,65 @@
       "emptyTitle": "Sin cargas pendientes",
       "emptyDescription": "No hay cargas por certificado esperando revisión."
     },
+    "list": {
+      "kpiPendingBatches": "Lotes pendientes",
+      "kpiPendingBatchesHint": "{total} en bandeja",
+      "kpiRowsToReview": "Filas por revisar",
+      "kpiRowsToReviewHint": "Listas para decisión",
+      "kpiWithCorrections": "Con correcciones",
+      "kpiWithCorrectionsHint": "Devueltas al miembro",
+      "kpiTotalLoaded": "Total cargado",
+      "kpiTotalLoadedHint": "Todos los lotes",
+      "listDescription": "Revisa OCR, comprobantes y filas detectadas.",
+      "searchPlaceholder": "Buscar miembro o lote",
+      "filterAll": "Todos",
+      "filterPending": "Pendientes",
+      "filterPartial": "Parciales",
+      "filterCorrection": "Corrección",
+      "colBatch": "Lote",
+      "colMember": "Miembro",
+      "colSubmitted": "Enviado",
+      "colStatus": "Estado",
+      "colProgress": "Progreso",
+      "noEmail": "Sin email",
+      "review": "Revisar",
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "No hay lotes que coincidan con el filtro actual."
+    },
+    "batchStatus": {
+      "DRAFT": "Borrador",
+      "READY_TO_SUBMIT": "Listo",
+      "SUBMITTED": "Pendiente",
+      "PARTIALLY_APPROVED": "Parcial",
+      "APPROVED": "Aprobado",
+      "REJECTED": "Rechazado",
+      "NEEDS_CORRECTION": "Corrección"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "Revisar",
+      "READY": "Listo",
+      "SUBMITTED": "Pendiente",
+      "APPROVED": "Aprobada",
+      "REJECTED": "Rechazada",
+      "RESUBMITTED": "Reenviada"
+    },
+    "itemType": {
+      "HONOR": "Especialidad",
+      "CLASS": "Clase"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Borrador creado",
+      "ITEM_ADDED": "Fila agregada",
+      "ITEM_UPDATED": "Fila actualizada",
+      "ITEM_REMOVED": "Fila eliminada",
+      "ITEM_RESUBMITTED": "Fila reenviada",
+      "BATCH_SUBMITTED": "Lote enviado",
+      "OCR_QUEUED": "Lectura en cola",
+      "OCR_PROCESSED": "Lectura completada",
+      "OCR_FAILED": "Lectura fallida",
+      "ITEM_APPROVED": "Fila aprobada",
+      "ITEM_REJECTED": "Fila rechazada"
+    },
     "detailPage": {
       "title": "Revisión de carga por certificado",
       "description": "Lote {batchId}: comprobantes, filas OCR y auditoría.",

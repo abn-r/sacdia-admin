@@ -7499,6 +7499,65 @@
       "emptyTitle": "Nenhum envio pendente",
       "emptyDescription": "Nenhum envio por certificado aguarda revisão."
     },
+    "list": {
+      "kpiPendingBatches": "Lotes pendentes",
+      "kpiPendingBatchesHint": "{total} na bandeja",
+      "kpiRowsToReview": "Linhas para revisar",
+      "kpiRowsToReviewHint": "Prontas para decisão",
+      "kpiWithCorrections": "Com correções",
+      "kpiWithCorrectionsHint": "Devolvidos ao membro",
+      "kpiTotalLoaded": "Total enviado",
+      "kpiTotalLoadedHint": "Todos os lotes",
+      "listDescription": "Revise OCR, comprovantes e linhas detectadas.",
+      "searchPlaceholder": "Buscar membro ou lote",
+      "filterAll": "Todos",
+      "filterPending": "Pendentes",
+      "filterPartial": "Parciais",
+      "filterCorrection": "Correção",
+      "colBatch": "Lote",
+      "colMember": "Membro",
+      "colSubmitted": "Enviado",
+      "colStatus": "Status",
+      "colProgress": "Progresso",
+      "noEmail": "Sem e-mail",
+      "review": "Revisar",
+      "noResultsTitle": "Sem resultados",
+      "noResultsDescription": "Nenhum lote corresponde ao filtro atual."
+    },
+    "batchStatus": {
+      "DRAFT": "Rascunho",
+      "READY_TO_SUBMIT": "Pronto",
+      "SUBMITTED": "Pendente",
+      "PARTIALLY_APPROVED": "Parcial",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "NEEDS_CORRECTION": "Correção"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "Revisar",
+      "READY": "Pronta",
+      "SUBMITTED": "Pendente",
+      "APPROVED": "Aprovada",
+      "REJECTED": "Rejeitada",
+      "RESUBMITTED": "Reenviada"
+    },
+    "itemType": {
+      "HONOR": "Especialidade",
+      "CLASS": "Classe"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Rascunho criado",
+      "ITEM_ADDED": "Linha adicionada",
+      "ITEM_UPDATED": "Linha atualizada",
+      "ITEM_REMOVED": "Linha removida",
+      "ITEM_RESUBMITTED": "Linha reenviada",
+      "BATCH_SUBMITTED": "Lote enviado",
+      "OCR_QUEUED": "Leitura na fila",
+      "OCR_PROCESSED": "Leitura concluída",
+      "OCR_FAILED": "Leitura com falha",
+      "ITEM_APPROVED": "Linha aprovada",
+      "ITEM_REJECTED": "Linha rejeitada"
+    },
     "detailPage": {
       "title": "Revisão do envio por certificado",
       "description": "Lote {batchId}: comprovantes, linhas OCR e auditoria.",

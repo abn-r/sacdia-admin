@@ -7531,6 +7531,65 @@ export interface IntlMessages {
       emptyTitle: string;
       emptyDescription: string;
     };
+    list: {
+      kpiPendingBatches: string;
+      kpiPendingBatchesHint: string;
+      kpiRowsToReview: string;
+      kpiRowsToReviewHint: string;
+      kpiWithCorrections: string;
+      kpiWithCorrectionsHint: string;
+      kpiTotalLoaded: string;
+      kpiTotalLoadedHint: string;
+      listDescription: string;
+      searchPlaceholder: string;
+      filterAll: string;
+      filterPending: string;
+      filterPartial: string;
+      filterCorrection: string;
+      colBatch: string;
+      colMember: string;
+      colSubmitted: string;
+      colStatus: string;
+      colProgress: string;
+      noEmail: string;
+      review: string;
+      noResultsTitle: string;
+      noResultsDescription: string;
+    };
+    batchStatus: {
+      DRAFT: string;
+      READY_TO_SUBMIT: string;
+      SUBMITTED: string;
+      PARTIALLY_APPROVED: string;
+      APPROVED: string;
+      REJECTED: string;
+      NEEDS_CORRECTION: string;
+    };
+    itemStatus: {
+      NEEDS_REVIEW: string;
+      READY: string;
+      SUBMITTED: string;
+      APPROVED: string;
+      REJECTED: string;
+      RESUBMITTED: string;
+    };
+    itemType: {
+      HONOR: string;
+      CLASS: string;
+    };
+    eventActions: {
+      DRAFT_CREATED: string;
+      ITEM_ADDED: string;
+      ITEM_UPDATED: string;
+      ITEM_REMOVED: string;
+      ITEM_RESUBMITTED: string;
+      BATCH_SUBMITTED: string;
+      OCR_QUEUED: string;
+      OCR_PROCESSED: string;
+      OCR_FAILED: string;
+      ITEM_APPROVED: string;
+      ITEM_REJECTED: string;
+    };
     detailPage: {
       title: string;
       description: string;
