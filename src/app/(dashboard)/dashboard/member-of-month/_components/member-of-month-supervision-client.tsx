@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evaluate-dialog";
 import { MONTH_NAMES } from "@/lib/constants";
+import { capitalizeFirst } from "@/lib/utils";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
@@ -304,8 +305,13 @@ export function MemberOfMonthSupervisionClient({
                   <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
                   <TableCell className="hidden xl:table-cell">{item.club_name ?? "—"}</TableCell>
                   <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
-                  <TableCell className="capitalize">
-                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
+                  <TableCell>
+                    {capitalizeFirst(
+                      formatDate(new Date(item.year, item.month - 1, 1), {
+                        month: "long",
+                        year: "numeric",
+                      }),
+                    )}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {formatNumber(item.total_points)}
