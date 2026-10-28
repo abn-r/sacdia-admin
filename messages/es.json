@@ -6710,6 +6710,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Tipo {id}",
       "defaultGlobalTitle": "Default global",
       "defaultGlobalDescription": "Pesos aplicados a todos los tipos de club que no tienen un override configurado. La suma debe ser exactamente 100.",
       "defaultGlobalUpdated": "Default global actualizado",

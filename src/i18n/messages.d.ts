@@ -6742,6 +6742,7 @@ export interface IntlMessages {
   };
   rankingWeights: {
     clientPage: {
+      clubTypeFallback: string;
       defaultGlobalTitle: string;
       defaultGlobalDescription: string;
       defaultGlobalUpdated: string;

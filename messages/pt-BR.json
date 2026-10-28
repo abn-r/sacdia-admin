@@ -6710,6 +6710,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Tipo {id}",
       "defaultGlobalTitle": "Padrão global",
       "defaultGlobalDescription": "Pesos aplicados a todos os tipos de clube sem substituição configurada. A soma deve ser exatamente 100.",
       "defaultGlobalUpdated": "Padrão global atualizado",

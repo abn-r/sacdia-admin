@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { RankingWeightsClientPage } from "@/components/ranking-weights/ranking-weights-client-page";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ApiError } from "@/lib/api/client";
+import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import { fetchRankingWeights } from "@/lib/api/ranking-weights";
 import type { RankingWeights } from "@/lib/api/ranking-weights";
 
@@ -16,10 +18,17 @@ export default async function RankingWeightsPage() {
   const t = await getTranslations("rankingWeights.pages.list");
 
   let weights: RankingWeights[] = [];
+  let clubTypes: ClubType[] = [];
   let loadError: string | null = null;
 
   try {
-    const result = await fetchRankingWeights();
+    const [result, clubTypesResult] = await Promise.all([
+      fetchRankingWeights(),
+      // Names are cosmetic: if the catalog fails the table falls back to "Tipo {id}".
+      listClubTypes().catch(() => []),
+    ]);
+    const unwrapped = unwrapApiData<unknown>(clubTypesResult);
+    clubTypes = Array.isArray(unwrapped) ? (unwrapped as ClubType[]) : [];
     weights = Array.isArray(result) ? result : [];
   } catch (err) {
     if (err instanceof ApiError) {
@@ -49,7 +58,7 @@ export default async function RankingWeightsPage() {
       )}
 
       {!loadError && weights.length > 0 && (
-        <RankingWeightsClientPage initial={weights} />
+        <RankingWeightsClientPage initial={weights} clubTypes={clubTypes} />
       )}
     </div>
   );

@@ -46,11 +46,14 @@ import {
   updateRankingWeights,
   type RankingWeights,
 } from "@/lib/api/ranking-weights";
+import type { ClubType } from "@/lib/api/catalogs";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface RankingWeightsClientPageProps {
   initial: RankingWeights[];
+  /** Club types catalog, used to show names instead of raw ids. */
+  clubTypes?: ClubType[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -68,12 +71,14 @@ function weightSum(r: RankingWeights): number {
 
 interface OverrideRowActionsProps {
   row: RankingWeights;
+  clubTypeLabel: string;
   onUpdate: (updated: RankingWeights) => void;
   onDelete: (id: string) => void;
 }
 
 function OverrideRowActions({
   row,
+  clubTypeLabel,
   onUpdate,
   onDelete,
 }: OverrideRowActionsProps) {
@@ -101,7 +106,7 @@ function OverrideRowActions({
   return (
     <>
       <RowActions
-        label={String(row.club_type_id)}
+        label={clubTypeLabel}
         actions={[
           {
             label: t("editButton"),
@@ -184,8 +189,14 @@ function OverrideRowActions({
 
 export function RankingWeightsClientPage({
   initial,
+  clubTypes = [],
 }: RankingWeightsClientPageProps) {
   const t = useTranslations("rankingWeights.clientPage");
+  const clubTypeNames = new Map(clubTypes.map((c) => [c.club_type_id, c.name]));
+  const clubTypeLabel = (id: number | null) =>
+    id === null
+      ? ""
+      : (clubTypeNames.get(id) ?? t("clubTypeFallback", { id }));
   const [rows, setRows] = useState<RankingWeights[]>(initial);
   const [newOverrideOpen, setNewOverrideOpen] = useState(false);
   const router = useRouter();
@@ -307,7 +318,7 @@ export function RankingWeightsClientPage({
                   return (
                     <TableRow key={r.ranking_weight_config_id}>
                       <TableCell className="font-medium">
-                        {r.club_type_id}
+                        {clubTypeLabel(r.club_type_id)}
                       </TableCell>
                       <TableCell className="font-mono tabular-nums">
                         {r.folder_weight}
@@ -332,6 +343,7 @@ export function RankingWeightsClientPage({
                       <TableCell>
                         <OverrideRowActions
                           row={r}
+                          clubTypeLabel={clubTypeLabel(r.club_type_id)}
                           onUpdate={handleUpdate}
                           onDelete={handleDelete}
                         />
