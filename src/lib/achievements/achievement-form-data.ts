@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import {
   getAchievementById,
   listAchievementsAdmin,
@@ -141,7 +142,9 @@ export async function loadEditAchievementFormData(
       listAchievementCategoriesAdmin({ limit: 200 }),
       listAchievementsAdmin({ limit: 500 }),
     ]);
-    achievement = achPayload as GenericRecord;
+    // The admin endpoint wraps the record as `{ status, data }`; the form reads
+    // flat keys (name, description, ...), so unwrap before handing it over.
+    achievement = unwrapApiData<GenericRecord | null>(achPayload) ?? null;
     const mapped = mapCategories(catsPayload, defaultName, categoryId);
     categories = mapped.categories;
     if (mapped.matchName) categoryName = mapped.matchName;
