@@ -380,6 +380,8 @@
       "empty_state": "No {entity} yet"
     },
     "fields": {
+      "timezone": "Time zone",
+      "timezoneHelp": "Investiture windows and other field dates use this zone.",
       "name": "Name",
       "description": "Description",
       "active": "Active",

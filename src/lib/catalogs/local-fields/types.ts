@@ -4,6 +4,7 @@ export type AdminLocalField = {
   abbreviation: string;
   active: boolean;
   union_id: number;
+  timezone?: string | null;
   created_at: string | null;
   modified_at: string | null;
 };
@@ -17,6 +18,7 @@ export type LocalFieldPayload = {
   abbreviation: string;
   union_id: number;
   active?: boolean;
+  timezone?: string | null;
 };
 
 export type LocalFieldListFilters = {

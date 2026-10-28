@@ -30,6 +30,10 @@ import {
   updateLocalFieldAction,
   type LocalFieldActionState,
 } from "@/lib/catalogs/local-fields/actions";
+import {
+  DEFAULT_LOCAL_FIELD_TIMEZONE,
+  localFieldTimezoneOptions,
+} from "@/lib/catalogs/local-fields/timezones";
 import type { AdminLocalFieldRow } from "@/lib/catalogs/local-fields/types";
 import type { AdminUnion } from "@/lib/catalogs/unions/types";
 
@@ -68,11 +72,14 @@ export function LocalFieldFormDialog({
   const [state, formAction] = useActionState(action, initialState);
   const [active, setActive] = useState(true);
   const [unionId, setUnionId] = useState("");
+  const [timezone, setTimezone] = useState(DEFAULT_LOCAL_FIELD_TIMEZONE);
 
   useEffect(() => {
     if (open) {
       setActive(localField?.active ?? true);
       setUnionId(localField?.union_id ? String(localField.union_id) : "");
+      // A field without a zone opens with the default so saving fixes it.
+      setTimezone(localField?.timezone ?? DEFAULT_LOCAL_FIELD_TIMEZONE);
     }
   }, [open, localField]);
 
@@ -157,6 +164,23 @@ export function LocalFieldFormDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>{tFields("timezone")}</Label>
+              <input type="hidden" name="timezone" value={timezone} />
+              <Select value={timezone} onValueChange={setTimezone} required>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={tFields("timezone")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {localFieldTimezoneOptions(localField?.timezone).map((zone) => (
+                    <SelectItem key={zone} value={zone}>
+                      {zone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{tFields("timezoneHelp")}</p>
             </div>
           </div>
 
