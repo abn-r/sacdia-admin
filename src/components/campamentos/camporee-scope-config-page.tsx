@@ -135,6 +135,7 @@ export async function CamporeeScopeConfigPage({
               description={tCatalog("description")}
               entityLabel={tCatalog("entityLabel")}
               emptyIcon={<Flag />}
+              embedded
               includeDescription
               idField="event_type_id"
               nameField="name"

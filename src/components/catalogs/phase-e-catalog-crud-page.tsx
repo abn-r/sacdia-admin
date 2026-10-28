@@ -190,6 +190,11 @@ export interface PhaseECatalogCrudPageProps {
   masterHonorsConfig?: MasterHonorsCrudExtras;
   /** Adds a required select (form field + list column), e.g. income/expense. */
   typeField?: CatalogTypeField;
+  /**
+   * Render inside another page that already owns the page header: no title/H1,
+   * just the create button above the list.
+   */
+  embedded?: boolean;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -786,6 +791,7 @@ export function PhaseECatalogCrudPage({
   detailPathPrefix,
   masterHonorsConfig,
   typeField,
+  embedded = false,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -1130,14 +1136,25 @@ export function PhaseECatalogCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={title} description={description}>
-        {canCreate && (
-          <Button onClick={() => handleCreateOpen(true)}>
-            <Plus className="size-4" />
-            {t("create", { entity: entityLabel.toLowerCase() })}
-          </Button>
-        )}
-      </PageHeader>
+      {embedded ? (
+        canCreate && (
+          <div className="flex justify-end">
+            <Button onClick={() => handleCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("create", { entity: entityLabel.toLowerCase() })}
+            </Button>
+          </div>
+        )
+      ) : (
+        <PageHeader title={title} description={description}>
+          {canCreate && (
+            <Button onClick={() => handleCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("create", { entity: entityLabel.toLowerCase() })}
+            </Button>
+          )}
+        </PageHeader>
+      )}
 
       <div className="space-y-4">
         {/* Filter bar */}

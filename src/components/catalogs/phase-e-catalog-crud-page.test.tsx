@@ -261,3 +261,22 @@ describe("PhaseECatalogCrudPage - dialogs", () => {
     expect(within(dialog).getByLabelText(/^Tipo/)).toHaveValue("");
   });
 });
+
+describe("PhaseECatalogCrudPage - embedded", () => {
+  it("renders its own page header (H1) by default", () => {
+    renderPage();
+    expect(screen.getByRole("heading", { level: 1, name: "Categorías de finanzas" })).toBeInTheDocument();
+  });
+
+  it("renders no heading and keeps the create button when embedded in another page", () => {
+    renderPage({ embedded: true });
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
+    expect(screen.queryByText("Categorías de finanzas")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /crear categor/i }).length).toBeGreaterThan(0);
+  });
+
+  it("hides the create button when embedded without create permission", () => {
+    renderPage({ embedded: true, canCreate: false });
+    expect(screen.queryByRole("button", { name: /crear categor/i })).not.toBeInTheDocument();
+  });
+});
