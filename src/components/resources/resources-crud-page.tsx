@@ -336,7 +336,7 @@ function ScopeBadge({
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
-function ResourceFormFields({
+export function ResourceFormFields({
   item,
   categories,
   clubTypes,
@@ -526,6 +526,12 @@ function ResourceFormFields({
           <Label htmlFor="res-scope-level">
             Alcance <span className="ml-0.5 text-destructive">*</span>
           </Label>
+          {/* A disabled select is not submitted: carry the role-locked level
+              in a hidden input, or create fails with "alcance válido". On
+              edit the scope cannot change, so nothing is sent. */}
+          {scopeLevelLocked && !isEdit && (
+            <input type="hidden" name="scope_level" value={scopeLevel} />
+          )}
           <Select
             name="scope_level"
             value={scopeLevel}
