@@ -35,6 +35,7 @@ import {
 const EVIDENCE_FOLDERS_READ = "evidence_folders:read";
 const ANNUAL_FOLDERS_EVALUATE = "annual_folders:evaluate";
 const ANNUAL_FOLDER_TEMPLATES_READ = "annual_folder_templates:read";
+const ANNUAL_FOLDER_TEMPLATES_DELETE = "annual_folder_templates:delete";
 
 /**
  * Literal global roles for director designation and annual succession.
@@ -164,9 +165,26 @@ export const clubsScreens: ScreenDefinition[] = [
     permissions: [VALIDATION_READ],
   }),
 
-  viewOnlyScreen("clubs-evidence-folders-templates", {
-    permissions: [EVIDENCE_FOLDERS_READ],
-  }),
+  {
+    id: "clubs-evidence-folders-templates",
+    surfaces: ["admin"],
+    viewAny: { permissions: [EVIDENCE_FOLDERS_READ] },
+    capabilities: [
+      // DELETE /annual-folders/templates/:templateId (draft only) —
+      // annual-folders.controller.ts @RequirePermissions('annual_folder_templates:delete')
+      {
+        id: "delete_draft",
+        kind: "button",
+        gate: { permissions: [ANNUAL_FOLDER_TEMPLATES_DELETE] },
+      },
+      // DELETE /annual-folders/templates/sections/:sectionId — same permission
+      {
+        id: "delete_section",
+        kind: "button",
+        gate: { permissions: [ANNUAL_FOLDER_TEMPLATES_DELETE] },
+      },
+    ],
+  },
   viewOnlyScreen("clubs-evidence-folders-list", {
     permissions: [EVIDENCE_FOLDERS_READ],
   }, { surfaces: ["admin", "app"] }),

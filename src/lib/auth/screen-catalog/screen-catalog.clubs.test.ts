@@ -84,3 +84,32 @@ describe("annual continuations", () => {
     expect(canCapability(reader, "annual_continuations", "enroll")).toBe(false);
   });
 });
+
+describe("clubs-evidence-folders-templates", () => {
+  const screen = "clubs-evidence-folders-templates";
+
+  it("hides delete_draft/delete_section from an admin without annual_folder_templates:delete", () => {
+    const admin = buildUser(["admin"], [
+      "evidence_folders:read",
+      "annual_folder_templates:read",
+      "annual_folder_templates:update",
+    ]);
+    expect(canViewScreen(admin, screen)).toBe(true);
+    expect(canCapability(admin, screen, "delete_draft")).toBe(false);
+    expect(canCapability(admin, screen, "delete_section")).toBe(false);
+  });
+
+  it("shows delete_draft/delete_section with annual_folder_templates:delete", () => {
+    const holder = buildUser(["admin"], [
+      "evidence_folders:read",
+      "annual_folder_templates:delete",
+    ]);
+    expect(canCapability(holder, screen, "delete_draft")).toBe(true);
+    expect(canCapability(holder, screen, "delete_section")).toBe(true);
+  });
+
+  it("lets super admin delete drafts", () => {
+    const sa = buildUser(["super-admin"], []);
+    expect(canCapability(sa, screen, "delete_draft")).toBe(true);
+  });
+});

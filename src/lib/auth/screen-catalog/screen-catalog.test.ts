@@ -61,6 +61,7 @@ const INLINE_KEYS = new Set([
   "evidence_folders:read",
   "annual_folders:evaluate",
   "annual_folder_templates:read",
+  "annual_folder_templates:delete",
 ]);
 
 describe("screen catalog integrity", () => {
