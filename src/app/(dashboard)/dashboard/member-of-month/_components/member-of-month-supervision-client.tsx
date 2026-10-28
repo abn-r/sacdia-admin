@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
@@ -145,95 +146,110 @@ export function MemberOfMonthSupervisionClient({
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         {/* Tipo de club */}
-        <Select
-          value={effectiveSearchParams.club_type_id ?? "all"}
-          onValueChange={(v) => handleFilter("club_type_id", v)}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={t("filterClubTypePlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
-            {clubTypes.map((ct) => (
-              <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
-                {ct.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="min-w-40 flex-1 basis-40 space-y-1.5">
+          <Label htmlFor="mom-filter-club-type">{t("filterClubTypePlaceholder")}</Label>
+          <Select
+            value={effectiveSearchParams.club_type_id ?? "all"}
+            onValueChange={(v) => handleFilter("club_type_id", v)}
+          >
+            <SelectTrigger id="mom-filter-club-type" className="w-full">
+              <SelectValue placeholder={t("filterClubTypePlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
+              {clubTypes.map((ct) => (
+                <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
+                  {ct.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Campo local */}
-        <Select
-          value={selectedLocalFieldId}
-          onValueChange={(v) => handleFilter("local_field_id", v)}
-          disabled={isLocalFieldLocked}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {!isLocalFieldLocked && (
-              <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
-            )}
-            {localFields.map((lf) => (
-              <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
-                {lf.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="min-w-48 flex-[1.5] basis-56 space-y-1.5">
+          <Label htmlFor="mom-filter-local-field">{t("filterLocalFieldPlaceholder")}</Label>
+          <Select
+            value={selectedLocalFieldId}
+            onValueChange={(v) => handleFilter("local_field_id", v)}
+            disabled={isLocalFieldLocked}
+          >
+            <SelectTrigger id="mom-filter-local-field" className="w-full">
+              <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {!isLocalFieldLocked && (
+                <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
+              )}
+              {localFields.map((lf) => (
+                <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
+                  {lf.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Año */}
-        <Select
-          value={effectiveSearchParams.year ?? String(new Date().getFullYear())}
-          onValueChange={(v) => handleFilter("year", v)}
-        >
-          <SelectTrigger className="w-28">
-            <SelectValue placeholder={t("filterYearPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
-              (y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ),
-            )}
-          </SelectContent>
-        </Select>
+        <div className="min-w-28 flex-none basis-32 space-y-1.5">
+          <Label htmlFor="mom-filter-year">{t("filterYearPlaceholder")}</Label>
+          <Select
+            value={effectiveSearchParams.year ?? String(new Date().getFullYear())}
+            onValueChange={(v) => handleFilter("year", v)}
+          >
+            <SelectTrigger id="mom-filter-year" className="w-full">
+              <SelectValue placeholder={t("filterYearPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
+                (y) => (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Mes */}
-        <Select
-          value={effectiveSearchParams.month ?? "all"}
-          onValueChange={(v) => handleFilter("month", v)}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder={t("filterMonthPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
-            {monthOptions.map((m) => (
-              <SelectItem key={m.value} value={m.value}>
-                {m.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="min-w-40 flex-1 basis-44 space-y-1.5">
+          <Label htmlFor="mom-filter-month">{t("filterMonthPlaceholder")}</Label>
+          <Select
+            value={effectiveSearchParams.month ?? "all"}
+            onValueChange={(v) => handleFilter("month", v)}
+          >
+            <SelectTrigger id="mom-filter-month" className="w-full">
+              <SelectValue placeholder={t("filterMonthPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
+              {monthOptions.map((m) => (
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Notificado */}
-        <Select
-          value={effectiveSearchParams.notified ?? "all"}
-          onValueChange={(v) => handleFilter("notified", v)}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder={t("filterNotifiedPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterNotifiedAll")}</SelectItem>
-            <SelectItem value="true">{t("filterNotifiedTrue")}</SelectItem>
-            <SelectItem value="false">{t("filterNotifiedFalse")}</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="min-w-40 flex-1 basis-44 space-y-1.5">
+          <Label htmlFor="mom-filter-notified">{t("filterNotifiedPlaceholder")}</Label>
+          <Select
+            value={effectiveSearchParams.notified ?? "all"}
+            onValueChange={(v) => handleFilter("notified", v)}
+          >
+            <SelectTrigger id="mom-filter-notified" className="w-full">
+              <SelectValue placeholder={t("filterNotifiedPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterNotifiedAll")}</SelectItem>
+              <SelectItem value="true">{t("filterNotifiedTrue")}</SelectItem>
+              <SelectItem value="false">{t("filterNotifiedFalse")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
