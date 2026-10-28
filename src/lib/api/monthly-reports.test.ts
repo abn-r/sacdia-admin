@@ -20,6 +20,7 @@ import {
   generateReport,
   listMonthlyReports,
   regenerateReport,
+  waitForMonthlyReport,
 } from "./monthly-reports";
 
 const report = {
@@ -68,7 +69,25 @@ describe("monthly reports API adapter", () => {
 
     const result = await generateReport(report.monthly_report_id);
 
-    expect(result.report_id).toBe(report.monthly_report_id);
+    expect(result.queued).toBe(false);
+    if (!result.queued) {
+      expect(result.report.report_id).toBe(report.monthly_report_id);
+    }
+  });
+
+  it("treats the 202 queued body as a job instead of an invalid report", async () => {
+    apiRequestFromClientMock.mockResolvedValueOnce({
+      status: "accepted",
+      data: { queued: true, monthly_report_id: report.monthly_report_id, status: "generated" },
+    });
+
+    const result = await regenerateReport(report.monthly_report_id);
+
+    expect(result).toEqual({
+      queued: true,
+      reportId: report.monthly_report_id,
+      status: "generated",
+    });
   });
 
   it("calls the dedicated regeneration endpoint and preserves artifact metadata", async () => {
@@ -92,7 +111,8 @@ describe("monthly reports API adapter", () => {
       `/monthly-reports/${report.monthly_report_id}/regenerate`,
       { method: "POST" },
     );
-    expect(result).toEqual(
+    expect(result.queued).toBe(false);
+    expect(!result.queued && result.report).toEqual(
       expect.objectContaining({
         pdf_r2_key: generated.pdf_r2_key,
         pdf_size_bytes: generated.pdf_size_bytes,
@@ -142,5 +162,56 @@ describe("monthly reports API adapter", () => {
       blob,
       filename,
     });
+  });
+});
+
+describe("waitForMonthlyReport", () => {
+  const url = `/monthly-reports/${report.monthly_report_id}`;
+  beforeEach(() => {
+    apiRequestFromClientMock.mockReset();
+  });
+  const envelope = (pdf: string | null) => ({
+    status: "success",
+    data: { ...report, status: "generated", pdf_generated_at: pdf },
+  });
+
+  it("polls GET until the predicate matches", async () => {
+    apiRequestFromClientMock
+      .mockResolvedValueOnce(envelope("old"))
+      .mockRejectedValueOnce(new Error("blip"))
+      .mockResolvedValueOnce(envelope("new"));
+
+    const result = await waitForMonthlyReport(
+      report.monthly_report_id,
+      (r) => r.pdf_generated_at === "new",
+      { intervalMs: 1, timeoutMs: 1000 },
+    );
+
+    expect(result?.pdf_generated_at).toBe("new");
+    expect(apiRequestFromClientMock).toHaveBeenCalledTimes(3);
+    expect(apiRequestFromClientMock).toHaveBeenCalledWith(url);
+  });
+
+  it("returns null after the bounded timeout", async () => {
+    apiRequestFromClientMock.mockResolvedValue(envelope("old"));
+
+    const result = await waitForMonthlyReport(
+      report.monthly_report_id,
+      () => false,
+      { intervalMs: 5, timeoutMs: 30 },
+    );
+
+    expect(result).toBeNull();
+  });
+
+  it("stops early when asked to", async () => {
+    const result = await waitForMonthlyReport(
+      report.monthly_report_id,
+      () => false,
+      { intervalMs: 1, timeoutMs: 1000, shouldStop: () => true },
+    );
+
+    expect(result).toBeNull();
+    expect(apiRequestFromClientMock).not.toHaveBeenCalled();
   });
 });

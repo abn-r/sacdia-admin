@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   getMonthlyReport,
+  previewMonthlyReport,
   type MonthlyReport,
 } from "@/lib/api/monthly-reports";
 
@@ -42,6 +43,21 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
       notFound();
     }
     throw error;
+  }
+
+  // The GET :id payload carries no `auto_data`. Generated/submitted reports show
+  // their frozen snapshot; drafts show the live preview (best effort).
+  if (report.status === "draft" && !report.auto_data) {
+    try {
+      const preview = await previewMonthlyReport(
+        report.enrollment_id,
+        report.month,
+        report.year,
+      );
+      report = { ...report, auto_data: preview.auto_data };
+    } catch {
+      // Preview is optional: the auto tab falls back to its empty state.
+    }
   }
 
   const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]) ?? String(report.month);
