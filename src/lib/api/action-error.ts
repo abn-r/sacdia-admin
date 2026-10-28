@@ -30,9 +30,7 @@ function extractErrorCode(error: ApiError): string | undefined {
 export function getActionErrorMessage(
   error: unknown,
   fallbackMessage: string,
-  // Kept for call-site compatibility: the route label is no longer shown to users.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _options: ActionErrorOptions = {},
+  options: ActionErrorOptions = {},
 ) {
   if (!(error instanceof ApiError)) {
     return error instanceof Error ? error.message : fallbackMessage;
@@ -48,6 +46,10 @@ export function getActionErrorMessage(
   }
 
   if (error.status === 404 || error.status === 405) {
+    // The route is for server logs only; users get a plain message.
+    console.warn(
+      `[action-error] ${error.status} on ${options.endpointLabel ?? "unknown route"}`,
+    );
     return "Esta acción no está disponible en este momento.";
   }
 
