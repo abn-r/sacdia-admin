@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -73,28 +73,38 @@ export function PaymentInstructionsPanel({
   const t = useTranslations("payment_orders");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [loading, setLoading] = useState(!requiresLocalFieldId);
+  // Global admins have nothing to show until a local field's config has been resolved.
+  const [loaded, setLoaded] = useState(!requiresLocalFieldId);
   const [saving, setSaving] = useState(false);
+  const requestRef = useRef(0);
 
   const load = useCallback(
     async (localFieldId?: number) => {
+      const requestId = ++requestRef.current;
       setLoading(true);
+      setLoaded(false);
       try {
         const config = await getPaymentOrderConfig(localFieldId);
+        if (requestId !== requestRef.current) return;
         setForm(toForm(config));
+        setLoaded(true);
       } catch (error) {
+        if (requestId !== requestRef.current) return;
         if (error instanceof ApiError && error.status === 404) {
           // No config yet for this local field — start with a blank form.
-          setForm((previous) => ({
+          setForm({
             ...EMPTY_FORM,
-            local_field_id: previous.local_field_id,
-          }));
+            local_field_id:
+              localFieldId !== undefined ? String(localFieldId) : "",
+          });
+          setLoaded(true);
         } else {
           toast.error(
             getPaymentOrderErrorMessage(error, t, "toasts.loadFailed"),
           );
         }
       } finally {
-        setLoading(false);
+        if (requestId === requestRef.current) setLoading(false);
       }
     },
     [t],
@@ -104,17 +114,14 @@ export function PaymentInstructionsPanel({
     if (!requiresLocalFieldId) void load();
   }, [requiresLocalFieldId, load]);
 
+  // A single reachable local field is preselected and loaded without asking.
+  const onlyFieldId =
+    localFieldOptions.length === 1 ? localFieldOptions[0].local_field_id : null;
   useEffect(() => {
-    if (!requiresLocalFieldId || localFieldOptions.length !== 1) {
-      return;
-    }
-    const onlyId = String(localFieldOptions[0].local_field_id);
-    setForm((previous) =>
-      previous.local_field_id === onlyId
-        ? previous
-        : { ...previous, local_field_id: onlyId },
-    );
-  }, [requiresLocalFieldId, localFieldOptions]);
+    if (!requiresLocalFieldId || onlyFieldId === null) return;
+    setForm({ ...EMPTY_FORM, local_field_id: String(onlyFieldId) });
+    void load(onlyFieldId);
+  }, [requiresLocalFieldId, onlyFieldId, load]);
 
   const set = (key: keyof FormState) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -168,12 +175,15 @@ export function PaymentInstructionsPanel({
             {localFieldOptions.length > 0 ? (
               <Select
                 value={form.local_field_id}
-                onValueChange={(value) =>
-                  setForm((previous) => ({ ...previous, local_field_id: value }))
-                }
+                onValueChange={(value) => {
+                  // Picking a field loads its config right away; reset first so
+                  // data from the previous field can never be saved onto this one.
+                  setForm({ ...EMPTY_FORM, local_field_id: value });
+                  void load(Number(value));
+                }}
               >
                 <SelectTrigger id="config-local-field" className="w-64">
-                  <SelectValue />
+                  <SelectValue placeholder={t("config.selectFieldPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {localFieldOptions.map((field) => (
@@ -197,19 +207,25 @@ export function PaymentInstructionsPanel({
               />
             )}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={localFieldMissing || loading}
-            onClick={() => void load(Number(form.local_field_id))}
-          >
-            {t("config.loadField")}
-          </Button>
+          {localFieldOptions.length === 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={localFieldMissing || loading}
+              onClick={() => void load(Number(form.local_field_id))}
+            >
+              {t("config.loadField")}
+            </Button>
+          )}
         </div>
       )}
 
       {loading ? (
         <p className="text-muted-foreground text-sm">{t("tray.loading")}</p>
+      ) : !loaded ? (
+        <p className="text-muted-foreground text-sm">
+          {t("config.selectFieldHint")}
+        </p>
       ) : (
         <>
           <fieldset className="space-y-3 rounded-lg border p-4">

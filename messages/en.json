@@ -8235,7 +8235,9 @@
     },
     "config": {
       "description": "Payment instructions printed on every order (bank transfer and/or Local Field cashier).",
-      "localField": "Local Field (ID)",
+      "localField": "Local field",
+      "selectFieldPlaceholder": "Select a local field",
+      "selectFieldHint": "Select a local field to view and edit its payment instructions.",
       "loadField": "Load",
       "bankSection": "Bank transfer",
       "bankName": "Bank",

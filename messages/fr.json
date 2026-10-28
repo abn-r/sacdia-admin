@@ -8235,7 +8235,9 @@
     },
     "config": {
       "description": "Instructions de paiement imprimées sur chaque ordre (virement bancaire et/ou caisse du Champ Local).",
-      "localField": "Champ Local (ID)",
+      "localField": "Champ local",
+      "selectFieldPlaceholder": "Sélectionnez un champ local",
+      "selectFieldHint": "Sélectionnez un champ local pour afficher et modifier ses instructions de paiement.",
       "loadField": "Charger",
       "bankSection": "Virement bancaire",
       "bankName": "Banque",

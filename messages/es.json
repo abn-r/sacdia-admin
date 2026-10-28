@@ -8235,7 +8235,9 @@
     },
     "config": {
       "description": "Instrucciones de pago que se imprimen en cada orden (transferencia bancaria y/o caja del Campo Local).",
-      "localField": "Campo Local (ID)",
+      "localField": "Campo local",
+      "selectFieldPlaceholder": "Selecciona un campo local",
+      "selectFieldHint": "Selecciona un campo local para ver y editar sus instrucciones de pago.",
       "loadField": "Cargar",
       "bankSection": "Transferencia bancaria",
       "bankName": "Banco",

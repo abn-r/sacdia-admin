@@ -8283,6 +8283,8 @@ export interface IntlMessages {
     config: {
       description: string;
       localField: string;
+      selectFieldPlaceholder: string;
+      selectFieldHint: string;
       loadField: string;
       bankSection: string;
       bankName: string;
