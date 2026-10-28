@@ -14,7 +14,55 @@ export type MonthlyReportEnrollmentId = string | number;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export type MonthlyReportDirectivaMember = {
+  user_id?: string | null;
+  name?: string | null;
+  role?: string | null;
+};
+
+export type MonthlyReportHonorDetail = {
+  honor_name?: string | null;
+  user_name?: string | null;
+  validated?: boolean | null;
+  date?: string | null;
+};
+
+export type MonthlyReportActivityItem = {
+  activity_id?: number | string | null;
+  name?: string | null;
+  type?: string | null;
+  date?: string | null;
+};
+
+/**
+ * Shape produced by the backend generator (`MonthlyReportsService.preview()` ->
+ * `auto_calculated`, frozen into `snapshot_data` on generate). It is NESTED.
+ * Every key is optional: readers must tolerate missing values.
+ *
+ * The legacy flat keys (`members_total`, `activities_count`, ...) are kept as
+ * optional fallbacks; the backend does not emit them today.
+ */
 export type MonthlyReportAutoData = {
+  member_count?: number | null;
+  directiva?: MonthlyReportDirectivaMember[] | null;
+  honors?: {
+    started?: number | null;
+    completed?: number | null;
+    details?: MonthlyReportHonorDetail[] | null;
+  } | null;
+  activities?: {
+    total?: number | null;
+    list?: MonthlyReportActivityItem[] | null;
+  } | null;
+  finances?: {
+    income?: number | null;
+    expenses?: number | null;
+    balance?: number | null;
+    total_balance?: number | null;
+    transactions?: number | null;
+  } | null;
+  meeting_days?: string | null;
+  // Legacy flat keys (not emitted by the backend generator)
   activities_count?: number | null;
   honors_earned?: number | null;
   classes_completed?: number | null;
@@ -107,16 +155,25 @@ export type UpdateManualDataPayload = MonthlyReportManualData;
 /**
  * GET /api/v1/monthly-reports/preview/:enrollmentId?month=&year=
  * Live preview of auto-calculated data. Server-side safe.
+ * Backend answers `{ status, data: { enrollment, month, year, auto_calculated } }`.
  */
 export async function previewMonthlyReport(
   enrollmentId: MonthlyReportEnrollmentId,
   month: number,
   year: number,
 ): Promise<MonthlyReportPreview> {
-  return apiRequest<MonthlyReportPreview>(
-    `/monthly-reports/preview/${encodeURIComponent(String(enrollmentId))}`,
-    { params: { month, year } },
-  );
+  const envelope = await apiRequest<
+    ApiEnvelope<{ auto_calculated?: MonthlyReportAutoData | null }>
+  >(`/monthly-reports/preview/${encodeURIComponent(String(enrollmentId))}`, {
+    params: { month, year },
+  });
+
+  return {
+    enrollment_id: enrollmentId,
+    month,
+    year,
+    auto_data: envelope.data?.auto_calculated ?? {},
+  };
 }
 
 /**
@@ -190,30 +247,119 @@ export async function updateManualData(
 }
 
 /**
- * POST /api/v1/monthly-reports/:reportId/generate
- * Freeze snapshot. Client-side only (mutation).
+ * Result of generate/regenerate. The backend answers 202 with
+ * `{ status: "accepted", data: { queued: true, monthly_report_id, status } }`
+ * when the job was enqueued (poll GET :reportId), or `{ status: "success",
+ * data: <report> }` when it ran inline (no Redis).
  */
-export async function generateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
-  const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
-    `/monthly-reports/${encodeURIComponent(reportId)}/generate`,
-    { method: "POST" },
-  );
+export type MonthlyReportJobResult =
+  | { queued: true; reportId: MonthlyReportId; status: string }
+  | { queued: false; report: MonthlyReport };
 
-  return normalizeMonthlyReport(envelope.data);
+type BackendQueuedJob = {
+  queued: true;
+  monthly_report_id: string;
+  status: string;
+};
+
+function isQueuedJob(data: unknown): data is BackendQueuedJob {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    (data as { queued?: unknown }).queued === true &&
+    typeof (data as { monthly_report_id?: unknown }).monthly_report_id === "string"
+  );
+}
+
+function normalizeJobResponse(
+  envelope: ApiEnvelope<BackendMonthlyReport | BackendQueuedJob>,
+): MonthlyReportJobResult {
+  const data = envelope.data;
+  if (isQueuedJob(data)) {
+    return { queued: true, reportId: data.monthly_report_id, status: data.status };
+  }
+  return { queued: false, report: normalizeMonthlyReport(data as BackendMonthlyReport) };
+}
+
+/**
+ * POST /api/v1/monthly-reports/:reportId/generate
+ * Freeze snapshot. Answers 202 (queued) or the report (inline).
+ * Client-side only (mutation).
+ */
+export async function generateReport(reportId: MonthlyReportId): Promise<MonthlyReportJobResult> {
+  const envelope = await apiRequestFromClient<
+    ApiEnvelope<BackendMonthlyReport | BackendQueuedJob>
+  >(`/monthly-reports/${encodeURIComponent(reportId)}/generate`, { method: "POST" });
+
+  return normalizeJobResponse(envelope);
 }
 
 /**
  * POST /api/v1/monthly-reports/:reportId/regenerate
  * Re-render the frozen snapshot and overwrite the canonical private PDF artifact.
+ * Answers 202 (queued) or the report (inline). Only `pdf_*` fields change;
+ * `generated_at` and `snapshot_data` stay as they were.
  * Client-side only (mutation).
  */
-export async function regenerateReport(reportId: MonthlyReportId): Promise<MonthlyReport> {
+export async function regenerateReport(reportId: MonthlyReportId): Promise<MonthlyReportJobResult> {
+  const envelope = await apiRequestFromClient<
+    ApiEnvelope<BackendMonthlyReport | BackendQueuedJob>
+  >(`/monthly-reports/${encodeURIComponent(reportId)}/regenerate`, { method: "POST" });
+
+  return normalizeJobResponse(envelope);
+}
+
+/**
+ * GET /api/v1/monthly-reports/:reportId from the browser (used for polling
+ * queued jobs). Client-side only.
+ */
+export async function fetchMonthlyReportFromClient(
+  reportId: MonthlyReportId,
+): Promise<MonthlyReport> {
   const envelope = await apiRequestFromClient<ApiEnvelope<BackendMonthlyReport>>(
-    `/monthly-reports/${encodeURIComponent(reportId)}/regenerate`,
-    { method: "POST" },
+    `/monthly-reports/${encodeURIComponent(reportId)}`,
   );
 
   return normalizeMonthlyReport(envelope.data);
+}
+
+export const REPORT_JOB_POLL_INTERVAL_MS = 2000;
+export const REPORT_JOB_POLL_TIMEOUT_MS = 60_000;
+
+/**
+ * Polls GET :reportId until `isDone(report)` is true. Resolves with the fresh
+ * report, or `null` when the bounded timeout elapses (or `shouldStop()` is
+ * true). Transient fetch errors are tolerated until the timeout.
+ */
+export async function waitForMonthlyReport(
+  reportId: MonthlyReportId,
+  isDone: (report: MonthlyReport) => boolean,
+  options: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    shouldStop?: () => boolean;
+  } = {},
+): Promise<MonthlyReport | null> {
+  const {
+    intervalMs = REPORT_JOB_POLL_INTERVAL_MS,
+    timeoutMs = REPORT_JOB_POLL_TIMEOUT_MS,
+    shouldStop,
+  } = options;
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    if (shouldStop?.()) return null;
+
+    try {
+      const fresh = await fetchMonthlyReportFromClient(reportId);
+      if (isDone(fresh)) return fresh;
+    } catch {
+      // Transient error while polling: keep trying until the deadline.
+    }
+  }
+
+  return null;
 }
 
 /**

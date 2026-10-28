@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -26,10 +26,23 @@ import {
   regenerateReport,
   submitReport,
   triggerMonthlyReportPdfDownload,
+  waitForMonthlyReport,
   type MonthlyReport,
   type MonthlyReportAutoData,
+  type MonthlyReportJobResult,
 } from "@/lib/api/monthly-reports";
-import { useFormatDateTime } from "@/lib/format-locale";
+import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
+import {
+  hasReportAutoData,
+  readReportAutoData,
+  type ReportAutoSummary,
+} from "@/components/reports/report-auto-data";
+
+const REPORT_DAY_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+};
 
 const REPORT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "2-digit",
@@ -77,20 +90,61 @@ function AutoDataCard({
   );
 }
 
+function DetailList({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ key: string; primary: string; secondary?: string }>;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="divide-y text-sm">
+          {items.map((item) => (
+            <li key={item.key} className="flex items-baseline justify-between gap-4 py-2">
+              <span className="font-medium">{item.primary}</span>
+              {item.secondary && (
+                <span className="text-xs text-muted-foreground">{item.secondary}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
 function AutoDataSection({
   data,
   title,
   noDataMessage,
   autoDataDescription,
   rows,
+  summary,
+  formatDay,
+  labels,
 }: {
   data?: MonthlyReportAutoData | null;
   title: string;
   noDataMessage: string;
   autoDataDescription: string;
   rows: AutoDataRow[];
+  summary: ReportAutoSummary;
+  formatDay: (value: string) => string;
+  labels: {
+    directiva: string;
+    activities: string;
+    honors: string;
+    honorValidated: string;
+    honorPending: string;
+  };
 }) {
-  if (!data) {
+  if (!hasReportAutoData(data)) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
         {noDataMessage}
@@ -98,12 +152,42 @@ function AutoDataSection({
     );
   }
 
+  const dated = (value?: string | null) => (value ? formatDay(value) : undefined);
+
   return (
-    <AutoDataCard
-      title={title}
-      description={autoDataDescription}
-      rows={rows}
-    />
+    <>
+      <AutoDataCard title={title} description={autoDataDescription} rows={rows} />
+      <DetailList
+        title={labels.directiva}
+        items={summary.directiva.map((member, index) => ({
+          key: `${member.user_id ?? "member"}-${index}`,
+          primary: member.name ?? "—",
+          secondary: member.role ?? undefined,
+        }))}
+      />
+      <DetailList
+        title={labels.activities}
+        items={summary.activityList.map((activity, index) => ({
+          key: `${activity.activity_id ?? "activity"}-${index}`,
+          primary: activity.name ?? "—",
+          secondary: [activity.type, dated(activity.date)].filter(Boolean).join(" · ") || undefined,
+        }))}
+      />
+      <DetailList
+        title={labels.honors}
+        items={summary.honorDetails.map((honor, index) => ({
+          key: `${honor.honor_name ?? "honor"}-${index}`,
+          primary: [honor.honor_name, honor.user_name].filter(Boolean).join(" — ") || "—",
+          secondary:
+            [
+              honor.validated ? labels.honorValidated : labels.honorPending,
+              dated(honor.date),
+            ]
+              .filter(Boolean)
+              .join(" · ") || undefined,
+        }))}
+      />
+    </>
   );
 }
 
@@ -123,6 +207,15 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const formatNumber = useFormatNumber();
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const statusIntent =
     report.status === "submitted"
@@ -137,20 +230,56 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
+    const toastId = `report-job-${report.report_id}`;
+    const regenerating = isGenerated;
+    // regenerate only re-renders the PDF (generated_at/snapshot stay), so its
+    // completion marker is a new pdf_generated_at; generate flips status.
+    const previousPdfAt = report.pdf_generated_at ?? null;
+
     try {
-      const updated = await (isGenerated
+      const result: MonthlyReportJobResult = await (regenerating
         ? regenerateReport(report.report_id)
         : generateReport(report.report_id));
-      setReport(updated);
-      toast.success(t("toasts.report_generated"));
+
+      let fresh: MonthlyReport | null;
+      if (result.queued) {
+        toast.loading(
+          t(regenerating ? "toasts.report_regenerating" : "toasts.report_generating"),
+          { id: toastId },
+        );
+        fresh = await waitForMonthlyReport(
+          report.report_id,
+          (candidate) =>
+            regenerating
+              ? (candidate.pdf_generated_at ?? null) !== previousPdfAt
+              : candidate.status !== "draft",
+          { shouldStop: () => !mountedRef.current },
+        );
+        if (!mountedRef.current) {
+          toast.dismiss(toastId);
+          return;
+        }
+        if (!fresh) {
+          toast.error(t("errors.job_timeout"), { id: toastId });
+          return;
+        }
+      } else {
+        fresh = result.report;
+      }
+
+      setReport(fresh);
+      toast.success(
+        t(regenerating ? "toasts.report_regenerated" : "toasts.report_generated"),
+        { id: toastId },
+      );
       router.refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : t("errors.generate_report");
-      toast.error(message);
+      toast.error(message, { id: toastId });
     } finally {
-      setGenerating(false);
+      if (mountedRef.current) setGenerating(false);
     }
-  }, [isGenerated, report.report_id, router, t]);
+  }, [isGenerated, report.report_id, report.pdf_generated_at, router, t]);
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
@@ -180,33 +309,51 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
     }
   }, [report.report_id, t]);
 
-  const autoDataRows: AutoDataRow[] = [
-    { label: t("detail.fieldTotalMembers"), value: report.auto_data?.members_total },
-    { label: t("detail.fieldActiveMembers"), value: report.auto_data?.members_active },
-    { label: t("detail.fieldActivities"), value: report.auto_data?.activities_count },
-    { label: t("detail.fieldHonorsEarned"), value: report.auto_data?.honors_earned },
-    { label: t("detail.fieldClassesCompleted"), value: report.auto_data?.classes_completed },
-    {
-      label: t("detail.fieldAttendanceRate"),
-      value: report.auto_data?.attendance_rate != null
-        ? `${Number(report.auto_data.attendance_rate).toFixed(1)}%`
-        : null,
-    },
-  ];
+  const buildRows = (summary: ReportAutoSummary): AutoDataRow[] => {
+    const num = (value: number | null) => (value !== null ? formatNumber(value) : null);
+    const rows: AutoDataRow[] = [
+      { label: t("detail.fieldTotalMembers"), value: num(summary.members) },
+      { label: t("detail.fieldActivities"), value: num(summary.activities) },
+      { label: t("detail.fieldHonorsStarted"), value: num(summary.honorsStarted) },
+      { label: t("detail.fieldHonorsCompleted"), value: num(summary.honorsCompleted) },
+      { label: t("detail.fieldIncome"), value: num(summary.income) },
+      { label: t("detail.fieldExpenses"), value: num(summary.expenses) },
+      { label: t("detail.fieldBalance"), value: num(summary.balance) },
+      { label: t("detail.fieldTotalBalance"), value: num(summary.totalBalance) },
+      { label: t("detail.fieldTransactions"), value: num(summary.transactions) },
+      { label: t("detail.fieldMeetingDays"), value: summary.meetingDays },
+    ];
+    // Legacy flat fields: only shown when a payload actually carries them.
+    if (summary.membersActive !== null) {
+      rows.push({ label: t("detail.fieldActiveMembers"), value: num(summary.membersActive) });
+    }
+    if (summary.classesCompleted !== null) {
+      rows.push({ label: t("detail.fieldClassesCompleted"), value: num(summary.classesCompleted) });
+    }
+    if (summary.attendanceRate !== null) {
+      rows.push({
+        label: t("detail.fieldAttendanceRate"),
+        value: `${summary.attendanceRate.toFixed(1)}%`,
+      });
+    }
+    return rows;
+  };
 
-  const snapshotRows: AutoDataRow[] = [
-    { label: t("detail.fieldTotalMembers"), value: report.snapshot_data?.members_total },
-    { label: t("detail.fieldActiveMembers"), value: report.snapshot_data?.members_active },
-    { label: t("detail.fieldActivities"), value: report.snapshot_data?.activities_count },
-    { label: t("detail.fieldHonorsEarned"), value: report.snapshot_data?.honors_earned },
-    { label: t("detail.fieldClassesCompleted"), value: report.snapshot_data?.classes_completed },
-    {
-      label: t("detail.fieldAttendanceRate"),
-      value: report.snapshot_data?.attendance_rate != null
-        ? `${Number(report.snapshot_data.attendance_rate).toFixed(1)}%`
-        : null,
-    },
-  ];
+  // GET :id returns the frozen snapshot but no live auto_data: the auto tab
+  // falls back to the snapshot for generated/submitted reports.
+  const autoData = report.auto_data ?? report.snapshot_data ?? null;
+  const autoSummary = readReportAutoData(autoData);
+  const snapshotSummary = readReportAutoData(report.snapshot_data);
+  const autoDataRows = buildRows(autoSummary);
+  const snapshotRows = buildRows(snapshotSummary);
+  const sectionLabels = {
+    directiva: t("detail.sectionDirectiva"),
+    activities: t("detail.sectionActivities"),
+    honors: t("detail.sectionHonors"),
+    honorValidated: t("detail.honorValidated"),
+    honorPending: t("detail.honorPending"),
+  };
+  const formatDay = (value: string) => formatDate(value, REPORT_DAY_OPTIONS);
 
   return (
     <div className="space-y-6">
@@ -307,11 +454,18 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
         {/* Auto-calculated data */}
         <TabsContent value="auto" className="mt-4 space-y-4">
           <AutoDataSection
-            data={report.auto_data}
-            title={t("detail.autoDataLiveTitle")}
+            data={autoData}
+            title={
+              report.auto_data
+                ? t("detail.autoDataLiveTitle")
+                : t("detail.autoDataSnapshotTitle")
+            }
             noDataMessage={t("detail.noAutoData")}
             autoDataDescription={t("detail.autoDataDescription")}
             rows={autoDataRows}
+            summary={autoSummary}
+            formatDay={formatDay}
+            labels={sectionLabels}
           />
         </TabsContent>
 
@@ -336,6 +490,9 @@ export function ReportDetailClient({ report: initialReport }: ReportDetailClient
               noDataMessage={t("detail.noAutoData")}
               autoDataDescription={t("detail.autoDataDescription")}
               rows={snapshotRows}
+              summary={snapshotSummary}
+              formatDay={formatDay}
+              labels={sectionLabels}
             />
           </TabsContent>
         )}

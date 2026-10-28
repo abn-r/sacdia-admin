@@ -45,6 +45,7 @@ import {
   generateReport,
   submitReport,
   triggerMonthlyReportPdfDownload,
+  waitForMonthlyReport,
   type MonthlyReport,
   type ReportStatus,
 } from "@/lib/api/monthly-reports";
@@ -167,9 +168,18 @@ export function ReportsListClient({ enrollmentId }: ReportsListClientProps) {
   });
 
   const generateMutation = useMutation({
-    mutationFn: (report: MonthlyReport) => {
+    mutationFn: async (report: MonthlyReport) => {
       setActionLoading((prev) => ({ ...prev, [report.report_id]: "generate" }));
-      return generateReport(report.report_id);
+      const result = await generateReport(report.report_id);
+      if (!result.queued) return;
+      // 202: the job is queued; announce success only once the report leaves draft.
+      const toastId = toast.loading(t("toasts.report_generating"));
+      const fresh = await waitForMonthlyReport(
+        report.report_id,
+        (candidate) => candidate.status !== "draft",
+      );
+      toast.dismiss(toastId);
+      if (!fresh) throw new Error(t("errors.job_timeout"));
     },
     onSuccess: (_, report) => {
       toast.success(

@@ -56,6 +56,7 @@ import {
 import { TemplateFormDialog } from "@/components/annual-folders/template-form-dialog";
 import type { SectionFormDialogProps } from "@/components/annual-folders/section-form-dialog";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 
 const SectionFormDialog = dynamic<SectionFormDialogProps>(
   () =>
@@ -180,6 +181,16 @@ export function TemplatesClientPage({
   territoryScope,
 }: TemplatesClientPageProps) {
   const t = useTranslations("annual_folders");
+  const { canCapability } = useScreenAccess();
+  // DELETE draft/section need annual_folder_templates:delete (backend 403s otherwise).
+  const canDeleteDraft = canCapability(
+    "clubs-evidence-folders-templates",
+    "delete_draft",
+  );
+  const canDeleteSection = canCapability(
+    "clubs-evidence-folders-templates",
+    "delete_section",
+  );
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -721,16 +732,18 @@ export function TemplatesClientPage({
                     ? t("templatesClientPage.publishLoading")
                     : t("templatesClientPage.publishButton")}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => handleDeleteTemplate(activeTemplate)}
-                  disabled={isLoadingDetail}
-                >
-                  <Trash2 className="size-4" />
-                  Eliminar borrador
-                </Button>
+                {canDeleteDraft && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleDeleteTemplate(activeTemplate)}
+                    disabled={isLoadingDetail}
+                  >
+                    <Trash2 className="size-4" />
+                    Eliminar borrador
+                  </Button>
+                )}
               </>
             ) : (
               <Button
@@ -853,12 +866,16 @@ export function TemplatesClientPage({
                                 icon: Pencil,
                                 onSelect: () => handleEditSection(section),
                               },
-                              {
-                                label: `${t("templates.deleteSection")}…`,
-                                icon: Trash2,
-                                destructive: true,
-                                onSelect: () => handleDeleteSection(section),
-                              },
+                              ...(canDeleteSection
+                                ? [
+                                    {
+                                      label: `${t("templates.deleteSection")}…`,
+                                      icon: Trash2,
+                                      destructive: true,
+                                      onSelect: () => handleDeleteSection(section),
+                                    },
+                                  ]
+                                : []),
                             ]}
                           />
                         ) : (
@@ -908,18 +925,20 @@ export function TemplatesClientPage({
                               {t("templates.editSection")}
                             </span>
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => handleDeleteSection(section)}
-                            title={t("templates.deleteSection")}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                            <span className="sr-only">
-                              {t("templates.deleteSection")}
-                            </span>
-                          </Button>
+                          {canDeleteSection && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => handleDeleteSection(section)}
+                              title={t("templates.deleteSection")}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="size-3.5" />
+                              <span className="sr-only">
+                                {t("templates.deleteSection")}
+                              </span>
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1272,16 +1291,18 @@ export function TemplatesClientPage({
                               <CheckCircle2 className="size-3.5" />
                               <span className="sr-only">Publicar plantilla</span>
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={(e) => handleDeleteTemplate(template, e)}
-                              title={t("templatesClientPage.deleteDraftTitle")}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="size-3.5" />
-                              <span className="sr-only">Eliminar borrador</span>
-                            </Button>
+                            {canDeleteDraft && (
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={(e) => handleDeleteTemplate(template, e)}
+                                title={t("templatesClientPage.deleteDraftTitle")}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="size-3.5" />
+                                <span className="sr-only">Eliminar borrador</span>
+                              </Button>
+                            )}
                           </>
                         ) : (
                           <Button

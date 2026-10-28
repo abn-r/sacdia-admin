@@ -29,6 +29,8 @@ import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
+import { useAuth } from "@/lib/auth/auth-context";
+import { canEvaluateMemberOfMonth } from "@/lib/member-of-month/evaluate-access";
 import { useFormatDate, useFormatNumber } from "@/lib/format-locale";
 
 function getInitials(name: string | null): string {
@@ -74,6 +76,8 @@ type DialogTarget = {
   clubId: number;
   sectionId: number;
   sectionName: string;
+  month: number;
+  year: number;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -87,6 +91,7 @@ export function MemberOfMonthSupervisionClient({
 }: MemberOfMonthSupervisionClientProps) {
   const t = useTranslations("member_of_month.supervision");
   const router = useRouter();
+  const { user } = useAuth();
   const formatDate = useFormatDate();
   const formatNumber = useFormatNumber();
 
@@ -300,12 +305,16 @@ export function MemberOfMonthSupervisionClient({
                           label: t("reevaluateButton"),
                           icon: RefreshCw,
                           disabled: item.club_id === null,
+                          // Backend: mom:evaluate + active director role in THIS section.
+                          hidden: !canEvaluateMemberOfMonth(user, item.club_section_id),
                           onSelect: () => {
                             if (item.club_id === null) return;
                             setDialogTarget({
                               clubId: item.club_id,
                               sectionId: item.club_section_id,
                               sectionName: item.section_name ?? "sección",
+                              month: item.month,
+                              year: item.year,
                             });
                           },
                         },
@@ -361,6 +370,8 @@ export function MemberOfMonthSupervisionClient({
           clubId={dialogTarget.clubId}
           sectionId={dialogTarget.sectionId}
           sectionName={dialogTarget.sectionName}
+          defaultMonth={dialogTarget.month}
+          defaultYear={dialogTarget.year}
           onSuccess={() => {
             setDialogTarget(null);
             router.refresh();

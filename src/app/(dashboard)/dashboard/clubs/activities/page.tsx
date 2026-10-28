@@ -4,7 +4,7 @@ import { ActivitiesCalendarClient } from "@/components/activities/activities-cal
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { listActivities } from "@/lib/api/activities";
-import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
+import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import {
   extractArray,
   normalizeActivities,
@@ -86,7 +86,7 @@ export default async function ClubActivitiesPage({
   let initialActivities: ReturnType<typeof normalizeActivities> = [];
   let loadError: string | null = null;
 
-  const localFields = await listAdminLocalFields().catch(() => []);
+  const localFields = await listLocalFieldsForTerritory(user).catch(() => []);
   const localFieldOptions = localFields.map((localField) => ({
     label: localField.name,
     value: localField.local_field_id,

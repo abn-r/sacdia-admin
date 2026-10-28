@@ -4,6 +4,8 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
+import { listCoordinationZones, listCoordinatorAssignments } from "@/lib/api/coordination";
+import { listAdminUsers } from "@/lib/api/admin-users";
 
 const mocks = vi.hoisted(() => ({
   listAdminDistricts: vi.fn(),
@@ -101,5 +103,52 @@ describe("CoordinationAdminClient", () => {
       await screen.findByText(messages.coordinationAdmin.zones.title),
     ).toBeInTheDocument();
     expect(mocks.toastError).not.toHaveBeenCalled();
+  });
+
+  it("shows a skeleton, never the empty states, until zones/assignments settle", async () => {
+    let resolveZones!: (value: never[]) => void;
+    let resolveAssignments!: (value: never[]) => void;
+    vi.mocked(listCoordinationZones).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveZones = resolve;
+      }),
+    );
+    vi.mocked(listCoordinatorAssignments).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveAssignments = resolve;
+      }),
+    );
+
+    renderForLocalFieldDirector();
+
+    // Synchronously after mount (before the effect settles) and while pending.
+    expect(screen.getByTestId("coordination-loading")).toBeInTheDocument();
+    expect(screen.queryByText(messages.coordinationAdmin.zones.empty)).toBeNull();
+    expect(screen.queryByText(messages.coordinationAdmin.assignments.empty)).toBeNull();
+
+    await waitFor(() => expect(mocks.listDistricts).toHaveBeenCalled());
+    expect(screen.getByTestId("coordination-loading")).toBeInTheDocument();
+    expect(screen.queryByText(messages.coordinationAdmin.zones.empty)).toBeNull();
+
+    resolveZones([]);
+    resolveAssignments([]);
+
+    expect(
+      await screen.findByText(messages.coordinationAdmin.zones.empty),
+    ).toBeInTheDocument();
+    expect(screen.getByText(messages.coordinationAdmin.assignments.empty)).toBeInTheDocument();
+    expect(screen.queryByTestId("coordination-loading")).toBeNull();
+  });
+
+  it("loads coordinators once per role per mount", async () => {
+    renderForLocalFieldDirector();
+
+    expect(
+      await screen.findByText(messages.coordinationAdmin.zones.empty),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(listAdminUsers).toHaveBeenCalled());
+
+    const roles = vi.mocked(listAdminUsers).mock.calls.map(([query]) => query?.role);
+    expect(roles.sort()).toEqual(["coordinator", "general-coordinator", "zone-coordinator"]);
   });
 });

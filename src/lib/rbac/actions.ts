@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import type { RbacActionState } from "@/lib/rbac/types";
+import { isRoleNameValidationError, validateRoleName } from "@/lib/rbac/role-name";
 import {
   createPermission,
   updatePermission,
@@ -190,16 +191,12 @@ export async function createRoleAction(
     ? String(permissionIdsRaw).split(",").filter(Boolean)
     : [];
 
-  if (!roleName) {
-    return { error: t("validation.role_name_required") };
-  }
-
-  if (!/^[a-z][a-z0-9-]{1,62}[a-z0-9]$/.test(roleName)) {
-    return { error: t("validation.role_name_format") };
-  }
-
-  if (roleName === "super-admin") {
-    return { error: t("validation.role_name_reserved") };
+  const roleNameError = validateRoleName(roleName);
+  if (roleNameError) {
+    return {
+      error: t(`validation.role_name_${roleNameError}`),
+      field: "role_name",
+    };
   }
 
   if (description.length < 10) {
@@ -222,6 +219,10 @@ export async function createRoleAction(
       permission_ids: permissionIds.length > 0 ? permissionIds : undefined,
     });
   } catch (error) {
+    // Backend DTO validation about the name: show our localized message on the field.
+    if (isRoleNameValidationError(error)) {
+      return { error: t("validation.role_name_format"), field: "role_name" };
+    }
     return {
       error: getActionErrorMessage(error, t("errors.create_role_failed"), {
         endpointLabel: "/rbac/roles",

@@ -5130,12 +5130,16 @@ export interface IntlMessages {
     toasts: {
       manual_data_saved: string;
       report_generated: string;
+      report_generating: string;
+      report_regenerating: string;
+      report_regenerated: string;
       report_sent: string;
       data_updated: string;
     };
     errors: {
       save_manual_data: string;
       generate_report: string;
+      job_timeout: string;
       send_report: string;
       load_reports: string;
       create_report: string;
@@ -5213,6 +5217,19 @@ export interface IntlMessages {
       fieldHonorsEarned: string;
       fieldClassesCompleted: string;
       fieldAttendanceRate: string;
+      fieldHonorsStarted: string;
+      fieldHonorsCompleted: string;
+      fieldIncome: string;
+      fieldExpenses: string;
+      fieldBalance: string;
+      fieldTotalBalance: string;
+      fieldTransactions: string;
+      fieldMeetingDays: string;
+      sectionDirectiva: string;
+      sectionActivities: string;
+      sectionHonors: string;
+      honorValidated: string;
+      honorPending: string;
     };
     manualData: {
       sectionAdmin: string;
@@ -5470,6 +5487,9 @@ export interface IntlMessages {
       prompt_select: string;
       loading: string;
       insured_count: string;
+      legacy_disabled_title: string;
+      legacy_disabled_description: string;
+      legacy_disabled_link: string;
     };
     expiring: {
       filter_label: string;
@@ -8477,6 +8497,9 @@ export interface IntlMessages {
       authorizePlaceholder: string;
       confirmAuthorize: string;
       cancel: string;
+      approveConfirmTitle: string;
+      approveConfirmDescription: string;
+      approveConfirmAction: string;
     };
     catalog: {
       empty: string;
@@ -8630,6 +8653,10 @@ export interface IntlMessages {
       close: string;
       deliver: string;
       markPaid: string;
+      markPaidConfirmTitle: string;
+      markPaidConfirmDescription: string;
+      markPaidConfirmAction: string;
+      cancel: string;
     };
     catalog: {
       title: string;

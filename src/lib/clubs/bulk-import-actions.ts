@@ -5,7 +5,8 @@ import { getTranslations } from "next-intl/server";
 
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { createClub } from "@/lib/api/clubs";
-import { listAdminClubTypes } from "@/lib/api/admin-club-types";
+import { listClubTypes } from "@/lib/api/catalogs";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import { canCreateClubs } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
@@ -83,8 +84,12 @@ export async function bulkCreateClubsAction(
 
   let enabledClubTypeIds: number[] = [];
   try {
-    const catalogTypes = await listAdminClubTypes();
-    enabledClubTypeIds = catalogTypes
+    // Public catalog: /admin/club-types answers 403 to non-admin roles that
+    // are allowed to bulk-import clubs (director-lf, union, division).
+    const catalogTypes = unwrapApiData<{ club_type_id: number; active?: boolean }[] | null>(
+      await listClubTypes(),
+    );
+    enabledClubTypeIds = (catalogTypes ?? [])
       .filter((type) => type.active !== false)
       .map((type) => type.club_type_id)
       .filter((id) => Number.isFinite(id) && id > 0);

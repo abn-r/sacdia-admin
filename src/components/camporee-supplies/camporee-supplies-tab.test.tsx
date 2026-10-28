@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
@@ -183,8 +183,28 @@ describe("CamporeeSuppliesTab", () => {
     await user.click(screen.getByRole("button", { name: "Ver detalle" }));
     await user.click(screen.getByRole("button", { name: "Marcar pagado" }));
 
+    // Confirmation first: nothing is recorded until the operator confirms.
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText(/INS20260001/)).toBeInTheDocument();
+    expect(mockMarkPaid).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole("button", { name: "Confirmar pago" }));
+
     await waitFor(() => {
       expect(mockMarkPaid).toHaveBeenCalledWith("pay-1");
     });
+  });
+
+  it("does not mark paid when the confirmation is cancelled", async () => {
+    const user = userEvent.setup();
+    renderTab();
+    await screen.findByText("INS20260001");
+
+    await user.click(screen.getByRole("button", { name: "Ver detalle" }));
+    await user.click(screen.getByRole("button", { name: "Marcar pagado" }));
+    const dialog = await screen.findByRole("alertdialog");
+    await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
+
+    expect(mockMarkPaid).not.toHaveBeenCalled();
   });
 });

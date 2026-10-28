@@ -88,6 +88,8 @@ interface RenderOpts {
   clubId?: number;
   sectionId?: number;
   sectionName?: string;
+  defaultMonth?: number;
+  defaultYear?: number;
   onSuccess?: ReturnType<typeof vi.fn>;
 }
 
@@ -97,6 +99,8 @@ function renderDialog(opts: RenderOpts = {}) {
     clubId = CLUB_ID,
     sectionId = SECTION_ID,
     sectionName = SECTION_NAME,
+    defaultMonth,
+    defaultYear,
     onSuccess,
   } = opts;
   const onOpenChange = vi.fn();
@@ -110,6 +114,8 @@ function renderDialog(opts: RenderOpts = {}) {
         clubId={clubId}
         sectionId={sectionId}
         sectionName={sectionName}
+        defaultMonth={defaultMonth}
+        defaultYear={defaultYear}
         onSuccess={successCb}
       />
     </NextIntlClientProvider>,
@@ -163,6 +169,30 @@ describe("EvaluateMemberOfMonthDialog", () => {
     // There should be a month trigger and year trigger (Radix Select renders as role=combobox)
     const comboboxes = screen.getAllByRole("combobox");
     expect(comboboxes.length).toBeGreaterThanOrEqual(2);
+  });
+
+  // ── 3b. Prefills the row's period and offers no duplicated years ──────────
+
+  it("prefills the given period (even an old year) and lists each year once", async () => {
+    renderDialog({ defaultMonth: 3, defaultYear: 2019 });
+
+    const yearOptions = Array.from(
+      document.querySelectorAll("select")[1]?.querySelectorAll("option") ?? [],
+    )
+      .map((o) => o.value)
+      .filter(Boolean);
+    expect(new Set(yearOptions).size).toBe(yearOptions.length);
+    expect(yearOptions).toContain("2019");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /evaluar/i }));
+    });
+    await waitFor(() => {
+      expect(mockEvaluate).toHaveBeenCalledWith(CLUB_ID, SECTION_ID, {
+        month: 3,
+        year: 2019,
+      });
+    });
   });
 
   // ── 4. Happy path — calls evaluateMemberOfMonth with correct args ─────────

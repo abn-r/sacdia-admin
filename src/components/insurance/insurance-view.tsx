@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { RefreshCw, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { InsuranceTable } from "@/components/insurance/insurance-table";
 import { apiRequestFromClient, ApiError } from "@/lib/api/client";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import type { MemberInsurance } from "@/lib/api/insurance";
+import { isLegacyInsuranceBlocked } from "@/lib/insurance/payment-orders-flag";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import type { InsuranceFormDialogProps } from "@/components/insurance/insurance-form-dialog";
@@ -113,6 +115,8 @@ interface InsuranceViewProps {
   initialClubId: number | null;
   initialSectionId: number | null;
   initialLocalFieldId: number | "all";
+  /** Local Fields with field_payment_orders_v1 on (manual registration disabled). Unknown for non-admin roles. */
+  paymentOrdersLocalFieldIds?: number[];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -126,10 +130,13 @@ export function InsuranceView({
   initialClubId,
   initialSectionId,
   initialLocalFieldId,
+  paymentOrdersLocalFieldIds = [],
 }: InsuranceViewProps) {
   const t = useTranslations("insurance");
-  const { canCapability } = useScreenAccess();
-  const canCreate = canCapability("insurance-by-section", "create");
+  const { canCapability, canViewScreen } = useScreenAccess();
+  // Local Fields learned from a 409 FIELD_PAYMENT_ORDER_LEGACY_DISABLED (roles that cannot read the flag).
+  const [learnedBlockedLocalFieldIds, setLearnedBlockedLocalFieldIds] = useState<number[]>([]);
+  const canCreateByRole = canCapability("insurance-by-section", "create");
   const canUpdate = canCapability("insurance-by-section", "update");
   const canDelete = canCapability("insurance-by-section", "delete");
   const isLocalFieldLocked = territoryScope.level === "local_field";
@@ -153,6 +160,25 @@ export function InsuranceView({
       : clubs.filter((club) => club.local_field_id === selectedLocalFieldId);
 
   const sections = selectedClubId ? (sectionsByClub[selectedClubId] ?? []) : [];
+  const selectedClubLocalFieldId = clubs.find(
+    (club) => club.club_id === selectedClubId,
+  )?.local_field_id;
+  const legacyRegistrationBlocked = isLegacyInsuranceBlocked(selectedClubLocalFieldId, [
+    ...paymentOrdersLocalFieldIds,
+    ...learnedBlockedLocalFieldIds,
+  ]);
+  // Editing existing insurance keeps working under payment orders; only creation is blocked.
+  const canCreate = canCreateByRole && !legacyRegistrationBlocked;
+  const canOpenPaymentOrders = canViewScreen("payment-orders");
+
+  function handleLegacyDisabled() {
+    if (selectedClubLocalFieldId === undefined) return;
+    setLearnedBlockedLocalFieldIds((current) =>
+      current.includes(selectedClubLocalFieldId)
+        ? current
+        : [...current, selectedClubLocalFieldId],
+    );
+  }
 
   const loadInsurances = useCallback(async (clubId: number, sectionId: number) => {
     setIsLoading(true);
@@ -327,6 +353,28 @@ export function InsuranceView({
         </p>
       )}
 
+      {/* Payment orders replace manual registration in this Local Field */}
+      {selectedSectionId && !loadError && legacyRegistrationBlocked && canCreateByRole && (
+        <div
+          role="note"
+          className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm"
+        >
+          <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+          <div className="space-y-1">
+            <p className="font-medium">{t("view.legacy_disabled_title")}</p>
+            <p className="text-muted-foreground">{t("view.legacy_disabled_description")}</p>
+            {canOpenPaymentOrders ? (
+              <Link
+                href="/dashboard/payment-orders"
+                className="inline-block font-medium text-primary underline-offset-4 hover:underline"
+              >
+                {t("view.legacy_disabled_link")}
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       {selectedSectionId && (
         isLoading ? (
@@ -350,6 +398,7 @@ export function InsuranceView({
         onOpenChange={setFormOpen}
         member={editingMember}
         onSuccess={handleSuccess}
+        onLegacyDisabled={handleLegacyDisabled}
       />
 
       <DeleteInsuranceDialog

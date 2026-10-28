@@ -4,15 +4,13 @@ import { canCapability } from "@/lib/auth/screen-catalog";
 import { resolveAdminTerritoryScope, type AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import {
   getCamporeeEventTemplate,
+  listCamporeeEventTypes,
   type CamporeeEventTemplate,
   type PenaltyRule,
   type ParticipantsByClass,
 } from "@/lib/api/camporee-events";
-import {
-  listAdminCamporeeEventTypes,
-  listAdminLocalFields,
-  listAdminUnions,
-} from "@/lib/api/generic-catalogs-i18n";
+import { listLocalFields, listUnions } from "@/lib/api/geography";
+import { unwrapApiData } from "@/lib/api/unwrap";
 import { listClasses, type ProgressiveClass } from "@/lib/api/classes";
 import {
   createCamporeeEventTemplateAction,
@@ -67,14 +65,25 @@ function buildScopeAllowedScopes(scope: AdminTerritoryScope): AllowedTemplateSco
   return ["union", "local_field"];
 }
 
+/**
+ * Geography comes from the PUBLIC catalog routes (/catalogs/unions,
+ * /catalogs/local-fields): the /admin/* variants answer 403 to field roles
+ * (director-lf, union, division), which used to be swallowed into [] and left
+ * the selects empty. Scope narrowing is done by the callers below.
+ */
 async function listScopedEntityItems(
   entityKey: ScopedCatalogItem,
   query: Record<string, string> = {},
 ): Promise<RawCatalogItem[]> {
   try {
-    return entityKey === "unions"
-      ? ((await listAdminUnions(query)) as RawCatalogItem[])
-      : ((await listAdminLocalFields(query)) as RawCatalogItem[]);
+    if (entityKey === "unions") {
+      const divisionId = toPositiveNumber(query.divisionId);
+      const payload = await listUnions(divisionId ? { divisionId } : undefined);
+      return (unwrapApiData<RawCatalogItem[] | null>(payload) ?? []) as RawCatalogItem[];
+    }
+    const unionId = toPositiveNumber(query.unionId);
+    const payload = await listLocalFields(unionId ?? undefined);
+    return (unwrapApiData<RawCatalogItem[] | null>(payload) ?? []) as RawCatalogItem[];
   } catch {
     return [];
   }
@@ -243,7 +252,8 @@ export async function loadCreateEventTemplateFormData(
   const allowedScopes = buildScopeAllowedScopes(territoryScope);
 
   const [etRes, classesRes, geography] = await Promise.all([
-    listAdminCamporeeEventTypes({ active: true, limit: 200 }).catch(() => null),
+    // Public route: /admin/camporee-event-types is admin-only (403 for field roles).
+    listCamporeeEventTypes().catch(() => null),
     listClasses({ limit: 200 }).catch(() => null),
     listCamporeeEventTemplateGeography(territoryScope),
   ]);
@@ -281,7 +291,8 @@ export async function loadEditEventTemplateFormData(
 
   const [templateRes, etRes, classesRes, geography] = await Promise.all([
     getCamporeeEventTemplate(numericId).catch(() => null),
-    listAdminCamporeeEventTypes({ active: true, limit: 200 }).catch(() => null),
+    // Public route: /admin/camporee-event-types is admin-only (403 for field roles).
+    listCamporeeEventTypes().catch(() => null),
     listClasses({ limit: 200 }).catch(() => null),
     listCamporeeEventTemplateGeography(territoryScope),
   ]);
