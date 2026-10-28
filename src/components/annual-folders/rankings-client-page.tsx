@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useFormatNumber } from "@/lib/format-locale";
 import {
   ArrowRight,
   BarChart3,
@@ -73,15 +74,17 @@ interface RankingsClientPageProps {
   initialLocalFieldId?: number;
 }
 
-function formatPoints(value: number): string {
-  return value.toLocaleString("es-MX");
+function useFormatPoints() {
+  const formatNumber = useFormatNumber();
+  return (value: number) => formatNumber(value);
 }
 
 function RankBadge({ position }: { position: number | null }) {
+  const t = useTranslations("annual_folders.rankingsClientPage");
   if (position === 1) {
     return (
       <span
-        title="1er lugar"
+        title={t("place1")}
         className="inline-flex size-7 items-center justify-center rounded-full bg-warning/15 text-warning-foreground dark:text-warning"
       >
         <Trophy className="size-4" />
@@ -92,7 +95,7 @@ function RankBadge({ position }: { position: number | null }) {
   if (position === 2) {
     return (
       <span
-        title="2do lugar"
+        title={t("place2")}
         className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground"
       >
         <Medal className="size-4" />
@@ -103,7 +106,7 @@ function RankBadge({ position }: { position: number | null }) {
   if (position === 3) {
     return (
       <span
-        title="3er lugar"
+        title={t("place3")}
         className="inline-flex size-7 items-center justify-center rounded-full bg-primary/15 text-primary"
       >
         <Medal className="size-4" />
@@ -126,10 +129,12 @@ function rowHighlight(position: number | null): string {
 }
 
 function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
+  const t = useTranslations("annual_folders.rankingsClientPage");
+  const formatPoints = useFormatPoints();
   if (!row.current_tier) {
     return (
       <Badge variant="outline" className="whitespace-nowrap">
-        Sin rango
+        {t("noTier")}
       </Badge>
     );
   }
@@ -141,7 +146,7 @@ function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
       </Badge>
       {row.next_tier?.points_to_reach ? (
         <span className="text-xs text-muted-foreground">
-          Faltan {formatPoints(row.next_tier.points_to_reach)} pts
+          {t("pointsToReach", { points: formatPoints(row.next_tier.points_to_reach) })}
         </span>
       ) : null}
     </div>
@@ -153,8 +158,10 @@ function ComponentSummary({
 }: {
   components: AnnualRankingComponentProgress[];
 }) {
+  const t = useTranslations("annual_folders.rankingsClientPage");
+  const formatPoints = useFormatPoints();
   if (components.length === 0) {
-    return <span className="text-xs text-muted-foreground">Sin componentes</span>;
+    return <span className="text-xs text-muted-foreground">{t("noComponents")}</span>;
   }
 
   return (
@@ -171,7 +178,7 @@ function ComponentSummary({
       ))}
       {components.length > 3 ? (
         <span className="text-xs text-muted-foreground">
-          +{components.length - 3} componentes
+          {t("moreComponents", { count: components.length - 3 })}
         </span>
       ) : null}
     </div>
@@ -188,6 +195,8 @@ export function RankingsClientPage({
   initialLocalFieldId,
 }: RankingsClientPageProps) {
   const t = useTranslations("annual_folders");
+  const tPage = useTranslations("annual_folders.rankingsClientPage");
+  const formatPoints = useFormatPoints();
   const [selectedClubTypeId, setSelectedClubTypeId] = useState<number>(
     initialClubTypeId,
   );
@@ -210,7 +219,7 @@ export function RankingsClientPage({
 
   const handleSearch = useCallback(async () => {
     if (selectedLocalFieldId === undefined) {
-      toast.error("Selecciona un campo local para consultar el ranking");
+      toast.error(tPage("selectLocalFieldFirst"));
       return;
     }
 
@@ -226,12 +235,12 @@ export function RankingsClientPage({
       const message =
         err instanceof ApiError
           ? err.message
-          : "No se pudieron cargar los rankings";
+          : tPage("loadError");
       toast.error(message);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedClubTypeId, selectedLocalFieldId, selectedYearId]);
+  }, [selectedClubTypeId, selectedLocalFieldId, selectedYearId, tPage]);
 
   async function confirmRecalculate() {
     setIsRecalculating(true);
@@ -294,14 +303,14 @@ export function RankingsClientPage({
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex min-w-40 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
-            Tipo de club
+            {tPage("filterClubType")}
           </span>
           <Select
             value={String(selectedClubTypeId)}
             onValueChange={(value) => setSelectedClubTypeId(Number(value))}
           >
             <SelectTrigger className="h-9">
-              <SelectValue placeholder="Tipo de club" />
+              <SelectValue placeholder={tPage("filterClubType")} />
             </SelectTrigger>
             <SelectContent>
               {clubTypes.map((clubType) => (
@@ -319,7 +328,7 @@ export function RankingsClientPage({
         {localFields.length > 0 && selectedLocalFieldId !== undefined && (
           <div className="flex min-w-48 flex-col gap-1.5">
             <span className="text-xs font-medium text-muted-foreground">
-              Campo local
+              {tPage("filterLocalField")}
             </span>
             <Select
               value={String(selectedLocalFieldId)}
@@ -327,7 +336,7 @@ export function RankingsClientPage({
               disabled={localFields.length <= 1}
             >
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="Seleccionar campo local" />
+                <SelectValue placeholder={tPage("selectLocalField")} />
               </SelectTrigger>
               <SelectContent>
                 {localFields.map((field) => (
@@ -345,14 +354,14 @@ export function RankingsClientPage({
 
         <div className="flex min-w-44 flex-col gap-1.5">
           <span className="text-xs font-medium text-muted-foreground">
-            Año eclesiástico
+            {tPage("filterYear")}
           </span>
           <Select
             value={String(selectedYearId)}
             onValueChange={(value) => setSelectedYearId(Number(value))}
           >
             <SelectTrigger className="h-9">
-              <SelectValue placeholder="Seleccionar año" />
+              <SelectValue placeholder={tPage("selectYear")} />
             </SelectTrigger>
             <SelectContent>
               {ecclesiasticalYears.map((year) => (
@@ -363,7 +372,7 @@ export function RankingsClientPage({
                   {year.name}
                   {year.active && (
                     <span className="ml-1.5 text-xs text-muted-foreground">
-                      (activo)
+                      {tPage("yearActive")}
                     </span>
                   )}
                 </SelectItem>
@@ -392,15 +401,17 @@ export function RankingsClientPage({
           disabled={isLoading || isRecalculating}
         >
           <TrendingUp className="size-4" />
-          Recalcular rankings
+          {tPage("recalculate")}
         </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
         <BarChart3 className="size-4" />
         <span>
-          <span className="font-medium text-foreground">{rankings.length}</span>{" "}
-          {rankings.length === 1 ? "club" : "clubes"} en el ranking
+          {tPage.rich("clubsCount", {
+            count: rankings.length,
+            b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+          })}
         </span>
         {activeClubType && (
           <>
@@ -428,11 +439,10 @@ export function RankingsClientPage({
             <BarChart3 className="size-6 text-muted-foreground" />
           </div>
           <h3 className="mt-4 text-base font-semibold">
-            No hay rankings calculados
+            {tPage("emptyTitle")}
           </h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            No hay datos para estos filtros. Revisa que exista configuración anual
-            de puntos y que el ranking base haya sido calculado.
+            {tPage("emptyDescription")}
           </p>
           <Button
             variant="outline"
@@ -441,7 +451,7 @@ export function RankingsClientPage({
             onClick={() => setRecalcOpen(true)}
           >
             <TrendingUp className="size-4" />
-            Recalcular rankings
+            {tPage("recalculate")}
           </Button>
         </div>
       ) : (
@@ -457,7 +467,7 @@ export function RankingsClientPage({
                       direction={sortDirection}
                       onSort={handleSort}
                     >
-                      Posición
+                      {tPage("colPosition")}
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="h-9 px-3">
@@ -467,11 +477,11 @@ export function RankingsClientPage({
                       direction={sortDirection}
                       onSort={handleSort}
                     >
-                      Club
+                      {tPage("colClub")}
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="hidden xl:table-cell h-9 w-36 px-3 text-center">
-                    Tipo
+                    {tPage("colType")}
                   </TableHead>
                   <TableHead className="h-9 w-36 px-3 text-right">
                     <SortableHeader
@@ -481,7 +491,7 @@ export function RankingsClientPage({
                       onSort={handleSort}
                       align="right"
                     >
-                      Puntos
+                      {tPage("colPoints")}
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="h-9 w-40 px-3">
@@ -491,7 +501,7 @@ export function RankingsClientPage({
                       direction={sortDirection}
                       onSort={handleSort}
                     >
-                      Progreso
+                      {tPage("colProgress")}
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="h-9 w-36 px-3">
@@ -501,11 +511,11 @@ export function RankingsClientPage({
                       direction={sortDirection}
                       onSort={handleSort}
                     >
-                      Rango
+                      {tPage("colTier")}
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="hidden xl:table-cell h-9 min-w-56 px-3">
-                    Componentes
+                    {tPage("colComponents")}
                   </TableHead>
                   <RowActionsHead className="h-9 px-3" />
                 </TableRow>
@@ -561,7 +571,7 @@ export function RankingsClientPage({
                         label={item.club_name}
                         actions={[
                           {
-                            label: "Ver detalle",
+                            label: tPage("viewDetail"),
                             icon: Eye,
                             href: `/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`,
                           },
@@ -574,7 +584,7 @@ export function RankingsClientPage({
             </Table>
           </div>
 
-          <ul className="space-y-3 md:hidden" aria-label="Rankings de clubes">
+          <ul className="space-y-3 md:hidden" aria-label={tPage("listAria")}>
             {sortedRankings.map((item) => (
               <li key={item.club_enrollment_id}>
                 <div
@@ -607,7 +617,7 @@ export function RankingsClientPage({
 
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Puntos</span>
+                      <span className="text-muted-foreground">{tPage("colPoints")}</span>
                       <span className="font-medium tabular-nums">
                         {formatPoints(item.current_points)}/{formatPoints(item.max_points)}
                       </span>
@@ -632,7 +642,7 @@ export function RankingsClientPage({
                       href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                     >
-                      Ver detalle
+                      {tPage("viewDetail")}
                       <ArrowRight className="size-3" />
                     </Link>
                   </div>
