@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { AnnualRankingConfigClientPage } from "@/components/annual-rankings/annual-ranking-config-client-page";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("annual_folders.pageRankingConfig");
+  return { title: t("title") };
+}
 
 export default async function AnnualRankingConfigPage() {
   const t = await getTranslations("annual_folders.pageRankingConfig");

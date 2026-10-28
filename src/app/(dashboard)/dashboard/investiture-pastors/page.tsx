@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   PastorsClientPage,
@@ -54,6 +55,11 @@ function toLoadError(error: unknown, t: ErrorTranslator): PastorsLoadError {
     status: error instanceof ApiError ? error.status : null,
     message: getInvestitureRequestErrorMessage(error, t),
   };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("investiture_config.pastors");
+  return { title: t("title") };
 }
 
 export default async function InvestiturePastorsPage({

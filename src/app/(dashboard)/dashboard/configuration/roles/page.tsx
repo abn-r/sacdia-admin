@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -29,6 +30,11 @@ const RolesTable = dynamic(
     ),
   },
 );
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rbac.pages.roles");
+  return { title: t("title") };
+}
 
 export default async function ConfigurationRolesPage() {
   const t = await getTranslations("rbac.pages.roles");

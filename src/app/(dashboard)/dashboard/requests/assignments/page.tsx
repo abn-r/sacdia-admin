@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { UserCog } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -7,6 +8,11 @@ import { AssignmentsClientPage } from "@/components/requests/assignments-client-
 import { getAssignmentRequests, type AssignmentRequest } from "@/lib/api/requests";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("requests");
+  return { title: t("pageAssignments.title") };
+}
 
 export default async function AssignmentRequestsPage() {
   await requireAdminUser();

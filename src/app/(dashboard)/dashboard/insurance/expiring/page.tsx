@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
@@ -78,6 +79,11 @@ async function ExpiringContent({
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("insurance");
+  return { title: t("pageExpiring.title") };
+}
 
 export default async function ExpiringInsurancePage({
   searchParams,

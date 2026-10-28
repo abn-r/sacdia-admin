@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -23,6 +24,11 @@ function parseComposeType(
     return value;
   }
   return undefined;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("configuration.notifications");
+  return { title: t("unified.title") };
 }
 
 export default async function ConfigurationNotificationsHistoryPage({

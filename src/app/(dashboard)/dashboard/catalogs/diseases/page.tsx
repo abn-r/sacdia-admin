@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Activity } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
@@ -38,6 +39,11 @@ import {
 } from "@/lib/generic-catalogs-i18n/actions";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.diseases");
+  return { title: t("title") };
+}
 
 export default async function DiseasesPage({ searchParams }: { searchParams: SearchParams }) {
   const { user, allowed } = await loadCatalogEditorSession();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BarChart3 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -127,6 +128,11 @@ async function SectionRankingsContent({
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rankings");
+  return { title: t("pageSection.title") };
+}
 
 export default async function SectionRankingsPage({
   searchParams,

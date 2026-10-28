@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Receipt, ArrowRight } from "lucide-react";
@@ -64,6 +65,11 @@ function matchesQ(orden: OrdenSummary, q: string): boolean {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("materials.pages.receipts");
+  return { title: t("title") };
+}
 
 export default async function ComprobantesPage({
   searchParams,

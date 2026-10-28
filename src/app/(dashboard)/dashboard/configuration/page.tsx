@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell, Grid3X3, Key, Settings2, Trophy, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireAdminUser } from "@/lib/auth/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("nav.items");
+  return { title: t("configuration") };
+}
 
 export default async function ConfigurationPage() {
   const tNav = await getTranslations("nav.items");

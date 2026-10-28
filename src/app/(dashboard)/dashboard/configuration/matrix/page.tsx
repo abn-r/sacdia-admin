@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Grid3X3 } from "lucide-react";
 import { getTranslations as getTranslationsStrict } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -18,6 +19,11 @@ type LooseTranslator = (key: string) => string;
 const getTranslations = getTranslationsStrict as unknown as (
   namespace?: string,
 ) => Promise<LooseTranslator>;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rbac.pages.matrix");
+  return { title: t("title") };
+}
 
 export default async function ConfigurationMatrixPage() {
   const t = await getTranslations("rbac.pages.matrix");

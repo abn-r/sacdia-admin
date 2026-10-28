@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Key } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -14,6 +15,11 @@ import {
 } from "@/lib/rbac/actions";
 import type { Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("rbac.pages.permissions");
+  return { title: t("title") };
+}
 
 export default async function ConfigurationPermissionsPage() {
   const t = await getTranslations("rbac.pages.permissions");

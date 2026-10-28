@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
@@ -79,6 +80,11 @@ function formatDate(iso: string): string {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("materials.pages.inbox");
+  return { title: t("title") };
+}
 
 export default async function InboxPage({
   searchParams,

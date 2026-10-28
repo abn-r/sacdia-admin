@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Layers } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
@@ -52,6 +53,11 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 function readNumericId(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.classSections");
+  return { title: t("title") };
 }
 
 export default async function AdminClassSectionsPage({ searchParams }: { searchParams: SearchParams }) {

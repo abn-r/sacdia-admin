@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -149,6 +150,11 @@ async function ReportsContent({
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("reports");
+  return { title: t("page.title") };
+}
 
 export default async function ReportsPage() {
   const user = await requireAdminUser();

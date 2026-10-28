@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ArrowRightLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
@@ -7,6 +8,11 @@ import { TransfersClientPage } from "@/components/requests/transfers-client-page
 import { getTransferRequests, type TransferRequest } from "@/lib/api/requests";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("requests");
+  return { title: t("pageTransfers.title") };
+}
 
 export default async function TransferRequestsPage() {
   await requireAdminUser();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Trophy } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -30,6 +31,11 @@ interface MemberOfMonthPageProps {
     notified?: string;
     page?: string;
   }>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("member_of_month");
+  return { title: t("page.title") };
 }
 
 export default async function MemberOfMonthSupervisionPage({

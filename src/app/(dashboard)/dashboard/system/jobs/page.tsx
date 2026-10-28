@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { History } from "lucide-react";
@@ -148,6 +149,11 @@ async function JobsContent({ messages }: { messages: JobsMessages }) {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("system_jobs");
+  return { title: t("page.title") };
+}
 
 export default async function JobsPage() {
   await requireAdminUser();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -141,6 +142,11 @@ function UsersListSkeleton() {
       </DataTableShell>
     </div>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("users.pages.list");
+  return { title: t("title") };
 }
 
 export default async function UsersPage({

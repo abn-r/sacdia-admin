@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Trophy } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
@@ -43,6 +44,11 @@ import {
 import type { MasterHonorAuxCategory, MasterHonorAuxDivision, MasterHonorAuxHonor } from "@/components/catalogs/master-honor-rules-editor";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("catalogs.pages.masterHonors");
+  return { title: t("title") };
+}
 
 export default async function AdminMasterHonorsPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireAdminUser();

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -32,6 +33,11 @@ interface PageProps {
     until?: string;
     page?: string;
   }>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("system_jobs");
+  return { title: t("pageHistory.title") };
 }
 
 export default async function CronHistoryPage({ searchParams }: PageProps) {
