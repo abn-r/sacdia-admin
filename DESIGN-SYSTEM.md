@@ -722,6 +722,7 @@ Los siguientes componentes estan instalados en `src/components/ui/` pero se usan
 | `FormModalBody` | Cuerpo con scroll (`overscroll-contain`). `stepKey` + `direction` animan el cambio de paso. |
 | `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha. |
 | `useFormModal(listHref)` | `close()` en Cancelar, `complete()` al guardar (cierra y refresca). Funciona igual en modal y en pagina. |
+| `FormPageFrame` | Pagina completa del formulario (encabezado con "Volver" + tarjeta). Excepcion a la regla de abajo: los formularios de eventos de camporee (local y union) y de plantillas de evento la usan en la carga directa de `/new` y `/[id]/edit`, porque ahi el listado de debajo es una pagina pesada que no aporta nada. Los modales interceptados no cambian. |
 
 **Estructura de rutas** (slot `@modal` en `src/app/(dashboard)/`):
 
