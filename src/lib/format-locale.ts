@@ -253,6 +253,20 @@ export function formatNumber(
   return new Intl.NumberFormat(localeToBcp47(locale), options).format(value);
 }
 
+/**
+ * A 0-100 percentage rounded to `maxFractionDigits` (default 1) with the locale's
+ * decimal separator. The sign is glued to the number (no locale-specific NNBSP) so
+ * SSR and the browser render the same string. Non-finite values render as "—".
+ */
+export function formatPercentValue(
+  value: number,
+  locale: Locale | string,
+  maxFractionDigits = 1,
+): string {
+  if (!Number.isFinite(value)) return "—";
+  return `${formatNumber(value, locale, { maximumFractionDigits: maxFractionDigits })}%`;
+}
+
 export function formatCurrency(
   amount: number,
   locale: Locale | string,

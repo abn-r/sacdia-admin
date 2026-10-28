@@ -4,6 +4,7 @@ import {
   formatCalendarDateRange,
   formatDate,
   formatMxnAmount,
+  formatPercentValue,
   formatTabularNumber,
   formatTimestamp,
   parseIsoDateParts,
@@ -86,5 +87,22 @@ describe("formatTabularNumber", () => {
 describe("formatMxnAmount", () => {
   it("fija dos decimales ASCII", () => {
     expect(formatMxnAmount(450)).toBe("$450.00");
+  });
+});
+
+describe("formatPercentValue", () => {
+  it("redondea a un decimal sin ruido de coma flotante", () => {
+    expect(formatPercentValue(28.749999999999996, "es")).toBe("28.7%");
+    expect(formatPercentValue(100, "es")).toBe("100%");
+    expect(formatPercentValue(0, "es")).toBe("0%");
+  });
+
+  it("usa el separador decimal del idioma", () => {
+    expect(formatPercentValue(28.75, "fr")).toBe("28,8%");
+    expect(formatPercentValue(28.7, "pt-BR")).toBe("28,7%");
+  });
+
+  it("devuelve un guion para valores no finitos", () => {
+    expect(formatPercentValue(Number.NaN, "es")).toBe("—");
   });
 });
