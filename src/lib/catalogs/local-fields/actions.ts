@@ -33,6 +33,7 @@ function parseFormData(formData: FormData) {
     abbreviation: readString(formData, "abbreviation"),
     union_id: readPositiveInt(formData, "union_id"),
     active: formData.get("active") === "on" || formData.get("active") === "true",
+    timezone: readString(formData, "timezone") || null,
   });
 
   if (!parsed.success) {

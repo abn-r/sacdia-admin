@@ -409,6 +409,8 @@ export interface IntlMessages {
       empty_state: string;
     };
     fields: {
+      timezone: string;
+      timezoneHelp: string;
       name: string;
       description: string;
       active: string;

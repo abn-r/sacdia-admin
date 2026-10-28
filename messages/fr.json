@@ -380,6 +380,8 @@
       "empty_state": "Aucun {entity} pour l'instant"
     },
     "fields": {
+      "timezone": "Fuseau horaire",
+      "timezoneHelp": "Les fenêtres d’investiture et les autres dates du champ utilisent ce fuseau.",
       "name": "Nom",
       "description": "Description",
       "active": "Actif",

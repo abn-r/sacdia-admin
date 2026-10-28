@@ -380,6 +380,8 @@
       "empty_state": "Nenhum {entity} ainda"
     },
     "fields": {
+      "timezone": "Fuso horário",
+      "timezoneHelp": "As janelas de investidura e outras datas do campo usam este fuso.",
       "name": "Nome",
       "description": "Descrição",
       "active": "Ativo",

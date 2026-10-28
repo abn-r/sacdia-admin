@@ -380,6 +380,8 @@
       "empty_state": "No hay {entity}"
     },
     "fields": {
+      "timezone": "Zona horaria",
+      "timezoneHelp": "Las ventanas de investidura y otras fechas del campo usan esta zona.",
       "name": "Nombre",
       "description": "Descripción",
       "active": "Activo",
