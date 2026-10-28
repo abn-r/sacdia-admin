@@ -2,13 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import Image from "next/image";
-import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   resetPasswordAction,
   type ResetPasswordState,
 } from "@/lib/auth/reset-password-action";
+import { BrandMark, StatusMessage } from "@/components/auth/public-auth-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,56 +79,6 @@ function PasswordField({
   );
 }
 
-function BrandMark() {
-  const t = useTranslations("auth.reset_password");
-  return (
-    <div className="mb-8 flex items-center gap-3">
-      <Image
-        src="/app-icon.jpg"
-        alt="SACDIA"
-        width={40}
-        height={40}
-        className="size-10 rounded-xl"
-        priority
-      />
-      <div className="leading-tight">
-        <div className="text-base font-bold tracking-tight text-foreground">
-          SACDIA
-        </div>
-        <div className="font-mono text-[11px] text-muted-foreground">
-          {t("brand_subtitle")}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatusMessage({
-  tone,
-  title,
-  body,
-}: {
-  tone: "success" | "error";
-  title: string;
-  body: string;
-}) {
-  const Icon = tone === "success" ? CheckCircle2 : AlertCircle;
-  return (
-    <div role={tone === "error" ? "alert" : "status"} className="space-y-3">
-      <Icon
-        className={cn(
-          "size-8",
-          tone === "success" ? "text-primary" : "text-destructive",
-        )}
-      />
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        {title}
-      </h1>
-      <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
-    </div>
-  );
-}
-
 /**
  * Form behind the link in the password reset email
  * (`{ADMIN_PANEL_URL}/reset-password?token=...`). Anyone with an account
@@ -192,7 +142,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <div className={cn("w-full max-w-[380px]", PAGE_ENTER_CLASSES)}>
-      <BrandMark />
+      <BrandMark subtitle={t("brand_subtitle")} />
       {content}
     </div>
   );

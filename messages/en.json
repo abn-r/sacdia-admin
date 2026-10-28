@@ -1179,6 +1179,21 @@
         "generic": "We couldn't save the password. Try again in a few minutes."
       }
     },
+    "verify_email": {
+      "meta_title": "Verify email · SACDIA",
+      "title": "Verify your email",
+      "description": "Confirm this email is yours to finish activating your SACDIA account.",
+      "submit_idle": "Verify my email",
+      "submit_loading": "Verifying…",
+      "success_title": "Email verified",
+      "success_body": "All set. You can go back to the SACDIA app.",
+      "invalid_title": "This link no longer works",
+      "invalid_body": "The link expired (it lasts 24 hours), was already used or is incomplete. If you already verified your email, there is nothing else to do.",
+      "errors": {
+        "too_many_attempts": "Too many attempts. Wait a minute and try again.",
+        "generic": "We couldn't verify your email. Try again in a few minutes."
+      }
+    },
     "login": {
       "brand_subtitle": "Administrative System",
       "welcome_title": "Welcome back",

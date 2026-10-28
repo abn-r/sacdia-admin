@@ -1179,6 +1179,21 @@
         "generic": "Não foi possível salvar a senha. Tente novamente em alguns minutos."
       }
     },
+    "verify_email": {
+      "meta_title": "Verificar e-mail · SACDIA",
+      "title": "Verifique seu e-mail",
+      "description": "Confirme que este e-mail é seu para terminar de ativar sua conta SACDIA.",
+      "submit_idle": "Verificar meu e-mail",
+      "submit_loading": "Verificando…",
+      "success_title": "E-mail verificado",
+      "success_body": "Pronto. Você já pode voltar ao app SACDIA.",
+      "invalid_title": "Este link não funciona mais",
+      "invalid_body": "O link expirou (vale por 24 horas), já foi usado ou está incompleto. Se você já verificou seu e-mail, não precisa fazer mais nada.",
+      "errors": {
+        "too_many_attempts": "Muitas tentativas. Espere um minuto e tente novamente.",
+        "generic": "Não conseguimos verificar seu e-mail. Tente novamente em alguns minutos."
+      }
+    },
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bem-vindo de volta",

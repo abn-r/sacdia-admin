@@ -1179,6 +1179,21 @@
         "generic": "No pudimos guardar la contraseña. Inténtalo de nuevo en unos minutos."
       }
     },
+    "verify_email": {
+      "meta_title": "Verificar correo · SACDIA",
+      "title": "Verifica tu correo",
+      "description": "Confirma que este correo es tuyo para terminar de activar tu cuenta SACDIA.",
+      "submit_idle": "Verificar mi correo",
+      "submit_loading": "Verificando…",
+      "success_title": "Correo verificado",
+      "success_body": "Listo. Ya puedes volver a la app SACDIA.",
+      "invalid_title": "Este enlace ya no sirve",
+      "invalid_body": "El enlace venció (dura 24 horas), ya se usó o está incompleto. Si ya verificaste tu correo, no tienes que hacer nada más.",
+      "errors": {
+        "too_many_attempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+        "generic": "No pudimos verificar tu correo. Inténtalo de nuevo en unos minutos."
+      }
+    },
     "login": {
       "brand_subtitle": "Sistema Administrativo",
       "welcome_title": "Bienvenido de nuevo",

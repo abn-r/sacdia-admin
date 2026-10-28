@@ -1179,6 +1179,21 @@
         "generic": "Impossible d'enregistrer le mot de passe. Réessayez dans quelques minutes."
       }
     },
+    "verify_email": {
+      "meta_title": "Vérifier l'e-mail · SACDIA",
+      "title": "Vérifiez votre e-mail",
+      "description": "Confirmez que cet e-mail vous appartient pour terminer l'activation de votre compte SACDIA.",
+      "submit_idle": "Vérifier mon e-mail",
+      "submit_loading": "Vérification…",
+      "success_title": "E-mail vérifié",
+      "success_body": "C'est fait. Vous pouvez revenir à l'application SACDIA.",
+      "invalid_title": "Ce lien ne fonctionne plus",
+      "invalid_body": "Le lien a expiré (il est valable 24 heures), a déjà été utilisé ou est incomplet. Si vous avez déjà vérifié votre e-mail, vous n'avez rien d'autre à faire.",
+      "errors": {
+        "too_many_attempts": "Trop de tentatives. Attendez une minute et réessayez.",
+        "generic": "Nous n'avons pas pu vérifier votre e-mail. Réessayez dans quelques minutes."
+      }
+    },
     "login": {
       "brand_subtitle": "Système administratif",
       "welcome_title": "Bon retour",
