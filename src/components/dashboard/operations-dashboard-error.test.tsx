@@ -4,6 +4,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import es from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
+import { toApiErrorInfo } from "@/lib/api/error-code";
 import { OperationsDashboardError } from "@/components/dashboard/operations-dashboard-error";
 
 global.ResizeObserver = class ResizeObserver {
@@ -17,7 +18,7 @@ afterEach(() => cleanup());
 function renderError(error: ApiError) {
   return render(
     <NextIntlClientProvider locale="es" messages={es}>
-      <OperationsDashboardError error={error} />
+      <OperationsDashboardError error={toApiErrorInfo(error)} />
     </NextIntlClientProvider>,
   );
 }
@@ -27,6 +28,21 @@ describe("OperationsDashboardError", () => {
     renderError(new ApiError("Sin alcance", 403, { code: "GUARD_PERMISSION_DENIED" }));
     expect(screen.getByText(es.shared.errorBanner.forbidden)).toBeInTheDocument();
     expect(screen.getByText("Sin alcance")).toBeInTheDocument();
+  });
+
+  it("shows an empty state, not an error, when the account has no scope yet", () => {
+    renderError(
+      new ApiError("Tu cuenta no tiene un territorio ni secciones asignadas.", 403, {
+        code: "ADMIN_USER_SCOPE_MISSING",
+      }),
+    );
+    expect(
+      screen.getByText(es.dashboardHub.operations.errors.scopeMissingTitle),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(es.dashboardHub.operations.errors.scopeMissingDescription),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(es.shared.errorBanner.forbidden)).not.toBeInTheDocument();
   });
 
   it("maps 404 to missing banner", () => {

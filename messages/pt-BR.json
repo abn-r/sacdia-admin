@@ -1208,6 +1208,7 @@
       "connection": "Erro de conexão. Contate o administrador do sistema.",
       "session_no_permissions": "Sua sessão não tem permissões para abrir o painel administrativo.",
       "server_unavailable": "O servidor não respondeu corretamente. Tente novamente em alguns minutos.",
+      "too_many_attempts": "Muitas tentativas de login. Aguarde um minuto e tente novamente.",
       "generic_login": "Erro ao entrar. Tente novamente.",
       "login_failed": "Não foi possível entrar. Tente novamente.",
       "profile_validation_failed": "Login incompleto. Não foi possível validar o perfil.",
@@ -1867,6 +1868,8 @@
       "errors": {
         "title": "Panorama operacional",
         "forbiddenDescription": "Você não tem escopo para consultar este território.",
+        "scopeMissingTitle": "Nenhuma seção atribuída",
+        "scopeMissingDescription": "Sua conta ainda não tem território nem seções atribuídas. Quando um administrador configurar seu escopo, o panorama operacional aparecerá aqui.",
         "notFoundDescription": "O ano ou território solicitado não foi encontrado.",
         "rateLimitedDescription": "Muitas solicitações. Tente novamente em instantes.",
         "authTitle": "Sessão necessária",
