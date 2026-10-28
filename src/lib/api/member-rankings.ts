@@ -1,4 +1,5 @@
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { normalizeRankingListMeta } from "@/lib/api/ranking-list-meta";
 
 /**
  * Member Rankings API client.
@@ -216,39 +217,6 @@ function extractItemArray(payload: unknown): GenericRecord[] {
   return [];
 }
 
-function normalizeListMeta(payload: unknown): {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-} {
-  const candidates: string[][] = [
-    ["data", "meta"],
-    ["meta"],
-    ["data"],
-  ];
-
-  let meta: GenericRecord | null = null;
-  for (const path of candidates) {
-    let current: unknown = payload;
-    for (const key of path) {
-      current = asRecord(current)?.[key];
-    }
-    const r = asRecord(current);
-    if (r && (pickNumber(r.total) !== null || pickNumber(r.totalPages) !== null)) {
-      meta = r;
-      break;
-    }
-  }
-
-  const page = pickNumber(meta?.page) ?? 1;
-  const limit = pickNumber(meta?.limit) ?? 20;
-  const total = pickNumber(meta?.total) ?? 0;
-  const totalPages =
-    pickNumber(meta?.totalPages) ?? Math.max(1, Math.ceil(total / Math.max(limit, 1)));
-
-  return { total, page, limit, totalPages };
-}
 
 function normalizeEndpointState(
   error: ApiError,
@@ -375,7 +343,7 @@ export async function listMemberRankings(
       .map((item) => normalizeMemberRankingItem(item))
       .filter((item): item is MemberRankingItem => Boolean(item));
 
-    const metaRaw = normalizeListMeta(payload);
+    const metaRaw = normalizeRankingListMeta(payload);
 
     return {
       items,
