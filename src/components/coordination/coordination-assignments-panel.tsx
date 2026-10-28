@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -97,6 +97,13 @@ export function CoordinationAssignmentsPanel({
   const activeZones = zones.filter((zone) => zone.active);
   const activeClubTypes = clubTypes.filter((clubType) => clubType.active);
 
+  // `t` can change identity between renders; read it through a ref so the
+  // coordinator lookup (3 requests, one per role) runs once per mount.
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+
   useEffect(() => {
     let cancelled = false;
     setLoadingUsers(true);
@@ -118,7 +125,7 @@ export function CoordinationAssignmentsPanel({
       })
       .catch((error) => {
         if (!cancelled) {
-          toast.error(getActionErrorMessage(error, t("errors.generic")));
+          toast.error(getActionErrorMessage(error, tRef.current("errors.generic")));
         }
       })
       .finally(() => {
@@ -128,7 +135,7 @@ export function CoordinationAssignmentsPanel({
     return () => {
       cancelled = true;
     };
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     if (!clubId) {

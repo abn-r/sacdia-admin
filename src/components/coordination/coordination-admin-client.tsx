@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Landmark } from "lucide-react";
@@ -93,8 +93,12 @@ export function CoordinationAdminClient({
   const [clubs, setClubs] = useState<Array<{ club_id: number; name: string }>>(
     [],
   );
-  const [loading, setLoading] = useState(false);
+  // Local field whose first load has settled (success or error). Until it
+  // matches the selected field the panels must not render: their empty states
+  // ("no zones", "no assignments") would flash before the data arrives.
+  const [settledFieldId, setSettledFieldId] = useState<number | undefined>();
   const [loadError, setLoadError] = useState<string | null>(null);
+  const latestRequest = useRef(0);
 
   const selectedField = useMemo(
     () =>
@@ -104,7 +108,7 @@ export function CoordinationAdminClient({
 
   const refresh = useCallback(async () => {
     if (!localFieldId) return;
-    setLoading(true);
+    const requestId = ++latestRequest.current;
     setLoadError(null);
     try {
       const [nextZones, nextAssignments, nextDistricts, nextClubTypes, clubsResult] =
@@ -121,6 +125,7 @@ export function CoordinationAdminClient({
           }),
         ]);
 
+      if (requestId !== latestRequest.current) return;
       setZones(Array.isArray(nextZones) ? nextZones : []);
       setAssignments(Array.isArray(nextAssignments) ? nextAssignments : []);
       setDistricts(nextDistricts);
@@ -137,13 +142,16 @@ export function CoordinationAdminClient({
           ),
       );
     } catch (error) {
+      if (requestId !== latestRequest.current) return;
       const message = getActionErrorMessage(error, t("errors.generic"));
       setLoadError(message);
       toast.error(message);
     } finally {
-      setLoading(false);
+      if (requestId === latestRequest.current) setSettledFieldId(localFieldId);
     }
   }, [localFieldId, t]);
+
+  const initialLoading = settledFieldId !== localFieldId;
 
   useEffect(() => {
     void refresh();
@@ -202,8 +210,13 @@ export function CoordinationAdminClient({
         <EndpointErrorBanner state="missing" detail={loadError} />
       ) : null}
 
-      {loading && zones.length === 0 && assignments.length === 0 ? (
-        <div className="grid gap-6 lg:grid-cols-2">
+      {initialLoading ? (
+        <div
+          className="grid gap-6 xl:grid-cols-2"
+          role="status"
+          aria-busy="true"
+          data-testid="coordination-loading"
+        >
           <Skeleton className="h-72 rounded-2xl" />
           <Skeleton className="h-72 rounded-2xl" />
         </div>
