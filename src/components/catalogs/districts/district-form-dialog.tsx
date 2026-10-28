@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,16 +65,17 @@ export function DistrictFormDialog({
   const entity = t("singular");
 
   const action = mode === "create" ? createDistrictAction : updateDistrictAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [active, setActive] = useState(true);
   const [localFieldId, setLocalFieldId] = useState("");
 
   useEffect(() => {
     if (open) {
+      discard();
       setActive(district?.active ?? true);
       setLocalFieldId(district?.local_field_id ? String(district.local_field_id) : "");
     }
-  }, [open, district]);
+  }, [open, district, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -120,7 +121,7 @@ export function DistrictFormDialog({
               <Input
                 id="district-name"
                 name="name"
-                defaultValue={district?.name ?? ""}
+                defaultValue={retainedValue(values, "name", district?.name ?? "")}
                 required
                 maxLength={50}
               />

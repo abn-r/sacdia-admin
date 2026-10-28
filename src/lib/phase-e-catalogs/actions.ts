@@ -9,7 +9,6 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   CATALOG_LOCALES,
@@ -51,7 +50,11 @@ import { buildFinanceCategoryExtra } from "@/lib/phase-e-catalogs/finance-catego
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
-export type PhaseEActionState = { error?: string };
+/**
+ * `success` lets the client close the dialog and confirm with a toast; the
+ * actions no longer redirect, so filters and pagination survive a save.
+ */
+export type PhaseEActionState = { error?: string; success?: boolean };
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -384,7 +387,7 @@ function makeActions(
       return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: routePath }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   async function updateAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -406,7 +409,7 @@ function makeActions(
       return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   async function deleteAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -422,7 +425,7 @@ function makeActions(
       return { error: getActionErrorMessage(error, "No se pudo eliminar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   return { createAction, updateAction, deleteAction };
@@ -449,7 +452,7 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
-  redirect("/dashboard/catalogs/classes");
+  return { success: true };
 }
 
 export async function updateClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -473,7 +476,7 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
-  redirect("/dashboard/catalogs/classes");
+  return { success: true };
 }
 
 const classDeleteActions = makeActions(
@@ -507,7 +510,7 @@ export async function createClassModuleAction(_: PhaseEActionState, formData: Fo
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-modules" }) };
   }
   revalidatePath("/dashboard/catalogs/class-modules");
-  redirect("/dashboard/catalogs/class-modules");
+  return { success: true };
 }
 
 export async function updateClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -528,7 +531,7 @@ export async function updateClassModuleAction(_: PhaseEActionState, formData: Fo
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-modules/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/class-modules");
-  redirect("/dashboard/catalogs/class-modules");
+  return { success: true };
 }
 
 const classModuleDeleteActions = makeActions(
@@ -562,7 +565,7 @@ export async function createClassSectionAction(_: PhaseEActionState, formData: F
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-sections" }) };
   }
   revalidatePath("/dashboard/catalogs/class-sections");
-  redirect("/dashboard/catalogs/class-sections");
+  return { success: true };
 }
 
 export async function updateClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -583,7 +586,7 @@ export async function updateClassSectionAction(_: PhaseEActionState, formData: F
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-sections/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/class-sections");
-  redirect("/dashboard/catalogs/class-sections");
+  return { success: true };
 }
 
 const classSectionDeleteActions = makeActions(
@@ -690,7 +693,7 @@ export async function createMasterHonorAction(
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function updateMasterHonorAction(
@@ -717,7 +720,7 @@ export async function updateMasterHonorAction(
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function deleteMasterHonorAction(
@@ -743,7 +746,7 @@ export async function deleteMasterHonorAction(
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function recalculateMasterHonorAction(

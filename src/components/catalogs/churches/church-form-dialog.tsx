@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { TranslationsTabsField } from "@/components/catalogs/translations-tabs-field";
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -76,18 +76,19 @@ export function ChurchFormDialog({
   const entity = t("singular");
 
   const action = mode === "create" ? createChurchAction : updateChurchAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
   const [active, setActive] = useState(true);
   const [districtId, setDistrictId] = useState("");
 
   useEffect(() => {
     if (open) {
+      discard();
       setTranslationValues(buildTranslationMap(church));
       setActive(church?.active ?? true);
       setDistrictId(church?.district_id ? String(church.district_id) : "");
     }
-  }, [open, church]);
+  }, [open, church, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -133,7 +134,7 @@ export function ChurchFormDialog({
               <Input
                 id="church-name"
                 name="name"
-                defaultValue={church?.name ?? ""}
+                defaultValue={retainedValue(values, "name", church?.name ?? "")}
                 required
                 maxLength={50}
               />

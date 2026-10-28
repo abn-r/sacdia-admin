@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,18 +67,19 @@ export function UnionFormDialog({
   const entity = t("entities.unions.singular");
 
   const action = mode === "create" ? createUnionAction : updateUnionAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [active, setActive] = useState(true);
   const [countryId, setCountryId] = useState("");
   const [divisionId, setDivisionId] = useState("");
 
   useEffect(() => {
     if (open) {
+      discard();
       setActive(union?.active ?? true);
       setCountryId(union?.country_id ? String(union.country_id) : "");
       setDivisionId(union?.division_id ? String(union.division_id) : "");
     }
-  }, [open, union]);
+  }, [open, union, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -123,7 +124,7 @@ export function UnionFormDialog({
               <Input
                 id="union-name"
                 name="name"
-                defaultValue={union?.name ?? ""}
+                defaultValue={retainedValue(values, "name", union?.name ?? "")}
                 required
                 maxLength={50}
               />
@@ -133,7 +134,7 @@ export function UnionFormDialog({
               <Input
                 id="union-abbreviation"
                 name="abbreviation"
-                defaultValue={union?.abbreviation ?? ""}
+                defaultValue={retainedValue(values, "abbreviation", union?.abbreviation ?? "")}
                 required
                 maxLength={8}
                 autoComplete="off"

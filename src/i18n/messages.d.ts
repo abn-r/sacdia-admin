@@ -705,6 +705,7 @@ export interface IntlMessages {
       createDialogTitle: string;
       createDialogDesc: string;
       editDialogTitle: string;
+      editDialogDesc: string;
       deleteDialogTitle: string;
       deleteDialogDesc: string;
       edit: string;

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,14 +49,15 @@ export function CountryFormDialog({ open, onOpenChange, mode, country }: Country
   const entity = t("entities.countries.singular");
 
   const action = mode === "create" ? createCountryAction : updateCountryAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [active, setActive] = useState(true);
 
   useEffect(() => {
     if (open) {
+      discard();
       setActive(country?.active ?? true);
     }
-  }, [open, country]);
+  }, [open, country, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -99,7 +100,7 @@ export function CountryFormDialog({ open, onOpenChange, mode, country }: Country
               <Input
                 id="country-name"
                 name="name"
-                defaultValue={country?.name ?? ""}
+                defaultValue={retainedValue(values, "name", country?.name ?? "")}
                 required
                 maxLength={50}
               />
@@ -109,7 +110,7 @@ export function CountryFormDialog({ open, onOpenChange, mode, country }: Country
               <Input
                 id="country-abbreviation"
                 name="abbreviation"
-                defaultValue={country?.abbreviation ?? ""}
+                defaultValue={retainedValue(values, "abbreviation", country?.abbreviation ?? "")}
                 required
                 maxLength={8}
                 autoComplete="off"
