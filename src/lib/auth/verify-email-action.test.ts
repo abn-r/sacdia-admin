@@ -35,6 +35,15 @@ describe("verifyEmailAction", () => {
     );
   });
 
+  it("keeps a previous success without calling the API again", async () => {
+    const state = await verifyEmailAction(
+      { success: true },
+      form({ token: "tok-1" }),
+    );
+    expect(state).toEqual({ success: true });
+    expect(apiRequestMock).not.toHaveBeenCalled();
+  });
+
   it("without a token the link is invalid", async () => {
     expect(await verifyEmailAction({}, form({}))).toEqual({ linkInvalid: true });
     expect(apiRequestMock).not.toHaveBeenCalled();

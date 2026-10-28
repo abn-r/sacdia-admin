@@ -38,9 +38,15 @@ const INVALID_LINK_CODES = new Set([
  * (`POST /auth/password/reset`). Public: the person is signed out.
  */
 export async function resetPasswordAction(
-  _prev: ResetPasswordState,
+  prev: ResetPasswordState,
   formData: FormData,
 ): Promise<ResetPasswordState> {
+  // A queued second submit (double click or tap) must not reuse the spent
+  // token and replace the success with "link invalid".
+  if (prev.success) {
+    return prev;
+  }
+
   const t = await getTranslations("auth.reset_password");
 
   const token = String(formData.get("token") ?? "").trim();
