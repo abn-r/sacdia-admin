@@ -40,6 +40,22 @@ interface UserRolesPanelProps {
   userId: string;
   initialUserRoles: UserRole[];
   allRoles: Role[];
+  /**
+   * Platform administration roles (super-admin, admin, assistant-admin) are
+   * granted and revoked by super-admin only (backend RBAC_ROLE_SUPER_ADMIN_ONLY).
+   */
+  actorIsSuperAdmin?: boolean;
+}
+
+/** Global roles only a super-admin may assign or remove. */
+export const SUPER_ADMIN_ONLY_ROLES: ReadonlySet<string> = new Set([
+  "super-admin",
+  "admin",
+  "assistant-admin",
+]);
+
+function canMutateRole(roleName: string, actorIsSuperAdmin: boolean): boolean {
+  return actorIsSuperAdmin || !SUPER_ADMIN_ONLY_ROLES.has(roleName);
 }
 
 const ROLE_VARIANT_MAP: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
@@ -56,6 +72,7 @@ export function UserRolesPanel({
   userId,
   initialUserRoles,
   allRoles,
+  actorIsSuperAdmin = false,
 }: UserRolesPanelProps) {
   const t = useTranslations("rbac");
   const translateRole = useRoleLabel();
@@ -73,7 +90,10 @@ export function UserRolesPanel({
   const assignedRoleIds = new Set(systemUserRoles.map((ur) => ur.roles.role_id));
 
   const availableRoles = systemAssignableRoles.filter(
-    (r) => r.active && !assignedRoleIds.has(r.role_id),
+    (r) =>
+      r.active &&
+      !assignedRoleIds.has(r.role_id) &&
+      canMutateRole(r.role_name, actorIsSuperAdmin),
   );
 
   const filteredRoles = availableRoles.filter(
@@ -205,6 +225,7 @@ export function UserRolesPanel({
               groups={systemRoleGroups}
               isPending={isPending}
               onRemove={setRoleToRemove}
+              actorIsSuperAdmin={actorIsSuperAdmin}
               t={t}
               translateRole={translateRole}
             />
@@ -332,12 +353,14 @@ function SystemRoleGroupsList({
   groups,
   isPending,
   onRemove,
+  actorIsSuperAdmin,
   t,
   translateRole,
 }: {
   groups: SystemRoleGroups;
   isPending: boolean;
   onRemove: (role: UserRole) => void;
+  actorIsSuperAdmin: boolean;
   t: RbacTranslator;
   translateRole: RoleTranslator;
 }) {
@@ -378,6 +401,7 @@ function SystemRoleGroupsList({
                 className="gap-1.5 pr-1 text-xs"
               >
                 {translateRole(ur.roles.role_name)}
+                {canMutateRole(ur.roles.role_name, actorIsSuperAdmin) ? (
                 <button
                   type="button"
                   onClick={() => onRemove(ur)}
@@ -390,6 +414,7 @@ function SystemRoleGroupsList({
                   <X className="size-3" />
                   <span className="sr-only">{t("userRolesPanel.removeSrOnly")}</span>
                 </button>
+                ) : null}
               </Badge>
             ))}
           </div>
