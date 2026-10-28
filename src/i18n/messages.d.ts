@@ -6313,6 +6313,7 @@ export interface IntlMessages {
       club_type_required: string;
       club_section_required: string;
       activity_place_required: string;
+      activity_date_required: string;
       image_invalid: string;
     };
     audience: {

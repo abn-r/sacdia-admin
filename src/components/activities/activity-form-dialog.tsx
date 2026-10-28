@@ -53,7 +53,7 @@ import { isEmptyOrHttpUrl, optionalText, toDateKey } from "@/lib/activities/help
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
-function buildSchema(t: ReturnType<typeof useTranslations<"activities.validation">>) {
+export function buildSchema(t: ReturnType<typeof useTranslations<"activities.validation">>) {
   return z.object({
     name: z.string().min(1, t("name_required")),
     description: z.string().optional(),
@@ -64,7 +64,7 @@ function buildSchema(t: ReturnType<typeof useTranslations<"activities.validation
     long: z.coerce.number().min(-180).max(180),
     activity_time: z.string().optional(),
     activity_place: z.string().min(1, t("activity_place_required")),
-    activity_date: z.string().optional(),
+    activity_date: z.string().min(1, t("activity_date_required")),
     activity_end_date: z.string().optional(),
     image: z
       .string()
@@ -231,7 +231,7 @@ export function ActivityFormDialog({
           lat: values.lat,
           long: values.long,
           activity_time: values.activity_time,
-          activity_date: values.activity_date || undefined,
+          activity_date: values.activity_date,
           activity_end_date: values.activity_end_date || undefined,
           activity_place: values.activity_place,
           image: optionalText(values.image),
@@ -294,7 +294,7 @@ export function ActivityFormDialog({
           lat: values.lat,
           long: values.long,
           activity_time: values.activity_time,
-          activity_date: values.activity_date || undefined,
+          activity_date: values.activity_date,
           activity_end_date: values.activity_end_date || undefined,
           activity_place: values.activity_place,
           image: optionalText(values.image),
@@ -702,7 +702,7 @@ export function ActivityFormDialog({
                       </span>
                     </FormLabel>
                     <FormControl>
-                      <Input type="date" min={toDateKey(new Date())} max={yearEnd || undefined} {...field} />
+                      <Input type="date" aria-required="true" min={toDateKey(new Date())} max={yearEnd || undefined} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
