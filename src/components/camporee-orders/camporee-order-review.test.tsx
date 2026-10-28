@@ -137,6 +137,15 @@ describe("CamporeeOrderReviewTray", () => {
 
     await user.click(screen.getByRole("button", { name: "Aprobar" }));
 
+    // Confirmation first: nothing is approved until the operator confirms.
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText(/PED20260002/)).toBeInTheDocument();
+    expect(mockApprove).not.toHaveBeenCalled();
+
+    await user.click(
+      within(dialog).getByRole("button", { name: "Confirmar aprobación" }),
+    );
+
     await waitFor(() => {
       expect(mockApprove).toHaveBeenCalledWith(ORDER_ID);
     });

@@ -6,6 +6,16 @@ import { toast } from "sonner";
 import { AlertTriangle, Download, ExternalLink } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -79,6 +89,7 @@ export function CamporeeOrderDetail({
   const [loading, setLoading] = useState(false);
   const [acting, setActing] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [authorizeOpen, setAuthorizeOpen] = useState(false);
@@ -390,7 +401,7 @@ export function CamporeeOrderDetail({
 
               {showReviewActions && canReviewPerm && canApproveProof && (
                 <div className="flex flex-wrap gap-2 border-t pt-4">
-                  <Button loading={acting} type="button" onClick={() => void approve()}>
+                  <Button loading={acting} type="button" onClick={() => setApproveOpen(true)}>
                     {t("detail.approve")}
                   </Button>
                   <Button
@@ -425,6 +436,26 @@ export function CamporeeOrderDetail({
           )}
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={approveOpen} onOpenChange={setApproveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("detail.approveConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("detail.approveConfirmDescription", {
+                folio: order?.folio_reference ?? "",
+                amount: order ? formatCentavos(order.total_centavos, order.currency) : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("detail.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void approve()}>
+              {t("detail.approveConfirmAction")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>

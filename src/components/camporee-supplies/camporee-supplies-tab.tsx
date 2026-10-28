@@ -5,6 +5,16 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Inbox, Loader2, RefreshCw } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +26,7 @@ import type { CamporeeKind } from "@/lib/types/camporee-orders";
 import {
   type CamporeeSupplyCatalog,
   type CamporeeSupplyPlan,
+  type CamporeeSupplyPayment,
   type CashReport,
   type KitchenReport,
   type SupplyUom,
@@ -89,6 +100,7 @@ export function CamporeeSuppliesTab({
   const [productPrice, setProductPrice] = useState("");
   const [deliverQty, setDeliverQty] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [payingPayment, setPayingPayment] = useState<CamporeeSupplyPayment | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -562,7 +574,7 @@ export function CamporeeSuppliesTab({
                               <Button
                                 type="button"
                                 size="sm"
-                                onClick={() => void markPaid(payment.payment_id)}
+                                onClick={() => setPayingPayment(payment)}
                               >
                                 {t("actions.markPaid")}
                               </Button>
@@ -659,6 +671,37 @@ export function CamporeeSuppliesTab({
           </section>
         </>
       )}
+
+      <AlertDialog
+        open={payingPayment !== null}
+        onOpenChange={(open) => {
+          if (!open) setPayingPayment(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("actions.markPaidConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("actions.markPaidConfirmDescription", {
+                folio: payingPayment?.folio_reference ?? "",
+                amount: payingPayment
+                  ? formatSupplyCentavos(payingPayment.total_centavos)
+                  : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (payingPayment) void markPaid(payingPayment.payment_id);
+              }}
+            >
+              {t("actions.markPaidConfirmAction")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
