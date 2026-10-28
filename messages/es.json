@@ -309,7 +309,7 @@
     "assignments": {
       "newTitle": "Nueva asignación",
       "newDescription": "La autoridad final siempre se resuelve a secciones de club.",
-      "directorConflictRule": "Regla: si el usuario ya es director de una sección, el backend rechaza asignarlo como coordinador de esa misma sección.",
+      "directorConflictRule": "Regla: si el usuario ya es director de una sección, no se le puede asignar como coordinador de esa misma sección.",
       "title": "Asignaciones activas",
       "description": "Un coordinador puede acumular varios alcances; la app recibirá el scope combinado.",
       "empty": "No hay asignaciones registradas.",
@@ -489,7 +489,7 @@
     },
     "errors": {
       "entity_not_supported": "Entidad no soportada",
-      "read_only_catalog": "Este catálogo es de solo lectura en la API oficial",
+      "read_only_catalog": "Este catálogo es de solo lectura",
       "op_create_failed": "No se pudo crear el registro",
       "op_update_failed": "No se pudo actualizar el registro",
       "op_delete_failed": "No se pudo eliminar el registro",
@@ -965,7 +965,7 @@
         "cardDescriptionTitle": "Descripción",
         "noDescription": "Sin descripción registrada.",
         "cardHonorsTitle": "Especialidades en esta categoría",
-        "noHonors": "No se encontraron especialidades asignadas a esta categoría, o el endpoint no respondió.",
+        "noHonors": "No se encontraron especialidades asignadas a esta categoría.",
         "tableId": "ID",
         "tableName": "Nombre",
         "tableLevel": "Nivel",
@@ -1629,7 +1629,7 @@
         "statusActive": "Activo",
         "statusInactive": "Inactivo",
         "mobileListLabel": "Lista de clubes",
-        "endpointError": "Endpoint no disponible",
+        "endpointError": "No se pudieron cargar los clubes",
         "cannotShow": "No se pueden mostrar clubes",
         "emptyTitle": "No hay clubes registrados",
         "emptyDescription": "Crea el primer club para comenzar.",
@@ -1921,8 +1921,8 @@
       "too_many_requests_description": "Espere un momento antes de intentarlo de nuevo.",
       "forbidden_title": "Sin permisos",
       "forbidden_description": "No tiene permisos para realizar esta acción.",
-      "endpoint_unavailable_title": "Endpoint no disponible",
-      "endpoint_unavailable_description": "El endpoint de aprobación no está disponible en este momento.",
+      "endpoint_unavailable_title": "Servicio no disponible",
+      "endpoint_unavailable_description": "La aprobación no está disponible en este momento. Intenta más tarde.",
       "processing_title": "Error al procesar",
       "unexpected_title": "Error inesperado",
       "unexpected_description": "No se pudo procesar la aprobación. Intente de nuevo."
@@ -2113,7 +2113,7 @@
       "clubTypeLabel": "Tipo de club",
       "clubTypePlaceholder": "Seleccionar club",
       "levelLabel": "Nivel",
-      "masterHonorLabel": "Master honor",
+      "masterHonorLabel": "Maestría de especialidades",
       "activeLabel": "Especialidad activa",
       "imageLabel": "Imagen (URL relativa o archivo)",
       "imagePlaceholder": "Especialidades/acolchado.png",
@@ -2361,7 +2361,7 @@
       "selectAllInBucket": "Seleccionar {bucket} de {resource}",
       "destructiveAction": "Acción destructiva",
       "otherGroup": "Otros permisos",
-      "requiresRoles": "El API exige rol: {roles}",
+      "requiresRoles": "Requiere el rol: {roles}",
       "surfaceFilterLabel": "Superficie",
       "surfaceAll": "Todas",
       "surfaceAdmin": "Panel",
@@ -2436,7 +2436,7 @@
         "readOnlyBanner": "Vista de solo lectura. Solo un super administrador puede cambiar la matriz.",
         "fullScreen": "Pantalla completa",
         "otherGroup": "Otros permisos",
-        "requiresRoles": "El API exige rol: {roles}. El permiso solo surte efecto en roles que lo cumplan.",
+        "requiresRoles": "Requiere el rol: {roles}. El permiso solo surte efecto en roles que lo cumplan.",
         "bundleUpdatedTitle": "Pantalla actualizada",
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Se agregaron: {permissions}.",
@@ -4489,7 +4489,7 @@
       "folder_created": "Carpeta anual creada"
     },
     "errors": {
-      "recalculate_rankings": "Error al recalcular los clasificaciones",
+      "recalculate_rankings": "Error al recalcular las clasificaciones",
       "save_evaluation_failed": "No se pudo guardar la evaluación",
       "upload_evidence_failed": "Error al subir la evidencia",
       "save_section_failed": "Error al guardar la sección",
@@ -4536,7 +4536,7 @@
       "tableColDescription": "Descripción",
       "tableColRequired": "Requerida",
       "tableColMaxPts": "Puntos asignados",
-      "tableColMinPts": "Min Pts",
+      "tableColMinPts": "Puntos mínimos",
       "tableColActions": "Acciones",
       "noDescription": "Sin descripción",
       "editSection": "Editar sección",
@@ -4837,7 +4837,7 @@
       },
       "recalculateRankings": {
         "title": "Recalcular clasificaciones",
-        "description": "Se recalcularán los clasificaciones para el año {year}. Este proceso puede tomar unos segundos. Los resultados anteriores serán reemplazados.",
+        "description": "Se recalcularán las clasificaciones para el año {year}. Este proceso puede tomar unos segundos. Los resultados anteriores serán reemplazados.",
         "confirm": "Confirmar recálculo",
         "confirmLoading": "Recalculando...",
         "cancel": "Cancelar"
@@ -5747,7 +5747,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Motor de certificaciones configurables",
-    "panelDescription": "Crea certificaciones, arma versiones borrador (reglas de elegibilidad, módulos, secciones y componentes) y publícalas. Las versiones existentes se cargan desde el backend: las publicadas y retiradas se consultan en modo lectura y los borradores se pueden seguir editando.",
+    "panelDescription": "Crea certificaciones, arma versiones borrador (reglas de elegibilidad, módulos, secciones y componentes) y publícalas. Las versiones publicadas y retiradas se consultan en modo lectura y los borradores se pueden seguir editando.",
     "newCertificationButton": "Nueva certificación",
     "workbenchDescription": "Edita metadatos, reglas de elegibilidad y estructura de esta versión. Una versión publicada o retirada ya no admite cambios: clónala para crear un nuevo borrador.",
     "immutableNotice": "Esta versión no está en borrador y es de solo lectura. Usa \"Clonar\" para crear un nuevo borrador editable.",
@@ -5902,7 +5902,7 @@
       "trigger": "Publicar",
       "title": "Publicar versión",
       "confirmDescription": "Se publicará esta versión y se retirará automáticamente la versión publicada anterior (si existe). Esta acción no se puede deshacer desde aquí.",
-      "notReadyDescription": "Esta versión aún no cumple el criterio de publicación (requiere al menos una regla de elegibilidad y al menos un módulo con secciones y componentes). El backend rechazará la publicación hasta completarla.",
+      "notReadyDescription": "Esta versión aún no cumple el criterio de publicación (requiere al menos una regla de elegibilidad y al menos un módulo con secciones y componentes). No podrás publicarla hasta completarla.",
       "readyHint": "Cumple el criterio de publicación.",
       "notReadyHint": "Faltan reglas de elegibilidad o estructura para poder publicar.",
       "cancel": "Cancelar",
@@ -6767,7 +6767,7 @@
         "description": "Configura la ponderación de cada dimensión (folder, finance, camporee, evidence) para el cálculo del clasificación anual. La suma de los 4 pesos debe ser exactamente 100.",
         "loadFailed": "No se pudieron cargar los pesos de clasificación. Verifica la conexión con el servidor.",
         "emptyTitle": "Sin configuración",
-        "emptyDescription": "No se encontraron configuraciones de pesos. El backend debería haber creado un default global al iniciarse."
+        "emptyDescription": "No se encontraron configuraciones de pesos."
       }
     }
   },
@@ -6831,7 +6831,7 @@
         "statPoints": "Puntos requeridos",
         "tabStructure": "Estructura del programa",
         "structureCardTitle": "Módulos y secciones",
-        "modulesEndpointMissing": "El endpoint de clases no retornó módulos en la respuesta de detalle. Los módulos se cargan desde GET /classes/:id — verifica que el backend los incluya.",
+        "modulesEndpointMissing": "Esta clase no tiene módulos para mostrar.",
         "labelDuration": "Duración configurable",
         "labelAvailableFrom": "Inicio de disponibilidad",
         "labelAvailableUntil": "Fin de disponibilidad",
@@ -6842,7 +6842,7 @@
       "title": "Vencimiento manual de clases",
       "description": "Ejecuta una simulación o aplica el vencimiento de inscripciones que superaron la duración máxima.",
       "yearLabel": "Año eclesiástico de corte",
-      "currentYearOption": "Usar año activo del backend",
+      "currentYearOption": "Usar año activo",
       "dryRun": "Simular",
       "apply": "Aplicar vencimiento",
       "modeDryRun": "simulación",
@@ -7082,74 +7082,6 @@
       "denied": "No tienes permiso para ver esta ficha."
     }
   },
-  "sla": {
-    "client": {
-      "title": "SLA Dashboard",
-      "description": "Métricas operativas de investiduras, validaciones y camporees.",
-      "updated": "Actualizado {ago}",
-      "cached": " (cache)"
-    },
-    "stats": {
-      "total_pending": "Total pendientes",
-      "total_pending_subtitle": "{count} en revisión activa",
-      "overdue": "Vencidos",
-      "overdue_subtitle": "Enviados hace más de 30 días",
-      "overdue_badge_ok": "Al día",
-      "overdue_badge_attention": "Requieren atención",
-      "avg_approval": "Promedio de aprobación",
-      "avg_approval_subtitle": "De inscripción a investido",
-      "avg_approval_days": "{days} días promedio",
-      "avg_approval_no_data": "Sin datos",
-      "approval_rate": "Tasa de aprobación",
-      "approval_rate_subtitle": "{count} resueltos (90 días)",
-      "approval_rate_badge": "{count} aprobados"
-    },
-    "pipeline": {
-      "title": "Pipeline de Investidura",
-      "description": "Inscripciones activas por estado de aprobación",
-      "description_distribution": "Distribución por estado",
-      "empty": "No hay inscripciones activas en el pipeline.",
-      "tooltip_enrollments": "{count, plural, =1 {inscripción} other {inscripciones}}"
-    },
-    "throughput": {
-      "title": "Throughput — Últimas 12 semanas",
-      "description": "Investiduras aprobadas y rechazadas por semana",
-      "empty": "No hay datos de throughput disponibles.",
-      "legend_approved": "Aprobados",
-      "legend_rejected": "Rechazados"
-    },
-    "validation": {
-      "title": "Cola de Validación",
-      "description_pending": "{count, plural, =1 {1 ítem esperando validación} other {{count} ítems esperando validación}}",
-      "description_empty": "Sin ítems pendientes de validación",
-      "class_sections_label": "Secciones de Clase",
-      "class_sections_subtitle": "Progreso pendiente de validar",
-      "honors_label": "Especialidades",
-      "honors_subtitle": "Honores pendientes de validar"
-    },
-    "camporee": {
-      "title": "Aprobaciones de Camporee",
-      "description_pending": "{count, plural, =1 {1 registro pendiente de aprobación} other {{count} registros pendientes de aprobación}}",
-      "description_empty": "Sin registros pendientes de aprobación",
-      "clubs_label": "Clubes registrados",
-      "clubs_subtitle": "Pendientes de aprobación",
-      "members_label": "Miembros registrados",
-      "members_subtitle": "Pendientes de aprobación",
-      "payments_label": "Pagos registrados",
-      "payments_subtitle": "Pendientes de aprobación"
-    },
-    "actions": {
-      "refresh": "Actualizar",
-      "refreshing": "Actualizando..."
-    },
-    "page": {
-      "title": "SLA Dashboard",
-      "description": "Métricas operativas de investiduras, validaciones y camporees."
-    },
-    "errors": {
-      "load_failed": "No se pudieron cargar las métricas. Verifica que el backend esté disponible e inténtalo de nuevo."
-    }
-  },
   "rankings": {
     "breakdown": {
       "compositeScore": "Puntaje compuesto institucional",
@@ -7174,9 +7106,9 @@
       "title": "Clasificación de miembros",
       "description": "Clasificación general por categoría con composite calculado.",
       "emptyNoYearTitle": "No hay año eclesiástico activo",
-      "emptyNoYearDescription": "Configura un año eclesiástico activo en el catálogo para ver los clasificaciones.",
+      "emptyNoYearDescription": "Configura un año eclesiástico activo en el catálogo para ver las clasificaciones.",
       "emptyTitle": "No se pueden mostrar clasificaciones",
-      "emptyDescription": "El endpoint de clasificaciones no está disponible en este momento."
+      "emptyDescription": "Las clasificaciones no están disponibles en este momento."
     },
     "pageMemberBreakdown": {
       "back": "Volver a clasificaciones",
@@ -7212,9 +7144,9 @@
       "title": "Clasificación de secciones",
       "description": "Clasificación general de secciones por composite score.",
       "emptyNoYearTitle": "No hay año eclesiástico activo",
-      "emptyNoYearDescription": "Configura un año eclesiástico activo en el catálogo para ver los clasificaciones.",
+      "emptyNoYearDescription": "Configura un año eclesiástico activo en el catálogo para ver las clasificaciones.",
       "emptyTitle": "No se pueden mostrar clasificaciones de secciones",
-      "emptyDescription": "El endpoint de clasificaciones de secciones no está disponible en este momento."
+      "emptyDescription": "Las clasificaciones de secciones no están disponibles en este momento."
     },
     "pageSectionMembers": {
       "title": "Miembros de la sección",
@@ -7498,6 +7430,65 @@
       "loadError": "No se pudieron cargar las cargas por certificado.",
       "emptyTitle": "Sin cargas pendientes",
       "emptyDescription": "No hay cargas por certificado esperando revisión."
+    },
+    "list": {
+      "kpiPendingBatches": "Lotes pendientes",
+      "kpiPendingBatchesHint": "{total} en bandeja",
+      "kpiRowsToReview": "Filas por revisar",
+      "kpiRowsToReviewHint": "Listas para decisión",
+      "kpiWithCorrections": "Con correcciones",
+      "kpiWithCorrectionsHint": "Devueltas al miembro",
+      "kpiTotalLoaded": "Total cargado",
+      "kpiTotalLoadedHint": "Todos los lotes",
+      "listDescription": "Revisa OCR, comprobantes y filas detectadas.",
+      "searchPlaceholder": "Buscar miembro o lote",
+      "filterAll": "Todos",
+      "filterPending": "Pendientes",
+      "filterPartial": "Parciales",
+      "filterCorrection": "Corrección",
+      "colBatch": "Lote",
+      "colMember": "Miembro",
+      "colSubmitted": "Enviado",
+      "colStatus": "Estado",
+      "colProgress": "Progreso",
+      "noEmail": "Sin email",
+      "review": "Revisar",
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "No hay lotes que coincidan con el filtro actual."
+    },
+    "batchStatus": {
+      "DRAFT": "Borrador",
+      "READY_TO_SUBMIT": "Listo",
+      "SUBMITTED": "Pendiente",
+      "PARTIALLY_APPROVED": "Parcial",
+      "APPROVED": "Aprobado",
+      "REJECTED": "Rechazado",
+      "NEEDS_CORRECTION": "Corrección"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "Revisar",
+      "READY": "Listo",
+      "SUBMITTED": "Pendiente",
+      "APPROVED": "Aprobada",
+      "REJECTED": "Rechazada",
+      "RESUBMITTED": "Reenviada"
+    },
+    "itemType": {
+      "HONOR": "Especialidad",
+      "CLASS": "Clase"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Borrador creado",
+      "ITEM_ADDED": "Fila agregada",
+      "ITEM_UPDATED": "Fila actualizada",
+      "ITEM_REMOVED": "Fila eliminada",
+      "ITEM_RESUBMITTED": "Fila reenviada",
+      "BATCH_SUBMITTED": "Lote enviado",
+      "OCR_QUEUED": "Lectura en cola",
+      "OCR_PROCESSED": "Lectura completada",
+      "OCR_FAILED": "Lectura fallida",
+      "ITEM_APPROVED": "Fila aprobada",
+      "ITEM_REJECTED": "Fila rechazada"
     },
     "detailPage": {
       "title": "Revisión de carga por certificado",
@@ -8374,7 +8365,7 @@
       "title": "Auditoría",
       "description": "Registro de mutaciones del sistema. Solo super-admin.",
       "loading": "Cargando auditoría…",
-      "loadError": "No se pudo cargar la auditoría. El listado global aún no está en el API.",
+      "loadError": "No se pudo cargar la auditoría. Intenta de nuevo más tarde.",
       "emptyTitle": "Sin eventos",
       "emptyDescription": "No hay filas de auditoría para estos filtros.",
       "loadMore": "Cargar más",

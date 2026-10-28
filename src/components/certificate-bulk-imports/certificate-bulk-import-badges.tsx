@@ -1,28 +1,10 @@
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type {
   CertificateBulkImportBatchStatus,
   CertificateBulkImportItemStatus,
   CertificateBulkImportItemType,
 } from "@/lib/api/certificate-bulk-imports";
-
-const batchLabels: Record<CertificateBulkImportBatchStatus, string> = {
-  DRAFT: "Borrador",
-  READY_TO_SUBMIT: "Listo",
-  SUBMITTED: "Pendiente",
-  PARTIALLY_APPROVED: "Parcial",
-  APPROVED: "Aprobado",
-  REJECTED: "Rechazado",
-  NEEDS_CORRECTION: "Corrección",
-};
-
-const itemLabels: Record<CertificateBulkImportItemStatus, string> = {
-  NEEDS_REVIEW: "Revisar",
-  READY: "Listo",
-  SUBMITTED: "Pendiente",
-  APPROVED: "Aprobada",
-  REJECTED: "Rechazada",
-  RESUBMITTED: "Reenviada",
-};
 
 function variantForStatus(status: string): React.ComponentProps<typeof Badge>["variant"] {
   if (status === "APPROVED") return "default";
@@ -32,13 +14,16 @@ function variantForStatus(status: string): React.ComponentProps<typeof Badge>["v
 }
 
 export function CertificateBatchStatusBadge({ status }: { status: CertificateBulkImportBatchStatus }) {
-  return <Badge variant={variantForStatus(status)}>{batchLabels[status] ?? status}</Badge>;
+  const t = useTranslations("certificate_bulk_imports.batchStatus");
+  return <Badge variant={variantForStatus(status)}>{t.has(status) ? t(status) : status}</Badge>;
 }
 
 export function CertificateItemStatusBadge({ status }: { status: CertificateBulkImportItemStatus }) {
-  return <Badge variant={variantForStatus(status)}>{itemLabels[status] ?? status}</Badge>;
+  const t = useTranslations("certificate_bulk_imports.itemStatus");
+  return <Badge variant={variantForStatus(status)}>{t.has(status) ? t(status) : status}</Badge>;
 }
 
 export function CertificateItemTypeBadge({ type }: { type: CertificateBulkImportItemType }) {
-  return <Badge variant="outline">{type === "HONOR" ? "Especialidad" : "Clase"}</Badge>;
+  const t = useTranslations("certificate_bulk_imports.itemType");
+  return <Badge variant="outline">{t.has(type) ? t(type) : type}</Badge>;
 }

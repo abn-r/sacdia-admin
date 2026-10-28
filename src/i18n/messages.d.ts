@@ -7114,74 +7114,6 @@ export interface IntlMessages {
       denied: string;
     };
   };
-  sla: {
-    client: {
-      title: string;
-      description: string;
-      updated: string;
-      cached: string;
-    };
-    stats: {
-      total_pending: string;
-      total_pending_subtitle: string;
-      overdue: string;
-      overdue_subtitle: string;
-      overdue_badge_ok: string;
-      overdue_badge_attention: string;
-      avg_approval: string;
-      avg_approval_subtitle: string;
-      avg_approval_days: string;
-      avg_approval_no_data: string;
-      approval_rate: string;
-      approval_rate_subtitle: string;
-      approval_rate_badge: string;
-    };
-    pipeline: {
-      title: string;
-      description: string;
-      description_distribution: string;
-      empty: string;
-      tooltip_enrollments: string;
-    };
-    throughput: {
-      title: string;
-      description: string;
-      empty: string;
-      legend_approved: string;
-      legend_rejected: string;
-    };
-    validation: {
-      title: string;
-      description_pending: string;
-      description_empty: string;
-      class_sections_label: string;
-      class_sections_subtitle: string;
-      honors_label: string;
-      honors_subtitle: string;
-    };
-    camporee: {
-      title: string;
-      description_pending: string;
-      description_empty: string;
-      clubs_label: string;
-      clubs_subtitle: string;
-      members_label: string;
-      members_subtitle: string;
-      payments_label: string;
-      payments_subtitle: string;
-    };
-    actions: {
-      refresh: string;
-      refreshing: string;
-    };
-    page: {
-      title: string;
-      description: string;
-    };
-    errors: {
-      load_failed: string;
-    };
-  };
   rankings: {
     breakdown: {
       compositeScore: string;
@@ -7530,6 +7462,65 @@ export interface IntlMessages {
       loadError: string;
       emptyTitle: string;
       emptyDescription: string;
+    };
+    list: {
+      kpiPendingBatches: string;
+      kpiPendingBatchesHint: string;
+      kpiRowsToReview: string;
+      kpiRowsToReviewHint: string;
+      kpiWithCorrections: string;
+      kpiWithCorrectionsHint: string;
+      kpiTotalLoaded: string;
+      kpiTotalLoadedHint: string;
+      listDescription: string;
+      searchPlaceholder: string;
+      filterAll: string;
+      filterPending: string;
+      filterPartial: string;
+      filterCorrection: string;
+      colBatch: string;
+      colMember: string;
+      colSubmitted: string;
+      colStatus: string;
+      colProgress: string;
+      noEmail: string;
+      review: string;
+      noResultsTitle: string;
+      noResultsDescription: string;
+    };
+    batchStatus: {
+      DRAFT: string;
+      READY_TO_SUBMIT: string;
+      SUBMITTED: string;
+      PARTIALLY_APPROVED: string;
+      APPROVED: string;
+      REJECTED: string;
+      NEEDS_CORRECTION: string;
+    };
+    itemStatus: {
+      NEEDS_REVIEW: string;
+      READY: string;
+      SUBMITTED: string;
+      APPROVED: string;
+      REJECTED: string;
+      RESUBMITTED: string;
+    };
+    itemType: {
+      HONOR: string;
+      CLASS: string;
+    };
+    eventActions: {
+      DRAFT_CREATED: string;
+      ITEM_ADDED: string;
+      ITEM_UPDATED: string;
+      ITEM_REMOVED: string;
+      ITEM_RESUBMITTED: string;
+      BATCH_SUBMITTED: string;
+      OCR_QUEUED: string;
+      OCR_PROCESSED: string;
+      OCR_FAILED: string;
+      ITEM_APPROVED: string;
+      ITEM_REJECTED: string;
     };
     detailPage: {
       title: string;

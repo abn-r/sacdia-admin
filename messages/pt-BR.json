@@ -123,7 +123,7 @@
       "materials_inventory": "Inventário",
       "materials_categories": "Categorias",
       "materials_config": "Configurações",
-      "certificate_bulk_imports": "Cargas por certificado",
+      "certificate_bulk_imports": "Envios por certificado",
       "honor_instructor_proposals": "Propostas de instrutor",
       "institutional_certificate_requests": "Caixa institucional GM",
       "coordination": "Coordenação",
@@ -309,7 +309,7 @@
     "assignments": {
       "newTitle": "Nova atribuição",
       "newDescription": "A autoridade final sempre é resolvida para seções de clube.",
-      "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, o backend rejeita atribuí-lo como coordenador dessa mesma seção.",
+      "directorConflictRule": "Regra: se o usuário já é diretor de uma seção, não pode ser atribuído como coordenador dessa mesma seção.",
       "title": "Atribuições ativas",
       "description": "Um coordenador pode acumular vários escopos; o app receberá o escopo combinado.",
       "empty": "Não há atribuições registradas.",
@@ -489,7 +489,7 @@
     },
     "errors": {
       "entity_not_supported": "Entidade não suportada",
-      "read_only_catalog": "Este catálogo é somente leitura na API oficial",
+      "read_only_catalog": "Este catálogo é somente leitura",
       "op_create_failed": "Não foi possível criar o registro",
       "op_update_failed": "Não foi possível atualizar o registro",
       "op_delete_failed": "Não foi possível excluir o registro",
@@ -965,7 +965,7 @@
         "cardDescriptionTitle": "Descrição",
         "noDescription": "Sem descrição registrada.",
         "cardHonorsTitle": "Especialidades nesta categoria",
-        "noHonors": "Nenhuma especialidade encontrada para esta categoria, ou o endpoint não respondeu.",
+        "noHonors": "Nenhuma especialidade encontrada para esta categoria.",
         "tableId": "ID",
         "tableName": "Nome",
         "tableLevel": "Nível",
@@ -1629,7 +1629,7 @@
         "statusActive": "Ativo",
         "statusInactive": "Inativo",
         "mobileListLabel": "Lista de clubes",
-        "endpointError": "Endpoint indisponível",
+        "endpointError": "Não foi possível carregar os clubes",
         "cannotShow": "Não é possível exibir clubes",
         "emptyTitle": "Nenhum clube registrado",
         "emptyDescription": "Crie o primeiro clube para começar.",
@@ -1921,8 +1921,8 @@
       "too_many_requests_description": "Aguarde um momento antes de tentar novamente.",
       "forbidden_title": "Sem permissões",
       "forbidden_description": "Você não tem permissão para realizar esta ação.",
-      "endpoint_unavailable_title": "Endpoint indisponível",
-      "endpoint_unavailable_description": "O endpoint de aprovação não está disponível no momento.",
+      "endpoint_unavailable_title": "Serviço indisponível",
+      "endpoint_unavailable_description": "A aprovação não está disponível no momento. Tente novamente mais tarde.",
       "processing_title": "Erro ao processar",
       "unexpected_title": "Erro inesperado",
       "unexpected_description": "Não foi possível processar a aprovação. Tente novamente."
@@ -2113,7 +2113,7 @@
       "clubTypeLabel": "Tipo de clube",
       "clubTypePlaceholder": "Selecionar clube",
       "levelLabel": "Nível",
-      "masterHonorLabel": "Master honor",
+      "masterHonorLabel": "Honra mestre",
       "activeLabel": "Especialidade ativa",
       "imageLabel": "Imagem (URL relativa ou arquivo)",
       "imagePlaceholder": "Especialidades/acolchoado.png",
@@ -2361,7 +2361,7 @@
       "selectAllInBucket": "Selecionar {bucket} de {resource}",
       "destructiveAction": "Ação destrutiva",
       "otherGroup": "Outras permissões",
-      "requiresRoles": "A API exige o papel: {roles}",
+      "requiresRoles": "Requer o papel: {roles}",
       "surfaceFilterLabel": "Superfície",
       "surfaceAll": "Todas",
       "surfaceAdmin": "Painel",
@@ -2436,7 +2436,7 @@
         "readOnlyBanner": "Visualização somente leitura. Apenas um super administrador pode alterar a matriz.",
         "fullScreen": "Tela completa",
         "otherGroup": "Outras permissões",
-        "requiresRoles": "A API exige o papel: {roles}. A permissão só tem efeito em papéis que o cumpram.",
+        "requiresRoles": "Requer o papel: {roles}. A permissão só tem efeito em papéis que a cumpram.",
         "bundleUpdatedTitle": "Tela atualizada",
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Adicionadas: {permissions}.",
@@ -4489,7 +4489,7 @@
       "folder_created": "Pasta anual criada"
     },
     "errors": {
-      "recalculate_rankings": "Erro ao recalcular os classificações",
+      "recalculate_rankings": "Erro ao recalcular as classificações",
       "save_evaluation_failed": "Não foi possível salvar a avaliação",
       "upload_evidence_failed": "Erro ao enviar a evidência",
       "save_section_failed": "Erro ao salvar a seção",
@@ -4536,7 +4536,7 @@
       "tableColDescription": "Descrição",
       "tableColRequired": "Obrigatória",
       "tableColMaxPts": "Pontos atribuídos",
-      "tableColMinPts": "Pts mín",
+      "tableColMinPts": "Pontos mínimos",
       "tableColActions": "Ações",
       "noDescription": "Sem descrição",
       "editSection": "Editar seção",
@@ -5747,7 +5747,7 @@
   },
   "certificationsAdmin": {
     "panelTitle": "Motor de certificações configuráveis",
-    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões existentes são carregadas do backend: as publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
+    "panelDescription": "Crie certificações, monte versões rascunho (regras de elegibilidade, módulos, seções e componentes) e publique-as. As versões publicadas e retiradas abrem em modo somente leitura e os rascunhos continuam editáveis.",
     "newCertificationButton": "Nova certificação",
     "workbenchDescription": "Edite metadados, regras de elegibilidade e estrutura desta versão. Uma versão publicada ou retirada não pode mais ser alterada: clone-a para criar um novo rascunho.",
     "immutableNotice": "Esta versão não está em rascunho e é somente leitura. Use \"Clonar\" para criar um novo rascunho editável.",
@@ -5902,7 +5902,7 @@
       "trigger": "Publicar",
       "title": "Publicar versão",
       "confirmDescription": "Esta versão será publicada e a versão publicada anterior (se houver) será retirada automaticamente. Esta ação não pode ser desfeita por aqui.",
-      "notReadyDescription": "Esta versão ainda não atende ao critério de publicação (é necessária pelo menos uma regra de elegibilidade e pelo menos um módulo com seções e componentes). O backend rejeitará a publicação até que esteja completa.",
+      "notReadyDescription": "Esta versão ainda não atende ao critério de publicação (é necessária pelo menos uma regra de elegibilidade e pelo menos um módulo com seções e componentes). Ela não pode ser publicada até que esteja completa.",
       "readyHint": "Atende ao critério de publicação.",
       "notReadyHint": "Faltam regras de elegibilidade ou estrutura para publicar.",
       "cancel": "Cancelar",
@@ -6767,7 +6767,7 @@
         "description": "Configure a ponderação de cada dimensão (pasta, finança, camporee, evidência) para o cálculo do classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
         "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
         "emptyTitle": "Sem configuração",
-        "emptyDescription": "Nenhuma configuração de pesos encontrada. O backend deveria ter criado um padrão global ao iniciar."
+        "emptyDescription": "Nenhuma configuração de pesos encontrada."
       }
     }
   },
@@ -6831,7 +6831,7 @@
         "statPoints": "Pontos necessários",
         "tabStructure": "Estrutura do programa",
         "structureCardTitle": "Módulos e seções",
-        "modulesEndpointMissing": "O endpoint de classes não retornou módulos na resposta de detalhes. Os módulos são carregados de GET /classes/:id — verifique se o backend os inclui.",
+        "modulesEndpointMissing": "Esta classe não tem módulos para exibir.",
         "labelDuration": "Duração configurada",
         "labelAvailableFrom": "Início da disponibilidade",
         "labelAvailableUntil": "Fim da disponibilidade",
@@ -6842,7 +6842,7 @@
       "title": "Expiração manual de classes",
       "description": "Execute uma simulação ou aplique a expiração das inscrições que excederam a duração máxima.",
       "yearLabel": "Ano eclesiástico de corte",
-      "currentYearOption": "Usar ano ativo do backend",
+      "currentYearOption": "Usar ano ativo",
       "dryRun": "Simular",
       "apply": "Aplicar expiração",
       "modeDryRun": "simulação",
@@ -7082,74 +7082,6 @@
       "denied": "Você não tem permissão para ver esta ficha."
     }
   },
-  "sla": {
-    "client": {
-      "title": "Painel SLA",
-      "description": "Métricas operacionais de investiduras, validações e camporês.",
-      "updated": "Atualizado {ago}",
-      "cached": " (cache)"
-    },
-    "stats": {
-      "total_pending": "Total pendente",
-      "total_pending_subtitle": "{count} em revisão ativa",
-      "overdue": "Atrasados",
-      "overdue_subtitle": "Enviados há mais de 30 dias",
-      "overdue_badge_ok": "Em dia",
-      "overdue_badge_attention": "Requer atenção",
-      "avg_approval": "Tempo méd. de aprovação",
-      "avg_approval_subtitle": "Da inscrição à investidura",
-      "avg_approval_days": "Méd. de {days} dias",
-      "avg_approval_no_data": "Sem dados",
-      "approval_rate": "Taxa de aprovação",
-      "approval_rate_subtitle": "{count} resolvidos (90 dias)",
-      "approval_rate_badge": "{count} aprovados"
-    },
-    "pipeline": {
-      "title": "Pipeline de Investidura",
-      "description": "Inscrições ativas por etapa de aprovação",
-      "description_distribution": "Distribuição por status",
-      "empty": "Nenhuma inscrição ativa no pipeline.",
-      "tooltip_enrollments": "{count, plural, =1 {inscrição} other {inscrições}}"
-    },
-    "throughput": {
-      "title": "Produtividade — Últimas 12 semanas",
-      "description": "Investiduras aprovadas e rejeitadas por semana",
-      "empty": "Nenhum dado de produtividade disponível.",
-      "legend_approved": "Aprovados",
-      "legend_rejected": "Rejeitados"
-    },
-    "validation": {
-      "title": "Fila de Validação",
-      "description_pending": "{count, plural, =1 {1 item aguardando validação} other {{count} itens aguardando validação}}",
-      "description_empty": "Nenhum item pendente de validação",
-      "class_sections_label": "Seções de Classe",
-      "class_sections_subtitle": "Progresso pendente de validação",
-      "honors_label": "Especialidades",
-      "honors_subtitle": "Honras pendentes de validação"
-    },
-    "camporee": {
-      "title": "Aprovações de Camporê",
-      "description_pending": "{count, plural, =1 {1 registro pendente de aprovação} other {{count} registros pendentes de aprovação}}",
-      "description_empty": "Nenhum registro pendente de aprovação",
-      "clubs_label": "Clubes registrados",
-      "clubs_subtitle": "Pendentes de aprovação",
-      "members_label": "Membros registrados",
-      "members_subtitle": "Pendentes de aprovação",
-      "payments_label": "Pagamentos registrados",
-      "payments_subtitle": "Pendentes de aprovação"
-    },
-    "actions": {
-      "refresh": "Atualizar",
-      "refreshing": "Atualizando..."
-    },
-    "page": {
-      "title": "Painel SLA",
-      "description": "Métricas operacionais de investiduras, validações e camporees."
-    },
-    "errors": {
-      "load_failed": "Não foi possível carregar as métricas. Verifique se o backend está disponível e tente novamente."
-    }
-  },
   "rankings": {
     "breakdown": {
       "compositeScore": "Pontuação composta institucional",
@@ -7174,9 +7106,9 @@
       "title": "Classificação de membros",
       "description": "Classificação geral por categoria com composite calculado.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
-      "emptyTitle": "Não é possível exibir os classificações",
-      "emptyDescription": "O endpoint de classificações não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver as classificações.",
+      "emptyTitle": "Não é possível exibir as classificações",
+      "emptyDescription": "As classificações não estão disponíveis no momento."
     },
     "pageMemberBreakdown": {
       "back": "Voltar para classificações",
@@ -7212,9 +7144,9 @@
       "title": "Classificação de seções",
       "description": "Classificação geral de seções por composite score.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
-      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver os classificações.",
-      "emptyTitle": "Não é possível exibir os classificações de seções",
-      "emptyDescription": "O endpoint de classificações de seções não está disponível no momento."
+      "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver as classificações.",
+      "emptyTitle": "Não é possível exibir as classificações de seções",
+      "emptyDescription": "As classificações de seções não estão disponíveis no momento."
     },
     "pageSectionMembers": {
       "title": "Membros da seção",
@@ -7493,38 +7425,97 @@
   },
   "certificate_bulk_imports": {
     "page": {
-      "title": "Cargas por certificado",
-      "description": "Consola admin para revisar lotes OCR enviados por certificado.",
-      "loadError": "No se pudieron cargar las cargas por certificado.",
-      "emptyTitle": "Sin cargas pendientes",
-      "emptyDescription": "No hay cargas por certificado esperando revisión."
+      "title": "Envios por certificado",
+      "description": "Console administrativo para revisar lotes OCR enviados por certificado.",
+      "loadError": "Não foi possível carregar os envios por certificado.",
+      "emptyTitle": "Nenhum envio pendente",
+      "emptyDescription": "Nenhum envio por certificado aguarda revisão."
+    },
+    "list": {
+      "kpiPendingBatches": "Lotes pendentes",
+      "kpiPendingBatchesHint": "{total} na bandeja",
+      "kpiRowsToReview": "Linhas para revisar",
+      "kpiRowsToReviewHint": "Prontas para decisão",
+      "kpiWithCorrections": "Com correções",
+      "kpiWithCorrectionsHint": "Devolvidos ao membro",
+      "kpiTotalLoaded": "Total enviado",
+      "kpiTotalLoadedHint": "Todos os lotes",
+      "listDescription": "Revise OCR, comprovantes e linhas detectadas.",
+      "searchPlaceholder": "Buscar membro ou lote",
+      "filterAll": "Todos",
+      "filterPending": "Pendentes",
+      "filterPartial": "Parciais",
+      "filterCorrection": "Correção",
+      "colBatch": "Lote",
+      "colMember": "Membro",
+      "colSubmitted": "Enviado",
+      "colStatus": "Status",
+      "colProgress": "Progresso",
+      "noEmail": "Sem e-mail",
+      "review": "Revisar",
+      "noResultsTitle": "Sem resultados",
+      "noResultsDescription": "Nenhum lote corresponde ao filtro atual."
+    },
+    "batchStatus": {
+      "DRAFT": "Rascunho",
+      "READY_TO_SUBMIT": "Pronto",
+      "SUBMITTED": "Pendente",
+      "PARTIALLY_APPROVED": "Parcial",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "NEEDS_CORRECTION": "Correção"
+    },
+    "itemStatus": {
+      "NEEDS_REVIEW": "Revisar",
+      "READY": "Pronta",
+      "SUBMITTED": "Pendente",
+      "APPROVED": "Aprovada",
+      "REJECTED": "Rejeitada",
+      "RESUBMITTED": "Reenviada"
+    },
+    "itemType": {
+      "HONOR": "Especialidade",
+      "CLASS": "Classe"
+    },
+    "eventActions": {
+      "DRAFT_CREATED": "Rascunho criado",
+      "ITEM_ADDED": "Linha adicionada",
+      "ITEM_UPDATED": "Linha atualizada",
+      "ITEM_REMOVED": "Linha removida",
+      "ITEM_RESUBMITTED": "Linha reenviada",
+      "BATCH_SUBMITTED": "Lote enviado",
+      "OCR_QUEUED": "Leitura na fila",
+      "OCR_PROCESSED": "Leitura concluída",
+      "OCR_FAILED": "Leitura com falha",
+      "ITEM_APPROVED": "Linha aprovada",
+      "ITEM_REJECTED": "Linha rejeitada"
     },
     "detailPage": {
-      "title": "Revisión de carga por certificado",
-      "description": "Lote {batchId}: comprobantes, filas OCR y auditoría.",
-      "breadcrumbList": "Cargas por certificado",
-      "loadError": "No se pudo cargar el detalle de la carga.",
-      "emptyTitle": "Carga no disponible",
-      "emptyDescription": "No encontramos datos visibles para este lote."
+      "title": "Revisão do envio por certificado",
+      "description": "Lote {batchId}: comprovantes, linhas OCR e auditoria.",
+      "breadcrumbList": "Envios por certificado",
+      "loadError": "Não foi possível carregar os detalhes do envio.",
+      "emptyTitle": "Envio indisponível",
+      "emptyDescription": "Não encontramos dados visíveis para este lote."
     },
     "actionDialog": {
-      "reasonRequired": "El motivo de rechazo es obligatorio",
-      "reasonMax": "Máximo 1000 caracteres",
-      "commentMax": "Máximo 1000 caracteres",
-      "reasonLabel": "Motivo de rechazo *",
+      "reasonRequired": "O motivo da rejeição é obrigatório",
+      "reasonMax": "Máximo de 1000 caracteres",
+      "commentMax": "Máximo de 1000 caracteres",
+      "reasonLabel": "Motivo da rejeição *",
       "reasonPlaceholder": "Explique o que o membro deve corrigir...",
-      "commentLabel": "Comentario opcional",
+      "commentLabel": "Comentário opcional",
       "commentPlaceholder": "Adicione uma nota interna ou visível para auditoria...",
       "cancel": "Cancelar",
-      "approve": "Aprobar",
+      "approve": "Aprovar",
       "reconcileNotice": "Esta aprovação investe a inscrição vigente. Conserva o identificador, o progresso e a data de inscrição.",
       "reconcileApprove": "Acreditar nesta inscrição",
-      "reject": "Rechazar",
+      "reject": "Rejeitar",
       "batchApproved": "Lote aprobado correctamente",
-      "batchRejected": "Lote rechazado para corrección",
+      "batchRejected": "Lote rejeitado para correção",
       "itemApproved": "Fila aprobada correctamente",
       "itemApprovedInstructorConflict": "Linha aprovada. A especialidade já tinha outro instrutor; o existente foi mantido.",
-      "itemRejected": "Fila rechazada para corrección",
+      "itemRejected": "Linha rejeitada para correção",
       "genericError": "Não foi possível concluir a ação"
     },
     "filesPanel": {
@@ -8065,68 +8056,68 @@
       "final": "Fechamentos"
     },
     "tray": {
-      "empty": "No hay requisitos pendientes con el filtro actual.",
-      "loading": "Cargando bandeja…",
-      "refresh": "Actualizar",
-      "filterStatus": "Estado",
-      "filterAll": "Enviados (default)",
+      "empty": "Nenhum requisito pendente com o filtro atual.",
+      "loading": "Carregando bandeja…",
+      "refresh": "Atualizar",
+      "filterStatus": "Status",
+      "filterAll": "Enviados (padrão)",
       "colParticipant": "Participante",
-      "colCertification": "Certificación",
+      "colCertification": "Certificação",
       "colModule": "Módulo",
       "colRequirement": "Requisito",
-      "colStatus": "Estado",
+      "colStatus": "Status",
       "colSubmitted": "Enviado",
       "openDetail": "Revisar"
     },
     "status": {
-      "DRAFT": "Borrador",
+      "DRAFT": "Rascunho",
       "SUBMITTED": "Enviado",
-      "CHANGES_REQUESTED": "Cambios solicitados",
-      "APPROVED": "Aprobado"
+      "CHANGES_REQUESTED": "Alterações solicitadas",
+      "APPROVED": "Aprovado"
     },
     "detail": {
-      "title": "Detalle del requisito",
+      "title": "Detalhe do requisito",
       "components": "Componentes",
-      "history": "Historial",
-      "noResponse": "Sin respuesta",
-      "attestationYes": "Constancia confirmada",
-      "attestationNo": "Constancia no confirmada",
-      "linkedHonor": "Honor vinculado {id}",
-      "linkedActivity": "Actividad vinculada {id}",
+      "history": "Histórico",
+      "noResponse": "Sem resposta",
+      "attestationYes": "Declaração confirmada",
+      "attestationNo": "Declaração não confirmada",
+      "linkedHonor": "Especialidade vinculada {id}",
+      "linkedActivity": "Atividade vinculada {id}",
       "viewEvidence": "Ver",
-      "approve": "Aprobar",
+      "approve": "Aprovar",
       "requestChanges": "Devolver",
-      "commentLabel": "Comentario",
-      "commentPlaceholder": "Explica qué debe corregir el participante",
-      "commentRequired": "El comentario es obligatorio para devolver.",
-      "actionsDisabled": "Solo se pueden aprobar o devolver requisitos en estado Enviado.",
-      "close": "Cerrar"
+      "commentLabel": "Comentário",
+      "commentPlaceholder": "Explique o que o participante deve corrigir",
+      "commentRequired": "O comentário é obrigatório para devolver.",
+      "actionsDisabled": "Somente requisitos com status Enviado podem ser aprovados ou devolvidos.",
+      "close": "Fechar"
     },
     "final": {
-      "placeholder": "La bandeja de cierres se habilitará a continuación.",
-      "empty": "No hay cierres pendientes.",
-      "loading": "Cargando cierres…",
+      "placeholder": "A bandeja de fechamentos será habilitada em breve.",
+      "empty": "Nenhum fechamento pendente.",
+      "loading": "Carregando fechamentos…",
       "colParticipant": "Participante",
-      "colCertification": "Certificación",
-      "colStatus": "Estado",
+      "colCertification": "Certificação",
+      "colStatus": "Status",
       "colSubmitted": "Enviado",
-      "colEvidence": "Comprobante",
+      "colEvidence": "Comprovante",
       "viewEvidence": "Ver",
-      "approveEvidence": "Aprobar comprobante",
+      "approveEvidence": "Aprovar comprovante",
       "requestChanges": "Devolver",
       "certify": "Certificar",
-      "certifyConfirmTitle": "Confirmar certificación",
-      "certifyConfirmDescription": "Esta acción marca la inscripción como certificada. Es idempotente.",
-      "certifyConfirm": "Sí, certificar",
+      "certifyConfirmTitle": "Confirmar certificação",
+      "certifyConfirmDescription": "Esta ação marca a inscrição como certificada. É idempotente.",
+      "certifyConfirm": "Sim, certificar",
       "certifyCancel": "Cancelar",
-      "commentLabel": "Comentario",
-      "commentPlaceholder": "Explica qué debe corregir el participante",
-      "commentRequired": "El comentario es obligatorio para devolver."
+      "commentLabel": "Comentário",
+      "commentPlaceholder": "Explique o que o participante deve corrigir",
+      "commentRequired": "O comentário é obrigatório para devolver."
     },
     "enrollmentStatus": {
-      "SUBMITTED_FOR_FINAL_REVIEW": "En revisión final",
-      "APPROVED": "Aprobado",
-      "CHANGES_REQUESTED": "Cambios solicitados",
+      "SUBMITTED_FOR_FINAL_REVIEW": "Em revisão final",
+      "APPROVED": "Aprovado",
+      "CHANGES_REQUESTED": "Alterações solicitadas",
       "CERTIFIED": "Certificado"
     },
     "componentType": {
@@ -8149,25 +8140,25 @@
       "WITHDRAWN": "Retirado"
     },
     "toasts": {
-      "approved": "Requisito aprobado",
-      "changesRequested": "Requisito devuelto",
-      "loadFailed": "No se pudo cargar la bandeja",
-      "detailFailed": "No se pudo cargar el detalle",
-      "downloadFailed": "No se pudo obtener la URL de descarga",
-      "actionFailed": "No se pudo completar la acción",
-      "closeoutApproved": "Comprobante aprobado",
-      "closeoutChangesRequested": "Cierre devuelto",
-      "certified": "Inscripción certificada"
+      "approved": "Requisito aprovado",
+      "changesRequested": "Requisito devolvido",
+      "loadFailed": "Não foi possível carregar a bandeja",
+      "detailFailed": "Não foi possível carregar o detalhe",
+      "downloadFailed": "Não foi possível obter a URL de download",
+      "actionFailed": "Não foi possível concluir a ação",
+      "closeoutApproved": "Comprovante aprovado",
+      "closeoutChangesRequested": "Fechamento devolvido",
+      "certified": "Inscrição certificada"
     },
     "errors": {
-      "scopeForbidden": "Este ítem está fuera de tu alcance institucional.",
-      "invalidTransition": "La transición de estado no es válida.",
-      "concurrentUpdate": "Otro revisor actualizó este ítem. Actualiza e intenta de nuevo.",
-      "forbidden": "No tienes permisos para realizar esta acción."
+      "scopeForbidden": "Este item está fora do seu escopo institucional.",
+      "invalidTransition": "A transição de status não é válida.",
+      "concurrentUpdate": "Outro revisor atualizou este item. Atualize e tente novamente.",
+      "forbidden": "Você não tem permissão para realizar esta ação."
     },
     "gate": {
-      "forbiddenTitle": "Sin permiso de revisión",
-      "forbiddenDescription": "Necesitas el permiso certifications:review para acceder a esta bandeja."
+      "forbiddenTitle": "Sem permissão de revisão",
+      "forbiddenDescription": "Você precisa da permissão certifications:review para acessar esta bandeja."
     }
   },
   "payment_orders": {
@@ -8374,7 +8365,7 @@
       "title": "Auditoria",
       "description": "Trilha de mutações do sistema. Apenas super-admin.",
       "loading": "Carregando auditoria…",
-      "loadError": "Não foi possível carregar a auditoria. A lista global ainda não está na API.",
+      "loadError": "Não foi possível carregar a auditoria. Tente novamente mais tarde.",
       "emptyTitle": "Sem eventos",
       "emptyDescription": "Não há linhas de auditoria para estes filtros.",
       "loadMore": "Carregar mais",
@@ -8757,66 +8748,66 @@
   },
   "institutional_certificate_requests": {
     "page": {
-      "title": "Bandeja institucional GM",
-      "description": "Solicitudes de validación institucional para Guía Mayor Avanzado (GM-02) e Instructor (GM-03).",
-      "loadError": "No se pudieron cargar las solicitudes institucionales.",
-      "emptyTitle": "Sin solicitudes pendientes",
-      "emptyDescription": "No hay solicitudes de validación institucional en espera de revisión."
+      "title": "Caixa institucional GM",
+      "description": "Solicitações de validação institucional para Guia Maior Avançado (GM-02) e Instrutor (GM-03).",
+      "loadError": "Não foi possível carregar as solicitações institucionais.",
+      "emptyTitle": "Nenhuma solicitação pendente",
+      "emptyDescription": "Não há solicitações de validação institucional aguardando revisão."
     },
     "detailPage": {
-      "title": "Solicitud institucional",
-      "description": "Solicitud {requestId}: datos del solicitante, clase y comprobante.",
-      "breadcrumbList": "Bandeja institucional GM",
-      "loadError": "No se pudo cargar el detalle de la solicitud.",
-      "emptyTitle": "Solicitud no disponible",
-      "emptyDescription": "No encontramos datos para esta solicitud."
+      "title": "Solicitação institucional",
+      "description": "Solicitação {requestId}: dados do solicitante, classe e comprovante.",
+      "breadcrumbList": "Caixa institucional GM",
+      "loadError": "Não foi possível carregar os detalhes da solicitação.",
+      "emptyTitle": "Solicitação indisponível",
+      "emptyDescription": "Não encontramos dados para esta solicitação."
     },
     "actionDialog": {
-      "reasonRequired": "El motivo de rechazo es obligatorio",
-      "reasonMax": "Máximo 1000 caracteres",
-      "commentMax": "Máximo 1000 caracteres",
-      "revisionConflict": "La solicitud fue modificada por otro revisor. Recarga la página e intenta de nuevo.",
-      "decisionImmutable": "Esta solicitud ya tiene una decisión final y no puede modificarse.",
-      "reasonLabel": "Motivo de rechazo *",
-      "reasonPlaceholder": "Explica por qué no se aprueba la validación institucional...",
-      "commentLabel": "Comentario opcional",
-      "commentPlaceholder": "Agrega una nota interna o para auditoría...",
+      "reasonRequired": "O motivo da rejeição é obrigatório",
+      "reasonMax": "Máximo de 1000 caracteres",
+      "commentMax": "Máximo de 1000 caracteres",
+      "revisionConflict": "A solicitação foi modificada por outro revisor. Recarregue a página e tente novamente.",
+      "decisionImmutable": "Esta solicitação já tem uma decisão final e não pode ser modificada.",
+      "reasonLabel": "Motivo da rejeição *",
+      "reasonPlaceholder": "Explique por que a validação institucional não foi aprovada...",
+      "commentLabel": "Comentário opcional",
+      "commentPlaceholder": "Adicione uma nota interna ou de auditoria...",
       "cancel": "Cancelar",
-      "approve": "Aprobar validación",
-      "reject": "Rechazar",
-      "approved": "Validación institucional aprobada",
-      "rejected": "Solicitud rechazada",
-      "genericError": "No se pudo completar la acción"
+      "approve": "Aprovar validação",
+      "reject": "Rejeitar",
+      "approved": "Validação institucional aprovada",
+      "rejected": "Solicitação rejeitada",
+      "genericError": "Não foi possível concluir a ação"
     },
     "status": {
-      "PENDING_REVIEW": "Pendiente",
-      "APPROVED": "Validación aprobada",
-      "REJECTED": "Rechazada"
+      "PENDING_REVIEW": "Pendente",
+      "APPROVED": "Validação aprovada",
+      "REJECTED": "Rejeitada"
     },
     "labels": {
       "applicant": "Solicitante",
-      "class": "Clase",
+      "class": "Classe",
       "assetCode": "Código",
-      "certificateDate": "Fecha del certificado",
-      "reviewedAt": "Fecha de revisión",
-      "ecclesiasticalYear": "Año eclesiástico",
-      "decisionReason": "Motivo de decisión",
-      "enrollmentCreated": "Inscripción creada",
-      "enrollmentCreatedNo": "No — esta aprobación es validación institucional, no inscripción de clase.",
-      "approvalBlockers": "Bloqueos del sistema",
-      "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
-      "events": "Historial de eventos",
-      "noEvents": "Sin eventos registrados",
+      "certificateDate": "Data do certificado",
+      "reviewedAt": "Data da revisão",
+      "ecclesiasticalYear": "Ano eclesiástico",
+      "decisionReason": "Motivo da decisão",
+      "enrollmentCreated": "Inscrição criada",
+      "enrollmentCreatedNo": "Não — esta aprovação é uma validação institucional, não uma inscrição em classe.",
+      "approvalBlockers": "Bloqueios do sistema",
+      "approvalBlockersNote": "Estes bloqueios são problemas do sistema, não do solicitante. Não rejeite a solicitação por este motivo.",
+      "events": "Histórico de eventos",
+      "noEvents": "Nenhum evento registrado",
       "eventActions": {
         "REQUEST_SUBMITTED": "Solicitação enviada",
         "REQUEST_APPROVED": "Validação aprovada",
         "REQUEST_REJECTED": "Solicitação rejeitada"
       },
       "totalHint": "Todas as solicitações",
-      "proof": "Comprobante",
-      "proofLoading": "Cargando comprobante...",
-      "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
-      "proofNotAvailable": "Comprobante no disponible",
+      "proof": "Comprovante",
+      "proofLoading": "Carregando comprovante...",
+      "proofError": "Não foi possível carregar o comprovante. O arquivo pode ainda não estar confirmado.",
+      "proofNotAvailable": "Comprovante indisponível",
       "openProof": "Abrir"
     }
   },

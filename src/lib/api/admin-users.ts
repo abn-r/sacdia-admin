@@ -947,10 +947,10 @@ function normalizeEndpointDetail(error: ApiError): string {
   }
 
   if (error.status >= 500) {
-    return "El backend no esta disponible temporalmente para consultar usuarios.";
+    return "El servicio no está disponible temporalmente para consultar usuarios.";
   }
 
-  return "Endpoint no publicado o metodo no habilitado en backend.";
+  return "La consulta de usuarios no está disponible en este momento.";
 }
 
 export function buildListParams(query: AdminUsersQuery) {

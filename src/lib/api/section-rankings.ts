@@ -169,8 +169,8 @@ function normalizeEndpointDetail(error: ApiError): string {
   if (error.status === 429)
     return "Demasiadas solicitudes. Reintenta en unos segundos.";
   if (error.status >= 500)
-    return "El backend no está disponible temporalmente.";
-  return "Endpoint no disponible en backend.";
+    return "El servicio no está disponible temporalmente.";
+  return "Las clasificaciones no están disponibles en este momento.";
 }
 
 // ─── Flat-array normalizer (drill-down) ───────────────────────────────────────

@@ -54,6 +54,7 @@ export function CertificateBulkImportListPage({
   detailBasePath = "/dashboard/certificate-bulk-imports",
 }: CertificateBulkImportListPageProps) {
   const t = useTranslations("certificate_bulk_imports.page");
+  const tList = useTranslations("certificate_bulk_imports.list");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | "SUBMITTED" | "PARTIALLY_APPROVED" | "NEEDS_CORRECTION">("all");
 
@@ -86,18 +87,22 @@ export function CertificateBulkImportListPage({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-3 md:grid-cols-4">
-        <KpiCard label="Lotes pendientes" value={submittedBatches} hint={`${total} en bandeja`} />
-        <KpiCard label="Filas por revisar" value={pendingRows} hint="Listas para decisión" />
-        <KpiCard label="Con correcciones" value={correctionBatches} hint="Devueltas al miembro" />
-        <KpiCard label="Total cargado" value={total} hint="Según API admin" />
+        <KpiCard
+          label={tList("kpiPendingBatches")}
+          value={submittedBatches}
+          hint={tList("kpiPendingBatchesHint", { total })}
+        />
+        <KpiCard label={tList("kpiRowsToReview")} value={pendingRows} hint={tList("kpiRowsToReviewHint")} />
+        <KpiCard label={tList("kpiWithCorrections")} value={correctionBatches} hint={tList("kpiWithCorrectionsHint")} />
+        <KpiCard label={tList("kpiTotalLoaded")} value={total} hint={tList("kpiTotalLoadedHint")} />
       </div>
 
       <Card className="py-0">
         <CardHeader className="border-b px-4 py-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <CardTitle>Cargas por certificado</CardTitle>
-              <p className="text-sm text-muted-foreground">Revisa OCR, comprobantes y filas detectadas.</p>
+              <CardTitle>{t("title")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{tList("listDescription")}</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative">
@@ -105,16 +110,17 @@ export function CertificateBulkImportListPage({
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Buscar miembro o lote"
+                  placeholder={tList("searchPlaceholder")}
+                  aria-label={tList("searchPlaceholder")}
                   className="pl-8 sm:w-64"
                 />
               </div>
               <div className="flex flex-wrap gap-1">
                 {[
-                  ["all", "Todos"],
-                  ["SUBMITTED", "Pendientes"],
-                  ["PARTIALLY_APPROVED", "Parciales"],
-                  ["NEEDS_CORRECTION", "Corrección"],
+                  ["all", tList("filterAll")],
+                  ["SUBMITTED", tList("filterPending")],
+                  ["PARTIALLY_APPROVED", tList("filterPartial")],
+                  ["NEEDS_CORRECTION", tList("filterCorrection")],
                 ].map(([value, label]) => (
                   <Button
                     key={value}
@@ -135,11 +141,11 @@ export function CertificateBulkImportListPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Lote</TableHead>
-                  <TableHead>Miembro</TableHead>
-                  <TableHead>Enviado</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Progreso</TableHead>
+                  <TableHead>{tList("colBatch")}</TableHead>
+                  <TableHead>{tList("colMember")}</TableHead>
+                  <TableHead>{tList("colSubmitted")}</TableHead>
+                  <TableHead>{tList("colStatus")}</TableHead>
+                  <TableHead>{tList("colProgress")}</TableHead>
                   <RowActionsHead className="w-32" />
                 </TableRow>
               </TableHeader>
@@ -153,7 +159,7 @@ export function CertificateBulkImportListPage({
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{formatUserName(batch.user)}</div>
-                        <div className="text-xs text-muted-foreground">{batch.user?.email ?? "Sin email"}</div>
+                        <div className="text-xs text-muted-foreground">{batch.user?.email ?? tList("noEmail")}</div>
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                         {formatDateTime(batch.submitted_at)}
@@ -174,7 +180,7 @@ export function CertificateBulkImportListPage({
                           primary={
                             <Button size="sm" asChild>
                               <Link href={`${detailBasePath}/${batch.batch_id}`} prefetch={false}>
-                                Revisar
+                                {tList("review")}
                                 <ArrowRight aria-hidden="true" />
                               </Link>
                             </Button>
@@ -191,8 +197,8 @@ export function CertificateBulkImportListPage({
             <div className="p-6">
               <EmptyState
                 icon={Search}
-                title="Sin resultados"
-                description="No hay lotes que coincidan con el filtro actual."
+                title={tList("noResultsTitle")}
+                description={tList("noResultsDescription")}
                 variant="no-results"
               />
             </div>
