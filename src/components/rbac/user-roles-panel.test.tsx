@@ -34,13 +34,14 @@ function makeUserRole(roleName: string, category = "GLOBAL"): UserRole {
   };
 }
 
-function renderPanel(initialUserRoles: UserRole[]) {
+function renderPanel(initialUserRoles: UserRole[], actorIsSuperAdmin = false) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <UserRolesPanel
         userId="user-1"
         initialUserRoles={initialUserRoles}
         allRoles={[makeRole("admin"), makeRole("pastor"), makeRole("user")]}
+        actorIsSuperAdmin={actorIsSuperAdmin}
       />
     </NextIntlClientProvider>,
   );
@@ -86,5 +87,19 @@ describe("UserRolesPanel", () => {
     expect(screen.getByText("Usuario")).toBeInTheDocument();
     expect(screen.queryByText("Otros")).not.toBeInTheDocument();
     expect(screen.queryByText("Administrativos")).not.toBeInTheDocument();
+  });
+
+  it("hides the remove action on admin roles for a non-super-admin", () => {
+    renderPanel([makeUserRole("admin"), makeUserRole("pastor")]);
+
+    const removeButtons = screen.getAllByRole("button", { name: /quitar|remover/i });
+    expect(removeButtons).toHaveLength(1);
+    expect(removeButtons[0].getAttribute("title")).toContain("Pastor");
+  });
+
+  it("lets a super-admin remove admin roles", () => {
+    renderPanel([makeUserRole("admin"), makeUserRole("pastor")], true);
+
+    expect(screen.getAllByRole("button", { name: /quitar|remover/i })).toHaveLength(2);
   });
 });
