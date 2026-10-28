@@ -3456,6 +3456,8 @@
       "descriptionPlaceholder": "Breve descripción del evento para los participantes",
       "capacityPlaceholder": "Sin límite",
       "stepIncomplete": "Completa los campos obligatorios de este paso para continuar.",
+      "rubricsWarningTitle": "El evento se guardó, pero las rúbricas no",
+      "rubricsWarningDescription": "{detail} Abre el evento para volver a configurar las rúbricas.",
       "steps": {
         "general": "Datos generales",
         "schedule": "Horario y sede",

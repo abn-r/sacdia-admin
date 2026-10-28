@@ -3456,6 +3456,8 @@
       "descriptionPlaceholder": "Brief event description for participants",
       "capacityPlaceholder": "No limit",
       "stepIncomplete": "Complete the required fields in this step to continue.",
+      "rubricsWarningTitle": "The event was saved, but its rubrics were not",
+      "rubricsWarningDescription": "{detail} Open the event to configure the rubrics again.",
       "steps": {
         "general": "General details",
         "schedule": "Schedule & venue",

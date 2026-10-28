@@ -48,10 +48,20 @@ import {
   replaceCamporeeEventRubrics,
   type CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
+import { shouldSyncRubrics } from "@/lib/camporee-events/rubric-sync";
 
 // ─── Shared action state ───────────────────────────────────────────────────────
 
-export type CamporeeEventActionState = { error?: string; field?: string };
+export type CamporeeEventActionState = {
+  error?: string;
+  field?: string;
+  /**
+   * The event itself was saved but the follow-up rubric save failed. The
+   * value is the (Spanish) reason; the client closes the form and warns,
+   * so the user never re-submits (and duplicates) an already saved event.
+   */
+  warning?: string;
+};
 
 // ─── FormData helpers ──────────────────────────────────────────────────────────
 
@@ -166,13 +176,42 @@ function extractCreatedEventId(payload: unknown): number | null {
   return Number.isFinite(id) && id > 0 ? id : null;
 }
 
-async function syncRubricsFromForm(eventId: number, formData: FormData) {
-  if (!formData.has("scoring_enabled") && !formData.has("rubrics")) return;
+/**
+ * Saves the event rubrics once the event itself is already persisted.
+ * Never throws: a failure here must not be reported as "the event was not
+ * saved". Returns the failure reason, or null when saved / nothing to do.
+ */
+async function syncRubricsAfterSave(
+  eventId: number,
+  formData: FormData,
+): Promise<string | null> {
+  if (!shouldSyncRubrics(formData)) return null;
 
-  await replaceCamporeeEventRubrics(eventId, {
-    scoring_enabled: getBoolean(formData, "scoring_enabled"),
-    items: getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [],
-  });
+  try {
+    await replaceCamporeeEventRubrics(eventId, {
+      scoring_enabled: getBoolean(formData, "scoring_enabled"),
+      items: getJson<CamporeeTemplateRubricInput[]>(formData, "rubrics") ?? [],
+    });
+    return null;
+  } catch (error) {
+    return getActionErrorMessage(error, "No se pudieron guardar las rúbricas.", {
+      endpointLabel: `/camporee-events/${eventId}/rubrics`,
+    });
+  }
+}
+
+/**
+ * Ends a successful event save. With a rubric warning the event is already
+ * saved, so the action returns instead of redirecting and the form closes
+ * itself with a warning toast.
+ */
+function finishEventSave(
+  basePath: string,
+  rubricWarning: string | null,
+): CamporeeEventActionState {
+  revalidatePath(basePath);
+  if (rubricWarning) return { warning: rubricWarning };
+  redirect(`${basePath}?tab=events`);
 }
 
 /**
@@ -479,10 +518,10 @@ export async function createLocalCamporeeEventAction(
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
+  let eventId: number | null = null;
   try {
     const created = await createLocalCamporeeEvent(camporeeId, payload);
-    const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    eventId = extractCreatedEventId(created);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -491,8 +530,8 @@ export async function createLocalCamporeeEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
-  redirect(`/dashboard/campamentos/${camporeeId}?tab=events`);
+  const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
+  return finishEventSave(`/dashboard/campamentos/${camporeeId}`, rubricWarning);
 }
 
 /** Create a custom event on a union camporee. */
@@ -515,10 +554,10 @@ export async function createUnionCamporeeEventAction(
   const payload = buildInstancePayload(formData);
   if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
 
+  let eventId: number | null = null;
   try {
     const created = await createUnionCamporeeEvent(camporeeId, payload);
-    const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    eventId = extractCreatedEventId(created);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -527,8 +566,8 @@ export async function createUnionCamporeeEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/campamentos/union/${camporeeId}`);
-  redirect(`/dashboard/campamentos/union/${camporeeId}?tab=events`);
+  const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
+  return finishEventSave(`/dashboard/campamentos/union/${camporeeId}`, rubricWarning);
 }
 
 /** Clone a template into a local camporee. */
@@ -622,7 +661,6 @@ export async function updateCamporeeEventAction(
 
   try {
     await updateCamporeeEvent(id, payload);
-    await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo actualizar el evento.", {
@@ -631,14 +669,16 @@ export async function updateCamporeeEventAction(
     };
   }
 
+  const rubricWarning = await syncRubricsAfterSave(id, formData);
+
   if (camporeeId) {
     const basePath = isUnion
       ? `/dashboard/campamentos/union/${camporeeId}`
       : `/dashboard/campamentos/${camporeeId}`;
-    revalidatePath(basePath);
-    redirect(`${basePath}?tab=events`);
+    return finishEventSave(basePath, rubricWarning);
   }
 
+  if (rubricWarning) return { warning: rubricWarning };
   redirect("/dashboard/campamentos");
 }
 
@@ -796,10 +836,10 @@ export async function createCamporeeAgendaEventAction(
   if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
   payload.status = "programado";
 
+  let eventId: number | null = null;
   try {
     const created = await createLocalCamporeeEvent(camporeeId, payload);
-    const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    eventId = extractCreatedEventId(created);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -808,8 +848,8 @@ export async function createCamporeeAgendaEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/campamentos/${camporeeId}`);
-  redirect(`/dashboard/campamentos/${camporeeId}?tab=events`);
+  const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
+  return finishEventSave(`/dashboard/campamentos/${camporeeId}`, rubricWarning);
 }
 
 /** Create a union camporee event with full agenda fields. */
@@ -833,10 +873,10 @@ export async function createUnionCamporeeAgendaEventAction(
   if ("validationError" in payload) return { error: payload.validationError, field: payload.field };
   payload.status = "programado";
 
+  let eventId: number | null = null;
   try {
     const created = await createUnionCamporeeEvent(camporeeId, payload);
-    const eventId = extractCreatedEventId(created);
-    if (eventId) await syncRubricsFromForm(eventId, formData);
+    eventId = extractCreatedEventId(created);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo crear el evento.", {
@@ -845,8 +885,8 @@ export async function createUnionCamporeeAgendaEventAction(
     };
   }
 
-  revalidatePath(`/dashboard/campamentos/union/${camporeeId}`);
-  redirect(`/dashboard/campamentos/union/${camporeeId}?tab=events`);
+  const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
+  return finishEventSave(`/dashboard/campamentos/union/${camporeeId}`, rubricWarning);
 }
 
 /** Update a camporee event with full agenda fields. */
@@ -874,7 +914,6 @@ export async function updateCamporeeAgendaEventAction(
 
   try {
     await updateCamporeeEvent(id, payload);
-    await syncRubricsFromForm(id, formData);
   } catch (error) {
     return {
       error: getActionErrorMessage(error, "No se pudo actualizar el evento.", {
@@ -883,14 +922,16 @@ export async function updateCamporeeAgendaEventAction(
     };
   }
 
+  const rubricWarning = await syncRubricsAfterSave(id, formData);
+
   if (camporeeId) {
     const basePath = isUnion
       ? `/dashboard/campamentos/union/${camporeeId}`
       : `/dashboard/campamentos/${camporeeId}`;
-    revalidatePath(basePath);
-    redirect(`${basePath}?tab=events`);
+    return finishEventSave(basePath, rubricWarning);
   }
 
+  if (rubricWarning) return { warning: rubricWarning };
   redirect("/dashboard/campamentos");
 }
 

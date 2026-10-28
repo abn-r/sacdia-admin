@@ -3485,6 +3485,8 @@ export interface IntlMessages {
       descriptionPlaceholder: string;
       capacityPlaceholder: string;
       stepIncomplete: string;
+      rubricsWarningTitle: string;
+      rubricsWarningDescription: string;
       steps: {
         general: string;
         schedule: string;

@@ -3456,6 +3456,8 @@
       "descriptionPlaceholder": "Brève description de l'événement pour les participants",
       "capacityPlaceholder": "Sans limite",
       "stepIncomplete": "Complétez les champs obligatoires de cette étape pour continuer.",
+      "rubricsWarningTitle": "L’événement a été enregistré, mais pas ses grilles d’évaluation",
+      "rubricsWarningDescription": "{detail} Ouvrez l’événement pour configurer à nouveau les grilles d’évaluation.",
       "steps": {
         "general": "Informations générales",
         "schedule": "Horaire et lieu",
