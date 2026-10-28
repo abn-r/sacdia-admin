@@ -3785,7 +3785,6 @@
         "labelDescription": "Descrição",
         "coordinates": "Coordenadas: {lat}, {lng}",
         "openInMaps": "Ver no mapa",
-        "internalId": "ID interno · #{id}",
         "loadFailed": "Não foi possível carregar a lista de membros.",
         "loadClubsFailed": "Não foi possível carregar a lista de clubes.",
         "loadPaymentsFailed": "Não foi possível carregar a lista de pagamentos."

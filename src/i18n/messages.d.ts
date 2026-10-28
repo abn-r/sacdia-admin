@@ -3814,7 +3814,6 @@ export interface IntlMessages {
         labelDescription: string;
         coordinates: string;
         openInMaps: string;
-        internalId: string;
         loadFailed: string;
         loadClubsFailed: string;
         loadPaymentsFailed: string;

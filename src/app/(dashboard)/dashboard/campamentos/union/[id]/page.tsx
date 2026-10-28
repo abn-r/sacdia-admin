@@ -36,6 +36,8 @@ import {
   type CamporeeLeaderboard,
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
+import { listUnions } from "@/lib/api/geography";
+import { resolveUnionCamporeeUnionName } from "@/lib/camporees/union-name";
 import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
@@ -186,7 +188,7 @@ export default async function UnionCamporeeDetailPage({
     const payload = await getUnionCamporeeById(camporeeId);
     const raw = extractCamporee(payload);
     if (!raw) notFound();
-    unionName = toText(raw.union_name) ?? toText((raw.union as AnyRecord | undefined)?.name);
+    unionName = await resolveUnionCamporeeUnionName(raw, listUnions);
     camporee = normalizeCamporee(raw);
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {

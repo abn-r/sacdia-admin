@@ -176,12 +176,6 @@ export async function CamporeeDetailInfoTab({
               </p>
             </div>
           )}
-
-          <div className="border-t border-border/60 pt-2">
-            <span className="text-[11px] tabular-nums text-muted-foreground">
-              {t("internalId", { id: camporee.camporee_id ?? camporee.id ?? "—" })}
-            </span>
-          </div>
         </div>
       </Card>
     </div>
