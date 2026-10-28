@@ -93,7 +93,8 @@ export type OrdenLine = {
 
 export type Orden = {
   id: string;
-  local_field_id: number;
+  /** Not sent by the order detail; read `orderLocalFieldId()` instead. */
+  local_field_id?: number;
   folio_referencia: string | null;
   estado: MaterialEstado;
   club_section_id: number;
