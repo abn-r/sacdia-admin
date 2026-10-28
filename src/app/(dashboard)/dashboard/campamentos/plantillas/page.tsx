@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { ApiError } from "@/lib/api/client";
 import { listCamporeeEventTemplates } from "@/lib/api/camporee-events";
 import {
@@ -63,16 +62,8 @@ export default async function EventTemplatesPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("listTitle")}
-        description={t("description")}
-        breadcrumbs={[
-          { label: "Campamentos", href: "/dashboard/campamentos" },
-          { label: t("listTitle") },
-        ]}
-      />
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <EventTemplateListClient
+        banner={loadError ? <EndpointErrorBanner state="missing" detail={loadError} /> : null}
         items={items}
         meta={meta}
         canCreate={canCreate}

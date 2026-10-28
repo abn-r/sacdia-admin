@@ -8,10 +8,11 @@ import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-co
 export default async function AnnualRankingConfigPage() {
   const t = await getTranslations("annual_folders.pageRankingConfig");
   const tNav = await getTranslations("nav.items");
+  const tCrumbs = await getTranslations("nav.breadcrumbs");
   const data = await loadRankingConfigPageData();
 
   const breadcrumbs = [
-    { label: tNav("dashboard"), href: "/dashboard" },
+    { label: tCrumbs("home"), href: "/dashboard" },
     { label: tNav("annual_folders"), href: "/dashboard/annual-folders" },
     { label: t("breadcrumbRankingConfig") },
   ];

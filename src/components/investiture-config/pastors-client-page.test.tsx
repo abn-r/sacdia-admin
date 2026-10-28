@@ -133,8 +133,8 @@ describe("PastorsClientPage", () => {
 
     const north = screen.getByRole("region", { name: "Distrito Norte" });
     const south = screen.getByRole("region", { name: "Distrito Sur" });
-    expect(within(north).getByRole("button", { name: "Asignar pastor" })).toBeInTheDocument();
-    expect(within(south).queryByRole("button", { name: "Asignar pastor" })).not.toBeInTheDocument();
+    expect(within(north).getByRole("button", { name: "Asignar pastor a Distrito Norte" })).toBeInTheDocument();
+    expect(within(south).queryByRole("button", { name: "Asignar pastor a Distrito Sur" })).not.toBeInTheDocument();
     expect(within(south).getByText("Cupo completo.")).toBeInTheDocument();
   });
 
@@ -142,7 +142,7 @@ describe("PastorsClientPage", () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.click(screen.getByRole("button", { name: "Asignar pastor" }));
+    await user.click(screen.getByRole("button", { name: "Asignar pastor a Distrito Norte" }));
 
     expect(screen.getByText("assign-dialog:Distrito Norte")).toBeInTheDocument();
   });
@@ -212,7 +212,7 @@ describe("PastorsClientPage", () => {
       ],
     });
 
-    expect(screen.queryByRole("button", { name: "Asignar pastor" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Asignar pastor a Distrito Norte" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Quitar a Ana Pérez" })).not.toBeInTheDocument();
 
     const input = screen.getByLabelText("Cupo");

@@ -23,8 +23,7 @@ import {
   getScreenGroupTitle,
   type NavTranslator,
 } from "@/lib/auth/screen-catalog/screen-title";
-import { Button } from "@/components/ui/button";
-import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { RowActions, RowActionsHead, type RowAction } from "@/components/shared/row-actions";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -106,10 +105,10 @@ function PermissionsPopover({ role }: { role: Role }) {
         <button
           type="button"
           className="cursor-pointer focus-visible:outline-none"
-          aria-label={`Ver los ${permCount} permisos de ${role.role_name}`}
+          aria-label={t("rolesTable.permissionsViewAria", { count: permCount, name: role.role_name })}
         >
           <Badge variant="secondary" className="tabular-nums">
-            {permCount} permisos
+            {t("rolesTable.permissionsCount", { count: permCount })}
           </Badge>
         </button>
       </PopoverTrigger>
@@ -119,7 +118,7 @@ function PermissionsPopover({ role }: { role: Role }) {
         ) : (
           <div className="space-y-3">
             <p className="text-xs font-medium text-muted-foreground">
-              {permCount} permisos asignados
+              {t("rolesTable.permissionsAssigned", { count: permCount })}
             </p>
             {grouped.map(({ id, title, permissions: perms }) => (
               <div key={id} className="space-y-1">
@@ -317,6 +316,27 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
 
   const isProtected = (role: Role) => role.role_name === "super-admin";
 
+  // One accessible path for edit/deactivate in both layouts: the row menu.
+  const roleActions = (role: Role): RowAction[] => {
+    const protected_ = isProtected(role);
+    return [
+      {
+        label: "Editar rol",
+        icon: Pencil,
+        href: `/dashboard/configuration/roles/${role.role_id}`,
+        disabled: protected_,
+      },
+      {
+        label: "Desactivar rol…",
+        icon: Power,
+        destructive: true,
+        onSelect: () => setDeactivateTarget(role),
+        disabled: protected_,
+        hidden: !protected_ && role.active === false,
+      },
+    ];
+  };
+
   return (
     <div className="space-y-5">
       {!isSuperAdmin && <ReadOnlyAlert />}
@@ -513,22 +533,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                           <TableCell className="px-3 py-2.5 align-middle">
                             <RowActions
                               label={translateRole(role.role_name)}
-                              actions={[
-                                {
-                                  label: "Editar rol",
-                                  icon: Pencil,
-                                  href: `/dashboard/configuration/roles/${role.role_id}`,
-                                  disabled: protected_,
-                                },
-                                {
-                                  label: "Desactivar rol…",
-                                  icon: Power,
-                                  destructive: true,
-                                  onSelect: () => setDeactivateTarget(role),
-                                  disabled: protected_,
-                                  hidden: !protected_ && role.active === false,
-                                },
-                              ]}
+                              actions={roleActions(role)}
                             />
                           </TableCell>
                         )}
@@ -603,23 +608,11 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                     </dl>
 
                     {isSuperAdmin && !protected_ && role.active !== false && (
-                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
-                        <Button variant="outline" size="xs" asChild>
-                          <Link prefetch={false} href={`/dashboard/configuration/roles/${role.role_id}`}>
-                            <Pencil className="size-3" />
-                            Editar
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="xs"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => setDeactivateTarget(role)}
-                          aria-label={`Desactivar ${role.role_name}`}
-                        >
-                          <Power className="size-3" />
-                          Desactivar
-                        </Button>
+                      <div className="mt-3 flex justify-end border-t border-border/40 pt-3">
+                        <RowActions
+                          label={translateRole(role.role_name)}
+                          actions={roleActions(role)}
+                        />
                       </div>
                     )}
                   </div>

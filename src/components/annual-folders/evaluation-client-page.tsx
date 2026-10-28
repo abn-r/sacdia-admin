@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber, formatPercentValue } from "@/lib/format-locale";
 import {
   Search,
   RefreshCw,
@@ -437,6 +438,7 @@ export function EvaluationClientPage({
   rankingConfigs = [],
 }: EvaluationClientPageProps) {
   const t = useTranslations("annual_folders");
+  const locale = useLocale();
   const tFolders = useTranslations("annual_folders.pageFolders");
   const folderSetupGap = findAnnualFolderSetupGap({
     ecclesiasticalYears,
@@ -1009,14 +1011,15 @@ export function EvaluationClientPage({
                 {t("evaluationClient.labelScore")}
               </p>
               <p className="text-sm font-medium tabular-nums">
-                {totalEarned} / {totalMax} pts
+                {formatNumber(totalEarned, locale, { maximumFractionDigits: 2 })} /{" "}
+                {formatNumber(totalMax, locale, { maximumFractionDigits: 2 })} pts
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">
                 {t("evaluationClient.labelProgress")}
               </p>
-              <p className="text-sm font-medium tabular-nums">{progressPct}%</p>
+              <p className="text-sm font-medium tabular-nums">{formatPercentValue(progressPct, locale)}</p>
             </div>
           </CardContent>
         </Card>

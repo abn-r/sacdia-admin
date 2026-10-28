@@ -36,6 +36,7 @@ import type { ClubType } from "@/lib/api/catalogs";
 import type { Division, LocalField, Union } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { useFormatDate } from "@/lib/format-locale";
+import { capitalizeFirst } from "@/lib/utils";
 
 function ReportStatusBadge({ status }: { status: AdminReportItem["status"] }) {
   const t = useTranslations("reports.supervisionClient");
@@ -328,52 +329,64 @@ export function ReportsSupervisionClient({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item) => (
-                <TableRow key={item.monthly_report_id}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/dashboard/reports/${item.monthly_report_id}`}
-                      className="hover:underline"
-                    >
-                      {item.club_name ?? "—"}
-                    </Link>
-                    {item.member_count !== null && (
-                      <span className="ml-1.5 text-xs text-muted-foreground">
-                        {t("memberCount", { count: item.member_count })}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
-                  <TableCell className="capitalize">
-                    {formatDate(new Date(item.year, item.month - 1, 1), { month: "long", year: "numeric" })}
-                  </TableCell>
-                  <TableCell>
-                    <ReportStatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
-                  <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
-                  <TableCell>
-                    <RowActions
-                      label={item.club_name ?? String(item.monthly_report_id)}
-                      actions={[
-                        {
-                          label: t("actionView"),
-                          icon: Eye,
-                          href: `/dashboard/reports/${item.monthly_report_id}`,
-                        },
-                        {
-                          label: t("actionPdf"),
-                          icon: Download,
-                          onSelect: () => handleDownloadPdf(item),
-                          disabled: downloadingReportId === item.monthly_report_id,
-                          hidden: item.status === "draft",
-                        },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {items.map((item) => {
+                const period = capitalizeFirst(
+                  formatDate(new Date(item.year, item.month - 1, 1), {
+                    month: "long",
+                    year: "numeric",
+                  }),
+                );
+                return (
+                  <TableRow key={item.monthly_report_id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/dashboard/reports/${item.monthly_report_id}`}
+                        className="hover:underline"
+                      >
+                        {item.club_name ?? "—"}
+                      </Link>
+                      {item.member_count !== null && (
+                        <span className="ml-1.5 text-xs text-muted-foreground">
+                          {t("memberCount", { count: item.member_count })}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
+                    <TableCell>{period}</TableCell>
+                    <TableCell>
+                      <ReportStatusBadge status={item.status} />
+                    </TableCell>
+                    <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                    <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
+                    <TableCell>
+                      <RowActions
+                        label={[
+                          item.club_name ?? String(item.monthly_report_id),
+                          item.club_type,
+                          period,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        actions={[
+                          {
+                            label: t("actionView"),
+                            icon: Eye,
+                            href: `/dashboard/reports/${item.monthly_report_id}`,
+                          },
+                          {
+                            label: t("actionPdf"),
+                            icon: Download,
+                            onSelect: () => handleDownloadPdf(item),
+                            disabled: downloadingReportId === item.monthly_report_id,
+                            hidden: item.status === "draft",
+                          },
+                        ]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

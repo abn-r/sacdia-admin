@@ -21,6 +21,7 @@ export default async function ClubsCertificateBulkImportDetailRoute({
   await requireAdminUser();
   const t = await getTranslations("certificate_bulk_imports.detailPage");
   const tValidations = await getTranslations("clubs.pages.validations");
+  const tCrumbs = await getTranslations("nav.breadcrumbs");
   const { batchId } = await params;
 
   let batch = null;
@@ -47,7 +48,7 @@ export default async function ClubsCertificateBulkImportDetailRoute({
         title={batch ? formatUserName(batch.user) : t("title")}
         description={t("description", { batchId: batchId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: tCrumbs("home"), href: "/dashboard" },
           { label: tValidations("title"), href: "/dashboard/clubs/validations?tab=certificates" },
           { label: batch ? formatUserName(batch.user) : batchId.slice(0, 8).toUpperCase() },
         ]}

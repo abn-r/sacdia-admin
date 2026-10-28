@@ -23,6 +23,20 @@ vi.mock("sonner", () => ({
   toast: { error: vi.fn(), success: vi.fn() },
 }));
 
+// Radix Select needs these DOM APIs, which jsdom does not implement.
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = () => {};
+}
+if (!Element.prototype.releasePointerCapture) {
+  Element.prototype.releasePointerCapture = () => {};
+}
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
+
 import { PaymentInstructionsPanel } from "@/components/insurance/payment-instructions-panel";
 
 const STUB_CONFIG: PaymentOrderConfig = {
@@ -85,7 +99,7 @@ describe("PaymentInstructionsPanel", () => {
     const loadButton = screen.getByRole("button", { name: "Cargar" });
     expect(loadButton).toBeDisabled();
 
-    await user.type(screen.getByLabelText("Campo Local (ID)"), "4");
+    await user.type(screen.getByLabelText("Campo local"), "4");
     expect(loadButton).not.toBeDisabled();
     await user.click(loadButton);
 
@@ -101,11 +115,56 @@ describe("PaymentInstructionsPanel", () => {
     ]);
 
     expect(mockGetConfig).not.toHaveBeenCalled();
-    expect(screen.getByLabelText("Campo Local (ID)")).toHaveAttribute(
+    expect(screen.getByLabelText("Campo local")).toHaveAttribute(
       "role",
       "combobox",
     );
     expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+    expect(screen.queryByText("Campo local (ID)")).not.toBeInTheDocument();
+  });
+
+  it("does not warn about missing payment methods before a field is chosen", () => {
+    renderPanel(true, [
+      { local_field_id: 4, name: "Campo Norte", union_id: 2 },
+      { local_field_id: 9, name: "Campo Casa", union_id: 2 },
+    ]);
+
+    expect(
+      screen.queryByText(/Configura al menos una vía de pago/),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Guardar" })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Selecciona un campo local para ver y editar sus instrucciones de pago.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("loads the config as soon as a field is picked, without a Cargar click", async () => {
+    const user = userEvent.setup();
+    renderPanel(true, [
+      { local_field_id: 4, name: "Campo Norte", union_id: 2 },
+      { local_field_id: 9, name: "Campo Casa", union_id: 2 },
+    ]);
+
+    expect(screen.queryByRole("button", { name: "Cargar" })).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("Campo local"));
+    await user.click(await screen.findByRole("option", { name: "Campo Norte" }));
+
+    await waitFor(() => {
+      expect(mockGetConfig).toHaveBeenCalledWith(4);
+    });
+    expect(await screen.findByDisplayValue("Banco Azteca")).toBeInTheDocument();
+  });
+
+  it("loads the only reachable field automatically", async () => {
+    renderPanel(true, [{ local_field_id: 4, name: "Campo Norte", union_id: 2 }]);
+
+    await waitFor(() => {
+      expect(mockGetConfig).toHaveBeenCalledWith(4);
+    });
+    expect(await screen.findByDisplayValue("Banco Azteca")).toBeInTheDocument();
   });
 
   it("blocks saving when neither bank nor cashier data is present", async () => {

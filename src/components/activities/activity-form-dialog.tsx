@@ -49,7 +49,7 @@ import type { Activity, ActivitySeriesPreview } from "@/lib/api/activities";
 import { listClasses } from "@/lib/api/classes";
 import type { ProgressiveClass } from "@/lib/api/classes";
 import { ActivitySeriesPreviewList } from "@/components/activities/activity-series-preview";
-import { toDateKey } from "@/lib/activities/helpers";
+import { isEmptyOrHttpUrl, optionalText, toDateKey } from "@/lib/activities/helpers";
 
 // ─── Schema factory ───────────────────────────────────────────────────────────
 
@@ -66,7 +66,10 @@ function buildSchema(t: ReturnType<typeof useTranslations<"activities.validation
     activity_place: z.string().min(1, t("activity_place_required")),
     activity_date: z.string().optional(),
     activity_end_date: z.string().optional(),
-    image: z.string().min(1, t("image_required")),
+    image: z
+      .string()
+      .optional()
+      .refine(isEmptyOrHttpUrl, t("image_invalid")),
     platform: z.coerce.number().int().min(0).max(2).optional(),
     link_meet: z.string().optional(),
   });
@@ -231,7 +234,7 @@ export function ActivityFormDialog({
           activity_date: values.activity_date || undefined,
           activity_end_date: values.activity_end_date || undefined,
           activity_place: values.activity_place,
-          image: values.image,
+          image: optionalText(values.image),
           platform: values.platform,
           link_meet: values.link_meet,
         });
@@ -260,7 +263,7 @@ export function ActivityFormDialog({
           activity_time: values.activity_time,
           activity_date: values.activity_date,
           activity_place: values.activity_place,
-          image: values.image,
+          image: optionalText(values.image),
           platform: values.platform,
           link_meet: values.link_meet,
           ...audienceFields,
@@ -294,7 +297,7 @@ export function ActivityFormDialog({
           activity_date: values.activity_date || undefined,
           activity_end_date: values.activity_end_date || undefined,
           activity_place: values.activity_place,
-          image: values.image,
+          image: optionalText(values.image),
           platform: values.platform,
           link_meet: values.link_meet,
           ...audienceFields,
@@ -368,7 +371,7 @@ export function ActivityFormDialog({
         activity_time: form.getValues("activity_time"),
         activity_date: activityDate,
         activity_place: form.getValues("activity_place") || "place",
-        ...(image ? { image } : {}),
+        ...(optionalText(image) ? { image: optionalText(image) } : {}),
         platform: form.getValues("platform"),
         recurrence: {
           kind: repeatKind,
@@ -984,13 +987,10 @@ export function ActivityFormDialog({
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    URL de imagen <span aria-hidden="true" className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>URL de imagen</FormLabel>
                   <FormControl>
                     <Input
                       type="url"
-                      aria-required="true"
                       placeholder={t("placeholders.externalUrl")}
                       {...field}
                     />

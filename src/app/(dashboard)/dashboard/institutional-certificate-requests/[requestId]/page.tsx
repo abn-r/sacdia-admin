@@ -18,6 +18,7 @@ export default async function InstitutionalCertificateRequestDetailRoute({
 }: RouteProps) {
   await requireAdminUser();
   const t = await getTranslations("institutional_certificate_requests.detailPage");
+  const tCrumbs = await getTranslations("nav.breadcrumbs");
   const { requestId } = await params;
 
   let request = null;
@@ -44,7 +45,7 @@ export default async function InstitutionalCertificateRequestDetailRoute({
         title={request?.applicant_name ?? t("title")}
         description={t("description", { requestId: requestId.slice(0, 8).toUpperCase() })}
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
+          { label: tCrumbs("home"), href: "/dashboard" },
           {
             label: t("breadcrumbList"),
             href: "/dashboard/institutional-certificate-requests",

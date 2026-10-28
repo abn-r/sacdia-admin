@@ -187,6 +187,28 @@ describe("RequirementReviewDetail", () => {
     expect(screen.getByText("SUBMITTED")).toBeInTheDocument();
   });
 
+  it("translates component types and review events and keeps unknown values as-is", async () => {
+    mockGetRequirementDetail.mockResolvedValue({
+      ...STUB_DETAIL,
+      components: [
+        { ...STUB_DETAIL.components[0]!, component_type: "TEXT_RESPONSE" },
+        { ...STUB_DETAIL.components[1]!, component_type: "FUTURE_TYPE" },
+      ],
+      history: [
+        { ...STUB_DETAIL.history[0]!, review_event_id: 1, event_type: "REQUIREMENT_SUBMITTED" },
+        { ...STUB_DETAIL.history[0]!, review_event_id: 2, event_type: "REQUIREMENT_CHANGES_REQUESTED" },
+      ],
+    });
+    renderDetail();
+
+    expect(await screen.findByText(/Respuesta de texto/)).toBeInTheDocument();
+    expect(screen.getByText("Requisito enviado")).toBeInTheDocument();
+    expect(screen.getByText("Requisito devuelto")).toBeInTheDocument();
+    expect(screen.getByText(/FUTURE_TYPE/)).toBeInTheDocument();
+    expect(screen.queryByText(/TEXT_RESPONSE/)).toBeNull();
+    expect(screen.queryByText(/REQUIREMENT_SUBMITTED/)).toBeNull();
+  });
+
   it("disables request-changes until a comment is provided", async () => {
     const user = userEvent.setup();
     renderDetail();

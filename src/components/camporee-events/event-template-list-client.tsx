@@ -72,6 +72,8 @@ interface EventTemplateListClientProps {
   canEdit: boolean;
   canDelete: boolean;
   deleteAction: FormAction;
+  /** Rendered right below the page header (e.g. a load error banner). */
+  banner?: React.ReactNode;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -131,9 +133,11 @@ export function EventTemplateListClient({
   canEdit,
   canDelete,
   deleteAction,
+  banner = null,
 }: EventTemplateListClientProps) {
   
   const t = useTranslations("camporeeEvents.templates");
+  const tNav = useTranslations("nav.sections");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -218,7 +222,14 @@ export function EventTemplateListClient({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("listTitle")} description={t("description")}>
+      <PageHeader
+        title={t("listTitle")}
+        description={t("description")}
+        breadcrumbs={[
+          { label: tNav("campamentos"), href: "/dashboard/campamentos" },
+          { label: t("listTitle") },
+        ]}
+      >
         {canCreate && (
           <Button asChild>
             <Link prefetch={false} href={"/dashboard/campamentos/plantillas/new"}>
@@ -228,6 +239,8 @@ export function EventTemplateListClient({
           </Button>
         )}
       </PageHeader>
+
+      {banner}
 
       <div className="space-y-4">
         {/* Filter bar */}

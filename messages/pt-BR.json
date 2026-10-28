@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
+      "home": "Início",
       "dashboard": "Painel",
       "users": "Usuários",
       "catalogs": "Catálogos",
@@ -2258,7 +2259,8 @@
       "role_removed": "Papel removido.",
       "permission_assigned": "Permissão atribuída.",
       "permission_removed": "Permissão removida.",
-      "role_deactivated": "Papel \"{name}\" desativado."
+      "role_deactivated": "Papel \"{name}\" desativado.",
+      "role_created": "Papel \"{name}\" criado."
     },
     "roleForm": {
       "generalInfo": "Informações gerais",
@@ -2320,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Editar papel protegido",
-      "editRoleAriaLabel": "Editar {name}"
+      "editRoleAriaLabel": "Editar {name}",
+      "permissionsViewAria": "Ver {count, plural, one {# permissão} other {# permissões}} de {name}",
+      "permissionsCount": "{count, plural, one {# permissão} other {# permissões}}",
+      "permissionsAssigned": "{count, plural, one {# permissão atribuída} other {# permissões atribuídas}}"
     },
     "copyPermissions": {
       "button": "Copiar permissões",
@@ -2433,7 +2438,10 @@
         "otherGroup": "Outras permissões",
         "requiresRoles": "A API exige o papel: {roles}. A permissão só tem efeito em papéis que o cumpram.",
         "bundleUpdatedTitle": "Tela atualizada",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Adicionadas: {permissions}.",
+        "bundleChangesRemoved": "Removidas: {permissions}.",
+        "bundleChangesMore": "e mais {count}"
       },
       "permissions": {
         "title": "Catálogo de permissões",
@@ -2785,6 +2793,14 @@
     }
   },
   "achievements": {
+    "toasts": {
+      "categoryCreated": "Categoria criada",
+      "categoryUpdated": "Categoria atualizada",
+      "categoryDeactivated": "Categoria desativada",
+      "achievementCreated": "Conquista criada",
+      "achievementUpdated": "Conquista atualizada",
+      "achievementDeactivated": "Conquista desativada"
+    },
     "errors": {
       "create_category_failed": "Não foi possível criar a categoria",
       "update_category_failed": "Não foi possível atualizar a categoria",
@@ -3049,12 +3065,12 @@
         "emptyNoFiltersDescription": "Crie a primeira conquista para esta categoria.",
         "emptyFiltersTitle": "Sem resultados",
         "emptyFiltersDescription": "Nenhuma conquista corresponde aos filtros.",
-        "deleteTitle": "Excluir conquista?",
-        "deleteDescription": "A conquista \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteTitle": "Desativar conquista?",
+        "deleteDescription": "A conquista \"{name}\" será desativada e continuará na lista como inativa. Você pode reativá-la editando-a.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Excluir",
+        "deleteConfirmButton": "Desativar",
         "actionEdit": "Editar",
-        "actionDelete": "Excluir"
+        "actionDelete": "Desativar"
       },
       "categories": {
         "pageTitle": "Conquistas",
@@ -3085,12 +3101,12 @@
         "emptyNoFiltersDescription": "Crie a primeira categoria para organizar as conquistas.",
         "emptyFiltersTitle": "Sem resultados",
         "emptyFiltersDescription": "Nenhuma categoria corresponde aos filtros.",
-        "deleteTitle": "Excluir categoria?",
-        "deleteDescription": "A categoria \"{name}\" será excluída. Esta ação não pode ser desfeita.",
+        "deleteTitle": "Desativar categoria?",
+        "deleteDescription": "A categoria \"{name}\" será desativada e continuará na lista como inativa. Uma categoria só pode ser desativada se não tiver conquistas ativas.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Excluir",
+        "deleteConfirmButton": "Desativar",
         "actionEdit": "Editar",
-        "actionDelete": "Excluir"
+        "actionDelete": "Desativar"
       }
     }
   },
@@ -4503,6 +4519,9 @@
     },
     "templates": {
       "backTitle": "Voltar para modelos",
+      "yearFallback": "Ano {id}",
+      "noRankingConfig": "Não existe uma configuração de ranking aplicável a este modelo. Configure primeiro o componente “{component}”.",
+      "rankingComponentAnnualFolder": "Pasta anual de evidências",
       "backSrOnly": "Voltar",
       "sectionSingular": "seção",
       "sectionPlural": "seções",
@@ -4719,8 +4738,8 @@
       "labelScore": "Pontuação",
       "labelProgress": "Progresso",
       "queueTitle": "Pastas prontas para revisão",
-      "queueHint": "Busque por nome do clube, seção, campo, união ou modelo. O ID interno não é necessário.",
-      "resultsCount": "{count} resultados visíveis",
+      "queueHint": "Busque por nome do clube, seção, campo, união ou modelo.",
+      "resultsCount": "{count, plural, one {# resultado visível} other {# resultados visíveis}}",
       "searchPlaceholder": "Ex. Clube Betel, Desbravadores, ACV...",
       "viewFullFolderTitle": "Ver pasta completa com evidências",
       "unionNotesPlaceholder": "Comentário opcional para auditoria...",
@@ -5717,8 +5736,7 @@
         "tabModules": "Módulos e seções",
         "tabUsers": "Usuários inscritos",
         "programCardTitle": "Estrutura do programa",
-        "enrolledCardTitle": "Usuários inscritos",
-        "enrollmentsEndpointMissing": "O endpoint de certificações não inclui a lista de usuários inscritos na resposta de detalhes. Consulte diretamente o perfil de cada usuário."
+        "enrolledCardTitle": "Usuários inscritos"
       }
     },
     "enrolledUsers": {
@@ -6096,7 +6114,7 @@
       "club_type_required": "Selecione o tipo de clube",
       "club_section_required": "Selecione a seção",
       "activity_place_required": "O local é obrigatório",
-      "image_required": "A URL da imagem é obrigatória"
+      "image_invalid": "Informe uma URL válida que comece com http:// ou https://"
     },
     "audience": {
       "label": "Para quem é?",
@@ -6702,6 +6720,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Tipo {id}",
       "defaultGlobalTitle": "Padrão global",
       "defaultGlobalDescription": "Pesos aplicados a todos os tipos de clube sem substituição configurada. A soma deve ser exatamente 100.",
       "defaultGlobalUpdated": "Padrão global atualizado",
@@ -8110,6 +8129,25 @@
       "CHANGES_REQUESTED": "Cambios solicitados",
       "CERTIFIED": "Certificado"
     },
+    "componentType": {
+      "TEXT_RESPONSE": "Resposta em texto",
+      "FILE_EVIDENCE": "Evidência em arquivo",
+      "LINKED_HONOR": "Especialidade vinculada",
+      "LINKED_ACTIVITY": "Atividade vinculada",
+      "ATTESTATION": "Declaração",
+      "AUTO_VALIDATION": "Validação automática"
+    },
+    "reviewEvents": {
+      "REQUIREMENT_SUBMITTED": "Requisito enviado",
+      "REQUIREMENT_CHANGES_REQUESTED": "Requisito devolvido",
+      "REQUIREMENT_APPROVED": "Requisito aprovado",
+      "REQUIREMENT_RESUBMITTED": "Requisito reenviado",
+      "CLOSEOUT_SUBMITTED": "Encerramento enviado",
+      "CLOSEOUT_CHANGES_REQUESTED": "Encerramento devolvido",
+      "CLOSEOUT_APPROVED": "Encerramento aprovado",
+      "CERTIFIED": "Certificado",
+      "WITHDRAWN": "Retirado"
+    },
     "toasts": {
       "approved": "Requisito aprobado",
       "changesRequested": "Requisito devuelto",
@@ -8227,7 +8265,9 @@
     },
     "config": {
       "description": "Instruções de pagamento impressas em cada ordem (transferência bancária e/ou caixa do Campo Local).",
-      "localField": "Campo Local (ID)",
+      "localField": "Campo local",
+      "selectFieldPlaceholder": "Selecione um campo local",
+      "selectFieldHint": "Selecione um campo local para ver e editar suas instruções de pagamento.",
       "loadField": "Carregar",
       "bankSection": "Transferência bancária",
       "bankName": "Banco",
@@ -8345,6 +8385,28 @@
       "correlation": "Correlação",
       "changes": "Alterações",
       "requestContext": "Contexto HTTP",
+      "rawSummary": "Resumo técnico",
+      "routes": {
+        "permissionCreated": "Permissão criada",
+        "permissionUpdated": "Permissão atualizada",
+        "permissionDeactivated": "Permissão desativada",
+        "roleCreated": "Papel criado",
+        "roleUpdated": "Papel atualizado",
+        "roleDeactivated": "Papel desativado",
+        "rolePermissionsAdded": "Permissões adicionadas a um papel",
+        "rolePermissionsReplaced": "Permissões de um papel substituídas",
+        "rolePermissionRemoved": "Permissão removida de um papel",
+        "userPermissionGranted": "Permissão direta atribuída a um usuário",
+        "userPermissionRemoved": "Permissão direta removida de um usuário",
+        "userRoleAssigned": "Papel atribuído a um usuário",
+        "userRoleRemoved": "Papel removido de um usuário",
+        "adminBootstrapped": "Administrador inicial configurado"
+      },
+      "entities": {
+        "role": "Papel",
+        "permission": "Permissão",
+        "user": "Usuário"
+      },
       "columns": {
         "when": "Quando",
         "action": "Ação",
@@ -8366,7 +8428,8 @@
       "action": {
         "CREATED": "Criado",
         "UPDATED": "Atualizado",
-        "DELETED": "Excluído"
+        "DELETED": "Excluído",
+        "DEACTIVATED": "Desativado"
       },
       "result": {
         "succeeded": "OK",
@@ -8640,7 +8703,8 @@
       "colKind": "Tipo",
       "colTotal": "Total",
       "colPayStatus": "Pagamento",
-      "deliverQty": "Quantidade a entregar"
+      "deliverQty": "Quantidade a entregar",
+      "lineDelivered": "Entrega completa"
     },
     "reports": {
       "kitchen": "Relatório de cozinha",
@@ -8743,6 +8807,12 @@
       "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
       "events": "Historial de eventos",
       "noEvents": "Sin eventos registrados",
+      "eventActions": {
+        "REQUEST_SUBMITTED": "Solicitação enviada",
+        "REQUEST_APPROVED": "Validação aprovada",
+        "REQUEST_REJECTED": "Solicitação rejeitada"
+      },
+      "totalHint": "Todas as solicitações",
       "proof": "Comprobante",
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
@@ -8835,7 +8905,7 @@
       "titleFallback": "Solicitação de investidura",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Início",
       "breadcrumbList": "Autorizações de investidura",
       "windowClosedBanner": "A janela do campo local está fechada. Peça ao campo local que a amplie para poder autorizar.",
       "readOnlyNotice": "Você pode consultar esta solicitação, mas não tem permissão para autorizar seus integrantes.",
@@ -8962,7 +9032,8 @@
         "count": "{count}/{slots} pastores",
         "empty": "Ainda não há pastores atribuídos.",
         "full": "Cota completa.",
-        "assign": "Atribuir pastor"
+        "assign": "Atribuir pastor",
+        "assignAria": "Atribuir pastor a {district}"
       },
       "pastor": {
         "canAuthorize": "Autoriza",

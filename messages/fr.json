@@ -157,6 +157,7 @@
       "investiture_pastors": "Pasteurs par district"
     },
     "breadcrumbs": {
+      "home": "Accueil",
       "dashboard": "Tableau de bord",
       "users": "Utilisateurs",
       "catalogs": "Catalogues",
@@ -2258,7 +2259,8 @@
       "role_removed": "Rôle retiré.",
       "permission_assigned": "Permission attribuée.",
       "permission_removed": "Permission retirée.",
-      "role_deactivated": "Rôle « {name} » désactivé."
+      "role_deactivated": "Rôle « {name} » désactivé.",
+      "role_created": "Rôle « {name} » créé."
     },
     "roleForm": {
       "generalInfo": "Informations générales",
@@ -2320,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Modifier le rôle protégé",
-      "editRoleAriaLabel": "Modifier {name}"
+      "editRoleAriaLabel": "Modifier {name}",
+      "permissionsViewAria": "Voir {count, plural, one {# permission} other {# permissions}} de {name}",
+      "permissionsCount": "{count, plural, one {# permission} other {# permissions}}",
+      "permissionsAssigned": "{count, plural, one {# permission attribuée} other {# permissions attribuées}}"
     },
     "copyPermissions": {
       "button": "Copier les permissions",
@@ -2433,7 +2438,10 @@
         "otherGroup": "Autres permissions",
         "requiresRoles": "L’API exige le rôle : {roles}. La permission n’a d’effet que pour les rôles qui le satisfont.",
         "bundleUpdatedTitle": "Écran mis à jour",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Ajoutées : {permissions}.",
+        "bundleChangesRemoved": "Retirées : {permissions}.",
+        "bundleChangesMore": "et {count} de plus"
       },
       "permissions": {
         "title": "Catalogue des permissions",
@@ -2785,6 +2793,14 @@
     }
   },
   "achievements": {
+    "toasts": {
+      "categoryCreated": "Catégorie créée",
+      "categoryUpdated": "Catégorie mise à jour",
+      "categoryDeactivated": "Catégorie désactivée",
+      "achievementCreated": "Succès créé",
+      "achievementUpdated": "Succès mis à jour",
+      "achievementDeactivated": "Succès désactivé"
+    },
     "errors": {
       "create_category_failed": "Impossible de créer la catégorie",
       "update_category_failed": "Impossible de mettre à jour la catégorie",
@@ -3049,12 +3065,12 @@
         "emptyNoFiltersDescription": "Créez le premier succès pour cette catégorie.",
         "emptyFiltersTitle": "Aucun résultat",
         "emptyFiltersDescription": "Aucun succès ne correspond aux filtres.",
-        "deleteTitle": "Supprimer le succès ?",
-        "deleteDescription": "Le succès \"{name}\" sera supprimé. Cette action est irréversible.",
+        "deleteTitle": "Désactiver le succès ?",
+        "deleteDescription": "Le succès \"{name}\" sera désactivé et restera dans la liste comme inactif. Vous pouvez le réactiver en le modifiant.",
         "deleteCancelButton": "Annuler",
-        "deleteConfirmButton": "Supprimer",
+        "deleteConfirmButton": "Désactiver",
         "actionEdit": "Modifier",
-        "actionDelete": "Supprimer"
+        "actionDelete": "Désactiver"
       },
       "categories": {
         "pageTitle": "Succès",
@@ -3085,12 +3101,12 @@
         "emptyNoFiltersDescription": "Créez la première catégorie pour organiser les succès.",
         "emptyFiltersTitle": "Aucun résultat",
         "emptyFiltersDescription": "Aucune catégorie ne correspond aux filtres.",
-        "deleteTitle": "Supprimer la catégorie ?",
-        "deleteDescription": "La catégorie \"{name}\" sera supprimée. Cette action est irréversible.",
+        "deleteTitle": "Désactiver la catégorie ?",
+        "deleteDescription": "La catégorie \"{name}\" sera désactivée et restera dans la liste comme inactive. Une catégorie ne peut être désactivée que si elle n'a aucun succès actif.",
         "deleteCancelButton": "Annuler",
-        "deleteConfirmButton": "Supprimer",
+        "deleteConfirmButton": "Désactiver",
         "actionEdit": "Modifier",
-        "actionDelete": "Supprimer"
+        "actionDelete": "Désactiver"
       }
     }
   },
@@ -4503,6 +4519,9 @@
     },
     "templates": {
       "backTitle": "Retour aux modèles",
+      "yearFallback": "Année {id}",
+      "noRankingConfig": "Aucune configuration de classement ne s'applique à ce modèle. Configurez d'abord le composant « {component} ».",
+      "rankingComponentAnnualFolder": "Dossier annuel de preuves",
       "backSrOnly": "Retour",
       "sectionSingular": "section",
       "sectionPlural": "sections",
@@ -4591,7 +4610,7 @@
       "descriptionDraft": "Enregistrez le modèle comme brouillon. Ajoutez ensuite les sections et publiez-le depuis le détail lorsqu’il est complet.",
       "descriptionEdit": "Modifiez les données du brouillon de dossier annuel de preuves.",
       "budgetTitle": "Budget provenant du classement",
-      "budgetMissing": "Aucune configuration annuelle de classement ne s’applique à cette combinaison. Configurez-la avant de publier.",
+      "budgetMissing": "Aucune configuration annuelle de classement ne s'applique à cette combinaison. Configurez-la avant de publier.",
       "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration du classement. Les sections doivent répartir exactement ce total.",
       "budgetPending": "Sélectionnez le type de club, l’année et le propriétaire pour résoudre le budget annuel.",
       "submitDraft": "Enregistrer le brouillon",
@@ -4719,8 +4738,8 @@
       "labelScore": "Score",
       "labelProgress": "Avancement",
       "queueTitle": "Dossiers prêts pour révision",
-      "queueHint": "Recherchez par nom de club, section, champ, union ou modèle. L'ID interne n'est pas requis.",
-      "resultsCount": "{count} résultats visibles",
+      "queueHint": "Recherchez par nom de club, section, champ, union ou modèle.",
+      "resultsCount": "{count, plural, one {# résultat visible} other {# résultats visibles}}",
       "searchPlaceholder": "Ex. Club Bethel, Conquérants, ACV...",
       "viewFullFolderTitle": "Voir le dossier complet avec preuves",
       "unionNotesPlaceholder": "Commentaire optionnel pour l'audit...",
@@ -5717,8 +5736,7 @@
         "tabModules": "Modules et sections",
         "tabUsers": "Utilisateurs inscrits",
         "programCardTitle": "Structure du programme",
-        "enrolledCardTitle": "Utilisateurs inscrits",
-        "enrollmentsEndpointMissing": "Le point de terminaison des certifications n’inclut pas la liste des utilisateurs inscrits dans la réponse de détail. Consultez directement le profil de chaque utilisateur."
+        "enrolledCardTitle": "Utilisateurs inscrits"
       }
     },
     "enrolledUsers": {
@@ -6096,7 +6114,7 @@
       "club_type_required": "Sélectionnez le type de club",
       "club_section_required": "Sélectionnez la section",
       "activity_place_required": "Le lieu est obligatoire",
-      "image_required": "L'URL de l'image est obligatoire"
+      "image_invalid": "Saisissez une URL valide commençant par http:// ou https://"
     },
     "audience": {
       "label": "Pour qui ?",
@@ -6702,6 +6720,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Type {id}",
       "defaultGlobalTitle": "Défaut global",
       "defaultGlobalDescription": "Poids appliqués à tous les types de clubs sans remplacement configuré. La somme doit être exactement 100.",
       "defaultGlobalUpdated": "Défaut global mis à jour",
@@ -8110,6 +8129,25 @@
       "CHANGES_REQUESTED": "Cambios solicitados",
       "CERTIFIED": "Certificado"
     },
+    "componentType": {
+      "TEXT_RESPONSE": "Réponse textuelle",
+      "FILE_EVIDENCE": "Preuve en fichier",
+      "LINKED_HONOR": "Spécialité liée",
+      "LINKED_ACTIVITY": "Activité liée",
+      "ATTESTATION": "Déclaration",
+      "AUTO_VALIDATION": "Validation automatique"
+    },
+    "reviewEvents": {
+      "REQUIREMENT_SUBMITTED": "Exigence soumise",
+      "REQUIREMENT_CHANGES_REQUESTED": "Exigence renvoyée",
+      "REQUIREMENT_APPROVED": "Exigence approuvée",
+      "REQUIREMENT_RESUBMITTED": "Exigence soumise à nouveau",
+      "CLOSEOUT_SUBMITTED": "Clôture soumise",
+      "CLOSEOUT_CHANGES_REQUESTED": "Clôture renvoyée",
+      "CLOSEOUT_APPROVED": "Clôture approuvée",
+      "CERTIFIED": "Certifié",
+      "WITHDRAWN": "Retiré"
+    },
     "toasts": {
       "approved": "Requisito aprobado",
       "changesRequested": "Requisito devuelto",
@@ -8227,7 +8265,9 @@
     },
     "config": {
       "description": "Instructions de paiement imprimées sur chaque ordre (virement bancaire et/ou caisse du Champ Local).",
-      "localField": "Champ Local (ID)",
+      "localField": "Champ local",
+      "selectFieldPlaceholder": "Sélectionnez un champ local",
+      "selectFieldHint": "Sélectionnez un champ local pour afficher et modifier ses instructions de paiement.",
       "loadField": "Charger",
       "bankSection": "Virement bancaire",
       "bankName": "Banque",
@@ -8345,6 +8385,28 @@
       "correlation": "Corrélation",
       "changes": "Changements",
       "requestContext": "Contexte HTTP",
+      "rawSummary": "Résumé technique",
+      "routes": {
+        "permissionCreated": "Permission créée",
+        "permissionUpdated": "Permission modifiée",
+        "permissionDeactivated": "Permission désactivée",
+        "roleCreated": "Rôle créé",
+        "roleUpdated": "Rôle modifié",
+        "roleDeactivated": "Rôle désactivé",
+        "rolePermissionsAdded": "Permissions ajoutées à un rôle",
+        "rolePermissionsReplaced": "Permissions d'un rôle remplacées",
+        "rolePermissionRemoved": "Permission retirée d'un rôle",
+        "userPermissionGranted": "Permission directe attribuée à un utilisateur",
+        "userPermissionRemoved": "Permission directe retirée à un utilisateur",
+        "userRoleAssigned": "Rôle attribué à un utilisateur",
+        "userRoleRemoved": "Rôle retiré à un utilisateur",
+        "adminBootstrapped": "Administrateur initial configuré"
+      },
+      "entities": {
+        "role": "Rôle",
+        "permission": "Permission",
+        "user": "Utilisateur"
+      },
       "columns": {
         "when": "Quand",
         "action": "Action",
@@ -8366,7 +8428,8 @@
       "action": {
         "CREATED": "Créé",
         "UPDATED": "Mis à jour",
-        "DELETED": "Supprimé"
+        "DELETED": "Supprimé",
+        "DEACTIVATED": "Désactivé"
       },
       "result": {
         "succeeded": "OK",
@@ -8640,7 +8703,8 @@
       "colKind": "Type",
       "colTotal": "Total",
       "colPayStatus": "Paiement",
-      "deliverQty": "Quantité à livrer"
+      "deliverQty": "Quantité à livrer",
+      "lineDelivered": "Livraison complète"
     },
     "reports": {
       "kitchen": "Rapport cuisine",
@@ -8743,6 +8807,12 @@
       "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
       "events": "Historial de eventos",
       "noEvents": "Sin eventos registrados",
+      "eventActions": {
+        "REQUEST_SUBMITTED": "Demande soumise",
+        "REQUEST_APPROVED": "Validation approuvée",
+        "REQUEST_REJECTED": "Demande rejetée"
+      },
+      "totalHint": "Toutes les demandes",
       "proof": "Comprobante",
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
@@ -8835,7 +8905,7 @@
       "titleFallback": "Demande d'investiture",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Accueil",
       "breadcrumbList": "Autorisations d'investiture",
       "windowClosedBanner": "La fenêtre du champ local est fermée. Demandez au champ local de la prolonger pour pouvoir autoriser.",
       "readOnlyNotice": "Vous pouvez consulter cette demande, mais vous n'avez pas le droit d'autoriser ses membres.",
@@ -8962,7 +9032,8 @@
         "count": "{count}/{slots} pasteurs",
         "empty": "Aucun pasteur assigné pour l'instant.",
         "full": "Quota complet.",
-        "assign": "Assigner un pasteur"
+        "assign": "Assigner un pasteur",
+        "assignAria": "Assigner un pasteur à {district}"
       },
       "pastor": {
         "canAuthorize": "Autorise",

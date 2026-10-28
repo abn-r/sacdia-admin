@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -27,6 +26,8 @@ type AchievementsTranslator = Awaited<
 const ACHIEVEMENTS_PATH = "/dashboard/configuration/achievements";
 
 export type AchievementActionState = {
+  /** True when the mutation succeeded; the client shows the toast and closes the form. */
+  ok?: boolean;
   error?: string;
   /** HTML `name` of the form input the error belongs to. */
   field?: string;
@@ -108,7 +109,7 @@ export async function createAchievementCategoryAction(
   }
 
   revalidatePath(ACHIEVEMENTS_PATH);
-  redirect(ACHIEVEMENTS_PATH);
+  return { ok: true };
 }
 
 export async function updateAchievementCategoryAction(
@@ -133,7 +134,7 @@ export async function updateAchievementCategoryAction(
   }
 
   revalidatePath(ACHIEVEMENTS_PATH);
-  redirect(ACHIEVEMENTS_PATH);
+  return { ok: true };
 }
 
 export async function deleteAchievementCategoryAction(
@@ -157,7 +158,7 @@ export async function deleteAchievementCategoryAction(
   }
 
   revalidatePath(ACHIEVEMENTS_PATH);
-  redirect(ACHIEVEMENTS_PATH);
+  return { ok: true };
 }
 
 // ─── Achievement Actions ──────────────────────────────────────────────────────
@@ -237,7 +238,7 @@ export async function createAchievementAction(
     : ACHIEVEMENTS_PATH;
 
   revalidatePath(redirectPath);
-  redirect(redirectPath);
+  return { ok: true };
 }
 
 export async function updateAchievementAction(
@@ -269,7 +270,7 @@ export async function updateAchievementAction(
     : ACHIEVEMENTS_PATH;
 
   revalidatePath(redirectPath);
-  redirect(redirectPath);
+  return { ok: true };
 }
 
 export async function deleteAchievementAction(
@@ -299,5 +300,5 @@ export async function deleteAchievementAction(
     : ACHIEVEMENTS_PATH;
 
   revalidatePath(redirectPath);
-  redirect(redirectPath);
+  return { ok: true };
 }

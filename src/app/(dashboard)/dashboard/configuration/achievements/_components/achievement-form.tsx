@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -120,8 +121,21 @@ export function AchievementForm({
 }: AchievementFormProps) {
   const t = useTranslations("achievements.forms.achievement");
   const tPreview = useTranslations("achievements.cards.preview");
-  const [state, action] = useActionState(formAction, actionState);
+  const tToast = useTranslations("achievements.toasts");
+  const tModal = useTranslations("shared.formModal");
+  const modal = useFormModal(cancelHref);
   const isEdit = mode === "edit";
+  const [state, action] = useActionState<AchievementActionState, FormData>(
+    async (prev, formData) => {
+      const result = await formAction(prev, formData);
+      if (result.ok) {
+        toast.success(tToast(isEdit ? "achievementUpdated" : "achievementCreated"));
+        modal.complete();
+      }
+      return result;
+    },
+    actionState,
+  );
 
   const resolvedAchievementId =
     achievementIdProp ??
@@ -156,8 +170,6 @@ export function AchievementForm({
     parseCriteria(achievement?.criteria),
   );
 
-  const tModal = useTranslations("shared.formModal");
-  const modal = useFormModal(cancelHref);
   // Badge upload needs a saved achievement, so create mode stops at criteria.
   const steps = isEdit
     ? [t("tabBasic"), t("tabCriteria"), t("tabMedia")]

@@ -96,7 +96,7 @@ export function InstitutionalCertificateRequestListPage({
     <div className="flex flex-col gap-4">
       {/* KPI row */}
       <div className="grid gap-3 md:grid-cols-4">
-        <KpiCard label="Total" value={total} hint="Según API" />
+        <KpiCard label="Total" value={total} hint={tLabels("totalHint")} />
         <KpiCard label="Pendientes" value={pending} hint="Esperando revisión" />
         <KpiCard label="Aprobadas" value={approved} hint="Validación institucional" />
         <KpiCard label="Rechazadas" value={rejected} hint="Solicitudes rechazadas" />

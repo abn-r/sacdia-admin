@@ -7,7 +7,6 @@ import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { CertificationModulesTree } from "@/components/certifications/certification-modules-tree";
 import { EnrolledUsersPanel } from "@/components/certifications/enrolled-users-panel";
 import { ApiError } from "@/lib/api/client";
@@ -172,7 +171,7 @@ export default async function CertificationDetailPage({ params }: { params: Para
   let cert: AnyRecord;
   let modules: NormalizedModule[] = [];
   let enrollments: NormalizedEnrollment[] = [];
-  let enrollmentsError: string | null = null;
+  let hasEnrollmentsList = false;
 
   // Fetch certification detail
   try {
@@ -191,15 +190,14 @@ export default async function CertificationDetailPage({ params }: { params: Para
   // Fetch enrollments — best effort, don't fail the page
   // NOTE: The backend doesn't have a direct "list enrollments by certification" endpoint.
   // The available endpoint is per-user. For an admin overview we rely on data embedded
-  // in the certification detail response (if the backend includes it), or show a message.
+  // in the certification detail response. When the backend does not include it, the
+  // "enrolled users" tab is not rendered at all.
   const enrollmentsRaw =
     cert.enrollments ?? cert.users ?? cert.enrolled_users ?? cert.enrolledUsers ?? null;
 
   if (Array.isArray(enrollmentsRaw)) {
     enrollments = normalizeEnrollments(enrollmentsRaw, certificationId);
-  } else {
-    enrollmentsError =
-      "El endpoint de certificaciones no incluye la lista de usuarios inscritos en la respuesta de detalle. Consulta directamente desde el perfil de cada usuario.";
+    hasEnrollmentsList = true;
   }
 
   const name = toText(cert.name) ?? `Certificación #${certificationId}`;
@@ -257,14 +255,16 @@ export default async function CertificationDetailPage({ params }: { params: Para
           <TabsTrigger value="modules">
             {t("tabModules")}
           </TabsTrigger>
-          <TabsTrigger value="users">
-            {t("tabUsers")}
-            {enrollments.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {enrollments.length}
-              </Badge>
-            )}
-          </TabsTrigger>
+          {hasEnrollmentsList && (
+            <TabsTrigger value="users">
+              {t("tabUsers")}
+              {enrollments.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {enrollments.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="modules" className="mt-4">
@@ -278,23 +278,21 @@ export default async function CertificationDetailPage({ params }: { params: Para
           </Card>
         </TabsContent>
 
-        <TabsContent value="users" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("enrolledCardTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {enrollmentsError ? (
-                <EndpointErrorBanner state="missing" detail={t("enrollmentsEndpointMissing")} />
-              ) : (
+        {hasEnrollmentsList && (
+          <TabsContent value="users" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t("enrolledCardTitle")}</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <EnrolledUsersPanel
                   enrollments={enrollments}
                   certificationId={certificationId}
                 />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

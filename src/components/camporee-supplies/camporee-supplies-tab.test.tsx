@@ -207,4 +207,26 @@ describe("CamporeeSuppliesTab", () => {
 
     expect(mockMarkPaid).not.toHaveBeenCalled();
   });
+
+  it("hides delivery controls on a fully delivered line and keeps them on open lines", async () => {
+    const user = userEvent.setup();
+    const base = STUB_PLAN.lines[0];
+    mockListPlans.mockResolvedValue([
+      {
+        ...STUB_PLAN,
+        lines: [
+          { ...base, line_id: "done", product_name: "Agua", qty: "2000.000", delivered_qty: "2000.000" },
+          { ...base, line_id: "open", product_name: "Hielo", qty: "4.000", delivered_qty: "1.000" },
+        ],
+      },
+    ]);
+    renderTab();
+    await screen.findByText("INS20260001");
+
+    await user.click(screen.getByRole("button", { name: "Ver detalle" }));
+
+    expect(screen.getByText("Entrega completa")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Entregar" })).toHaveLength(1);
+    expect(screen.getAllByLabelText("Cantidad a entregar")).toHaveLength(1);
+  });
 });

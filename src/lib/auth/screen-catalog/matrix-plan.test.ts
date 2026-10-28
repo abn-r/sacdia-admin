@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { bundleKeys, getScreen } from "./index";
-import { bundleState, planBundle, planToggle } from "./matrix-plan";
+import { bundleState, diffGrantedKeys, planBundle, planToggle } from "./matrix-plan";
 
 describe("planToggle", () => {
   it("cascades viewAny when a verb is granted to a role without the screen", () => {
@@ -74,5 +74,34 @@ describe("bundleState", () => {
     expect(bundleState(["a", "b"], new Set(["a"]))).toBe("some");
     expect(bundleState(["a", "b"], new Set(["a", "b"]))).toBe("all");
     expect(bundleState([], new Set(["a"]))).toBe("none");
+  });
+});
+
+describe("diffGrantedKeys", () => {
+  it("reports the cascaded viewAny key next to the one the user clicked", () => {
+    const plan = planToggle("users", new Set(), "users:create", true);
+    expect(plan.mode).toBe("bulk");
+    if (plan.mode === "bulk") {
+      expect(diffGrantedKeys(new Set(), plan.next)).toEqual({
+        added: ["users:create", "users:read"],
+        removed: [],
+      });
+    }
+  });
+
+  it("reports what a cascade-down revokes", () => {
+    const granted = new Set(["users:read", "users:create", "clubs:read"]);
+    const plan = planToggle("users", granted, "users:read", false);
+    expect(plan.mode).toBe("bulk");
+    if (plan.mode === "bulk") {
+      expect(diffGrantedKeys(granted, plan.next)).toEqual({
+        added: [],
+        removed: ["users:create", "users:read"],
+      });
+    }
+  });
+
+  it("is empty when nothing changes", () => {
+    expect(diffGrantedKeys(new Set(["a"]), new Set(["a"]))).toEqual({ added: [], removed: [] });
   });
 });

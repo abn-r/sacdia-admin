@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastores por distrito"
     },
     "breadcrumbs": {
+      "home": "Inicio",
       "dashboard": "Dashboard",
       "users": "Usuarios",
       "catalogs": "Catálogos",
@@ -2258,7 +2259,8 @@
       "role_removed": "Rol removido.",
       "permission_assigned": "Permiso asignado.",
       "permission_removed": "Permiso removido.",
-      "role_deactivated": "Rol \"{name}\" desactivado."
+      "role_deactivated": "Rol \"{name}\" desactivado.",
+      "role_created": "Rol \"{name}\" creado."
     },
     "roleForm": {
       "generalInfo": "Información general",
@@ -2320,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Editar rol protegido",
-      "editRoleAriaLabel": "Editar {name}"
+      "editRoleAriaLabel": "Editar {name}",
+      "permissionsViewAria": "Ver {count, plural, one {el permiso} other {los # permisos}} de {name}",
+      "permissionsCount": "{count, plural, one {# permiso} other {# permisos}}",
+      "permissionsAssigned": "{count, plural, one {# permiso asignado} other {# permisos asignados}}"
     },
     "copyPermissions": {
       "button": "Copiar permisos",
@@ -2385,8 +2390,8 @@
       "noAvailableRoles": "No hay roles disponibles para asignar.",
       "categoryLabel": "Categoría",
       "cancel": "Cancelar",
-      "removeDialogTitle": "Remover rol global?",
-      "removeDialogDescPre": "Se removera el rol",
+      "removeDialogTitle": "¿Remover rol global?",
+      "removeDialogDescPre": "Se removerá el rol",
       "removeDialogDescPost": "de este usuario. Esto puede cambiar significativamente su nivel de acceso al sistema.",
       "remove": "Remover",
       "administrativeGroup": "Administrativos",
@@ -2433,7 +2438,10 @@
         "otherGroup": "Otros permisos",
         "requiresRoles": "El API exige rol: {roles}. El permiso solo surte efecto en roles que lo cumplan.",
         "bundleUpdatedTitle": "Pantalla actualizada",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Se agregaron: {permissions}.",
+        "bundleChangesRemoved": "Se quitaron: {permissions}.",
+        "bundleChangesMore": "y {count} más"
       },
       "permissions": {
         "title": "Catálogo de permisos",
@@ -2785,6 +2793,14 @@
     }
   },
   "achievements": {
+    "toasts": {
+      "categoryCreated": "Categoría creada",
+      "categoryUpdated": "Categoría actualizada",
+      "categoryDeactivated": "Categoría desactivada",
+      "achievementCreated": "Logro creado",
+      "achievementUpdated": "Logro actualizado",
+      "achievementDeactivated": "Logro desactivado"
+    },
     "errors": {
       "create_category_failed": "No se pudo crear la categoría",
       "update_category_failed": "No se pudo actualizar la categoría",
@@ -3049,12 +3065,12 @@
         "emptyNoFiltersDescription": "Crea el primer logro para esta categoría.",
         "emptyFiltersTitle": "Sin resultados",
         "emptyFiltersDescription": "No hay logros que coincidan con los filtros.",
-        "deleteTitle": "¿Eliminar logro?",
-        "deleteDescription": "Se eliminará el logro \"{name}\". Esta acción no puede deshacerse.",
+        "deleteTitle": "¿Desactivar logro?",
+        "deleteDescription": "El logro \"{name}\" se desactivará y quedará en el listado como inactivo. Puedes reactivarlo editándolo.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Eliminar",
+        "deleteConfirmButton": "Desactivar",
         "actionEdit": "Editar",
-        "actionDelete": "Eliminar"
+        "actionDelete": "Desactivar"
       },
       "categories": {
         "pageTitle": "Logros",
@@ -3085,12 +3101,12 @@
         "emptyNoFiltersDescription": "Crea la primera categoría para organizar los logros.",
         "emptyFiltersTitle": "Sin resultados",
         "emptyFiltersDescription": "No hay categorías que coincidan con los filtros.",
-        "deleteTitle": "¿Eliminar categoría?",
-        "deleteDescription": "Se eliminará la categoría \"{name}\". Esta acción no puede deshacerse.",
+        "deleteTitle": "¿Desactivar categoría?",
+        "deleteDescription": "La categoría \"{name}\" se desactivará y quedará en el listado como inactiva. Solo se puede desactivar si no tiene logros activos.",
         "deleteCancelButton": "Cancelar",
-        "deleteConfirmButton": "Eliminar",
+        "deleteConfirmButton": "Desactivar",
         "actionEdit": "Editar",
-        "actionDelete": "Eliminar"
+        "actionDelete": "Desactivar"
       }
     }
   },
@@ -4503,6 +4519,9 @@
     },
     "templates": {
       "backTitle": "Volver a plantillas",
+      "yearFallback": "Año {id}",
+      "noRankingConfig": "No existe una configuración de ranking aplicable para esta plantilla. Configura primero el componente «{component}».",
+      "rankingComponentAnnualFolder": "Carpeta anual de evidencias",
       "backSrOnly": "Volver",
       "sectionSingular": "sección",
       "sectionPlural": "secciones",
@@ -4719,8 +4738,8 @@
       "labelScore": "Puntaje",
       "labelProgress": "Avance",
       "queueTitle": "Carpetas listas para revisar",
-      "queueHint": "Busca por nombre de club, sección, campo, unión o plantilla. El ID interno no hace falta para operar.",
-      "resultsCount": "{count} resultados visibles",
+      "queueHint": "Busca por nombre de club, sección, campo, unión o plantilla.",
+      "resultsCount": "{count, plural, one {# resultado visible} other {# resultados visibles}}",
       "searchPlaceholder": "Ej. Club Betel, Conquistadores, ACV...",
       "viewFullFolderTitle": "Ver carpeta completa con evidencias",
       "unionNotesPlaceholder": "Comentario opcional para auditoría...",
@@ -5717,8 +5736,7 @@
         "tabModules": "Módulos y secciones",
         "tabUsers": "Usuarios inscritos",
         "programCardTitle": "Estructura del programa",
-        "enrolledCardTitle": "Usuarios inscritos",
-        "enrollmentsEndpointMissing": "El endpoint de certificaciones no incluye la lista de usuarios inscritos en la respuesta de detalle. Consulta directamente desde el perfil de cada usuario."
+        "enrolledCardTitle": "Usuarios inscritos"
       }
     },
     "enrolledUsers": {
@@ -6096,7 +6114,7 @@
       "club_type_required": "Selecciona el tipo de club",
       "club_section_required": "Selecciona la sección",
       "activity_place_required": "El lugar es obligatorio",
-      "image_required": "La URL de imagen es obligatoria"
+      "image_invalid": "Ingresa una URL válida que empiece con http:// o https://"
     },
     "audience": {
       "label": "¿Para quién es?",
@@ -6702,6 +6720,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Tipo {id}",
       "defaultGlobalTitle": "Default global",
       "defaultGlobalDescription": "Pesos aplicados a todos los tipos de club que no tienen un override configurado. La suma debe ser exactamente 100.",
       "defaultGlobalUpdated": "Default global actualizado",
@@ -7722,13 +7741,13 @@
   },
   "camporeeEvents": {
     "templates": {
-      "title": "Templates de eventos",
+      "title": "Plantillas de eventos",
       "description": "Biblioteca de eventos reutilizables para camporees.",
-      "listTitle": "Templates de eventos",
-      "createTitle": "Crear template de evento",
-      "editTitle": "Editar template de evento",
-      "entityLabel": "Template",
-      "entityLabelPlural": "Templates",
+      "listTitle": "Plantillas de eventos",
+      "createTitle": "Crear plantilla de evento",
+      "editTitle": "Editar plantilla de evento",
+      "entityLabel": "Plantilla",
+      "entityLabelPlural": "Plantillas",
       "fieldScope": "Alcance",
       "fieldScopeUnion": "Unión",
       "fieldScopeLocalField": "Campo local",
@@ -7773,17 +7792,17 @@
       "penaltyTime": "Tiempo (seg.)",
       "buttonAddPenalty": "Agregar penalización",
       "buttonRemovePenalty": "Eliminar",
-      "buttonCreate": "Crear template",
+      "buttonCreate": "Crear plantilla",
       "buttonSave": "Guardar cambios",
       "buttonCancel": "Cancelar",
       "buttonDelete": "Eliminar",
-      "emptyTitle": "No hay templates",
-      "emptyDescription": "Crea el primer template de evento para camporees.",
-      "deleteConfirmTitle": "¿Eliminar template?",
-      "deleteConfirmDesc": "Se eliminará el template \"{name}\". Las instancias existentes no se verán afectadas.",
-      "backToList": "Volver a templates",
+      "emptyTitle": "No hay plantillas",
+      "emptyDescription": "Crea la primera plantilla de evento para camporees.",
+      "deleteConfirmTitle": "¿Eliminar plantilla?",
+      "deleteConfirmDesc": "Se eliminará la plantilla \"{name}\". Las instancias existentes no se verán afectadas.",
+      "backToList": "Volver a plantillas",
       "stepIncomplete": "Completa los campos obligatorios de este paso para continuar.",
-      "loadError": "No se pudieron cargar los templates.",
+      "loadError": "No se pudieron cargar las plantillas.",
       "filterScope": "Alcance",
       "filterEventType": "Tipo de evento",
       "filterStatus": "Estado",
@@ -7823,7 +7842,7 @@
       "editTitle": "Editar evento",
       "entityLabel": "Evento",
       "entityLabelPlural": "Eventos",
-      "buttonAddFromTemplate": "Agregar desde template",
+      "buttonAddFromTemplate": "Agregar desde plantilla",
       "buttonCreateCustom": "Crear personalizado",
       "buttonSave": "Guardar cambios",
       "buttonCancel": "Cancelar",
@@ -7833,8 +7852,8 @@
       "deleteConfirmTitle": "¿Eliminar evento?",
       "deleteConfirmDesc": "Se eliminará el evento \"{name}\" de este camporee.",
       "loadError": "No se pudieron cargar los eventos del camporee.",
-      "dialogAddTemplateTitle": "Agregar evento desde template",
-      "dialogAddTemplateDesc": "Selecciona un template para clonar como evento de este camporee.",
+      "dialogAddTemplateTitle": "Agregar evento desde plantilla",
+      "dialogAddTemplateDesc": "Selecciona una plantilla para clonar como evento de este camporee.",
       "colTitle": "Título",
       "colEventType": "Tipo",
       "colMaxPoints": "Pts. máx.",
@@ -8110,6 +8129,25 @@
       "CHANGES_REQUESTED": "Cambios solicitados",
       "CERTIFIED": "Certificado"
     },
+    "componentType": {
+      "TEXT_RESPONSE": "Respuesta de texto",
+      "FILE_EVIDENCE": "Evidencia de archivo",
+      "LINKED_HONOR": "Especialidad vinculada",
+      "LINKED_ACTIVITY": "Actividad vinculada",
+      "ATTESTATION": "Declaración",
+      "AUTO_VALIDATION": "Validación automática"
+    },
+    "reviewEvents": {
+      "REQUIREMENT_SUBMITTED": "Requisito enviado",
+      "REQUIREMENT_CHANGES_REQUESTED": "Requisito devuelto",
+      "REQUIREMENT_APPROVED": "Requisito aprobado",
+      "REQUIREMENT_RESUBMITTED": "Requisito reenviado",
+      "CLOSEOUT_SUBMITTED": "Cierre enviado",
+      "CLOSEOUT_CHANGES_REQUESTED": "Cierre devuelto",
+      "CLOSEOUT_APPROVED": "Cierre aprobado",
+      "CERTIFIED": "Certificado",
+      "WITHDRAWN": "Retirado"
+    },
     "toasts": {
       "approved": "Requisito aprobado",
       "changesRequested": "Requisito devuelto",
@@ -8227,7 +8265,9 @@
     },
     "config": {
       "description": "Instrucciones de pago que se imprimen en cada orden (transferencia bancaria y/o caja del Campo Local).",
-      "localField": "Campo Local (ID)",
+      "localField": "Campo local",
+      "selectFieldPlaceholder": "Selecciona un campo local",
+      "selectFieldHint": "Selecciona un campo local para ver y editar sus instrucciones de pago.",
       "loadField": "Cargar",
       "bankSection": "Transferencia bancaria",
       "bankName": "Banco",
@@ -8345,6 +8385,28 @@
       "correlation": "Correlación",
       "changes": "Cambios",
       "requestContext": "Contexto HTTP",
+      "rawSummary": "Resumen técnico",
+      "routes": {
+        "permissionCreated": "Permiso creado",
+        "permissionUpdated": "Permiso actualizado",
+        "permissionDeactivated": "Permiso desactivado",
+        "roleCreated": "Rol creado",
+        "roleUpdated": "Rol actualizado",
+        "roleDeactivated": "Rol desactivado",
+        "rolePermissionsAdded": "Permisos agregados a un rol",
+        "rolePermissionsReplaced": "Permisos de un rol reemplazados",
+        "rolePermissionRemoved": "Permiso quitado de un rol",
+        "userPermissionGranted": "Permiso directo asignado a un usuario",
+        "userPermissionRemoved": "Permiso directo quitado a un usuario",
+        "userRoleAssigned": "Rol asignado a un usuario",
+        "userRoleRemoved": "Rol quitado a un usuario",
+        "adminBootstrapped": "Administrador inicial configurado"
+      },
+      "entities": {
+        "role": "Rol",
+        "permission": "Permiso",
+        "user": "Usuario"
+      },
       "columns": {
         "when": "Cuándo",
         "action": "Acción",
@@ -8366,7 +8428,8 @@
       "action": {
         "CREATED": "Creado",
         "UPDATED": "Actualizado",
-        "DELETED": "Eliminado"
+        "DELETED": "Eliminado",
+        "DEACTIVATED": "Desactivado"
       },
       "result": {
         "succeeded": "OK",
@@ -8640,7 +8703,8 @@
       "colKind": "Tipo",
       "colTotal": "Total",
       "colPayStatus": "Pago",
-      "deliverQty": "Cantidad a entregar"
+      "deliverQty": "Cantidad a entregar",
+      "lineDelivered": "Entrega completa"
     },
     "reports": {
       "kitchen": "Reporte de cocina",
@@ -8743,6 +8807,12 @@
       "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
       "events": "Historial de eventos",
       "noEvents": "Sin eventos registrados",
+      "eventActions": {
+        "REQUEST_SUBMITTED": "Solicitud enviada",
+        "REQUEST_APPROVED": "Validación aprobada",
+        "REQUEST_REJECTED": "Solicitud rechazada"
+      },
+      "totalHint": "Todas las solicitudes",
       "proof": "Comprobante",
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
@@ -8835,7 +8905,7 @@
       "titleFallback": "Solicitud de investidura",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Inicio",
       "breadcrumbList": "Autorizaciones de investidura",
       "windowClosedBanner": "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
       "readOnlyNotice": "Puedes consultar esta solicitud, pero no tienes permiso para autorizar a sus integrantes.",
@@ -8962,7 +9032,8 @@
         "count": "{count}/{slots} pastores",
         "empty": "Todavía no hay pastores asignados.",
         "full": "Cupo completo.",
-        "assign": "Asignar pastor"
+        "assign": "Asignar pastor",
+        "assignAria": "Asignar pastor a {district}"
       },
       "pastor": {
         "canAuthorize": "Autoriza",

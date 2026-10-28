@@ -312,7 +312,12 @@ function DistrictCard({ district, canManage, onAssign, onRemove }: DistrictCardP
             <span />
           )}
           {list.can_assign && (
-            <Button type="button" size="sm" onClick={onAssign}>
+            <Button
+              type="button"
+              size="sm"
+              aria-label={t("district.assignAria", { district: district.name })}
+              onClick={onAssign}
+            >
               <UserPlus aria-hidden="true" />
               {t("district.assign")}
             </Button>

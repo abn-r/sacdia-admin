@@ -10,6 +10,9 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 const mockCreateRoleAction = vi.fn();
+const mockToast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
+
+vi.mock("sonner", () => ({ toast: mockToast }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
@@ -83,5 +86,17 @@ describe("CreateRoleForm - step 1 role_name validation", () => {
       expect(screen.getByLabelText(/Nombre del rol/)).toHaveAttribute("aria-invalid", "true");
     });
     expect(screen.getByRole("alert")).toHaveTextContent(/solo letras minúsculas/);
+  });
+
+  it("confirms the creation with a success toast", async () => {
+    const { nameInput } = setup();
+    fireEvent.change(nameInput, { target: { value: "tesorero-club" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    mockCreateRoleAction.mockResolvedValue({ ok: true });
+    fireEvent.click(screen.getByRole("button", { name: /Crear rol/ }));
+
+    await waitFor(() => {
+      expect(mockToast.success).toHaveBeenCalledWith('Rol "tesorero-club" creado.');
+    });
   });
 });

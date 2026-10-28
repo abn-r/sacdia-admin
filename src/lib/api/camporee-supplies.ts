@@ -197,3 +197,17 @@ export async function adjustCamporeeSupplyLine(
 export function formatSupplyCentavos(centavos: number): string {
   return `$${(centavos / 100).toFixed(2)}`;
 }
+
+/**
+ * True when a plan line has nothing left to deliver. Quantities arrive as
+ * decimal strings ("2000.000"), so they are compared numerically.
+ */
+export function isSupplyLineFullyDelivered(line: {
+  qty: string | number;
+  delivered_qty: string | number;
+}): boolean {
+  const ordered = Number(line.qty);
+  const delivered = Number(line.delivered_qty);
+  if (!Number.isFinite(ordered) || !Number.isFinite(delivered)) return false;
+  return ordered > 0 && delivered >= ordered;
+}

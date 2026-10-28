@@ -157,6 +157,7 @@
       "investiture_pastors": "Pastors by district"
     },
     "breadcrumbs": {
+      "home": "Home",
       "dashboard": "Dashboard",
       "users": "Users",
       "catalogs": "Catalogs",
@@ -2258,7 +2259,8 @@
       "role_removed": "Role removed.",
       "permission_assigned": "Permission assigned.",
       "permission_removed": "Permission removed.",
-      "role_deactivated": "Role \"{name}\" deactivated."
+      "role_deactivated": "Role \"{name}\" deactivated.",
+      "role_created": "Role \"{name}\" created."
     },
     "roleForm": {
       "generalInfo": "General information",
@@ -2320,7 +2322,10 @@
     },
     "rolesTable": {
       "editProtectedAriaLabel": "Edit protected role",
-      "editRoleAriaLabel": "Edit {name}"
+      "editRoleAriaLabel": "Edit {name}",
+      "permissionsViewAria": "View {count, plural, one {# permission} other {# permissions}} of {name}",
+      "permissionsCount": "{count, plural, one {# permission} other {# permissions}}",
+      "permissionsAssigned": "{count, plural, one {# permission assigned} other {# permissions assigned}}"
     },
     "copyPermissions": {
       "button": "Copy permissions",
@@ -2433,7 +2438,10 @@
         "otherGroup": "Other permissions",
         "requiresRoles": "The API requires role: {roles}. The grant only takes effect for roles that satisfy it.",
         "bundleUpdatedTitle": "Screen updated",
-        "bundleUpdatedDesc": "{screen} · {role}"
+        "bundleUpdatedDesc": "{screen} · {role}",
+        "bundleChangesAdded": "Added: {permissions}.",
+        "bundleChangesRemoved": "Removed: {permissions}.",
+        "bundleChangesMore": "and {count} more"
       },
       "permissions": {
         "title": "Permissions catalog",
@@ -2785,6 +2793,14 @@
     }
   },
   "achievements": {
+    "toasts": {
+      "categoryCreated": "Category created",
+      "categoryUpdated": "Category updated",
+      "categoryDeactivated": "Category deactivated",
+      "achievementCreated": "Achievement created",
+      "achievementUpdated": "Achievement updated",
+      "achievementDeactivated": "Achievement deactivated"
+    },
     "errors": {
       "create_category_failed": "The category could not be created",
       "update_category_failed": "The category could not be updated",
@@ -3049,12 +3065,12 @@
         "emptyNoFiltersDescription": "Create the first achievement for this category.",
         "emptyFiltersTitle": "No results",
         "emptyFiltersDescription": "No achievements match the filters.",
-        "deleteTitle": "Delete achievement?",
-        "deleteDescription": "The achievement \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteTitle": "Deactivate achievement?",
+        "deleteDescription": "The achievement \"{name}\" will be deactivated and will stay in the list as inactive. You can reactivate it by editing it.",
         "deleteCancelButton": "Cancel",
-        "deleteConfirmButton": "Delete",
+        "deleteConfirmButton": "Deactivate",
         "actionEdit": "Edit",
-        "actionDelete": "Delete"
+        "actionDelete": "Deactivate"
       },
       "categories": {
         "pageTitle": "Achievements",
@@ -3085,12 +3101,12 @@
         "emptyNoFiltersDescription": "Create the first category to organize achievements.",
         "emptyFiltersTitle": "No results",
         "emptyFiltersDescription": "No categories match the filters.",
-        "deleteTitle": "Delete category?",
-        "deleteDescription": "The category \"{name}\" will be deleted. This action cannot be undone.",
+        "deleteTitle": "Deactivate category?",
+        "deleteDescription": "The category \"{name}\" will be deactivated and will stay in the list as inactive. A category can only be deactivated when it has no active achievements.",
         "deleteCancelButton": "Cancel",
-        "deleteConfirmButton": "Delete",
+        "deleteConfirmButton": "Deactivate",
         "actionEdit": "Edit",
-        "actionDelete": "Delete"
+        "actionDelete": "Deactivate"
       }
     }
   },
@@ -4503,6 +4519,9 @@
     },
     "templates": {
       "backTitle": "Back to templates",
+      "yearFallback": "Year {id}",
+      "noRankingConfig": "There is no ranking configuration that applies to this template. Configure the “{component}” component first.",
+      "rankingComponentAnnualFolder": "Annual evidence folder",
       "backSrOnly": "Back",
       "sectionSingular": "section",
       "sectionPlural": "sections",
@@ -4719,8 +4738,8 @@
       "labelScore": "Score",
       "labelProgress": "Progress",
       "queueTitle": "Folders ready for review",
-      "queueHint": "Search by club name, section, field, union, or template. Internal IDs are not required.",
-      "resultsCount": "{count} visible results",
+      "queueHint": "Search by club name, section, field, union, or template.",
+      "resultsCount": "{count, plural, one {# visible result} other {# visible results}}",
       "searchPlaceholder": "E.g. Bethel Club, Pathfinders, ACV...",
       "viewFullFolderTitle": "View full folder with evidence",
       "unionNotesPlaceholder": "Optional comment for audit trail...",
@@ -5717,8 +5736,7 @@
         "tabModules": "Modules & sections",
         "tabUsers": "Enrolled users",
         "programCardTitle": "Program structure",
-        "enrolledCardTitle": "Enrolled users",
-        "enrollmentsEndpointMissing": "The certifications endpoint does not include the enrolled users list in the detail response. Check directly from each user's profile."
+        "enrolledCardTitle": "Enrolled users"
       }
     },
     "enrolledUsers": {
@@ -6096,7 +6114,7 @@
       "club_type_required": "Select the club type",
       "club_section_required": "Select the section",
       "activity_place_required": "Location is required",
-      "image_required": "Image URL is required"
+      "image_invalid": "Enter a valid URL starting with http:// or https://"
     },
     "audience": {
       "label": "Who is it for?",
@@ -6702,6 +6720,7 @@
   },
   "rankingWeights": {
     "clientPage": {
+      "clubTypeFallback": "Type {id}",
       "defaultGlobalTitle": "Global default",
       "defaultGlobalDescription": "Weights applied to all club types that do not have a configured override. The sum must be exactly 100.",
       "defaultGlobalUpdated": "Global default updated",
@@ -8110,6 +8129,25 @@
       "CHANGES_REQUESTED": "Changes requested",
       "CERTIFIED": "Certified"
     },
+    "componentType": {
+      "TEXT_RESPONSE": "Text response",
+      "FILE_EVIDENCE": "File evidence",
+      "LINKED_HONOR": "Linked honor",
+      "LINKED_ACTIVITY": "Linked activity",
+      "ATTESTATION": "Attestation",
+      "AUTO_VALIDATION": "Automatic validation"
+    },
+    "reviewEvents": {
+      "REQUIREMENT_SUBMITTED": "Requirement submitted",
+      "REQUIREMENT_CHANGES_REQUESTED": "Requirement returned",
+      "REQUIREMENT_APPROVED": "Requirement approved",
+      "REQUIREMENT_RESUBMITTED": "Requirement resubmitted",
+      "CLOSEOUT_SUBMITTED": "Closeout submitted",
+      "CLOSEOUT_CHANGES_REQUESTED": "Closeout returned",
+      "CLOSEOUT_APPROVED": "Closeout approved",
+      "CERTIFIED": "Certified",
+      "WITHDRAWN": "Withdrawn"
+    },
     "toasts": {
       "approved": "Requirement approved",
       "changesRequested": "Requirement returned",
@@ -8227,7 +8265,9 @@
     },
     "config": {
       "description": "Payment instructions printed on every order (bank transfer and/or Local Field cashier).",
-      "localField": "Local Field (ID)",
+      "localField": "Local field",
+      "selectFieldPlaceholder": "Select a local field",
+      "selectFieldHint": "Select a local field to view and edit its payment instructions.",
       "loadField": "Load",
       "bankSection": "Bank transfer",
       "bankName": "Bank",
@@ -8345,6 +8385,28 @@
       "correlation": "Correlation",
       "changes": "Changes",
       "requestContext": "HTTP context",
+      "rawSummary": "Technical summary",
+      "routes": {
+        "permissionCreated": "Permission created",
+        "permissionUpdated": "Permission updated",
+        "permissionDeactivated": "Permission deactivated",
+        "roleCreated": "Role created",
+        "roleUpdated": "Role updated",
+        "roleDeactivated": "Role deactivated",
+        "rolePermissionsAdded": "Permissions added to a role",
+        "rolePermissionsReplaced": "A role's permissions replaced",
+        "rolePermissionRemoved": "Permission removed from a role",
+        "userPermissionGranted": "Direct permission granted to a user",
+        "userPermissionRemoved": "Direct permission removed from a user",
+        "userRoleAssigned": "Role assigned to a user",
+        "userRoleRemoved": "Role removed from a user",
+        "adminBootstrapped": "Initial administrator set up"
+      },
+      "entities": {
+        "role": "Role",
+        "permission": "Permission",
+        "user": "User"
+      },
       "columns": {
         "when": "When",
         "action": "Action",
@@ -8366,7 +8428,8 @@
       "action": {
         "CREATED": "Created",
         "UPDATED": "Updated",
-        "DELETED": "Deleted"
+        "DELETED": "Deleted",
+        "DEACTIVATED": "Deactivated"
       },
       "result": {
         "succeeded": "OK",
@@ -8640,7 +8703,8 @@
       "colKind": "Kind",
       "colTotal": "Total",
       "colPayStatus": "Payment",
-      "deliverQty": "Quantity to deliver"
+      "deliverQty": "Quantity to deliver",
+      "lineDelivered": "Fully delivered"
     },
     "reports": {
       "kitchen": "Kitchen report",
@@ -8743,6 +8807,12 @@
       "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
       "events": "Historial de eventos",
       "noEvents": "Sin eventos registrados",
+      "eventActions": {
+        "REQUEST_SUBMITTED": "Request submitted",
+        "REQUEST_APPROVED": "Validation approved",
+        "REQUEST_REJECTED": "Request rejected"
+      },
+      "totalHint": "All requests",
       "proof": "Comprobante",
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
@@ -8835,7 +8905,7 @@
       "titleFallback": "Investiture request",
       "description": "{section} · {district} · {year}",
       "noValue": "—",
-      "breadcrumbHome": "Dashboard",
+      "breadcrumbHome": "Home",
       "breadcrumbList": "Investiture authorizations",
       "windowClosedBanner": "The local field's window is closed. Ask the local field to extend it so you can authorize.",
       "readOnlyNotice": "You can view this request, but you are not allowed to authorize its members.",
@@ -8962,7 +9032,8 @@
         "count": "{count}/{slots} pastors",
         "empty": "No pastors assigned yet.",
         "full": "Quota full.",
-        "assign": "Assign pastor"
+        "assign": "Assign pastor",
+        "assignAria": "Assign a pastor to {district}"
       },
       "pastor": {
         "canAuthorize": "Authorizes",

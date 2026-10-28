@@ -186,6 +186,7 @@ export interface IntlMessages {
       investiture_pastors: string;
     };
     breadcrumbs: {
+      home: string;
       dashboard: string;
       users: string;
       catalogs: string;
@@ -2288,6 +2289,7 @@ export interface IntlMessages {
       permission_assigned: string;
       permission_removed: string;
       role_deactivated: string;
+      role_created: string;
     };
     roleForm: {
       generalInfo: string;
@@ -2350,6 +2352,9 @@ export interface IntlMessages {
     rolesTable: {
       editProtectedAriaLabel: string;
       editRoleAriaLabel: string;
+      permissionsViewAria: string;
+      permissionsCount: string;
+      permissionsAssigned: string;
     };
     copyPermissions: {
       button: string;
@@ -2463,6 +2468,9 @@ export interface IntlMessages {
         requiresRoles: string;
         bundleUpdatedTitle: string;
         bundleUpdatedDesc: string;
+        bundleChangesAdded: string;
+        bundleChangesRemoved: string;
+        bundleChangesMore: string;
       };
       permissions: {
         title: string;
@@ -2814,6 +2822,14 @@ export interface IntlMessages {
     };
   };
   achievements: {
+    toasts: {
+      categoryCreated: string;
+      categoryUpdated: string;
+      categoryDeactivated: string;
+      achievementCreated: string;
+      achievementUpdated: string;
+      achievementDeactivated: string;
+    };
     errors: {
       create_category_failed: string;
       update_category_failed: string;
@@ -4535,6 +4551,9 @@ export interface IntlMessages {
     };
     templates: {
       backTitle: string;
+      yearFallback: string;
+      noRankingConfig: string;
+      rankingComponentAnnualFolder: string;
       backSrOnly: string;
       sectionSingular: string;
       sectionPlural: string;
@@ -5750,7 +5769,6 @@ export interface IntlMessages {
         tabUsers: string;
         programCardTitle: string;
         enrolledCardTitle: string;
-        enrollmentsEndpointMissing: string;
       };
     };
     enrolledUsers: {
@@ -6128,7 +6146,7 @@ export interface IntlMessages {
       club_type_required: string;
       club_section_required: string;
       activity_place_required: string;
-      image_required: string;
+      image_invalid: string;
     };
     audience: {
       label: string;
@@ -6734,6 +6752,7 @@ export interface IntlMessages {
   };
   rankingWeights: {
     clientPage: {
+      clubTypeFallback: string;
       defaultGlobalTitle: string;
       defaultGlobalDescription: string;
       defaultGlobalUpdated: string;
@@ -8157,6 +8176,25 @@ export interface IntlMessages {
       CHANGES_REQUESTED: string;
       CERTIFIED: string;
     };
+    componentType: {
+      TEXT_RESPONSE: string;
+      FILE_EVIDENCE: string;
+      LINKED_HONOR: string;
+      LINKED_ACTIVITY: string;
+      ATTESTATION: string;
+      AUTO_VALIDATION: string;
+    };
+    reviewEvents: {
+      REQUIREMENT_SUBMITTED: string;
+      REQUIREMENT_CHANGES_REQUESTED: string;
+      REQUIREMENT_APPROVED: string;
+      REQUIREMENT_RESUBMITTED: string;
+      CLOSEOUT_SUBMITTED: string;
+      CLOSEOUT_CHANGES_REQUESTED: string;
+      CLOSEOUT_APPROVED: string;
+      CERTIFIED: string;
+      WITHDRAWN: string;
+    };
     toasts: {
       approved: string;
       changesRequested: string;
@@ -8275,6 +8313,8 @@ export interface IntlMessages {
     config: {
       description: string;
       localField: string;
+      selectFieldPlaceholder: string;
+      selectFieldHint: string;
       loadField: string;
       bankSection: string;
       bankName: string;
@@ -8392,6 +8432,28 @@ export interface IntlMessages {
       correlation: string;
       changes: string;
       requestContext: string;
+      rawSummary: string;
+      routes: {
+        permissionCreated: string;
+        permissionUpdated: string;
+        permissionDeactivated: string;
+        roleCreated: string;
+        roleUpdated: string;
+        roleDeactivated: string;
+        rolePermissionsAdded: string;
+        rolePermissionsReplaced: string;
+        rolePermissionRemoved: string;
+        userPermissionGranted: string;
+        userPermissionRemoved: string;
+        userRoleAssigned: string;
+        userRoleRemoved: string;
+        adminBootstrapped: string;
+      };
+      entities: {
+        role: string;
+        permission: string;
+        user: string;
+      };
       columns: {
         when: string;
         action: string;
@@ -8414,6 +8476,7 @@ export interface IntlMessages {
         CREATED: string;
         UPDATED: string;
         DELETED: string;
+        DEACTIVATED: string;
       };
       result: {
         succeeded: string;
@@ -8688,6 +8751,7 @@ export interface IntlMessages {
       colTotal: string;
       colPayStatus: string;
       deliverQty: string;
+      lineDelivered: string;
     };
     reports: {
       kitchen: string;
@@ -8790,6 +8854,12 @@ export interface IntlMessages {
       approvalBlockersNote: string;
       events: string;
       noEvents: string;
+      eventActions: {
+        REQUEST_SUBMITTED: string;
+        REQUEST_APPROVED: string;
+        REQUEST_REJECTED: string;
+      };
+      totalHint: string;
       proof: string;
       proofLoading: string;
       proofError: string;
@@ -9010,6 +9080,7 @@ export interface IntlMessages {
         empty: string;
         full: string;
         assign: string;
+        assignAria: string;
       };
       pastor: {
         canAuthorize: string;
