@@ -38,7 +38,7 @@ import {
   sortClassSectionsByClubTypeClassModuleAndName,
   sortClubTypesForDisplay,
 } from "@/lib/catalogs/club-ideals/sort";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -174,7 +174,7 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
     }
 
     items = sortClassSectionsByClubTypeClassModuleAndName(items, classSectionModuleOptions, types);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
     clubTypes = sortClubTypesForDisplay(types).map((type) => ({
       club_type_id: type.club_type_id,
       name: type.name,

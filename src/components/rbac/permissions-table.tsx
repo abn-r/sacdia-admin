@@ -39,6 +39,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import {
   getPermissionLabel,
 } from "@/lib/auth/permissions";
@@ -63,6 +64,8 @@ interface PermissionsTableProps {
   updateAction: UpdateAction;
   deleteAction: DeleteAction;
   canWrite?: boolean;
+  /** When set, `items` is the current page and a pager is rendered below the list. */
+  pagination?: { page: number; limit: number; total: number; totalPages: number };
 }
 
 export function PermissionsTable({
@@ -71,6 +74,7 @@ export function PermissionsTable({
   updateAction,
   deleteAction,
   canWrite = false,
+  pagination,
 }: PermissionsTableProps) {
   const t = useTranslations("rbac");
   const router = useRouter();
@@ -271,6 +275,16 @@ export function PermissionsTable({
               </li>
             ))}
           </ul>
+
+          {pagination ? (
+            <DataTablePagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              total={pagination.total}
+              limit={pagination.limit}
+              limitOptions={[20, 50, 100]}
+            />
+          ) : null}
         </>
       )}
 

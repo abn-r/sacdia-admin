@@ -6,7 +6,7 @@
 
 type AnyRecord = Record<string, unknown>;
 
-type ListMeta = {
+export type ListMeta = {
   page: number;
   limit: number;
   total: number;
@@ -58,6 +58,50 @@ export function extractMeta(
     Math.max(1, Math.ceil(total / Math.max(limit, 1)));
 
   return { page, limit, total, totalPages };
+}
+
+/**
+ * Slices an in-memory list into one page. `page` is clamped to the last page so a
+ * stale `?page=` never renders an empty table.
+ */
+export function paginateInMemory<T>(
+  items: readonly T[],
+  page: number,
+  limit: number,
+): { items: T[]; meta: ListMeta } {
+  const safeLimit = Math.max(1, Math.floor(limit) || 1);
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / safeLimit));
+  const safePage = Math.min(Math.max(1, Math.floor(page) || 1), totalPages);
+  const start = (safePage - 1) * safeLimit;
+  return {
+    items: items.slice(start, start + safeLimit),
+    meta: { page: safePage, limit: safeLimit, total, totalPages },
+  };
+}
+
+/**
+ * Items + pagination meta for a catalog list.
+ *
+ * Several admin endpoints (class sections/modules, diseases, relationship
+ * types...) ignore `page`/`limit` and answer with the whole catalog. When the
+ * response does not describe a larger result set than the rows we hold
+ * (`meta.total <= items.length`) the API did not paginate, so the requested
+ * page is cut here instead of rendering every row under a "Page 1 of N" pager.
+ * A server that paginates reports `meta.total` above the rows of one page and
+ * is passed through untouched.
+ *
+ * Pass the items AFTER any local filtering/sorting.
+ */
+export function paginateLoadedItems<T>(
+  items: T[],
+  payload: unknown,
+  page: number,
+  limit: number,
+): { items: T[]; meta: ListMeta } {
+  const meta = extractMeta(payload, page, limit, items.length);
+  if (meta.total > items.length) return { items, meta };
+  return paginateInMemory(items, page, limit);
 }
 
 export function readParam(

@@ -11,9 +11,9 @@ import { ApiError } from "@/lib/api/client";
 import { listAdminCamporeeEventTypes } from "@/lib/api/generic-catalogs-i18n";
 import {
   extractItems,
-  extractMeta,
   readParam,
   readPositiveNumberParam,
+  paginateLoadedItems,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -74,7 +74,7 @@ export async function CamporeeScopeConfigPage({
     if (search) params.search = search;
     const payload = await listAdminCamporeeEventTypes(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     loadError = error instanceof ApiError ? error.message : tCatalog("loadError");
   }

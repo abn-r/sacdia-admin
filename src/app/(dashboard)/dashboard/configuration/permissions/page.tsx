@@ -15,23 +15,39 @@ import {
 } from "@/lib/rbac/actions";
 import type { Permission } from "@/lib/rbac/types";
 import { ApiError } from "@/lib/api/client";
+import {
+  paginateInMemory,
+  readPositiveNumberParam,
+} from "@/lib/phase-e-catalogs/fetch-helpers";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("rbac.pages.permissions");
   return { title: t("title") };
 }
 
-export default async function ConfigurationPermissionsPage() {
+export default async function ConfigurationPermissionsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const t = await getTranslations("rbac.pages.permissions");
   const tNav = await getTranslations("nav.items");
   const user = await requireAdminUser();
   const canWrite = canCapability(user, "admin-system-permissions", "manage");
 
+  const raw = await searchParams;
+  const page = readPositiveNumberParam(raw, "page") ?? 1;
+  const limit = readPositiveNumberParam(raw, "limit") ?? 20;
+
   let items: Permission[] = [];
+  let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
 
   try {
-    items = await listPermissions();
+    // The permissions endpoint returns the whole catalog: page it here.
+    ({ items, meta } = paginateInMemory(await listPermissions(), page, limit));
   } catch (error) {
     loadError = error instanceof ApiError ? error.message : t("loadError");
   }
@@ -67,6 +83,7 @@ export default async function ConfigurationPermissionsPage() {
           updateAction={updatePermissionAction}
           deleteAction={deletePermissionAction}
           canWrite={canWrite}
+          pagination={meta}
         />
       ) : null}
     </div>

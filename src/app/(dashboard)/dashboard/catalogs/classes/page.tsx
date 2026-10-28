@@ -31,7 +31,7 @@ import { listAdminClasses } from "@/lib/api/phase-e-catalogs";
 import { listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { sortClassesByClubTypeAndName, sortClubTypesForDisplay } from "@/lib/catalogs/club-ideals/sort";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -88,7 +88,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
       });
     }
     items = sortClassesByClubTypeAndName(items, types);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
     ecclesiasticalYears = years.map((year) => ({
       ecclesiastical_year_id: year.ecclesiastical_year_id,
       name: year.name,

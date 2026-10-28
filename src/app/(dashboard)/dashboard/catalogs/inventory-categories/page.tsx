@@ -28,7 +28,7 @@ const PhaseECatalogCrudPage = dynamic(
 );
 import { ApiError } from "@/lib/api/client";
 import { listAdminInventoryCategories } from "@/lib/api/phase-e-catalogs";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -70,7 +70,7 @@ export default async function AdminInventoryCategoriesPage({ searchParams }: { s
 
     const payload = await listAdminInventoryCategories(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");

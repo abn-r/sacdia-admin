@@ -30,9 +30,9 @@ import { ApiError } from "@/lib/api/client";
 import { listAdminCamporeeEventTypes } from "@/lib/api/generic-catalogs-i18n";
 import {
   extractItems,
-  extractMeta,
   readParam,
   readPositiveNumberParam,
+  paginateLoadedItems,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
@@ -79,7 +79,7 @@ export default async function CamporeeEventTypesPage({
 
     const payload = await listAdminCamporeeEventTypes(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");

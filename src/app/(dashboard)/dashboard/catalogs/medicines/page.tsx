@@ -28,7 +28,7 @@ const PhaseECatalogCrudPage = dynamic(
 );
 import { ApiError } from "@/lib/api/client";
 import { listAdminMedicines } from "@/lib/api/generic-catalogs-i18n";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -70,7 +70,7 @@ export default async function MedicinesPage({ searchParams }: { searchParams: Se
 
     const payload = await listAdminMedicines(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");
