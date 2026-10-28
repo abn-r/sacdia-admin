@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 import { StatusBadge } from "@/components/materials/status-badge";
 import { getOrder, listReceipts, getConfig } from "@/lib/api/materials";
+import { orderLocalFieldId } from "@/lib/materials/order-local-field";
 import { extractComprobantes } from "@/lib/materials/comprobantes";
 import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -91,7 +92,7 @@ export default async function SolicitudDetailPage({
     showComprobantes || comprobantes.length > 0;
 
   const livePaymentConfig = showBankSnapshot
-    ? await getConfig({ localFieldId: orden.local_field_id }).catch(() => null)
+    ? await getConfig({ localFieldId: orderLocalFieldId(orden) }).catch(() => null)
     : null;
 
   const titulo =
