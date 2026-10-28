@@ -33,9 +33,27 @@ function getPreviousMonth(): { month: number; year: number } {
   return { month, year: now.getFullYear() };
 }
 
-function buildYearOptions(): number[] {
+/** Unique, descending. Always includes `selectedYear` so a row from an older period stays selectable. */
+function buildYearOptions(selectedYear: number): number[] {
   const currentYear = new Date().getFullYear();
-  return [currentYear, currentYear - 1, currentYear - 2];
+  return Array.from(
+    new Set([currentYear, currentYear - 1, currentYear - 2, selectedYear]),
+  ).sort((a, b) => b - a);
+}
+
+function resolveDefaultPeriod(
+  month?: number,
+  year?: number,
+): { month: number; year: number } {
+  if (
+    typeof month === "number" &&
+    month >= 1 &&
+    month <= 12 &&
+    typeof year === "number"
+  ) {
+    return { month, year };
+  }
+  return getPreviousMonth();
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -46,6 +64,9 @@ export interface EvaluateMemberOfMonthDialogProps {
   clubId: number;
   sectionId: number;
   sectionName: string;
+  /** Period to prefill (e.g. the row being re-evaluated). Defaults to the previous month. */
+  defaultMonth?: number;
+  defaultYear?: number;
   onSuccess: () => void;
 }
 
@@ -57,22 +78,23 @@ export function EvaluateMemberOfMonthDialog({
   clubId,
   sectionId,
   sectionName,
+  defaultMonth,
+  defaultYear,
   onSuccess,
 }: EvaluateMemberOfMonthDialogProps) {
   const t = useTranslations("member_of_month");
-  const defaultPeriod = getPreviousMonth();
+  const defaultPeriod = resolveDefaultPeriod(defaultMonth, defaultYear);
   const [month, setMonth] = useState(defaultPeriod.month);
   const [year, setYear] = useState(defaultPeriod.year);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const yearOptions = buildYearOptions();
+  const yearOptions = buildYearOptions(year);
 
   function handleClose(val: boolean) {
     if (!val && !isSubmitting) {
       // Reset to defaults
-      const period = getPreviousMonth();
-      setMonth(period.month);
-      setYear(period.year);
+      setMonth(defaultPeriod.month);
+      setYear(defaultPeriod.year);
       onOpenChange(false);
     }
   }
