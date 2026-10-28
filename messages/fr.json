@@ -8977,7 +8977,8 @@
         "count": "{count}/{slots} pasteurs",
         "empty": "Aucun pasteur assigné pour l'instant.",
         "full": "Quota complet.",
-        "assign": "Assigner un pasteur"
+        "assign": "Assigner un pasteur",
+        "assignAria": "Assigner un pasteur à {district}"
       },
       "pastor": {
         "canAuthorize": "Autorise",

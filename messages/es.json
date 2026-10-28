@@ -8977,7 +8977,8 @@
         "count": "{count}/{slots} pastores",
         "empty": "Todavía no hay pastores asignados.",
         "full": "Cupo completo.",
-        "assign": "Asignar pastor"
+        "assign": "Asignar pastor",
+        "assignAria": "Asignar pastor a {district}"
       },
       "pastor": {
         "canAuthorize": "Autoriza",

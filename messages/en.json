@@ -8977,7 +8977,8 @@
         "count": "{count}/{slots} pastors",
         "empty": "No pastors assigned yet.",
         "full": "Quota full.",
-        "assign": "Assign pastor"
+        "assign": "Assign pastor",
+        "assignAria": "Assign a pastor to {district}"
       },
       "pastor": {
         "canAuthorize": "Authorizes",
