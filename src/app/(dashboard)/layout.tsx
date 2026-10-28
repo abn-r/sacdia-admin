@@ -11,10 +11,12 @@ import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/t
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
+import { TerritoryUnconfigured } from "@/components/shared/territory-unconfigured";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
+import { isTerritoryUnconfigured } from "@/lib/auth/territory-scope";
 import {
   getClientMessageNamespacesForDashboardPath,
   pickMessages,
@@ -33,6 +35,9 @@ export default async function DashboardLayout({
     headerStore.get("x-sacdia-pathname") ??
     headerStore.get("x-pathname") ??
     "";
+  // A territorial or admin role without a territory gets 403 from every scoped
+  // API call, so block the whole panel with an explanation instead.
+  const territoryUnconfigured = isTerritoryUnconfigured(initialUser);
   const canOpenPage = canAccessDashboardPath(initialUser, pathname);
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible, locale, messages] = await Promise.all([
@@ -58,7 +63,9 @@ export default async function DashboardLayout({
           } as CSSProperties
         }
       >
-        <AppSidebar variant={variant} collapsible={collapsible} />
+        {territoryUnconfigured ? null : (
+          <AppSidebar variant={variant} collapsible={collapsible} />
+        )}
         <SidebarInset
           className={cn(
             "[html[data-content-layout=centered]_&>*]:mx-auto",
@@ -91,9 +98,15 @@ export default async function DashboardLayout({
             </div>
           </header>
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
-            {canOpenPage ? children : <PageAccessForbidden />}
+            {territoryUnconfigured ? (
+              <TerritoryUnconfigured />
+            ) : canOpenPage ? (
+              children
+            ) : (
+              <PageAccessForbidden />
+            )}
           </div>
-          {modal}
+          {territoryUnconfigured ? null : modal}
         </SidebarInset>
       </SidebarProvider>
       </QueryProvider>

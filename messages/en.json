@@ -2,7 +2,9 @@
   "access": {
     "page": {
       "forbiddenTitle": "You cannot open this section",
-      "forbiddenDescription": "Your role does not include the permissions required for this page."
+      "forbiddenDescription": "Your role does not include the permissions required for this page.",
+      "unconfiguredTerritoryTitle": "Your account has no territory assigned",
+      "unconfiguredTerritoryDescription": "Your role needs a union, a local field or a division to use the panel. Ask a super-admin to set up your territory."
     }
   },
   "nav": {

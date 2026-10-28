@@ -32,6 +32,8 @@ export interface IntlMessages {
     page: {
       forbiddenTitle: string;
       forbiddenDescription: string;
+      unconfiguredTerritoryTitle: string;
+      unconfiguredTerritoryDescription: string;
     };
   };
   nav: {

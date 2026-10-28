@@ -2,7 +2,9 @@
   "access": {
     "page": {
       "forbiddenTitle": "Sem acesso a esta seção",
-      "forbiddenDescription": "Seu perfil não inclui as permissões necessárias para abrir esta página."
+      "forbiddenDescription": "Seu perfil não inclui as permissões necessárias para abrir esta página.",
+      "unconfiguredTerritoryTitle": "Sua conta não tem um território atribuído",
+      "unconfiguredTerritoryDescription": "Seu perfil precisa de uma união, de um campo local ou de uma divisão para usar o painel. Peça a um super-admin para configurar seu território."
     }
   },
   "nav": {
