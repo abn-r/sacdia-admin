@@ -341,7 +341,11 @@ export function InstitutionalCertificateRequestDetailPage({
                       className="rounded-xl border bg-card p-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Badge variant="outline">{event.action}</Badge>
+                        <Badge variant="outline">
+                          {tLabels.has(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
+                            ? tLabels(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
+                            : event.action}
+                        </Badge>
                         <span className="text-xs text-muted-foreground">
                           {formatDateTime(event.created_at)} · Rev. {event.revision}
                         </span>

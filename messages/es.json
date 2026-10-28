@@ -8129,6 +8129,25 @@
       "CHANGES_REQUESTED": "Cambios solicitados",
       "CERTIFIED": "Certificado"
     },
+    "componentType": {
+      "TEXT_RESPONSE": "Respuesta de texto",
+      "FILE_EVIDENCE": "Evidencia de archivo",
+      "LINKED_HONOR": "Especialidad vinculada",
+      "LINKED_ACTIVITY": "Actividad vinculada",
+      "ATTESTATION": "Declaración",
+      "AUTO_VALIDATION": "Validación automática"
+    },
+    "reviewEvents": {
+      "REQUIREMENT_SUBMITTED": "Requisito enviado",
+      "REQUIREMENT_CHANGES_REQUESTED": "Requisito devuelto",
+      "REQUIREMENT_APPROVED": "Requisito aprobado",
+      "REQUIREMENT_RESUBMITTED": "Requisito reenviado",
+      "CLOSEOUT_SUBMITTED": "Cierre enviado",
+      "CLOSEOUT_CHANGES_REQUESTED": "Cierre devuelto",
+      "CLOSEOUT_APPROVED": "Cierre aprobado",
+      "CERTIFIED": "Certificado",
+      "WITHDRAWN": "Retirado"
+    },
     "toasts": {
       "approved": "Requisito aprobado",
       "changesRequested": "Requisito devuelto",
@@ -8788,6 +8807,12 @@
       "approvalBlockersNote": "Estos bloqueos son problemas del sistema, no del solicitante. No rechaces la solicitud por este motivo.",
       "events": "Historial de eventos",
       "noEvents": "Sin eventos registrados",
+      "eventActions": {
+        "REQUEST_SUBMITTED": "Solicitud enviada",
+        "REQUEST_APPROVED": "Validación aprobada",
+        "REQUEST_REJECTED": "Solicitud rechazada"
+      },
+      "totalHint": "Todas las solicitudes",
       "proof": "Comprobante",
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",

@@ -35,6 +35,18 @@ type Props = {
   onChanged: () => void;
 };
 
+type ReviewTranslator = ReturnType<typeof useTranslations<"certification_reviews">>;
+
+/** Translated enum value; unknown values (a newer API) show as-is instead of a missing-key error. */
+function enumLabel(
+  t: ReviewTranslator,
+  group: "componentType" | "reviewEvents",
+  value: string,
+): string {
+  const key = `${group}.${value}` as Parameters<ReviewTranslator["has"]>[0];
+  return t.has(key) ? t(key as Parameters<ReviewTranslator>[0]) : value;
+}
+
 function renderResponse(
   component: ReviewComponentView,
   t: ReturnType<typeof useTranslations<"certification_reviews">>,
@@ -239,7 +251,7 @@ export function RequirementReviewDetail({
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-sm">{component.label}</p>
                     <span className="text-muted-foreground text-xs">
-                      {component.component_type}
+                      {enumLabel(t, "componentType", component.component_type)}
                       {component.required ? " *" : ""}
                     </span>
                   </div>
@@ -283,7 +295,7 @@ export function RequirementReviewDetail({
                 <ol className="space-y-2 border-l pl-3">
                   {detail.history.map((entry) => (
                     <li key={entry.review_event_id} className="space-y-0.5 text-sm">
-                      <p className="font-medium">{entry.event_type}</p>
+                      <p className="font-medium">{enumLabel(t, "reviewEvents", entry.event_type)}</p>
                       {entry.comment ? (
                         <p className="text-muted-foreground">{entry.comment}</p>
                       ) : null}

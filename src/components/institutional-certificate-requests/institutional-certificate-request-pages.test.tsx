@@ -171,6 +171,21 @@ describe("institutional certificate inbox screens", () => {
     );
   });
 
+  it("labels the total KPI and the event timeline in plain language", async () => {
+    renderWithMessages(
+      <InstitutionalCertificateRequestListPage requests={[pending]} total={1} />,
+    );
+    expect(screen.getByText("Todas las solicitudes")).toBeInTheDocument();
+    expect(screen.queryByText("Según API")).toBeNull();
+    cleanup();
+
+    renderWithMessages(
+      <InstitutionalCertificateRequestDetailPage request={pending} />,
+    );
+    expect(await screen.findByText("Solicitud enviada")).toBeInTheDocument();
+    expect(screen.queryByText("REQUEST_SUBMITTED")).toBeNull();
+  });
+
   it("shows the signed proof and approves one request without calling it a class enrollment", async () => {
     const user = userEvent.setup();
     renderWithMessages(

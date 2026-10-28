@@ -8176,6 +8176,25 @@ export interface IntlMessages {
       CHANGES_REQUESTED: string;
       CERTIFIED: string;
     };
+    componentType: {
+      TEXT_RESPONSE: string;
+      FILE_EVIDENCE: string;
+      LINKED_HONOR: string;
+      LINKED_ACTIVITY: string;
+      ATTESTATION: string;
+      AUTO_VALIDATION: string;
+    };
+    reviewEvents: {
+      REQUIREMENT_SUBMITTED: string;
+      REQUIREMENT_CHANGES_REQUESTED: string;
+      REQUIREMENT_APPROVED: string;
+      REQUIREMENT_RESUBMITTED: string;
+      CLOSEOUT_SUBMITTED: string;
+      CLOSEOUT_CHANGES_REQUESTED: string;
+      CLOSEOUT_APPROVED: string;
+      CERTIFIED: string;
+      WITHDRAWN: string;
+    };
     toasts: {
       approved: string;
       changesRequested: string;
@@ -8835,6 +8854,12 @@ export interface IntlMessages {
       approvalBlockersNote: string;
       events: string;
       noEvents: string;
+      eventActions: {
+        REQUEST_SUBMITTED: string;
+        REQUEST_APPROVED: string;
+        REQUEST_REJECTED: string;
+      };
+      totalHint: string;
       proof: string;
       proofLoading: string;
       proofError: string;
