@@ -8977,6 +8977,24 @@ export interface IntlMessages {
       loadError: string;
       emptyTitle: string;
       emptyDescription: string;
+      kpiTotal: string;
+      kpiPendingHint: string;
+      kpiApprovedHint: string;
+      kpiRejectedHint: string;
+      cardDescription: string;
+      searchPlaceholder: string;
+      filters: {
+        all: string;
+        pending: string;
+        approved: string;
+        rejected: string;
+      };
+      colStatus: string;
+      colBlockers: string;
+      blockersCount: string;
+      review: string;
+      noResultsTitle: string;
+      noResultsDescription: string;
     };
     detailPage: {
       title: string;
@@ -9002,6 +9020,8 @@ export interface IntlMessages {
       approved: string;
       rejected: string;
       genericError: string;
+      approveDescription: string;
+      rejectDescription: string;
     };
     status: {
       PENDING_REVIEW: string;
@@ -9033,6 +9053,10 @@ export interface IntlMessages {
       proofError: string;
       proofNotAvailable: string;
       openProof: string;
+      requestMeta: string;
+      eventMeta: string;
+      previewUnavailable: string;
+      proofNoBatch: string;
     };
   };
   investiture_requests: {

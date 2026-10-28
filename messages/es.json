@@ -8929,7 +8929,25 @@
       "description": "Solicitudes de validación institucional para Guía Mayor Avanzado (GM-02) e Instructor (GM-03).",
       "loadError": "No se pudieron cargar las solicitudes institucionales.",
       "emptyTitle": "Sin solicitudes pendientes",
-      "emptyDescription": "No hay solicitudes de validación institucional en espera de revisión."
+      "emptyDescription": "No hay solicitudes de validación institucional en espera de revisión.",
+      "kpiTotal": "Total",
+      "kpiPendingHint": "Esperando revisión",
+      "kpiApprovedHint": "Validación institucional",
+      "kpiRejectedHint": "Solicitudes rechazadas",
+      "cardDescription": "Validaciones institucionales de GM-02 y GM-03. La aprobación aquí es validación institucional, no inscripción de clase.",
+      "searchPlaceholder": "Buscar solicitante, clase...",
+      "filters": {
+        "all": "Todos",
+        "pending": "Pendientes",
+        "approved": "Aprobadas",
+        "rejected": "Rechazadas"
+      },
+      "colStatus": "Estado",
+      "colBlockers": "Bloqueos",
+      "blockersCount": "{count, plural, one {# bloqueo} other {# bloqueos}}",
+      "review": "Revisar",
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "No hay solicitudes que coincidan con el filtro."
     },
     "detailPage": {
       "title": "Solicitud institucional",
@@ -8954,7 +8972,9 @@
       "reject": "Rechazar",
       "approved": "Validación institucional aprobada",
       "rejected": "Solicitud rechazada",
-      "genericError": "No se pudo completar la acción"
+      "genericError": "No se pudo completar la acción",
+      "approveDescription": "Confirmar validación institucional para {applicant} — {class} ({code}). La aprobación NO crea una inscripción de clase.",
+      "rejectDescription": "Rechazar la solicitud de validación de {applicant}."
     },
     "status": {
       "PENDING_REVIEW": "Pendiente",
@@ -8985,7 +9005,11 @@
       "proofLoading": "Cargando comprobante...",
       "proofError": "No se pudo cargar el comprobante. El archivo puede no estar confirmado aún.",
       "proofNotAvailable": "Comprobante no disponible",
-      "openProof": "Abrir"
+      "openProof": "Abrir",
+      "requestMeta": "ID {id} · Rev. {revision}",
+      "eventMeta": "{date} · Rev. {revision}",
+      "previewUnavailable": "Vista previa no disponible para este tipo de archivo.",
+      "proofNoBatch": "El comprobante no puede mostrarse porque la solicitud no incluye el lote de origen."
     }
   },
   "investiture_requests": {

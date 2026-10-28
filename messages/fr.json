@@ -8929,7 +8929,25 @@
       "description": "Demandes de validation institutionnelle pour Guide Majeur Avancé (GM-02) et Instructeur (GM-03).",
       "loadError": "Impossible de charger les demandes institutionnelles.",
       "emptyTitle": "Aucune demande en attente",
-      "emptyDescription": "Aucune demande de validation institutionnelle n’attend d’être examinée."
+      "emptyDescription": "Aucune demande de validation institutionnelle n’attend d’être examinée.",
+      "kpiTotal": "Total",
+      "kpiPendingHint": "En attente d’examen",
+      "kpiApprovedHint": "Validation institutionnelle",
+      "kpiRejectedHint": "Demandes rejetées",
+      "cardDescription": "Validations institutionnelles pour GM-02 et GM-03. L’approbation ici est une validation institutionnelle, pas une inscription à une classe.",
+      "searchPlaceholder": "Rechercher un demandeur, une classe...",
+      "filters": {
+        "all": "Toutes",
+        "pending": "En attente",
+        "approved": "Approuvées",
+        "rejected": "Rejetées"
+      },
+      "colStatus": "Statut",
+      "colBlockers": "Blocages",
+      "blockersCount": "{count, plural, one {# blocage} other {# blocages}}",
+      "review": "Examiner",
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Aucune demande ne correspond au filtre."
     },
     "detailPage": {
       "title": "Demande institutionnelle",
@@ -8954,7 +8972,9 @@
       "reject": "Rejeter",
       "approved": "Validation institutionnelle approuvée",
       "rejected": "Demande rejetée",
-      "genericError": "Impossible de terminer l’action"
+      "genericError": "Impossible de terminer l’action",
+      "approveDescription": "Confirmer la validation institutionnelle de {applicant} — {class} ({code}). L’approbation ne crée PAS d’inscription à une classe.",
+      "rejectDescription": "Rejeter la demande de validation de {applicant}."
     },
     "status": {
       "PENDING_REVIEW": "En attente",
@@ -8985,7 +9005,11 @@
       "proofLoading": "Chargement du justificatif...",
       "proofError": "Impossible de charger le justificatif. Le fichier n’est peut-être pas encore confirmé.",
       "proofNotAvailable": "Justificatif indisponible",
-      "openProof": "Ouvrir"
+      "openProof": "Ouvrir",
+      "requestMeta": "ID {id} · Rév. {revision}",
+      "eventMeta": "{date} · Rév. {revision}",
+      "previewUnavailable": "Aperçu non disponible pour ce type de fichier.",
+      "proofNoBatch": "Le justificatif ne peut pas être affiché car la demande n’inclut pas le lot d’origine."
     }
   },
   "investiture_requests": {

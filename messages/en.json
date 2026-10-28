@@ -8929,7 +8929,25 @@
       "description": "Institutional validation requests for Advanced Master Guide (GM-02) and Instructor (GM-03).",
       "loadError": "Could not load the institutional requests.",
       "emptyTitle": "No pending requests",
-      "emptyDescription": "There are no institutional validation requests waiting for review."
+      "emptyDescription": "There are no institutional validation requests waiting for review.",
+      "kpiTotal": "Total",
+      "kpiPendingHint": "Awaiting review",
+      "kpiApprovedHint": "Institutional validation",
+      "kpiRejectedHint": "Rejected requests",
+      "cardDescription": "Institutional validations for GM-02 and GM-03. Approval here is institutional validation, not class enrollment.",
+      "searchPlaceholder": "Search applicant, class...",
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "colStatus": "Status",
+      "colBlockers": "Blockers",
+      "blockersCount": "{count, plural, one {# blocker} other {# blockers}}",
+      "review": "Review",
+      "noResultsTitle": "No results",
+      "noResultsDescription": "No requests match the filter."
     },
     "detailPage": {
       "title": "Institutional request",
@@ -8954,7 +8972,9 @@
       "reject": "Reject",
       "approved": "Institutional validation approved",
       "rejected": "Request rejected",
-      "genericError": "Could not complete the action"
+      "genericError": "Could not complete the action",
+      "approveDescription": "Confirm institutional validation for {applicant} — {class} ({code}). Approval does NOT create a class enrollment.",
+      "rejectDescription": "Reject the validation request from {applicant}."
     },
     "status": {
       "PENDING_REVIEW": "Pending",
@@ -8985,7 +9005,11 @@
       "proofLoading": "Loading proof...",
       "proofError": "Could not load the proof. The file may not be confirmed yet.",
       "proofNotAvailable": "Proof not available",
-      "openProof": "Open"
+      "openProof": "Open",
+      "requestMeta": "ID {id} · Rev. {revision}",
+      "eventMeta": "{date} · Rev. {revision}",
+      "previewUnavailable": "Preview not available for this file type.",
+      "proofNoBatch": "The proof cannot be shown because the request does not include the source batch."
     }
   },
   "investiture_requests": {
