@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -27,7 +29,7 @@ function readPositiveInt(formData: FormData, field: string) {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = unionFormSchema.safeParse({
     name: readString(formData, "name"),
     abbreviation: readString(formData, "abbreviation"),
@@ -38,7 +40,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -51,17 +53,17 @@ export async function createUnionAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-unions", "create")) {
-      return { error: "No tienes permisos para crear uniones." };
+      return { error: await catalogActionText("unions", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminUnion(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la unión.", {
+      error: getActionErrorMessage(error, await catalogActionText("unions", "createFailed"), {
         endpointLabel: "POST /admin/unions",
       }),
     };
@@ -75,22 +77,22 @@ export async function updateUnionAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-unions", "update")) {
-      return { error: "No tienes permisos para editar uniones." };
+      return { error: await catalogActionText("unions", "noPermissionUpdate") };
     }
 
     const unionId = readPositiveInt(formData, "union_id");
     if (!unionId) {
-      return { error: "Identificador de unión inválido." };
+      return { error: await catalogActionText("unions", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminUnion(unionId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la unión.", {
+      error: getActionErrorMessage(error, await catalogActionText("unions", "updateFailed"), {
         endpointLabel: "PATCH /admin/unions/:id",
       }),
     };
@@ -101,11 +103,11 @@ export async function deleteUnionAction(unionId: number): Promise<UnionActionSta
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-unions", "delete")) {
-      return { error: "No tienes permisos para eliminar uniones." };
+      return { error: await catalogActionText("unions", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(unionId) || unionId <= 0) {
-      return { error: "Identificador de unión inválido." };
+      return { error: await catalogActionText("unions", "invalidId") };
     }
 
     await deleteAdminUnion(unionId);
@@ -113,7 +115,7 @@ export async function deleteUnionAction(unionId: number): Promise<UnionActionSta
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar la unión.", {
+      error: getActionErrorMessage(error, await catalogActionText("unions", "deleteFailed"), {
         endpointLabel: "DELETE /admin/unions/:id",
       }),
     };

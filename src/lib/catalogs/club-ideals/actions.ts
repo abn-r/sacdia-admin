@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -22,7 +24,7 @@ function readString(formData: FormData, field: string) {
   return String(formData.get(field) ?? "").trim();
 }
 
-function parseCreateFormData(formData: FormData) {
+async function parseCreateFormData(formData: FormData) {
   const parsed = clubIdealFormSchema.safeParse({
     name: readString(formData, "name"),
     ideal: readString(formData, "ideal") || undefined,
@@ -33,13 +35,13 @@ function parseCreateFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
 }
 
-function parseUpdateFormData(formData: FormData) {
+async function parseUpdateFormData(formData: FormData) {
   const parsed = clubIdealFormSchema
     .omit({ club_type_id: true })
     .safeParse({
@@ -51,7 +53,7 @@ function parseUpdateFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -64,17 +66,17 @@ export async function createClubIdealAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-ideals", "create")) {
-      return { error: "No tienes permisos para crear ideales de club." };
+      return { error: await catalogActionText("club-ideals", "noPermissionCreate") };
     }
 
-    const values = parseCreateFormData(formData);
+    const values = await parseCreateFormData(formData);
     await createAdminClubIdeal(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el ideal de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-ideals", "createFailed"), {
         endpointLabel: "POST /admin/club-ideals",
       }),
     };
@@ -88,22 +90,22 @@ export async function updateClubIdealAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-ideals", "update")) {
-      return { error: "No tienes permisos para editar ideales de club." };
+      return { error: await catalogActionText("club-ideals", "noPermissionUpdate") };
     }
 
     const clubIdealId = Number(readString(formData, "club_ideal_id"));
     if (!Number.isFinite(clubIdealId) || clubIdealId <= 0) {
-      return { error: "Identificador de ideal inválido." };
+      return { error: await catalogActionText("club-ideals", "invalidId") };
     }
 
-    const values = parseUpdateFormData(formData);
+    const values = await parseUpdateFormData(formData);
     await updateAdminClubIdeal(clubIdealId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el ideal de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-ideals", "updateFailed"), {
         endpointLabel: "PATCH /admin/club-ideals/:id",
       }),
     };
@@ -114,11 +116,11 @@ export async function deleteClubIdealAction(clubIdealId: number): Promise<ClubId
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-ideals", "delete")) {
-      return { error: "No tienes permisos para eliminar ideales de club." };
+      return { error: await catalogActionText("club-ideals", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(clubIdealId) || clubIdealId <= 0) {
-      return { error: "Identificador de ideal inválido." };
+      return { error: await catalogActionText("club-ideals", "invalidId") };
     }
 
     await deleteAdminClubIdeal(clubIdealId);
@@ -126,7 +128,7 @@ export async function deleteClubIdealAction(clubIdealId: number): Promise<ClubId
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el ideal de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-ideals", "deleteFailed"), {
         endpointLabel: "DELETE /admin/club-ideals/:id",
       }),
     };

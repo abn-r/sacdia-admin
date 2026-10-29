@@ -7,12 +7,12 @@ export const honorTranslationSchema = z.object({
 });
 
 export const honorFormSchema = z.object({
-  name: z.string().trim().min(1, "El nombre es obligatorio.").max(100),
+  name: z.string().trim().min(1, "required:name").max(100),
   description: z.string().trim().optional(),
-  honor_image: z.string().trim().min(1, "La imagen es obligatoria."),
-  material_url: z.string().trim().min(1, "La URL del material es obligatoria."),
-  honors_category_id: z.number({ error: "La categoría es obligatoria." }).int().positive("La categoría es obligatoria."),
-  club_type_id: z.number({ error: "El tipo de club es obligatorio." }).int().positive("El tipo de club es obligatorio."),
+  honor_image: z.string().trim().min(1, "required:honor_image"),
+  material_url: z.string().trim().min(1, "required:material_url"),
+  honors_category_id: z.number({ error: "select:honor_category" }).int().positive("select:honor_category"),
+  club_type_id: z.number({ error: "select:club_type" }).int().positive("select:club_type"),
   active: z.boolean(),
   approval: z.number().int().min(1).max(3).optional(),
   skill_level: z.number().int().min(1).max(3).optional(),

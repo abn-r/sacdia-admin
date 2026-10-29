@@ -450,6 +450,7 @@
       "union": "Union",
       "local_field": "Champ local",
       "district": "District",
+      "division": "Division",
       "club_type": "Type de club",
       "honor_category": "Catégorie de spécialité",
       "honor_image": "URL de l'image",
@@ -551,10 +552,22 @@
       "op_delete_failed": "Impossible de désactiver l’enregistrement",
       "load_data_failed": "Erreur lors du chargement des données"
     },
+    "actionErrors": {
+      "invalidForm": "Les données du formulaire ne sont pas valides.",
+      "invalidId": "L’identifiant de l’enregistrement n’est pas valide.",
+      "noPermissionCreate": "Vous n’avez pas l’autorisation de créer des {entity}.",
+      "noPermissionUpdate": "Vous n’avez pas l’autorisation de modifier des {entity}.",
+      "noPermissionDelete": "Vous n’avez pas l’autorisation de désactiver des {entity}.",
+      "createFailed": "Impossible de créer l’enregistrement ({entity}).",
+      "updateFailed": "Impossible de mettre à jour l’enregistrement ({entity}).",
+      "deleteFailed": "Impossible de désactiver l’enregistrement ({entity})."
+    },
     "validation": {
       "delete_target_not_identified": "Impossible d’identifier l’enregistrement à désactiver",
       "field_required": "Le champ {field} est obligatoire",
-      "field_invalid": "La valeur de {field} n’est pas valide"
+      "field_invalid": "La valeur de {field} n’est pas valide",
+      "field_min": "Le champ {field} doit être au moins égal à {min}",
+      "field_select": "Choisissez une option pour {field}"
     },
     "success": {
       "op_create_title": "Enregistrement créé",
@@ -5034,7 +5047,54 @@
         "scope": "Portée et total",
         "sections": "Sections"
       },
-      "sectionsAllocationLabel": "Répartition entre sections"
+      "sectionsAllocationLabel": "Répartition entre sections",
+      "toastUpdated": "Configuration mise à jour",
+      "toastCreated": "Configuration créée",
+      "saveFailed": "Impossible d’enregistrer",
+      "allSectionsAdded": "Vous avez déjà ajouté toutes les sections disponibles.",
+      "noSubsectionsLeft": "Il n’y a plus de sous-sections disponibles pour cette section.",
+      "atLeastOneSection": "Il doit y avoir au moins une section.",
+      "atLeastOneSubsection": "Chaque section doit avoir au moins une sous-section."
+    },
+    "rankingConfigValidation": {
+      "componentKeyRequired": "La clé du composant est obligatoire",
+      "componentLabelRequired": "Le libellé du composant est obligatoire",
+      "componentPointsRequired": "Les points du composant sont obligatoires",
+      "componentPointsInteger": "Les points du composant doivent être des nombres entiers",
+      "componentPointsPositive": "Les points du composant doivent être supérieurs à zéro",
+      "axisKeyRequired": "La clé de la section est obligatoire",
+      "axisLabelRequired": "Le libellé de la section est obligatoire",
+      "axisPointsRequired": "Les points de la section sont obligatoires",
+      "axisPointsInteger": "Les points de la section doivent être des nombres entiers",
+      "axisPointsPositive": "Les points de la section doivent être supérieurs à zéro",
+      "scopeRequired": "Choisissez si la configuration s’applique à une union ou à un champ local",
+      "unionRequired": "Choisissez une union",
+      "localFieldRequired": "Choisissez un champ local",
+      "yearRequired": "Choisissez une année",
+      "clubTypeRequired": "Choisissez un type de club",
+      "totalRequired": "Le total annuel de points est obligatoire",
+      "totalInteger": "Le total annuel doit être un nombre entier",
+      "totalPositive": "Le total annuel doit être supérieur à zéro",
+      "axesSumMismatch": "La somme des sections ({axisTotal}) doit être égale au score maximal ({maxPoints}).",
+      "componentsSumMismatch": "La somme des sous-sections ({componentTotal}) doit être égale au maximum de la section {axis} ({axisMax}).",
+      "tierNameRequired": "Le nom du rang est obligatoire",
+      "tierPercentRequired": "Le pourcentage du rang est obligatoire",
+      "tierPercentPositive": "Le pourcentage du rang doit être positif"
+    },
+    "rankingTiersPanel": {
+      "title": "Rangs de reconnaissance globaux",
+      "description": "Ces pourcentages s’appliquent à tout le système. Le score minimal de chaque rang est calculé à partir du maximum annuel effectif de chaque club.",
+      "colTier": "Rang",
+      "colBand": "Pourcentage de bande",
+      "colStatus": "Statut",
+      "colAction": "Action",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "save": "Enregistrer",
+      "bandLabel": "Pourcentage de bande de {tier}",
+      "invalidPercent": "Pourcentage non valide",
+      "tierUpdated": "Rang mis à jour",
+      "saveFailed": "Impossible d’enregistrer"
     },
     "budgetSectionCard": {
       "subsectionsAllocationLabel": "Sous-sections de cette section"

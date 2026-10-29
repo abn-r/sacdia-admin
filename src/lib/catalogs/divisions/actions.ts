@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -39,7 +41,7 @@ function parseTranslations(formData: FormData): CatalogTranslation[] {
   return result;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = divisionFormSchema.safeParse({
     code: readString(formData, "code"),
     name: readString(formData, "name"),
@@ -50,7 +52,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -63,10 +65,10 @@ export async function createDivisionAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-divisions", "create")) {
-      return { error: "No tienes permisos para crear divisiones." };
+      return { error: await catalogActionText("divisions", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminDivision({
       code: values.code,
       name: values.name,
@@ -79,7 +81,7 @@ export async function createDivisionAction(
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la división.", {
+      error: getActionErrorMessage(error, await catalogActionText("divisions", "createFailed"), {
         endpointLabel: "POST /admin/divisions",
       }),
     };
@@ -93,15 +95,15 @@ export async function updateDivisionAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-divisions", "update")) {
-      return { error: "No tienes permisos para editar divisiones." };
+      return { error: await catalogActionText("divisions", "noPermissionUpdate") };
     }
 
     const divisionId = Number(readString(formData, "division_id"));
     if (!Number.isFinite(divisionId) || divisionId <= 0) {
-      return { error: "Identificador de división inválido." };
+      return { error: await catalogActionText("divisions", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminDivision(divisionId, {
       code: values.code,
       name: values.name,
@@ -114,7 +116,7 @@ export async function updateDivisionAction(
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la división.", {
+      error: getActionErrorMessage(error, await catalogActionText("divisions", "updateFailed"), {
         endpointLabel: "PATCH /admin/divisions/:id",
       }),
     };
@@ -125,11 +127,11 @@ export async function deleteDivisionAction(divisionId: number): Promise<Division
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-divisions", "delete")) {
-      return { error: "No tienes permisos para eliminar divisiones." };
+      return { error: await catalogActionText("divisions", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(divisionId) || divisionId <= 0) {
-      return { error: "Identificador de división inválido." };
+      return { error: await catalogActionText("divisions", "invalidId") };
     }
 
     await deleteAdminDivision(divisionId);
@@ -137,7 +139,7 @@ export async function deleteDivisionAction(divisionId: number): Promise<Division
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar la división.", {
+      error: getActionErrorMessage(error, await catalogActionText("divisions", "deleteFailed"), {
         endpointLabel: "DELETE /admin/divisions/:id",
       }),
     };

@@ -7,7 +7,7 @@ export const honorCategoryTranslationSchema = z.object({
 });
 
 export const honorCategoryFormSchema = z.object({
-  name: z.string().trim().min(1, "El nombre es obligatorio.").max(100),
+  name: z.string().trim().min(1, "required:name").max(100),
   description: z.string().trim().optional(),
   active: z.boolean(),
   translations: z.array(honorCategoryTranslationSchema).default([]),

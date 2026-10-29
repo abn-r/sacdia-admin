@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -22,7 +24,7 @@ function readString(formData: FormData, field: string) {
   return String(formData.get(field) ?? "").trim();
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = clubTypeFormSchema.safeParse({
     name: readString(formData, "name"),
     active: formData.get("active") === "on" || formData.get("active") === "true",
@@ -30,7 +32,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -43,17 +45,17 @@ export async function createClubTypeAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-types", "create")) {
-      return { error: "No tienes permisos para crear tipos de club." };
+      return { error: await catalogActionText("club-types", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminClubType(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el tipo de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-types", "createFailed"), {
         endpointLabel: "POST /admin/club-types",
       }),
     };
@@ -67,22 +69,22 @@ export async function updateClubTypeAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-types", "update")) {
-      return { error: "No tienes permisos para editar tipos de club." };
+      return { error: await catalogActionText("club-types", "noPermissionUpdate") };
     }
 
     const clubTypeId = Number(readString(formData, "club_type_id"));
     if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-      return { error: "Identificador de tipo de club inválido." };
+      return { error: await catalogActionText("club-types", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminClubType(clubTypeId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el tipo de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-types", "updateFailed"), {
         endpointLabel: "PATCH /admin/club-types/:id",
       }),
     };
@@ -93,11 +95,11 @@ export async function deleteClubTypeAction(clubTypeId: number): Promise<ClubType
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-club-types", "delete")) {
-      return { error: "No tienes permisos para eliminar tipos de club." };
+      return { error: await catalogActionText("club-types", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(clubTypeId) || clubTypeId <= 0) {
-      return { error: "Identificador de tipo de club inválido." };
+      return { error: await catalogActionText("club-types", "invalidId") };
     }
 
     await deleteAdminClubType(clubTypeId);
@@ -105,7 +107,7 @@ export async function deleteClubTypeAction(clubTypeId: number): Promise<ClubType
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el tipo de club.", {
+      error: getActionErrorMessage(error, await catalogActionText("club-types", "deleteFailed"), {
         endpointLabel: "DELETE /admin/club-types/:id",
       }),
     };

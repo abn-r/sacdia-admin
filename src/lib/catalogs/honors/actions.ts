@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -62,7 +64,7 @@ function parseTranslations(formData: FormData): CatalogTranslation[] {
   return result;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const description = readString(formData, "description");
   const year = readString(formData, "year");
 
@@ -83,7 +85,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -96,17 +98,17 @@ export async function createHonorAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honors", "create")) {
-      return { error: "No tienes permisos para crear especialidades." };
+      return { error: await catalogActionText("honors", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminHonor(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la especialidad.", {
+      error: getActionErrorMessage(error, await catalogActionText("honors", "createFailed"), {
         endpointLabel: "POST /admin/honors-catalog",
       }),
     };
@@ -120,22 +122,22 @@ export async function updateHonorAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honors", "update")) {
-      return { error: "No tienes permisos para editar especialidades." };
+      return { error: await catalogActionText("honors", "noPermissionUpdate") };
     }
 
     const honorId = readPositiveInt(formData, "honor_id");
     if (!honorId) {
-      return { error: "Identificador de especialidad inválido." };
+      return { error: await catalogActionText("honors", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminHonor(honorId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la especialidad.", {
+      error: getActionErrorMessage(error, await catalogActionText("honors", "updateFailed"), {
         endpointLabel: "PATCH /admin/honors-catalog/:id",
       }),
     };
@@ -146,11 +148,11 @@ export async function deleteHonorAction(honorId: number): Promise<HonorActionSta
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honors", "delete")) {
-      return { error: "No tienes permisos para eliminar especialidades." };
+      return { error: await catalogActionText("honors", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(honorId) || honorId <= 0) {
-      return { error: "Identificador de especialidad inválido." };
+      return { error: await catalogActionText("honors", "invalidId") };
     }
 
     await deleteAdminHonor(honorId);
@@ -158,7 +160,7 @@ export async function deleteHonorAction(honorId: number): Promise<HonorActionSta
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar la especialidad.", {
+      error: getActionErrorMessage(error, await catalogActionText("honors", "deleteFailed"), {
         endpointLabel: "DELETE /admin/honors-catalog/:id",
       }),
     };

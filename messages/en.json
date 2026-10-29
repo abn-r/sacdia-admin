@@ -450,6 +450,7 @@
       "union": "Union",
       "local_field": "Local field",
       "district": "District",
+      "division": "Division",
       "club_type": "Club type",
       "honor_category": "Honor category",
       "honor_image": "Image URL",
@@ -551,10 +552,22 @@
       "op_delete_failed": "Could not deactivate the record",
       "load_data_failed": "Error loading data"
     },
+    "actionErrors": {
+      "invalidForm": "The form data isn't valid.",
+      "invalidId": "The record identifier isn't valid.",
+      "noPermissionCreate": "You don't have permission to create {entity}.",
+      "noPermissionUpdate": "You don't have permission to edit {entity}.",
+      "noPermissionDelete": "You don't have permission to deactivate {entity}.",
+      "createFailed": "Couldn't create the {entity} record.",
+      "updateFailed": "Couldn't update the {entity} record.",
+      "deleteFailed": "Couldn't deactivate the {entity} record."
+    },
     "validation": {
       "delete_target_not_identified": "Could not identify the record to deactivate",
       "field_required": "The {field} field is required",
-      "field_invalid": "The {field} value is invalid"
+      "field_invalid": "The {field} value is invalid",
+      "field_min": "{field} must be at least {min}",
+      "field_select": "Choose an option for {field}"
     },
     "success": {
       "op_create_title": "Record created",
@@ -5034,7 +5047,54 @@
         "scope": "Scope and total",
         "sections": "Sections"
       },
-      "sectionsAllocationLabel": "Distribution across sections"
+      "sectionsAllocationLabel": "Distribution across sections",
+      "toastUpdated": "Configuration updated",
+      "toastCreated": "Configuration created",
+      "saveFailed": "Couldn't save",
+      "allSectionsAdded": "You already added every available section.",
+      "noSubsectionsLeft": "There are no subsections left for this section.",
+      "atLeastOneSection": "There must be at least one section.",
+      "atLeastOneSubsection": "Each section needs at least one subsection."
+    },
+    "rankingConfigValidation": {
+      "componentKeyRequired": "The component key is required",
+      "componentLabelRequired": "The component label is required",
+      "componentPointsRequired": "The component points are required",
+      "componentPointsInteger": "The component points must be whole numbers",
+      "componentPointsPositive": "The component points must be greater than zero",
+      "axisKeyRequired": "The section key is required",
+      "axisLabelRequired": "The section label is required",
+      "axisPointsRequired": "The section points are required",
+      "axisPointsInteger": "The section points must be whole numbers",
+      "axisPointsPositive": "The section points must be greater than zero",
+      "scopeRequired": "Choose whether the configuration applies to a union or a local field",
+      "unionRequired": "Choose a union",
+      "localFieldRequired": "Choose a local field",
+      "yearRequired": "Choose a year",
+      "clubTypeRequired": "Choose a club type",
+      "totalRequired": "The annual point total is required",
+      "totalInteger": "The annual total must be a whole number",
+      "totalPositive": "The annual total must be greater than zero",
+      "axesSumMismatch": "The sections add up to {axisTotal}; they must equal the maximum score ({maxPoints}).",
+      "componentsSumMismatch": "The subsections add up to {componentTotal}; they must equal the maximum of section {axis} ({axisMax}).",
+      "tierNameRequired": "The tier name is required",
+      "tierPercentRequired": "The tier percentage is required",
+      "tierPercentPositive": "The tier percentage must be positive"
+    },
+    "rankingTiersPanel": {
+      "title": "Global recognition tiers",
+      "description": "These percentages apply to the whole system. Each tier's minimum score is computed from each club's effective annual maximum.",
+      "colTier": "Tier",
+      "colBand": "Band percentage",
+      "colStatus": "Status",
+      "colAction": "Action",
+      "active": "Active",
+      "inactive": "Inactive",
+      "save": "Save",
+      "bandLabel": "Band percentage for {tier}",
+      "invalidPercent": "Invalid percentage",
+      "tierUpdated": "Tier updated",
+      "saveFailed": "Couldn't save"
     },
     "budgetSectionCard": {
       "subsectionsAllocationLabel": "Subsections in this section"

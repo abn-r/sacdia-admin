@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  annualRankingConfigSchema,
+  buildAnnualRankingConfigSchema,
   type AnnualRankingConfigFormValues,
 } from "@/lib/annual-rankings/annual-ranking-config-validation";
 import {
@@ -97,6 +97,8 @@ export function AnnualBudgetConfigForm({
 }: AnnualBudgetConfigFormProps) {
   const t = useTranslations("annual_folders.budgetConfigForm");
   const tModal = useTranslations("shared.formModal");
+  const tValidation = useTranslations("annual_folders.rankingConfigValidation");
+  const schema = useMemo(() => buildAnnualRankingConfigSchema(tValidation), [tValidation]);
   const modal = useFormModal(ROUTE_BASE);
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
@@ -125,7 +127,7 @@ export function AnnualBudgetConfigForm({
   );
 
   const form = useForm<AnnualRankingConfigFormValues>({
-    resolver: zodResolver(annualRankingConfigSchema),
+    resolver: zodResolver(schema),
     defaultValues: toFormValues(config, initialScope),
   });
 
@@ -161,15 +163,15 @@ export function AnnualBudgetConfigForm({
           max_points: values.max_points,
           axes: values.axes,
         });
-        toast.success("Configuración actualizada correctamente");
+        toast.success(t("toastUpdated"));
       } else {
         await createAnnualRankingConfig(values);
-        toast.success("Configuración creada correctamente");
+        toast.success(t("toastCreated"));
       }
       modal.complete();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "No se pudo guardar";
+        error instanceof Error ? error.message : t("saveFailed");
       toast.error(message);
     } finally {
       setSavingConfig(false);
@@ -179,13 +181,13 @@ export function AnnualBudgetConfigForm({
   function addSection() {
     const nextSection = availableSections[0];
     if (!nextSection) {
-      toast.error("Ya agregaste todas las secciones disponibles.");
+      toast.error(t("allSectionsAdded"));
       return;
     }
 
     const defaultComponent = defaultSubsectionForSection(nextSection.axis_key);
     if (!defaultComponent) {
-      toast.error("No hay subsecciones disponibles para esta sección.");
+      toast.error(t("noSubsectionsLeft"));
       return;
     }
 
@@ -203,7 +205,7 @@ export function AnnualBudgetConfigForm({
     if (!axis) return;
 
     if (axes.length <= 1) {
-      toast.error("Debe existir al menos una sección.");
+      toast.error(t("atLeastOneSection"));
       return;
     }
 
@@ -251,7 +253,7 @@ export function AnnualBudgetConfigForm({
     }
 
     if (components.length <= 1) {
-      toast.error("Cada sección debe tener al menos una subsección.");
+      toast.error(t("atLeastOneSubsection"));
       return;
     }
 

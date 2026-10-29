@@ -9,12 +9,12 @@ function firstMessage(result: { success: boolean; error?: { issues: { message: s
 describe("catalog parent selects", () => {
   it("asks for the local field when the district has none (null from an empty select)", () => {
     const result = districtFormSchema.safeParse({ name: "Centro", local_field_id: null, active: true });
-    expect(firstMessage(result)).toBe("Selecciona un campo local.");
+    expect(firstMessage(result)).toBe("select:local_field");
   });
 
   it("asks for the district when the church has none", () => {
     const result = churchFormSchema.safeParse({ name: "Central", district_id: null, active: true });
     expect(result.success).toBe(false);
-    expect(result.error?.issues.map((issue) => issue.message)).toContain("El distrito es obligatorio.");
+    expect(result.error?.issues.map((issue) => issue.message)).toContain("select:district");
   });
 });

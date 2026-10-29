@@ -479,6 +479,7 @@ export interface IntlMessages {
       union: string;
       local_field: string;
       district: string;
+      division: string;
       club_type: string;
       honor_category: string;
       honor_image: string;
@@ -580,10 +581,22 @@ export interface IntlMessages {
       op_delete_failed: string;
       load_data_failed: string;
     };
+    actionErrors: {
+      invalidForm: string;
+      invalidId: string;
+      noPermissionCreate: string;
+      noPermissionUpdate: string;
+      noPermissionDelete: string;
+      createFailed: string;
+      updateFailed: string;
+      deleteFailed: string;
+    };
     validation: {
       delete_target_not_identified: string;
       field_required: string;
       field_invalid: string;
+      field_min: string;
+      field_select: string;
     };
     success: {
       op_create_title: string;
@@ -5067,6 +5080,53 @@ export interface IntlMessages {
         sections: string;
       };
       sectionsAllocationLabel: string;
+      toastUpdated: string;
+      toastCreated: string;
+      saveFailed: string;
+      allSectionsAdded: string;
+      noSubsectionsLeft: string;
+      atLeastOneSection: string;
+      atLeastOneSubsection: string;
+    };
+    rankingConfigValidation: {
+      componentKeyRequired: string;
+      componentLabelRequired: string;
+      componentPointsRequired: string;
+      componentPointsInteger: string;
+      componentPointsPositive: string;
+      axisKeyRequired: string;
+      axisLabelRequired: string;
+      axisPointsRequired: string;
+      axisPointsInteger: string;
+      axisPointsPositive: string;
+      scopeRequired: string;
+      unionRequired: string;
+      localFieldRequired: string;
+      yearRequired: string;
+      clubTypeRequired: string;
+      totalRequired: string;
+      totalInteger: string;
+      totalPositive: string;
+      axesSumMismatch: string;
+      componentsSumMismatch: string;
+      tierNameRequired: string;
+      tierPercentRequired: string;
+      tierPercentPositive: string;
+    };
+    rankingTiersPanel: {
+      title: string;
+      description: string;
+      colTier: string;
+      colBand: string;
+      colStatus: string;
+      colAction: string;
+      active: string;
+      inactive: string;
+      save: string;
+      bandLabel: string;
+      invalidPercent: string;
+      tierUpdated: string;
+      saveFailed: string;
     };
     budgetSectionCard: {
       subsectionsAllocationLabel: string;

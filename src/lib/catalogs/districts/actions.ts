@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -27,7 +29,7 @@ function readPositiveInt(formData: FormData, field: string) {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = districtFormSchema.safeParse({
     name: readString(formData, "name"),
     local_field_id: readPositiveInt(formData, "local_field_id"),
@@ -36,7 +38,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -49,17 +51,17 @@ export async function createDistrictAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-districts", "create")) {
-      return { error: "No tienes permisos para crear distritos." };
+      return { error: await catalogActionText("districts", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminDistrict(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el distrito.", {
+      error: getActionErrorMessage(error, await catalogActionText("districts", "createFailed"), {
         endpointLabel: "POST /admin/districts",
       }),
     };
@@ -73,22 +75,22 @@ export async function updateDistrictAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-districts", "update")) {
-      return { error: "No tienes permisos para editar distritos." };
+      return { error: await catalogActionText("districts", "noPermissionUpdate") };
     }
 
     const districtId = readPositiveInt(formData, "district_id");
     if (!districtId) {
-      return { error: "Identificador de distrito inválido." };
+      return { error: await catalogActionText("districts", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminDistrict(districtId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el distrito.", {
+      error: getActionErrorMessage(error, await catalogActionText("districts", "updateFailed"), {
         endpointLabel: "PATCH /admin/districts/:id",
       }),
     };
@@ -99,11 +101,11 @@ export async function deleteDistrictAction(districtId: number): Promise<District
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-districts", "delete")) {
-      return { error: "No tienes permisos para eliminar distritos." };
+      return { error: await catalogActionText("districts", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(districtId) || districtId <= 0) {
-      return { error: "Identificador de distrito inválido." };
+      return { error: await catalogActionText("districts", "invalidId") };
     }
 
     await deleteAdminDistrict(districtId);
@@ -111,7 +113,7 @@ export async function deleteDistrictAction(districtId: number): Promise<District
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el distrito.", {
+      error: getActionErrorMessage(error, await catalogActionText("districts", "deleteFailed"), {
         endpointLabel: "DELETE /admin/districts/:id",
       }),
     };
