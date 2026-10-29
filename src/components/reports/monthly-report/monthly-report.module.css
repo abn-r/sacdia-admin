@@ -66,8 +66,8 @@
 }
 
 .documentHeader {
-  height: 47mm;
-  flex: 0 0 47mm;
+  height: 52mm;
+  flex: 0 0 52mm;
 }
 
 .documentTopRow {
@@ -106,7 +106,10 @@
 .documentTitle h1 {
   margin: 0;
   color: var(--sac-primary-dark);
-  font-size: 27pt;
+  /* One line: at 27pt the title wrapped and pushed the info grid out of the
+     47mm header, under the first section title. */
+  font-size: 24pt;
+  white-space: nowrap;
   font-weight: 800;
   letter-spacing: 0.01em;
   line-height: 0.9;
@@ -139,7 +142,9 @@
 
 .infoGrid {
   display: grid;
-  height: 31.5mm;
+  /* Three rows of label + line take ~36.5mm; at 31.5mm the last row
+     (Sección, Mes / Año) hid under the first section title. */
+  height: 37mm;
   margin-top: 2.5mm;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 0.25mm solid var(--sac-border);
@@ -592,7 +597,8 @@
 }
 
 .signaturesSection {
-  flex: 0 0 29mm;
+  /* Five fields per panel need ~39mm; at 29mm "Firma" was cut off. */
+  flex: 0 0 40mm;
 }
 
 .financeMetrics {
@@ -856,5 +862,14 @@
   .documentPage input[type="radio"] {
     appearance: auto;
     accent-color: #000000;
+  }
+
+  /* A paper form: empty dates print as a blank line, not "dd/mm/aaaa". */
+  .documentPage input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  .documentPage input[type="date"][data-empty="true"]::-webkit-datetime-edit {
+    color: transparent;
   }
 }

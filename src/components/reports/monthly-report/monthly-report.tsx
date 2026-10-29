@@ -167,6 +167,7 @@ function TextField({
           id={id}
           type={type}
           value={value ?? ""}
+          data-empty={type === "date" ? String(!value) : undefined}
           onChange={handleChange}
           className={prefix ? styles.hasPrefix : suffix ? styles.hasSuffix : undefined}
           min={type === "number" ? 0 : undefined}
@@ -373,6 +374,7 @@ function EditableTable({
                     id={id}
                     type={column.type ?? "text"}
                     value={row[column.key] ?? ""}
+                    data-empty={column.type === "date" ? String(!row[column.key]) : undefined}
                     maxLength={column.type === "date" ? undefined : 52}
                     onChange={(event) => updateCell(rowIndex, column.key, event.target.value)}
                   />
@@ -509,7 +511,7 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
 
       <form onSubmit={(event) => event.preventDefault()}>
         <div className={styles.pagePreview}>
-          <article className={`${styles.documentPage} ${styles.pageOne}`} aria-label="Página 1 de 2">
+          <article className={styles.documentPage} aria-label="Página 1 de 2">
             <DocumentHeader
               page={1}
               data={data.meta}
@@ -620,7 +622,7 @@ export function MonthlyReport({ initialData }: { initialData?: MonthlyReportData
             <DocumentFooter />
           </article>
 
-          <article className={`${styles.documentPage} ${styles.pageTwo}`} aria-label="Página 2 de 2">
+          <article className={styles.documentPage} aria-label="Página 2 de 2">
             <DocumentHeader
               page={2}
               data={data.meta}
