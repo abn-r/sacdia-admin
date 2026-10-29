@@ -68,6 +68,7 @@ export function HonorCategoriesPageClient({
   const tFields = useTranslations("catalogs.fields");
   const tHonor = useTranslations("catalogs.honorCategories");
   const entity = t("singular");
+  const entityPlural = t("title").toLocaleLowerCase();
 
   const [sorting, setSorting] = React.useState<SortingState>([{ id: "name", desc: false }]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -169,7 +170,7 @@ export function HonorCategoriesPageClient({
 
       <Card>
         <CardHeader className="gap-4 border-b pb-4">
-          <CardTitle className="text-base">{tCatalogs("crudPage.listOf", { entity })}</CardTitle>
+          <CardTitle className="text-base">{tCatalogs("crudPage.listOf", { entity: entityPlural })}</CardTitle>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <InputGroup className="lg:max-w-sm">
               <InputGroupAddon>
