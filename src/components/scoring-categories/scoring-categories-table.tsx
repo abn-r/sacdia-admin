@@ -26,6 +26,10 @@ import {
   SortableHeader,
   type SortDirection,
 } from "@/components/shared/sortable-header";
+import { getActionErrorMessage } from "@/lib/api/action-error";
+import { ApiError } from "@/lib/api/client";
+import { useAuth } from "@/lib/auth/auth-context";
+import { canAccessCatalogEditor } from "@/lib/auth/catalog-editor-access";
 import {
   DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP,
   getScoringCategoryMaxPointsCap,
@@ -157,6 +161,9 @@ export function ScoringCategoriesTable({
 }: ScoringCategoriesTableProps) {
   const t = useTranslations("scoring_categories");
   const tTable = useTranslations("scoring_categories.table");
+  const { user } = useAuth();
+  // GET /system-config is admin-only: field roles would only collect a 403.
+  const canReadSystemConfig = canAccessCatalogEditor(user);
   const [categories, setCategories] = useState<ScoringCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -179,6 +186,7 @@ export function ScoringCategoriesTable({
   const [maxPointsCap, setMaxPointsCap] = useState(
     DEFAULT_SCORING_CATEGORY_MAX_POINTS_CAP,
   );
+  const [maxPointsCapLoaded, setMaxPointsCapLoaded] = useState(false);
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -187,9 +195,11 @@ export function ScoringCategoriesTable({
       const data = await fetchCategories();
       setCategories(data);
     } catch (err: unknown) {
+      // Never surface the raw backend text (guard/RBAC internals): only say
+      // whether the role lacks access or the list could not be loaded.
       const message =
-        err instanceof Error
-          ? err.message
+        err instanceof ApiError && (err.status === 401 || err.status === 403)
+          ? tTable("forbidden")
           : tTable("loadFailed");
       setError(message);
       toast.error(message);
@@ -203,12 +213,14 @@ export function ScoringCategoriesTable({
   }, [loadCategories]);
 
   useEffect(() => {
+    if (!canReadSystemConfig) return;
     let mounted = true;
 
     async function loadMaxPointsCap() {
       const resolved = await getScoringCategoryMaxPointsCap();
       if (!mounted) return;
       setMaxPointsCap(resolved);
+      setMaxPointsCapLoaded(true);
     }
 
     void loadMaxPointsCap();
@@ -216,7 +228,7 @@ export function ScoringCategoriesTable({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [canReadSystemConfig]);
 
   // ─── Save handler (create or update) ───────────────────────────────────────
 
@@ -270,7 +282,9 @@ export function ScoringCategoriesTable({
       );
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.status_change_failed");
+        getActionErrorMessage(err, t("errors.status_change_failed"), {
+          endpointLabel: "/scoring-categories",
+        });
       toast.error(message);
     } finally {
       setTogglingIds((prev) => {
@@ -348,10 +362,11 @@ export function ScoringCategoriesTable({
           {tTable("newCategory")}
         </Button>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Puntaje máximo permitido por el sistema: {maxPointsCap} puntos por
-        aspecto.
-      </p>
+      {maxPointsCapLoaded ? (
+        <p className="text-sm text-muted-foreground">
+          {tTable("maxPointsNote", { max: maxPointsCap })}
+        </p>
+      ) : null}
 
       {/* Table or empty */}
       {sortedCategories.length === 0 ? (

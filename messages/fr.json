@@ -5254,6 +5254,8 @@
     },
     "table": {
       "loadFailed": "Impossible de charger les catégories",
+      "forbidden": "Vous n’avez pas la permission de voir les catégories de notation.",
+      "maxPointsNote": "Score maximal autorisé par le système : {max} points par aspect.",
       "retry": "Réessayer",
       "inheritedCount": "{count} hérité(s), ",
       "ownCount": "{count} propre(s)",

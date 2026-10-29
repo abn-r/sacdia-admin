@@ -5254,6 +5254,8 @@
     },
     "table": {
       "loadFailed": "No se pudieron cargar las categorías",
+      "forbidden": "No tienes permisos para ver las categorías de puntuación.",
+      "maxPointsNote": "Puntaje máximo permitido por el sistema: {max} puntos por aspecto.",
       "retry": "Reintentar",
       "inheritedCount": "{count} heredada{count, plural, one {} other {s}}, ",
       "ownCount": "{count} propia{count, plural, one {} other {s}}",

@@ -5286,6 +5286,8 @@ export interface IntlMessages {
     };
     table: {
       loadFailed: string;
+      forbidden: string;
+      maxPointsNote: string;
       retry: string;
       inheritedCount: string;
       ownCount: string;

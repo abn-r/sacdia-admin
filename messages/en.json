@@ -5254,6 +5254,8 @@
     },
     "table": {
       "loadFailed": "Could not load categories",
+      "forbidden": "You do not have permission to view the scoring categories.",
+      "maxPointsNote": "Maximum score allowed by the system: {max} points per aspect.",
       "retry": "Retry",
       "inheritedCount": "{count} inherited, ",
       "ownCount": "{count} own",
