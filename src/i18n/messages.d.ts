@@ -1677,6 +1677,8 @@ export interface IntlMessages {
         createdLabel: string;
         emptyAnnual: string;
         emptyQuarterly: string;
+        loadErrorAnnual: string;
+        loadErrorQuarterly: string;
       };
       history: {
         title: string;

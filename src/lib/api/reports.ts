@@ -31,8 +31,6 @@ export type QuarterlyReport = {
   club_id: number;
   /** Calendar year of the quarter. Quarterly reports have no ecclesiastical year. */
   year?: number | null;
-  /** The backend never sends this for quarterly reports; kept until the club tab stops reading it. */
-  ecclesiastical_year_id?: number | null;
   quarter?: number | null;
   status?: string | null;
   created_at?: string | null;

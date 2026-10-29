@@ -1647,7 +1647,9 @@
         "statusLabel": "Estado",
         "createdLabel": "Creado",
         "emptyAnnual": "Sin informes anuales.",
-        "emptyQuarterly": "Sin informes trimestrales."
+        "emptyQuarterly": "Sin informes trimestrales.",
+        "loadErrorAnnual": "No se pudieron cargar los informes anuales. Intenta de nuevo más tarde.",
+        "loadErrorQuarterly": "No se pudieron cargar los informes trimestrales. Intenta de nuevo más tarde."
       },
       "history": {
         "title": "Historial de auditoría",

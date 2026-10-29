@@ -8,7 +8,7 @@ import {
   listClubQuarterlyReports,
 } from "@/lib/api/reports";
 import { canCreateClubSections } from "@/lib/auth/permission-utils";
-import { canCapability } from "@/lib/auth/screen-catalog";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { loadClubDetail } from "@/lib/clubs/fetch-detail";
 
@@ -53,16 +53,28 @@ export default async function ClubDetailPage({
   });
   if (!detail) notFound();
 
-  const [annualReports, quarterlyReports] = await Promise.all([
-    listClubAnnualReports(detail.clubId).catch(() => []),
-    listClubQuarterlyReports(detail.clubId).catch(() => []),
+  // A failed fetch must not read as "this club has no reports": the tab shows an error instead.
+  const [annualResult, quarterlyResult] = await Promise.allSettled([
+    listClubAnnualReports(detail.clubId),
+    listClubQuarterlyReports(detail.clubId),
   ]);
+  if (annualResult.status === "rejected") {
+    console.error("[ClubDetailPage] Failed to load annual reports:", annualResult.reason);
+  }
+  if (quarterlyResult.status === "rejected") {
+    console.error("[ClubDetailPage] Failed to load quarterly reports:", quarterlyResult.reason);
+  }
 
   return (
     <ClubDetailView
       data={detail}
-      annualReports={annualReports}
-      quarterlyReports={quarterlyReports}
+      annualReports={annualResult.status === "fulfilled" ? annualResult.value : []}
+      quarterlyReports={quarterlyResult.status === "fulfilled" ? quarterlyResult.value : []}
+      annualReportsError={annualResult.status === "rejected"}
+      quarterlyReportsError={quarterlyResult.status === "rejected"}
+      canOpenReports={
+        canViewScreen(user, "reports-annual") && canViewScreen(user, "reports-quarterly")
+      }
       defaultTab={resolveClubDetailTab(tab)}
     />
   );

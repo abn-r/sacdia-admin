@@ -1647,7 +1647,9 @@
         "statusLabel": "Status",
         "createdLabel": "Criado",
         "emptyAnnual": "Sem relatórios anuais.",
-        "emptyQuarterly": "Sem relatórios trimestrais."
+        "emptyQuarterly": "Sem relatórios trimestrais.",
+        "loadErrorAnnual": "Não foi possível carregar os relatórios anuais. Tente novamente mais tarde.",
+        "loadErrorQuarterly": "Não foi possível carregar os relatórios trimestrais. Tente novamente mais tarde."
       },
       "history": {
         "title": "Histórico de auditoria",

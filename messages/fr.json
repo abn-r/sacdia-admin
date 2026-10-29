@@ -1647,7 +1647,9 @@
         "statusLabel": "Statut",
         "createdLabel": "Créé",
         "emptyAnnual": "Aucun rapport annuel.",
-        "emptyQuarterly": "Aucun rapport trimestriel."
+        "emptyQuarterly": "Aucun rapport trimestriel.",
+        "loadErrorAnnual": "Impossible de charger les rapports annuels. Réessayez plus tard.",
+        "loadErrorQuarterly": "Impossible de charger les rapports trimestriels. Réessayez plus tard."
       },
       "history": {
         "title": "Historique d’audit",

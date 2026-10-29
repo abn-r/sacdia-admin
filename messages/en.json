@@ -1647,7 +1647,9 @@
         "statusLabel": "Status",
         "createdLabel": "Created",
         "emptyAnnual": "No annual reports.",
-        "emptyQuarterly": "No quarterly reports."
+        "emptyQuarterly": "No quarterly reports.",
+        "loadErrorAnnual": "The annual reports could not be loaded. Try again later.",
+        "loadErrorQuarterly": "The quarterly reports could not be loaded. Try again later."
       },
       "history": {
         "title": "Audit history",
