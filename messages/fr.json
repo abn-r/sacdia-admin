@@ -551,11 +551,11 @@
       "read_only_catalog": "Ce catalogue est en lecture seule",
       "op_create_failed": "Impossible de créer l'enregistrement",
       "op_update_failed": "Impossible de mettre à jour l'enregistrement",
-      "op_delete_failed": "Impossible de supprimer l'enregistrement",
+      "op_delete_failed": "Impossible de désactiver l’enregistrement",
       "load_data_failed": "Erreur lors du chargement des données"
     },
     "validation": {
-      "delete_target_not_identified": "Impossible d'identifier l'enregistrement à supprimer",
+      "delete_target_not_identified": "Impossible d’identifier l’enregistrement à désactiver",
       "field_required": "Le champ {field} est obligatoire",
       "field_invalid": "La valeur de {field} n’est pas valide"
     },
@@ -564,8 +564,8 @@
       "op_create_description": "L'enregistrement a été créé.",
       "op_update_title": "Enregistrement mis à jour",
       "op_update_description": "L'enregistrement a été mis à jour.",
-      "op_delete_title": "Enregistrement supprimé",
-      "op_delete_description": "L'enregistrement a été supprimé."
+      "op_delete_title": "Enregistrement désactivé",
+      "op_delete_description": "L’enregistrement est maintenant inactif."
     },
     "crudPage": {
       "readOnly": "Lecture seule",
@@ -578,20 +578,20 @@
       "statusActive": "Actif",
       "statusInactive": "Inactif",
       "editRecord": "Modifier l'enregistrement",
-      "deleteRecord": "Supprimer l'enregistrement",
+      "deleteRecord": "Désactiver l’enregistrement",
       "listOf": "Liste de {entity}",
       "edit": "Modifier",
-      "delete": "Supprimer",
+      "delete": "Désactiver",
       "editItem": "Modifier {item}",
-      "deleteItem": "Supprimer {item}",
+      "deleteItem": "Désactiver {item}",
       "saving": "Enregistrement..."
     },
     "deleteDialog": {
-      "title": "Supprimer {name}",
-      "description": "Êtes-vous sûr de vouloir supprimer \"{name}\" ? Cet enregistrement sera désactivé et pourra être restauré ultérieurement.",
+      "title": "Désactiver {name} ?",
+      "description": "L’enregistrement \"{name}\" sera désactivé et restera dans la liste comme inactif. Vous pouvez le réactiver en le modifiant.",
       "cancel": "Annuler",
-      "delete": "Supprimer",
-      "deleting": "Suppression..."
+      "delete": "Désactiver",
+      "deleting": "Désactivation..."
     },
     "filterBar": {
       "removeFilter": "Supprimer le filtre : {label}",
@@ -677,10 +677,10 @@
       "createDialogDesc": "Remplissez les champs pour créer un nouvel enregistrement.",
       "editDialogTitle": "Modifier {entity}",
       "editDialogDesc": "Modifiez les champs de cet enregistrement.",
-      "deleteDialogTitle": "Supprimer {entity} ?",
-      "deleteDialogDesc": "\"{name}\" sera supprimé. Cette action est irréversible.",
+      "deleteDialogTitle": "Désactiver {entity} ?",
+      "deleteDialogDesc": "L’enregistrement \"{name}\" sera désactivé et restera dans la liste comme inactif. Vous pouvez le réactiver en le modifiant.",
       "edit": "Modifier",
-      "delete": "Supprimer",
+      "delete": "Désactiver",
       "cancel": "Annuler",
       "saveChanges": "Enregistrer les modifications",
       "noPermissions": "Vous n'avez pas la permission de modifier ce catalogue.",

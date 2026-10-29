@@ -415,14 +415,14 @@ function makeActions(
   async function deleteAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
     if (!canCapability(user, screenId, "delete")) {
-      return { error: "Sin permisos para eliminar." };
+      return { error: "Sin permisos para desactivar." };
     }
     const id = parsePositiveInt(formData, "id");
-    if (!id) return { error: "No se pudo identificar el registro a eliminar." };
+    if (!id) return { error: "No se pudo identificar el registro a desactivar." };
     try {
       await api.delete(id);
     } catch (error) {
-      return { error: getActionErrorMessage(error, "No se pudo eliminar el registro.", { endpointLabel: `${routePath}/${id}` }) };
+      return { error: getActionErrorMessage(error, "No se pudo desactivar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
     revalidatePath(routePath);
     return { success: true };
@@ -729,7 +729,7 @@ export async function deleteMasterHonorAction(
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
   if (!canCapability(user, "catalogs-master-honors", "delete")) {
-    return { error: "Sin permisos para eliminar." };
+    return { error: "Sin permisos para desactivar." };
   }
 
   const id = parsePositiveInt(formData, "id");
@@ -739,7 +739,7 @@ export async function deleteMasterHonorAction(
     await deleteAdminMasterHonor(id);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+      error: getActionErrorMessage(error, "No se pudo desactivar el registro.", {
         endpointLabel: `/admin/master-honors/${id}`,
       }),
     };

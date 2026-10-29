@@ -551,11 +551,11 @@
       "read_only_catalog": "This catalog is read-only",
       "op_create_failed": "Could not create the record",
       "op_update_failed": "Could not update the record",
-      "op_delete_failed": "Could not delete the record",
+      "op_delete_failed": "Could not deactivate the record",
       "load_data_failed": "Error loading data"
     },
     "validation": {
-      "delete_target_not_identified": "Could not identify the record to delete",
+      "delete_target_not_identified": "Could not identify the record to deactivate",
       "field_required": "The {field} field is required",
       "field_invalid": "The {field} value is invalid"
     },
@@ -564,8 +564,8 @@
       "op_create_description": "The record was created.",
       "op_update_title": "Record updated",
       "op_update_description": "The record was updated.",
-      "op_delete_title": "Record deleted",
-      "op_delete_description": "The record was deleted."
+      "op_delete_title": "Record deactivated",
+      "op_delete_description": "The record is now inactive."
     },
     "crudPage": {
       "readOnly": "Read only",
@@ -578,20 +578,20 @@
       "statusActive": "Active",
       "statusInactive": "Inactive",
       "editRecord": "Edit record",
-      "deleteRecord": "Delete record",
+      "deleteRecord": "Deactivate record",
       "listOf": "List of {entity}",
       "edit": "Edit",
-      "delete": "Delete",
+      "delete": "Deactivate",
       "editItem": "Edit {item}",
-      "deleteItem": "Delete {item}",
+      "deleteItem": "Deactivate {item}",
       "saving": "Saving..."
     },
     "deleteDialog": {
-      "title": "Delete {name}",
-      "description": "Are you sure you want to delete \"{name}\"? This record will be deactivated and can be restored later.",
+      "title": "Deactivate {name}?",
+      "description": "The record \"{name}\" will be deactivated and stay in the list as inactive. You can reactivate it by editing it.",
       "cancel": "Cancel",
-      "delete": "Delete",
-      "deleting": "Deleting..."
+      "delete": "Deactivate",
+      "deleting": "Deactivating..."
     },
     "filterBar": {
       "removeFilter": "Remove filter: {label}",
@@ -677,10 +677,10 @@
       "createDialogDesc": "Fill in the fields to create a new {entity} record.",
       "editDialogTitle": "Edit {entity}",
       "editDialogDesc": "Update the fields of this {entity} record.",
-      "deleteDialogTitle": "Delete {entity}?",
-      "deleteDialogDesc": "\"{name}\" will be deleted. This action cannot be undone.",
+      "deleteDialogTitle": "Deactivate {entity}?",
+      "deleteDialogDesc": "The record \"{name}\" will be deactivated and stay in the list as inactive. You can reactivate it by editing it.",
       "edit": "Edit",
-      "delete": "Delete",
+      "delete": "Deactivate",
       "cancel": "Cancel",
       "saveChanges": "Save changes",
       "noPermissions": "You do not have permission to modify this catalog.",

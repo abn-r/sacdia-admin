@@ -551,11 +551,11 @@
       "read_only_catalog": "Este catálogo es de solo lectura",
       "op_create_failed": "No se pudo crear el registro",
       "op_update_failed": "No se pudo actualizar el registro",
-      "op_delete_failed": "No se pudo eliminar el registro",
+      "op_delete_failed": "No se pudo desactivar el registro",
       "load_data_failed": "Error al cargar datos"
     },
     "validation": {
-      "delete_target_not_identified": "No se pudo identificar el registro a eliminar",
+      "delete_target_not_identified": "No se pudo identificar el registro a desactivar",
       "field_required": "El campo {field} es obligatorio",
       "field_invalid": "El valor de {field} no es válido"
     },
@@ -564,8 +564,8 @@
       "op_create_description": "El registro se creó.",
       "op_update_title": "Registro actualizado",
       "op_update_description": "El registro se actualizó.",
-      "op_delete_title": "Registro eliminado",
-      "op_delete_description": "El registro se eliminó."
+      "op_delete_title": "Registro desactivado",
+      "op_delete_description": "El registro quedó inactivo."
     },
     "crudPage": {
       "readOnly": "Solo lectura",
@@ -578,20 +578,20 @@
       "statusActive": "Activo",
       "statusInactive": "Inactivo",
       "editRecord": "Editar registro",
-      "deleteRecord": "Eliminar registro",
+      "deleteRecord": "Desactivar registro",
       "listOf": "Lista de {entity}",
       "edit": "Editar",
-      "delete": "Eliminar",
+      "delete": "Desactivar",
       "editItem": "Editar {item}",
-      "deleteItem": "Eliminar {item}",
+      "deleteItem": "Desactivar {item}",
       "saving": "Guardando..."
     },
     "deleteDialog": {
-      "title": "Eliminar {name}",
-      "description": "¿Estás seguro que quieres eliminar \"{name}\"? Este registro será desactivado y podrá ser restaurado posteriormente.",
+      "title": "¿Desactivar {name}?",
+      "description": "El registro \"{name}\" se desactivará y quedará en el listado como inactivo. Puedes reactivarlo editándolo.",
       "cancel": "Cancelar",
-      "delete": "Eliminar",
-      "deleting": "Eliminando..."
+      "delete": "Desactivar",
+      "deleting": "Desactivando..."
     },
     "filterBar": {
       "removeFilter": "Quitar filtro: {label}",
@@ -677,10 +677,10 @@
       "createDialogDesc": "Completa los campos para crear un registro de {entity}.",
       "editDialogTitle": "Editar {entity}",
       "editDialogDesc": "Modifica los campos del registro de {entity}.",
-      "deleteDialogTitle": "¿Eliminar {entity}?",
-      "deleteDialogDesc": "Se eliminará \"{name}\". Esta acción no se puede deshacer.",
+      "deleteDialogTitle": "¿Desactivar {entity}?",
+      "deleteDialogDesc": "El registro \"{name}\" se desactivará y quedará en el listado como inactivo. Puedes reactivarlo editándolo.",
       "edit": "Editar",
-      "delete": "Eliminar",
+      "delete": "Desactivar",
       "cancel": "Cancelar",
       "saveChanges": "Guardar cambios",
       "noPermissions": "No cuentas con permisos para modificar este catálogo.",

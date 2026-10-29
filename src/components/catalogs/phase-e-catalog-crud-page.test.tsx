@@ -193,15 +193,18 @@ describe("PhaseECatalogCrudPage - dialogs", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
-  it("confirms a successful delete with a toast", async () => {
+  it("confirms a successful deactivation with a toast", async () => {
     const deleteAction = vi.fn(async () => ({ success: true }));
     renderPage({ typeField, deleteAction });
     const user = userEvent.setup();
 
     await user.click(screen.getAllByRole("button", { name: /acciones/i })[0]!);
-    await user.click(await screen.findByRole("menuitem", { name: /Eliminar/ }));
+    await user.click(await screen.findByRole("menuitem", { name: /Desactivar/ }));
     const dialog = await screen.findByRole("alertdialog");
-    await user.click(within(dialog).getByRole("button", { name: "Eliminar" }));
+    // The backend only sets active=false: the copy must not promise a hard delete.
+    expect(within(dialog).getByText(/se desactivará y quedará en el listado como inactivo/)).toBeInTheDocument();
+    expect(within(dialog).queryByText(/no se puede deshacer/i)).not.toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Desactivar" }));
 
     await waitFor(() =>
       expect(mocks.toastSuccess).toHaveBeenCalledWith(

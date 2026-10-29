@@ -180,15 +180,15 @@ function makeActions(
   ): Promise<GenericCatalogActionState> {
     const user = await requireAdminUser();
     if (!canCapability(user, screenId, "delete")) {
-      return { error: "Sin permisos para eliminar." };
+      return { error: "Sin permisos para desactivar." };
     }
     const id = parsePositiveInt(formData, "id");
-    if (!id) return { error: "No se pudo identificar el registro a eliminar." };
+    if (!id) return { error: "No se pudo identificar el registro a desactivar." };
     try {
       await api.delete(id);
     } catch (error) {
       return {
-        error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+        error: getActionErrorMessage(error, "No se pudo desactivar el registro.", {
           endpointLabel: `${routePath}/${id}`,
         }),
       };
