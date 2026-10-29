@@ -3605,7 +3605,7 @@
     },
     "clubsPanel": {
       "emptyTitle": "No clubs enrolled yet",
-      "emptyDescription": "Directors enroll their clubs from the app.",
+      "emptyDescription": "Directors enroll their clubs from the app, or you can enroll one with “Enroll club”.",
       "colSection": "Section",
       "colStatus": "Status",
       "colRegisteredBy": "Registered by",

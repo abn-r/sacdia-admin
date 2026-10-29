@@ -36,7 +36,7 @@ describe("CamporeeClubsTab", () => {
       screen.getByRole("heading", { name: "Aún no hay clubes inscritos" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Los directores inscriben a sus clubes desde la app."),
+      screen.getByText("Los directores inscriben sus clubes desde la app, o puedes inscribir uno con «Inscribir club»."),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Inscribir club" })).toBeInTheDocument();
   });

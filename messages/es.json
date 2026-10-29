@@ -3605,7 +3605,7 @@
     },
     "clubsPanel": {
       "emptyTitle": "Aún no hay clubes inscritos",
-      "emptyDescription": "Los directores inscriben a sus clubes desde la app.",
+      "emptyDescription": "Los directores inscriben sus clubes desde la app, o puedes inscribir uno con «Inscribir club».",
       "colSection": "Sección",
       "colStatus": "Estado",
       "colRegisteredBy": "Registrado por",
