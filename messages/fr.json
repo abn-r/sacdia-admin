@@ -89,7 +89,6 @@
       "annual_folders_categories": "Catégories de prix",
       "member_rankings": "Classements des membres",
       "member_ranking_weights": "Pondérations des classements de membres",
-      "ranking_weights": "Pondérations des classements",
       "section_rankings": "Classements des sections",
       "requests": "Demandes",
       "requests_transfers": "Transferts",
@@ -117,7 +116,6 @@
       "subgroup_academics": "Académiques",
       "subgroup_business": "Affaires",
       "subgroup_honors_cat": "Honneurs",
-      "ranking_weights_root": "Configuration des poids",
       "materials_inbox": "Boîte de réception",
       "materials_receipts": "Reçus",
       "materials_inventory": "Inventaire",
@@ -177,7 +175,6 @@
       "annual_folders_rankings": "Classement",
       "annual_folders_ranking_config": "Config. du classement",
       "annual_folders_categories": "Catégories",
-      "ranking_weights": "Pondérations du classement",
       "section_rankings": "Classements par section",
       "reports_list": "Mes rapports",
       "reports_supervision": "Supervision territoriale",
@@ -6998,64 +6995,6 @@
           "performance": "Performance",
           "other": "Autre"
         }
-      }
-    }
-  },
-  "rankingWeights": {
-    "clientPage": {
-      "clubTypeFallback": "Type {id}",
-      "defaultGlobalTitle": "Défaut global",
-      "defaultGlobalDescription": "Poids appliqués à tous les types de clubs sans remplacement configuré. La somme doit être exactement 100.",
-      "defaultGlobalUpdated": "Défaut global mis à jour",
-      "defaultGlobalUpdateError": "Erreur lors de la mise à jour du défaut",
-      "defaultGlobalNotFound": "Défaut global introuvable. Contactez l'administrateur système.",
-      "overridesTitle": "Remplacements par type de club",
-      "overridesDescription": "Poids spécifiques qui remplacent le défaut pour un type de club donné.",
-      "addOverride": "Ajouter un remplacement",
-      "newOverrideTitle": "Nouveau remplacement",
-      "overridesEmpty": "Aucun remplacement configuré. Tous les types de clubs utilisent le défaut global.",
-      "colClubType": "Type de club",
-      "colFolder": "Dossier annuel",
-      "colFinance": "Finances",
-      "colCamporee": "Camporée",
-      "colEvidence": "Preuves",
-      "colSuma": "Somme",
-      "colAcciones": "Actions",
-      "editButton": "Modifier",
-      "editOverrideTitle": "Modifier le remplacement",
-      "overrideUpdated": "Remplacement mis à jour",
-      "overrideUpdateError": "Erreur lors de la mise à jour du remplacement",
-      "deleteButton": "Supprimer",
-      "deleteOverrideTitle": "Supprimer le remplacement ?",
-      "deleteOverrideDescription": "Cette action est irréversible. Le type de club reviendra aux poids du défaut global.",
-      "cancelButton": "Annuler",
-      "deletingLabel": "Suppression...",
-      "overrideDeleted": "Remplacement supprimé",
-      "overrideDeleteError": "Erreur lors de la suppression du remplacement"
-    },
-    "form": {
-      "saving": "Enregistrement...",
-      "save": "Enregistrer",
-      "folder": "Dossier annuel",
-      "finance": "Finances",
-      "camporee": "Camporée",
-      "evidence": "Preuves"
-    },
-    "sum": {
-      "label": "Somme : {sum}"
-    },
-    "override": {
-      "selectPlaceholder": "Sélectionner le type de club",
-      "noTypesAvailable": "Aucun type disponible",
-      "createLabel": "Créer un remplacement"
-    },
-    "pages": {
-      "list": {
-        "title": "Pondérations du classement",
-        "description": "Configurez la pondération de chaque dimension (dossier annuel, finances, camporée, preuves) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
-        "loadFailed": "Impossible de charger les pondérations du classement. Vérifiez la connexion au serveur.",
-        "emptyTitle": "Aucune configuration",
-        "emptyDescription": "Aucune configuration de poids trouvée."
       }
     }
   },

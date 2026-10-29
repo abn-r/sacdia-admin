@@ -118,7 +118,6 @@ export interface IntlMessages {
       annual_folders_categories: string;
       member_rankings: string;
       member_ranking_weights: string;
-      ranking_weights: string;
       section_rankings: string;
       requests: string;
       requests_transfers: string;
@@ -146,7 +145,6 @@ export interface IntlMessages {
       subgroup_academics: string;
       subgroup_business: string;
       subgroup_honors_cat: string;
-      ranking_weights_root: string;
       materials_inbox: string;
       materials_receipts: string;
       materials_inventory: string;
@@ -206,7 +204,6 @@ export interface IntlMessages {
       annual_folders_rankings: string;
       annual_folders_ranking_config: string;
       annual_folders_categories: string;
-      ranking_weights: string;
       section_rankings: string;
       reports_list: string;
       reports_supervision: string;
@@ -7030,64 +7027,6 @@ export interface IntlMessages {
           performance: string;
           other: string;
         };
-      };
-    };
-  };
-  rankingWeights: {
-    clientPage: {
-      clubTypeFallback: string;
-      defaultGlobalTitle: string;
-      defaultGlobalDescription: string;
-      defaultGlobalUpdated: string;
-      defaultGlobalUpdateError: string;
-      defaultGlobalNotFound: string;
-      overridesTitle: string;
-      overridesDescription: string;
-      addOverride: string;
-      newOverrideTitle: string;
-      overridesEmpty: string;
-      colClubType: string;
-      colFolder: string;
-      colFinance: string;
-      colCamporee: string;
-      colEvidence: string;
-      colSuma: string;
-      colAcciones: string;
-      editButton: string;
-      editOverrideTitle: string;
-      overrideUpdated: string;
-      overrideUpdateError: string;
-      deleteButton: string;
-      deleteOverrideTitle: string;
-      deleteOverrideDescription: string;
-      cancelButton: string;
-      deletingLabel: string;
-      overrideDeleted: string;
-      overrideDeleteError: string;
-    };
-    form: {
-      saving: string;
-      save: string;
-      folder: string;
-      finance: string;
-      camporee: string;
-      evidence: string;
-    };
-    sum: {
-      label: string;
-    };
-    override: {
-      selectPlaceholder: string;
-      noTypesAvailable: string;
-      createLabel: string;
-    };
-    pages: {
-      list: {
-        title: string;
-        description: string;
-        loadFailed: string;
-        emptyTitle: string;
-        emptyDescription: string;
       };
     };
   };

@@ -89,7 +89,6 @@
       "annual_folders_categories": "Award categories",
       "member_rankings": "Member classifications",
       "member_ranking_weights": "Member classification weights",
-      "ranking_weights": "Classification weights",
       "section_rankings": "Section classifications",
       "requests": "Requests",
       "requests_transfers": "Transfers",
@@ -117,7 +116,6 @@
       "subgroup_academics": "Academics",
       "subgroup_business": "Business",
       "subgroup_honors_cat": "Honors",
-      "ranking_weights_root": "Weights configuration",
       "materials_inbox": "Inbox",
       "materials_receipts": "Receipts",
       "materials_inventory": "Inventory",
@@ -177,7 +175,6 @@
       "annual_folders_rankings": "Ranking",
       "annual_folders_ranking_config": "Ranking settings",
       "annual_folders_categories": "Categories",
-      "ranking_weights": "Ranking weights",
       "section_rankings": "Rankings by section",
       "reports_list": "My reports",
       "reports_supervision": "Territorial supervision",
@@ -6998,64 +6995,6 @@
           "performance": "Performance",
           "other": "Other"
         }
-      }
-    }
-  },
-  "rankingWeights": {
-    "clientPage": {
-      "clubTypeFallback": "Type {id}",
-      "defaultGlobalTitle": "Default weights",
-      "defaultGlobalDescription": "Weights applied to all club types that do not have a configured override. The sum must be exactly 100.",
-      "defaultGlobalUpdated": "Default weights updated",
-      "defaultGlobalUpdateError": "Error updating the default weights",
-      "defaultGlobalNotFound": "Default weights not found. Contact the system administrator.",
-      "overridesTitle": "Club type overrides",
-      "overridesDescription": "Specific weights that replace the default for a given club type.",
-      "addOverride": "Add override",
-      "newOverrideTitle": "New override",
-      "overridesEmpty": "No overrides configured. All club types use the default weights.",
-      "colClubType": "Club type",
-      "colFolder": "Annual folder",
-      "colFinance": "Finances",
-      "colCamporee": "Camporee",
-      "colEvidence": "Evidence",
-      "colSuma": "Sum",
-      "colAcciones": "Actions",
-      "editButton": "Edit",
-      "editOverrideTitle": "Edit override",
-      "overrideUpdated": "Override updated",
-      "overrideUpdateError": "Error updating the override",
-      "deleteButton": "Delete",
-      "deleteOverrideTitle": "Delete override?",
-      "deleteOverrideDescription": "This action cannot be undone. The club type will revert to using the default weights.",
-      "cancelButton": "Cancel",
-      "deletingLabel": "Deleting...",
-      "overrideDeleted": "Override deleted",
-      "overrideDeleteError": "Error deleting the override"
-    },
-    "form": {
-      "saving": "Saving...",
-      "save": "Save",
-      "folder": "Annual folder",
-      "finance": "Finances",
-      "camporee": "Camporee",
-      "evidence": "Evidence"
-    },
-    "sum": {
-      "label": "Sum: {sum}"
-    },
-    "override": {
-      "selectPlaceholder": "Select club type",
-      "noTypesAvailable": "No types available",
-      "createLabel": "Create override"
-    },
-    "pages": {
-      "list": {
-        "title": "Classification weights",
-        "description": "Configure the weight of each dimension (annual folder, finances, camporee, evidence) for the annual classification calculation. The sum of the 4 weights must be exactly 100.",
-        "loadFailed": "Could not load classification weights. Check the server connection.",
-        "emptyTitle": "No configuration",
-        "emptyDescription": "No weight configurations found."
       }
     }
   },
