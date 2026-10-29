@@ -6422,31 +6422,50 @@
       "year_closed": "Année ecclésiastique clôturée"
     },
     "errors": {
-      "preview_failed": "Impossible d'obtenir l'aperçu.",
-      "close_year_failed": "Impossible de clôturer l'année ecclésiastique."
+      "preview_failed": "Impossible d’obtenir l’aperçu.",
+      "close_year_failed": "Impossible de clôturer l’année ecclésiastique."
     },
     "page": {
-      "title": "Clôture de l'année",
-      "description": "Clôturez l'année ecclésiastique active pour archiver les inscriptions, dossiers et rapports.",
+      "title": "Clôture de l’année",
+      "description": "Clôturez l’année ecclésiastique active pour archiver les inscriptions, dossiers et rapports.",
       "empty_no_years_title": "Aucune année ecclésiastique",
-      "empty_no_years_description": "Aucune année ecclésiastique n'est enregistrée dans le système.",
-      "error_load_years": "Impossible de charger les années ecclésiastiques."
+      "empty_no_years_description": "Aucune année ecclésiastique n’est enregistrée.",
+      "error_load_years": "Impossible de charger les années ecclésiastiques.",
+      "noActiveYearTitle": "Aucune année active",
+      "noActiveYearDescription": "Seule l’année ecclésiastique active peut être clôturée, et il n’y en a aucune pour le moment."
+    },
+    "client": {
+      "cardTitle": "Année active : {year}",
+      "cardDescription": "Vérifiez l’impact avant de confirmer. Seule l’année active peut être clôturée.",
+      "previewButton": "Aperçu",
+      "previewLoading": "Chargement…",
+      "confirmCloseButton": "Confirmer la clôture",
+      "confirmCloseLoading": "Clôture…"
     },
     "preview": {
+      "title": "Impact de la clôture",
+      "description": "Voici ce qui se passera en clôturant {year}.",
       "impactEnrollmentsLabel": "Inscriptions",
       "impactEnrollmentsDescription": "Seront marquées comme clôturées",
       "impactFoldersLabel": "Dossiers",
       "impactFoldersDescription": "Seront archivés",
-      "impactReportsLabel": "Rapports",
-      "impactReportsDescription": "Seront clôturés"
+      "impactReportsLabel": "Rapports mensuels",
+      "impactReportsDescription": "Les brouillons seront générés et figés",
+      "clubsTitle": "Inscriptions qui seront clôturées",
+      "irreversible": "Cette action est irréversible. Les enregistrements de l’année seront clôturés et ne pourront plus être modifiés.",
+      "closeButton": "Clôturer l’année"
     },
-    "client": {
-      "selectYearPlaceholder": "Sélectionnez une année...",
-      "yearActiveBadge": "(actif)",
-      "previewButton": "Aperçu",
-      "previewLoading": "Chargement...",
-      "confirmCloseButton": "Confirmer la clôture",
-      "confirmCloseLoading": "Clôture..."
+    "confirm": {
+      "title": "Clôturer l’année {year} ?",
+      "description": "{enrollments, plural, one {# inscription sera clôturée} other {# inscriptions seront clôturées}}, {folders, plural, one {# dossier archivé} other {# dossiers archivés}} et {reports, plural, one {# rapport généré} other {# rapports générés}}. Cette action est irréversible.",
+      "cancel": "Annuler"
+    },
+    "result": {
+      "title": "Année ecclésiastique clôturée",
+      "enrollments": "Inscriptions clôturées",
+      "folders": "Dossiers archivés",
+      "reports": "Rapports générés",
+      "investiture": "Demandes d’investiture clôturées"
     }
   },
   "inventory": {

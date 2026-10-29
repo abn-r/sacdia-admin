@@ -6463,22 +6463,41 @@ export interface IntlMessages {
       empty_no_years_title: string;
       empty_no_years_description: string;
       error_load_years: string;
+      noActiveYearTitle: string;
+      noActiveYearDescription: string;
+    };
+    client: {
+      cardTitle: string;
+      cardDescription: string;
+      previewButton: string;
+      previewLoading: string;
+      confirmCloseButton: string;
+      confirmCloseLoading: string;
     };
     preview: {
+      title: string;
+      description: string;
       impactEnrollmentsLabel: string;
       impactEnrollmentsDescription: string;
       impactFoldersLabel: string;
       impactFoldersDescription: string;
       impactReportsLabel: string;
       impactReportsDescription: string;
+      clubsTitle: string;
+      irreversible: string;
+      closeButton: string;
     };
-    client: {
-      selectYearPlaceholder: string;
-      yearActiveBadge: string;
-      previewButton: string;
-      previewLoading: string;
-      confirmCloseButton: string;
-      confirmCloseLoading: string;
+    confirm: {
+      title: string;
+      description: string;
+      cancel: string;
+    };
+    result: {
+      title: string;
+      enrollments: string;
+      folders: string;
+      reports: string;
+      investiture: string;
     };
   };
   inventory: {

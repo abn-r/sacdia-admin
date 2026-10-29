@@ -6422,31 +6422,50 @@
       "year_closed": "Ecclesiastical year closed"
     },
     "errors": {
-      "preview_failed": "Could not get the preview.",
+      "preview_failed": "Could not load the preview.",
       "close_year_failed": "Could not close the ecclesiastical year."
     },
     "page": {
       "title": "Year-end closing",
-      "description": "Close the active ecclesiastical year to archive enrollments, folders, and reports.",
+      "description": "Close the active ecclesiastical year to archive enrollments, folders and reports.",
       "empty_no_years_title": "No ecclesiastical years",
-      "empty_no_years_description": "No ecclesiastical years are registered in the system.",
-      "error_load_years": "Could not load the ecclesiastical years."
+      "empty_no_years_description": "There are no ecclesiastical years in the system.",
+      "error_load_years": "Could not load the ecclesiastical years.",
+      "noActiveYearTitle": "No active year",
+      "noActiveYearDescription": "Only the active ecclesiastical year can be closed, and there is none right now."
+    },
+    "client": {
+      "cardTitle": "Active year: {year}",
+      "cardDescription": "Review the impact before confirming. Only the active year can be closed.",
+      "previewButton": "Preview",
+      "previewLoading": "Loading…",
+      "confirmCloseButton": "Confirm closing",
+      "confirmCloseLoading": "Closing…"
     },
     "preview": {
+      "title": "Closing impact",
+      "description": "This will happen when you close {year}.",
       "impactEnrollmentsLabel": "Enrollments",
       "impactEnrollmentsDescription": "Will be marked as closed",
       "impactFoldersLabel": "Folders",
       "impactFoldersDescription": "Will be archived",
-      "impactReportsLabel": "Reports",
-      "impactReportsDescription": "Will be closed"
+      "impactReportsLabel": "Monthly reports",
+      "impactReportsDescription": "Drafts will be generated and frozen",
+      "clubsTitle": "Enrollments that will be closed",
+      "irreversible": "This action can't be undone. The year's records will be closed and can't be edited.",
+      "closeButton": "Close year"
     },
-    "client": {
-      "selectYearPlaceholder": "Select a year...",
-      "yearActiveBadge": "(active)",
-      "previewButton": "Preview",
-      "previewLoading": "Loading...",
-      "confirmCloseButton": "Confirm close",
-      "confirmCloseLoading": "Closing..."
+    "confirm": {
+      "title": "Close the year {year}?",
+      "description": "{enrollments, plural, one {# enrollment} other {# enrollments}} will be closed, {folders, plural, one {# folder} other {# folders}} archived and {reports, plural, one {# report} other {# reports}} generated. This action can't be undone.",
+      "cancel": "Cancel"
+    },
+    "result": {
+      "title": "Ecclesiastical year closed",
+      "enrollments": "Enrollments closed",
+      "folders": "Folders archived",
+      "reports": "Reports generated",
+      "investiture": "Investiture requests closed"
     }
   },
   "inventory": {
