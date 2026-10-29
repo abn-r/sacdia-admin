@@ -5522,6 +5522,7 @@
       "description": "Gestion des rapports mensuels d'activités du club.",
       "print_preview": "Aperçu imprimable",
       "empty_no_active_enrollment_title": "Aucune inscription active",
+      "go_to_supervision": "Voir la supervision territoriale",
       "empty_no_active_enrollment_description": "Aucune inscription active n'a été trouvée pour votre utilisateur."
     },
     "pageDetail": {

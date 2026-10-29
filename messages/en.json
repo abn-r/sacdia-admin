@@ -5522,6 +5522,7 @@
       "description": "Manage monthly activity reports for the club.",
       "print_preview": "Printable preview",
       "empty_no_active_enrollment_title": "No active enrollment",
+      "go_to_supervision": "Go to territorial supervision",
       "empty_no_active_enrollment_description": "No active enrollment was found for your user."
     },
     "pageDetail": {

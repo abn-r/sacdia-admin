@@ -5554,6 +5554,7 @@ export interface IntlMessages {
       description: string;
       print_preview: string;
       empty_no_active_enrollment_title: string;
+      go_to_supervision: string;
       empty_no_active_enrollment_description: string;
     };
     pageDetail: {
