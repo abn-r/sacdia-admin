@@ -127,9 +127,9 @@ export function ClubIdealFormDialog({
 
             {mode === "create" ? (
               <div className="space-y-2 sm:col-span-2">
-                <Label>{tFields("club_type")}</Label>
+                <Label htmlFor="club-ideal-club-type">{tFields("club_type")}</Label>
                 <Select value={clubTypeId} onValueChange={setClubTypeId} required>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="club-ideal-club-type" className="w-full">
                     <SelectValue placeholder={tFields("club_type")} />
                   </SelectTrigger>
                   <SelectContent>

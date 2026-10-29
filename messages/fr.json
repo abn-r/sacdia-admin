@@ -577,6 +577,7 @@
       "editRecord": "Modifier l'enregistrement",
       "deleteRecord": "Désactiver l’enregistrement",
       "listOf": "Liste de {entity}",
+      "selectPlaceholder": "Sélectionner {field}",
       "edit": "Modifier",
       "delete": "Désactiver",
       "editItem": "Modifier {item}",

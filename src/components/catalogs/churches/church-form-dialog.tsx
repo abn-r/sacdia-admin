@@ -147,9 +147,9 @@ export function ChurchFormDialog({
               </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>{tFields("district")}</Label>
+              <Label htmlFor="church-district">{tFields("district")}</Label>
               <Select value={districtId} onValueChange={setDistrictId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="church-district" className="w-full">
                   <SelectValue placeholder={tFields("district")} />
                 </SelectTrigger>
                 <SelectContent>

@@ -577,6 +577,7 @@
       "editRecord": "Edit record",
       "deleteRecord": "Deactivate record",
       "listOf": "List of {entity}",
+      "selectPlaceholder": "Select {field}",
       "edit": "Edit",
       "delete": "Deactivate",
       "editItem": "Edit {item}",

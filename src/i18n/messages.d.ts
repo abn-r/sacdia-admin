@@ -606,6 +606,7 @@ export interface IntlMessages {
       editRecord: string;
       deleteRecord: string;
       listOf: string;
+      selectPlaceholder: string;
       edit: string;
       delete: string;
       editItem: string;

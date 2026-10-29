@@ -152,9 +152,9 @@ export function LocalFieldFormDialog({
               </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>{tFields("union")}</Label>
+              <Label htmlFor="local-field-union">{tFields("union")}</Label>
               <Select value={unionId} onValueChange={setUnionId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="local-field-union" className="w-full">
                   <SelectValue placeholder={tFields("union")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,10 +167,10 @@ export function LocalFieldFormDialog({
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>{tFields("timezone")}</Label>
+              <Label htmlFor="local-field-timezone">{tFields("timezone")}</Label>
               <input type="hidden" name="timezone" value={timezone} />
               <Select value={timezone} onValueChange={setTimezone} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="local-field-timezone" className="w-full">
                   <SelectValue placeholder={tFields("timezone")} />
                 </SelectTrigger>
                 <SelectContent>

@@ -192,11 +192,14 @@ export function CatalogFormDialog({
                     required={field.required}
                   >
                     <SelectTrigger
+                      id={field.name}
                       className="w-full"
                       aria-invalid={ariaInvalid(field.name)}
                       aria-describedby={describedBy(field.name)}
                     >
-                      <SelectValue placeholder={`Seleccionar ${t(field.label as Parameters<typeof t>[0]).toLowerCase()}`} />
+                      <SelectValue placeholder={t("crudPage.selectPlaceholder", {
+                          field: t(field.label as Parameters<typeof t>[0]).toLowerCase(),
+                        })} />
                     </SelectTrigger>
                     <SelectContent>
                       {validOptions.map((opt, idx) => (
