@@ -21,6 +21,12 @@ import { requireAdminUser } from "@/lib/auth/session";
 export type CamporeeScoringActionState = {
   error?: string;
   success?: string;
+  /**
+   * Set by the score submission: `correction` when an active result was
+   * replaced, `official` for a first score. Lets the client toast a localized
+   * message instead of the Spanish `success` text.
+   */
+  scoreMode?: "official" | "correction";
 };
 
 function readString(formData: FormData, key: string): string {
@@ -378,7 +384,10 @@ export async function submitCamporeeEventScoreAction(
   }
 
   revalidatePath(getCamporeePath(camporeeId, isUnion));
-  return { success: "Puntaje guardado." };
+  return {
+    success: expectedActiveResultId ? "Corrección guardada." : "Puntaje guardado.",
+    scoreMode: expectedActiveResultId ? "correction" : "official",
+  };
 }
 
 export async function assertCanReadCamporeeScoringAction() {

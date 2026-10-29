@@ -3459,6 +3459,9 @@ export interface IntlMessages {
       notesLabel: string;
       notesPlaceholder: string;
       submitButton: string;
+      submitCorrectionButton: string;
+      savedOfficial: string;
+      savedCorrection: string;
       readOnlyHint: string;
       noRubrics: string;
       emptyEventsTitle: string;

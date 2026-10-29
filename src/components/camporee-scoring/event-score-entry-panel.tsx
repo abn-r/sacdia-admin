@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState, useActionState, useEffect } from "react";
+import { useMemo, useRef, useState, useActionState, useEffect } from "react";
 import { Calculator } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -142,6 +144,21 @@ export function EventScoreEntryPanel({
     if (!assignment) return null;
     return judges.find((judge) => judge.camporee_judge_id === assignment.camporee_judge_id);
   }, [eventAssignments, judges, selectedSectionId]);
+
+  // The action state changes identity on every submission; the ref guards
+  // against re-toasting the same result when `t` changes identity.
+  const toastedStateRef = useRef(state);
+  useEffect(() => {
+    if (toastedStateRef.current === state) return;
+    toastedStateRef.current = state;
+    if (state.error) {
+      toast.error(state.error);
+    } else if (state.success) {
+      toast.success(
+        state.scoreMode === "correction" ? t("savedCorrection") : t("savedOfficial"),
+      );
+    }
+  }, [state, t]);
 
   useEffect(() => {
     if (visibleTargets.length === 0) {
@@ -422,16 +439,16 @@ export function EventScoreEntryPanel({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button
-                type="submit"
+              <FormSubmitButton
                 disabled={!selectedSectionId || visibleTargets.length === 0}
                 className="rounded-full px-6"
               >
-                {t("submitButton")}
-              </Button>
-              {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-              {state.success && (
-                <p className="text-sm text-emerald-700 dark:text-emerald-400">{state.success}</p>
+                {isOverride ? t("submitCorrectionButton") : t("submitButton")}
+              </FormSubmitButton>
+              {state.error && (
+                <p className="text-sm text-destructive" role="alert">
+                  {state.error}
+                </p>
               )}
             </div>
           </div>

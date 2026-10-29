@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
 import es from "../../../messages/es.json";
@@ -20,12 +20,23 @@ if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
 
+const mocks = vi.hoisted(() => ({
+  submitAction: vi.fn(),
+  toastSuccess: vi.fn(),
+  toastError: vi.fn(),
+}));
+
 vi.mock("@/lib/camporee-scoring/actions", () => ({
-  submitCamporeeEventScoreAction: vi.fn(),
+  submitCamporeeEventScoreAction: mocks.submitAction,
+}));
+
+vi.mock("sonner", () => ({
+  toast: { success: mocks.toastSuccess, error: mocks.toastError },
 }));
 
 afterEach(() => {
   cleanup();
+  vi.clearAllMocks();
 });
 
 const event: BackendCamporeeEvent = {
@@ -164,5 +175,63 @@ describe("EventScoreEntryPanel", () => {
     expect(screen.getByRole("heading", { name: "Registrar puntaje" })).toBeInTheDocument();
     expect(screen.getByLabelText("Sección")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Guardar puntaje oficial" })).toBeEnabled();
+  });
+
+  it("pluralizes the criteria and sections counts on the event selector", () => {
+    renderPanel({ rubricsByEvent: { 10: [rubrics[0]!] } });
+    expect(screen.getByText("1 criterio · 1 sección")).toBeInTheDocument();
+    cleanup();
+
+    renderPanel({
+      targetsByEvent: { 10: [targets[0]!, { ...targets[0]!, club_section_id: 100 }] },
+    });
+    expect(screen.getByText("2 criterios · 2 secciones")).toBeInTheDocument();
+  });
+
+  it("toasts when an official score is saved", async () => {
+    mocks.submitAction.mockResolvedValue({ success: "Puntaje guardado.", scoreMode: "official" });
+    const { container } = renderPanel();
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector("form")!);
+    });
+
+    await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith("Puntaje guardado"));
+    expect(mocks.toastSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it("labels the submit button as a correction and toasts when a correction is saved", async () => {
+    mocks.submitAction.mockResolvedValue({
+      success: "Corrección guardada.",
+      scoreMode: "correction",
+    });
+    const { container } = renderPanel({
+      targetsByEvent: {
+        10: [{ ...targets[0]!, active_result_id: "33333333-3333-4333-8333-333333333333" }],
+      },
+    });
+
+    expect(screen.getByRole("button", { name: "Guardar corrección" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Guardar puntaje oficial" })).toBeNull();
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector("form")!);
+    });
+
+    await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith("Corrección guardada"));
+  });
+
+  it("toasts the error when saving fails", async () => {
+    mocks.submitAction.mockResolvedValue({ error: "No se pudo guardar el puntaje." });
+    const { container } = renderPanel();
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector("form")!);
+    });
+
+    await waitFor(() =>
+      expect(mocks.toastError).toHaveBeenCalledWith("No se pudo guardar el puntaje."),
+    );
+    expect(mocks.toastSuccess).not.toHaveBeenCalled();
   });
 });
