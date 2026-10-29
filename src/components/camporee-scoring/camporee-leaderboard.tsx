@@ -16,7 +16,6 @@ import { formatTabularNumber } from "@/lib/format-locale";
 import { buildSectionCoverage } from "@/lib/camporee-scoring/leaderboard-coverage";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
-  CamporeeEventRubric,
   CamporeeLeaderboard as CamporeeLeaderboardData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
@@ -28,7 +27,6 @@ export interface CamporeeLeaderboardProps {
    * section has been scored on. Without it the coverage column is hidden.
    */
   events?: BackendCamporeeEvent[];
-  rubricsByEvent?: Record<number, CamporeeEventRubric[]>;
   targetsByEvent?: Record<number, CamporeeScoringTarget[]>;
 }
 
@@ -39,21 +37,15 @@ function formatNumber(value: number) {
 export function CamporeeLeaderboard({
   leaderboard,
   events,
-  rubricsByEvent,
   targetsByEvent,
 }: CamporeeLeaderboardProps) {
   const t = useTranslations("camporees.leaderboard");
   const rows = useMemo(() => leaderboard?.rows ?? [], [leaderboard]);
 
   const coverage = useMemo(() => {
-    if (!events || !rubricsByEvent || !targetsByEvent) return null;
-    return buildSectionCoverage(
-      events,
-      rubricsByEvent,
-      targetsByEvent,
-      new Map(rows.map((row) => [row.club_section_id, row.total_max_points])),
-    );
-  }, [events, rows, rubricsByEvent, targetsByEvent]);
+    if (!events || !targetsByEvent) return null;
+    return buildSectionCoverage(events, targetsByEvent, rows);
+  }, [events, rows, targetsByEvent]);
 
   if (rows.length === 0) {
     return (
@@ -116,15 +108,9 @@ export function CamporeeLeaderboard({
                     {(() => {
                       const section = coverage.get(row.club_section_id);
                       if (!section || section.scorableEvents === 0) return "—";
-                      if (section.scoredEvents !== null) {
-                        return t("coverageEvents", {
-                          scored: section.scoredEvents,
-                          total: section.scorableEvents,
-                        });
-                      }
-                      return t("coveragePoints", {
-                        scored: formatNumber(row.total_max_points),
-                        total: formatNumber(section.possibleMaxPoints),
+                      return t("coverageEvents", {
+                        scored: section.scoredEvents,
+                        total: section.scorableEvents,
                       });
                     })()}
                   </TableCell>

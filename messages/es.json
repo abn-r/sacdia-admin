@@ -3462,7 +3462,6 @@
       "colPercent": "%",
       "colCoverage": "Cobertura",
       "coverageEvents": "{scored} de {total, plural, one {# evento calificado} other {# eventos calificados}}",
-      "coveragePoints": "{scored} de {total} puntos posibles",
       "sectionFallback": "Sección {id}"
     },
     "list": {

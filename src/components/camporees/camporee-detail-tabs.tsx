@@ -517,7 +517,6 @@ export function CamporeeDetailTabs({
         <CamporeeLeaderboard
           leaderboard={initialLeaderboard}
           events={initialEvents}
-          rubricsByEvent={initialRubricsByEvent}
           targetsByEvent={initialScoringTargetsByEvent}
         />
       </TabsContent>

@@ -174,6 +174,8 @@ export interface CamporeeLeaderboardRow {
   section_name: string | null;
   total_awarded_points: number;
   total_max_points: number;
+  /** Distinct scoring-enabled events with an active official score. */
+  scored_events_count: number;
   percentage: number;
 }
 
