@@ -3474,6 +3474,8 @@ export interface IntlMessages {
       emptySectionsDescription: string;
       notesOverrideHint: string;
       notesOverridePlaceholder: string;
+      scoreLoading: string;
+      scoreLoadError: string;
     };
     leaderboard: {
       eyebrow: string;

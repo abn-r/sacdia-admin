@@ -3444,7 +3444,9 @@
       "emptySectionsTitle": "Sin secciones inscritas",
       "emptySectionsDescription": "Inscribe clubes para poder registrar puntajes.",
       "notesOverrideHint": "Ya hay un puntaje activo. Indica el motivo de la corrección.",
-      "notesOverridePlaceholder": "Motivo de la corrección"
+      "notesOverridePlaceholder": "Motivo de la corrección",
+      "scoreLoading": "Cargando el puntaje actual…",
+      "scoreLoadError": "No se pudo cargar el puntaje actual. Actualiza la página e inténtalo de nuevo."
     },
     "leaderboard": {
       "eyebrow": "Resultados",

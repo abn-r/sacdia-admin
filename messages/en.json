@@ -3444,7 +3444,9 @@
       "emptySectionsTitle": "No enrolled sections",
       "emptySectionsDescription": "Enroll clubs to record scores.",
       "notesOverrideHint": "This section already has an official score. Enter the reason for the correction.",
-      "notesOverridePlaceholder": "Reason for the correction"
+      "notesOverridePlaceholder": "Reason for the correction",
+      "scoreLoading": "Loading the current score…",
+      "scoreLoadError": "Could not load the current score. Refresh the page and try again."
     },
     "leaderboard": {
       "eyebrow": "Results",

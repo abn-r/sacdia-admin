@@ -3444,7 +3444,9 @@
       "emptySectionsTitle": "Sem seções inscritas",
       "emptySectionsDescription": "Inscreva clubes para registrar pontuações.",
       "notesOverrideHint": "Esta seção já tem uma pontuação oficial. Informe o motivo da correção.",
-      "notesOverridePlaceholder": "Motivo da correção"
+      "notesOverridePlaceholder": "Motivo da correção",
+      "scoreLoading": "Carregando a pontuação atual…",
+      "scoreLoadError": "Não foi possível carregar a pontuação atual. Atualize a página e tente novamente."
     },
     "leaderboard": {
       "eyebrow": "Resultados",

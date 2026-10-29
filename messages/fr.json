@@ -3444,7 +3444,9 @@
       "emptySectionsTitle": "Aucune section inscrite",
       "emptySectionsDescription": "Inscrivez des clubs pour enregistrer des scores.",
       "notesOverrideHint": "Cette section a déjà un score officiel. Indiquez le motif de la correction.",
-      "notesOverridePlaceholder": "Motif de la correction"
+      "notesOverridePlaceholder": "Motif de la correction",
+      "scoreLoading": "Chargement du score actuel…",
+      "scoreLoadError": "Impossible de charger le score actuel. Actualisez la page puis réessayez."
     },
     "leaderboard": {
       "eyebrow": "Résultats",
