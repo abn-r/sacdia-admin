@@ -28,6 +28,11 @@ interface ClubDetailViewProps {
   data: ClubDetailPayload;
   annualReports: AnnualReport[];
   quarterlyReports: QuarterlyReport[];
+  /** The report list request failed: show an error, not "no reports". */
+  annualReportsError?: boolean;
+  quarterlyReportsError?: boolean;
+  /** reports:read — rows link to the report detail. */
+  canOpenReports?: boolean;
   defaultTab: ClubDetailTab;
 }
 
@@ -35,6 +40,9 @@ export function ClubDetailView({
   data,
   annualReports,
   quarterlyReports,
+  annualReportsError = false,
+  quarterlyReportsError = false,
+  canOpenReports = false,
   defaultTab,
 }: ClubDetailViewProps) {
   const t = useTranslations("clubs.detail");
@@ -180,6 +188,9 @@ export function ClubDetailView({
             <ReportsTab
               annualReports={annualReports}
               quarterlyReports={quarterlyReports}
+              annualReportsError={annualReportsError}
+              quarterlyReportsError={quarterlyReportsError}
+              canOpenReports={canOpenReports}
             />
           </TabsContent>
           <TabsContent value="history" className="mt-0">

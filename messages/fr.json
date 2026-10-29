@@ -97,6 +97,8 @@
       "reports": "Rapports",
       "reports_mine": "Mes rapports",
       "reports_supervision": "Supervision",
+      "reports_quarterly": "Rapports trimestriels",
+      "reports_annual": "Rapports annuels",
       "support_reports": "Rapports de support",
       "member_of_month": "Membre du mois",
       "catalog_classes": "Classes",
@@ -178,6 +180,8 @@
       "section_rankings": "Classements par section",
       "reports_list": "Mes rapports",
       "reports_supervision": "Supervision territoriale",
+      "reports_quarterly": "Rapports trimestriels",
+      "reports_annual": "Rapports annuels",
       "campamentos": "Camporées",
       "campamentos_list_local": "Camporées",
       "campamentos_list_union": "Camporées d’union",
@@ -1643,7 +1647,9 @@
         "statusLabel": "Statut",
         "createdLabel": "Créé",
         "emptyAnnual": "Aucun rapport annuel.",
-        "emptyQuarterly": "Aucun rapport trimestriel."
+        "emptyQuarterly": "Aucun rapport trimestriel.",
+        "loadErrorAnnual": "Impossible de charger les rapports annuels. Réessayez plus tard.",
+        "loadErrorQuarterly": "Impossible de charger les rapports trimestriels. Réessayez plus tard."
       },
       "history": {
         "title": "Historique d’audit",
@@ -9611,6 +9617,210 @@
       "forbidden": "Vous n'avez pas la permission de gérer l'accès familial de cet utilisateur.",
       "invalid_reason": "Le motif doit comporter entre 5 et 500 caractères.",
       "generic": "L'action n'a pas pu être menée à bien. Réessayez."
+    }
+  },
+  "periodicReports": {
+    "common": {
+      "breadcrumbReports": "Rapports",
+      "unknownClub": "Club sans nom",
+      "notCalculated": "Non calculé",
+      "finalizedBy": "par {name}",
+      "lockedNotice": "Ce rapport n’est plus un brouillon. Ses données ne peuvent plus être modifiées ni recalculées.",
+      "yes": "Oui",
+      "no": "Non",
+      "status": {
+        "draft": "Brouillon",
+        "finalized": "Finalisé",
+        "archived": "Archivé"
+      },
+      "labels": {
+        "club": "Club",
+        "period": "Période",
+        "status": "Statut",
+        "calculated": "Calculé",
+        "finalized": "Finalisé le"
+      },
+      "sections": {
+        "computed": "Données calculées",
+        "manual": "Données saisies"
+      },
+      "computed": {
+        "summaryTitle": "Résumé de la période",
+        "summaryDescription": "Chiffres calculés par le système à partir de l’activité du club.",
+        "members": "Membres",
+        "activities": "Activités",
+        "honorsStarted": "Spécialités commencées",
+        "honorsCompleted": "Spécialités terminées",
+        "financesTitle": "Finances",
+        "income": "Recettes",
+        "expenses": "Dépenses",
+        "balance": "Solde",
+        "transactions": "Opérations",
+        "directiva": "Direction",
+        "directivaEmpty": "Le club n’a pas de direction enregistrée pour cette période.",
+        "empty": "Ce rapport n’a pas encore de données calculées. Utilisez Recalculer pour les générer."
+      },
+      "actions": {
+        "regenerate": "Recalculer",
+        "finalize": "Finaliser",
+        "downloadPdf": "Télécharger le PDF",
+        "view": "Voir"
+      },
+      "finalizeConfirm": {
+        "title": "Finaliser ce rapport ?",
+        "description": "Vous allez finaliser le rapport de {report}. Cette action est irréversible : ensuite, vous ne pourrez plus modifier les données saisies ni recalculer le rapport.",
+        "cancel": "Annuler",
+        "confirm": "Finaliser le rapport"
+      },
+      "toasts": {
+        "regenerated": "Données recalculées.",
+        "finalized": "Rapport finalisé.",
+        "manualSaved": "Données saisies enregistrées."
+      },
+      "errors": {
+        "regenerate": "Impossible de recalculer le rapport.",
+        "finalize": "Impossible de finaliser le rapport.",
+        "download": "Impossible de télécharger le PDF.",
+        "saveManual": "Impossible d’enregistrer les données saisies.",
+        "load": "Impossible de charger les rapports. Réessayez."
+      },
+      "manual": {
+        "save": "Enregistrer les données saisies",
+        "errorWholeNumber": "Saisissez un nombre entier supérieur ou égal à 0.",
+        "errorTextTooLong": "Le texte ne peut pas dépasser {max} caractères.",
+        "noAnswer": "Sans réponse"
+      },
+      "generate": {
+        "trigger": "Générer un rapport",
+        "club": "Club",
+        "clubPlaceholder": "Sélectionnez un club",
+        "clubRequired": "Sélectionnez un club.",
+        "cancel": "Annuler",
+        "submit": "Générer"
+      },
+      "filters": {
+        "title": "Filtres",
+        "club": "Club",
+        "clubAll": "Tous les clubs",
+        "status": "Statut",
+        "statusAll": "Tous les statuts"
+      },
+      "columns": {
+        "club": "Club",
+        "status": "Statut",
+        "calculated": "Calculé",
+        "finalized": "Finalisé"
+      },
+      "empty": {
+        "filteredTitle": "Aucun résultat",
+        "filteredDescription": "Aucun rapport ne correspond aux filtres. Modifiez-les pour en voir plus."
+      }
+    },
+    "quarterly": {
+      "page": {
+        "title": "Rapports trimestriels",
+        "description": "Générez, vérifiez, complétez et finalisez les rapports trimestriels des clubs."
+      },
+      "detail": {
+        "title": "Rapport trimestriel · {period}",
+        "metaTitle": "Rapport trimestriel"
+      },
+      "period": "Trimestre {quarter} de {year}",
+      "quarterOption": "Trimestre {quarter}",
+      "filters": {
+        "year": "Année",
+        "yearAll": "Toutes les années",
+        "quarter": "Trimestre",
+        "quarterAll": "Tous les trimestres"
+      },
+      "columns": {
+        "period": "Période"
+      },
+      "empty": {
+        "title": "Aucun rapport trimestriel pour l’instant",
+        "description": "Générez le premier avec le bouton Générer un rapport."
+      },
+      "generate": {
+        "title": "Générer un rapport trimestriel",
+        "description": "Choisissez le club et le trimestre. Si le rapport existe déjà et qu’il est finalisé, il s’ouvre sans changement.",
+        "year": "Année",
+        "quarter": "Trimestre",
+        "success": "Rapport trimestriel prêt.",
+        "error": "Impossible de générer le rapport trimestriel."
+      },
+      "manual": {
+        "sectionMeetings": "Réunions et présence",
+        "sectionMeetingsDescription": "Réunions tenues et présence aux conseils pendant le trimestre.",
+        "sectionMissionary": "Mission et événements",
+        "sectionMissionaryDescription": "Objectifs et résultats missionnaires du trimestre.",
+        "sectionNarrative": "Descriptions",
+        "sectionNarrativeDescription": "Participation du club et service à la communauté.",
+        "planningMeetings": "Réunions de planification",
+        "parentMeetings": "Réunions de parents",
+        "youthCouncilAttendance": "Présence au conseil des jeunes",
+        "churchBoardAttendance": "Présence au conseil de l’Église",
+        "soulTarget": "Objectif d’âmes",
+        "baptizedThisQuarter": "Baptisés ce trimestre",
+        "camporeesAttended": "Camporées suivis",
+        "clubParticipation": "Participation du club",
+        "communityService": "Service à la communauté",
+        "certificatesDelivered": "Des certificats ont été remis"
+      }
+    },
+    "annual": {
+      "page": {
+        "title": "Rapports annuels",
+        "description": "Générez, vérifiez, complétez et finalisez les rapports annuels des clubs par année ecclésiastique."
+      },
+      "detail": {
+        "title": "Rapport annuel · {period}",
+        "metaTitle": "Rapport annuel"
+      },
+      "labels": {
+        "ecclesiasticalYear": "Année ecclésiastique"
+      },
+      "filters": {
+        "year": "Année ecclésiastique",
+        "yearAll": "Toutes les années"
+      },
+      "columns": {
+        "period": "Année ecclésiastique"
+      },
+      "empty": {
+        "title": "Aucun rapport annuel pour l’instant",
+        "description": "Générez le premier avec le bouton Générer un rapport."
+      },
+      "generate": {
+        "title": "Générer un rapport annuel",
+        "description": "Choisissez le club et l’année ecclésiastique. Si le rapport existe déjà et qu’il est finalisé, il s’ouvre sans changement.",
+        "year": "Année ecclésiastique",
+        "yearRequired": "Sélectionnez une année ecclésiastique.",
+        "success": "Rapport annuel prêt.",
+        "error": "Impossible de générer le rapport annuel."
+      },
+      "computed": {
+        "monthsReported": "Mois rapportés",
+        "rankingPercentile": "Percentile au classement",
+        "topAchievers": "Meilleurs résultats",
+        "topAchieversEmpty": "Aucun membre en vue cette année.",
+        "honorsCount": "{count, plural, one {# spécialité} other {# spécialités}}"
+      },
+      "manual": {
+        "sectionMeetings": "Réunions et événements",
+        "sectionMeetingsDescription": "Réunions tenues et camporées de l’année.",
+        "sectionMissionary": "Mission et investitures",
+        "sectionMissionaryDescription": "Baptêmes de l’année et état des investitures.",
+        "sectionNarrative": "Descriptions",
+        "sectionNarrativeDescription": "Réalisations du club et service à la communauté.",
+        "planningMeetings": "Réunions de planification",
+        "parentMeetings": "Réunions de parents",
+        "camporeesAttended": "Camporées suivis",
+        "baptizedThisYear": "Baptisés cette année",
+        "totalBaptized": "Total cumulé de baptisés",
+        "allInvestituresCompleted": "Toutes les investitures ont eu lieu",
+        "achievements": "Réalisations annuelles du club",
+        "communityService": "Service à la communauté"
+      }
     }
   }
 }

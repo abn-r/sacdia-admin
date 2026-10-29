@@ -269,6 +269,7 @@ export const AWARD_CATEGORIES_DELETE = "award_categories:delete";
 // --- Reportes y Dashboard ---
 export const REPORTS_READ = "reports:read";
 export const REPORTS_DOWNLOAD = "reports:download";
+export const REPORTS_UPDATE = "reports:update";
 export const DASHBOARD_VIEW = "dashboard:view";
 
 // --- Recursos ---

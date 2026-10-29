@@ -15,7 +15,9 @@ import {
   MOM_SUPERVISE,
   RANKING_WEIGHTS_READ,
   RANKINGS_READ,
+  REPORTS_DOWNLOAD,
   REPORTS_READ,
+  REPORTS_UPDATE,
   REQUESTS_READ,
   SECTION_RANKINGS_READ_CLUB,
   SECTION_RANKINGS_READ_GLOBAL,
@@ -51,6 +53,21 @@ const DIRECTOR_FIELD_AND_ADMIN_ROLES = [
   "director-lf",
   "assistant-lf",
 ] as const;
+
+function reportsPeriodicScreen(id: string): ScreenDefinition {
+  return {
+    id,
+    surfaces: ["admin"],
+    viewAny: { permissions: [REPORTS_READ] },
+    capabilities: [
+      { id: "generate", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
+      // Manual data form and Recalcular.
+      { id: "update", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
+      { id: "finalize", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
+      { id: "download", kind: "button", gate: { permissions: [REPORTS_DOWNLOAD] } },
+    ],
+  };
+}
 
 export const clubsScreens: ScreenDefinition[] = [
   {
@@ -232,6 +249,12 @@ export const clubsScreens: ScreenDefinition[] = [
 
   viewOnlyScreen("reports-list", { permissions: [REPORTS_READ] }, { surfaces: ["admin", "app"] }),
   viewOnlyScreen("reports-supervision", { permissions: [REPORTS_READ] }),
+  // Quarterly and annual club reports. quarterly-reports.controller.ts /
+  // annual-reports.controller.ts: GET admin/* is reports:read, PATCH / regenerate /
+  // finalize / generate are reports:update, GET :id/pdf is reports:download.
+  // Admin-only: the app never shows these screens, so the Flutter fixture stays as is.
+  reportsPeriodicScreen("reports-quarterly"),
+  reportsPeriodicScreen("reports-annual"),
 
   viewOnlyScreen(
     "year-end",
