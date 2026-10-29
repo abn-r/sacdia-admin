@@ -115,4 +115,50 @@ describe("ClubRegistrationActions", () => {
     });
     expect(screen.getByTestId("club-registration-reopen")).toBeDisabled();
   });
+
+  describe("disabled reason", () => {
+    it("muestra como texto visible por qué no se puede cerrar sin clubes", () => {
+      renderActions({ enrolledClubCount: 0 });
+
+      const button = screen.getByTestId("club-registration-close");
+      const reason = screen.getByText(t.noClubsHint);
+
+      expect(button).toBeDisabled();
+      expect(reason).toBeVisible();
+      expect(button).toHaveAttribute("aria-describedby", reason.id);
+      expect(button).not.toHaveAttribute("title");
+    });
+
+    it("muestra por qué no se puede cerrar si el camporee está inactivo", () => {
+      renderActions({ camporeeActive: false });
+
+      expect(screen.getByTestId("club-registration-close")).toBeDisabled();
+      expect(screen.getByText(t.inactiveHint)).toBeVisible();
+    });
+
+    it("muestra por qué no se puede reabrir con puntajes o asignaciones", () => {
+      renderActions({
+        closedAt: "2026-05-01T00:00:00.000Z",
+        hasScoringArtifacts: true,
+      });
+
+      const button = screen.getByTestId("club-registration-reopen");
+      expect(button).toBeDisabled();
+      expect(screen.getByText(t.reopenBlockedHint)).toBeVisible();
+      expect(button).toHaveAttribute(
+        "aria-describedby",
+        screen.getByTestId("club-registration-disabled-reason").id,
+      );
+    });
+
+    it("no muestra texto de ayuda cuando la acción está disponible", () => {
+      renderActions();
+
+      expect(screen.getByTestId("club-registration-close")).toBeEnabled();
+      expect(screen.queryByTestId("club-registration-disabled-reason")).toBeNull();
+      expect(screen.getByTestId("club-registration-close")).not.toHaveAttribute(
+        "aria-describedby",
+      );
+    });
+  });
 });
