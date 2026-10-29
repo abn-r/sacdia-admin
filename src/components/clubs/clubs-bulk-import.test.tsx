@@ -55,7 +55,7 @@ describe("ClubsBulkImport", () => {
     upload(container, `${header}\nClub Uno,asociacion centro de veracruz,BOCA DEL RIO,acv`);
 
     expect(await screen.findByText("Válida")).toBeInTheDocument();
-    expect(screen.getByText("1 válidas · 0 con errores")).toBeInTheDocument();
+    expect(screen.getByText("1 válida · 0 con errores")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Importar 1 club" })).toBeEnabled();
   });
 

@@ -1714,7 +1714,7 @@
         "expectedHeadersTitle": "Columnas esperadas (orden libre, encabezados obligatorios):",
         "matchHint": "Las columnas local_field, district y church se buscan por nombre (sin distinguir mayúsculas ni acentos). El distrito debe ser del campo local y la iglesia, del distrito.",
         "previewTitle": "Vista previa ({total, plural, one {# fila} other {# filas}})",
-        "previewSummary": "{valid} válidas · {invalid} con errores",
+        "previewSummary": "{valid, plural, one {# válida} other {# válidas}} · {invalid} con errores",
         "colName": "Nombre",
         "colLocalField": "Campo local",
         "colDistrict": "Distrito",

@@ -410,11 +410,11 @@ export function ClubsBulkImport({
                         <TableCell className="text-muted-foreground">
                           {row.rowNumber}
                         </TableCell>
-                        <TableCell className="font-medium">{row.name || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.localFieldRaw || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.districtRaw || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.churchRaw || "—"}</TableCell>
-                        <TableCell className="min-w-56 whitespace-normal">
+                        <TableCell className="font-medium whitespace-normal">{row.name || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.localFieldRaw || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.districtRaw || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.churchRaw || "—"}</TableCell>
+                        <TableCell className="min-w-48 whitespace-normal">
                           {isValid ? (
                             <Badge variant="default" className="text-xs">
                               <CheckCircle2 className="size-3" />
