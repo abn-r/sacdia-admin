@@ -9616,5 +9616,209 @@
       "invalid_reason": "El motivo debe tener entre 5 y 500 caracteres.",
       "generic": "No se pudo completar la acción. Inténtalo de nuevo."
     }
+  },
+  "periodicReports": {
+    "common": {
+      "breadcrumbReports": "Reportes",
+      "unknownClub": "Club sin nombre",
+      "notCalculated": "Sin calcular",
+      "finalizedBy": "por {name}",
+      "lockedNotice": "Este informe ya no es un borrador. Los datos no se pueden editar ni recalcular.",
+      "yes": "Sí",
+      "no": "No",
+      "status": {
+        "draft": "Borrador",
+        "finalized": "Finalizado",
+        "archived": "Archivado"
+      },
+      "labels": {
+        "club": "Club",
+        "period": "Periodo",
+        "status": "Estado",
+        "calculated": "Calculado",
+        "finalized": "Finalizado el"
+      },
+      "sections": {
+        "computed": "Datos calculados",
+        "manual": "Datos manuales"
+      },
+      "computed": {
+        "summaryTitle": "Resumen del periodo",
+        "summaryDescription": "Cifras calculadas por el sistema a partir de la actividad del club.",
+        "members": "Miembros",
+        "activities": "Actividades",
+        "honorsStarted": "Especialidades iniciadas",
+        "honorsCompleted": "Especialidades completadas",
+        "financesTitle": "Finanzas",
+        "income": "Ingresos",
+        "expenses": "Egresos",
+        "balance": "Balance",
+        "transactions": "Movimientos",
+        "directiva": "Directiva",
+        "directivaEmpty": "El club no tiene directiva registrada en este periodo.",
+        "empty": "Este informe todavía no tiene datos calculados. Usa Recalcular para generarlos."
+      },
+      "actions": {
+        "regenerate": "Recalcular",
+        "finalize": "Finalizar",
+        "downloadPdf": "Descargar PDF",
+        "view": "Ver"
+      },
+      "finalizeConfirm": {
+        "title": "¿Finalizar este informe?",
+        "description": "Vas a finalizar el informe de {report}. Esta acción es irreversible: después no podrás editar los datos manuales ni recalcular el informe.",
+        "cancel": "Cancelar",
+        "confirm": "Finalizar informe"
+      },
+      "toasts": {
+        "regenerated": "Datos recalculados.",
+        "finalized": "Informe finalizado.",
+        "manualSaved": "Datos manuales guardados."
+      },
+      "errors": {
+        "regenerate": "No se pudo recalcular el informe.",
+        "finalize": "No se pudo finalizar el informe.",
+        "download": "No se pudo descargar el PDF.",
+        "saveManual": "No se pudieron guardar los datos manuales.",
+        "load": "No se pudieron cargar los informes. Intenta de nuevo."
+      },
+      "manual": {
+        "save": "Guardar datos manuales",
+        "errorWholeNumber": "Escribe un número entero de 0 en adelante.",
+        "errorTextTooLong": "El texto no puede superar los {max} caracteres.",
+        "noAnswer": "Sin respuesta"
+      },
+      "generate": {
+        "trigger": "Generar informe",
+        "club": "Club",
+        "clubPlaceholder": "Selecciona un club",
+        "clubRequired": "Selecciona un club.",
+        "cancel": "Cancelar",
+        "submit": "Generar"
+      },
+      "filters": {
+        "title": "Filtros",
+        "club": "Club",
+        "clubAll": "Todos los clubes",
+        "status": "Estado",
+        "statusAll": "Todos los estados"
+      },
+      "columns": {
+        "club": "Club",
+        "status": "Estado",
+        "calculated": "Calculado",
+        "finalized": "Finalizado"
+      },
+      "empty": {
+        "filteredTitle": "Sin resultados",
+        "filteredDescription": "Ningún informe coincide con los filtros. Ajústalos para ver más."
+      }
+    },
+    "quarterly": {
+      "page": {
+        "title": "Informes trimestrales",
+        "description": "Genera, revisa, completa y finaliza los informes trimestrales de los clubes."
+      },
+      "detail": {
+        "title": "Informe trimestral · {period}",
+        "metaTitle": "Informe trimestral"
+      },
+      "period": "Trimestre {quarter} de {year}",
+      "quarterOption": "Trimestre {quarter}",
+      "filters": {
+        "year": "Año",
+        "yearAll": "Todos los años",
+        "quarter": "Trimestre",
+        "quarterAll": "Todos los trimestres"
+      },
+      "columns": {
+        "period": "Periodo"
+      },
+      "empty": {
+        "title": "Aún no hay informes trimestrales",
+        "description": "Genera el primero con el botón Generar informe."
+      },
+      "generate": {
+        "title": "Generar informe trimestral",
+        "description": "Elige el club y el trimestre. Si el informe ya existe, se abrirá sin cambios cuando esté finalizado.",
+        "year": "Año",
+        "quarter": "Trimestre",
+        "success": "Informe trimestral listo.",
+        "error": "No se pudo generar el informe trimestral."
+      },
+      "manual": {
+        "sectionMeetings": "Reuniones y asistencia",
+        "sectionMeetingsDescription": "Reuniones realizadas y asistencia a juntas durante el trimestre.",
+        "sectionMissionary": "Misión y eventos",
+        "sectionMissionaryDescription": "Metas y resultados misioneros del trimestre.",
+        "sectionNarrative": "Descripciones",
+        "sectionNarrativeDescription": "Participación del club y servicio a la comunidad.",
+        "planningMeetings": "Reuniones de planificación",
+        "parentMeetings": "Reuniones de padres",
+        "youthCouncilAttendance": "Asistencia al consejo de jóvenes",
+        "churchBoardAttendance": "Asistencia a la junta de iglesia",
+        "soulTarget": "Meta de almas",
+        "baptizedThisQuarter": "Bautizados en el trimestre",
+        "camporeesAttended": "Campamentos asistidos",
+        "clubParticipation": "Participación del club",
+        "communityService": "Servicio a la comunidad",
+        "certificatesDelivered": "Se entregaron certificados"
+      }
+    },
+    "annual": {
+      "page": {
+        "title": "Informes anuales",
+        "description": "Genera, revisa, completa y finaliza los informes anuales de los clubes por año eclesiástico."
+      },
+      "detail": {
+        "title": "Informe anual · {period}",
+        "metaTitle": "Informe anual"
+      },
+      "labels": {
+        "ecclesiasticalYear": "Año eclesiástico"
+      },
+      "filters": {
+        "year": "Año eclesiástico",
+        "yearAll": "Todos los años"
+      },
+      "columns": {
+        "period": "Año eclesiástico"
+      },
+      "empty": {
+        "title": "Aún no hay informes anuales",
+        "description": "Genera el primero con el botón Generar informe."
+      },
+      "generate": {
+        "title": "Generar informe anual",
+        "description": "Elige el club y el año eclesiástico. Si el informe ya existe, se abrirá sin cambios cuando esté finalizado.",
+        "year": "Año eclesiástico",
+        "yearRequired": "Selecciona un año eclesiástico.",
+        "success": "Informe anual listo.",
+        "error": "No se pudo generar el informe anual."
+      },
+      "computed": {
+        "monthsReported": "Meses reportados",
+        "rankingPercentile": "Percentil en el ranking",
+        "topAchievers": "Mayores logros",
+        "topAchieversEmpty": "Sin miembros destacados en este año.",
+        "honorsCount": "{count, plural, one {# especialidad} other {# especialidades}}"
+      },
+      "manual": {
+        "sectionMeetings": "Reuniones y eventos",
+        "sectionMeetingsDescription": "Reuniones realizadas y campamentos del año.",
+        "sectionMissionary": "Misión e investiduras",
+        "sectionMissionaryDescription": "Bautismos del año y estado de las investiduras.",
+        "sectionNarrative": "Descripciones",
+        "sectionNarrativeDescription": "Logros del club y servicio a la comunidad.",
+        "planningMeetings": "Reuniones de planificación",
+        "parentMeetings": "Reuniones de padres",
+        "camporeesAttended": "Campamentos asistidos",
+        "baptizedThisYear": "Bautizados en el año",
+        "totalBaptized": "Total de bautizados acumulado",
+        "allInvestituresCompleted": "Se realizaron todas las investiduras",
+        "achievements": "Logros anuales del club",
+        "communityService": "Servicio a la comunidad"
+      }
+    }
   }
 }

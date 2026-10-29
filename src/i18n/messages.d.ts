@@ -9664,4 +9664,208 @@ export interface IntlMessages {
       generic: string;
     };
   };
+  periodicReports: {
+    common: {
+      breadcrumbReports: string;
+      unknownClub: string;
+      notCalculated: string;
+      finalizedBy: string;
+      lockedNotice: string;
+      yes: string;
+      no: string;
+      status: {
+        draft: string;
+        finalized: string;
+        archived: string;
+      };
+      labels: {
+        club: string;
+        period: string;
+        status: string;
+        calculated: string;
+        finalized: string;
+      };
+      sections: {
+        computed: string;
+        manual: string;
+      };
+      computed: {
+        summaryTitle: string;
+        summaryDescription: string;
+        members: string;
+        activities: string;
+        honorsStarted: string;
+        honorsCompleted: string;
+        financesTitle: string;
+        income: string;
+        expenses: string;
+        balance: string;
+        transactions: string;
+        directiva: string;
+        directivaEmpty: string;
+        empty: string;
+      };
+      actions: {
+        regenerate: string;
+        finalize: string;
+        downloadPdf: string;
+        view: string;
+      };
+      finalizeConfirm: {
+        title: string;
+        description: string;
+        cancel: string;
+        confirm: string;
+      };
+      toasts: {
+        regenerated: string;
+        finalized: string;
+        manualSaved: string;
+      };
+      errors: {
+        regenerate: string;
+        finalize: string;
+        download: string;
+        saveManual: string;
+        load: string;
+      };
+      manual: {
+        save: string;
+        errorWholeNumber: string;
+        errorTextTooLong: string;
+        noAnswer: string;
+      };
+      generate: {
+        trigger: string;
+        club: string;
+        clubPlaceholder: string;
+        clubRequired: string;
+        cancel: string;
+        submit: string;
+      };
+      filters: {
+        title: string;
+        club: string;
+        clubAll: string;
+        status: string;
+        statusAll: string;
+      };
+      columns: {
+        club: string;
+        status: string;
+        calculated: string;
+        finalized: string;
+      };
+      empty: {
+        filteredTitle: string;
+        filteredDescription: string;
+      };
+    };
+    quarterly: {
+      page: {
+        title: string;
+        description: string;
+      };
+      detail: {
+        title: string;
+        metaTitle: string;
+      };
+      period: string;
+      quarterOption: string;
+      filters: {
+        year: string;
+        yearAll: string;
+        quarter: string;
+        quarterAll: string;
+      };
+      columns: {
+        period: string;
+      };
+      empty: {
+        title: string;
+        description: string;
+      };
+      generate: {
+        title: string;
+        description: string;
+        year: string;
+        quarter: string;
+        success: string;
+        error: string;
+      };
+      manual: {
+        sectionMeetings: string;
+        sectionMeetingsDescription: string;
+        sectionMissionary: string;
+        sectionMissionaryDescription: string;
+        sectionNarrative: string;
+        sectionNarrativeDescription: string;
+        planningMeetings: string;
+        parentMeetings: string;
+        youthCouncilAttendance: string;
+        churchBoardAttendance: string;
+        soulTarget: string;
+        baptizedThisQuarter: string;
+        camporeesAttended: string;
+        clubParticipation: string;
+        communityService: string;
+        certificatesDelivered: string;
+      };
+    };
+    annual: {
+      page: {
+        title: string;
+        description: string;
+      };
+      detail: {
+        title: string;
+        metaTitle: string;
+      };
+      labels: {
+        ecclesiasticalYear: string;
+      };
+      filters: {
+        year: string;
+        yearAll: string;
+      };
+      columns: {
+        period: string;
+      };
+      empty: {
+        title: string;
+        description: string;
+      };
+      generate: {
+        title: string;
+        description: string;
+        year: string;
+        yearRequired: string;
+        success: string;
+        error: string;
+      };
+      computed: {
+        monthsReported: string;
+        rankingPercentile: string;
+        topAchievers: string;
+        topAchieversEmpty: string;
+        honorsCount: string;
+      };
+      manual: {
+        sectionMeetings: string;
+        sectionMeetingsDescription: string;
+        sectionMissionary: string;
+        sectionMissionaryDescription: string;
+        sectionNarrative: string;
+        sectionNarrativeDescription: string;
+        planningMeetings: string;
+        parentMeetings: string;
+        camporeesAttended: string;
+        baptizedThisYear: string;
+        totalBaptized: string;
+        allInvestituresCompleted: string;
+        achievements: string;
+        communityService: string;
+      };
+    };
+  };
 }

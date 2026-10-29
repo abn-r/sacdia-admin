@@ -9616,5 +9616,209 @@
       "invalid_reason": "The reason must be between 5 and 500 characters long.",
       "generic": "The action could not be completed. Please try again."
     }
+  },
+  "periodicReports": {
+    "common": {
+      "breadcrumbReports": "Reports",
+      "unknownClub": "Unnamed club",
+      "notCalculated": "Not calculated",
+      "finalizedBy": "by {name}",
+      "lockedNotice": "This report is no longer a draft. Its data can no longer be edited or recalculated.",
+      "yes": "Yes",
+      "no": "No",
+      "status": {
+        "draft": "Draft",
+        "finalized": "Finalized",
+        "archived": "Archived"
+      },
+      "labels": {
+        "club": "Club",
+        "period": "Period",
+        "status": "Status",
+        "calculated": "Calculated",
+        "finalized": "Finalized on"
+      },
+      "sections": {
+        "computed": "Calculated data",
+        "manual": "Manual data"
+      },
+      "computed": {
+        "summaryTitle": "Period summary",
+        "summaryDescription": "Figures the system calculated from the club’s activity.",
+        "members": "Members",
+        "activities": "Activities",
+        "honorsStarted": "Honors started",
+        "honorsCompleted": "Honors completed",
+        "financesTitle": "Finances",
+        "income": "Income",
+        "expenses": "Expenses",
+        "balance": "Balance",
+        "transactions": "Transactions",
+        "directiva": "Leadership team",
+        "directivaEmpty": "The club has no leadership team registered for this period.",
+        "empty": "This report has no calculated data yet. Use Recalculate to generate it."
+      },
+      "actions": {
+        "regenerate": "Recalculate",
+        "finalize": "Finalize",
+        "downloadPdf": "Download PDF",
+        "view": "View"
+      },
+      "finalizeConfirm": {
+        "title": "Finalize this report?",
+        "description": "You are about to finalize the report for {report}. This cannot be undone: afterwards you will not be able to edit the manual data or recalculate the report.",
+        "cancel": "Cancel",
+        "confirm": "Finalize report"
+      },
+      "toasts": {
+        "regenerated": "Data recalculated.",
+        "finalized": "Report finalized.",
+        "manualSaved": "Manual data saved."
+      },
+      "errors": {
+        "regenerate": "The report could not be recalculated.",
+        "finalize": "The report could not be finalized.",
+        "download": "The PDF could not be downloaded.",
+        "saveManual": "The manual data could not be saved.",
+        "load": "The reports could not be loaded. Try again."
+      },
+      "manual": {
+        "save": "Save manual data",
+        "errorWholeNumber": "Enter a whole number, 0 or greater.",
+        "errorTextTooLong": "The text cannot exceed {max} characters.",
+        "noAnswer": "No answer"
+      },
+      "generate": {
+        "trigger": "Generate report",
+        "club": "Club",
+        "clubPlaceholder": "Select a club",
+        "clubRequired": "Select a club.",
+        "cancel": "Cancel",
+        "submit": "Generate"
+      },
+      "filters": {
+        "title": "Filters",
+        "club": "Club",
+        "clubAll": "All clubs",
+        "status": "Status",
+        "statusAll": "All statuses"
+      },
+      "columns": {
+        "club": "Club",
+        "status": "Status",
+        "calculated": "Calculated",
+        "finalized": "Finalized"
+      },
+      "empty": {
+        "filteredTitle": "No results",
+        "filteredDescription": "No report matches the filters. Adjust them to see more."
+      }
+    },
+    "quarterly": {
+      "page": {
+        "title": "Quarterly reports",
+        "description": "Generate, review, complete and finalize the clubs’ quarterly reports."
+      },
+      "detail": {
+        "title": "Quarterly report · {period}",
+        "metaTitle": "Quarterly report"
+      },
+      "period": "Quarter {quarter} of {year}",
+      "quarterOption": "Quarter {quarter}",
+      "filters": {
+        "year": "Year",
+        "yearAll": "All years",
+        "quarter": "Quarter",
+        "quarterAll": "All quarters"
+      },
+      "columns": {
+        "period": "Period"
+      },
+      "empty": {
+        "title": "No quarterly reports yet",
+        "description": "Generate the first one with the Generate report button."
+      },
+      "generate": {
+        "title": "Generate quarterly report",
+        "description": "Choose the club and the quarter. If the report already exists and is finalized, it opens unchanged.",
+        "year": "Year",
+        "quarter": "Quarter",
+        "success": "Quarterly report ready.",
+        "error": "The quarterly report could not be generated."
+      },
+      "manual": {
+        "sectionMeetings": "Meetings and attendance",
+        "sectionMeetingsDescription": "Meetings held and board attendance during the quarter.",
+        "sectionMissionary": "Mission and events",
+        "sectionMissionaryDescription": "Mission goals and results for the quarter.",
+        "sectionNarrative": "Descriptions",
+        "sectionNarrativeDescription": "Club participation and community service.",
+        "planningMeetings": "Planning meetings",
+        "parentMeetings": "Parent meetings",
+        "youthCouncilAttendance": "Youth council attendance",
+        "churchBoardAttendance": "Church board attendance",
+        "soulTarget": "Soul-winning target",
+        "baptizedThisQuarter": "Baptized this quarter",
+        "camporeesAttended": "Camporees attended",
+        "clubParticipation": "Club participation",
+        "communityService": "Community service",
+        "certificatesDelivered": "Certificates were delivered"
+      }
+    },
+    "annual": {
+      "page": {
+        "title": "Annual reports",
+        "description": "Generate, review, complete and finalize the clubs’ annual reports by ecclesiastical year."
+      },
+      "detail": {
+        "title": "Annual report · {period}",
+        "metaTitle": "Annual report"
+      },
+      "labels": {
+        "ecclesiasticalYear": "Ecclesiastical year"
+      },
+      "filters": {
+        "year": "Ecclesiastical year",
+        "yearAll": "All years"
+      },
+      "columns": {
+        "period": "Ecclesiastical year"
+      },
+      "empty": {
+        "title": "No annual reports yet",
+        "description": "Generate the first one with the Generate report button."
+      },
+      "generate": {
+        "title": "Generate annual report",
+        "description": "Choose the club and the ecclesiastical year. If the report already exists and is finalized, it opens unchanged.",
+        "year": "Ecclesiastical year",
+        "yearRequired": "Select an ecclesiastical year.",
+        "success": "Annual report ready.",
+        "error": "The annual report could not be generated."
+      },
+      "computed": {
+        "monthsReported": "Months reported",
+        "rankingPercentile": "Ranking percentile",
+        "topAchievers": "Top achievers",
+        "topAchieversEmpty": "No standout members this year.",
+        "honorsCount": "{count, plural, one {# honor} other {# honors}}"
+      },
+      "manual": {
+        "sectionMeetings": "Meetings and events",
+        "sectionMeetingsDescription": "Meetings held and camporees during the year.",
+        "sectionMissionary": "Mission and investitures",
+        "sectionMissionaryDescription": "Baptisms this year and the state of the investitures.",
+        "sectionNarrative": "Descriptions",
+        "sectionNarrativeDescription": "Club achievements and community service.",
+        "planningMeetings": "Planning meetings",
+        "parentMeetings": "Parent meetings",
+        "camporeesAttended": "Camporees attended",
+        "baptizedThisYear": "Baptized this year",
+        "totalBaptized": "Total baptized to date",
+        "allInvestituresCompleted": "All investitures were held",
+        "achievements": "Club annual achievements",
+        "communityService": "Community service"
+      }
+    }
   }
 }
