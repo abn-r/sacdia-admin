@@ -89,7 +89,6 @@
       "annual_folders_categories": "Categorias de prêmios",
       "member_rankings": "Classificações de membros",
       "member_ranking_weights": "Pesos dos classificações de membros",
-      "ranking_weights": "Pesos dos classificações",
       "section_rankings": "Classificações de seções",
       "requests": "Solicitações",
       "requests_transfers": "Transferências",
@@ -117,7 +116,6 @@
       "subgroup_academics": "Acadêmicos",
       "subgroup_business": "Negócio",
       "subgroup_honors_cat": "Honras",
-      "ranking_weights_root": "Configuração de pesos",
       "materials_inbox": "Caixa de entrada",
       "materials_receipts": "Comprovantes",
       "materials_inventory": "Inventário",
@@ -177,7 +175,6 @@
       "annual_folders_rankings": "Classificação",
       "annual_folders_ranking_config": "Config. da classificação",
       "annual_folders_categories": "Categorias",
-      "ranking_weights": "Pesos da classificação",
       "section_rankings": "Classificações por seção",
       "reports_list": "Meus relatórios",
       "reports_supervision": "Supervisão territorial",
@@ -4858,11 +4855,26 @@
       "emptyDescription": "Não há tipos de clube disponíveis para exibir classificações."
     },
     "pageRankingsBreakdown": {
-      "title": "Detalhamento do classificação",
-      "description": "Detalhe por componente de {clubName}",
-      "descriptionNoClub": "Detalhe por componente da inscrição",
-      "errorFallback": "Não foi possível carregar o detalhamento do classificação. Verifique a conexão com o servidor.",
-      "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
+      "title": "Detalhamento da classificação",
+      "description": "Classificação anual · {clubType}",
+      "errorFallback": "Não foi possível carregar o detalhamento da classificação. Verifique a conexão com o servidor.",
+      "forbidden": "Você não tem permissão para ver o detalhamento desta seção.",
+      "paramsRequired": "Falta o ano eclesiástico para mostrar o detalhamento.",
+      "totalLabel": "Pontos obtidos",
+      "progress": "{percent}% do total",
+      "tierLabel": "Nível",
+      "noTier": "Sem nível",
+      "nextTier": "Faltam {points} pts para {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Componentes",
+      "pendingTitle": "Pendências da pasta anual",
+      "pendingEmpty": "Nenhuma seção pendente.",
+      "pendingStatus": {
+        "pending_delivery": "A entregar",
+        "pending_validation": "A validar",
+        "pending_union_validation": "A validar pela união",
+        "pending_review": "Em revisão"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Editar categoria",
@@ -6986,64 +6998,6 @@
       }
     }
   },
-  "rankingWeights": {
-    "clientPage": {
-      "clubTypeFallback": "Tipo {id}",
-      "defaultGlobalTitle": "Padrão global",
-      "defaultGlobalDescription": "Pesos aplicados a todos os tipos de clube sem substituição configurada. A soma deve ser exatamente 100.",
-      "defaultGlobalUpdated": "Padrão global atualizado",
-      "defaultGlobalUpdateError": "Erro ao atualizar o padrão",
-      "defaultGlobalNotFound": "Padrão global não encontrado. Contate o administrador do sistema.",
-      "overridesTitle": "Substituições por tipo de clube",
-      "overridesDescription": "Pesos específicos que substituem o padrão para um determinado tipo de clube.",
-      "addOverride": "Adicionar substituição",
-      "newOverrideTitle": "Nova substituição",
-      "overridesEmpty": "Nenhuma substituição configurada. Todos os tipos de clube usam o padrão global.",
-      "colClubType": "Tipo de clube",
-      "colFolder": "Pasta anual",
-      "colFinance": "Finanças",
-      "colCamporee": "Camporee",
-      "colEvidence": "Evidências",
-      "colSuma": "Soma",
-      "colAcciones": "Ações",
-      "editButton": "Editar",
-      "editOverrideTitle": "Editar substituição",
-      "overrideUpdated": "Substituição atualizada",
-      "overrideUpdateError": "Erro ao atualizar a substituição",
-      "deleteButton": "Excluir",
-      "deleteOverrideTitle": "Excluir substituição?",
-      "deleteOverrideDescription": "Esta ação não pode ser desfeita. O tipo de clube voltará a usar os pesos do padrão global.",
-      "cancelButton": "Cancelar",
-      "deletingLabel": "Excluindo...",
-      "overrideDeleted": "Substituição excluída",
-      "overrideDeleteError": "Erro ao excluir a substituição"
-    },
-    "form": {
-      "saving": "Salvando...",
-      "save": "Salvar",
-      "folder": "Pasta anual",
-      "finance": "Finanças",
-      "camporee": "Camporee",
-      "evidence": "Evidências"
-    },
-    "sum": {
-      "label": "Soma: {sum}"
-    },
-    "override": {
-      "selectPlaceholder": "Selecionar tipo de clube",
-      "noTypesAvailable": "Sem tipos disponíveis",
-      "createLabel": "Criar substituição"
-    },
-    "pages": {
-      "list": {
-        "title": "Pesos de classificação",
-        "description": "Configure a ponderação de cada dimensão (pasta anual, finanças, camporee, evidências) para o cálculo da classificação anual. A soma dos 4 pesos deve ser exatamente 100.",
-        "loadFailed": "Não foi possível carregar os pesos de classificação. Verifique a conexão com o servidor.",
-        "emptyTitle": "Sem configuração",
-        "emptyDescription": "Nenhuma configuração de pesos encontrada."
-      }
-    }
-  },
   "classes": {
     "list": {
       "empty_title": "Nenhuma classe registrada",
@@ -7357,23 +7311,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Pontuação composta institucional",
-      "weightsApplied": "Pesos aplicados",
       "weightsSource": "Fonte",
       "weightsSourceDefault": "Padrão global",
-      "weightsSourceOverride": "Substituição por tipo de clube",
-      "componentFolder": "Pastas",
-      "componentFinance": "Finanças",
-      "componentCamporee": "Camporees",
-      "componentEvidence": "Evidências",
-      "pointsOf": "{earned} / {max} pontos",
-      "sectionsEvaluated": "{count} seções avaliadas",
-      "monthsClosedOnTime": "{closed} / {total} meses fechados no prazo",
-      "deadlineDay": "Prazo: dia {day} do mês seguinte",
-      "missedMonths": "Meses em falta: {months}",
-      "camporeeEventsOf": "{attended} / {available} eventos no escopo",
-      "evidenceValidatedRejected": "{validated} validadas / {rejected} rejeitadas",
-      "evidencePendingExcluded": "{pending} pendentes (excluídas do cálculo)"
+      "weightsSourceOverride": "Substituição por tipo de clube"
     },
     "pageMember": {
       "title": "Classificação de membros",

@@ -35,7 +35,6 @@ import {
   Tag,
   ShoppingBag,
   Signpost,
-  SlidersHorizontal,
   Sparkles,
   Tags,
   Tent,
@@ -388,13 +387,6 @@ export const sidebarItems: NavGroup[] = [
             activeMatch: "prefix",
           },
         ],
-      },
-      {
-        id: "ranking-weights",
-        title: "Pesos de clasificación",
-        url: "/dashboard/ranking-weights",
-        icon: SlidersHorizontal,
-        activeMatch: "prefix",
       },
       {
         id: "section-rankings",

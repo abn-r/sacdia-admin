@@ -89,7 +89,6 @@
       "annual_folders_categories": "Categorías de premios",
       "member_rankings": "Clasificaciones de miembros",
       "member_ranking_weights": "Pesos de clasificaciones de miembros",
-      "ranking_weights": "Pesos de clasificaciones",
       "section_rankings": "Clasificaciones de secciones",
       "requests": "Solicitudes",
       "requests_transfers": "Transferencias",
@@ -117,7 +116,6 @@
       "subgroup_academics": "Académicos",
       "subgroup_business": "Negocio",
       "subgroup_honors_cat": "Honores",
-      "ranking_weights_root": "Configuración de pesos",
       "materials_inbox": "Bandeja",
       "materials_receipts": "Comprobantes",
       "materials_inventory": "Inventario",
@@ -177,7 +175,6 @@
       "annual_folders_rankings": "Clasificación",
       "annual_folders_ranking_config": "Config. de clasificación",
       "annual_folders_categories": "Categorías",
-      "ranking_weights": "Pesos de clasificación",
       "section_rankings": "Clasificaciones por sección",
       "reports_list": "Mis reportes",
       "reports_supervision": "Supervisión territorial",
@@ -4859,10 +4856,25 @@
     },
     "pageRankingsBreakdown": {
       "title": "Desglose de clasificación",
-      "description": "Detalle por componente de {clubName}",
-      "descriptionNoClub": "Detalle por componente de la inscripción",
+      "description": "Clasificación anual · {clubType}",
       "errorFallback": "No se pudo cargar el desglose de clasificación. Verifica la conexión con el servidor.",
-      "paramsRequired": "Los parámetros enrollmentId y year_id son requeridos."
+      "forbidden": "No tienes permiso para ver el desglose de esta sección.",
+      "paramsRequired": "Falta el año eclesiástico para mostrar el desglose.",
+      "totalLabel": "Puntos obtenidos",
+      "progress": "{percent}% del total",
+      "tierLabel": "Rango",
+      "noTier": "Sin rango",
+      "nextTier": "Faltan {points} pts para {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Componentes",
+      "pendingTitle": "Pendientes de la carpeta anual",
+      "pendingEmpty": "No hay secciones pendientes.",
+      "pendingStatus": {
+        "pending_delivery": "Por entregar",
+        "pending_validation": "Por validar",
+        "pending_union_validation": "Por validar en unión",
+        "pending_review": "En revisión"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Editar categoría",
@@ -6986,64 +6998,6 @@
       }
     }
   },
-  "rankingWeights": {
-    "clientPage": {
-      "clubTypeFallback": "Tipo {id}",
-      "defaultGlobalTitle": "Valores generales",
-      "defaultGlobalDescription": "Pesos aplicados a todos los tipos de club que no tienen un ajuste configurado. La suma debe ser exactamente 100.",
-      "defaultGlobalUpdated": "Valores generales actualizados",
-      "defaultGlobalUpdateError": "Error al actualizar los valores generales",
-      "defaultGlobalNotFound": "Valores generales no encontrados. Contacta al administrador del sistema.",
-      "overridesTitle": "Ajustes por tipo de club",
-      "overridesDescription": "Pesos específicos que reemplazan los valores generales para un tipo de club determinado.",
-      "addOverride": "Agregar ajuste",
-      "newOverrideTitle": "Nuevo ajuste",
-      "overridesEmpty": "No hay ajustes configurados. Todos los tipos de club usan los valores generales.",
-      "colClubType": "Tipo de club",
-      "colFolder": "Carpeta anual",
-      "colFinance": "Finanzas",
-      "colCamporee": "Camporee",
-      "colEvidence": "Evidencias",
-      "colSuma": "Suma",
-      "colAcciones": "Acciones",
-      "editButton": "Editar",
-      "editOverrideTitle": "Editar ajuste",
-      "overrideUpdated": "Ajuste actualizado",
-      "overrideUpdateError": "Error al actualizar el ajuste",
-      "deleteButton": "Eliminar",
-      "deleteOverrideTitle": "¿Eliminar ajuste?",
-      "deleteOverrideDescription": "Esta acción no se puede deshacer. El tipo de club volverá a usar los pesos de los valores generales.",
-      "cancelButton": "Cancelar",
-      "deletingLabel": "Eliminando...",
-      "overrideDeleted": "Ajuste eliminado",
-      "overrideDeleteError": "Error al eliminar el ajuste"
-    },
-    "form": {
-      "saving": "Guardando...",
-      "save": "Guardar",
-      "folder": "Carpeta anual",
-      "finance": "Finanzas",
-      "camporee": "Camporee",
-      "evidence": "Evidencias"
-    },
-    "sum": {
-      "label": "Suma: {sum}"
-    },
-    "override": {
-      "selectPlaceholder": "Seleccionar tipo de club",
-      "noTypesAvailable": "Sin tipos disponibles",
-      "createLabel": "Crear ajuste"
-    },
-    "pages": {
-      "list": {
-        "title": "Pesos de clasificación",
-        "description": "Configura la ponderación de cada dimensión (carpeta anual, finanzas, camporee, evidencias) para el cálculo de la clasificación anual. La suma de los 4 pesos debe ser exactamente 100.",
-        "loadFailed": "No se pudieron cargar los pesos de clasificación. Verifica la conexión con el servidor.",
-        "emptyTitle": "Sin configuración",
-        "emptyDescription": "No se encontraron configuraciones de pesos."
-      }
-    }
-  },
   "classes": {
     "list": {
       "empty_title": "No hay clases registradas",
@@ -7357,23 +7311,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Puntaje compuesto institucional",
-      "weightsApplied": "Pesos aplicados",
       "weightsSource": "Fuente",
       "weightsSourceDefault": "Valores generales",
-      "weightsSourceOverride": "Ajuste por tipo de club",
-      "componentFolder": "Carpetas",
-      "componentFinance": "Finanzas",
-      "componentCamporee": "Camporees",
-      "componentEvidence": "Evidencias",
-      "pointsOf": "{earned} / {max} puntos",
-      "sectionsEvaluated": "{count} secciones evaluadas",
-      "monthsClosedOnTime": "{closed} / {total} meses cerrados a tiempo",
-      "deadlineDay": "Fecha límite: día {day} del mes siguiente",
-      "missedMonths": "Meses faltantes: {months}",
-      "camporeeEventsOf": "{attended} / {available} eventos del scope",
-      "evidenceValidatedRejected": "{validated} validadas / {rejected} rechazadas",
-      "evidencePendingExcluded": "{pending} pendientes (excluidas del cálculo)"
+      "weightsSourceOverride": "Ajuste por tipo de club"
     },
     "pageMember": {
       "title": "Clasificación de miembros",

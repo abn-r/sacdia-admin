@@ -154,13 +154,14 @@ function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
   );
 }
 
-function breakdownHref(item: AnnualRankingLeaderboardRow, selectedYearId: number | null) {
-  const params = new URLSearchParams({
-    year_id: String(item.ecclesiastical_year_id ?? selectedYearId ?? ""),
-  });
-  // The breakdown endpoint doesn't return the club name; pass it for the header.
-  if (item.club_name) params.set("club_name", item.club_name);
-  return `/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?${params.toString()}`;
+/** Breakdown of the same ranking model, read per section. Null without a section id. */
+function breakdownHref(
+  item: AnnualRankingLeaderboardRow,
+  selectedYearId: number | null,
+): string | null {
+  if (!item.club_section_id) return null;
+  const yearId = item.ecclesiastical_year_id ?? selectedYearId;
+  return `/dashboard/annual-folders/rankings/${item.club_section_id}/breakdown?year_id=${yearId ?? ""}`;
 }
 
 function ComponentSummary({
@@ -553,15 +554,23 @@ export function RankingsClientPage({
                       <RankBadge position={item.rank_position} />
                     </TableCell>
                     <TableCell>
-                      <Link
-                        prefetch={false}
-                        href={breakdownHref(item, selectedYearId)}
-                        className={`hover:underline ${
-                          item.rank_position <= 3 ? "font-semibold" : "font-medium"
-                        }`}
-                      >
-                        {item.club_name}
-                      </Link>
+                      {breakdownHref(item, selectedYearId) ? (
+                        <Link
+                          prefetch={false}
+                          href={breakdownHref(item, selectedYearId)!}
+                          className={`hover:underline ${
+                            item.rank_position <= 3 ? "font-semibold" : "font-medium"
+                          }`}
+                        >
+                          {item.club_name}
+                        </Link>
+                      ) : (
+                        <span
+                          className={item.rank_position <= 3 ? "font-semibold" : "font-medium"}
+                        >
+                          {item.club_name}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="hidden xl:table-cell text-center text-sm text-muted-foreground">
                       {activeClubType?.name ?? item.club_type_id}
@@ -592,13 +601,17 @@ export function RankingsClientPage({
                     <TableCell>
                       <RowActions
                         label={item.club_name}
-                        actions={[
-                          {
-                            label: tPage("viewDetail"),
-                            icon: Eye,
-                            href: breakdownHref(item, selectedYearId),
-                          },
-                        ]}
+                        actions={
+                          breakdownHref(item, selectedYearId)
+                            ? [
+                                {
+                                  label: tPage("viewDetail"),
+                                  icon: Eye,
+                                  href: breakdownHref(item, selectedYearId)!,
+                                },
+                              ]
+                            : []
+                        }
                       />
                     </TableCell>
                   </TableRow>
@@ -660,15 +673,18 @@ export function RankingsClientPage({
                     <ComponentSummary components={item.components} />
                   </div>
 
-                  <div className="mt-3 border-t pt-3">
-                    <Link prefetch={false}
-                      href={breakdownHref(item, selectedYearId)}
-                      className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
-                    >
-                      {tPage("viewDetail")}
-                      <ArrowRight className="size-3" />
-                    </Link>
-                  </div>
+                  {breakdownHref(item, selectedYearId) ? (
+                    <div className="mt-3 border-t pt-3">
+                      <Link
+                        prefetch={false}
+                        href={breakdownHref(item, selectedYearId)!}
+                        className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+                      >
+                        {tPage("viewDetail")}
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               </li>
             ))}

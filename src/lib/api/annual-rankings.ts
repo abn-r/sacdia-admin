@@ -85,6 +85,8 @@ export type AnnualRankingAxisProgress = {
 export type AnnualRankingLeaderboardRow = {
   rank_position: number;
   club_enrollment_id: string;
+  /** Opens the club's breakdown; older backends don't send it. */
+  club_section_id?: number;
   club_id: number;
   club_name: string;
   club_type_id: number;
@@ -97,6 +99,32 @@ export type AnnualRankingLeaderboardRow = {
   next_tier: AnnualRankingTier | null;
   axes: AnnualRankingAxisProgress[];
   components: AnnualRankingComponentProgress[];
+};
+
+export type AnnualRankingPendingItem = {
+  type: string;
+  title: string;
+  /** pending_delivery | pending_validation | pending_union_validation | pending_review */
+  status: string;
+  due_date: string | null;
+  action_label: string;
+};
+
+/** GET /club-sections/:sectionId/annual-ranking-progress */
+export type AnnualRankingSectionProgress = {
+  section_id: number;
+  club_id: number;
+  club_name: string;
+  club_type: { club_type_id: number; name: string | null };
+  year: { ecclesiastical_year_id: number };
+  current_points: number;
+  max_points: number;
+  progress_percentage: number;
+  current_tier: AnnualRankingTier | null;
+  next_tier: AnnualRankingTier | null;
+  axes: AnnualRankingAxisProgress[];
+  components: AnnualRankingComponentProgress[];
+  pending_items: AnnualRankingPendingItem[];
 };
 
 type Envelope<T> = { status?: string; data?: T; total?: number };
@@ -212,6 +240,18 @@ export async function listAnnualRankings(
   );
 
   return unwrapData(payload) ?? [];
+}
+
+export async function getAnnualRankingSectionProgress(
+  sectionId: number,
+  yearId: number,
+): Promise<AnnualRankingSectionProgress> {
+  const payload = await apiRequest<Envelope<AnnualRankingSectionProgress>>(
+    `/club-sections/${sectionId}/annual-ranking-progress`,
+    { params: { year_id: yearId } },
+  );
+
+  return unwrapData(payload);
 }
 
 export async function listAnnualRankingsFromClient(

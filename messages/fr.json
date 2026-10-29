@@ -89,7 +89,6 @@
       "annual_folders_categories": "Catégories de prix",
       "member_rankings": "Classements des membres",
       "member_ranking_weights": "Pondérations des classements de membres",
-      "ranking_weights": "Pondérations des classements",
       "section_rankings": "Classements des sections",
       "requests": "Demandes",
       "requests_transfers": "Transferts",
@@ -117,7 +116,6 @@
       "subgroup_academics": "Académiques",
       "subgroup_business": "Affaires",
       "subgroup_honors_cat": "Honneurs",
-      "ranking_weights_root": "Configuration des poids",
       "materials_inbox": "Boîte de réception",
       "materials_receipts": "Reçus",
       "materials_inventory": "Inventaire",
@@ -177,7 +175,6 @@
       "annual_folders_rankings": "Classement",
       "annual_folders_ranking_config": "Config. du classement",
       "annual_folders_categories": "Catégories",
-      "ranking_weights": "Pondérations du classement",
       "section_rankings": "Classements par section",
       "reports_list": "Mes rapports",
       "reports_supervision": "Supervision territoriale",
@@ -4859,10 +4856,25 @@
     },
     "pageRankingsBreakdown": {
       "title": "Détail du classement",
-      "description": "Détail par composant de {clubName}",
-      "descriptionNoClub": "Détail par composant de l’inscription",
+      "description": "Classement annuel · {clubType}",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
-      "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
+      "forbidden": "Vous n’avez pas l’autorisation de voir le détail de cette section.",
+      "paramsRequired": "L’année ecclésiastique manque pour afficher le détail.",
+      "totalLabel": "Points obtenus",
+      "progress": "{percent} % du total",
+      "tierLabel": "Rang",
+      "noTier": "Sans rang",
+      "nextTier": "Encore {points} pts pour {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Composants",
+      "pendingTitle": "En attente dans le dossier annuel",
+      "pendingEmpty": "Aucune section en attente.",
+      "pendingStatus": {
+        "pending_delivery": "À remettre",
+        "pending_validation": "À valider",
+        "pending_union_validation": "À valider par l’union",
+        "pending_review": "En révision"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Modifier la catégorie",
@@ -6986,64 +6998,6 @@
       }
     }
   },
-  "rankingWeights": {
-    "clientPage": {
-      "clubTypeFallback": "Type {id}",
-      "defaultGlobalTitle": "Défaut global",
-      "defaultGlobalDescription": "Poids appliqués à tous les types de clubs sans remplacement configuré. La somme doit être exactement 100.",
-      "defaultGlobalUpdated": "Défaut global mis à jour",
-      "defaultGlobalUpdateError": "Erreur lors de la mise à jour du défaut",
-      "defaultGlobalNotFound": "Défaut global introuvable. Contactez l'administrateur système.",
-      "overridesTitle": "Remplacements par type de club",
-      "overridesDescription": "Poids spécifiques qui remplacent le défaut pour un type de club donné.",
-      "addOverride": "Ajouter un remplacement",
-      "newOverrideTitle": "Nouveau remplacement",
-      "overridesEmpty": "Aucun remplacement configuré. Tous les types de clubs utilisent le défaut global.",
-      "colClubType": "Type de club",
-      "colFolder": "Dossier annuel",
-      "colFinance": "Finances",
-      "colCamporee": "Camporée",
-      "colEvidence": "Preuves",
-      "colSuma": "Somme",
-      "colAcciones": "Actions",
-      "editButton": "Modifier",
-      "editOverrideTitle": "Modifier le remplacement",
-      "overrideUpdated": "Remplacement mis à jour",
-      "overrideUpdateError": "Erreur lors de la mise à jour du remplacement",
-      "deleteButton": "Supprimer",
-      "deleteOverrideTitle": "Supprimer le remplacement ?",
-      "deleteOverrideDescription": "Cette action est irréversible. Le type de club reviendra aux poids du défaut global.",
-      "cancelButton": "Annuler",
-      "deletingLabel": "Suppression...",
-      "overrideDeleted": "Remplacement supprimé",
-      "overrideDeleteError": "Erreur lors de la suppression du remplacement"
-    },
-    "form": {
-      "saving": "Enregistrement...",
-      "save": "Enregistrer",
-      "folder": "Dossier annuel",
-      "finance": "Finances",
-      "camporee": "Camporée",
-      "evidence": "Preuves"
-    },
-    "sum": {
-      "label": "Somme : {sum}"
-    },
-    "override": {
-      "selectPlaceholder": "Sélectionner le type de club",
-      "noTypesAvailable": "Aucun type disponible",
-      "createLabel": "Créer un remplacement"
-    },
-    "pages": {
-      "list": {
-        "title": "Pondérations du classement",
-        "description": "Configurez la pondération de chaque dimension (dossier annuel, finances, camporée, preuves) pour le calcul du classement annuel. La somme des 4 pondérations doit être exactement 100.",
-        "loadFailed": "Impossible de charger les pondérations du classement. Vérifiez la connexion au serveur.",
-        "emptyTitle": "Aucune configuration",
-        "emptyDescription": "Aucune configuration de poids trouvée."
-      }
-    }
-  },
   "classes": {
     "list": {
       "empty_title": "Aucune classe enregistrée",
@@ -7357,23 +7311,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Score composite institutionnel",
-      "weightsApplied": "Poids appliqués",
       "weightsSource": "Source",
       "weightsSourceDefault": "Défaut global",
-      "weightsSourceOverride": "Remplacement par type de club",
-      "componentFolder": "Dossiers",
-      "componentFinance": "Finances",
-      "componentCamporee": "Camporées",
-      "componentEvidence": "Preuves",
-      "pointsOf": "{earned} / {max} points",
-      "sectionsEvaluated": "{count} sections évaluées",
-      "monthsClosedOnTime": "{closed} / {total} mois clôturés à temps",
-      "deadlineDay": "Date limite : jour {day} du mois suivant",
-      "missedMonths": "Mois manquants : {months}",
-      "camporeeEventsOf": "{attended} / {available} événements dans la portée",
-      "evidenceValidatedRejected": "{validated} validées / {rejected} rejetées",
-      "evidencePendingExcluded": "{pending} en attente (exclues du calcul)"
+      "weightsSourceOverride": "Remplacement par type de club"
     },
     "pageMember": {
       "title": "Classement des membres",

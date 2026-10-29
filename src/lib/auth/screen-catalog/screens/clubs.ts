@@ -221,9 +221,6 @@ export const clubsScreens: ScreenDefinition[] = [
     permissions: [AWARD_CATEGORIES_READ],
   }),
 
-  viewOnlyScreen("ranking-weights", {
-    permissions: [RANKING_WEIGHTS_READ, MEMBER_RANKING_WEIGHTS_READ],
-  }),
   viewOnlyScreen("section-rankings", {
     permissions: [
       SECTION_RANKINGS_READ_CLUB,
