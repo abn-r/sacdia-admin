@@ -1,4 +1,4 @@
-import type { Comprobante } from "@/lib/types/materials";
+import type { Comprobante, MaterialEstado } from "@/lib/types/materials";
 
 export type ReceiptPrintContext = {
   orderFolio: string;
@@ -37,6 +37,8 @@ export type PaymentSheetPrintInput = {
   subtotal_centavos: number;
   envio_centavos: number;
   entrega: "recoger" | "envio";
+  /** Order status: a paid, delivered or cancelled order must not ask to pay. */
+  estado?: MaterialEstado;
   bank_name?: string | null;
   bank_account_clabe?: string | null;
   account_holder?: string | null;
@@ -44,10 +46,29 @@ export type PaymentSheetPrintInput = {
   director?: { nombre: string | null; club: string | null } | null;
 };
 
+const ORDER_STATUS_LABELS: Record<MaterialEstado, string> = {
+  en_revision: "En revisión",
+  aprobada: "Aprobada — pendiente de pago",
+  pagada: "Pagada",
+  entregada: "Entregada",
+  cancelada: "Cancelada",
+};
+
+function formatClabe(value: string | null | undefined): string | null {
+  return value ? value.replace(/\s+/g, "").replace(/(\d{4})/g, "$1 ").trim() : null;
+}
+
 export function buildPaymentSheetPrintDocument(orden: PaymentSheetPrintInput): string {
   const folio = orden.folio_referencia ?? orden.id;
   const printedAt = formatDateTime(new Date().toISOString());
-  const clabe = orden.bank_account_clabe?.replace(/(\d{4})/g, "$1 ").trim() ?? "—";
+  const clabe = formatClabe(orden.bank_account_clabe) ?? "—";
+  const settled = orden.estado === "pagada" || orden.estado === "entregada";
+  const cancelled = orden.estado === "cancelada";
+  const note = cancelled
+    ? "Esta solicitud fue cancelada. No realices ningún pago con este folio."
+    : settled
+      ? "Esta solicitud ya está pagada. Conserva esta ficha como referencia."
+      : "Usa este folio como referencia al realizar la transferencia. Conserva tu comprobante bancario y súbelo en la app cuando completes el pago.";
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -99,6 +120,14 @@ export function buildPaymentSheetPrintDocument(orden: PaymentSheetPrintInput): s
       color: #444;
       background: #fafafa;
     }
+    .status {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
     .footer {
       margin-top: 24px;
       padding-top: 12px;
@@ -129,10 +158,11 @@ export function buildPaymentSheetPrintDocument(orden: PaymentSheetPrintInput): s
     <table>
       ${optionalRow("Director", orden.director?.nombre)}
       ${optionalRow("Club", orden.director?.club)}
+      ${orden.estado ? row("Estado", `<span class="status">${escapeHtml(ORDER_STATUS_LABELS[orden.estado] ?? orden.estado)}</span>`) : ""}
       ${row("Subtotal", escapeHtml(formatMoney(orden.subtotal_centavos)))}
       ${row("Envío", escapeHtml(formatMoney(orden.envio_centavos)))}
-      ${row("Total a pagar", `<span class="total">${escapeHtml(formatMoney(orden.total_centavos))}</span>`)}
-      ${row("Entrega", escapeHtml(orden.entrega === "recoger" ? "Recoger en sede" : "Envío"))}
+      ${row(settled ? "Total pagado" : "Total a pagar", `<span class="total">${escapeHtml(formatMoney(orden.total_centavos))}</span>`)}
+      ${row("Entrega", escapeHtml(orden.entrega === "recoger" ? "Recoger en sucursal" : "Envío"))}
     </table>
   </section>
 
@@ -147,8 +177,7 @@ export function buildPaymentSheetPrintDocument(orden: PaymentSheetPrintInput): s
   </section>
 
   <p class="note">
-    Usa este folio como referencia al realizar la transferencia. Conserva tu comprobante bancario
-    y súbelo en la app cuando completes el pago.
+    ${escapeHtml(note)}
   </p>
 
   <footer class="footer">
@@ -232,7 +261,7 @@ export function buildReceiptPrintDocument(
 
   const bankRows = [
     optionalRow("Banco", context.bankName),
-    optionalRow("CLABE", context.bankAccountClabe),
+    optionalRow("CLABE", formatClabe(context.bankAccountClabe)),
     optionalRow("Titular", context.accountHolder),
   ]
     .filter(Boolean)
@@ -384,7 +413,7 @@ function withPrintBootstrap(html: string): string {
   if (html.includes("data-sacdia-print-bootstrap")) return html;
 
   const bootstrap = `
-  <div data-sacdia-print-bootstrap class="no-print" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;gap:8px;">
+  <div data-sacdia-print-bootstrap class="no-print" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;gap:8px;">
     <button type="button" onclick="window.print()" style="padding:8px 14px;border:1px solid #111;border-radius:8px;background:#fff;font:inherit;cursor:pointer;">
       Imprimir
     </button>
