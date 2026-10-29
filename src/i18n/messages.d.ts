@@ -705,6 +705,7 @@ export interface IntlMessages {
       createDialogTitle: string;
       createDialogDesc: string;
       editDialogTitle: string;
+      editDialogDesc: string;
       deleteDialogTitle: string;
       deleteDialogDesc: string;
       edit: string;
@@ -1015,6 +1016,10 @@ export interface IntlMessages {
         description: string;
         entityLabel: string;
         loadError: string;
+        typeLabel: string;
+        typePlaceholder: string;
+        typeIncome: string;
+        typeExpense: string;
       };
       inventoryCategories: {
         title: string;
@@ -2085,10 +2090,15 @@ export interface IntlMessages {
       type_broadcast: string;
       type_user: string;
       type_club: string;
+      type_section_role: string;
+      type_global_role: string;
       target_all: string;
       target_user: string;
       target_user_unknown: string;
       target_club_section: string;
+      target_section_role: string;
+      target_global_role: string;
+      sender_system: string;
     };
     page: {
       title: string;
@@ -2875,6 +2885,62 @@ export interface IntlMessages {
       "audit:read": string;
       "users:create": string;
       "users:bulk_create": string;
+      "users:update": string;
+      "classes:update": string;
+      "classes:validate": string;
+      "qr:issue_self": string;
+      "qr:validate": string;
+      "notifications:read_history": string;
+      "units:create": string;
+      "units:update": string;
+      "units:delete": string;
+      "ecclesiastical_years:delete": string;
+      "insurance:create": string;
+      "insurance:update": string;
+      "evidence_folders:read": string;
+      "evidence_folders:update": string;
+      "annual_folder_templates:create": string;
+      "annual_folder_templates:read": string;
+      "annual_folder_templates:update": string;
+      "annual_folder_templates:delete": string;
+      "annual_folders:evaluate": string;
+      "annual_folders:submit": string;
+      "investiture:read": string;
+      "certifications:read": string;
+      "folders:read": string;
+      "user_honors:read": string;
+      "user_honors:create": string;
+      "user_honors:update": string;
+      "user_honors:delete": string;
+      "dashboard:read": string;
+      "reports:submit": string;
+      "reports:update": string;
+      "reports:write": string;
+      "club_instances:create": string;
+      "club_instances:read": string;
+      "club_instances:update": string;
+      "camporees:register": string;
+      "camporees:register_active_section": string;
+      "attendance:approve_late": string;
+      "field-payment-orders:create": string;
+      "field-payment-orders:upload-proof": string;
+      "field-payment-orders:cancel": string;
+      "camporee-orders:read": string;
+      "camporee-orders:catalog-manage": string;
+      "camporee-orders:offering-configure": string;
+      "camporee-orders:create": string;
+      "camporee-orders:upload-proof": string;
+      "camporee-orders:review": string;
+      "camporee-orders:authorize-without-proof": string;
+      "camporee-orders:deliver": string;
+      "camporee-orders:distribute": string;
+      "camporee-supplies:read": string;
+      "camporee-supplies:plan": string;
+      "camporee-supplies:configure": string;
+      "camporee-supplies:review-pay": string;
+      "camporee-supplies:deliver": string;
+      "dependents:create": string;
+      "consent:verify": string;
     };
     userPermissionsPanel: {
       title: string;
@@ -3481,6 +3547,10 @@ export interface IntlMessages {
       descriptionPlaceholder: string;
       capacityPlaceholder: string;
       stepIncomplete: string;
+      createdToast: string;
+      updatedToast: string;
+      rubricsWarningTitle: string;
+      rubricsWarningDescription: string;
       steps: {
         general: string;
         schedule: string;
@@ -3719,6 +3789,8 @@ export interface IntlMessages {
       labelPaidAt: string;
       labelNotes: string;
       placeholderNotes: string;
+      orderHint: string;
+      orderHintUnknown: string;
       cancel: string;
       saving: string;
       registering: string;
@@ -3807,7 +3879,6 @@ export interface IntlMessages {
         labelDescription: string;
         coordinates: string;
         openInMaps: string;
-        internalId: string;
         loadFailed: string;
         loadClubsFailed: string;
         loadPaymentsFailed: string;
@@ -4596,6 +4667,9 @@ export interface IntlMessages {
       file_required: string;
       evidence_uploaded: string;
       rankings_recalculated: string;
+      rankings_recalc_queued: string;
+      rankings_recalc_skipped: string;
+      rankings_recalculated_generic: string;
       section_updated: string;
       section_created: string;
       category_deleted: string;
@@ -5214,6 +5288,8 @@ export interface IntlMessages {
     };
     table: {
       loadFailed: string;
+      forbidden: string;
+      maxPointsNote: string;
       retry: string;
       inheritedCount: string;
       ownCount: string;
@@ -5679,6 +5755,7 @@ export interface IntlMessages {
     };
     expiring: {
       filter_label: string;
+      days_option: string;
       reset: string;
       no_results: string;
       results_count: string;
@@ -5844,6 +5921,8 @@ export interface IntlMessages {
       movementsCountPlural: string;
       incomeMovementsCount: string;
       incomeMovementsCountPlural: string;
+      expenseMovementsCount: string;
+      expenseMovementsCountPlural: string;
       inPeriod: string;
       positiveBalance: string;
       negativeBalance: string;
@@ -6299,6 +6378,7 @@ export interface IntlMessages {
       badge_inactive: string;
       badge_in_person: string;
       info_date: string;
+      info_end_date: string;
       info_place: string;
       info_audience: string;
       info_time: string;
@@ -6613,6 +6693,11 @@ export interface IntlMessages {
   };
   shared: {
     notFound: {
+      title: string;
+      description: string;
+      backHome: string;
+    };
+    comingSoon: {
       title: string;
       description: string;
       backHome: string;
@@ -7356,11 +7441,12 @@ export interface IntlMessages {
     pageSectionMembers: {
       title: string;
       description: string;
+      descriptionNoYear: string;
+      sectionFallback: string;
       memberSingular: string;
       memberPlural: string;
       back: string;
       breadcrumbParent: string;
-      breadcrumbCurrent: string;
     };
     filters: {
       labelYear: string;
@@ -7575,6 +7661,7 @@ export interface IntlMessages {
       paginationPrev: string;
       paginationNext: string;
       detailTitle: string;
+      detailDescription: string;
       detailLabelJob: string;
       detailLabelStatus: string;
       detailLabelStart: string;
@@ -8849,6 +8936,11 @@ export interface IntlMessages {
       colStatus: string;
       readOnly: string;
       inactive: string;
+      active: string;
+      activate: string;
+      activated: string;
+      deactivateConfirmTitle: string;
+      deactivateConfirmDescription: string;
       edit: string;
       deactivate: string;
       save: string;

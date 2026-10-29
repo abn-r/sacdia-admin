@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { RouteFormModal } from "@/components/shared/form-modal";
+import { FormPageFrame } from "@/components/shared/form-modal";
 import { EventFormPage } from "@/components/camporee-events/event-form-page";
 import { requireAdminUser } from "@/lib/auth/session";
-import CamporeeDetailPage from "../../../page";
 import {
   loadEditCamporeeEventFormData,
   camporeeEventsListHref,
@@ -22,18 +21,15 @@ export default async function LocalCamporeeEventEditPage({ params }: { params: P
   const props = resolveEventFormData(await loadEditCamporeeEventFormData(user, "local", id, eventId));
   const t = await getTranslations("camporees.eventInstanceForm");
 
-  // Direct load / refresh: agenda underneath, form in the modal on top.
+  // Direct load / refresh: the form renders as its own page.
   return (
-    <>
-      <CamporeeDetailPage params={params} searchParams={Promise.resolve({ tab: "events" })} />
-      <RouteFormModal
-        title={t("titleEdit")}
-        description={t("descriptionEdit")}
-        className="sm:max-w-3xl"
-        dismissHref={camporeeEventsListHref("local", id)}
-      >
-        <EventFormPage {...props} />
-      </RouteFormModal>
-    </>
+    <FormPageFrame
+      title={t("titleEdit")}
+      description={t("descriptionEdit")}
+      backHref={camporeeEventsListHref("local", id)}
+      backLabel={t("backToEvents")}
+    >
+      <EventFormPage {...props} />
+    </FormPageFrame>
   );
 }

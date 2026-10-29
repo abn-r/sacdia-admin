@@ -16,6 +16,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { MemberRankingScoreBadge } from "@/components/rankings/member-ranking-score-badge";
 import type { SectionRankingItem } from "@/lib/api/section-rankings";
+import {
+  buildSectionMembersHref,
+  buildSectionRankingLabel,
+} from "@/lib/section-rankings/section-label";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,6 +31,8 @@ interface SectionRankingsTableProps {
   totalPages: number;
   /** year_id passed through to the drill-down link query string */
   yearId: number;
+  /** Club name to show when the rows do not carry one (e.g. the active club filter). */
+  fallbackClubName?: string | null;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -37,10 +43,9 @@ interface SectionRankingsTableProps {
  * Columns (6 data + 1 action = 7):
  *   # | Sección | Composite | Miembros activos | Categoría | Calculado | Acción
  *
- * NOTE: `club_name` is NOT included because `SectionRankingResponseDto` does not
- * carry a `club` relation at the section level. The club filter on the list page
- * is sufficient context. If the backend adds a `club` relation to the DTO in
- * future, add a "Club" column here.
+ * The club name is shown under the section when known: from the row when the
+ * backend sends it, otherwise from the active club filter (the backend DTO only
+ * carries the club type name today).
  *
  * Pagination is handled by the shared DataTablePagination (client component).
  */
@@ -51,6 +56,7 @@ export function SectionRankingsTable({
   limit,
   totalPages,
   yearId,
+  fallbackClubName = null,
 }: SectionRankingsTableProps) {
   const t = useTranslations("rankings.sectionTable");
 
@@ -104,6 +110,18 @@ export function SectionRankingsTable({
                 ? new Date(item.composite_calculated_at).toLocaleString("es-MX")
                 : "—";
 
+              const clubName = item.club_name ?? fallbackClubName;
+              const membersHref = buildSectionMembersHref(
+                item.club_section_id,
+                yearId,
+                { sectionName: item.section_name, clubName },
+              );
+              const rowLabel = buildSectionRankingLabel(
+                item.section_name,
+                clubName,
+                item.section_name,
+              );
+
               return (
                 <TableRow
                   key={item.club_section_id}
@@ -121,11 +139,16 @@ export function SectionRankingsTable({
                   {/* Section name */}
                   <TableCell className="px-3 py-2.5 align-middle">
                     <Link
-                      href={`/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}`}
+                      href={membersHref}
                       className="block font-medium text-sm leading-none hover:underline"
                     >
                       {item.section_name}
                     </Link>
+                    {clubName ? (
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {clubName}
+                      </span>
+                    ) : null}
                   </TableCell>
 
                   {/* Composite score */}
@@ -151,8 +174,8 @@ export function SectionRankingsTable({
                   {/* Action */}
                   <TableCell className="px-3 py-2.5 align-middle">
                     <RowActions
-                      label={item.section_name}
-                      actions={[{ label: t("viewMembers"), icon: Users, href: `/dashboard/section-rankings/${item.club_section_id}/members?year_id=${yearId}` }]}
+                      label={rowLabel}
+                      actions={[{ label: t("viewMembers"), icon: Users, href: membersHref }]}
                     />
                   </TableCell>
                 </TableRow>

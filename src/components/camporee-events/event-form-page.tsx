@@ -20,6 +20,7 @@ import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { Check, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   FormModalBody,
@@ -69,6 +70,7 @@ import type {
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee, CamporeeClub } from "@/lib/api/camporees";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
+import { RUBRICS_INITIALLY_CONFIGURED_FIELD } from "@/lib/camporee-events/rubric-sync";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -347,6 +349,27 @@ export function EventFormPage({
     stepRef,
   } = useFormSteps(steps.length);
 
+  // The event was saved but its rubrics were not: close the form (never leave
+  // a saved event open for a retry that would duplicate it) and say why.
+  useEffect(() => {
+    if (!actionState.warning) return;
+    toast.warning(t("rubricsWarningTitle"), {
+      description: t("rubricsWarningDescription", { detail: actionState.warning }),
+    });
+    modal.complete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [actionState]);
+
+  // Clean save: confirm, then close the form and refresh the list behind it.
+  useEffect(() => {
+    if (!actionState.saved) return;
+    toast.success(
+      actionState.saved === "created" ? t("createdToast") : t("updatedToast"),
+    );
+    modal.complete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [actionState]);
+
   useEffect(() => {
     if (!actionState.field) return;
     // Hidden/aggregate fields that live outside a step container map to their step.
@@ -371,6 +394,11 @@ export function EventFormPage({
       {isEdit && event && (
         <input type="hidden" name="id" value={String(event.camporee_event_id)} />
       )}
+      <input
+        type="hidden"
+        name={RUBRICS_INITIALLY_CONFIGURED_FIELD}
+        value={String(initialRubrics.length > 0 || event?.scoring_enabled === true)}
+      />
       <input type="hidden" name="display_category" value={category} />
       <input type="hidden" name="status" value={isEdit ? status : "programado"} />
       <input type="hidden" name="day_number" value={String(dayNumber)} />

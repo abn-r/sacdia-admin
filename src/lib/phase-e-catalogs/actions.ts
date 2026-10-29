@@ -9,7 +9,6 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
   CATALOG_LOCALES,
@@ -47,10 +46,15 @@ import {
   type MasterHonorApplicabilityScope,
 } from "@/lib/api/phase-e-catalogs";
 import { parseClassConfigFormData } from "@/lib/classes/class-config";
+import { buildFinanceCategoryExtra } from "@/lib/phase-e-catalogs/finance-category-type";
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
-export type PhaseEActionState = { error?: string };
+/**
+ * `success` lets the client close the dialog and confirm with a toast; the
+ * actions no longer redirect, so filters and pagination survive a save.
+ */
+export type PhaseEActionState = { error?: string; success?: boolean };
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -364,6 +368,7 @@ function makeActions(
     delete: (id: number) => Promise<unknown>;
   },
   hasDescription = true,
+  buildExtra?: (formData: FormData, mode: "create" | "update") => Record<string, unknown>,
 ) {
   async function createAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
@@ -374,12 +379,15 @@ function makeActions(
       const payload = hasDescription
         ? buildTranslatableCreate(formData)
         : buildNameOnlyCreate(formData);
-      await api.create(payload as Record<string, unknown>);
+      await api.create({
+        ...(payload as Record<string, unknown>),
+        ...(buildExtra ? buildExtra(formData, "create") : {}),
+      });
     } catch (error) {
       return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: routePath }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   async function updateAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -393,28 +401,31 @@ function makeActions(
       const payload = hasDescription
         ? buildTranslatableUpdate(formData)
         : buildNameOnlyUpdate(formData);
-      await api.update(id, payload);
+      await api.update(id, {
+        ...payload,
+        ...(buildExtra ? buildExtra(formData, "update") : {}),
+      });
     } catch (error) {
       return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   async function deleteAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
     const user = await requireAdminUser();
     if (!canCapability(user, screenId, "delete")) {
-      return { error: "Sin permisos para eliminar." };
+      return { error: "Sin permisos para desactivar." };
     }
     const id = parsePositiveInt(formData, "id");
-    if (!id) return { error: "No se pudo identificar el registro a eliminar." };
+    if (!id) return { error: "No se pudo identificar el registro a desactivar." };
     try {
       await api.delete(id);
     } catch (error) {
-      return { error: getActionErrorMessage(error, "No se pudo eliminar el registro.", { endpointLabel: `${routePath}/${id}` }) };
+      return { error: getActionErrorMessage(error, "No se pudo desactivar el registro.", { endpointLabel: `${routePath}/${id}` }) };
     }
     revalidatePath(routePath);
-    redirect(routePath);
+    return { success: true };
   }
 
   return { createAction, updateAction, deleteAction };
@@ -441,7 +452,7 @@ export async function createClassAction(_: PhaseEActionState, formData: FormData
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/classes" }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
-  redirect("/dashboard/catalogs/classes");
+  return { success: true };
 }
 
 export async function updateClassAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -465,7 +476,7 @@ export async function updateClassAction(_: PhaseEActionState, formData: FormData
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/classes/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/classes");
-  redirect("/dashboard/catalogs/classes");
+  return { success: true };
 }
 
 const classDeleteActions = makeActions(
@@ -499,7 +510,7 @@ export async function createClassModuleAction(_: PhaseEActionState, formData: Fo
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-modules" }) };
   }
   revalidatePath("/dashboard/catalogs/class-modules");
-  redirect("/dashboard/catalogs/class-modules");
+  return { success: true };
 }
 
 export async function updateClassModuleAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -520,7 +531,7 @@ export async function updateClassModuleAction(_: PhaseEActionState, formData: Fo
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-modules/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/class-modules");
-  redirect("/dashboard/catalogs/class-modules");
+  return { success: true };
 }
 
 const classModuleDeleteActions = makeActions(
@@ -554,7 +565,7 @@ export async function createClassSectionAction(_: PhaseEActionState, formData: F
     return { error: getActionErrorMessage(error, "No se pudo crear el registro.", { endpointLabel: "/admin/class-sections" }) };
   }
   revalidatePath("/dashboard/catalogs/class-sections");
-  redirect("/dashboard/catalogs/class-sections");
+  return { success: true };
 }
 
 export async function updateClassSectionAction(_: PhaseEActionState, formData: FormData): Promise<PhaseEActionState> {
@@ -575,7 +586,7 @@ export async function updateClassSectionAction(_: PhaseEActionState, formData: F
     return { error: getActionErrorMessage(error, "No se pudo actualizar el registro.", { endpointLabel: `/admin/class-sections/${id}` }) };
   }
   revalidatePath("/dashboard/catalogs/class-sections");
-  redirect("/dashboard/catalogs/class-sections");
+  return { success: true };
 }
 
 const classSectionDeleteActions = makeActions(
@@ -601,7 +612,8 @@ const finCatActions = makeActions(
     update: (id, p) => updateAdminFinanceCategory(id, p),
     delete: (id) => deleteAdminFinanceCategory(id),
   },
-  false, // name only
+  false, // name only (+ mandatory `type`, see buildFinanceCategoryExtra)
+  buildFinanceCategoryExtra,
 );
 
 export const createFinanceCategoryAction = finCatActions.createAction;
@@ -681,7 +693,7 @@ export async function createMasterHonorAction(
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function updateMasterHonorAction(
@@ -708,7 +720,7 @@ export async function updateMasterHonorAction(
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function deleteMasterHonorAction(
@@ -717,7 +729,7 @@ export async function deleteMasterHonorAction(
 ): Promise<PhaseEActionState> {
   const user = await requireAdminUser();
   if (!canCapability(user, "catalogs-master-honors", "delete")) {
-    return { error: "Sin permisos para eliminar." };
+    return { error: "Sin permisos para desactivar." };
   }
 
   const id = parsePositiveInt(formData, "id");
@@ -727,14 +739,14 @@ export async function deleteMasterHonorAction(
     await deleteAdminMasterHonor(id);
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+      error: getActionErrorMessage(error, "No se pudo desactivar el registro.", {
         endpointLabel: `/admin/master-honors/${id}`,
       }),
     };
   }
 
   revalidatePath("/dashboard/catalogs/master-honors");
-  redirect("/dashboard/catalogs/master-honors");
+  return { success: true };
 }
 
 export async function recalculateMasterHonorAction(

@@ -16,7 +16,6 @@
  */
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -73,7 +72,11 @@ import {
 
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
-export type GenericCatalogActionState = { error?: string };
+/**
+ * `success` lets the client close the dialog and confirm with a toast; the
+ * actions no longer redirect, so filters and pagination survive a save.
+ */
+export type GenericCatalogActionState = { error?: string; success?: boolean };
 
 // ─── Generic factory ───────────────────────────────────────────────────────────
 
@@ -84,7 +87,7 @@ type CatalogScreenId = string;
  * Factory that generates (createAction, updateAction, deleteAction) for a
  * given catalog route.
  *
- * @param routePath         Dashboard path — used for revalidatePath + redirect
+ * @param routePath         Dashboard path — used for revalidatePath
  * @param screenId          Screen catalog id — gates copy the API (`create` / `update` / `delete`)
  * @param api               Object with create / update / delete async fns
  * @param hasDescription    When false, uses name-only builders (ignores translatableFields)
@@ -94,6 +97,8 @@ type CatalogScreenId = string;
  * @param customFormFields  Optional function that extracts additional fields from
  *   FormData and merges them into the payload. Used by club-ideals to pick up
  *   club_type_id and ideal_order which the standard builders don't extract.
+ * @param extraRevalidatePaths  Other pages that list the same catalog (revalidated
+ *   together with `routePath`, since the actions no longer redirect).
  */
 function makeActions(
   routePath: string,
@@ -106,7 +111,13 @@ function makeActions(
   hasDescription = true,
   translatableFields: TranslatableField[] = ["name", "description"],
   customFormFields?: (formData: FormData) => Record<string, unknown>,
+  extraRevalidatePaths: string[] = [],
 ) {
+  function revalidateCatalog() {
+    revalidatePath(routePath);
+    for (const path of extraRevalidatePaths) revalidatePath(path);
+  }
+
   async function createAction(
     _: GenericCatalogActionState,
     formData: FormData,
@@ -130,8 +141,8 @@ function makeActions(
         }),
       };
     }
-    revalidatePath(routePath);
-    redirect(routePath);
+    revalidateCatalog();
+    return { success: true };
   }
 
   async function updateAction(
@@ -159,8 +170,8 @@ function makeActions(
         }),
       };
     }
-    revalidatePath(routePath);
-    redirect(routePath);
+    revalidateCatalog();
+    return { success: true };
   }
 
   async function deleteAction(
@@ -169,21 +180,21 @@ function makeActions(
   ): Promise<GenericCatalogActionState> {
     const user = await requireAdminUser();
     if (!canCapability(user, screenId, "delete")) {
-      return { error: "Sin permisos para eliminar." };
+      return { error: "Sin permisos para desactivar." };
     }
     const id = parsePositiveInt(formData, "id");
-    if (!id) return { error: "No se pudo identificar el registro a eliminar." };
+    if (!id) return { error: "No se pudo identificar el registro a desactivar." };
     try {
       await api.delete(id);
     } catch (error) {
       return {
-        error: getActionErrorMessage(error, "No se pudo eliminar el registro.", {
+        error: getActionErrorMessage(error, "No se pudo desactivar el registro.", {
           endpointLabel: `${routePath}/${id}`,
         }),
       };
     }
-    revalidatePath(routePath);
-    redirect(routePath);
+    revalidateCatalog();
+    return { success: true };
   }
 
   return { createAction, updateAction, deleteAction };
@@ -535,6 +546,11 @@ const camporeeEventTypesActions = makeActions(
   true, // name + description translatable
   ["name", "description"],
   extractCamporeeEventTypeExtraFields,
+  // The event types are also managed from the camporee configuration pages.
+  [
+    "/dashboard/campamentos/configuracion/campo-local",
+    "/dashboard/campamentos/configuracion/union",
+  ],
 );
 
 export const createCamporeeEventTypeAction = camporeeEventTypesActions.createAction;

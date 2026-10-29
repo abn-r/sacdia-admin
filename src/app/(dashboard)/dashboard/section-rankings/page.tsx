@@ -13,6 +13,7 @@ import {
   type SectionRankingsQuery,
 } from "@/lib/api/section-rankings";
 import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
+import { getClubById } from "@/lib/api/clubs";
 import { requireAdminUser } from "@/lib/auth/session";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -115,8 +116,19 @@ async function SectionRankingsContent({
     );
   }
 
+  const fallbackClubName = query.club_id
+    ? await getClubById(query.club_id)
+        .then((club) => {
+          const name = (club as { data?: { name?: unknown }; name?: unknown } | null);
+          const value = name?.data?.name ?? name?.name;
+          return typeof value === "string" ? value : null;
+        })
+        .catch(() => null)
+    : null;
+
   return (
     <SectionRankingsTable
+      fallbackClubName={fallbackClubName}
       data={result.items}
       total={result.total}
       page={result.page}

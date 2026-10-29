@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ecclesiasticalYearLabelFromDates,
   resolveTemplateYearLabel,
+  resolveYearLabelById,
 } from "./ecclesiastical-year-label";
 
 const fallback = (id: number) => `Año ${id}`;
@@ -63,5 +64,24 @@ describe("resolveTemplateYearLabel", () => {
     expect(
       resolveTemplateYearLabel({ ecclesiastical_year_id: 7 }, [], fallback),
     ).toBe("Año 7");
+  });
+});
+
+describe("resolveYearLabelById", () => {
+  const years = [
+    { ecclesiastical_year_id: 1, name: "2026", start_date: "2026-01-01", end_date: "2026-12-31" },
+    { ecclesiastical_year_id: 2, name: " ", start_date: "2026-07-01", end_date: "2027-06-30" },
+  ];
+
+  it("uses the catalog name", () => {
+    expect(resolveYearLabelById(years, 1)).toBe("2026");
+  });
+
+  it("derives the label from the dates when the name is empty", () => {
+    expect(resolveYearLabelById(years, 2)).toBe("2026-2027");
+  });
+
+  it("returns null for a year that is not in the catalog", () => {
+    expect(resolveYearLabelById(years, 9)).toBeNull();
   });
 });

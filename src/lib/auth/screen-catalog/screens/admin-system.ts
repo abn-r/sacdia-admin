@@ -47,8 +47,12 @@ export const adminSystemScreens: ScreenDefinition[] = [
     ],
   },
 
+  // `/divisions/scoring-categories` is `@GlobalRoles('admin', 'super-admin')` +
+  // `scoring_categories:read`. Field roles hold the permission but the API
+  // rejects them, so the page needs the role too.
   viewOnlyScreen("admin-settings-scoring-categories", {
     permissions: [SCORING_CATEGORIES_READ],
+    roles: [...CATALOG_EDITOR_ROLES],
   }),
 
   viewOnlyScreen("admin-system-variables", roleOnlyAccess(CATALOG_EDITOR_ROLES)),

@@ -132,3 +132,37 @@ describe("CronHistoryClient - job labels and filter", () => {
     expect(within(row).getAllByText("brand-new-job")).toHaveLength(2);
   });
 });
+
+describe("CronHistoryClient - row menus and detail dialog", () => {
+  afterEach(() => cleanup());
+
+  it("names each row menu with the readable job label and its start time", () => {
+    renderHistory();
+    const triggers = screen.getAllByRole("button", { name: /^Acciones de / });
+    expect(triggers).toHaveLength(2);
+    const names = triggers.map((el) => el.getAttribute("aria-label"));
+    expect(new Set(names).size).toBe(2);
+    for (const name of names) {
+      expect(name).not.toContain("rankings-recalculate");
+      expect(name).not.toContain("fcm-tokens-cleanup");
+    }
+    expect(names[0]).toContain("Clasificaciones anuales (recalcular)");
+    expect(names[1]).toContain("Limpieza de tokens FCM huérfanos");
+  });
+
+  it("opens a Spanish detail dialog without leftover English labels", async () => {
+    const user = userEvent.setup();
+    renderHistory();
+    const [firstTrigger] = screen.getAllByRole("button", { name: /^Acciones de / });
+    await user.click(firstTrigger as HTMLElement);
+    await user.click(await screen.findByRole("menuitem", { name: "Ver" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Detalles de la ejecución #10")).toBeInTheDocument();
+    expect(within(dialog).getByText("Estado")).toBeInTheDocument();
+    expect(within(dialog).queryByText("Status")).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByText("Ejecución de la tarea Clasificaciones anuales (recalcular)"),
+    ).toBeInTheDocument();
+  });
+});

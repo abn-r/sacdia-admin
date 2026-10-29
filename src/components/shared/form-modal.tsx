@@ -10,11 +10,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Check, X } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/page-header";
 import { cn } from "@/lib/utils";
 
 /** Matches the dialog exit duration so the route pops after the close animation. */
@@ -128,6 +130,55 @@ export function RouteFormModal({
         <FormModalContext.Provider value={value}>{children}</FormModalContext.Provider>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Full-page frame for a create/edit form: the page itself is the form (header
+ * with a way back, card with the form) instead of a modal over another page.
+ *
+ * Use it for routes that are opened by URL (bookmark, refresh, shared link):
+ * it renders the form on its own, with nothing underneath to load or fail, and
+ * `useFormModal` inside resolves to plain navigation to `backHref`.
+ */
+export function FormPageFrame({
+  title,
+  description,
+  backHref,
+  backLabel,
+  children,
+}: FrameProps & { backHref: string; backLabel: string }) {
+  const router = useRouter();
+
+  const value = useMemo(
+    () => ({
+      inModal: false,
+      close: () => router.push(backHref),
+      complete: () => {
+        router.push(backHref);
+        router.refresh();
+      },
+    }),
+    [router, backHref],
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-3xl space-y-4">
+      <div className="space-y-2">
+        <Button asChild variant="ghost" size="sm" className="-ml-2">
+          <Link href={backHref}>
+            <ArrowLeft aria-hidden="true" />
+            {backLabel}
+          </Link>
+        </Button>
+        <PageHeader title={title} description={description} />
+      </div>
+      <FormModalContext.Provider value={value}>
+        <div className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-card">
+          {children}
+        </div>
+      </FormModalContext.Provider>
+    </div>
   );
 }
 

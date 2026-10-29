@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useId, useState, useMemo, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -52,13 +52,7 @@ type KpiData = {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const DAYS_OPTIONS = [
-  { label: "7 días", value: "7" },
-  { label: "15 días", value: "15" },
-  { label: "30 días", value: "30" },
-  { label: "60 días", value: "60" },
-  { label: "90 días", value: "90" },
-] as const;
+const DAYS_OPTIONS = [7, 15, 30, 60, 90] as const;
 
 const PAGE_SIZE = 20;
 
@@ -235,6 +229,7 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
+  const daysFilterId = useId();
 
   const [sortField, setSortField] = useState<SortField>("days_remaining");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -307,18 +302,23 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{t("expiring.filter_label")}</span>
+          <label
+            htmlFor={daysFilterId}
+            className="text-sm text-muted-foreground"
+          >
+            {t("expiring.filter_label")}
+          </label>
           <Select
             value={String(daysAhead)}
             onValueChange={handleDaysChange}
           >
-            <SelectTrigger className="h-9 w-32">
+            <SelectTrigger id={daysFilterId} className="h-9 w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {DAYS_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+              {DAYS_OPTIONS.map((days) => (
+                <SelectItem key={days} value={String(days)}>
+                  {t("expiring.days_option", { days })}
                 </SelectItem>
               ))}
             </SelectContent>

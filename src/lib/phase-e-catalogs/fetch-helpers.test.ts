@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   extractItems,
   extractMeta,
+  paginateInMemory,
+  paginateLoadedItems,
   readParam,
   readPositiveNumberParam,
 } from "./fetch-helpers";
@@ -116,5 +118,93 @@ describe("readPositiveNumberParam()", () => {
 
   it("returns undefined for a missing key", () => {
     expect(readPositiveNumberParam({}, "page")).toBeUndefined();
+  });
+});
+
+// ─── paginateInMemory ─────────────────────────────────────────────────────────
+
+const rows = (n: number) => Array.from({ length: n }, (_, i) => ({ id: i + 1 }));
+
+describe("paginateInMemory()", () => {
+  it("returns only the rows of the requested page", () => {
+    const result = paginateInMemory(rows(384), 2, 20);
+    expect(result.items).toHaveLength(20);
+    expect(result.items[0]).toEqual({ id: 21 });
+    expect(result.items[19]).toEqual({ id: 40 });
+    expect(result.meta).toEqual({ page: 2, limit: 20, total: 384, totalPages: 20 });
+  });
+
+  it("returns a short last page", () => {
+    const result = paginateInMemory(rows(45), 3, 20);
+    expect(result.items.map((r) => r.id)).toEqual([41, 42, 43, 44, 45]);
+    expect(result.meta.totalPages).toBe(3);
+  });
+
+  it("clamps a page beyond the end to the last page", () => {
+    const result = paginateInMemory(rows(45), 99, 20);
+    expect(result.meta.page).toBe(3);
+    expect(result.items).toHaveLength(5);
+  });
+
+  it("clamps page and limit to sane minimums", () => {
+    const result = paginateInMemory(rows(3), 0, 0);
+    expect(result.meta).toEqual({ page: 1, limit: 1, total: 3, totalPages: 3 });
+    expect(result.items).toEqual([{ id: 1 }]);
+  });
+
+  it("handles an empty list", () => {
+    const result = paginateInMemory([], 1, 20);
+    expect(result.items).toEqual([]);
+    expect(result.meta).toEqual({ page: 1, limit: 20, total: 0, totalPages: 1 });
+  });
+});
+
+// ─── paginateLoadedItems ──────────────────────────────────────────────────────
+
+describe("paginateLoadedItems()", () => {
+  it("cuts the page when the API ignored page/limit and returned a bare list", () => {
+    const all = rows(384);
+    const result = paginateLoadedItems(all, all, 1, 20);
+    expect(result.items).toHaveLength(20);
+    expect(result.meta).toEqual({ page: 1, limit: 20, total: 384, totalPages: 20 });
+  });
+
+  it("cuts the page when the API wraps the full list in data without meta", () => {
+    const all = rows(99);
+    const result = paginateLoadedItems(all, { data: all }, 5, 20);
+    expect(result.items.map((r) => r.id)).toEqual([81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]);
+    expect(result.meta.page).toBe(5);
+    expect(result.meta.totalPages).toBe(5);
+  });
+
+  it("cuts the page when the API reports a total equal to the full list it returned", () => {
+    const all = rows(60);
+    const result = paginateLoadedItems(all, { data: all, meta: { total: 60 } }, 2, 20);
+    expect(result.items[0]).toEqual({ id: 21 });
+    expect(result.items).toHaveLength(20);
+  });
+
+  it("passes server-paginated responses through untouched", () => {
+    const pageItems = rows(20);
+    const payload = { data: pageItems, meta: { page: 3, limit: 20, total: 384, totalPages: 20 } };
+    const result = paginateLoadedItems(pageItems, payload, 3, 20);
+    expect(result.items).toBe(pageItems);
+    expect(result.meta).toEqual({ page: 3, limit: 20, total: 384, totalPages: 20 });
+  });
+
+  it("keeps a short list intact", () => {
+    const all = rows(7);
+    const result = paginateLoadedItems(all, all, 1, 20);
+    expect(result.items).toHaveLength(7);
+    expect(result.meta).toEqual({ page: 1, limit: 20, total: 7, totalPages: 1 });
+  });
+
+  it("paginates the filtered list, not the raw payload", () => {
+    const raw = rows(100);
+    const filtered = raw.filter((r) => r.id % 2 === 0); // 50 rows after a local filter
+    const result = paginateLoadedItems(filtered, raw, 1, 20);
+    expect(result.meta.total).toBe(50);
+    expect(result.meta.totalPages).toBe(3);
+    expect(result.items).toHaveLength(20);
   });
 });

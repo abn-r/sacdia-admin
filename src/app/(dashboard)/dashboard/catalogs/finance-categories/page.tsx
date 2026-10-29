@@ -28,10 +28,14 @@ const PhaseECatalogCrudPage = dynamic(
 );
 import { ApiError } from "@/lib/api/client";
 import { listAdminFinanceCategories } from "@/lib/api/phase-e-catalogs";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
+import {
+  FINANCE_CATEGORY_TYPE_EXPENSE,
+  FINANCE_CATEGORY_TYPE_INCOME,
+} from "@/lib/phase-e-catalogs/finance-category-type";
 import {
   createFinanceCategoryAction,
   updateFinanceCategoryAction,
@@ -70,7 +74,7 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
 
     const payload = await listAdminFinanceCategories(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");
@@ -90,6 +94,15 @@ export default async function AdminFinanceCategoriesPage({ searchParams }: { sea
         entityLabel={t("entityLabel")}
         emptyIcon={<DollarSign />}
         includeDescription={false}
+        typeField={{
+          name: "type",
+          label: t("typeLabel"),
+          placeholder: t("typePlaceholder"),
+          options: [
+            { value: String(FINANCE_CATEGORY_TYPE_INCOME), label: t("typeIncome") },
+            { value: String(FINANCE_CATEGORY_TYPE_EXPENSE), label: t("typeExpense") },
+          ],
+        }}
         idField="finance_category_id"
         nameField="name"
         items={items}

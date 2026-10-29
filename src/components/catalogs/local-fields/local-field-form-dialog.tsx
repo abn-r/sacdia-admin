@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -69,19 +69,20 @@ export function LocalFieldFormDialog({
   const entity = t("singular");
 
   const action = mode === "create" ? createLocalFieldAction : updateLocalFieldAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [active, setActive] = useState(true);
   const [unionId, setUnionId] = useState("");
   const [timezone, setTimezone] = useState(DEFAULT_LOCAL_FIELD_TIMEZONE);
 
   useEffect(() => {
     if (open) {
+      discard();
       setActive(localField?.active ?? true);
       setUnionId(localField?.union_id ? String(localField.union_id) : "");
       // A field without a zone opens with the default so saving fixes it.
       setTimezone(localField?.timezone ?? DEFAULT_LOCAL_FIELD_TIMEZONE);
     }
-  }, [open, localField]);
+  }, [open, localField, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -127,7 +128,7 @@ export function LocalFieldFormDialog({
               <Input
                 id="local-field-name"
                 name="name"
-                defaultValue={localField?.name ?? ""}
+                defaultValue={retainedValue(values, "name", localField?.name ?? "")}
                 required
                 maxLength={50}
               />
@@ -137,7 +138,7 @@ export function LocalFieldFormDialog({
               <Input
                 id="local-field-abbreviation"
                 name="abbreviation"
-                defaultValue={localField?.abbreviation ?? ""}
+                defaultValue={retainedValue(values, "abbreviation", localField?.abbreviation ?? "")}
                 required
                 maxLength={8}
                 autoComplete="off"

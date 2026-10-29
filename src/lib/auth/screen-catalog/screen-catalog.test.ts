@@ -415,6 +415,27 @@ describe("achievements admin", () => {
   });
 });
 
+describe("scoring categories settings", () => {
+  // /divisions/scoring-categories is @GlobalRoles('admin', 'super-admin') +
+  // scoring_categories:read: field roles holding the permission only get an error.
+  it("needs an admin role on top of scoring_categories:read", () => {
+    for (const role of ["director-union", "assistant-union", "director-lf", "director-dia"]) {
+      const fieldRole = buildUser([role], ["scoring_categories:read"]);
+      expect(canViewScreen(fieldRole, "admin-settings-scoring-categories")).toBe(false);
+    }
+
+    expect(
+      canViewScreen(
+        buildUser(["admin"], ["scoring_categories:read"]),
+        "admin-settings-scoring-categories",
+      ),
+    ).toBe(true);
+    expect(
+      canViewScreen(buildUser(["admin"], []), "admin-settings-scoring-categories"),
+    ).toBe(false);
+  });
+});
+
 describe("materials and camporees", () => {
   it("gates material verbs by their own keys (permission-only module)", () => {
     const approver = buildUser(["coordinator"], ["materiales:read", "materiales:approve"]);

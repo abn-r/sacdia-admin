@@ -1,5 +1,6 @@
 "use client";
 
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -48,7 +49,9 @@ export function ScoringCategoryDeleteDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.delete_failed");
+        getActionErrorMessage(err, t("errors.delete_failed"), {
+          endpointLabel: "/scoring-categories",
+        });
       toast.error(message);
     } finally {
       setIsDeleting(false);

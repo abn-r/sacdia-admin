@@ -4,9 +4,9 @@ import { ApiError } from "@/lib/api/client";
 import { listCamporeeEventTemplates } from "@/lib/api/camporee-events";
 import {
   extractItems,
-  extractMeta,
   readParam,
   readPositiveNumberParam,
+  paginateLoadedItems,
 } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -49,7 +49,7 @@ export default async function EventTemplatesPage({
 
     const payload = await listCamporeeEventTemplates(params);
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 429)) {
       loadError = error instanceof ApiError ? error.message : t("loadError");

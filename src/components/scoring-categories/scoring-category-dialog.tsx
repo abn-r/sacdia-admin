@@ -1,5 +1,6 @@
 "use client";
 
+import { getActionErrorMessage } from "@/lib/api/action-error";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -132,7 +133,9 @@ export function ScoringCategoryDialog({
       onOpenChange(false);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : t("errors.save_failed");
+        getActionErrorMessage(err, t("errors.save_failed"), {
+          endpointLabel: "/scoring-categories",
+        });
       toast.error(message);
     } finally {
       setIsSubmitting(false);

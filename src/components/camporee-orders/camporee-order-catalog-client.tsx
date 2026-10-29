@@ -26,6 +26,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { useAuth } from "@/lib/auth/auth-context";
 import { canCapability } from "@/lib/auth/screen-catalog";
@@ -80,6 +90,8 @@ export function CamporeeOrderCatalogClient() {
     null,
   );
   const [saving, setSaving] = useState(false);
+  const [deactivateTarget, setDeactivateTarget] =
+    useState<CamporeeOrderProduct | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -201,18 +213,19 @@ export function CamporeeOrderCatalogClient() {
     }
   };
 
-  const deactivate = async (product: CamporeeOrderProduct) => {
+  const setProductActive = async (product: CamporeeOrderProduct, active: boolean) => {
     setSaving(true);
     try {
       await updateCamporeeOrderProduct(product.camporee_order_product_id, {
-        active: false,
+        active,
       });
-      toast.success(t("catalog.deactivated"));
+      toast.success(t(active ? "catalog.activated" : "catalog.deactivated"));
       await load();
     } catch (error) {
       toast.error(getCamporeeOrderUiErrorMessage(error, t));
     } finally {
       setSaving(false);
+      setDeactivateTarget(null);
     }
   };
 
@@ -272,38 +285,57 @@ export function CamporeeOrderCatalogClient() {
                     <td className="px-3 py-2">
                       {ownerScopeLabel(product.owner_scope, t)}
                     </td>
-                    <td className="px-3 py-2">{product.size_scheme}</td>
+                    <td className="px-3 py-2">
+                      {t(`catalog.sizeScheme.${product.size_scheme}`)}
+                    </td>
                     <td className="px-3 py-2">
                       {product.options.filter((o) => o.active).length}
                     </td>
                     <td className="px-3 py-2">
-                      {!editable && (
-                        <Badge variant="secondary">{t("catalog.readOnly")}</Badge>
-                      )}
-                      {!product.active && (
-                        <StatusBadge intent={flagStatusIntent(false)} label={t("catalog.inactive")} />
-                      )}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <StatusBadge
+                          intent={flagStatusIntent(product.active)}
+                          label={t(product.active ? "catalog.active" : "catalog.inactive")}
+                        />
+                        {!editable && (
+                          <Badge variant="secondary">{t("catalog.readOnly")}</Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2 text-right">
-                      {editable && canManage && product.active ? (
+                      {editable && canManage ? (
                         <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => openEdit(product)}
-                          >
-                            {t("catalog.edit")}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            disabled={saving}
-                            onClick={() => void deactivate(product)}
-                          >
-                            {t("catalog.deactivate")}
-                          </Button>
+                          {product.active ? (
+                            <>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => openEdit(product)}
+                              >
+                                {t("catalog.edit")}
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                disabled={saving}
+                                onClick={() => setDeactivateTarget(product)}
+                              >
+                                {t("catalog.deactivate")}
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              disabled={saving}
+                              onClick={() => void setProductActive(product, true)}
+                            >
+                              {t("catalog.activate")}
+                            </Button>
+                          )}
                         </div>
                       ) : null}
                     </td>
@@ -314,6 +346,37 @@ export function CamporeeOrderCatalogClient() {
           </table>
         </div>
       )}
+
+      <AlertDialog
+        open={deactivateTarget != null}
+        onOpenChange={(open) => {
+          if (!open && !saving) setDeactivateTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("catalog.deactivateConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("catalog.deactivateConfirmDescription", {
+                title: deactivateTarget?.title ?? "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>{t("detail.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              loading={saving}
+              variant="destructive-solid"
+              onClick={(event) => {
+                event.preventDefault();
+                if (deactivateTarget) void setProductActive(deactivateTarget, false);
+              }}
+            >
+              {t("catalog.deactivate")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent aria-describedby={undefined}>

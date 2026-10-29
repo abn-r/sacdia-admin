@@ -48,6 +48,7 @@ import {
   type SortDirection,
 } from "@/components/shared/sortable-header";
 import { recalculateRankings } from "@/lib/api/annual-folders";
+import { readRecalculateOutcome } from "@/lib/annual-folders/recalculate-result";
 import {
   listAnnualRankingsFromClient,
   type AnnualRankingComponentProgress,
@@ -246,10 +247,22 @@ export function RankingsClientPage({
     setIsRecalculating(true);
     try {
       const result = await recalculateRankings(selectedYearId);
-      toast.success(
-        result.message ??
-          t("toasts.rankings_recalculated", { count: result.rankings_updated }),
-      );
+      const outcome = readRecalculateOutcome(result);
+      switch (outcome.kind) {
+        case "queued":
+          toast.success(t("toasts.rankings_recalc_queued"));
+          break;
+        case "skipped":
+          toast.warning(t("toasts.rankings_recalc_skipped"));
+          break;
+        case "updated":
+          toast.success(
+            t("toasts.rankings_recalculated", { count: outcome.count }),
+          );
+          break;
+        default:
+          toast.success(t("toasts.rankings_recalculated_generic"));
+      }
       setRecalcOpen(false);
       await handleSearch();
     } catch (err) {

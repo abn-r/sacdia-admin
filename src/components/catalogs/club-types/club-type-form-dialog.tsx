@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -54,12 +54,15 @@ export function ClubTypeFormDialog({
   const entity = t("entities.club-types.singular");
 
   const action = mode === "create" ? createClubTypeAction : updateClubTypeAction;
-  const [state, formAction] = useActionState(action, initialState);
+  const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
   const [active, setActive] = useState(true);
 
   useEffect(() => {
-    if (open) setActive(clubType?.active ?? true);
-  }, [open, clubType]);
+    if (open) {
+      discard();
+      setActive(clubType?.active ?? true);
+    }
+  }, [open, clubType, discard]);
 
   useEffect(() => {
     if (state.ok) {
@@ -102,7 +105,7 @@ export function ClubTypeFormDialog({
               <Input
                 id="club-type-name"
                 name="name"
-                defaultValue={clubType?.name ?? ""}
+                defaultValue={retainedValue(values, "name", clubType?.name ?? "")}
                 required
                 maxLength={50}
               />

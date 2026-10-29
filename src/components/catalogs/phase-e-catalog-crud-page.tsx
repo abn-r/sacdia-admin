@@ -85,6 +85,12 @@ import { useFormStatus } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import {
+  retainedValue,
+  useRetainedActionState,
+  type SubmittedValues,
+} from "@/hooks/use-retained-action-state";
 import {
   MasterHonorRulesEditor,
   type MasterHonorAuxCategory,
@@ -134,6 +140,15 @@ export type ClassClubTypeOption = {
   name: string;
 };
 
+/** Mandatory select persisted on the record itself (e.g. finance category type). */
+export type CatalogTypeField = {
+  /** FormData key and record property (e.g. "type"). */
+  name: string;
+  label: string;
+  placeholder: string;
+  options: Array<{ value: string; label: string }>;
+};
+
 export interface PhaseECatalogCrudPageProps {
   /** Page title shown in PageHeader */
   title: string;
@@ -173,6 +188,13 @@ export interface PhaseECatalogCrudPageProps {
   detailPathPrefix?: string;
   /** Optional master-honors extras to render rule controls and recalc action. */
   masterHonorsConfig?: MasterHonorsCrudExtras;
+  /** Adds a required select (form field + list column), e.g. income/expense. */
+  typeField?: CatalogTypeField;
+  /**
+   * Render inside another page that already owns the page header: no title/H1,
+   * just the create button above the list.
+   */
+  embedded?: boolean;
 }
 
 // ─── SubmitButton ─────────────────────────────────────────────────────────────
@@ -218,6 +240,16 @@ interface FormFieldsProps {
   masterHonorsConfig?: MasterHonorsCrudExtras;
   masterHonorsPayload?: MasterHonorPayload;
   onMasterHonorsPayloadChange?: (value: MasterHonorPayload) => void;
+  typeField?: CatalogTypeField;
+  /** Values the server rejected: shown again instead of the record's own values. */
+  values?: SubmittedValues;
+}
+
+/** Resolves the stored value of a type field (0 is a valid value) to its select key. */
+export function resolveTypeFieldValue(raw: unknown): string {
+  if (typeof raw === "number" && Number.isFinite(raw)) return String(raw);
+  if (typeof raw === "string" && raw.trim() !== "") return raw.trim();
+  return "";
 }
 
 function CatalogFormFields({
@@ -236,10 +268,16 @@ function CatalogFormFields({
   masterHonorsConfig,
   masterHonorsPayload,
   onMasterHonorsPayloadChange,
+  typeField,
+  values,
 }: FormFieldsProps) {
   const t = useTranslations("catalogs.phaseE");
-  const nameVal = typeof item?.name === "string" ? item.name : "";
-  const descVal = typeof item?.description === "string" ? item.description : "";
+  const nameVal = retainedValue(values, "name", typeof item?.name === "string" ? item.name : "");
+  const descVal = retainedValue(
+    values,
+    "description",
+    typeof item?.description === "string" ? item.description : "",
+  );
   const showClassConfig = Array.isArray(classConfigYearOptions);
   const showClubType = Array.isArray(classClubTypeOptions) && classClubTypeOptions.length > 0;
   const showClassSectionModule =
@@ -248,13 +286,28 @@ function CatalogFormFields({
     !showClassSectionModule &&
     Array.isArray(classModuleParentOptions) &&
     classModuleParentOptions.length > 0;
-  const clubTypeVal = toPositiveInt(item?.club_type_id);
-  const classVal = toPositiveInt(item?.class_id);
-  const moduleVal = toPositiveInt(item?.module_id);
-  const availableFromVal = toPositiveInt(item?.available_from_year_id);
-  const availableUntilVal = toPositiveInt(item?.available_until_year_id);
-  const minDurationVal = toPositiveInt(item?.min_duration_years) ?? 1;
-  const maxDurationVal = toPositiveInt(item?.max_duration_years) ?? 1;
+  const typeVal = typeField
+    ? retainedValue(values, typeField.name, resolveTypeFieldValue(item?.[typeField.name]))
+    : "";
+  const clubTypeVal = retainedValue(values, "club_type_id", String(toPositiveInt(item?.club_type_id) ?? ""));
+  const classVal = retainedValue(values, "class_id", String(toPositiveInt(item?.class_id) ?? ""));
+  const moduleVal = retainedValue(values, "module_id", String(toPositiveInt(item?.module_id) ?? ""));
+  const availableFromVal = toPositiveInt(
+    retainedValue(values, "available_from_year_id", String(toPositiveInt(item?.available_from_year_id) ?? "")),
+  );
+  const availableUntilVal = toPositiveInt(
+    retainedValue(values, "available_until_year_id", String(toPositiveInt(item?.available_until_year_id) ?? "")),
+  );
+  const minDurationVal = retainedValue(
+    values,
+    "min_duration_years",
+    String(toPositiveInt(item?.min_duration_years) ?? 1),
+  );
+  const maxDurationVal = retainedValue(
+    values,
+    "max_duration_years",
+    String(toPositiveInt(item?.max_duration_years) ?? 1),
+  );
   const yearOptions = [...(classConfigYearOptions ?? [])];
   for (const yearId of [availableFromVal, availableUntilVal]) {
     if (yearId && !yearOptions.some((year) => year.ecclesiastical_year_id === yearId)) {
@@ -290,15 +343,39 @@ function CatalogFormFields({
         </div>
       )}
 
+      {typeField && (
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}-${typeField.name}`}>
+            {typeField.label} <span className="text-destructive">*</span>
+          </Label>
+          <select
+            key={`${typeField.name}-${typeVal}`}
+            id={`${idPrefix}-${typeField.name}`}
+            name={typeField.name}
+            defaultValue={typeVal}
+            required
+            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">{typeField.placeholder}</option>
+            {typeField.options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {showClassSectionModule && (
         <div className="space-y-2">
           <Label htmlFor={`${idPrefix}-module-id`}>
             {t("fieldModule")} <span className="text-destructive">*</span>
           </Label>
           <select
+            key={`module-${moduleVal}`}
             id={`${idPrefix}-module-id`}
             name="module_id"
-            defaultValue={moduleVal ? String(moduleVal) : ""}
+            defaultValue={moduleVal}
             required
             className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -318,9 +395,10 @@ function CatalogFormFields({
             {t("fieldClass")} <span className="text-destructive">*</span>
           </Label>
           <select
+            key={`class-${classVal}`}
             id={`${idPrefix}-class-id`}
             name="class_id"
-            defaultValue={classVal ? String(classVal) : ""}
+            defaultValue={classVal}
             required
             className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -340,9 +418,10 @@ function CatalogFormFields({
             {t("fieldClubType")} <span className="text-destructive">*</span>
           </Label>
           <select
+            key={`club-type-${clubTypeVal}`}
             id={`${idPrefix}-club-type`}
             name="club_type_id"
-            defaultValue={clubTypeVal ? String(clubTypeVal) : ""}
+            defaultValue={clubTypeVal}
             required
             className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -368,6 +447,7 @@ function CatalogFormFields({
                 {t("fieldAvailableFromYear")}
               </Label>
               <select
+                key={`available-from-${availableFromVal ?? ""}`}
                 id={`${idPrefix}-available-from`}
                 name="available_from_year_id"
                 defaultValue={availableFromVal ? String(availableFromVal) : ""}
@@ -390,6 +470,7 @@ function CatalogFormFields({
                 {t("fieldAvailableUntilYear")}
               </Label>
               <select
+                key={`available-until-${availableUntilVal ?? ""}`}
                 id={`${idPrefix}-available-until`}
                 name="available_until_year_id"
                 defaultValue={availableUntilVal ? String(availableUntilVal) : ""}
@@ -709,6 +790,8 @@ export function PhaseECatalogCrudPage({
   classSectionModuleOptions,
   detailPathPrefix,
   masterHonorsConfig,
+  typeField,
+  embedded = false,
 }: PhaseECatalogCrudPageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -728,13 +811,44 @@ export function PhaseECatalogCrudPage({
   const [createMasterHonorsPayload, setCreateMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
   const [editMasterHonorsPayload, setEditMasterHonorsPayload] = useState<MasterHonorPayload>(EMPTY_MASTER_HONOR_PAYLOAD);
 
-  const [createState, createFormAction] = useActionState<PhaseEActionState, FormData>(createAction, {});
-  const [updateState, updateFormAction] = useActionState<PhaseEActionState, FormData>(updateAction, {});
+  const {
+    state: createState,
+    formAction: createFormAction,
+    values: createValues,
+    discard: discardCreateValues,
+  } = useRetainedActionState<PhaseEActionState>(createAction, {});
+  const {
+    state: updateState,
+    formAction: updateFormAction,
+    values: updateValues,
+    discard: discardUpdateValues,
+  } = useRetainedActionState<PhaseEActionState>(updateAction, {});
   const [deleteState, deleteFormAction] = useActionState<PhaseEActionState, FormData>(deleteAction, {});
   const [recalculateState, recalculateFormAction] = useActionState<PhaseEActionState, FormData>(
     masterHonorsConfig?.recalculateAction ?? (async () => ({})),
     {},
   );
+
+  const tSuccess = useTranslations("catalogs.success");
+
+  // The actions no longer redirect: confirm and close from the action result.
+  useEffect(() => {
+    if (!createState.success) return;
+    toast.success(tSuccess("op_create_title"), { description: tSuccess("op_create_description") });
+    setCreateOpen(false);
+  }, [createState, tSuccess]);
+
+  useEffect(() => {
+    if (!updateState.success) return;
+    toast.success(tSuccess("op_update_title"), { description: tSuccess("op_update_description") });
+    setEditItem(null);
+  }, [updateState, tSuccess]);
+
+  useEffect(() => {
+    if (!deleteState.success) return;
+    toast.success(tSuccess("op_delete_title"), { description: tSuccess("op_delete_description") });
+    setDeleteItem(null);
+  }, [deleteState, tSuccess]);
 
   const getItemId = (item: AnyRecord): number | null => toPositiveInt(item[idField]);
   const getItemName = (item: AnyRecord): string =>
@@ -996,6 +1110,7 @@ export function PhaseECatalogCrudPage({
   function handleCreateOpen(open: boolean) {
     setCreateOpen(open);
     if (open) {
+      discardCreateValues();
       setCreateActiveChecked(true);
       setCreateTranslations([]);
       setCreateMasterHonorsPayload(EMPTY_MASTER_HONOR_PAYLOAD);
@@ -1011,6 +1126,7 @@ export function PhaseECatalogCrudPage({
       return;
     }
 
+    discardUpdateValues();
     setEditActiveChecked(item.active !== false);
     setEditTranslations(
       Array.isArray(item.translations) ? (item.translations as CatalogTranslation[]) : [],
@@ -1020,14 +1136,25 @@ export function PhaseECatalogCrudPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title={title} description={description}>
-        {canCreate && (
-          <Button onClick={() => handleCreateOpen(true)}>
-            <Plus className="size-4" />
-            {t("create", { entity: entityLabel.toLowerCase() })}
-          </Button>
-        )}
-      </PageHeader>
+      {embedded ? (
+        canCreate && (
+          <div className="flex justify-end">
+            <Button onClick={() => handleCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("create", { entity: entityLabel.toLowerCase() })}
+            </Button>
+          </div>
+        )
+      ) : (
+        <PageHeader title={title} description={description}>
+          {canCreate && (
+            <Button onClick={() => handleCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("create", { entity: entityLabel.toLowerCase() })}
+            </Button>
+          )}
+        </PageHeader>
+      )}
 
       <div className="space-y-4">
         {/* Filter bar */}
@@ -1168,6 +1295,7 @@ export function PhaseECatalogCrudPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("colName")}</TableHead>
+                    {typeField && <TableHead>{typeField.label}</TableHead>}
                     {showClassSectionModule && <TableHead>{t("colModule")}</TableHead>}
                     {(showClassModuleParent || showClassSectionModule) && (
                       <TableHead className={showClassSectionModule ? "hidden xl:table-cell" : undefined}>{t("colClass")}</TableHead>
@@ -1205,6 +1333,13 @@ export function PhaseECatalogCrudPage({
                             itemName
                           )}
                         </TableCell>
+                        {typeField && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {typeField.options.find(
+                              (option) => option.value === resolveTypeFieldValue(item[typeField.name]),
+                            )?.label ?? "—"}
+                          </TableCell>
+                        )}
                         {showClassSectionModule && (
                           <TableCell className="text-sm text-muted-foreground">
                             {resolveModuleName(item)}
@@ -1367,6 +1502,8 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={createMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setCreateMasterHonorsPayload}
+                  typeField={typeField}
+                  values={createValues}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>
@@ -1387,7 +1524,7 @@ export function PhaseECatalogCrudPage({
             <DialogHeader className={dialogHeaderClass}>
               <DialogTitle>{t("editDialogTitle", { entity: entityLabel.toLowerCase() })}</DialogTitle>
               <DialogDescription>
-                {t("createDialogDesc", { entity: entityLabel.toLowerCase() })}
+                {t("editDialogDesc", { entity: entityLabel.toLowerCase() })}
               </DialogDescription>
             </DialogHeader>
             <form action={updateFormAction} className={dialogFormClass}>
@@ -1414,6 +1551,8 @@ export function PhaseECatalogCrudPage({
                   masterHonorsConfig={masterHonorsConfig}
                   masterHonorsPayload={editMasterHonorsPayload}
                   onMasterHonorsPayloadChange={setEditMasterHonorsPayload}
+                  typeField={typeField}
+                  values={updateValues}
                 />
               </div>
               <DialogFooter className={dialogFooterClass}>

@@ -29,6 +29,12 @@ export type AwardedCategoryRef = {
 export type SectionRankingItem = {
   club_section_id: number;
   section_name: string;
+  /**
+   * Club that owns the section. The backend does not send it today
+   * (`SectionRankingResponseDto` only has the club type name); read when
+   * present so the UI can show "Club · Sección" as soon as it does.
+   */
+  club_name?: string | null;
   composite_score_pct: number | null;
   rank_position: number | null;
   active_enrollment_count: number;
@@ -114,9 +120,13 @@ function normalizeSectionRankingItem(
     pickString(item.name) ??
     "Sin nombre";
 
+  const clubRel = asRecord(item.club ?? item.clubs ?? clubSectionRel?.clubs);
+  const clubName = pickString(item.club_name) ?? pickString(clubRel?.name);
+
   return {
     club_section_id: sectionId,
     section_name: sectionName,
+    club_name: clubName,
     composite_score_pct: pickNumber(item.composite_score_pct),
     rank_position: pickNumber(item.rank_position),
     active_enrollment_count: pickNumber(item.active_enrollment_count) ?? 0,
@@ -198,16 +208,23 @@ function extractFlatArray(payload: unknown): GenericRecord[] {
  * Normalizes a raw member record from the section members endpoint.
  * The backend returns MemberRankingResponseDto which mirrors MemberRankingItem.
  */
-function normalizeMemberItem(item: GenericRecord): MemberRankingItem | null {
-  const id = pickNumber(item.member_ranking_id);
+function normalizeMemberItem(
+  item: GenericRecord,
+  fallbackYearId: number,
+): MemberRankingItem | null {
+  // The backend (MemberRankingResponseDto.fromEnrollmentRanking) identifies a
+  // row by `enrollment_id` and does not send `member_ranking_id` nor the year.
   const enrollmentId = pickNumber(item.enrollment_id);
-  const yearId = pickNumber(item.ecclesiastical_year_id);
+  const id = pickNumber(item.member_ranking_id) ?? enrollmentId;
+  const yearId = pickNumber(item.ecclesiastical_year_id) ?? fallbackYearId;
 
-  if (id === null || enrollmentId === null || yearId === null) return null;
+  if (id === null || enrollmentId === null) return null;
 
   const userRaw = asRecord(item.user ?? item.users);
   const sectionRaw = asRecord(item.section ?? item.sections);
   const categoryRaw = asRecord(item.awarded_category ?? item.scoring_category);
+  const flatMemberName = pickString(item.member_name);
+  const flatSectionName = pickString(item.section_name);
 
   return {
     member_ranking_id: id,
@@ -234,13 +251,23 @@ function normalizeMemberItem(item: GenericRecord): MemberRankingItem | null {
           maternal_last_name: pickString(userRaw.maternal_last_name),
           email: pickString(userRaw.email),
         }
-      : null,
+      : flatMemberName
+        ? {
+            user_id: pickString(item.user_id),
+            name: flatMemberName,
+          }
+        : null,
     section: sectionRaw
       ? {
           section_id: pickNumber(sectionRaw.section_id),
           name: pickString(sectionRaw.name),
         }
-      : null,
+      : flatSectionName
+        ? {
+            section_id: pickNumber(item.club_section_id),
+            name: flatSectionName,
+          }
+        : null,
   };
 }
 
@@ -323,7 +350,7 @@ export async function getSectionMembers(
 
   const raw = extractFlatArray(payload);
   return raw
-    .map((item) => normalizeMemberItem(item))
+    .map((item) => normalizeMemberItem(item, yearId))
     .filter((item): item is MemberRankingItem => Boolean(item));
 }
 

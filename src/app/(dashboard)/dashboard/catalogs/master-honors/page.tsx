@@ -31,7 +31,7 @@ import { listAdminHonorsCatalog } from "@/lib/api/admin-honors-catalog";
 import { listAdminDivisions } from "@/lib/api/admin-divisions";
 import { ApiError } from "@/lib/api/client";
 import { listAdminMasterHonors } from "@/lib/api/phase-e-catalogs";
-import { extractItems, extractMeta, readParam, readPositiveNumberParam } from "@/lib/phase-e-catalogs/fetch-helpers";
+import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
@@ -93,7 +93,7 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
     ]);
 
     items = extractItems(payload);
-    meta = extractMeta(payload, page, limit, items.length);
+    ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
     honors = honorsResult.map((honor) => ({ honor_id: honor.honor_id, name: honor.name }));
     honorCategories = categoriesResult.items.map((category) => ({
       honor_category_id: category.honor_category_id,

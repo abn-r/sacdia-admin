@@ -32,23 +32,38 @@ function typeVariant(type: string): "default" | "secondary" | "outline" {
   return "outline";
 }
 
-function senderName(log: NotificationLog): string {
+function senderName(log: NotificationLog, systemLabel: string): string {
   const parts = [log.users?.name, log.users?.paternal_last_name].filter(Boolean);
   if (parts.length > 0) return parts.join(" ");
-  return log.users?.email ?? log.sent_by ?? "Sistema";
+  return log.users?.email ?? log.sent_by ?? systemLabel;
 }
 
-const TYPE_LABEL_KEYS: Record<string, string> = {
+// Every `type` value the backend writes to notification_logs
+// (sacdia-backend/src/notifications/notifications.processor.ts).
+const TYPE_LABEL_KEYS = {
   BROADCAST: "type_broadcast",
   USER: "type_user",
   CLUB: "type_club",
-};
+  SECTION_ROLE: "type_section_role",
+  GLOBAL_ROLE: "type_global_role",
+} as const;
 
-const TARGET_TYPE_LABEL_KEYS: Record<string, string> = {
+const TARGET_TYPE_LABEL_KEYS = {
   all: "target_all",
   user: "target_user",
   club_section: "target_club_section",
-};
+  section_role: "target_section_role",
+  global_role: "target_global_role",
+} as const;
+
+function labelKeyFor<T extends Record<string, string>>(
+  map: T,
+  value: string,
+): T[keyof T] | undefined {
+  return Object.prototype.hasOwnProperty.call(map, value)
+    ? (map[value as keyof T] as T[keyof T])
+    : undefined;
+}
 
 export async function NotificationHistoryTable({
   page,
@@ -90,7 +105,7 @@ export async function NotificationHistoryTable({
   const targetUsers = await resolveNotificationTargetUsers(targetUserIds);
 
   function renderTargetCell(log: NotificationLog) {
-    const targetLabelKey = TARGET_TYPE_LABEL_KEYS[log.target_type];
+    const targetLabelKey = labelKeyFor(TARGET_TYPE_LABEL_KEYS, log.target_type);
 
     if (log.target_type === "user" && log.target_id) {
       const user = targetUsers.get(log.target_id);
@@ -118,7 +133,7 @@ export async function NotificationHistoryTable({
 
     return (
       <span className="text-muted-foreground text-sm">
-        {targetLabelKey ? t(targetLabelKey as Parameters<typeof t>[0]) : log.target_type}
+        {targetLabelKey ? t(targetLabelKey) : log.target_type}
         {log.target_id ? (
           <span className="ml-1 font-mono text-xs">({log.target_id})</span>
         ) : null}
@@ -144,7 +159,7 @@ export async function NotificationHistoryTable({
             </TableHeader>
             <TableBody>
               {result.data.map((log) => {
-                const typeLabelKey = TYPE_LABEL_KEYS[log.type];
+                const typeLabelKey = labelKeyFor(TYPE_LABEL_KEYS, log.type);
                 return (
                   <TableRow key={log.log_id}>
                     <TableCell>
@@ -155,7 +170,7 @@ export async function NotificationHistoryTable({
                     </TableCell>
                     <TableCell>
                       <Badge variant={typeVariant(log.type)}>
-                        {typeLabelKey ? t(typeLabelKey as Parameters<typeof t>[0]) : log.type}
+                        {typeLabelKey ? t(typeLabelKey) : log.type}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden xl:table-cell">{renderTargetCell(log)}</TableCell>
@@ -172,7 +187,7 @@ export async function NotificationHistoryTable({
                       </span>
                     </TableCell>
                     <TableCell className="hidden xl:table-cell">
-                      <span className="text-sm">{senderName(log)}</span>
+                      <span className="text-sm">{senderName(log, t("sender_system"))}</span>
                     </TableCell>
                     <TableCell>
                       <span className="whitespace-nowrap text-sm text-muted-foreground">
