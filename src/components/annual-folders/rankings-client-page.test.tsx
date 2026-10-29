@@ -52,9 +52,11 @@ vi.mock("sonner", () => ({
   toast: {
     error: vi.fn(),
     success: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
+import { toast } from "sonner";
 import { RankingsClientPage } from "@/components/annual-folders/rankings-client-page";
 
 const CLUB_TYPES: ClubType[] = [{ club_type_id: 2, name: "Conquistadores" }];
@@ -199,5 +201,57 @@ describe("RankingsClientPage", () => {
     expect(screen.getByRole("button", { name: /Recalculate rankings/ })).toBeInTheDocument();
     expect(screen.getAllByTitle("1st place").length).toBeGreaterThan(0);
     expect(screen.getAllByText("View details").length).toBeGreaterThan(0);
+  });
+
+  describe("recalculation", () => {
+    async function confirmRecalculation() {
+      fireEvent.click(
+        screen.getByRole("button", { name: "Recalcular clasificaciones" }),
+      );
+      fireEvent.click(
+        await screen.findByRole("button", { name: "Confirmar recálculo" }),
+      );
+    }
+
+    it("uses the Spanish term for classifications in the page copy", () => {
+      renderPage();
+
+      expect(
+        screen.getByRole("button", { name: "Recalcular clasificaciones" }),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/rankings/i)).toBeNull();
+    });
+
+    it("reports the number of updated clubs from the wrapped response", async () => {
+      mockRecalculateRankings.mockResolvedValue({
+        status: "accepted",
+        data: { message: "Rankings recalculated", queued: false, rankings_updated: 12 },
+      });
+      renderPage();
+
+      await confirmRecalculation();
+
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith(
+          "Clasificaciones recalculadas: 12 clubes actualizados",
+        ),
+      );
+    });
+
+    it("says the recalculation is in progress when it was queued", async () => {
+      mockRecalculateRankings.mockResolvedValue({
+        status: "accepted",
+        data: { message: "Rankings recalculation queued", queued: true },
+      });
+      renderPage();
+
+      await confirmRecalculation();
+
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith(
+          messages.annual_folders.toasts.rankings_recalc_queued,
+        ),
+      );
+    });
   });
 });

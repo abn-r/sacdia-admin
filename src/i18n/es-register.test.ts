@@ -22,4 +22,14 @@ describe("es.json register", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("keeps the gender of clasificación(es) and avoids the anglicism ranking in labels", () => {
+    const slips = collectStrings(esMessages)
+      .filter(([, text]) =>
+        /\b(el|un|este|ese|del) clasificación\b|\bclasificaciones \w+ados\b|\bclasificación \w+ado\b/i.test(text),
+      )
+      .map(([key, text]) => `${key}: ${text}`);
+
+    expect(slips).toEqual([]);
+  });
 });

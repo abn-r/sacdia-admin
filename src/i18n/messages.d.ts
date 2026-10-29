@@ -4665,6 +4665,9 @@ export interface IntlMessages {
       file_required: string;
       evidence_uploaded: string;
       rankings_recalculated: string;
+      rankings_recalc_queued: string;
+      rankings_recalc_skipped: string;
+      rankings_recalculated_generic: string;
       section_updated: string;
       section_created: string;
       category_deleted: string;
