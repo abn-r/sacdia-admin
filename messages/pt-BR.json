@@ -4859,7 +4859,8 @@
     },
     "pageRankingsBreakdown": {
       "title": "Detalhamento do classificação",
-      "description": "Detalhe por componente para a inscrição {enrollmentId}",
+      "description": "Detalhe por componente de {clubName}",
+      "descriptionNoClub": "Detalhe por componente da inscrição",
       "errorFallback": "Não foi possível carregar o detalhamento do classificação. Verifique a conexão com o servidor.",
       "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
     },
@@ -7415,7 +7416,7 @@
     },
     "pageSection": {
       "title": "Classificação de seções",
-      "description": "Classificação geral de seções por composite score.",
+      "description": "Classificação geral de seções por pontuação geral.",
       "emptyNoYearTitle": "Nenhum ano eclesiástico ativo",
       "emptyNoYearDescription": "Configure um ano eclesiástico ativo no catálogo para ver as classificações.",
       "emptyTitle": "Não é possível exibir as classificações de seções",

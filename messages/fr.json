@@ -4859,7 +4859,8 @@
     },
     "pageRankingsBreakdown": {
       "title": "Détail du classement",
-      "description": "Détail par composant pour l'inscription {enrollmentId}",
+      "description": "Détail par composant de {clubName}",
+      "descriptionNoClub": "Détail par composant de l’inscription",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
       "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
     },
@@ -7415,7 +7416,7 @@
     },
     "pageSection": {
       "title": "Classement des sections",
-      "description": "Classement général des sections par score composite.",
+      "description": "Classement général des sections par score global.",
       "emptyNoYearTitle": "Aucune année ecclésiastique active",
       "emptyNoYearDescription": "Configurez une année ecclésiastique active dans le catalogue pour voir les classements.",
       "emptyTitle": "Impossible d'afficher les classements de sections",

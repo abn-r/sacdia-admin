@@ -154,6 +154,15 @@ function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
   );
 }
 
+function breakdownHref(item: AnnualRankingLeaderboardRow, selectedYearId: number | null) {
+  const params = new URLSearchParams({
+    year_id: String(item.ecclesiastical_year_id ?? selectedYearId ?? ""),
+  });
+  // The breakdown endpoint doesn't return the club name; pass it for the header.
+  if (item.club_name) params.set("club_name", item.club_name);
+  return `/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?${params.toString()}`;
+}
+
 function ComponentSummary({
   components,
 }: {
@@ -166,10 +175,11 @@ function ComponentSummary({
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex w-56 flex-col gap-1.5">
       {components.slice(0, 3).map((component) => (
         <div key={component.key} className="flex items-center justify-between gap-3">
-          <span className="truncate text-xs text-muted-foreground">
+          {/* min-w-0 lets long labels truncate instead of pushing the points out of view. */}
+          <span className="min-w-0 truncate text-xs text-muted-foreground" title={component.label}>
             {component.label}
           </span>
           <span className="shrink-0 text-xs font-medium tabular-nums">
@@ -545,7 +555,7 @@ export function RankingsClientPage({
                     <TableCell>
                       <Link
                         prefetch={false}
-                        href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                        href={breakdownHref(item, selectedYearId)}
                         className={`hover:underline ${
                           item.rank_position <= 3 ? "font-semibold" : "font-medium"
                         }`}
@@ -586,7 +596,7 @@ export function RankingsClientPage({
                           {
                             label: tPage("viewDetail"),
                             icon: Eye,
-                            href: `/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`,
+                            href: breakdownHref(item, selectedYearId),
                           },
                         ]}
                       />
@@ -652,7 +662,7 @@ export function RankingsClientPage({
 
                   <div className="mt-3 border-t pt-3">
                     <Link prefetch={false}
-                      href={`/dashboard/annual-folders/rankings/${item.club_enrollment_id}/breakdown?year_id=${item.ecclesiastical_year_id ?? selectedYearId}`}
+                      href={breakdownHref(item, selectedYearId)}
                       className="inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
                     >
                       {tPage("viewDetail")}

@@ -4892,6 +4892,7 @@ export interface IntlMessages {
     pageRankingsBreakdown: {
       title: string;
       description: string;
+      descriptionNoClub: string;
       errorFallback: string;
       paramsRequired: string;
     };

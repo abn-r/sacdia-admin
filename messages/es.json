@@ -4859,7 +4859,8 @@
     },
     "pageRankingsBreakdown": {
       "title": "Desglose de clasificación",
-      "description": "Detalle por componente para la inscripción {enrollmentId}",
+      "description": "Detalle por componente de {clubName}",
+      "descriptionNoClub": "Detalle por componente de la inscripción",
       "errorFallback": "No se pudo cargar el desglose de clasificación. Verifica la conexión con el servidor.",
       "paramsRequired": "Los parámetros enrollmentId y year_id son requeridos."
     },
@@ -7368,7 +7369,7 @@
       "pointsOf": "{earned} / {max} puntos",
       "sectionsEvaluated": "{count} secciones evaluadas",
       "monthsClosedOnTime": "{closed} / {total} meses cerrados a tiempo",
-      "deadlineDay": "Deadline: día {day} del mes siguiente",
+      "deadlineDay": "Fecha límite: día {day} del mes siguiente",
       "missedMonths": "Meses faltantes: {months}",
       "camporeeEventsOf": "{attended} / {available} eventos del scope",
       "evidenceValidatedRejected": "{validated} validadas / {rejected} rechazadas",
@@ -7415,7 +7416,7 @@
     },
     "pageSection": {
       "title": "Clasificación de secciones",
-      "description": "Clasificación general de secciones por composite score.",
+      "description": "Clasificación general de secciones por puntaje global.",
       "emptyNoYearTitle": "No hay año eclesiástico activo",
       "emptyNoYearDescription": "Configura un año eclesiástico activo en el catálogo para ver las clasificaciones.",
       "emptyTitle": "No se pueden mostrar clasificaciones de secciones",

@@ -4859,7 +4859,8 @@
     },
     "pageRankingsBreakdown": {
       "title": "Classification Breakdown",
-      "description": "Component detail for enrollment {enrollmentId}",
+      "description": "Component detail for {clubName}",
+      "descriptionNoClub": "Component detail for the enrollment",
       "errorFallback": "Could not load the classification breakdown. Check your server connection.",
       "paramsRequired": "The enrollmentId and year_id parameters are required."
     },
@@ -7415,7 +7416,7 @@
     },
     "pageSection": {
       "title": "Section Classifications",
-      "description": "General section classification by composite score.",
+      "description": "General section classification by overall score.",
       "emptyNoYearTitle": "No active ecclesiastical year",
       "emptyNoYearDescription": "Set an active ecclesiastical year in the catalog to view classifications.",
       "emptyTitle": "Section classifications cannot be displayed",
