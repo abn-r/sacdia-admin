@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
+import { createTranslator } from "next-intl";
+import messages from "../../../messages/es.json";
 import {
-  annualRankingConfigSchema,
-  rankingTierSchema,
+  buildAnnualRankingConfigSchema,
+  buildRankingTierSchema,
+  type RankingConfigValidationTranslator,
 } from "./annual-ranking-config-validation";
+
+const t = createTranslator({
+  locale: "es",
+  messages,
+  namespace: "annual_folders.rankingConfigValidation",
+}) as unknown as RankingConfigValidationTranslator;
+const annualRankingConfigSchema = buildAnnualRankingConfigSchema(t);
+const rankingTierSchema = buildRankingTierSchema(t);
 
 const validAxes = [
   {
@@ -123,5 +134,23 @@ describe("rankingTierSchema", () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues.some((issue) => issue.path.includes("band_percentage"))).toBe(true);
+  });
+});
+
+describe("translated messages", () => {
+  it("uses the given locale", async () => {
+    const en = (await import("../../../messages/en.json")).default;
+    const tEn = createTranslator({
+      locale: "en",
+      messages: en,
+      namespace: "annual_folders.rankingConfigValidation",
+    }) as unknown as RankingConfigValidationTranslator;
+    const result = buildRankingTierSchema(tEn).safeParse({
+      ranking_tier_id: "6d5ba6a4-2c3c-46b5-a7f0-591ad00f5ac9",
+      name: "",
+      band_percentage: 5,
+    });
+
+    expect(result.error?.issues[0]?.message).toBe("The tier name is required");
   });
 });

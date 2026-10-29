@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Medal, Save } from "lucide-react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -22,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { rankingTierSchema } from "@/lib/annual-rankings/annual-ranking-config-validation";
+import { buildRankingTierSchema } from "@/lib/annual-rankings/annual-ranking-config-validation";
 import {
   updateRankingTier,
   type RankingTier,
@@ -33,6 +34,9 @@ interface RankingTiersPanelProps {
 }
 
 export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
+  const t = useTranslations("annual_folders.rankingTiersPanel");
+  const tValidation = useTranslations("annual_folders.rankingConfigValidation");
+  const rankingTierSchema = useMemo(() => buildRankingTierSchema(tValidation), [tValidation]);
   const [tiers, setTiers] = useState(initialTiers);
   const [tierDrafts, setTierDrafts] = useState<Record<string, number>>(() =>
     Object.fromEntries(
@@ -49,7 +53,7 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
     });
 
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Porcentaje inválido");
+      toast.error(parsed.error.issues[0]?.message ?? t("invalidPercent"));
       return;
     }
 
@@ -68,10 +72,10 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
           row.ranking_tier_id === updated.ranking_tier_id ? updated : row,
         ),
       );
-      toast.success("Rango actualizado");
+      toast.success(t("tierUpdated"));
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "No se pudo guardar";
+        error instanceof Error ? error.message : t("saveFailed");
       toast.error(message);
     } finally {
       setSavingTierId(null);
@@ -86,11 +90,8 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
             <Medal className="size-[18px] text-foreground" />
           </div>
           <div>
-            <CardTitle>Rangos globales de reconocimiento</CardTitle>
-            <CardDescription>
-              Estos porcentajes aplican a todo el sistema. El puntaje mínimo de
-              cada rango se calcula según el máximo anual efectivo de cada club.
-            </CardDescription>
+            <CardTitle>{t("title")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -98,10 +99,10 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Rango</TableHead>
-              <TableHead>Porcentaje de banda</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acción</TableHead>
+              <TableHead>{t("colTier")}</TableHead>
+              <TableHead>{t("colBand")}</TableHead>
+              <TableHead>{t("colStatus")}</TableHead>
+              <TableHead className="text-right">{t("colAction")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -112,6 +113,7 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
                   <div className="flex max-w-40 items-center gap-2">
                     <Input
                       type="number"
+                      aria-label={t("bandLabel", { tier: tier.name })}
                       min={0.01}
                       step={0.01}
                       value={tierDrafts[tier.ranking_tier_id] ?? ""}
@@ -126,7 +128,7 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <StatusBadge intent={flagStatusIntent(tier.active)} label={tier.active ? "Activo" : "Inactivo"} />
+                  <StatusBadge intent={flagStatusIntent(tier.active)} label={tier.active ? t("active") : t("inactive")} />
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
@@ -136,7 +138,7 @@ export function RankingTiersPanel({ initialTiers }: RankingTiersPanelProps) {
                     onClick={() => handleSaveTier(tier)}
                   >
                     <Save />
-                    Guardar
+                    {t("save")}
                   </Button>
                 </TableCell>
               </TableRow>
