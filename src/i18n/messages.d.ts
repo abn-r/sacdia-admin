@@ -6686,6 +6686,11 @@ export interface IntlMessages {
       description: string;
       backHome: string;
     };
+    comingSoon: {
+      title: string;
+      description: string;
+      backHome: string;
+    };
     formModal: {
       close: string;
       stepOf: string;

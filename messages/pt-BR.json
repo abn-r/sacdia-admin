@@ -6654,6 +6654,11 @@
       "description": "O endereço não existe ou não está mais disponível.",
       "backHome": "Ir para o início"
     },
+    "comingSoon": {
+      "title": "Página em desenvolvimento",
+      "description": "Esta página está em desenvolvimento e estará disponível em próximas atualizações.",
+      "backHome": "Ir para o início"
+    },
     "formModal": {
       "close": "Fechar",
       "stepOf": "Etapa {current} de {total}",

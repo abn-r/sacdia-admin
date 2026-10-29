@@ -1,8 +1,19 @@
-export default function Page() {
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+
+import { Button } from "@/components/ui/button";
+
+export default async function Page() {
+  const t = await getTranslations("shared.comingSoon");
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-2 text-center">
-      <h1 className="font-semibold text-2xl">Page not found.</h1>
-      <p className="text-muted-foreground">This page is under development and will be available in future updates.</p>
+    <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-2 text-center">
+      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+      <p className="text-sm text-muted-foreground">{t("description")}</p>
+      <Button variant="outline" className="mt-4" asChild>
+        <Link prefetch={false} href="/dashboard">
+          {t("backHome")}
+        </Link>
+      </Button>
     </div>
   );
 }

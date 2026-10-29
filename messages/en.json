@@ -6654,6 +6654,11 @@
       "description": "The address doesn't exist or is no longer available.",
       "backHome": "Go to home"
     },
+    "comingSoon": {
+      "title": "Page under development",
+      "description": "This page is under development and will be available in future updates.",
+      "backHome": "Go to home"
+    },
     "formModal": {
       "close": "Close",
       "stepOf": "Step {current} of {total}",
