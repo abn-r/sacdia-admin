@@ -3445,7 +3445,7 @@
     "leaderboard": {
       "eyebrow": "Resultados",
       "title": "Clasificación del camporee",
-      "description": "Posiciones según puntos oficiales acumulados.",
+      "description": "Posiciones según el porcentaje de puntos obtenidos sobre los eventos calificados.",
       "emptyTitle": "Sin resultados aún",
       "emptyDescription": "Aparecerán cuando se registren puntajes oficiales.",
       "colRank": "Pos.",
@@ -3454,6 +3454,9 @@
       "colAwarded": "Puntos",
       "colMax": "Máximo",
       "colPercent": "%",
+      "colCoverage": "Cobertura",
+      "coverageEvents": "{scored} de {total, plural, one {# evento calificado} other {# eventos calificados}}",
+      "coveragePoints": "{scored} de {total} puntos posibles",
       "sectionFallback": "Sección {id}"
     },
     "list": {

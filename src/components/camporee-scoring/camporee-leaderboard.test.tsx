@@ -3,7 +3,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
-import type { CamporeeLeaderboard as CamporeeLeaderboardData } from "@/lib/api/camporee-scoring";
+import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
+import type {
+  CamporeeEventRubric,
+  CamporeeLeaderboard as CamporeeLeaderboardData,
+  CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 import messages from "../../../messages/es.json";
 
 const leaderboard: CamporeeLeaderboardData = {
@@ -36,10 +41,13 @@ afterEach(() => {
   cleanup();
 });
 
-function renderLeaderboard(data: CamporeeLeaderboardData) {
+function renderLeaderboard(
+  data: CamporeeLeaderboardData,
+  context: Partial<React.ComponentProps<typeof CamporeeLeaderboard>> = {},
+) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <CamporeeLeaderboard leaderboard={data} />
+      <CamporeeLeaderboard leaderboard={data} {...context} />
     </NextIntlClientProvider>,
   );
 }
@@ -64,5 +72,73 @@ describe("CamporeeLeaderboard", () => {
     expect(
       screen.getByText("Aparecerán cuando se registren puntajes oficiales."),
     ).toBeInTheDocument();
+  });
+
+  it("describes the ordering by percentage, matching the backend ranking", () => {
+    renderLeaderboard(leaderboard);
+
+    expect(
+      screen.getByText(
+        "Posiciones según el porcentaje de puntos obtenidos sobre los eventos calificados.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  describe("coverage", () => {
+    const events = [1, 2, 3].map(
+      (id) => ({ camporee_event_id: id, scoring_enabled: true }) as BackendCamporeeEvent,
+    );
+    const rubricsByEvent: Record<number, CamporeeEventRubric[]> = Object.fromEntries(
+      [1, 2, 3].map((id) => [
+        id,
+        [
+          {
+            camporee_event_rubric_id: id,
+            camporee_event_id: id,
+            title: "Criterio",
+            description: null,
+            max_points: 100,
+            display_order: 0,
+            active: true,
+          },
+        ],
+      ]),
+    );
+    const target = (sectionId: number): CamporeeScoringTarget => ({
+      camporee_club_id: 1,
+      club_section_id: sectionId,
+      club_name: null,
+      section_name: null,
+      status: "approved",
+    });
+    const targetsByEvent = {
+      1: [target(99), target(100)],
+      2: [target(99), target(100)],
+      3: [target(99)],
+    };
+
+    it("shows how many scorable events each section has been scored on", () => {
+      renderLeaderboard(leaderboard, { events, rubricsByEvent, targetsByEvent });
+
+      expect(screen.getByRole("columnheader", { name: "Cobertura" })).toBeInTheDocument();
+      expect(screen.getByText("2 de 3 eventos calificados")).toBeInTheDocument();
+      expect(screen.getByText("1 de 2 eventos calificados")).toBeInTheDocument();
+    });
+
+    it("falls back to possible points when the event count is ambiguous", () => {
+      const odd: CamporeeLeaderboardData = {
+        ...leaderboard,
+        rows: [{ ...leaderboard.rows[0]!, total_max_points: 150 }],
+      };
+      renderLeaderboard(odd, { events, rubricsByEvent, targetsByEvent });
+
+      expect(screen.getByText("150 de 300 puntos posibles")).toBeInTheDocument();
+    });
+
+    it("hides the coverage column without event context", () => {
+      renderLeaderboard(leaderboard);
+
+      expect(screen.queryByRole("columnheader", { name: "Cobertura" })).toBeNull();
+    });
   });
 });

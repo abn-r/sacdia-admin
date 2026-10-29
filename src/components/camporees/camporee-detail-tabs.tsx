@@ -514,7 +514,12 @@ export function CamporeeDetailTabs({
       </TabsContent>
 
       <TabsContent value="ranking" className="mt-4">
-        <CamporeeLeaderboard leaderboard={initialLeaderboard} />
+        <CamporeeLeaderboard
+          leaderboard={initialLeaderboard}
+          events={initialEvents}
+          rubricsByEvent={initialRubricsByEvent}
+          targetsByEvent={initialScoringTargetsByEvent}
+        />
       </TabsContent>
     </Tabs>
   );

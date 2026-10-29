@@ -3483,6 +3483,9 @@ export interface IntlMessages {
       colAwarded: string;
       colMax: string;
       colPercent: string;
+      colCoverage: string;
+      coverageEvents: string;
+      coveragePoints: string;
       sectionFallback: string;
     };
     list: {

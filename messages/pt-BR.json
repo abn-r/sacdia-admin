@@ -3445,7 +3445,7 @@
     "leaderboard": {
       "eyebrow": "Resultados",
       "title": "Ranking do camporee",
-      "description": "Posições com base nos pontos oficiais acumulados.",
+      "description": "Posições com base na porcentagem de pontos obtidos sobre as provas pontuadas.",
       "emptyTitle": "Sem resultados ainda",
       "emptyDescription": "Aparecerão quando houver pontuações oficiais registradas.",
       "colRank": "Pos.",
@@ -3454,6 +3454,9 @@
       "colAwarded": "Pontos",
       "colMax": "Máximo",
       "colPercent": "%",
+      "colCoverage": "Cobertura",
+      "coverageEvents": "{scored} de {total, plural, one {# prova pontuada} other {# provas pontuadas}}",
+      "coveragePoints": "{scored} de {total} pontos possíveis",
       "sectionFallback": "Seção {id}"
     },
     "list": {

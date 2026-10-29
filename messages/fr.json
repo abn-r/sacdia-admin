@@ -3445,7 +3445,7 @@
     "leaderboard": {
       "eyebrow": "Résultats",
       "title": "Classement du camporee",
-      "description": "Positions selon les points officiels accumulés.",
+      "description": "Positions selon le pourcentage de points obtenus sur les épreuves notées.",
       "emptyTitle": "Pas encore de résultats",
       "emptyDescription": "Ils apparaîtront une fois les scores officiels enregistrés.",
       "colRank": "Rang",
@@ -3454,6 +3454,9 @@
       "colAwarded": "Points",
       "colMax": "Max",
       "colPercent": "%",
+      "colCoverage": "Couverture",
+      "coverageEvents": "{scored} sur {total, plural, one {# épreuve notée} other {# épreuves notées}}",
+      "coveragePoints": "{scored} sur {total} points possibles",
       "sectionFallback": "Section {id}"
     },
     "list": {

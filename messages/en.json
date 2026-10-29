@@ -3445,7 +3445,7 @@
     "leaderboard": {
       "eyebrow": "Results",
       "title": "Camporee ranking",
-      "description": "Standings based on official accumulated points.",
+      "description": "Standings based on the percentage of points earned over the scored events.",
       "emptyTitle": "No results yet",
       "emptyDescription": "They will appear once official scores are recorded.",
       "colRank": "Rank",
@@ -3454,6 +3454,9 @@
       "colAwarded": "Points",
       "colMax": "Max",
       "colPercent": "%",
+      "colCoverage": "Coverage",
+      "coverageEvents": "{scored} of {total, plural, one {# event scored} other {# events scored}}",
+      "coveragePoints": "{scored} of {total} possible points",
       "sectionFallback": "Section {id}"
     },
     "list": {
