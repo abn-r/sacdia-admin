@@ -47,6 +47,7 @@ import {
   financeDisplayToApiAmount,
 } from "@/lib/finances/amount";
 import { FinanceEvidenceField } from "@/components/finances/finance-evidence-field";
+import { formatFinanceSectionOption } from "@/lib/finances/club-sections";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -442,8 +443,7 @@ export function TransactionFormDialog({
                               key={s.club_section_id}
                               value={s.club_section_id.toString()}
                             >
-                              {s.name}
-                              {s.club_type?.name ? ` (${s.club_type.name})` : ""}
+                              {formatFinanceSectionOption(s)}
                             </SelectItem>
                           ))
                         ) : (

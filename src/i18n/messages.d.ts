@@ -5914,6 +5914,8 @@ export interface IntlMessages {
       movementsCountPlural: string;
       incomeMovementsCount: string;
       incomeMovementsCountPlural: string;
+      expenseMovementsCount: string;
+      expenseMovementsCountPlural: string;
       inPeriod: string;
       positiveBalance: string;
       negativeBalance: string;

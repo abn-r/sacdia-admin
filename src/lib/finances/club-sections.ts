@@ -81,3 +81,19 @@ export function normalizeFinanceClubSections(
 export function getFinanceSectionLabel(section: FinanceClubSection): string {
   return section.club_type?.name ?? section.name;
 }
+
+/**
+ * Option label for the section pickers: the section name, followed by its club
+ * type only when it adds information (a section named "Aventureros" of type
+ * "Aventureros" is shown once).
+ */
+export function formatFinanceSectionOption(section: {
+  name?: string | null;
+  club_type?: { name?: string } | null;
+}): string {
+  const name = section.name?.trim() ?? "";
+  const typeName = section.club_type?.name?.trim() ?? "";
+  if (!name) return typeName;
+  if (!typeName || name.toLowerCase() === typeName.toLowerCase()) return name;
+  return `${name} (${typeName})`;
+}

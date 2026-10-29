@@ -5882,6 +5882,8 @@
       "movementsCountPlural": "{count} transactions",
       "incomeMovementsCount": "{count} entrée de revenu",
       "incomeMovementsCountPlural": "{count} entrées de revenu",
+      "expenseMovementsCount": "{count} dépense",
+      "expenseMovementsCountPlural": "{count} dépenses",
       "inPeriod": "sur la période",
       "positiveBalance": "Solde positif",
       "negativeBalance": "Solde négatif"

@@ -5882,6 +5882,8 @@
       "movementsCountPlural": "{count} transactions",
       "incomeMovementsCount": "{count} income entry",
       "incomeMovementsCountPlural": "{count} income entries",
+      "expenseMovementsCount": "{count} expense",
+      "expenseMovementsCountPlural": "{count} expenses",
       "inPeriod": "in the period",
       "positiveBalance": "Positive balance",
       "negativeBalance": "Negative balance"

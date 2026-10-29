@@ -46,15 +46,19 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
   const formatAmount = (amountInCentavos: number) =>
     formatFinanceAmount(amountInCentavos, formatCurrency);
 
-  const incomeCount = summary.income_count;
   const incomeSub =
-    incomeCount === 1
-      ? t("summary.incomeMovementsCount", { count: incomeCount })
-      : incomeCount !== undefined
-        ? t("summary.incomeMovementsCountPlural", { count: incomeCount })
-        : t("summary.inPeriod");
+    summary.income_count === undefined
+      ? t("summary.inPeriod")
+      : summary.income_count === 1
+        ? t("summary.incomeMovementsCount", { count: summary.income_count })
+        : t("summary.incomeMovementsCountPlural", { count: summary.income_count });
 
-  const expenseSub = t("summary.inPeriod");
+  const expenseSub =
+    summary.expense_count === undefined
+      ? t("summary.inPeriod")
+      : summary.expense_count === 1
+        ? t("summary.expenseMovementsCount", { count: summary.expense_count })
+        : t("summary.expenseMovementsCountPlural", { count: summary.expense_count });
 
   const cards = [
     {

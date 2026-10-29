@@ -245,6 +245,8 @@ export function FinancesDashboard({
           total_expense: 0,
           balance: 0,
           movement_count: 0,
+          income_count: 0,
+          expense_count: 0,
         };
       }
 
