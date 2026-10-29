@@ -7383,14 +7383,12 @@
       "emptyDescription": "Classifications are not available at this time."
     },
     "pageMemberBreakdown": {
-      "back": "Back to classifications",
-      "breadcrumbParent": "Member Classifications",
+      "back": "Back to section",
+      "breadcrumbParent": "Section rankings",
       "position": "Position",
       "compositeScore": "Composite score",
       "category": "Category",
       "weightsTitle": "Applied weights",
-      "weightsSource": "Source",
-      "weightsFormula": "Class {classPct}% + Investiture {invPct}% + Camporees {campPct}%",
       "lastCalculated": "Last recalculated:",
       "lastCalculatedNone": "not recorded",
       "titleClass": "Class",
@@ -7409,8 +7407,11 @@
       "statusInProgress": "In progress",
       "statusPending": "Pending",
       "statusNotStarted": "Not started",
-      "titleDetail": "Detail: {memberName}",
-      "descriptionDetail": "Section {sectionName} · Year {yearId}"
+      "descriptionDetail": "Section {sectionName}",
+      "title": "Member breakdown",
+      "paramsRequired": "The ecclesiastical year is missing to show the breakdown.",
+      "errorFallback": "Could not load the member breakdown.",
+      "notCounted": "No data: not counted in the overall score"
     },
     "pageSection": {
       "title": "Section Classifications",

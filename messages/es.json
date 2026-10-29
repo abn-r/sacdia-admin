@@ -7383,21 +7383,19 @@
       "emptyDescription": "Las clasificaciones no están disponibles en este momento."
     },
     "pageMemberBreakdown": {
-      "back": "Volver a clasificaciones",
-      "breadcrumbParent": "Clasificaciones de miembros",
+      "back": "Volver a la sección",
+      "breadcrumbParent": "Clasificación de secciones",
       "position": "Posición",
       "compositeScore": "Puntaje compuesto",
       "category": "Categoría",
       "weightsTitle": "Pesos aplicados",
-      "weightsSource": "Fuente",
-      "weightsFormula": "Clase {classPct}% + Investidura {invPct}% + Camporees {campPct}%",
       "lastCalculated": "Última recalculación:",
       "lastCalculatedNone": "no registrada",
       "titleClass": "Clase",
       "titleInvestiture": "Investidura",
       "titleCamporee": "Camporees",
       "sectionsCompleted": "Secciones completadas:",
-      "folder": "Folder:",
+      "folder": "Carpeta:",
       "status": "Estado:",
       "participation": "Participación:",
       "availableCamporees": "Camporees disponibles:",
@@ -7409,8 +7407,11 @@
       "statusInProgress": "En proceso",
       "statusPending": "Pendiente",
       "statusNotStarted": "No iniciada",
-      "titleDetail": "Detalle: {memberName}",
-      "descriptionDetail": "Sección {sectionName} · Año {yearId}"
+      "descriptionDetail": "Sección {sectionName}",
+      "title": "Desglose del miembro",
+      "paramsRequired": "Falta el año eclesiástico para mostrar el desglose.",
+      "errorFallback": "No se pudo cargar el desglose del miembro.",
+      "notCounted": "Sin datos: no cuenta en el puntaje global"
     },
     "pageSection": {
       "title": "Clasificación de secciones",

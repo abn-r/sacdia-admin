@@ -7383,14 +7383,12 @@
       "emptyDescription": "Les classements ne sont pas disponibles pour l’instant."
     },
     "pageMemberBreakdown": {
-      "back": "Retour aux classements",
-      "breadcrumbParent": "Classements des membres",
+      "back": "Retour à la section",
+      "breadcrumbParent": "Classement des sections",
       "position": "Position",
       "compositeScore": "Score composite",
       "category": "Catégorie",
       "weightsTitle": "Poids appliqués",
-      "weightsSource": "Source",
-      "weightsFormula": "Classe {classPct} % + Investiture {invPct} % + Camporées {campPct} %",
       "lastCalculated": "Dernier recalcul :",
       "lastCalculatedNone": "non enregistré",
       "titleClass": "Classe",
@@ -7409,8 +7407,11 @@
       "statusInProgress": "En cours",
       "statusPending": "En attente",
       "statusNotStarted": "Non commencé",
-      "titleDetail": "Détail : {memberName}",
-      "descriptionDetail": "Section {sectionName} · Année {yearId}"
+      "descriptionDetail": "Section {sectionName}",
+      "title": "Détail du membre",
+      "paramsRequired": "L’année ecclésiastique manque pour afficher le détail.",
+      "errorFallback": "Impossible de charger le détail du membre.",
+      "notCounted": "Aucune donnée : non compté dans le score global"
     },
     "pageSection": {
       "title": "Classement des sections",

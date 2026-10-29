@@ -7383,14 +7383,12 @@
       "emptyDescription": "As classificações não estão disponíveis no momento."
     },
     "pageMemberBreakdown": {
-      "back": "Voltar para classificações",
-      "breadcrumbParent": "Classificações de membros",
+      "back": "Voltar para a seção",
+      "breadcrumbParent": "Classificação de seções",
       "position": "Posição",
       "compositeScore": "Pontuação composta",
       "category": "Categoria",
       "weightsTitle": "Pesos aplicados",
-      "weightsSource": "Fonte",
-      "weightsFormula": "Classe {classPct}% + Investidura {invPct}% + Camporees {campPct}%",
       "lastCalculated": "Último recálculo:",
       "lastCalculatedNone": "não registrado",
       "titleClass": "Classe",
@@ -7409,8 +7407,11 @@
       "statusInProgress": "Em andamento",
       "statusPending": "Pendente",
       "statusNotStarted": "Não iniciado",
-      "titleDetail": "Detalhe: {memberName}",
-      "descriptionDetail": "Seção {sectionName} · Ano {yearId}"
+      "descriptionDetail": "Seção {sectionName}",
+      "title": "Detalhamento do membro",
+      "paramsRequired": "Falta o ano eclesiástico para mostrar o detalhamento.",
+      "errorFallback": "Não foi possível carregar o detalhamento do membro.",
+      "notCounted": "Sem dados: não conta na pontuação geral"
     },
     "pageSection": {
       "title": "Classificação de seções",

@@ -7421,8 +7421,6 @@ export interface IntlMessages {
       compositeScore: string;
       category: string;
       weightsTitle: string;
-      weightsSource: string;
-      weightsFormula: string;
       lastCalculated: string;
       lastCalculatedNone: string;
       titleClass: string;
@@ -7441,8 +7439,11 @@ export interface IntlMessages {
       statusInProgress: string;
       statusPending: string;
       statusNotStarted: string;
-      titleDetail: string;
       descriptionDetail: string;
+      title: string;
+      paramsRequired: string;
+      errorFallback: string;
+      notCounted: string;
     };
     pageSection: {
       title: string;

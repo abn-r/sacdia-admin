@@ -156,15 +156,26 @@ function normalizeCategory(value: unknown): MemberRankingCategory | null {
   };
 }
 
-function normalizeMemberRankingItem(item: GenericRecord): MemberRankingItem | null {
-  const id = pickNumber(item.member_ranking_id);
+function normalizeMemberRankingItem(
+  item: GenericRecord,
+  fallbackYearId?: number,
+): MemberRankingItem | null {
+  // MemberRankingResponseDto identifies a row by `enrollment_id`, sends the
+  // member and section names flat and does not send the year.
   const enrollmentId = pickNumber(item.enrollment_id);
-  const yearId = pickNumber(item.ecclesiastical_year_id);
+  const id = pickNumber(item.member_ranking_id) ?? enrollmentId;
+  const yearId = pickNumber(item.ecclesiastical_year_id) ?? fallbackYearId ?? null;
 
   if (id === null || enrollmentId === null || yearId === null) return null;
 
-  const userRaw = asRecord(item.user ?? item.users);
-  const sectionRaw = asRecord(item.section ?? item.sections);
+  const flatMemberName = pickString(item.member_name);
+  const flatSectionName = pickString(item.section_name);
+  const userRaw =
+    asRecord(item.user ?? item.users) ??
+    (flatMemberName ? { user_id: item.user_id, name: flatMemberName } : null);
+  const sectionRaw =
+    asRecord(item.section ?? item.sections) ??
+    (flatSectionName ? { section_id: item.club_section_id, name: flatSectionName } : null);
 
   return {
     member_ranking_id: id,
@@ -296,8 +307,11 @@ function extractBreakdownPayload(payload: unknown): GenericRecord | null {
   return null;
 }
 
-function normalizeMemberBreakdown(raw: GenericRecord): MemberBreakdown | null {
-  const base = normalizeMemberRankingItem(raw);
+function normalizeMemberBreakdown(
+  raw: GenericRecord,
+  fallbackYearId: number,
+): MemberBreakdown | null {
+  const base = normalizeMemberRankingItem(raw, fallbackYearId);
   if (!base) return null;
 
   const clubSectionRaw = asRecord(raw.club_section ?? raw.section ?? raw.sections);
@@ -309,7 +323,7 @@ function normalizeMemberBreakdown(raw: GenericRecord): MemberBreakdown | null {
           section_id: pickNumber(clubSectionRaw.section_id),
           name: pickString(clubSectionRaw.name),
         }
-      : null,
+      : base.section ?? null,
     composite_calculated_at: pickString(raw.composite_calculated_at),
     class_breakdown: normalizeClassBreakdown(raw.class_breakdown),
     investiture_breakdown: normalizeInvestitureBreakdown(raw.investiture_breakdown),
@@ -340,7 +354,7 @@ export async function listMemberRankings(
     const payload = await apiRequest<unknown>("/member-rankings", { params });
     const raw = extractItemArray(payload);
     const items = raw
-      .map((item) => normalizeMemberRankingItem(item))
+      .map((item) => normalizeMemberRankingItem(item, query.year_id))
       .filter((item): item is MemberRankingItem => Boolean(item));
 
     const metaRaw = normalizeRankingListMeta(payload);
@@ -392,7 +406,7 @@ export async function getMemberBreakdown(
     throw new ApiError("Breakdown payload vacío o inesperado", 404, payload);
   }
 
-  const normalized = normalizeMemberBreakdown(raw);
+  const normalized = normalizeMemberBreakdown(raw, yearId);
   if (!normalized) {
     throw new ApiError("No se pudo normalizar el breakdown del miembro", 404, payload);
   }
