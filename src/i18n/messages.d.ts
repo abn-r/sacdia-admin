@@ -3491,7 +3491,6 @@ export interface IntlMessages {
       colPercent: string;
       colCoverage: string;
       coverageEvents: string;
-      coveragePoints: string;
       sectionFallback: string;
     };
     list: {

@@ -5,7 +5,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type {
-  CamporeeEventRubric,
   CamporeeLeaderboard as CamporeeLeaderboardData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
@@ -22,6 +21,7 @@ const leaderboard: CamporeeLeaderboardData = {
       section_name: "Conquistadores",
       total_awarded_points: 170,
       total_max_points: 200,
+      scored_events_count: 2,
       percentage: 85,
     },
     {
@@ -32,6 +32,7 @@ const leaderboard: CamporeeLeaderboardData = {
       section_name: "Aventureros",
       total_awarded_points: 75.5,
       total_max_points: 100,
+      scored_events_count: 1,
       percentage: 75.5,
     },
   ],
@@ -88,22 +89,6 @@ describe("CamporeeLeaderboard", () => {
     const events = [1, 2, 3].map(
       (id) => ({ camporee_event_id: id, scoring_enabled: true }) as BackendCamporeeEvent,
     );
-    const rubricsByEvent: Record<number, CamporeeEventRubric[]> = Object.fromEntries(
-      [1, 2, 3].map((id) => [
-        id,
-        [
-          {
-            camporee_event_rubric_id: id,
-            camporee_event_id: id,
-            title: "Criterio",
-            description: null,
-            max_points: 100,
-            display_order: 0,
-            active: true,
-          },
-        ],
-      ]),
-    );
     const target = (sectionId: number): CamporeeScoringTarget => ({
       camporee_club_id: 1,
       club_section_id: sectionId,
@@ -118,21 +103,21 @@ describe("CamporeeLeaderboard", () => {
     };
 
     it("shows how many scorable events each section has been scored on", () => {
-      renderLeaderboard(leaderboard, { events, rubricsByEvent, targetsByEvent });
+      renderLeaderboard(leaderboard, { events, targetsByEvent });
 
       expect(screen.getByRole("columnheader", { name: "Cobertura" })).toBeInTheDocument();
       expect(screen.getByText("2 de 3 eventos calificados")).toBeInTheDocument();
       expect(screen.getByText("1 de 2 eventos calificados")).toBeInTheDocument();
     });
 
-    it("falls back to possible points when the event count is ambiguous", () => {
-      const odd: CamporeeLeaderboardData = {
+    it("uses the backend count even when event max points differ", () => {
+      const uneven: CamporeeLeaderboardData = {
         ...leaderboard,
-        rows: [{ ...leaderboard.rows[0]!, total_max_points: 150 }],
+        rows: [{ ...leaderboard.rows[0]!, total_max_points: 150, scored_events_count: 3 }],
       };
-      renderLeaderboard(odd, { events, rubricsByEvent, targetsByEvent });
+      renderLeaderboard(uneven, { events, targetsByEvent });
 
-      expect(screen.getByText("150 de 300 puntos posibles")).toBeInTheDocument();
+      expect(screen.getByText("3 de 3 eventos calificados")).toBeInTheDocument();
     });
 
     it("hides the coverage column without event context", () => {
