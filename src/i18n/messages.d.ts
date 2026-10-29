@@ -126,6 +126,8 @@ export interface IntlMessages {
       reports: string;
       reports_mine: string;
       reports_supervision: string;
+      reports_quarterly: string;
+      reports_annual: string;
       support_reports: string;
       member_of_month: string;
       catalog_classes: string;
@@ -207,6 +209,8 @@ export interface IntlMessages {
       section_rankings: string;
       reports_list: string;
       reports_supervision: string;
+      reports_quarterly: string;
+      reports_annual: string;
       campamentos: string;
       campamentos_list_local: string;
       campamentos_list_union: string;
