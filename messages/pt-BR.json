@@ -3604,8 +3604,8 @@
       "loadFailed": "Não foi possível atualizar a lista de clubes"
     },
     "clubsPanel": {
-      "emptyTitle": "Nenhum clube inscrito",
-      "emptyDescription": "Não há clubes inscritos neste campori ainda.",
+      "emptyTitle": "Ainda não há clubes inscritos",
+      "emptyDescription": "Os diretores inscrevem seus clubes pelo app.",
       "colSection": "Seção",
       "colStatus": "Status",
       "colRegisteredBy": "Registrado por",

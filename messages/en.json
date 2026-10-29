@@ -3604,8 +3604,8 @@
       "loadFailed": "Could not refresh the club list"
     },
     "clubsPanel": {
-      "emptyTitle": "No enrolled clubs",
-      "emptyDescription": "There are no clubs enrolled in this camporee yet.",
+      "emptyTitle": "No clubs enrolled yet",
+      "emptyDescription": "Directors enroll their clubs from the app.",
       "colSection": "Section",
       "colStatus": "Status",
       "colRegisteredBy": "Registered by",
