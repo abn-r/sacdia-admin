@@ -7644,6 +7644,7 @@ export interface IntlMessages {
       paginationPrev: string;
       paginationNext: string;
       detailTitle: string;
+      detailDescription: string;
       detailLabelJob: string;
       detailLabelStatus: string;
       detailLabelStart: string;

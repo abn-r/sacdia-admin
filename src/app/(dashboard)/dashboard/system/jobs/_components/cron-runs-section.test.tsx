@@ -133,7 +133,7 @@ const NOTIFY_JOBS = [
   "ecclesiastical-year-cut",
 ];
 
-const NOTIFY_WARNING = "Este job puede enviar avisos o correos reales.";
+const NOTIFY_WARNING = "Esta tarea puede enviar avisos o correos reales.";
 const MEMBER_OF_MONTH_WARNING = messages.system_jobs.cronRuns.runDialogMemberOfMonthWarning;
 
 function def(job: string, overrides: Partial<CronJobDefinition> = {}): CronJobDefinition {
@@ -275,7 +275,7 @@ describe("CronRunsSection - run now", () => {
   it("disables the action for a job whose latest run is still running", () => {
     renderSection();
     expect(
-      screen.getByRole("button", { name: /Ejecutar ahora.*FCM tokens huérfanos/i }),
+      screen.getByRole("button", { name: /Ejecutar ahora.*tokens FCM huérfanos/i }),
     ).toBeDisabled();
   });
 
@@ -290,7 +290,7 @@ describe("CronRunsSection - run now", () => {
       },
     });
     expect(
-      screen.getByRole("button", { name: /Ejecutar ahora.*FCM tokens huérfanos/i }),
+      screen.getByRole("button", { name: /Ejecutar ahora.*tokens FCM huérfanos/i }),
     ).toBeEnabled();
   });
 
@@ -350,7 +350,7 @@ describe("CronRunsSection - run now", () => {
     await confirmRun();
     await waitFor(() =>
       expect(mocks.toastError).toHaveBeenCalledWith(
-        "Este job no existe o no se puede ejecutar manualmente.",
+        "Esta tarea no existe o no se puede ejecutar manualmente.",
       ),
     );
     const rendered = JSON.stringify(mocks.toastError.mock.calls);
@@ -364,7 +364,7 @@ describe("CronRunsSection - run now", () => {
     renderSection();
     await confirmRun();
     await waitFor(() =>
-      expect(mocks.toastError).toHaveBeenCalledWith("No se pudo ejecutar el job."),
+      expect(mocks.toastError).toHaveBeenCalledWith("No se pudo ejecutar la tarea."),
     );
     expect(JSON.stringify(mocks.toastError.mock.calls)).not.toContain("x-detail");
   });
@@ -428,7 +428,7 @@ describe("CronRunsSection - run now", () => {
       renderSection();
       await confirmRun();
       await waitFor(() =>
-        expect(mocks.toastError).toHaveBeenCalledWith("No se pudo ejecutar el job."),
+        expect(mocks.toastError).toHaveBeenCalledWith("No se pudo ejecutar la tarea."),
       );
       expect(mocks.toastInfo).not.toHaveBeenCalledWith(DETACHED);
     });

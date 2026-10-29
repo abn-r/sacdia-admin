@@ -110,7 +110,7 @@ describe("filterSidebarItems", () => {
       hasAnyRole: (roles) => roles.includes("admin"),
     });
 
-    expect(collectTitles(filtered)).toContain("Jobs y colas");
+    expect(collectTitles(filtered)).toContain("Tareas y colas");
   });
 
   it("hides unmapped leaf urls (fail-closed)", () => {

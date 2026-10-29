@@ -859,14 +859,14 @@ export const sidebarItems: NavGroup[] = [
           },
           {
             id: "admin-system-jobs",
-            title: "Jobs y colas",
+            title: "Tareas y colas",
             url: "/dashboard/system/jobs",
             icon: Activity,
             activeMatch: "exact",
           },
           {
             id: "admin-system-jobs-history",
-            title: "Historial jobs",
+            title: "Historial de ejecuciones",
             url: "/dashboard/system/jobs/history",
             icon: ClipboardList,
             activeMatch: "prefix",

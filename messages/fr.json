@@ -7612,6 +7612,7 @@
       "paginationPrev": "Précédent",
       "paginationNext": "Suivant",
       "detailTitle": "Détails du run #{runId}",
+      "detailDescription": "Exécution de la tâche {job}",
       "detailLabelJob": "Job",
       "detailLabelStatus": "Statut",
       "detailLabelStart": "Début",

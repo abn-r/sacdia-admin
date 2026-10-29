@@ -131,7 +131,7 @@ function DetailDialog({ item, onClose }: DetailDialogProps) {
             {item ? t("detailTitle", { runId: item.run_id }) : ""}
           </DialogTitle>
           <DialogDescription>
-            {item ? `Detalles de la ejecución del job ${item.job_name}` : ""}
+            {item ? t("detailDescription", { job: jobDisplayName(item.job_name) }) : ""}
           </DialogDescription>
         </DialogHeader>
         {item && (
@@ -437,7 +437,7 @@ export function CronHistoryClient({
                         {/* Details */}
                         <TableCell className="pr-6">
                           <RowActions
-                            label={item.job_name}
+                            label={`${jobDisplayName(item.job_name)} · ${formatDate(item.started_at)}`}
                             actions={[
                               {
                                 label: t("viewButton"),
