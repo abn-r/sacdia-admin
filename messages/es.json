@@ -577,6 +577,7 @@
       "editRecord": "Editar registro",
       "deleteRecord": "Desactivar registro",
       "listOf": "Lista de {entity}",
+      "selectPlaceholder": "Seleccionar {field}",
       "edit": "Editar",
       "delete": "Desactivar",
       "editItem": "Editar {item}",
@@ -5521,6 +5522,7 @@
       "description": "Gestión de reportes mensuales de actividades del club.",
       "print_preview": "Vista imprimible",
       "empty_no_active_enrollment_title": "Sin inscripción activa",
+      "go_to_supervision": "Ver supervisión territorial",
       "empty_no_active_enrollment_description": "No se encontró una inscripción activa para tu usuario."
     },
     "pageDetail": {
@@ -6430,23 +6432,42 @@
       "description": "Cierra el año eclesiástico activo para archivar inscripciones, carpetas y reportes.",
       "empty_no_years_title": "Sin años eclesiásticos",
       "empty_no_years_description": "No hay años eclesiásticos registrados en el sistema.",
-      "error_load_years": "No se pudieron cargar los años eclesiásticos."
+      "error_load_years": "No se pudieron cargar los años eclesiásticos.",
+      "noActiveYearTitle": "No hay un año activo",
+      "noActiveYearDescription": "Solo se puede cerrar el año eclesiástico activo, y ahora no hay ninguno."
+    },
+    "client": {
+      "cardTitle": "Año activo: {year}",
+      "cardDescription": "Revisa el impacto antes de confirmar. Solo se puede cerrar el año activo.",
+      "previewButton": "Vista previa",
+      "previewLoading": "Cargando…",
+      "confirmCloseButton": "Confirmar cierre",
+      "confirmCloseLoading": "Cerrando…"
     },
     "preview": {
+      "title": "Impacto del cierre",
+      "description": "Esto pasará al cerrar {year}.",
       "impactEnrollmentsLabel": "Inscripciones",
       "impactEnrollmentsDescription": "Se marcarán como cerradas",
       "impactFoldersLabel": "Carpetas",
       "impactFoldersDescription": "Se archivarán",
-      "impactReportsLabel": "Reportes",
-      "impactReportsDescription": "Se cerrarán"
+      "impactReportsLabel": "Reportes mensuales",
+      "impactReportsDescription": "Los borradores se generarán y quedarán congelados",
+      "clubsTitle": "Inscripciones que se cerrarán",
+      "irreversible": "Esta acción es irreversible. Los registros del año quedarán cerrados y no podrán editarse.",
+      "closeButton": "Cerrar año"
     },
-    "client": {
-      "selectYearPlaceholder": "Selecciona un año...",
-      "yearActiveBadge": "(activo)",
-      "previewButton": "Vista previa",
-      "previewLoading": "Cargando...",
-      "confirmCloseButton": "Confirmar cierre",
-      "confirmCloseLoading": "Cerrando..."
+    "confirm": {
+      "title": "¿Cerrar el año {year}?",
+      "description": "Se {enrollments, plural, one {cerrará # inscripción} other {cerrarán # inscripciones}}, se {folders, plural, one {archivará # carpeta} other {archivarán # carpetas}} y se {reports, plural, one {generará # reporte} other {generarán # reportes}}. Esta acción es irreversible.",
+      "cancel": "Cancelar"
+    },
+    "result": {
+      "title": "Año eclesiástico cerrado",
+      "enrollments": "Inscripciones cerradas",
+      "folders": "Carpetas archivadas",
+      "reports": "Reportes generados",
+      "investiture": "Solicitudes de investidura cerradas"
     }
   },
   "inventory": {

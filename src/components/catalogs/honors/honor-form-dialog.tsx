@@ -186,9 +186,9 @@ export function HonorFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>{tFields("honor_category")}</Label>
+              <Label htmlFor="honor-honor-category">{tFields("honor_category")}</Label>
               <Select value={honorsCategoryId} onValueChange={setHonorsCategoryId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="honor-honor-category" className="w-full">
                   <SelectValue placeholder={tFields("honor_category")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,9 +204,9 @@ export function HonorFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{tFields("club_type")}</Label>
+              <Label htmlFor="honor-club-type">{tFields("club_type")}</Label>
               <Select value={clubTypeId} onValueChange={setClubTypeId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="honor-club-type" className="w-full">
                   <SelectValue placeholder={tFields("club_type")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -219,9 +219,9 @@ export function HonorFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{tFields("approval")}</Label>
+              <Label htmlFor="honor-approval">{tFields("approval")}</Label>
               <Select value={approval} onValueChange={setApproval}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="honor-approval" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -232,9 +232,9 @@ export function HonorFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{tFields("skill_level")}</Label>
+              <Label htmlFor="honor-skill-level">{tFields("skill_level")}</Label>
               <Select value={skillLevel} onValueChange={setSkillLevel}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="honor-skill-level" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

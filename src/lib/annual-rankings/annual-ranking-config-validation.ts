@@ -39,8 +39,8 @@ export const annualRankingConfigSchema = z
       .positive("Selecciona un campo local")
       .nullable()
       .optional(),
-    ecclesiastical_year_id: z.number().int().positive("Selecciona un año"),
-    club_type_id: z.number().int().positive("Selecciona un tipo de club"),
+    ecclesiastical_year_id: z.number({ error: "Selecciona un año" }).int().positive("Selecciona un año"),
+    club_type_id: z.number({ error: "Selecciona un tipo de club" }).int().positive("Selecciona un tipo de club"),
     max_points: z
       .number({ message: "El total anual de puntos es requerido" })
       .int("El total anual debe ser un número entero")

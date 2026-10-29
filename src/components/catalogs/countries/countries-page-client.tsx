@@ -66,6 +66,7 @@ export function CountriesPageClient({
   const t = useTranslations("catalogs");
   const tFields = useTranslations("catalogs.fields");
   const entity = t("entities.countries.singular");
+  const entityPlural = t("entities.countries.title").toLocaleLowerCase();
 
   const [sorting, setSorting] = React.useState<SortingState>([{ id: "name", desc: false }]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -166,7 +167,7 @@ export function CountriesPageClient({
 
       <Card>
         <CardHeader className="gap-4 border-b pb-4">
-          <CardTitle className="text-base">{t("crudPage.listOf", { entity })}</CardTitle>
+          <CardTitle className="text-base">{t("crudPage.listOf", { entity: entityPlural })}</CardTitle>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <InputGroup className="lg:max-w-sm">
               <InputGroupAddon>

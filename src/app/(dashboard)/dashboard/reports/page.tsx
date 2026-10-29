@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { resolveActiveClubContext } from "@/lib/auth/club-context";
 import type { AuthUser } from "@/lib/auth/types";
 import { getCurrentClubEnrollment, getClubEnrollmentId } from "@/lib/api/club-enrollments";
@@ -23,6 +24,8 @@ const ReportsListClient = dynamic(
     })),
   { loading: () => <ReportsPageSkeleton /> },
 );
+
+const SUPERVISION_PATH = "/dashboard/reports/supervision";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -141,7 +144,14 @@ async function ReportsContent({
           icon={FileText}
           title={t("page.empty_no_active_enrollment_title")}
           description={errorMessage}
-        />
+        >
+          {/* Territorial staff have no club enrollment: point them to supervision. */}
+          {canAccessDashboardPath(user, SUPERVISION_PATH) && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={SUPERVISION_PATH}>{t("page.go_to_supervision")}</Link>
+            </Button>
+          )}
+        </EmptyState>
       </div>
     );
   }

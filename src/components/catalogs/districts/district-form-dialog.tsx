@@ -134,9 +134,9 @@ export function DistrictFormDialog({
               </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>{tFields("local_field")}</Label>
+              <Label htmlFor="district-local-field">{tFields("local_field")}</Label>
               <Select value={localFieldId} onValueChange={setLocalFieldId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="district-local-field" className="w-full">
                   <SelectValue placeholder={tFields("local_field")} />
                 </SelectTrigger>
                 <SelectContent>

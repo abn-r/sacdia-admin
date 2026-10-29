@@ -148,9 +148,9 @@ export function UnionFormDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>{tFields("country")}</Label>
+              <Label htmlFor="union-country">{tFields("country")}</Label>
               <Select value={countryId} onValueChange={setCountryId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="union-country" className="w-full">
                   <SelectValue placeholder={tFields("country")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -163,9 +163,9 @@ export function UnionFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{t("entities.divisions.title")}</Label>
+              <Label htmlFor="union-entities.divisions.title">{t("entities.divisions.title")}</Label>
               <Select value={divisionId} onValueChange={setDivisionId} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="union-entities.divisions.title" className="w-full">
                   <SelectValue placeholder={t("entities.divisions.title")} />
                 </SelectTrigger>
                 <SelectContent>

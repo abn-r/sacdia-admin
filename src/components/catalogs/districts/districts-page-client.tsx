@@ -70,6 +70,7 @@ export function DistrictsPageClient({
   const tCatalogs = useTranslations("catalogs");
   const tFields = useTranslations("catalogs.fields");
   const entity = t("singular");
+  const entityPlural = t("title").toLocaleLowerCase();
 
   const [sorting, setSorting] = React.useState<SortingState>([{ id: "name", desc: false }]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -170,7 +171,7 @@ export function DistrictsPageClient({
 
       <Card>
         <CardHeader className="gap-4 border-b pb-4">
-          <CardTitle className="text-base">{tCatalogs("crudPage.listOf", { entity })}</CardTitle>
+          <CardTitle className="text-base">{tCatalogs("crudPage.listOf", { entity: entityPlural })}</CardTitle>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
             <InputGroup className="lg:max-w-sm">
               <InputGroupAddon>
