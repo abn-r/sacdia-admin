@@ -3426,6 +3426,10 @@ export interface IntlMessages {
       assignFormDescription: string;
       primaryConflict: string;
       missingPrimaryBadge: string;
+      mutationFailed: string;
+      toastAssigned: string;
+      toastReplaced: string;
+      toastRemoved: string;
       unknownClub: string;
       sectionFallback: string;
       emptyEventsTitle: string;

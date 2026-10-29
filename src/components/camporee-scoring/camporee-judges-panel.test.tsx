@@ -16,6 +16,7 @@ import type {
 } from "@/lib/api/camporee-scoring";
 import {
   addCamporeeJudgeAction,
+  assignCamporeeEventJudgeAction,
   deleteCamporeeEventJudgeAssignmentAction,
   removeCamporeeJudgeAction,
 } from "@/lib/camporee-scoring/actions";
@@ -491,6 +492,131 @@ describe("EventJudgeAssignmentsPanel", () => {
   beforeEach(() => {
     refreshMock.mockClear();
     vi.mocked(deleteCamporeeEventJudgeAssignmentAction).mockReset();
+    vi.mocked(assignCamporeeEventJudgeAction).mockReset();
+    vi.mocked(toast.success).mockClear();
+    vi.mocked(toast.error).mockClear();
+  });
+
+  async function openAssignForm() {
+    render(
+      <NextIntlClientProvider locale="es" messages={es}>
+        <EventJudgeAssignmentsPanel
+          camporeeId={1}
+          events={[event]}
+          judges={judges}
+          assignmentsByEvent={{ 10: [] }}
+          targetsByEvent={{ 10: targets }}
+          canEdit
+        />
+      </NextIntlClientProvider>,
+    );
+
+    await openEventFromMenu();
+    fireEvent.click(screen.getByLabelText("Sección"));
+    fireEvent.click(await screen.findByRole("option", { name: /Halcones · Conquistadores/i }));
+    fireEvent.click(screen.getByLabelText("Juez"));
+    fireEvent.click(await screen.findByRole("option", { name: "Ana Juez" }));
+  }
+
+  function statValue(label: string) {
+    return screen.getByText(label, { selector: "p" }).nextElementSibling?.textContent;
+  }
+
+  it("shows a pending state, then updates the list at once and toasts when assigning", async () => {
+    const user = userEvent.setup();
+    let resolveAssign: (value: Awaited<ReturnType<typeof assignCamporeeEventJudgeAction>>) => void =
+      () => {};
+    vi.mocked(assignCamporeeEventJudgeAction).mockReturnValue(
+      new Promise((resolve) => {
+        resolveAssign = resolve;
+      }),
+    );
+
+    await openAssignForm();
+    expect(statValue("Con juez principal")).toBe("0");
+
+    await user.click(screen.getByRole("button", { name: "Asignar juez" }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Asignar juez" })).toHaveAttribute(
+        "data-loading",
+      ),
+    );
+    expect(toast.success).not.toHaveBeenCalled();
+
+    resolveAssign({
+      success: "Asignación guardada.",
+      assignment: {
+        camporee_event_judge_assignment_id: "assignment-new",
+        camporee_event_id: 10,
+        camporee_judge_id: "judge-1",
+        camporee_club_id: 5,
+        club_section_id: 99,
+        judge_role: "primary",
+        active: true,
+      },
+    });
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Asignación guardada"));
+    expect(statValue("Con juez principal")).toBe("1");
+    expect(statValue("Pendientes")).toBe("0");
+    expect(screen.queryByText("Falta juez principal")).toBeNull();
+    expect(screen.getByRole("button", { name: "Asignar juez" })).not.toHaveAttribute(
+      "data-loading",
+    );
+    expect(refreshMock).toHaveBeenCalledTimes(1);
+
+    const [, formData] = vi.mocked(assignCamporeeEventJudgeAction).mock.calls[0]!;
+    expect(formData.get("camporee_judge_id")).toBe("judge-1");
+    expect(formData.get("club_section_id")).toBe("99");
+    expect(formData.get("judge_role")).toBe("primary");
+  });
+
+  it("toasts the error and keeps the list unchanged when assigning fails", async () => {
+    const user = userEvent.setup();
+    vi.mocked(assignCamporeeEventJudgeAction).mockResolvedValue({
+      error: "No se pudo asignar el juez.",
+    });
+
+    await openAssignForm();
+    await user.click(screen.getByRole("button", { name: "Asignar juez" }));
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("No se pudo asignar el juez."),
+    );
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(statValue("Con juez principal")).toBe("0");
+    expect(refreshMock).not.toHaveBeenCalled();
+  });
+
+  it("toasts and updates the counters at once when removing an assignment", async () => {
+    const user = userEvent.setup();
+    vi.mocked(deleteCamporeeEventJudgeAssignmentAction).mockResolvedValue({
+      success: "Asignación eliminada.",
+    });
+
+    render(
+      <NextIntlClientProvider locale="es" messages={es}>
+        <EventJudgeAssignmentsPanel
+          camporeeId={1}
+          events={[event]}
+          judges={judges}
+          assignmentsByEvent={{ 10: assignments }}
+          targetsByEvent={{ 10: targets }}
+          canEdit
+        />
+      </NextIntlClientProvider>,
+    );
+
+    await openEventFromMenu();
+    expect(statValue("Con juez principal")).toBe("1");
+    await user.click(screen.getByLabelText("Editar asignación"));
+    await user.click(screen.getByRole("menuitem", { name: "Quitar" }));
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Asignación quitada"));
+    expect(statValue("Con juez principal")).toBe("0");
+    expect(screen.getByText("Falta juez principal")).toBeInTheDocument();
+    expect(refreshMock).toHaveBeenCalledTimes(1);
   });
 
   it("prevents assigning a second primary judge to the same section/event", async () => {

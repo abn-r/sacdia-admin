@@ -12,6 +12,7 @@ import {
   submitCamporeeEventScore,
   updateCamporeeEventJudgeAssignment,
   updateCamporeeJudge,
+  type CamporeeEventJudgeAssignment,
   type CamporeeJudgeRole,
   type CamporeeTemplateRubricInput,
 } from "@/lib/api/camporee-scoring";
@@ -27,7 +28,27 @@ export type CamporeeScoringActionState = {
    * message instead of the Spanish `success` text.
    */
   scoreMode?: "official" | "correction";
+  /**
+   * Set by assign / replace judge assignment so the client can update its list
+   * right away instead of waiting for a full page refresh.
+   */
+  assignment?: CamporeeEventJudgeAssignment;
 };
+
+function readAssignment(payload: unknown): CamporeeEventJudgeAssignment | undefined {
+  const candidate =
+    payload && typeof payload === "object" && "data" in payload
+      ? (payload as { data: unknown }).data
+      : payload;
+  if (
+    candidate &&
+    typeof candidate === "object" &&
+    "camporee_event_judge_assignment_id" in candidate
+  ) {
+    return candidate as CamporeeEventJudgeAssignment;
+  }
+  return undefined;
+}
 
 function readString(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
@@ -214,7 +235,6 @@ export async function assignCamporeeEventJudgeAction(
   if (permissionError) return { error: permissionError };
 
   const eventId = readPositiveNumber(formData, "event_id");
-  const camporeeId = readPositiveNumber(formData, "camporee_id");
   const clubSectionId = readPositiveNumber(formData, "club_section_id");
   const judgeId = readString(formData, "camporee_judge_id");
   const judgeRole = readString(formData, "judge_role") as CamporeeJudgeRole;
@@ -226,8 +246,9 @@ export async function assignCamporeeEventJudgeAction(
     return { error: "El rol de juez es inválido." };
   }
 
+  let created: unknown;
   try {
-    await assignCamporeeEventJudge(eventId, {
+    created = await assignCamporeeEventJudge(eventId, {
       camporee_judge_id: judgeId,
       club_section_id: clubSectionId,
       judge_role: judgeRole,
@@ -241,8 +262,10 @@ export async function assignCamporeeEventJudgeAction(
     };
   }
 
-  revalidatePath(getCamporeePath(camporeeId, isUnion));
-  return { success: "Asignación guardada." };
+  // No revalidatePath here: it would make this response wait for a full
+  // server render of the camporee page. The client applies the returned
+  // assignment immediately and refreshes the route in the background.
+  return { success: "Asignación guardada.", assignment: readAssignment(created) };
 }
 
 export async function replaceCamporeeEventJudgeAssignmentAction(
@@ -255,7 +278,6 @@ export async function replaceCamporeeEventJudgeAssignmentAction(
 
   const assignmentId = readString(formData, "assignment_id");
   const eventId = readPositiveNumber(formData, "event_id");
-  const camporeeId = readPositiveNumber(formData, "camporee_id");
   const clubSectionId = readPositiveNumber(formData, "club_section_id");
   const judgeId = readString(formData, "camporee_judge_id");
   const judgeRole = readString(formData, "judge_role") as CamporeeJudgeRole;
@@ -267,9 +289,10 @@ export async function replaceCamporeeEventJudgeAssignmentAction(
     return { error: "El rol de juez es inválido." };
   }
 
+  let created: unknown;
   try {
     await deleteCamporeeEventJudgeAssignment(assignmentId);
-    await assignCamporeeEventJudge(eventId, {
+    created = await assignCamporeeEventJudge(eventId, {
       camporee_judge_id: judgeId,
       club_section_id: clubSectionId,
       judge_role: judgeRole,
@@ -283,8 +306,7 @@ export async function replaceCamporeeEventJudgeAssignmentAction(
     };
   }
 
-  revalidatePath(getCamporeePath(camporeeId, isUnion));
-  return { success: "Asignación actualizada." };
+  return { success: "Asignación actualizada.", assignment: readAssignment(created) };
 }
 
 export async function updateCamporeeEventJudgeAssignmentAction(
@@ -331,8 +353,6 @@ export async function deleteCamporeeEventJudgeAssignmentAction(
   const assignmentId = readString(formData, "assignment_id");
   if (!assignmentId) return { error: "No se pudo identificar la asignación." };
 
-  const camporeeId = readPositiveNumber(formData, "camporee_id");
-
   try {
     await deleteCamporeeEventJudgeAssignment(assignmentId);
   } catch (error) {
@@ -343,7 +363,6 @@ export async function deleteCamporeeEventJudgeAssignmentAction(
     };
   }
 
-  revalidatePath(getCamporeePath(camporeeId, isUnion));
   return { success: "Asignación eliminada." };
 }
 
