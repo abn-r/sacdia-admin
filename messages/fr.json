@@ -3397,6 +3397,10 @@
       "assignFormDescription": "Liez un juge à une section pour cette épreuve.",
       "primaryConflict": "Cette section a déjà un juge principal actif pour l'épreuve.",
       "missingPrimaryBadge": "Juge principal manquant",
+      "mutationFailed": "Impossible d’enregistrer la modification. Réessayez.",
+      "toastAssigned": "Assignation enregistrée",
+      "toastReplaced": "Juge mis à jour",
+      "toastRemoved": "Assignation retirée",
       "unknownClub": "Club",
       "sectionFallback": "Section {id}",
       "emptyEventsTitle": "Aucune épreuve notée",
@@ -3409,7 +3413,7 @@
       "title": "Enregistrer le score",
       "description": "Quand le juge ne peut pas soumettre depuis l'app. Saisissez les points obtenus par critère.",
       "eventLabel": "Épreuve notée",
-      "eventMeta": "{criteria} critères · {sections} sections",
+      "eventMeta": "{criteria, plural, one {# critère} other {# critères}} · {sections, plural, one {# section} other {# sections}}",
       "statCriteria": "Critères",
       "statSections": "Sections",
       "statTotal": "Total en cours",
@@ -3430,6 +3434,9 @@
       "notesLabel": "Notes",
       "notesPlaceholder": "Observations optionnelles",
       "submitButton": "Enregistrer le score officiel",
+      "submitCorrectionButton": "Enregistrer la correction",
+      "savedOfficial": "Score enregistré",
+      "savedCorrection": "Correction enregistrée",
       "readOnlyHint": "Permissions de gestion des événements requises pour enregistrer des scores.",
       "noRubrics": "Cette épreuve est notée mais n'a pas de rubriques actives.",
       "emptyEventsTitle": "Aucune épreuve notée",
@@ -3437,12 +3444,14 @@
       "emptySectionsTitle": "Aucune section inscrite",
       "emptySectionsDescription": "Inscrivez des clubs pour enregistrer des scores.",
       "notesOverrideHint": "Cette section a déjà un score officiel. Indiquez le motif de la correction.",
-      "notesOverridePlaceholder": "Motif de la correction"
+      "notesOverridePlaceholder": "Motif de la correction",
+      "scoreLoading": "Chargement du score actuel…",
+      "scoreLoadError": "Impossible de charger le score actuel. Actualisez la page puis réessayez."
     },
     "leaderboard": {
       "eyebrow": "Résultats",
       "title": "Classement du camporee",
-      "description": "Positions selon les points officiels accumulés.",
+      "description": "Positions selon le pourcentage de points obtenus sur les épreuves notées.",
       "emptyTitle": "Pas encore de résultats",
       "emptyDescription": "Ils apparaîtront une fois les scores officiels enregistrés.",
       "colRank": "Rang",
@@ -3451,6 +3460,9 @@
       "colAwarded": "Points",
       "colMax": "Max",
       "colPercent": "%",
+      "colCoverage": "Couverture",
+      "coverageEvents": "{scored} sur {total, plural, one {# épreuve notée} other {# épreuves notées}}",
+      "coveragePoints": "{scored} sur {total} points possibles",
       "sectionFallback": "Section {id}"
     },
     "list": {
@@ -3594,8 +3606,8 @@
       "loadFailed": "Impossible d'actualiser la liste des clubs"
     },
     "clubsPanel": {
-      "emptyTitle": "Aucun club inscrit",
-      "emptyDescription": "Il n'y a pas de clubs inscrits dans cette camporée.",
+      "emptyTitle": "Aucun club inscrit pour le moment",
+      "emptyDescription": "Les directeurs inscrivent leurs clubs depuis l’app, ou vous pouvez en inscrire un avec « Inscrire un club ».",
       "colSection": "Section",
       "colStatus": "Statut",
       "colRegisteredBy": "Enregistré par",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type MouseEvent } from "react";
+import { useId, useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, LockOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -56,6 +56,7 @@ export function ClubRegistrationActions({
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const reasonId = useId();
 
   const closed = isClubRegistrationClosed(closedAt);
   const closeBlocked =
@@ -96,21 +97,36 @@ export function ClubRegistrationActions({
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setConfirmOpen(true)}
-        disabled={Boolean(disabledReason)}
-        title={disabledReason}
-        data-testid={closed ? "club-registration-reopen" : "club-registration-close"}
-      >
-        {closed ? (
-          <LockOpen className="mr-2 size-3.5" />
-        ) : (
-          <Lock className="mr-2 size-3.5" />
+      {/*
+        The reason is visible text, not a `title`: disabled buttons don't fire
+        hover events and `title` never shows on touch or keyboard.
+      */}
+      <div className="flex max-w-xs flex-col items-start gap-1 sm:items-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setConfirmOpen(true)}
+          disabled={Boolean(disabledReason)}
+          aria-describedby={disabledReason ? reasonId : undefined}
+          data-testid={closed ? "club-registration-reopen" : "club-registration-close"}
+        >
+          {closed ? (
+            <LockOpen className="mr-2 size-3.5" />
+          ) : (
+            <Lock className="mr-2 size-3.5" />
+          )}
+          {closed ? t("reopenButton") : t("closeButton")}
+        </Button>
+        {disabledReason && (
+          <p
+            id={reasonId}
+            data-testid="club-registration-disabled-reason"
+            className="text-xs text-muted-foreground sm:text-right"
+          >
+            {disabledReason}
+          </p>
         )}
-        {closed ? t("reopenButton") : t("closeButton")}
-      </Button>
+      </div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>

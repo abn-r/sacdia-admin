@@ -3397,6 +3397,10 @@
       "assignFormDescription": "Link a judge to a section for this event.",
       "primaryConflict": "This section already has an active primary judge for the event.",
       "missingPrimaryBadge": "Missing primary judge",
+      "mutationFailed": "Couldn’t save the change. Try again.",
+      "toastAssigned": "Assignment saved",
+      "toastReplaced": "Judge updated",
+      "toastRemoved": "Assignment removed",
       "unknownClub": "Club",
       "sectionFallback": "Section {id}",
       "emptyEventsTitle": "No scoring events",
@@ -3409,7 +3413,7 @@
       "title": "Record score",
       "description": "When the judge cannot submit from the app. Enter points earned per criterion.",
       "eventLabel": "Scoring event",
-      "eventMeta": "{criteria} criteria · {sections} sections",
+      "eventMeta": "{criteria, plural, one {# criterion} other {# criteria}} · {sections, plural, one {# section} other {# sections}}",
       "statCriteria": "Criteria",
       "statSections": "Sections",
       "statTotal": "Running total",
@@ -3430,6 +3434,9 @@
       "notesLabel": "Notes",
       "notesPlaceholder": "Optional observations",
       "submitButton": "Save official score",
+      "submitCorrectionButton": "Save correction",
+      "savedOfficial": "Score saved",
+      "savedCorrection": "Correction saved",
       "readOnlyHint": "You need event management permissions to record scores.",
       "noRubrics": "This event is marked as scorable but has no active rubrics.",
       "emptyEventsTitle": "No scoring events",
@@ -3437,12 +3444,14 @@
       "emptySectionsTitle": "No enrolled sections",
       "emptySectionsDescription": "Enroll clubs to record scores.",
       "notesOverrideHint": "This section already has an official score. Enter the reason for the correction.",
-      "notesOverridePlaceholder": "Reason for the correction"
+      "notesOverridePlaceholder": "Reason for the correction",
+      "scoreLoading": "Loading the current score…",
+      "scoreLoadError": "Could not load the current score. Refresh the page and try again."
     },
     "leaderboard": {
       "eyebrow": "Results",
       "title": "Camporee ranking",
-      "description": "Standings based on official accumulated points.",
+      "description": "Standings based on the percentage of points earned over the scored events.",
       "emptyTitle": "No results yet",
       "emptyDescription": "They will appear once official scores are recorded.",
       "colRank": "Rank",
@@ -3451,6 +3460,9 @@
       "colAwarded": "Points",
       "colMax": "Max",
       "colPercent": "%",
+      "colCoverage": "Coverage",
+      "coverageEvents": "{scored} of {total, plural, one {# event scored} other {# events scored}}",
+      "coveragePoints": "{scored} of {total} possible points",
       "sectionFallback": "Section {id}"
     },
     "list": {
@@ -3594,8 +3606,8 @@
       "loadFailed": "Could not refresh the club list"
     },
     "clubsPanel": {
-      "emptyTitle": "No enrolled clubs",
-      "emptyDescription": "There are no clubs enrolled in this camporee yet.",
+      "emptyTitle": "No clubs enrolled yet",
+      "emptyDescription": "Directors enroll their clubs from the app, or you can enroll one with “Enroll club”.",
       "colSection": "Section",
       "colStatus": "Status",
       "colRegisteredBy": "Registered by",

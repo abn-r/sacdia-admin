@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useActionState, useTransition } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { Label } from "@/components/ui/label";
@@ -253,7 +254,7 @@ export function EventJudgeAssignmentsPanel({
 }: EventJudgeAssignmentsPanelProps) {
   const t = useTranslations("camporees.judgeAssignments");
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [localAssignments, setLocalAssignments] = useState(assignmentsByEvent);
 
@@ -283,10 +284,6 @@ export function EventJudgeAssignmentsPanel({
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedJudgeId, setSelectedJudgeId] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<CamporeeJudgeRole>("primary");
-  const [state, formAction] = useActionState<CamporeeScoringActionState, FormData>(
-    assignCamporeeEventJudgeAction,
-    {},
-  );
 
   const eventSummaries = useMemo<EventSummary[]>(() => {
     return scoringEvents.map((event) => {
@@ -359,25 +356,90 @@ export function EventJudgeAssignmentsPanel({
     setActionError(null);
   }
 
-  function runMutation(
+  /**
+   * Runs a judge-assignment mutation. The list is updated from the action
+   * result right away; the route is refreshed in the background afterwards so
+   * the rest of the page (tab counters, score entry) catches up without
+   * blocking the UI or the toast.
+   */
+  async function runMutation(
     action: (
       prevState: CamporeeScoringActionState,
       formData: FormData,
     ) => Promise<CamporeeScoringActionState>,
     formData: FormData,
-    optimistic?: () => void,
+    successMessage: string,
+    onSuccess?: (result: CamporeeScoringActionState) => void,
+    options: { refreshOnError?: boolean } = {},
   ) {
+    if (isPending) return;
     setActionError(null);
-    startTransition(async () => {
-      // Server actions use useActionState signature (prevState, formData).
-      const result = await action({}, formData);
-      if (result.error) {
-        setActionError(result.error);
-        return;
-      }
-      optimistic?.();
-      router.refresh();
-    });
+    setIsPending(true);
+    let result: CamporeeScoringActionState;
+    try {
+      result = await action({}, formData);
+    } catch {
+      result = { error: t("mutationFailed") };
+    } finally {
+      setIsPending(false);
+    }
+
+    if (result.error) {
+      setActionError(result.error);
+      toast.error(result.error);
+      // A replace deletes before it assigns, so a failure can leave the server
+      // ahead of the list we show.
+      if (options.refreshOnError) router.refresh();
+      return;
+    }
+
+    onSuccess?.(result);
+    toast.success(successMessage);
+    router.refresh();
+  }
+
+  function deactivateLocal(assignment: CamporeeEventJudgeAssignment) {
+    setLocalAssignments((prev) => ({
+      ...prev,
+      [assignment.camporee_event_id]: (prev[assignment.camporee_event_id] ?? []).map(
+        (item) =>
+          item.camporee_event_judge_assignment_id ===
+          assignment.camporee_event_judge_assignment_id
+            ? { ...item, active: false }
+            : item,
+      ),
+    }));
+  }
+
+  function addLocal(assignment: CamporeeEventJudgeAssignment) {
+    setLocalAssignments((prev) => ({
+      ...prev,
+      [assignment.camporee_event_id]: [
+        ...(prev[assignment.camporee_event_id] ?? []).filter(
+          (item) =>
+            item.camporee_event_judge_assignment_id !==
+            assignment.camporee_event_judge_assignment_id,
+        ),
+        assignment,
+      ],
+    }));
+  }
+
+  function handleAssignSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedEventId || !selectedSectionId || !selectedJudgeId) return;
+
+    void runMutation(
+      assignCamporeeEventJudgeAction,
+      new FormData(event.currentTarget),
+      t("toastAssigned"),
+      (result) => {
+        if (result.assignment) addLocal(result.assignment);
+        setSelectedSectionId(null);
+        setSelectedJudgeId("");
+        setSelectedRole("primary");
+      },
+    );
   }
 
   function handleRemove(assignment: CamporeeEventJudgeAssignment) {
@@ -386,19 +448,12 @@ export function EventJudgeAssignmentsPanel({
     formData.set("camporee_id", String(camporeeId));
     formData.set("is_union", isUnionCamporee ? "true" : "false");
 
-    runMutation(deleteCamporeeEventJudgeAssignmentAction, formData, () => {
-      setLocalAssignments((prev) => {
-        const eventId = assignment.camporee_event_id;
-        const next = { ...prev };
-        next[eventId] = (next[eventId] ?? []).map((item) =>
-          item.camporee_event_judge_assignment_id ===
-          assignment.camporee_event_judge_assignment_id
-            ? { ...item, active: false }
-            : item,
-        );
-        return next;
-      });
-    });
+    void runMutation(
+      deleteCamporeeEventJudgeAssignmentAction,
+      formData,
+      t("toastRemoved"),
+      () => deactivateLocal(assignment),
+    );
   }
 
   function handleReplace(
@@ -418,7 +473,16 @@ export function EventJudgeAssignmentsPanel({
       formData.set("camporee_club_id", String(target.camporee_club_id));
     }
 
-    runMutation(replaceCamporeeEventJudgeAssignmentAction, formData);
+    void runMutation(
+      replaceCamporeeEventJudgeAssignmentAction,
+      formData,
+      t("toastReplaced"),
+      (result) => {
+        deactivateLocal(assignment);
+        if (result.assignment) addLocal(result.assignment);
+      },
+      { refreshOnError: true },
+    );
   }
 
   if (scoringEvents.length === 0) {
@@ -620,8 +684,10 @@ export function EventJudgeAssignmentsPanel({
         ))}
       </div>
 
-      {(actionError || state.error) && (
-        <p className="text-sm text-destructive">{actionError ?? state.error}</p>
+      {actionError && (
+        <p className="text-sm text-destructive" role="alert">
+          {actionError}
+        </p>
       )}
 
       <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
@@ -748,7 +814,7 @@ export function EventJudgeAssignmentsPanel({
               <p className="text-sm text-muted-foreground">{t("assignFormDescription")}</p>
             </div>
 
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={handleAssignSubmit} className="space-y-4">
               <input type="hidden" name="camporee_id" value={camporeeId} />
               <input
                 type="hidden"
@@ -832,6 +898,7 @@ export function EventJudgeAssignmentsPanel({
               <div className="flex flex-wrap items-center gap-3">
                 <Button
                   type="submit"
+                  loading={isPending}
                   disabled={primaryConflict || !selectedSectionId || !selectedJudgeId}
                   className="rounded-full px-6"
                 >
@@ -839,12 +906,6 @@ export function EventJudgeAssignmentsPanel({
                 </Button>
                 {primaryConflict && (
                   <p className="text-sm text-destructive">{t("primaryConflict")}</p>
-                )}
-                {state.error && (
-                  <p className="text-sm text-destructive">{state.error}</p>
-                )}
-                {state.success && (
-                  <p className="text-sm text-muted-foreground">{state.success}</p>
                 )}
               </div>
             </form>

@@ -3426,6 +3426,10 @@ export interface IntlMessages {
       assignFormDescription: string;
       primaryConflict: string;
       missingPrimaryBadge: string;
+      mutationFailed: string;
+      toastAssigned: string;
+      toastReplaced: string;
+      toastRemoved: string;
       unknownClub: string;
       sectionFallback: string;
       emptyEventsTitle: string;
@@ -3459,6 +3463,9 @@ export interface IntlMessages {
       notesLabel: string;
       notesPlaceholder: string;
       submitButton: string;
+      submitCorrectionButton: string;
+      savedOfficial: string;
+      savedCorrection: string;
       readOnlyHint: string;
       noRubrics: string;
       emptyEventsTitle: string;
@@ -3467,6 +3474,8 @@ export interface IntlMessages {
       emptySectionsDescription: string;
       notesOverrideHint: string;
       notesOverridePlaceholder: string;
+      scoreLoading: string;
+      scoreLoadError: string;
     };
     leaderboard: {
       eyebrow: string;
@@ -3480,6 +3489,9 @@ export interface IntlMessages {
       colAwarded: string;
       colMax: string;
       colPercent: string;
+      colCoverage: string;
+      coverageEvents: string;
+      coveragePoints: string;
       sectionFallback: string;
     };
     list: {

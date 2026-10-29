@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -12,19 +13,47 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatTabularNumber } from "@/lib/format-locale";
-import type { CamporeeLeaderboard as CamporeeLeaderboardData } from "@/lib/api/camporee-scoring";
+import { buildSectionCoverage } from "@/lib/camporee-scoring/leaderboard-coverage";
+import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
+import type {
+  CamporeeEventRubric,
+  CamporeeLeaderboard as CamporeeLeaderboardData,
+  CamporeeScoringTarget,
+} from "@/lib/api/camporee-scoring";
 
 export interface CamporeeLeaderboardProps {
   leaderboard?: CamporeeLeaderboardData | null;
+  /**
+   * Optional context used to show how much of the scorable events each
+   * section has been scored on. Without it the coverage column is hidden.
+   */
+  events?: BackendCamporeeEvent[];
+  rubricsByEvent?: Record<number, CamporeeEventRubric[]>;
+  targetsByEvent?: Record<number, CamporeeScoringTarget[]>;
 }
 
 function formatNumber(value: number) {
   return formatTabularNumber(value);
 }
 
-export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
+export function CamporeeLeaderboard({
+  leaderboard,
+  events,
+  rubricsByEvent,
+  targetsByEvent,
+}: CamporeeLeaderboardProps) {
   const t = useTranslations("camporees.leaderboard");
-  const rows = leaderboard?.rows ?? [];
+  const rows = useMemo(() => leaderboard?.rows ?? [], [leaderboard]);
+
+  const coverage = useMemo(() => {
+    if (!events || !rubricsByEvent || !targetsByEvent) return null;
+    return buildSectionCoverage(
+      events,
+      rubricsByEvent,
+      targetsByEvent,
+      new Map(rows.map((row) => [row.club_section_id, row.total_max_points])),
+    );
+  }, [events, rows, rubricsByEvent, targetsByEvent]);
 
   if (rows.length === 0) {
     return (
@@ -62,6 +91,7 @@ export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
               <TableHead className="text-right">{t("colAwarded")}</TableHead>
               <TableHead className="text-right">{t("colMax")}</TableHead>
               <TableHead className="text-right">{t("colPercent")}</TableHead>
+              {coverage && <TableHead>{t("colCoverage")}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -81,6 +111,24 @@ export function CamporeeLeaderboard({ leaderboard }: CamporeeLeaderboardProps) {
                 <TableCell className="text-right tabular-nums">
                   {formatNumber(row.percentage)}%
                 </TableCell>
+                {coverage && (
+                  <TableCell className="text-sm text-muted-foreground tabular-nums">
+                    {(() => {
+                      const section = coverage.get(row.club_section_id);
+                      if (!section || section.scorableEvents === 0) return "—";
+                      if (section.scoredEvents !== null) {
+                        return t("coverageEvents", {
+                          scored: section.scoredEvents,
+                          total: section.scorableEvents,
+                        });
+                      }
+                      return t("coveragePoints", {
+                        scored: formatNumber(row.total_max_points),
+                        total: formatNumber(section.possibleMaxPoints),
+                      });
+                    })()}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

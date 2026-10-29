@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest, apiRequestFromClient } from "@/lib/api/client";
 
 type ApiEnvelope<T> = { status: string; data: T };
 
@@ -151,6 +151,21 @@ export interface CamporeeScoringTarget {
   active_result_id?: string | null;
 }
 
+export interface CamporeeOfficialScoreItem {
+  camporee_event_rubric_id: number;
+  awarded_points: number;
+  notes?: string | null;
+}
+
+export interface CamporeeOfficialScore {
+  camporee_event_section_result_id: string;
+  score_status: string;
+  total_awarded_points: number;
+  total_max_points: number;
+  notes: string | null;
+  items: CamporeeOfficialScoreItem[];
+}
+
 export interface CamporeeLeaderboardRow {
   rank: number;
   camporee_club_id: number | null;
@@ -295,6 +310,31 @@ export async function submitCamporeeEventScore(
     `/camporee-events/${eventId}/sections/${clubSectionId}/scores`,
     { method: "POST", body: payload },
   );
+}
+
+/**
+ * Client-side read of the active official score for an event section.
+ * Resolves to `null` when the section has no active result (empty payload or 404).
+ */
+export async function getCamporeeEventSectionScore(
+  eventId: number,
+  clubSectionId: number,
+): Promise<CamporeeOfficialScore | null> {
+  try {
+    const res = await apiRequestFromClient<unknown>(
+      `/camporee-events/${eventId}/sections/${clubSectionId}/score`,
+    );
+    const data = unwrapApiData<CamporeeOfficialScore | null | undefined>(res);
+    if (!data || typeof data !== "object" || !Array.isArray(data.items)) {
+      return null;
+    }
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function getLocalCamporeeLeaderboard(camporeeId: number) {

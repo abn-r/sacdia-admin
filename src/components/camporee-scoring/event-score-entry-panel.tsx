@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState, useActionState, useEffect } from "react";
+import { useMemo, useRef, useState, useActionState, useEffect } from "react";
 import { Calculator } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatTabularNumber } from "@/lib/format-locale";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
+import { getCamporeeEventSectionScore } from "@/lib/api/camporee-scoring";
 import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
@@ -41,6 +44,13 @@ export interface EventScoreEntryPanelProps {
 }
 
 const ALL_JUDGES = "__all__";
+
+/** Points loaded from the active official result, keyed by the selection it belongs to. */
+type LoadedScore = {
+  key: string;
+  status: "ok" | "error";
+  points: Record<number, number>;
+};
 
 function toNumber(value: string): number {
   const parsed = Number(value);
@@ -90,6 +100,7 @@ export function EventScoreEntryPanel({
     return targetsByEvent[firstEventId]?.[0]?.club_section_id ?? null;
   });
   const [awardedPoints, setAwardedPoints] = useState<Record<number, number>>({});
+  const [loadedScore, setLoadedScore] = useState<LoadedScore | null>(null);
   const [state, formAction] = useActionState<CamporeeScoringActionState, FormData>(
     submitCamporeeEventScoreAction,
     {},
@@ -118,12 +129,7 @@ export function EventScoreEntryPanel({
   const selectedEvent = scoringEvents.find(
     (event) => event.camporee_event_id === selectedEventId,
   );
-  const totalAwarded = calculateAwardedTotal(awardedPoints);
   const totalMax = rubrics.reduce((total, rubric) => total + Number(rubric.max_points || 0), 0);
-  const scoreItems = rubrics.map((rubric) => ({
-    camporee_event_rubric_id: rubric.camporee_event_rubric_id,
-    awarded_points: awardedPoints[rubric.camporee_event_rubric_id] ?? 0,
-  }));
 
   const selectedTarget = useMemo(
     () =>
@@ -131,7 +137,34 @@ export function EventScoreEntryPanel({
       null,
     [selectedSectionId, visibleTargets],
   );
-  const isOverride = Boolean(selectedTarget?.active_result_id);
+  const activeResultId = selectedTarget?.active_result_id ?? null;
+  const isOverride = Boolean(activeResultId);
+
+  // A correction must start from the official points, never from zeros.
+  const scoreKey =
+    activeResultId && selectedEventId && selectedSectionId
+      ? `${selectedEventId}:${selectedSectionId}:${activeResultId}`
+      : null;
+  const loadedForSelection = scoreKey && loadedScore?.key === scoreKey ? loadedScore : null;
+  const scoreLoadState: "idle" | "loading" | "error" | "ready" = !scoreKey
+    ? "idle"
+    : !loadedForSelection
+      ? "loading"
+      : loadedForSelection.status === "ok"
+        ? "ready"
+        : "error";
+  const scoreBlocked = scoreLoadState === "loading" || scoreLoadState === "error";
+
+  const currentPoints: Record<number, number> = {};
+  for (const rubric of rubrics) {
+    const id = rubric.camporee_event_rubric_id;
+    currentPoints[id] = awardedPoints[id] ?? loadedForSelection?.points[id] ?? 0;
+  }
+  const totalAwarded = calculateAwardedTotal(currentPoints);
+  const scoreItems = rubrics.map((rubric) => ({
+    camporee_event_rubric_id: rubric.camporee_event_rubric_id,
+    awarded_points: currentPoints[rubric.camporee_event_rubric_id] ?? 0,
+  }));
 
   const assignedJudgeForSection = useMemo(() => {
     if (!selectedSectionId) return null;
@@ -142,6 +175,49 @@ export function EventScoreEntryPanel({
     if (!assignment) return null;
     return judges.find((judge) => judge.camporee_judge_id === assignment.camporee_judge_id);
   }, [eventAssignments, judges, selectedSectionId]);
+
+  // The action state changes identity on every submission; the ref guards
+  // against re-toasting the same result when `t` changes identity.
+  const toastedStateRef = useRef(state);
+  useEffect(() => {
+    if (toastedStateRef.current === state) return;
+    toastedStateRef.current = state;
+    if (state.error) {
+      toast.error(state.error);
+    } else if (state.success) {
+      toast.success(
+        state.scoreMode === "correction" ? t("savedCorrection") : t("savedOfficial"),
+      );
+    }
+  }, [state, t]);
+
+  useEffect(() => {
+    if (!scoreKey || !selectedEventId || !selectedSectionId) return;
+    let cancelled = false;
+
+    getCamporeeEventSectionScore(selectedEventId, selectedSectionId)
+      .then((score) => {
+        if (cancelled) return;
+        if (!score) {
+          // An active result was announced but cannot be read: do not fall back to zeros.
+          setLoadedScore({ key: scoreKey, status: "error", points: {} });
+          return;
+        }
+        const points: Record<number, number> = {};
+        for (const item of score.items) {
+          points[item.camporee_event_rubric_id] = Number(item.awarded_points) || 0;
+        }
+        setLoadedScore({ key: scoreKey, status: "ok", points });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoadedScore({ key: scoreKey, status: "error", points: {} });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [scoreKey, selectedEventId, selectedSectionId]);
 
   useEffect(() => {
     if (visibleTargets.length === 0) {
@@ -366,6 +442,17 @@ export function EventScoreEntryPanel({
               })}
             </div>
 
+            {scoreLoadState === "loading" && (
+              <p className="text-sm text-muted-foreground" role="status">
+                {t("scoreLoading")}
+              </p>
+            )}
+            {scoreLoadState === "error" && (
+              <p className="text-sm text-destructive" role="alert">
+                {t("scoreLoadError")}
+              </p>
+            )}
+
             <div className="space-y-3">
               {rubrics.map((rubric) => (
                 <div
@@ -392,7 +479,8 @@ export function EventScoreEntryPanel({
                       min={0}
                       max={rubric.max_points}
                       step="0.01"
-                      value={awardedPoints[rubric.camporee_event_rubric_id] ?? 0}
+                      value={currentPoints[rubric.camporee_event_rubric_id] ?? 0}
+                      disabled={scoreBlocked}
                       onChange={(event) =>
                         updateAwardedPoints(
                           rubric.camporee_event_rubric_id,
@@ -422,16 +510,16 @@ export function EventScoreEntryPanel({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button
-                type="submit"
-                disabled={!selectedSectionId || visibleTargets.length === 0}
+              <FormSubmitButton
+                disabled={!selectedSectionId || visibleTargets.length === 0 || scoreBlocked}
                 className="rounded-full px-6"
               >
-                {t("submitButton")}
-              </Button>
-              {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-              {state.success && (
-                <p className="text-sm text-emerald-700 dark:text-emerald-400">{state.success}</p>
+                {isOverride ? t("submitCorrectionButton") : t("submitButton")}
+              </FormSubmitButton>
+              {state.error && (
+                <p className="text-sm text-destructive" role="alert">
+                  {state.error}
+                </p>
               )}
             </div>
           </div>

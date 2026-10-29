@@ -3397,6 +3397,10 @@
       "assignFormDescription": "Vincula un juez a una sección para este evento.",
       "primaryConflict": "Esta sección ya tiene juez principal activo para el evento.",
       "missingPrimaryBadge": "Falta juez principal",
+      "mutationFailed": "No se pudo guardar el cambio. Inténtalo de nuevo.",
+      "toastAssigned": "Asignación guardada",
+      "toastReplaced": "Juez actualizado",
+      "toastRemoved": "Asignación quitada",
       "unknownClub": "Club",
       "sectionFallback": "Sección {id}",
       "emptyEventsTitle": "Sin eventos puntuables",
@@ -3409,7 +3413,7 @@
       "title": "Registrar puntaje",
       "description": "Para cuando el juez no puede cargar desde la app. Ingresa los puntos obtenidos por criterio.",
       "eventLabel": "Evento puntuable",
-      "eventMeta": "{criteria} criterios · {sections} secciones",
+      "eventMeta": "{criteria, plural, one {# criterio} other {# criterios}} · {sections, plural, one {# sección} other {# secciones}}",
       "statCriteria": "Criterios",
       "statSections": "Secciones",
       "statTotal": "Total en curso",
@@ -3430,6 +3434,9 @@
       "notesLabel": "Notas",
       "notesPlaceholder": "Observaciones opcionales",
       "submitButton": "Guardar puntaje oficial",
+      "submitCorrectionButton": "Guardar corrección",
+      "savedOfficial": "Puntaje guardado",
+      "savedCorrection": "Corrección guardada",
       "readOnlyHint": "Necesitas permisos de gestión de eventos para registrar puntajes.",
       "noRubrics": "Este evento está marcado como puntuable, pero no tiene rúbricas activas.",
       "emptyEventsTitle": "Sin eventos puntuables",
@@ -3437,12 +3444,14 @@
       "emptySectionsTitle": "Sin secciones inscritas",
       "emptySectionsDescription": "Inscribe clubes para poder registrar puntajes.",
       "notesOverrideHint": "Ya hay un puntaje activo. Indica el motivo de la corrección.",
-      "notesOverridePlaceholder": "Motivo de la corrección"
+      "notesOverridePlaceholder": "Motivo de la corrección",
+      "scoreLoading": "Cargando el puntaje actual…",
+      "scoreLoadError": "No se pudo cargar el puntaje actual. Actualiza la página e inténtalo de nuevo."
     },
     "leaderboard": {
       "eyebrow": "Resultados",
       "title": "Clasificación del camporee",
-      "description": "Posiciones según puntos oficiales acumulados.",
+      "description": "Posiciones según el porcentaje de puntos obtenidos sobre los eventos calificados.",
       "emptyTitle": "Sin resultados aún",
       "emptyDescription": "Aparecerán cuando se registren puntajes oficiales.",
       "colRank": "Pos.",
@@ -3451,6 +3460,9 @@
       "colAwarded": "Puntos",
       "colMax": "Máximo",
       "colPercent": "%",
+      "colCoverage": "Cobertura",
+      "coverageEvents": "{scored} de {total, plural, one {# evento calificado} other {# eventos calificados}}",
+      "coveragePoints": "{scored} de {total} puntos posibles",
       "sectionFallback": "Sección {id}"
     },
     "list": {
@@ -3594,8 +3606,8 @@
       "loadFailed": "No se pudo actualizar la lista de clubes"
     },
     "clubsPanel": {
-      "emptyTitle": "Sin clubes inscritos",
-      "emptyDescription": "No hay clubes inscritos en este camporee todavía.",
+      "emptyTitle": "Aún no hay clubes inscritos",
+      "emptyDescription": "Los directores inscriben sus clubes desde la app, o puedes inscribir uno con «Inscribir club».",
       "colSection": "Sección",
       "colStatus": "Estado",
       "colRegisteredBy": "Registrado por",
