@@ -3518,6 +3518,8 @@
       "descriptionPlaceholder": "Breve descripción del evento para los participantes",
       "capacityPlaceholder": "Sin límite",
       "stepIncomplete": "Completa los campos obligatorios de este paso para continuar.",
+      "createdToast": "Evento creado",
+      "updatedToast": "Evento actualizado",
       "rubricsWarningTitle": "El evento se guardó, pero las rúbricas no",
       "rubricsWarningDescription": "{detail} Abre el evento para volver a configurar las rúbricas.",
       "steps": {

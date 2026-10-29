@@ -65,26 +65,28 @@ beforeEach(() => {
 
 describe("agenda event create - rubrics follow-up", () => {
   it("does not call the rubrics endpoint when scoring is off and there is nothing to change", async () => {
-    await expect(
-      submitBoundCamporeeAgendaEventAction(
-        { camporeeId: 70, isUnion: false },
-        {},
-        agendaForm({ rubrics_initially_configured: "false" }),
-      ),
-    ).rejects.toThrow("NEXT_REDIRECT:/dashboard/campamentos/70?tab=events");
+    const result = await submitBoundCamporeeAgendaEventAction(
+      { camporeeId: 70, isUnion: false },
+      {},
+      agendaForm({ rubrics_initially_configured: "false" }),
+    );
+
+    expect(result).toEqual({ saved: "created" });
+    expect(mocks.redirect).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard/campamentos/70");
 
     expect(mocks.createLocal).toHaveBeenCalledTimes(1);
     expect(mocks.replaceRubrics).not.toHaveBeenCalled();
   });
 
   it("saves the rubrics when scoring is enabled", async () => {
-    await expect(
-      submitBoundCamporeeAgendaEventAction(
-        { camporeeId: 70, isUnion: false },
-        {},
-        agendaForm({ scoring_enabled: "on", rubrics: RUBRIC_ITEMS }),
-      ),
-    ).rejects.toThrow("NEXT_REDIRECT");
+    const result = await submitBoundCamporeeAgendaEventAction(
+      { camporeeId: 70, isUnion: false },
+      {},
+      agendaForm({ scoring_enabled: "on", rubrics: RUBRIC_ITEMS }),
+    );
+
+    expect(result).toEqual({ saved: "created" });
 
     expect(mocks.replaceRubrics).toHaveBeenCalledWith(14, {
       scoring_enabled: true,
@@ -140,26 +142,26 @@ describe("agenda event create - rubrics follow-up", () => {
 
 describe("agenda event update - rubrics follow-up", () => {
   it("skips the rubrics endpoint when the event had no rubrics and still has none", async () => {
-    await expect(
-      submitBoundCamporeeAgendaEventAction(
-        { camporeeId: 70, eventId: 14, isUnion: false },
-        {},
-        agendaForm({ rubrics_initially_configured: "false" }),
-      ),
-    ).rejects.toThrow("NEXT_REDIRECT:/dashboard/campamentos/70?tab=events");
+    const result = await submitBoundCamporeeAgendaEventAction(
+      { camporeeId: 70, eventId: 14, isUnion: false },
+      {},
+      agendaForm({ rubrics_initially_configured: "false" }),
+    );
+
+    expect(result).toEqual({ saved: "updated" });
 
     expect(mocks.updateEvent).toHaveBeenCalledWith(14, expect.anything());
     expect(mocks.replaceRubrics).not.toHaveBeenCalled();
   });
 
   it("calls the endpoint to turn scoring off when the event had rubrics", async () => {
-    await expect(
-      submitBoundCamporeeAgendaEventAction(
-        { camporeeId: 70, eventId: 14, isUnion: false },
-        {},
-        agendaForm({ rubrics_initially_configured: "true" }),
-      ),
-    ).rejects.toThrow("NEXT_REDIRECT");
+    const result = await submitBoundCamporeeAgendaEventAction(
+      { camporeeId: 70, eventId: 14, isUnion: false },
+      {},
+      agendaForm({ rubrics_initially_configured: "true" }),
+    );
+
+    expect(result).toEqual({ saved: "updated" });
 
     expect(mocks.replaceRubrics).toHaveBeenCalledWith(14, { scoring_enabled: false, items: [] });
   });
@@ -176,6 +178,40 @@ describe("agenda event update - rubrics follow-up", () => {
     expect(result.warning).toBeTruthy();
     expect(result.error).toBeUndefined();
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard/campamentos/union/138");
+  });
+});
+
+describe("agenda event save - clean outcome", () => {
+  it("reports a clean union create and update so the form can toast", async () => {
+    await expect(
+      submitBoundCamporeeAgendaEventAction(
+        { camporeeId: 138, isUnion: true },
+        {},
+        agendaForm({ rubrics_initially_configured: "false" }),
+      ),
+    ).resolves.toEqual({ saved: "created" });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard/campamentos/union/138");
+
+    await expect(
+      submitBoundCamporeeAgendaEventAction(
+        { camporeeId: 138, eventId: 14, isUnion: true },
+        {},
+        agendaForm({ rubrics_initially_configured: "false" }),
+      ),
+    ).resolves.toEqual({ saved: "updated" });
+  });
+
+  it("never reports saved when the rubrics failed (the warning wins)", async () => {
+    rubricsRejected();
+
+    const result = await submitBoundCamporeeAgendaEventAction(
+      { camporeeId: 70, isUnion: false },
+      {},
+      agendaForm({ scoring_enabled: "on", rubrics: RUBRIC_ITEMS }),
+    );
+
+    expect(result.saved).toBeUndefined();
+    expect(result.warning).toBeTruthy();
   });
 });
 

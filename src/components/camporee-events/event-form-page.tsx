@@ -360,6 +360,16 @@ export function EventFormPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
   }, [actionState]);
 
+  // Clean save: confirm, then close the form and refresh the list behind it.
+  useEffect(() => {
+    if (!actionState.saved) return;
+    toast.success(
+      actionState.saved === "created" ? t("createdToast") : t("updatedToast"),
+    );
+    modal.complete();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+  }, [actionState]);
+
   useEffect(() => {
     if (!actionState.field) return;
     // Hidden/aggregate fields that live outside a step container map to their step.

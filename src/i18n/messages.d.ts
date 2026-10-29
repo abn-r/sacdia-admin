@@ -3547,6 +3547,8 @@ export interface IntlMessages {
       descriptionPlaceholder: string;
       capacityPlaceholder: string;
       stepIncomplete: string;
+      createdToast: string;
+      updatedToast: string;
       rubricsWarningTitle: string;
       rubricsWarningDescription: string;
       steps: {

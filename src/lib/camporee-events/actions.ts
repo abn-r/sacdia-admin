@@ -61,6 +61,11 @@ export type CamporeeEventActionState = {
    * so the user never re-submits (and duplicates) an already saved event.
    */
   warning?: string;
+  /**
+   * The agenda event form saved cleanly. The action returns instead of
+   * redirecting so the form can confirm with a toast before it closes.
+   */
+  saved?: "created" | "updated";
 };
 
 // ─── FormData helpers ──────────────────────────────────────────────────────────
@@ -212,6 +217,21 @@ function finishEventSave(
   revalidatePath(basePath);
   if (rubricWarning) return { warning: rubricWarning };
   redirect(`${basePath}?tab=events`);
+}
+
+/**
+ * Ends a successful save of the agenda event form (modal or full page). It
+ * returns the outcome instead of redirecting: the client toasts, then closes
+ * the form and refreshes the events list behind it.
+ */
+function finishAgendaEventSave(
+  basePath: string,
+  rubricWarning: string | null,
+  saved: "created" | "updated",
+): CamporeeEventActionState {
+  revalidatePath(basePath);
+  if (rubricWarning) return { warning: rubricWarning };
+  return { saved };
 }
 
 /**
@@ -849,7 +869,7 @@ export async function createCamporeeAgendaEventAction(
   }
 
   const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
-  return finishEventSave(`/dashboard/campamentos/${camporeeId}`, rubricWarning);
+  return finishAgendaEventSave(`/dashboard/campamentos/${camporeeId}`, rubricWarning, "created");
 }
 
 /** Create a union camporee event with full agenda fields. */
@@ -886,7 +906,7 @@ export async function createUnionCamporeeAgendaEventAction(
   }
 
   const rubricWarning = eventId ? await syncRubricsAfterSave(eventId, formData) : null;
-  return finishEventSave(`/dashboard/campamentos/union/${camporeeId}`, rubricWarning);
+  return finishAgendaEventSave(`/dashboard/campamentos/union/${camporeeId}`, rubricWarning, "created");
 }
 
 /** Update a camporee event with full agenda fields. */
@@ -928,11 +948,11 @@ export async function updateCamporeeAgendaEventAction(
     const basePath = isUnion
       ? `/dashboard/campamentos/union/${camporeeId}`
       : `/dashboard/campamentos/${camporeeId}`;
-    return finishEventSave(basePath, rubricWarning);
+    return finishAgendaEventSave(basePath, rubricWarning, "updated");
   }
 
   if (rubricWarning) return { warning: rubricWarning };
-  redirect("/dashboard/campamentos");
+  return { saved: "updated" };
 }
 
 /** Route ids bound server-side to the agenda event form (see `.bind` in event-form-data). */

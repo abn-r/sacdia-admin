@@ -3518,6 +3518,8 @@
       "descriptionPlaceholder": "Breve descrição do evento para os participantes",
       "capacityPlaceholder": "Sem limite",
       "stepIncomplete": "Preencha os campos obrigatórios desta etapa para continuar.",
+      "createdToast": "Evento criado",
+      "updatedToast": "Evento atualizado",
       "rubricsWarningTitle": "O evento foi salvo, mas as rubricas não",
       "rubricsWarningDescription": "{detail} Abra o evento para configurar as rubricas novamente.",
       "steps": {

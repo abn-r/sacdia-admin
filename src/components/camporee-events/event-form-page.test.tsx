@@ -4,6 +4,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EventFormPage } from "@/components/camporee-events/event-form-page";
 import type { Camporee } from "@/lib/api/camporees";
+import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 
 global.ResizeObserver = class ResizeObserver {
@@ -24,6 +25,7 @@ const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   refresh: vi.fn(),
   toastWarning: vi.fn(),
+  toastSuccess: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -31,7 +33,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("sonner", () => ({
-  toast: { warning: mocks.toastWarning, error: vi.fn(), success: vi.fn() },
+  toast: { warning: mocks.toastWarning, error: vi.fn(), success: mocks.toastSuccess },
 }));
 
 vi.mock("@/components/camporee-events/venue-create-dialog", () => ({
@@ -132,6 +134,62 @@ describe("EventFormPage", () => {
     expect(mocks.push).toHaveBeenCalledWith("/dashboard/campamentos/70?tab=events");
     expect(mocks.refresh).toHaveBeenCalled();
     expect(action).toHaveBeenCalledTimes(1);
+  });
+
+  it("confirms a created event with a success toast and leaves the form", async () => {
+    mocks.push.mockClear();
+    mocks.refresh.mockClear();
+    mocks.toastSuccess.mockClear();
+    mocks.toastWarning.mockClear();
+    const action = vi.fn(async () => ({ saved: "created" as const }));
+    const user = userEvent.setup();
+
+    render(
+      <EventFormPage
+        mode="create"
+        camporeeId={70}
+        camporee={camporee}
+        venues={venues}
+        users={[]}
+        action={action}
+      />,
+    );
+
+    await user.type(screen.getByLabelText(/Título/), "Competencia de nudos");
+    for (let i = 0; i < 3; i += 1) {
+      await user.click(screen.getByRole("button", { name: "continue" }));
+    }
+    await user.click(screen.getByRole("button", { name: "Crear evento" }));
+
+    await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith("createdToast"));
+    expect(mocks.toastWarning).not.toHaveBeenCalled();
+    expect(mocks.push).toHaveBeenCalledWith("/dashboard/campamentos/70?tab=events");
+    expect(mocks.refresh).toHaveBeenCalled();
+  });
+
+  it("confirms an updated event with its own success toast", async () => {
+    mocks.toastSuccess.mockClear();
+    const action = vi.fn(async () => ({ saved: "updated" as const }));
+    const user = userEvent.setup();
+
+    render(
+      <EventFormPage
+        mode="edit"
+        camporeeId={70}
+        camporee={camporee}
+        venues={venues}
+        users={[]}
+        event={{ camporee_event_id: 9, title: "Competencia de nudos" } as unknown as BackendCamporeeEvent}
+        action={action}
+      />,
+    );
+
+    for (let i = 0; i < 3; i += 1) {
+      await user.click(screen.getByRole("button", { name: "continue" }));
+    }
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    await waitFor(() => expect(mocks.toastSuccess).toHaveBeenCalledWith("updatedToast"));
   });
 
   it("tells the server whether the event already had rubrics", async () => {
