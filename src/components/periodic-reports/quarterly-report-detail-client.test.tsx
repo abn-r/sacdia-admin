@@ -86,6 +86,35 @@ describe("QuarterlyReportDetailClient", () => {
     expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeInTheDocument();
   });
 
+  it("shows translated directiva role names and falls back for unknown roles", () => {
+    wrap(
+      <QuarterlyReportDetailClient
+        report={{
+          ...quarterly,
+          computed_data: {
+            ...quarterly.computed_data,
+            directiva: [
+              { role: "director", user_id: "u1", name: "Ana" },
+              { role: "deputy-director", user_id: "u2", name: "Beto" },
+              { role: "secretary-treasurer", user_id: "u3", name: "Carla" },
+              { role: "treasurer", user_id: "u4", name: "Diego" },
+              { role: "custom-role", user_id: "u5", name: "Eva" },
+            ],
+          },
+        }}
+        {...ALL_ALLOWED}
+      />,
+    );
+
+    expect(screen.getByText("Director")).toBeInTheDocument();
+    expect(screen.getByText("Subdirector")).toBeInTheDocument();
+    expect(screen.getByText("Secretario tesorero")).toBeInTheDocument();
+    expect(screen.getByText("Tesorero")).toBeInTheDocument();
+    expect(screen.getByText("Custom Role")).toBeInTheDocument();
+    expect(screen.queryByText("deputy-director")).not.toBeInTheDocument();
+    expect(screen.queryByText("secretary-treasurer")).not.toBeInTheDocument();
+  });
+
   it("hides the manual form, Recalcular and Finalizar once finalized", () => {
     wrap(
       <QuarterlyReportDetailClient

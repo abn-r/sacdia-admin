@@ -75,6 +75,30 @@ describe("AnnualReportDetailClient", () => {
     expect(screen.getByRole("button", { name: "Finalizar" })).toBeInTheDocument();
   });
 
+  it("shows translated directiva role names and falls back for unknown roles", () => {
+    wrap(
+      <AnnualReportDetailClient
+        report={{
+          ...annual,
+          computed_data: {
+            ...annual.computed_data,
+            directiva: [
+              { role: "deputy-director", user_id: "u2", name: "Beto" },
+              { role: "secretary", user_id: "u3", name: "Carla" },
+              { role: "custom-role", user_id: "u5", name: "Eva" },
+            ],
+          },
+        }}
+        {...ALL_ALLOWED}
+      />,
+    );
+
+    expect(screen.getByText("Subdirector")).toBeInTheDocument();
+    expect(screen.getByText("Secretario")).toBeInTheDocument();
+    expect(screen.getByText("Custom Role")).toBeInTheDocument();
+    expect(screen.queryByText("deputy-director")).not.toBeInTheDocument();
+  });
+
   it("hides the manual form and the edit actions when finalized", () => {
     wrap(
       <AnnualReportDetailClient

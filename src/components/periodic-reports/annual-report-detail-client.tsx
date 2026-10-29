@@ -21,6 +21,7 @@ import {
   triggerAnnualReportPdfDownload,
   type AdminAnnualReport,
 } from "@/lib/api/reports";
+import { useRoleLabel } from "@/lib/auth/role-labels";
 import { useFormatCurrency, useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 
 const TIMESTAMP_OPTIONS: Intl.DateTimeFormatOptions = {
@@ -48,6 +49,7 @@ export function AnnualReportDetailClient({
   canDownload,
 }: AnnualReportDetailClientProps) {
   const t = useTranslations("periodicReports");
+  const roleLabel = useRoleLabel();
   const router = useRouter();
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
@@ -221,7 +223,7 @@ export function AnnualReportDetailClient({
               people={(computed.directiva ?? []).map((member, index) => ({
                 key: `${member.user_id ?? "member"}-${index}`,
                 primary: member.name ?? "—",
-                secondary: member.role ?? undefined,
+                secondary: member.role ? roleLabel(member.role) : undefined,
               }))}
             />
             <ReportPeopleCard
