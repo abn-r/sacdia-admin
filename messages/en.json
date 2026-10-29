@@ -7430,7 +7430,7 @@
       "colRank": "#",
       "colMember": "Member",
       "colSection": "Section",
-      "colComposite": "Composite",
+      "colComposite": "Overall score",
       "colClass": "Class",
       "colInvestiture": "Investiture",
       "colCamporee": "Camporees",
@@ -7459,7 +7459,7 @@
     "sectionTable": {
       "colRank": "#",
       "colSection": "Section",
-      "colComposite": "Composite",
+      "colComposite": "Overall score",
       "colActiveMembers": "Active members",
       "colCategory": "Category",
       "colCalculated": "Calculated",
@@ -7473,7 +7473,7 @@
     "sectionMembersTable": {
       "colRank": "#",
       "colMember": "Member",
-      "colComposite": "Composite",
+      "colComposite": "Overall score",
       "colClass": "Class",
       "colInvestiture": "Investiture",
       "colCamporee": "Camporees",

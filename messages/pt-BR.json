@@ -7430,7 +7430,7 @@
       "colRank": "#",
       "colMember": "Membro",
       "colSection": "Seção",
-      "colComposite": "Composite",
+      "colComposite": "Pontuação geral",
       "colClass": "Classe",
       "colInvestiture": "Investidura",
       "colCamporee": "Camporees",
@@ -7459,7 +7459,7 @@
     "sectionTable": {
       "colRank": "#",
       "colSection": "Seção",
-      "colComposite": "Composite",
+      "colComposite": "Pontuação geral",
       "colActiveMembers": "Membros ativos",
       "colCategory": "Categoria",
       "colCalculated": "Calculado",
@@ -7473,7 +7473,7 @@
     "sectionMembersTable": {
       "colRank": "#",
       "colMember": "Membro",
-      "colComposite": "Composite",
+      "colComposite": "Pontuação geral",
       "colClass": "Classe",
       "colInvestiture": "Investidura",
       "colCamporee": "Camporees",
