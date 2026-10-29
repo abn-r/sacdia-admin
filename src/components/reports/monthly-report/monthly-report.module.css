@@ -450,7 +450,6 @@
   align-items: center;
   gap: 1mm;
   border: 0.25mm solid var(--sac-border);
-  border-left-width: 1mm;
   border-radius: 1.8mm;
   background: var(--sac-background);
   padding: 0.8mm 1.1mm;
@@ -469,13 +468,9 @@
   line-height: 1.08;
 }
 
-.metricPrimary { border-left-color: var(--sac-primary); }
 .metricPrimary > svg { color: var(--sac-primary); }
-.metricSecondary { border-left-color: var(--sac-secondary); }
 .metricSecondary > svg { color: var(--sac-secondary); }
-.metricAccent { border-left-color: var(--sac-accent); }
 .metricAccent > svg { color: var(--sac-accent); }
-.metricInfo { border-left-color: var(--sac-info); }
 .metricInfo > svg { color: var(--sac-info); }
 
 .yesNoList {
