@@ -6342,6 +6342,7 @@
       "badge_inactive": "Inactive",
       "badge_in_person": "In-person",
       "info_date": "Date",
+      "info_end_date": "End date",
       "info_place": "Location",
       "info_audience": "Who",
       "info_time": "Time",

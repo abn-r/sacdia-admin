@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -10,11 +10,13 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ActivityDetailActions } from "@/components/activities/activity-detail-actions";
 import { AttendancePanel } from "@/components/activities/attendance-panel";
+import { ActivityImageCard } from "@/components/activities/activity-image-card";
 import { ActivityAudienceValue } from "@/components/activities/activity-audience-label";
 import { ApiError } from "@/lib/api/client";
 import { getActivity, getAttendance, PLATFORM_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
 import { normalizeActivity as normalizeActivityRecord } from "@/lib/activities/helpers";
 import { requireAdminUser } from "@/lib/auth/session";
+import { formatCalendarDate } from "@/lib/format-locale";
 import { cn } from "@/lib/utils";
 import type { Activity, AttendanceRecord } from "@/lib/api/activities";
 
@@ -95,6 +97,7 @@ function InfoRow({
 export default async function ActivityDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
   const t = await getTranslations("activities");
+  const locale = await getLocale();
 
   const { id } = await params;
   const activityId = toPositiveNumber(id);
@@ -194,9 +197,18 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-3">
           <InfoRow
             label={t("pageDetail.info_date")}
-            value={activity.activity_date ?? "—"}
+            value={formatCalendarDate(activity.activity_date, locale, "long")}
             icon={Calendar}
           />
+          {activity.activity_end_date &&
+          activity.activity_end_date.slice(0, 10) !==
+            (activity.activity_date ?? "").slice(0, 10) ? (
+            <InfoRow
+              label={t("pageDetail.info_end_date")}
+              value={formatCalendarDate(activity.activity_end_date, locale, "long")}
+              icon={Calendar}
+            />
+          ) : null}
           <InfoRow
             label={t("pageDetail.info_time")}
             value={activity.activity_time ?? "—"}
@@ -278,21 +290,13 @@ export default async function ActivityDetailPage({ params }: { params: Params })
         </CardContent>
       </Card>
 
-      {/* Image preview */}
+      {/* Image preview (hidden when the image cannot be loaded) */}
       {activity.image && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("pageDetail.card_image_title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* eslint-disable-next-line @next/next/no-img-element -- backend returns activity.image as a presigned R2 URL */}
-            <img
-              src={activity.image}
-              alt={activity.name}
-              className="max-h-64 rounded-lg object-cover"
-            />
-          </CardContent>
-        </Card>
+        <ActivityImageCard
+          title={t("pageDetail.card_image_title")}
+          src={activity.image}
+          alt={activity.name}
+        />
       )}
 
       {/* Tabs: Attendance */}

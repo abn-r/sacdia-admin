@@ -6374,6 +6374,7 @@ export interface IntlMessages {
       badge_inactive: string;
       badge_in_person: string;
       info_date: string;
+      info_end_date: string;
       info_place: string;
       info_audience: string;
       info_time: string;
