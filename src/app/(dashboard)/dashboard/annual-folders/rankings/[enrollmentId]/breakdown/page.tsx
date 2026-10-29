@@ -12,7 +12,7 @@ import type { RankingBreakdown } from "@/lib/api/annual-folders";
 
 interface PageProps {
   params: Promise<{ enrollmentId: string }>;
-  searchParams: Promise<{ year_id?: string }>;
+  searchParams: Promise<{ year_id?: string; club_name?: string }>;
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
@@ -31,7 +31,8 @@ export default async function BreakdownPage({
   const tNav = await getTranslations("nav.items");
 
   const { enrollmentId } = await params;
-  const { year_id } = await searchParams;
+  const { year_id, club_name } = await searchParams;
+  const clubName = club_name?.trim();
   const yearId = Number(year_id);
 
   if (!enrollmentId || !Number.isFinite(yearId) || yearId <= 0) {
@@ -60,7 +61,11 @@ export default async function BreakdownPage({
     <div className="space-y-6">
       <PageHeader
         title={t("pageRankingsBreakdown.title")}
-        description={t("pageRankingsBreakdown.description", { enrollmentId })}
+        description={
+          clubName
+            ? t("pageRankingsBreakdown.description", { clubName })
+            : t("pageRankingsBreakdown.descriptionNoClub")
+        }
         breadcrumbs={[
           { label: tNav("annual_folders_rankings"), href: "/dashboard/annual-folders/rankings" },
           { label: t("pageRankingsBreakdown.title") },

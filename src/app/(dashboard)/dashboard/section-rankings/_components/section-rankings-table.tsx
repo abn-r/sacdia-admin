@@ -73,7 +73,6 @@ export function SectionRankingsTable({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">{total}</span>{" "}
         {total === 1 ? t("countSingular", { total }) : t("countPlural", { total })}
       </p>
 

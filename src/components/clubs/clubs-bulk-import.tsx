@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations as useTranslationsStrict } from "next-intl";
 
@@ -42,8 +43,13 @@ import type {
   BulkClubRow,
   BulkClubsImportResult,
 } from "@/lib/clubs/bulk-import-actions";
-
-type SelectOption = { label: string; value: number };
+import {
+  type CatalogOption,
+  decodeCsv,
+  isCsvFile,
+  matchCatalogName,
+  normalizeName,
+} from "@/lib/clubs/bulk-import-parse";
 
 type ParsedRow = {
   rowNumber: number;
@@ -63,9 +69,9 @@ type ParsedRow = {
 };
 
 type Props = {
-  localFields: SelectOption[];
-  districts: SelectOption[];
-  churches: SelectOption[];
+  localFields: CatalogOption[];
+  districts: CatalogOption[];
+  churches: CatalogOption[];
   submitAction: (rows: BulkClubRow[]) => Promise<BulkClubsImportResult>;
 };
 
@@ -79,20 +85,6 @@ const EXPECTED_HEADERS = [
   "latitude",
   "longitude",
 ] as const;
-
-function normalize(value: unknown): string {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase();
-}
-
-function buildLookup(options: SelectOption[]): Map<string, number> {
-  const map = new Map<string, number>();
-  for (const opt of options) {
-    map.set(normalize(opt.label), opt.value);
-  }
-  return map;
-}
 
 function parseCoord(value: string | undefined): number | undefined {
   if (!value) return undefined;
@@ -116,10 +108,6 @@ export function ClubsBulkImport({
   const [result, setResult] = useState<BulkClubsImportResult | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const localFieldsLookup = useMemo(() => buildLookup(localFields), [localFields]);
-  const districtsLookup = useMemo(() => buildLookup(districts), [districts]);
-  const churchesLookup = useMemo(() => buildLookup(churches), [churches]);
-
   const validRows = useMemo(
     () => rows.filter((row) => row.errors.length === 0),
     [rows],
@@ -142,31 +130,45 @@ export function ClubsBulkImport({
 
     if (!row.name) errors.push(t("validation.missingName"));
 
-    const localFieldId = localFieldsLookup.get(normalize(row.localFieldRaw));
-    if (!row.localFieldRaw) {
+    const localField = matchCatalogName(row.localFieldRaw, localFields);
+    if (localField.ok) {
+      row.local_field_id = localField.id;
+    } else if (localField.reason === "missing") {
       errors.push(t("validation.missingLocalField"));
-    } else if (!localFieldId) {
+    } else {
       errors.push(t("validation.unknownLocalField", { value: row.localFieldRaw }));
-    } else {
-      row.local_field_id = localFieldId;
     }
 
-    const districtId = districtsLookup.get(normalize(row.districtRaw));
-    if (!row.districtRaw) {
+    const district = matchCatalogName(row.districtRaw, districts, row.local_field_id);
+    if (district.ok) {
+      row.district_id = district.id;
+    } else if (district.reason === "missing") {
       errors.push(t("validation.missingDistrict"));
-    } else if (!districtId) {
-      errors.push(t("validation.unknownDistrict", { value: row.districtRaw }));
+    } else if (district.reason === "outsideParent") {
+      errors.push(
+        t("validation.districtOutsideLocalField", {
+          value: row.districtRaw,
+          parent: row.localFieldRaw,
+        }),
+      );
     } else {
-      row.district_id = districtId;
+      errors.push(t("validation.unknownDistrict", { value: row.districtRaw }));
     }
 
-    const churchId = churchesLookup.get(normalize(row.churchRaw));
-    if (!row.churchRaw) {
+    const church = matchCatalogName(row.churchRaw, churches, row.district_id);
+    if (church.ok) {
+      row.church_id = church.id;
+    } else if (church.reason === "missing") {
       errors.push(t("validation.missingChurch"));
-    } else if (!churchId) {
-      errors.push(t("validation.unknownChurch", { value: row.churchRaw }));
+    } else if (church.reason === "outsideParent") {
+      errors.push(
+        t("validation.churchOutsideDistrict", {
+          value: row.churchRaw,
+          parent: row.districtRaw,
+        }),
+      );
     } else {
-      row.church_id = churchId;
+      errors.push(t("validation.unknownChurch", { value: row.churchRaw }));
     }
 
     const lat = parseCoord(row.latitudeRaw);
@@ -189,7 +191,10 @@ export function ClubsBulkImport({
     try {
       const XLSX = await import("xlsx");
       const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: "array" });
+      // SheetJS reads CSV bytes as Latin-1, which breaks UTF-8 accents.
+      const workbook = isCsvFile(file)
+        ? XLSX.read(decodeCsv(buffer), { type: "string" })
+        : XLSX.read(buffer, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
       if (!firstSheetName) {
         setParseError(t("errors.emptyWorkbook"));
@@ -206,7 +211,7 @@ export function ClubsBulkImport({
         return;
       }
 
-      const headerCheck = Object.keys(json[0] ?? {}).map((h) => normalize(h));
+      const headerCheck = Object.keys(json[0] ?? {}).map((h) => normalizeName(h));
       const required = ["name", "local_field", "district", "church"];
       const missing = required.filter((h) => !headerCheck.includes(h));
       if (missing.length > 0) {
@@ -217,7 +222,7 @@ export function ClubsBulkImport({
       const parsed: ParsedRow[] = json.map((raw, idx) => {
         const getValue = (key: string) => {
           const found = Object.entries(raw).find(
-            ([k]) => normalize(k) === key,
+            ([k]) => normalizeName(k) === key,
           );
           return found ? String(found[1] ?? "").trim() : "";
         };
@@ -264,6 +269,10 @@ export function ClubsBulkImport({
       const res = await submitAction(payload);
       setResult(res);
       if (res.created > 0) {
+        // The rows are imported: drop the preview so they can't be sent twice.
+        setRows([]);
+        setFileName(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
         router.refresh();
       }
     });
@@ -401,11 +410,11 @@ export function ClubsBulkImport({
                         <TableCell className="text-muted-foreground">
                           {row.rowNumber}
                         </TableCell>
-                        <TableCell className="font-medium">{row.name || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.localFieldRaw || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.districtRaw || "—"}</TableCell>
-                        <TableCell className="text-sm">{row.churchRaw || "—"}</TableCell>
-                        <TableCell>
+                        <TableCell className="font-medium whitespace-normal">{row.name || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.localFieldRaw || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.districtRaw || "—"}</TableCell>
+                        <TableCell className="text-sm whitespace-normal">{row.churchRaw || "—"}</TableCell>
+                        <TableCell className="min-w-48 whitespace-normal">
                           {isValid ? (
                             <Badge variant="default" className="text-xs">
                               <CheckCircle2 className="size-3" />
@@ -490,8 +499,18 @@ export function ClubsBulkImport({
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {res.message ?? (res.clubId ? `#${res.clubId}` : "—")}
+                        <TableCell className="text-sm whitespace-normal text-muted-foreground">
+                          {res.message ??
+                            (res.clubId ? (
+                              <Link
+                                href={`/dashboard/clubs/${res.clubId}`}
+                                className="text-primary underline-offset-4 hover:underline"
+                              >
+                                {t("openClub", { id: res.clubId })}
+                              </Link>
+                            ) : (
+                              "—"
+                            ))}
                         </TableCell>
                       </TableRow>
                     ))}

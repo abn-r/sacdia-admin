@@ -1750,6 +1750,7 @@ export interface IntlMessages {
         colChurch: string;
         colStatus: string;
         colMessage: string;
+        openClub: string;
         rowValid: string;
         rowInvalid: string;
         rowCreated: string;
@@ -1766,6 +1767,8 @@ export interface IntlMessages {
           unknownLocalField: string;
           unknownDistrict: string;
           unknownChurch: string;
+          districtOutsideLocalField: string;
+          churchOutsideDistrict: string;
           coordinatesInvalid: string;
         };
         errors: {
@@ -4889,6 +4892,7 @@ export interface IntlMessages {
     pageRankingsBreakdown: {
       title: string;
       description: string;
+      descriptionNoClub: string;
       errorFallback: string;
       paramsRequired: string;
     };
@@ -7418,8 +7422,6 @@ export interface IntlMessages {
       compositeScore: string;
       category: string;
       weightsTitle: string;
-      weightsSource: string;
-      weightsFormula: string;
       lastCalculated: string;
       lastCalculatedNone: string;
       titleClass: string;
@@ -7438,8 +7440,11 @@ export interface IntlMessages {
       statusInProgress: string;
       statusPending: string;
       statusNotStarted: string;
-      titleDetail: string;
       descriptionDetail: string;
+      title: string;
+      paramsRequired: string;
+      errorFallback: string;
+      notCounted: string;
     };
     pageSection: {
       title: string;

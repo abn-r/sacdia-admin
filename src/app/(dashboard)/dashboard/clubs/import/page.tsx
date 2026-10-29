@@ -15,22 +15,28 @@ import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
 import { bulkCreateClubsAction } from "@/lib/clubs/bulk-import-actions";
 import { loadClubGeographyForTerritory } from "@/lib/clubs/territory-catalogs";
 
+import type { CatalogOption } from "@/lib/clubs/bulk-import-parse";
+
 type RawCatalogItem = Record<string, unknown>;
-type SelectOption = { label: string; value: number };
 
 function toPositiveNumber(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-function toSelectOptions(items: RawCatalogItem[], idField: string): SelectOption[] {
+function toCatalogOptions(
+  items: RawCatalogItem[],
+  idField: string,
+  parentField?: string,
+): CatalogOption[] {
   return items.flatMap((item) => {
-    const value = toPositiveNumber(item[idField] ?? item.district_id);
+    const value = toPositiveNumber(item[idField]);
     if (!value) return [];
     const rawName = item.name;
     const name = typeof rawName === "string" ? rawName.trim() : String(rawName ?? "").trim();
     if (!name) return [];
-    return [{ label: name, value } satisfies SelectOption];
+    const parentId = parentField ? toPositiveNumber(item[parentField]) : null;
+    return [{ label: name, value, parentId } satisfies CatalogOption];
   });
 }
 
@@ -55,9 +61,9 @@ export default async function ImportClubsPage() {
       </PageHeader>
 
       <ClubsBulkImport
-        localFields={toSelectOptions(localFields, "local_field_id")}
-        districts={toSelectOptions(districts, "districlub_type_id")}
-        churches={toSelectOptions(churches, "church_id")}
+        localFields={toCatalogOptions(localFields, "local_field_id")}
+        districts={toCatalogOptions(districts, "district_id", "local_field_id")}
+        churches={toCatalogOptions(churches, "church_id", "district_id")}
         submitAction={bulkCreateClubsAction}
       />
     </div>
