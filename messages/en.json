@@ -5716,6 +5716,7 @@
     },
     "expiring": {
       "filter_label": "Expiring in",
+      "days_option": "{days} days",
       "reset": "Reset",
       "no_results": "No results",
       "results_count": "{count, plural, one {{count} insurance found} other {{count} insurances found}}",

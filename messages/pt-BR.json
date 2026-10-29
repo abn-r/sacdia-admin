@@ -5716,6 +5716,7 @@
     },
     "expiring": {
       "filter_label": "Vencem em",
+      "days_option": "{days} dias",
       "reset": "Redefinir",
       "no_results": "Sem resultados",
       "results_count": "{count, plural, one {{count} seguro encontrado} other {{count} seguros encontrados}}",

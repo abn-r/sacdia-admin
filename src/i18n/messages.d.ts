@@ -5748,6 +5748,7 @@ export interface IntlMessages {
     };
     expiring: {
       filter_label: string;
+      days_option: string;
       reset: string;
       no_results: string;
       results_count: string;
