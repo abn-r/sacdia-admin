@@ -4859,10 +4859,25 @@
     },
     "pageRankingsBreakdown": {
       "title": "Détail du classement",
-      "description": "Détail par composant de {clubName}",
-      "descriptionNoClub": "Détail par composant de l’inscription",
+      "description": "Classement annuel · {clubType}",
       "errorFallback": "Impossible de charger le détail du classement. Vérifiez la connexion au serveur.",
-      "paramsRequired": "Les paramètres enrollmentId et year_id sont requis."
+      "forbidden": "Vous n’avez pas l’autorisation de voir le détail de cette section.",
+      "paramsRequired": "L’année ecclésiastique manque pour afficher le détail.",
+      "totalLabel": "Points obtenus",
+      "progress": "{percent} % du total",
+      "tierLabel": "Rang",
+      "noTier": "Sans rang",
+      "nextTier": "Encore {points} pts pour {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Composants",
+      "pendingTitle": "En attente dans le dossier annuel",
+      "pendingEmpty": "Aucune section en attente.",
+      "pendingStatus": {
+        "pending_delivery": "À remettre",
+        "pending_validation": "À valider",
+        "pending_union_validation": "À valider par l’union",
+        "pending_review": "En révision"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Modifier la catégorie",
@@ -7357,23 +7372,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Score composite institutionnel",
-      "weightsApplied": "Poids appliqués",
       "weightsSource": "Source",
       "weightsSourceDefault": "Défaut global",
-      "weightsSourceOverride": "Remplacement par type de club",
-      "componentFolder": "Dossiers",
-      "componentFinance": "Finances",
-      "componentCamporee": "Camporées",
-      "componentEvidence": "Preuves",
-      "pointsOf": "{earned} / {max} points",
-      "sectionsEvaluated": "{count} sections évaluées",
-      "monthsClosedOnTime": "{closed} / {total} mois clôturés à temps",
-      "deadlineDay": "Date limite : jour {day} du mois suivant",
-      "missedMonths": "Mois manquants : {months}",
-      "camporeeEventsOf": "{attended} / {available} événements dans la portée",
-      "evidenceValidatedRejected": "{validated} validées / {rejected} rejetées",
-      "evidencePendingExcluded": "{pending} en attente (exclues du calcul)"
+      "weightsSourceOverride": "Remplacement par type de club"
     },
     "pageMember": {
       "title": "Classement des membres",

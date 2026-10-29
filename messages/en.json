@@ -4858,11 +4858,26 @@
       "emptyDescription": "No club types are available to display classifications."
     },
     "pageRankingsBreakdown": {
-      "title": "Classification Breakdown",
-      "description": "Component detail for {clubName}",
-      "descriptionNoClub": "Component detail for the enrollment",
-      "errorFallback": "Could not load the classification breakdown. Check your server connection.",
-      "paramsRequired": "The enrollmentId and year_id parameters are required."
+      "title": "Ranking breakdown",
+      "description": "Annual ranking · {clubType}",
+      "errorFallback": "Could not load the ranking breakdown. Check the connection to the server.",
+      "forbidden": "You don't have permission to see this section's breakdown.",
+      "paramsRequired": "The ecclesiastical year is missing to show the breakdown.",
+      "totalLabel": "Points earned",
+      "progress": "{percent}% of the total",
+      "tierLabel": "Tier",
+      "noTier": "No tier",
+      "nextTier": "{points} pts to {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Components",
+      "pendingTitle": "Annual folder pending items",
+      "pendingEmpty": "No pending sections.",
+      "pendingStatus": {
+        "pending_delivery": "To deliver",
+        "pending_validation": "To validate",
+        "pending_union_validation": "To validate by union",
+        "pending_review": "In review"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Edit category",
@@ -7357,23 +7372,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Institutional composite score",
-      "weightsApplied": "Applied weights",
       "weightsSource": "Source",
       "weightsSourceDefault": "Default weights",
-      "weightsSourceOverride": "Club type override",
-      "componentFolder": "Folders",
-      "componentFinance": "Finance",
-      "componentCamporee": "Camporees",
-      "componentEvidence": "Evidence",
-      "pointsOf": "{earned} / {max} points",
-      "sectionsEvaluated": "{count} sections evaluated",
-      "monthsClosedOnTime": "{closed} / {total} months closed on time",
-      "deadlineDay": "Deadline: day {day} of the following month",
-      "missedMonths": "Missed months: {months}",
-      "camporeeEventsOf": "{attended} / {available} events in scope",
-      "evidenceValidatedRejected": "{validated} validated / {rejected} rejected",
-      "evidencePendingExcluded": "{pending} pending (excluded from calculation)"
+      "weightsSourceOverride": "Club type override"
     },
     "pageMember": {
       "title": "Member Classifications",

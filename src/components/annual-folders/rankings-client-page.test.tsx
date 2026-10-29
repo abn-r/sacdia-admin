@@ -80,6 +80,7 @@ const RANKINGS = [
     rank_position: 1,
     club_name: "Club Alfa",
     club_enrollment_id: "enroll-1",
+    club_section_id: 7,
     club_id: 99,
     club_type_id: 2,
     ecclesiastical_year_id: 1,
@@ -169,6 +170,16 @@ describe("RankingsClientPage", () => {
 
     expect(screen.getAllByText("Diamante").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/9,500/).length).toBeGreaterThan(0);
+  });
+
+  it("links each club to the breakdown of its section", () => {
+    renderPage();
+
+    const clubLinks = screen.getAllByRole("link", { name: "Club Alfa" });
+    expect(clubLinks[0]).toHaveAttribute(
+      "href",
+      "/dashboard/annual-folders/rankings/7/breakdown?year_id=1",
+    );
   });
 
   it("renders the table column headers from the Spanish messages", () => {

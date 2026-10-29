@@ -4892,9 +4892,24 @@ export interface IntlMessages {
     pageRankingsBreakdown: {
       title: string;
       description: string;
-      descriptionNoClub: string;
       errorFallback: string;
+      forbidden: string;
       paramsRequired: string;
+      totalLabel: string;
+      progress: string;
+      tierLabel: string;
+      noTier: string;
+      nextTier: string;
+      pointsOf: string;
+      componentsTitle: string;
+      pendingTitle: string;
+      pendingEmpty: string;
+      pendingStatus: {
+        pending_delivery: string;
+        pending_validation: string;
+        pending_union_validation: string;
+        pending_review: string;
+      };
     };
     awardCategoriesClient: {
       editCategoryTitle: string;
@@ -7389,23 +7404,9 @@ export interface IntlMessages {
   };
   rankings: {
     breakdown: {
-      compositeScore: string;
-      weightsApplied: string;
       weightsSource: string;
       weightsSourceDefault: string;
       weightsSourceOverride: string;
-      componentFolder: string;
-      componentFinance: string;
-      componentCamporee: string;
-      componentEvidence: string;
-      pointsOf: string;
-      sectionsEvaluated: string;
-      monthsClosedOnTime: string;
-      deadlineDay: string;
-      missedMonths: string;
-      camporeeEventsOf: string;
-      evidenceValidatedRejected: string;
-      evidencePendingExcluded: string;
     };
     pageMember: {
       title: string;

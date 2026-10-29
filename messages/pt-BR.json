@@ -4858,11 +4858,26 @@
       "emptyDescription": "Não há tipos de clube disponíveis para exibir classificações."
     },
     "pageRankingsBreakdown": {
-      "title": "Detalhamento do classificação",
-      "description": "Detalhe por componente de {clubName}",
-      "descriptionNoClub": "Detalhe por componente da inscrição",
-      "errorFallback": "Não foi possível carregar o detalhamento do classificação. Verifique a conexão com o servidor.",
-      "paramsRequired": "Os parâmetros enrollmentId e year_id são obrigatórios."
+      "title": "Detalhamento da classificação",
+      "description": "Classificação anual · {clubType}",
+      "errorFallback": "Não foi possível carregar o detalhamento da classificação. Verifique a conexão com o servidor.",
+      "forbidden": "Você não tem permissão para ver o detalhamento desta seção.",
+      "paramsRequired": "Falta o ano eclesiástico para mostrar o detalhamento.",
+      "totalLabel": "Pontos obtidos",
+      "progress": "{percent}% do total",
+      "tierLabel": "Nível",
+      "noTier": "Sem nível",
+      "nextTier": "Faltam {points} pts para {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Componentes",
+      "pendingTitle": "Pendências da pasta anual",
+      "pendingEmpty": "Nenhuma seção pendente.",
+      "pendingStatus": {
+        "pending_delivery": "A entregar",
+        "pending_validation": "A validar",
+        "pending_union_validation": "A validar pela união",
+        "pending_review": "Em revisão"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Editar categoria",
@@ -7357,23 +7372,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Pontuação composta institucional",
-      "weightsApplied": "Pesos aplicados",
       "weightsSource": "Fonte",
       "weightsSourceDefault": "Padrão global",
-      "weightsSourceOverride": "Substituição por tipo de clube",
-      "componentFolder": "Pastas",
-      "componentFinance": "Finanças",
-      "componentCamporee": "Camporees",
-      "componentEvidence": "Evidências",
-      "pointsOf": "{earned} / {max} pontos",
-      "sectionsEvaluated": "{count} seções avaliadas",
-      "monthsClosedOnTime": "{closed} / {total} meses fechados no prazo",
-      "deadlineDay": "Prazo: dia {day} do mês seguinte",
-      "missedMonths": "Meses em falta: {months}",
-      "camporeeEventsOf": "{attended} / {available} eventos no escopo",
-      "evidenceValidatedRejected": "{validated} validadas / {rejected} rejeitadas",
-      "evidencePendingExcluded": "{pending} pendentes (excluídas do cálculo)"
+      "weightsSourceOverride": "Substituição por tipo de clube"
     },
     "pageMember": {
       "title": "Classificação de membros",

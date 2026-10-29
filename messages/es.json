@@ -4859,10 +4859,25 @@
     },
     "pageRankingsBreakdown": {
       "title": "Desglose de clasificación",
-      "description": "Detalle por componente de {clubName}",
-      "descriptionNoClub": "Detalle por componente de la inscripción",
+      "description": "Clasificación anual · {clubType}",
       "errorFallback": "No se pudo cargar el desglose de clasificación. Verifica la conexión con el servidor.",
-      "paramsRequired": "Los parámetros enrollmentId y year_id son requeridos."
+      "forbidden": "No tienes permiso para ver el desglose de esta sección.",
+      "paramsRequired": "Falta el año eclesiástico para mostrar el desglose.",
+      "totalLabel": "Puntos obtenidos",
+      "progress": "{percent}% del total",
+      "tierLabel": "Rango",
+      "noTier": "Sin rango",
+      "nextTier": "Faltan {points} pts para {tier}",
+      "pointsOf": "{earned} / {max} pts",
+      "componentsTitle": "Componentes",
+      "pendingTitle": "Pendientes de la carpeta anual",
+      "pendingEmpty": "No hay secciones pendientes.",
+      "pendingStatus": {
+        "pending_delivery": "Por entregar",
+        "pending_validation": "Por validar",
+        "pending_union_validation": "Por validar en unión",
+        "pending_review": "En revisión"
+      }
     },
     "awardCategoriesClient": {
       "editCategoryTitle": "Editar categoría",
@@ -7357,23 +7372,9 @@
   },
   "rankings": {
     "breakdown": {
-      "compositeScore": "Puntaje compuesto institucional",
-      "weightsApplied": "Pesos aplicados",
       "weightsSource": "Fuente",
       "weightsSourceDefault": "Valores generales",
-      "weightsSourceOverride": "Ajuste por tipo de club",
-      "componentFolder": "Carpetas",
-      "componentFinance": "Finanzas",
-      "componentCamporee": "Camporees",
-      "componentEvidence": "Evidencias",
-      "pointsOf": "{earned} / {max} puntos",
-      "sectionsEvaluated": "{count} secciones evaluadas",
-      "monthsClosedOnTime": "{closed} / {total} meses cerrados a tiempo",
-      "deadlineDay": "Fecha límite: día {day} del mes siguiente",
-      "missedMonths": "Meses faltantes: {months}",
-      "camporeeEventsOf": "{attended} / {available} eventos del scope",
-      "evidenceValidatedRejected": "{validated} validadas / {rejected} rechazadas",
-      "evidencePendingExcluded": "{pending} pendientes (excluidas del cálculo)"
+      "weightsSourceOverride": "Ajuste por tipo de club"
     },
     "pageMember": {
       "title": "Clasificación de miembros",

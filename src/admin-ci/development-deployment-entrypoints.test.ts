@@ -8,7 +8,7 @@ describe("development deployment entrypoints", () => {
   it("keeps every route dependency required by the development panel", () => {
     const requiredModules = [
       "components/catalogs/catalog-crud-page.tsx",
-      "components/rankings/breakdown-view.tsx",
+      "components/annual-rankings/annual-ranking-breakdown-view.tsx",
       "lib/api/analytics.ts",
       "lib/catalogs/actions.ts",
       "lib/api/member-rankings.ts",
