@@ -1750,6 +1750,7 @@ export interface IntlMessages {
         colChurch: string;
         colStatus: string;
         colMessage: string;
+        openClub: string;
         rowValid: string;
         rowInvalid: string;
         rowCreated: string;
@@ -1766,6 +1767,8 @@ export interface IntlMessages {
           unknownLocalField: string;
           unknownDistrict: string;
           unknownChurch: string;
+          districtOutsideLocalField: string;
+          churchOutsideDistrict: string;
           coordinatesInvalid: string;
         };
         errors: {
