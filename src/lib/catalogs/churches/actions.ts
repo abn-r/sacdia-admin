@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -44,7 +46,7 @@ function parseTranslations(formData: FormData): CatalogTranslation[] {
   return result;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = churchFormSchema.safeParse({
     name: readString(formData, "name"),
     district_id: readPositiveInt(formData, "district_id"),
@@ -54,7 +56,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -67,17 +69,17 @@ export async function createChurchAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-churches", "create")) {
-      return { error: "No tienes permisos para crear iglesias." };
+      return { error: await catalogActionText("churches", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminChurch(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la iglesia.", {
+      error: getActionErrorMessage(error, await catalogActionText("churches", "createFailed"), {
         endpointLabel: "POST /admin/churches",
       }),
     };
@@ -91,22 +93,22 @@ export async function updateChurchAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-churches", "update")) {
-      return { error: "No tienes permisos para editar iglesias." };
+      return { error: await catalogActionText("churches", "noPermissionUpdate") };
     }
 
     const churchId = readPositiveInt(formData, "church_id");
     if (!churchId) {
-      return { error: "Identificador de iglesia inválido." };
+      return { error: await catalogActionText("churches", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminChurch(churchId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la iglesia.", {
+      error: getActionErrorMessage(error, await catalogActionText("churches", "updateFailed"), {
         endpointLabel: "PATCH /admin/churches/:id",
       }),
     };
@@ -117,11 +119,11 @@ export async function deleteChurchAction(churchId: number): Promise<ChurchAction
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-churches", "delete")) {
-      return { error: "No tienes permisos para eliminar iglesias." };
+      return { error: await catalogActionText("churches", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(churchId) || churchId <= 0) {
-      return { error: "Identificador de iglesia inválido." };
+      return { error: await catalogActionText("churches", "invalidId") };
     }
 
     await deleteAdminChurch(churchId);
@@ -129,7 +131,7 @@ export async function deleteChurchAction(churchId: number): Promise<ChurchAction
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar la iglesia.", {
+      error: getActionErrorMessage(error, await catalogActionText("churches", "deleteFailed"), {
         endpointLabel: "DELETE /admin/churches/:id",
       }),
     };

@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -22,7 +24,7 @@ function readString(formData: FormData, field: string) {
   return String(formData.get(field) ?? "").trim();
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = countryFormSchema.safeParse({
     name: readString(formData, "name"),
     abbreviation: readString(formData, "abbreviation"),
@@ -31,7 +33,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -44,17 +46,17 @@ export async function createCountryAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-countries", "create")) {
-      return { error: "No tienes permisos para crear países." };
+      return { error: await catalogActionText("countries", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminCountry(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el país.", {
+      error: getActionErrorMessage(error, await catalogActionText("countries", "createFailed"), {
         endpointLabel: "POST /admin/countries",
       }),
     };
@@ -68,22 +70,22 @@ export async function updateCountryAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-countries", "update")) {
-      return { error: "No tienes permisos para editar países." };
+      return { error: await catalogActionText("countries", "noPermissionUpdate") };
     }
 
     const countryId = Number(readString(formData, "country_id"));
     if (!Number.isFinite(countryId) || countryId <= 0) {
-      return { error: "Identificador de país inválido." };
+      return { error: await catalogActionText("countries", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminCountry(countryId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el país.", {
+      error: getActionErrorMessage(error, await catalogActionText("countries", "updateFailed"), {
         endpointLabel: "PATCH /admin/countries/:id",
       }),
     };
@@ -94,11 +96,11 @@ export async function deleteCountryAction(countryId: number): Promise<CountryAct
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-countries", "delete")) {
-      return { error: "No tienes permisos para eliminar países." };
+      return { error: await catalogActionText("countries", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(countryId) || countryId <= 0) {
-      return { error: "Identificador de país inválido." };
+      return { error: await catalogActionText("countries", "invalidId") };
     }
 
     await deleteAdminCountry(countryId);
@@ -106,7 +108,7 @@ export async function deleteCountryAction(countryId: number): Promise<CountryAct
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el país.", {
+      error: getActionErrorMessage(error, await catalogActionText("countries", "deleteFailed"), {
         endpointLabel: "DELETE /admin/countries/:id",
       }),
     };

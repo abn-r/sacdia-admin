@@ -6,8 +6,8 @@ export const churchTranslationSchema = z.object({
 });
 
 export const churchFormSchema = z.object({
-  name: z.string().trim().min(1, "El nombre es obligatorio.").max(50),
-  district_id: z.number({ error: "El distrito es obligatorio." }).int().positive("El distrito es obligatorio."),
+  name: z.string().trim().min(1, "required:name").max(50),
+  district_id: z.number({ error: "select:district" }).int().positive("select:district"),
   active: z.boolean(),
   translations: z.array(churchTranslationSchema).default([]),
 });

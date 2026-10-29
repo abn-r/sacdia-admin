@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -27,7 +29,7 @@ function readPositiveInt(formData: FormData, field: string) {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : null;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const parsed = localFieldFormSchema.safeParse({
     name: readString(formData, "name"),
     abbreviation: readString(formData, "abbreviation"),
@@ -38,7 +40,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -51,17 +53,17 @@ export async function createLocalFieldAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-local-fields", "create")) {
-      return { error: "No tienes permisos para crear campos locales." };
+      return { error: await catalogActionText("local-fields", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminLocalField(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear el campo local.", {
+      error: getActionErrorMessage(error, await catalogActionText("local-fields", "createFailed"), {
         endpointLabel: "POST /admin/local-fields",
       }),
     };
@@ -75,22 +77,22 @@ export async function updateLocalFieldAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-local-fields", "update")) {
-      return { error: "No tienes permisos para editar campos locales." };
+      return { error: await catalogActionText("local-fields", "noPermissionUpdate") };
     }
 
     const localFieldId = readPositiveInt(formData, "local_field_id");
     if (!localFieldId) {
-      return { error: "Identificador de campo local inválido." };
+      return { error: await catalogActionText("local-fields", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminLocalField(localFieldId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar el campo local.", {
+      error: getActionErrorMessage(error, await catalogActionText("local-fields", "updateFailed"), {
         endpointLabel: "PATCH /admin/local-fields/:id",
       }),
     };
@@ -103,11 +105,11 @@ export async function deleteLocalFieldAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-local-fields", "delete")) {
-      return { error: "No tienes permisos para eliminar campos locales." };
+      return { error: await catalogActionText("local-fields", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(localFieldId) || localFieldId <= 0) {
-      return { error: "Identificador de campo local inválido." };
+      return { error: await catalogActionText("local-fields", "invalidId") };
     }
 
     await deleteAdminLocalField(localFieldId);
@@ -115,7 +117,7 @@ export async function deleteLocalFieldAction(
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar el campo local.", {
+      error: getActionErrorMessage(error, await catalogActionText("local-fields", "deleteFailed"), {
         endpointLabel: "DELETE /admin/local-fields/:id",
       }),
     };

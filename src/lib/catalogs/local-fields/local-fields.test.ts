@@ -6,6 +6,14 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next-intl/server", async () => {
+  const { createTranslator } = await import("next-intl");
+  const messages = (await import("../../../../messages/es.json")).default;
+  return {
+    getTranslations: async (namespace: string) =>
+      createTranslator({ locale: "es", messages, namespace: namespace as "catalogs" }),
+  };
+});
 vi.mock("@/lib/auth/session", () => ({
   requireAdminUser: vi.fn().mockResolvedValue({ id: "admin" }),
 }));
@@ -100,7 +108,7 @@ describe("local field time zone", () => {
   it("asks for a zone instead of calling the API when an active field has none", async () => {
     const result = await createLocalFieldAction({}, form(base));
 
-    expect(result.error).toBeTruthy();
+    expect(result.error).toBe("Selecciona una opción en Zona horaria");
     expect(mocks.createAdminLocalField).not.toHaveBeenCalled();
   });
 });

@@ -479,6 +479,7 @@ export interface IntlMessages {
       union: string;
       local_field: string;
       district: string;
+      division: string;
       club_type: string;
       honor_category: string;
       honor_image: string;
@@ -580,10 +581,22 @@ export interface IntlMessages {
       op_delete_failed: string;
       load_data_failed: string;
     };
+    actionErrors: {
+      invalidForm: string;
+      invalidId: string;
+      noPermissionCreate: string;
+      noPermissionUpdate: string;
+      noPermissionDelete: string;
+      createFailed: string;
+      updateFailed: string;
+      deleteFailed: string;
+    };
     validation: {
       delete_target_not_identified: string;
       field_required: string;
       field_invalid: string;
+      field_min: string;
+      field_select: string;
     };
     success: {
       op_create_title: string;

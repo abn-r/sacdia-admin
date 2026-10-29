@@ -1,5 +1,7 @@
 "use server";
 
+import { catalogActionText, catalogValidationText } from "@/lib/catalogs/action-messages";
+
 import { revalidatePath } from "next/cache";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import {
@@ -49,7 +51,7 @@ function parseTranslations(formData: FormData): CatalogTranslation[] {
   return result;
 }
 
-function parseFormData(formData: FormData) {
+async function parseFormData(formData: FormData) {
   const description = readString(formData, "description");
   const parsed = honorCategoryFormSchema.safeParse({
     name: readString(formData, "name"),
@@ -60,7 +62,7 @@ function parseFormData(formData: FormData) {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]?.message;
-    throw new Error(firstIssue ?? "Los datos del formulario no son válidos.");
+    throw new Error(await catalogValidationText(firstIssue));
   }
 
   return parsed.data;
@@ -73,17 +75,17 @@ export async function createHonorCategoryAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honor-categories", "create")) {
-      return { error: "No tienes permisos para crear categorías de especialidades." };
+      return { error: await catalogActionText("honor-categories", "noPermissionCreate") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await createAdminHonorCategory(values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo crear la categoría.", {
+      error: getActionErrorMessage(error, await catalogActionText("honor-categories", "createFailed"), {
         endpointLabel: "POST /admin/honor-categories",
       }),
     };
@@ -97,22 +99,22 @@ export async function updateHonorCategoryAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honor-categories", "update")) {
-      return { error: "No tienes permisos para editar categorías de especialidades." };
+      return { error: await catalogActionText("honor-categories", "noPermissionUpdate") };
     }
 
     const honorCategoryId = readPositiveInt(formData, "honor_category_id");
     if (!honorCategoryId) {
-      return { error: "Identificador de categoría inválido." };
+      return { error: await catalogActionText("honor-categories", "invalidId") };
     }
 
-    const values = parseFormData(formData);
+    const values = await parseFormData(formData);
     await updateAdminHonorCategory(honorCategoryId, values);
 
     revalidatePath(REVALIDATE_PATH);
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo actualizar la categoría.", {
+      error: getActionErrorMessage(error, await catalogActionText("honor-categories", "updateFailed"), {
         endpointLabel: "PATCH /admin/honor-categories/:id",
       }),
     };
@@ -125,11 +127,11 @@ export async function deleteHonorCategoryAction(
   try {
     const user = await requireAdminUser();
     if (!canCapability(user, "catalogs-honor-categories", "delete")) {
-      return { error: "No tienes permisos para eliminar categorías de especialidades." };
+      return { error: await catalogActionText("honor-categories", "noPermissionDelete") };
     }
 
     if (!Number.isFinite(honorCategoryId) || honorCategoryId <= 0) {
-      return { error: "Identificador de categoría inválido." };
+      return { error: await catalogActionText("honor-categories", "invalidId") };
     }
 
     await deleteAdminHonorCategory(honorCategoryId);
@@ -137,7 +139,7 @@ export async function deleteHonorCategoryAction(
     return { ok: true };
   } catch (error) {
     return {
-      error: getActionErrorMessage(error, "No se pudo eliminar la categoría.", {
+      error: getActionErrorMessage(error, await catalogActionText("honor-categories", "deleteFailed"), {
         endpointLabel: "DELETE /admin/honor-categories/:id",
       }),
     };

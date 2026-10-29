@@ -6,9 +6,9 @@ export const divisionTranslationSchema = z.object({
 });
 
 export const divisionFormSchema = z.object({
-  code: z.string().trim().min(1, "El código es obligatorio.").max(50),
-  name: z.string().trim().min(1, "El nombre es obligatorio.").max(100),
-  abbreviation: z.string().trim().min(1, "La abreviatura es obligatoria.").max(16),
+  code: z.string().trim().min(1, "required:code").max(50),
+  name: z.string().trim().min(1, "required:name").max(100),
+  abbreviation: z.string().trim().min(1, "required:abbreviation").max(16),
   active: z.boolean(),
   translations: z.array(divisionTranslationSchema).default([]),
 });

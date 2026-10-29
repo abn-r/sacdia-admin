@@ -450,6 +450,7 @@
       "union": "Union",
       "local_field": "Local field",
       "district": "District",
+      "division": "Division",
       "club_type": "Club type",
       "honor_category": "Honor category",
       "honor_image": "Image URL",
@@ -551,10 +552,22 @@
       "op_delete_failed": "Could not deactivate the record",
       "load_data_failed": "Error loading data"
     },
+    "actionErrors": {
+      "invalidForm": "The form data isn't valid.",
+      "invalidId": "The record identifier isn't valid.",
+      "noPermissionCreate": "You don't have permission to create {entity}.",
+      "noPermissionUpdate": "You don't have permission to edit {entity}.",
+      "noPermissionDelete": "You don't have permission to deactivate {entity}.",
+      "createFailed": "Couldn't create the {entity} record.",
+      "updateFailed": "Couldn't update the {entity} record.",
+      "deleteFailed": "Couldn't deactivate the {entity} record."
+    },
     "validation": {
       "delete_target_not_identified": "Could not identify the record to deactivate",
       "field_required": "The {field} field is required",
-      "field_invalid": "The {field} value is invalid"
+      "field_invalid": "The {field} value is invalid",
+      "field_min": "{field} must be at least {min}",
+      "field_select": "Choose an option for {field}"
     },
     "success": {
       "op_create_title": "Record created",

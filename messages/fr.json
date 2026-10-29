@@ -450,6 +450,7 @@
       "union": "Union",
       "local_field": "Champ local",
       "district": "District",
+      "division": "Division",
       "club_type": "Type de club",
       "honor_category": "Catégorie de spécialité",
       "honor_image": "URL de l'image",
@@ -551,10 +552,22 @@
       "op_delete_failed": "Impossible de désactiver l’enregistrement",
       "load_data_failed": "Erreur lors du chargement des données"
     },
+    "actionErrors": {
+      "invalidForm": "Les données du formulaire ne sont pas valides.",
+      "invalidId": "L’identifiant de l’enregistrement n’est pas valide.",
+      "noPermissionCreate": "Vous n’avez pas l’autorisation de créer des {entity}.",
+      "noPermissionUpdate": "Vous n’avez pas l’autorisation de modifier des {entity}.",
+      "noPermissionDelete": "Vous n’avez pas l’autorisation de désactiver des {entity}.",
+      "createFailed": "Impossible de créer l’enregistrement ({entity}).",
+      "updateFailed": "Impossible de mettre à jour l’enregistrement ({entity}).",
+      "deleteFailed": "Impossible de désactiver l’enregistrement ({entity})."
+    },
     "validation": {
       "delete_target_not_identified": "Impossible d’identifier l’enregistrement à désactiver",
       "field_required": "Le champ {field} est obligatoire",
-      "field_invalid": "La valeur de {field} n’est pas valide"
+      "field_invalid": "La valeur de {field} n’est pas valide",
+      "field_min": "Le champ {field} doit être au moins égal à {min}",
+      "field_select": "Choisissez une option pour {field}"
     },
     "success": {
       "op_create_title": "Enregistrement créé",

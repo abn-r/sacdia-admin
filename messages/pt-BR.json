@@ -450,6 +450,7 @@
       "union": "União",
       "local_field": "Campo local",
       "district": "Distrito",
+      "division": "Divisão",
       "club_type": "Tipo de clube",
       "honor_category": "Categoria de especialidade",
       "honor_image": "URL da imagem",
@@ -551,10 +552,22 @@
       "op_delete_failed": "Não foi possível desativar o registro",
       "load_data_failed": "Erro ao carregar dados"
     },
+    "actionErrors": {
+      "invalidForm": "Os dados do formulário não são válidos.",
+      "invalidId": "O identificador do registro não é válido.",
+      "noPermissionCreate": "Você não tem permissão para criar {entity}.",
+      "noPermissionUpdate": "Você não tem permissão para editar {entity}.",
+      "noPermissionDelete": "Você não tem permissão para desativar {entity}.",
+      "createFailed": "Não foi possível criar o registro de {entity}.",
+      "updateFailed": "Não foi possível atualizar o registro de {entity}.",
+      "deleteFailed": "Não foi possível desativar o registro de {entity}."
+    },
     "validation": {
       "delete_target_not_identified": "Não foi possível identificar o registro a desativar",
       "field_required": "O campo {field} é obrigatório",
-      "field_invalid": "O valor de {field} não é válido"
+      "field_invalid": "O valor de {field} não é válido",
+      "field_min": "O campo {field} deve ser no mínimo {min}",
+      "field_select": "Selecione uma opção em {field}"
     },
     "success": {
       "op_create_title": "Registro criado",

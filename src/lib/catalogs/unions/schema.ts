@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const unionFormSchema = z.object({
-  name: z.string().trim().min(1, "El nombre es obligatorio.").max(50),
-  abbreviation: z.string().trim().min(1, "La abreviatura es obligatoria.").max(8),
-  country_id: z.number({ error: "Selecciona un país." }).int().positive("Selecciona un país."),
-  division_id: z.number({ error: "Selecciona una división." }).int().positive("Selecciona una división."),
+  name: z.string().trim().min(1, "required:name").max(50),
+  abbreviation: z.string().trim().min(1, "required:abbreviation").max(8),
+  country_id: z.number({ error: "select:country" }).int().positive("select:country"),
+  division_id: z.number({ error: "select:division" }).int().positive("select:division"),
   active: z.boolean(),
 });
 
