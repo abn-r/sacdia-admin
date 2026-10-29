@@ -7433,11 +7433,12 @@ export interface IntlMessages {
     pageSectionMembers: {
       title: string;
       description: string;
+      descriptionNoYear: string;
+      sectionFallback: string;
       memberSingular: string;
       memberPlural: string;
       back: string;
       breadcrumbParent: string;
-      breadcrumbCurrent: string;
     };
     filters: {
       labelYear: string;

@@ -4,13 +4,22 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { ApiError } from "@/lib/api/client";
 import { getSectionMembers } from "@/lib/api/section-rankings";
-import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
+import {
+  getActiveEcclesiasticalYearId,
+  listEcclesiasticalYears,
+} from "@/lib/api/catalogs";
+import { resolveYearLabelById } from "@/lib/annual-folders/ecclesiastical-year-label";
+import { buildSectionRankingLabel } from "@/lib/section-rankings/section-label";
 import { SectionMembersTable } from "./_components/section-members-table";
 
 // ─── Route params ─────────────────────────────────────────────────────────────
 
 type Params = Promise<{ sectionId: string }>;
-type SearchParams = Promise<{ year_id?: string }>;
+type SearchParams = Promise<{
+  year_id?: string;
+  section_name?: string;
+  club_name?: string;
+}>;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -29,7 +38,11 @@ export default async function SectionMembersPage({
   const t = await getTranslations("rankings");
 
   const { sectionId: sectionIdRaw } = await params;
-  const { year_id: yearIdRaw } = await searchParams;
+  const {
+    year_id: yearIdRaw,
+    section_name: sectionNameParam,
+    club_name: clubNameParam,
+  } = await searchParams;
 
   // Validate sectionId
   const sectionId = Number(sectionIdRaw);
@@ -62,6 +75,14 @@ export default async function SectionMembersPage({
     throw error;
   }
 
+  const years = await listEcclesiasticalYears().catch(() => []);
+  const yearLabel = resolveYearLabelById(years, yearId);
+  const sectionLabel = buildSectionRankingLabel(
+    sectionNameParam ?? members[0]?.section?.name,
+    clubNameParam,
+    t("pageSectionMembers.sectionFallback"),
+  );
+
   const memberLabel =
     members.length === 1
       ? t("pageSectionMembers.memberSingular")
@@ -72,18 +93,26 @@ export default async function SectionMembersPage({
       {/* ── Header ── */}
       <PageHeader
         title={t("pageSectionMembers.title")}
-        description={t("pageSectionMembers.description", {
-          sectionId,
-          yearId,
-          count: members.length,
-          memberLabel,
-        })}
+        description={
+          yearLabel
+            ? t("pageSectionMembers.description", {
+                section: sectionLabel,
+                year: yearLabel,
+                count: members.length,
+                memberLabel,
+              })
+            : t("pageSectionMembers.descriptionNoYear", {
+                section: sectionLabel,
+                count: members.length,
+                memberLabel,
+              })
+        }
         breadcrumbs={[
           {
             label: t("pageSectionMembers.breadcrumbParent"),
             href: "/dashboard/section-rankings",
           },
-          { label: t("pageSectionMembers.breadcrumbCurrent", { sectionId }) },
+          { label: sectionLabel },
         ]}
       />
 

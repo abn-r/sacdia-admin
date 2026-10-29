@@ -7400,12 +7400,13 @@
     },
     "pageSectionMembers": {
       "title": "Membros da seção",
-      "description": "Seção #{sectionId} · Ano {yearId} · {count} {memberLabel}",
+      "description": "{section} · Ano {year} · {count} {memberLabel}",
+      "descriptionNoYear": "{section} · {count} {memberLabel}",
+      "sectionFallback": "Seção",
       "memberSingular": "membro",
       "memberPlural": "membros",
       "back": "Voltar para seções",
-      "breadcrumbParent": "Classificação de seções",
-      "breadcrumbCurrent": "Seção #{sectionId}"
+      "breadcrumbParent": "Classificação de seções"
     },
     "filters": {
       "labelYear": "Ano eclesiástico",
@@ -7471,7 +7472,7 @@
       "colCategory": "Categoria",
       "colAction": "Ação",
       "emptyTitle": "Sem membros com classificação",
-      "emptyDescription": "Esta seção não tem membros com classificação calculado.",
+      "emptyDescription": "Esta seção não tem membros com classificação calculada.",
       "investedLabel": "Investido",
       "inProgressLabel": "Em andamento",
       "viewDetail": "Ver detalhe"

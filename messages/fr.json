@@ -7400,12 +7400,13 @@
     },
     "pageSectionMembers": {
       "title": "Membres de la section",
-      "description": "Section n°{sectionId} · Année {yearId} · {count} {memberLabel}",
+      "description": "{section} · Année {year} · {count} {memberLabel}",
+      "descriptionNoYear": "{section} · {count} {memberLabel}",
+      "sectionFallback": "Section",
       "memberSingular": "membre",
       "memberPlural": "membres",
       "back": "Retour aux sections",
-      "breadcrumbParent": "Classement des sections",
-      "breadcrumbCurrent": "Section n°{sectionId}"
+      "breadcrumbParent": "Classement des sections"
     },
     "filters": {
       "labelYear": "Année ecclésiastique",

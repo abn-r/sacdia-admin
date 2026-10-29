@@ -48,3 +48,17 @@ export function resolveTemplateYearLabel(
     fallback(template.ecclesiastical_year_id)
   );
 }
+
+/**
+ * Display label of a year picked by id from the catalog: its `name`, then the
+ * label derived from its dates. Returns null when the year is not in the
+ * catalog (callers omit the year rather than showing a raw id).
+ */
+export function resolveYearLabelById(
+  years: Pick<EcclesiasticalYear, "ecclesiastical_year_id" | "name" | "start_date" | "end_date">[],
+  yearId: number,
+): string | null {
+  const year = years.find((item) => item.ecclesiastical_year_id === yearId);
+  if (!year) return null;
+  return year.name?.trim() || ecclesiasticalYearLabelFromDates(year);
+}
