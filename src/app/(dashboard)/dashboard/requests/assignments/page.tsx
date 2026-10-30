@@ -8,6 +8,7 @@ import { AssignmentsClientPage } from "@/components/requests/assignments-client-
 import { getAssignmentRequests, type AssignmentRequest } from "@/lib/api/requests";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("requests");
@@ -15,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AssignmentRequestsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("requests");
 
   let requests: AssignmentRequest[] = [];
@@ -48,7 +49,10 @@ export default async function AssignmentRequestsPage() {
       )}
 
       {!loadError && requests.length > 0 && (
-        <AssignmentsClientPage initialRequests={requests} />
+        <AssignmentsClientPage
+          initialRequests={requests}
+          canReview={canCapability(user, "requests-assignments", "review")}
+        />
       )}
     </div>
   );

@@ -42,11 +42,17 @@ type DialogState = {
 interface AssignmentsTableProps {
   requests: AssignmentRequest[];
   onRefresh: () => void;
+  /** requests:review — without it the row is read-only. */
+  canReview: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps) {
+export function AssignmentsTable({
+  requests,
+  onRefresh,
+  canReview,
+}: AssignmentsTableProps) {
   const t = useTranslations("requests");
   const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -120,7 +126,7 @@ export function AssignmentsTable({ requests, onRefresh }: AssignmentsTableProps)
                     {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    {isPending && (
+                    {isPending && canReview && (
                       <RowActions
                         label={getUserName(req.target_user)}
                         actions={[]}

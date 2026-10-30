@@ -8,6 +8,7 @@ import { TransfersClientPage } from "@/components/requests/transfers-client-page
 import { getTransferRequests, type TransferRequest } from "@/lib/api/requests";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canCapability } from "@/lib/auth/screen-catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("requests");
@@ -15,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TransferRequestsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("requests");
 
   let requests: TransferRequest[] = [];
@@ -48,7 +49,10 @@ export default async function TransferRequestsPage() {
       )}
 
       {!loadError && requests.length > 0 && (
-        <TransfersClientPage initialRequests={requests} />
+        <TransfersClientPage
+          initialRequests={requests}
+          canReview={canCapability(user, "requests-transfers", "review")}
+        />
       )}
     </div>
   );

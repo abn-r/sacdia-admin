@@ -25,6 +25,7 @@ import {
   REPORTS_READ,
   REPORTS_UPDATE,
   REQUESTS_READ,
+  REQUESTS_REVIEW,
   SECTION_RANKINGS_READ_CLUB,
   SECTION_RANKINGS_READ_DIVISION,
   SECTION_RANKINGS_READ_GLOBAL,
@@ -162,8 +163,20 @@ export const clubsScreens: ScreenDefinition[] = [
     ],
   },
 
-  viewOnlyScreen("requests-transfers", { permissions: [REQUESTS_READ] }),
-  viewOnlyScreen("requests-assignments", { permissions: [REQUESTS_READ] }),
+  // Approve / reject: POST requests/transfers|assignments/:id/review needs
+  // requests:review. Coordinators and pastors read the list without it.
+  {
+    ...viewOnlyScreen("requests-transfers", { permissions: [REQUESTS_READ] }),
+    capabilities: [
+      { id: "review", kind: "button", gate: { permissions: [REQUESTS_REVIEW] } },
+    ],
+  },
+  {
+    ...viewOnlyScreen("requests-assignments", { permissions: [REQUESTS_READ] }),
+    capabilities: [
+      { id: "review", kind: "button", gate: { permissions: [REQUESTS_REVIEW] } },
+    ],
+  },
   // Two reviewer profiles share the page (see membership-review-mode.ts):
   // club_members:approve reviews everything; consent:verify alone reviews only
   // minors' consent forms (coordinators). Backend: the list, consent-evidence

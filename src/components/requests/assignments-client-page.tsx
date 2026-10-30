@@ -21,11 +21,15 @@ type StatusTab = "ALL" | RequestStatus;
 
 interface AssignmentsClientPageProps {
   initialRequests: AssignmentRequest[];
+  canReview: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPageProps) {
+export function AssignmentsClientPage({
+  initialRequests,
+  canReview,
+}: AssignmentsClientPageProps) {
   const t = useTranslations("requests");
   const [activeTab, setActiveTab] = useState<StatusTab>("PENDING");
 
@@ -113,7 +117,11 @@ export function AssignmentsClientPage({ initialRequests }: AssignmentsClientPage
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <AssignmentsTable requests={filteredRequests} onRefresh={handleRefresh} />
+          <AssignmentsTable
+            requests={filteredRequests}
+            onRefresh={handleRefresh}
+            canReview={canReview}
+          />
         </TabsContent>
       </Tabs>
     </div>
