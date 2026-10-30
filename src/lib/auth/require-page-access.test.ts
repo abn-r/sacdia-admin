@@ -257,3 +257,41 @@ describe("canAccessDashboardPath for pastor-only users", () => {
     expect(canAccessDashboardPath(both, "/dashboard/clubs")).toBe(true);
   });
 });
+
+describe("canAccessDashboardPath for the member breakdown", () => {
+  const breakdown = "/dashboard/member-rankings/42/breakdown";
+
+  it("opens it with a member ranking read", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["member_rankings:read_lf"]),
+        breakdown,
+      ),
+    ).toBe(true);
+  });
+
+  it("blocks it without a member ranking read", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["section_rankings:read_lf"]),
+        breakdown,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("canAccessDashboardPath for union and division ranking reads", () => {
+  it.each([
+    ["director-union", "section_rankings:read_union", "member_rankings:read_union"],
+    ["director-dia", "section_rankings:read_division", "member_rankings:read_division"],
+  ])("%s opens section rankings and the member breakdown", (role, section, member) => {
+    const user = buildUser([role], [section, member]);
+    expect(canAccessDashboardPath(user, "/dashboard/section-rankings")).toBe(true);
+    expect(
+      canAccessDashboardPath(user, "/dashboard/section-rankings/7/members"),
+    ).toBe(true);
+    expect(
+      canAccessDashboardPath(user, "/dashboard/member-rankings/42/breakdown"),
+    ).toBe(true);
+  });
+});

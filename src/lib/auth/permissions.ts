@@ -251,6 +251,8 @@ export const MEMBER_RANKINGS_READ_SELF = "member_rankings:read_self";
 export const MEMBER_RANKINGS_READ_SECTION = "member_rankings:read_section";
 export const MEMBER_RANKINGS_READ_CLUB = "member_rankings:read_club";
 export const MEMBER_RANKINGS_READ_LF = "member_rankings:read_lf";
+export const MEMBER_RANKINGS_READ_UNION = "member_rankings:read_union";
+export const MEMBER_RANKINGS_READ_DIVISION = "member_rankings:read_division";
 export const MEMBER_RANKINGS_READ_GLOBAL = "member_rankings:read_global";
 
 export const MEMBER_RANKING_WEIGHTS_READ = "member_ranking_weights:read";
@@ -258,6 +260,8 @@ export const MEMBER_RANKING_WEIGHTS_WRITE = "member_ranking_weights:write";
 
 export const SECTION_RANKINGS_READ_CLUB = "section_rankings:read_club";
 export const SECTION_RANKINGS_READ_LF = "section_rankings:read_lf";
+export const SECTION_RANKINGS_READ_UNION = "section_rankings:read_union";
+export const SECTION_RANKINGS_READ_DIVISION = "section_rankings:read_division";
 export const SECTION_RANKINGS_READ_GLOBAL = "section_rankings:read_global";
 
 // --- Categorías de Premios (Award Categories) ---

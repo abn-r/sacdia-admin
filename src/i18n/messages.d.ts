@@ -2756,11 +2756,15 @@ export interface IntlMessages {
       "member_rankings:read_section": string;
       "member_rankings:read_club": string;
       "member_rankings:read_lf": string;
+      "member_rankings:read_union": string;
+      "member_rankings:read_division": string;
       "member_rankings:read_global": string;
       "member_ranking_weights:read": string;
       "member_ranking_weights:write": string;
       "section_rankings:read_club": string;
       "section_rankings:read_lf": string;
+      "section_rankings:read_union": string;
+      "section_rankings:read_division": string;
       "section_rankings:read_global": string;
       "award_categories:create": string;
       "award_categories:read": string;
