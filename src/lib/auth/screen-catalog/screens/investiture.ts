@@ -27,6 +27,16 @@ const CERTIFICATE_BULK_ROLES = [
 ] as const;
 
 /**
+ * The guard expands lf → union → dia aliases, but the service only accepts a
+ * global or local field reviewer scope (`CERTIFICATE_IMPORT_REVIEWER_SCOPE_REQUIRED`
+ * for union and division), so the screen matches the roles literally.
+ */
+const CERTIFICATE_BULK_GATE: CapabilityGate = {
+  ...roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+  exactRoles: true,
+};
+
+/**
  * Investiture-by-authorization screens (`investiture-requests` controller and
  * `classes/*investiture*` controllers). Roles only: the endpoints are
  * `@SkipPermissions` or `@GlobalRoles`.
@@ -94,20 +104,20 @@ export const investitureScreens: ScreenDefinition[] = [
   {
     id: "certificate-bulk-imports",
     surfaces: ["admin"],
-    viewAny: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+    viewAny: CERTIFICATE_BULK_GATE,
     capabilities: [
       // POST admin/certificate-bulk-imports/:batchId/items/:id/approve
       // The batch approve route refuses; each row is decided alone.
       {
         id: "approve",
         kind: "button",
-        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+        gate: CERTIFICATE_BULK_GATE,
       },
       // POST .../items/:id/reject. The batch reject route refuses.
       {
         id: "reject",
         kind: "button",
-        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+        gate: CERTIFICATE_BULK_GATE,
       },
     ],
   },
