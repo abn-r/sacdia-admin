@@ -21,11 +21,15 @@ type StatusTab = "ALL" | RequestStatus;
 
 interface TransfersClientPageProps {
   initialRequests: TransferRequest[];
+  canReview: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TransfersClientPage({ initialRequests }: TransfersClientPageProps) {
+export function TransfersClientPage({
+  initialRequests,
+  canReview,
+}: TransfersClientPageProps) {
   const t = useTranslations("requests");
   const [activeTab, setActiveTab] = useState<StatusTab>("PENDING");
 
@@ -113,7 +117,11 @@ export function TransfersClientPage({ initialRequests }: TransfersClientPageProp
         </div>
 
         <TabsContent value={activeTab} className="mt-4">
-          <TransfersTable requests={filteredRequests} onRefresh={handleRefresh} />
+          <TransfersTable
+            requests={filteredRequests}
+            onRefresh={handleRefresh}
+            canReview={canReview}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -42,11 +42,17 @@ type DialogState = {
 interface TransfersTableProps {
   requests: TransferRequest[];
   onRefresh: () => void;
+  /** requests:review — without it the row is read-only. */
+  canReview: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
+export function TransfersTable({
+  requests,
+  onRefresh,
+  canReview,
+}: TransfersTableProps) {
   const t = useTranslations("requests");
   const formatDate = useFormatDate();
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -122,7 +128,7 @@ export function TransfersTable({ requests, onRefresh }: TransfersTableProps) {
                     {req.created_at ? formatDate(req.created_at) : "—"}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 align-middle">
-                    {isPending && (
+                    {isPending && canReview && (
                       <RowActions
                         label={getUserName(req.requester)}
                         actions={[]}
