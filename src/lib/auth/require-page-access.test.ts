@@ -295,3 +295,41 @@ describe("canAccessDashboardPath for union and division ranking reads", () => {
     ).toBe(true);
   });
 });
+
+describe("canAccessDashboardPath for certificate bulk imports", () => {
+  it.each(["director-lf", "assistant-lf", "admin"])("opens it for %s", (role) => {
+    expect(
+      canAccessDashboardPath(buildUser([role], []), "/dashboard/certificate-bulk-imports"),
+    ).toBe(true);
+  });
+
+  it.each(["director-union", "assistant-union", "director-dia", "assistant-dia"])(
+    "hides it from %s (the reviewer scope is global or local field only)",
+    (role) => {
+      expect(
+        canAccessDashboardPath(buildUser([role], []), "/dashboard/certificate-bulk-imports"),
+      ).toBe(false);
+    },
+  );
+});
+
+describe("canAccessDashboardPath for evidence folder templates", () => {
+  it("keeps the folder list for a coordinator but hides the templates", () => {
+    const coordinator = buildUser(["coordinator"], ["evidence_folders:read"]);
+    expect(
+      canAccessDashboardPath(coordinator, "/dashboard/clubs/evidence-folders"),
+    ).toBe(true);
+    expect(
+      canAccessDashboardPath(coordinator, "/dashboard/clubs/evidence-folders/templates"),
+    ).toBe(false);
+  });
+
+  it("opens the templates with annual_folder_templates:read", () => {
+    expect(
+      canAccessDashboardPath(
+        buildUser(["director-lf"], ["evidence_folders:read", "annual_folder_templates:read"]),
+        "/dashboard/clubs/evidence-folders/templates",
+      ),
+    ).toBe(true);
+  });
+});
