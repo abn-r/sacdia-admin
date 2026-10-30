@@ -38,6 +38,7 @@ La plantilla carga exclusivamente estos archivos locales:
 - `public/brand/iasd-logo-horizontal.svg`
 - `public/brand/iasd-symbol.svg`
 
-No estaban presentes al implementar la vista. Si faltan en desarrollo, la
-plantilla muestra una advertencia visible en vez de inventar o redibujar el
-logotipo. Copiar los archivos oficiales en esas rutas antes de publicar.
+Son los SVG oficiales en negro: `adventist-es--black.svg` (logo horizontal en
+español) y `adventist-symbol-circle--black.svg` (símbolo en círculo),
+renombrados a esas rutas. Si alguno falta, la plantilla muestra una advertencia
+visible en vez de inventar o redibujar el logotipo.
