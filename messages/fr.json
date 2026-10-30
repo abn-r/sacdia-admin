@@ -8598,6 +8598,11 @@
     }
   },
   "insurance_config": {
+    "picker": {
+      "label": "Champ local",
+      "placeholder": "Sélectionnez un champ local",
+      "required": "Choisissez un champ local pour voir et configurer ses assurances."
+    },
     "page": {
       "title": "Configuration des assurances",
       "description": "Produits, cycles de coût et instructions de paiement du Champ Local"

@@ -8598,6 +8598,11 @@
     }
   },
   "insurance_config": {
+    "picker": {
+      "label": "Local field",
+      "placeholder": "Select a local field",
+      "required": "Pick a local field to view and configure its insurance."
+    },
     "page": {
       "title": "Insurance configuration",
       "description": "Products, cost cycles, and payment instructions for the Local Field"

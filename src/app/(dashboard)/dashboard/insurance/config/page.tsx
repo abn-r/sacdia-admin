@@ -48,10 +48,10 @@ export default async function InsuranceConfigPage() {
 
   const territory = resolveAdminTerritoryScope(user);
   const requiresLocalFieldId = territory.level !== "local_field";
-  const localFieldOptions =
-    requiresLocalFieldId && territory.level !== "all"
-      ? await listLocalFieldsForTerritory(user).catch(() => [])
-      : [];
+  // listLocalFieldsForTerritory lists every field for super-admin ("all").
+  const localFieldOptions = requiresLocalFieldId
+    ? await listLocalFieldsForTerritory(user).catch(() => [])
+    : [];
 
   return (
     <div className="space-y-6">

@@ -8598,6 +8598,11 @@
     }
   },
   "insurance_config": {
+    "picker": {
+      "label": "Campo local",
+      "placeholder": "Selecione um campo local",
+      "required": "Selecione um campo local para ver e configurar seus seguros."
+    },
     "page": {
       "title": "Configuração de seguros",
       "description": "Produtos, ciclos de custo e instruções de pagamento do Campo Local"
