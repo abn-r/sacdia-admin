@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
 import { GenerateQuarterlyReportButton } from "@/components/periodic-reports/generate-quarterly-report-dialog";
 import { QuarterlyReportsListClient } from "@/components/periodic-reports/quarterly-reports-list-client";
@@ -10,6 +11,7 @@ import {
   type AdminQuarterlyReport,
   type PeriodicReportsPage,
 } from "@/lib/api/reports";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { parsePositiveInt } from "@/lib/report-search-params";
@@ -35,6 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function QuarterlyReportsPage({ searchParams }: QuarterlyReportsPageProps) {
   const user = await requireAdminUser();
+  // The layout hides a forbidden page, but it renders in parallel with it:
+  // stop here so the page does not call the API for nothing.
+  if (!canAccessDashboardPath(user, "/dashboard/reports/quarterly")) {
+    return <PageAccessForbidden />;
+  }
   const t = await getTranslations("periodicReports");
   const params = await searchParams;
 

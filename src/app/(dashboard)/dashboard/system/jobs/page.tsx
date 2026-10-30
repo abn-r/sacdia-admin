@@ -4,7 +4,9 @@ import { Suspense } from "react";
 import { History } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { getJobsOverview, getCronRuns, listCronJobs } from "@/lib/api/analytics";
 import { JobsOverviewClient } from "./_components/jobs-overview-client";
 import { CronRunsSection } from "./_components/cron-runs-section";
@@ -156,7 +158,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function JobsPage() {
-  await requireAdminUser();
+  const user = await requireAdminUser();
+  // The layout hides a forbidden page, but it renders in parallel with it:
+  // stop here so the page does not call the API for nothing.
+  if (!canAccessDashboardPath(user, "/dashboard/system/jobs")) {
+    return <PageAccessForbidden />;
+  }
   const t = await getTranslations("system_jobs");
 
   const messages: JobsMessages = {

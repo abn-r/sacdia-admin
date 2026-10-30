@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Trophy } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -42,6 +44,11 @@ export default async function MemberOfMonthSupervisionPage({
   searchParams,
 }: MemberOfMonthPageProps) {
   const user = await requireAdminUser();
+  // The layout hides a forbidden page, but it renders in parallel with it:
+  // stop here so the page does not call the API for nothing.
+  if (!canAccessDashboardPath(user, "/dashboard/member-of-month")) {
+    return <PageAccessForbidden />;
+  }
   const t = await getTranslations("member_of_month");
   const territoryScope = resolveAdminTerritoryScope(user);
 
