@@ -193,7 +193,9 @@ export const clubsScreens: ScreenDefinition[] = [
   {
     id: "clubs-evidence-folders-templates",
     surfaces: ["admin"],
-    viewAny: { permissions: [EVIDENCE_FOLDERS_READ] },
+    // GET /annual-folders/templates needs annual_folder_templates:read;
+    // evidence_folders:read alone (coordinators) gets a 403.
+    viewAny: { permissions: [ANNUAL_FOLDER_TEMPLATES_READ] },
     capabilities: [
       // DELETE /annual-folders/templates/:templateId (draft only) —
       // annual-folders.controller.ts @RequirePermissions('annual_folder_templates:delete')

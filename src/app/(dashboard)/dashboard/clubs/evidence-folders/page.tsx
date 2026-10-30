@@ -8,6 +8,7 @@ import { extractRoles } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
+import { ApiError } from "@/lib/api/client";
 import {
   listAnnualRankingConfigs,
   type AnnualRankingConfig,
@@ -48,6 +49,10 @@ const EvaluationClientPage = dynamic(
     ),
   },
 );
+
+function isForbidden(reason: unknown): boolean {
+  return reason instanceof ApiError && reason.status === 403;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("annual_folders.pageFolders");
@@ -90,12 +95,17 @@ export default async function ClubsEvidenceFoldersPage() {
 
   if (unionsResult.status === "fulfilled") unions = unionsResult.value;
   if (localFieldsResult.status === "fulfilled") localFields = localFieldsResult.value;
+  // Templates and ranking configs only feed filters. A reader without
+  // annual_folder_templates:read (coordinators) gets 403 and still sees the
+  // folders; any other failure stays a load error.
   if (templatesResult.status === "fulfilled") templates = templatesResult.value;
-  else loadError = loadError ?? t("loadError");
+  else if (!isForbidden(templatesResult.reason)) {
+    loadError = loadError ?? t("loadError");
+  }
 
   if (rankingConfigsResult.status === "fulfilled") {
     rankingConfigs = rankingConfigsResult.value;
-  } else {
+  } else if (!isForbidden(rankingConfigsResult.reason)) {
     loadError = loadError ?? t("loadError");
   }
 
