@@ -12,6 +12,10 @@ import {
   COORDINATION_MANAGE,
   ECCLESIASTICAL_YEARS_UPDATE,
   MEMBER_RANKING_WEIGHTS_READ,
+  MEMBER_RANKINGS_READ_CLUB,
+  MEMBER_RANKINGS_READ_GLOBAL,
+  MEMBER_RANKINGS_READ_LF,
+  MEMBER_RANKINGS_READ_SECTION,
   MOM_SUPERVISE,
   RANKING_WEIGHTS_READ,
   RANKINGS_READ,
@@ -238,13 +242,33 @@ export const clubsScreens: ScreenDefinition[] = [
     permissions: [AWARD_CATEGORIES_READ],
   }),
 
-  viewOnlyScreen("section-rankings", {
-    permissions: [
-      SECTION_RANKINGS_READ_CLUB,
-      SECTION_RANKINGS_READ_LF,
-      SECTION_RANKINGS_READ_GLOBAL,
+  {
+    ...viewOnlyScreen("section-rankings", {
+      permissions: [
+        SECTION_RANKINGS_READ_CLUB,
+        SECTION_RANKINGS_READ_LF,
+        SECTION_RANKINGS_READ_GLOBAL,
+      ],
+    }),
+    capabilities: [
+      {
+        // Member breakdown opened from a section's member list. Not a sidebar
+        // leaf: without this route the path had no gate and failed closed.
+        // GET member-rankings/:enrollmentId/breakdown accepts these reads.
+        id: "member_breakdown",
+        kind: "route",
+        href: "/dashboard/member-rankings",
+        gate: {
+          permissions: [
+            MEMBER_RANKINGS_READ_SECTION,
+            MEMBER_RANKINGS_READ_CLUB,
+            MEMBER_RANKINGS_READ_LF,
+            MEMBER_RANKINGS_READ_GLOBAL,
+          ],
+        },
+      },
     ],
-  }),
+  },
   viewOnlyScreen("member-of-month", { permissions: [MOM_SUPERVISE] }),
 
   viewOnlyScreen("reports-list", { permissions: [REPORTS_READ] }, { surfaces: ["admin", "app"] }),
