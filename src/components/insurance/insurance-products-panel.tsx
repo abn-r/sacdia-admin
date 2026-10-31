@@ -39,7 +39,14 @@ const EMPTY_PRODUCT: ProductForm = {
   default_duration_months: "12",
 };
 
-export function InsuranceProductsPanel() {
+interface InsuranceConfigPanelProps {
+  /** Local field to configure; undefined = the caller's own (local field roles). */
+  localFieldId?: number;
+}
+
+export function InsuranceProductsPanel({
+  localFieldId,
+}: InsuranceConfigPanelProps) {
   const t = useTranslations("insurance_config");
   const [products, setProducts] = useState<InsuranceProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,14 +58,14 @@ export function InsuranceProductsPanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setProducts(await listInsuranceProducts());
+      setProducts(await listInsuranceProducts(localFieldId));
     } catch (error) {
       toast.error(getPaymentOrderErrorMessage(error, t, "toasts.loadFailed"));
       setProducts([]);
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, localFieldId]);
 
   useEffect(() => {
     void load();
@@ -95,9 +102,9 @@ export function InsuranceProductsPanel() {
           : undefined,
       };
       if (editing) {
-        await updateInsuranceProduct(editing.insurance_product_id, body);
+        await updateInsuranceProduct(editing.insurance_product_id, body, localFieldId);
       } else {
-        await createInsuranceProduct(body);
+        await createInsuranceProduct(body, localFieldId);
       }
       toast.success(t("products.saved"));
       setDialogOpen(false);
@@ -111,9 +118,11 @@ export function InsuranceProductsPanel() {
 
   const toggleActive = async (product: InsuranceProduct) => {
     try {
-      await updateInsuranceProduct(product.insurance_product_id, {
-        active: !product.active,
-      });
+      await updateInsuranceProduct(
+        product.insurance_product_id,
+        { active: !product.active },
+        localFieldId,
+      );
       await load();
     } catch (error) {
       toast.error(getPaymentOrderErrorMessage(error, t));

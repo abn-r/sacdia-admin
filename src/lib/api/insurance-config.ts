@@ -60,15 +60,30 @@ export type UpdateInsuranceCycleInput = {
   active?: boolean;
 };
 
-export async function listInsuranceProducts(): Promise<InsuranceProduct[]> {
-  const payload = await apiRequest<unknown>("/insurance/products");
+/**
+ * `?local_field_id=` for admins without a local field of their own. Local
+ * field roles leave it out: the API uses their field.
+ */
+function withLocalField(path: string, localFieldId?: number): string {
+  return localFieldId === undefined
+    ? path
+    : `${path}?local_field_id=${encodeURIComponent(String(localFieldId))}`;
+}
+
+export async function listInsuranceProducts(
+  localFieldId?: number,
+): Promise<InsuranceProduct[]> {
+  const payload = await apiRequest<unknown>(
+    withLocalField("/insurance/products", localFieldId),
+  );
   return unwrapApiData<InsuranceProduct[]>(payload);
 }
 
 export async function createInsuranceProduct(
   input: CreateInsuranceProductInput,
+  localFieldId?: number,
 ): Promise<InsuranceProduct> {
-  const payload = await apiRequest<unknown>("/insurance/products", {
+  const payload = await apiRequest<unknown>(withLocalField("/insurance/products", localFieldId), {
     method: "POST",
     body: input,
   });
@@ -78,23 +93,29 @@ export async function createInsuranceProduct(
 export async function updateInsuranceProduct(
   productId: number,
   input: UpdateInsuranceProductInput,
+  localFieldId?: number,
 ): Promise<InsuranceProduct> {
-  const payload = await apiRequest<unknown>(`/insurance/products/${productId}`, {
+  const payload = await apiRequest<unknown>(withLocalField(`/insurance/products/${productId}`, localFieldId), {
     method: "PATCH",
     body: input,
   });
   return unwrapApiData<InsuranceProduct>(payload);
 }
 
-export async function listInsuranceCycles(): Promise<InsuranceCycleConfig[]> {
-  const payload = await apiRequest<unknown>("/insurance/cycles");
+export async function listInsuranceCycles(
+  localFieldId?: number,
+): Promise<InsuranceCycleConfig[]> {
+  const payload = await apiRequest<unknown>(
+    withLocalField("/insurance/cycles", localFieldId),
+  );
   return unwrapApiData<InsuranceCycleConfig[]>(payload);
 }
 
 export async function createInsuranceCycle(
   input: CreateInsuranceCycleInput,
+  localFieldId?: number,
 ): Promise<InsuranceCycleConfig> {
-  const payload = await apiRequest<unknown>("/insurance/cycles", {
+  const payload = await apiRequest<unknown>(withLocalField("/insurance/cycles", localFieldId), {
     method: "POST",
     body: input,
   });
@@ -104,9 +125,10 @@ export async function createInsuranceCycle(
 export async function updateInsuranceCycle(
   cycleConfigId: number,
   input: UpdateInsuranceCycleInput,
+  localFieldId?: number,
 ): Promise<InsuranceCycleConfig> {
   const payload = await apiRequest<unknown>(
-    `/insurance/cycles/${cycleConfigId}`,
+    withLocalField(`/insurance/cycles/${cycleConfigId}`, localFieldId),
     { method: "PATCH", body: input },
   );
   return unwrapApiData<InsuranceCycleConfig>(payload);

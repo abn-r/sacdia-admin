@@ -45,7 +45,14 @@ const EMPTY_CYCLE: CycleForm = {
   timezone: "America/Mexico_City",
 };
 
-export function InsuranceCyclesPanel() {
+interface InsuranceConfigPanelProps {
+  /** Local field to configure; undefined = the caller's own (local field roles). */
+  localFieldId?: number;
+}
+
+export function InsuranceCyclesPanel({
+  localFieldId,
+}: InsuranceConfigPanelProps) {
   const t = useTranslations("insurance_config");
   const [cycles, setCycles] = useState<InsuranceCycleConfig[]>([]);
   const [products, setProducts] = useState<InsuranceProduct[]>([]);
@@ -59,8 +66,8 @@ export function InsuranceCyclesPanel() {
     setLoading(true);
     try {
       const [cyclesData, productsData] = await Promise.all([
-        listInsuranceCycles(),
-        listInsuranceProducts(),
+        listInsuranceCycles(localFieldId),
+        listInsuranceProducts(localFieldId),
       ]);
       setCycles(cyclesData);
       setProducts(productsData);
@@ -70,7 +77,7 @@ export function InsuranceCyclesPanel() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, localFieldId]);
 
   useEffect(() => {
     void load();
@@ -117,7 +124,7 @@ export function InsuranceCyclesPanel() {
           unit_cost: Number(form.unit_cost),
           purchase_deadline: form.purchase_deadline,
           timezone: form.timezone,
-        });
+        }, localFieldId);
       } else {
         await createInsuranceCycle({
           insurance_product_id: Number(form.insurance_product_id),
@@ -126,7 +133,7 @@ export function InsuranceCyclesPanel() {
           unit_cost: Number(form.unit_cost),
           purchase_deadline: form.purchase_deadline,
           timezone: form.timezone,
-        });
+        }, localFieldId);
       }
       toast.success(t("cycles.saved"));
       setDialogOpen(false);

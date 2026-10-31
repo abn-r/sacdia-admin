@@ -8645,6 +8645,11 @@ export interface IntlMessages {
     };
   };
   insurance_config: {
+    picker: {
+      label: string;
+      placeholder: string;
+      required: string;
+    };
     page: {
       title: string;
       description: string;
