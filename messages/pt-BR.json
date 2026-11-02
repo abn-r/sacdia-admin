@@ -7278,6 +7278,7 @@
         "MR_CONSENT_NOT_VERIFIED": "O consentimento do responsável ainda não foi verificado. Verifique antes de aprovar.",
         "MR_NOT_FOUND": "A solicitação não existe mais ou não pertence a esta seção.",
         "MR_ALREADY_PENDING": "A solicitação já foi processada. Atualize a lista.",
+        "MR_ALREADY_PROCESSED": "A solicitação já foi processada. Atualize a lista.",
         "FILE_REQUIRED": "Selecione um arquivo.",
         "FILE_TYPE_INVALID": "Formato inválido. Use JPG, PNG, WebP ou PDF.",
         "FILE_TOO_LARGE": "O arquivo excede 10 MB.",

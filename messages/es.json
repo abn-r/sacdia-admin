@@ -7278,6 +7278,7 @@
         "MR_CONSENT_NOT_VERIFIED": "El consentimiento del tutor aún no está verificado. Verifícalo antes de aprobar.",
         "MR_NOT_FOUND": "La solicitud ya no existe o no pertenece a esta sección.",
         "MR_ALREADY_PENDING": "La solicitud ya fue procesada. Actualiza la lista.",
+        "MR_ALREADY_PROCESSED": "La solicitud ya fue procesada. Actualiza la lista.",
         "FILE_REQUIRED": "Selecciona un archivo.",
         "FILE_TYPE_INVALID": "Formato no válido. Usa JPG, PNG, WebP o PDF.",
         "FILE_TOO_LARGE": "El archivo supera los 10 MB.",

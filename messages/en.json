@@ -7278,6 +7278,7 @@
         "MR_CONSENT_NOT_VERIFIED": "The guardian's consent is not verified yet. Verify it before approving.",
         "MR_NOT_FOUND": "The request no longer exists or does not belong to this section.",
         "MR_ALREADY_PENDING": "The request was already processed. Refresh the list.",
+        "MR_ALREADY_PROCESSED": "The request was already processed. Refresh the list.",
         "FILE_REQUIRED": "Select a file.",
         "FILE_TYPE_INVALID": "Invalid format. Use JPG, PNG, WebP or PDF.",
         "FILE_TOO_LARGE": "The file is larger than 10 MB.",

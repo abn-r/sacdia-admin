@@ -7310,6 +7310,7 @@ export interface IntlMessages {
         MR_CONSENT_NOT_VERIFIED: string;
         MR_NOT_FOUND: string;
         MR_ALREADY_PENDING: string;
+        MR_ALREADY_PROCESSED: string;
         FILE_REQUIRED: string;
         FILE_TYPE_INVALID: string;
         FILE_TOO_LARGE: string;
