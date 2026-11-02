@@ -160,10 +160,10 @@ describe("investiture authorization items", () => {
   });
 
   it("shows settings to the lf/union/dia family and pastors screen to lf/union", () => {
-    expect(titlesFor(["director-dia"])).toContain("Ventana y porcentaje");
+    expect(titlesFor(["director-dia"])).toContain("Ventana de investidura");
     expect(titlesFor(["director-dia"])).not.toContain("Pastores por distrito");
     expect(titlesFor(["assistant-union"])).toContain("Pastores por distrito");
-    expect(titlesFor(["pastor"])).not.toContain("Ventana y porcentaje");
+    expect(titlesFor(["pastor"])).not.toContain("Ventana de investidura");
   });
 });
 
@@ -182,7 +182,7 @@ describe("pastor-only sidebar", () => {
     expect(titles).toContain("Autorizaciones");
     expect(titles).not.toContain("Inicio");
     expect(titles).not.toContain("Usuarios");
-    expect(titles).not.toContain("Ventana y porcentaje");
+    expect(titles).not.toContain("Ventana de investidura");
     expect(titles).not.toContain("Pastores por distrito");
   });
 

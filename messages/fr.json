@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "Union",
       "admin_system_jobs_history": "Historique des tâches",
       "investiture_requests": "Autorisations d'investiture",
-      "investiture_settings": "Fenêtre et pourcentage d'investiture",
+      "investiture_settings": "Fenêtre d'investiture",
       "investiture_pastors": "Pasteurs par district"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Inventaire des clubs",
       "investiture_authorization": "Autorisation des investitures",
       "investiture_requests": "Autorisations",
-      "investiture_settings": "Fenêtre et pourcentage",
+      "investiture_settings": "Fenêtre d'investiture",
       "validations": "Validations",
       "validations_investitures": "Investitures de club",
       "certificate_bulk_imports": "Imports de certificats",
@@ -9405,17 +9405,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Fenêtre et pourcentage d'investiture",
-      "description": "Définissez quand le champ local reçoit et autorise les demandes d'investiture et quel pourcentage de la classe est exigé.",
+      "title": "Fenêtre d'investiture",
+      "description": "Définissez quand le champ local reçoit et autorise les demandes d'investiture.",
       "breadcrumbHome": "Accueil",
       "breadcrumbGroup": "Autorisation des investitures",
       "yearPlaceholder": "Année ecclésiastique",
       "localFieldLabel": "Champ local",
       "localFieldPlaceholder": "Sélectionnez un champ local",
       "selectLocalFieldTitle": "Sélectionnez un champ local",
-      "selectLocalFieldDescription": "Choisissez un champ local pour voir ou modifier sa fenêtre et son pourcentage.",
+      "selectLocalFieldDescription": "Choisissez un champ local pour voir ou modifier sa fenêtre.",
       "noYearTitle": "Aucune année ecclésiastique à configurer",
-      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre et le pourcentage.",
+      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre.",
       "window": {
         "title": "Fenêtre des demandes",
         "description": "Période pendant laquelle le champ local permet de soumettre et d'autoriser des demandes d'investiture.",

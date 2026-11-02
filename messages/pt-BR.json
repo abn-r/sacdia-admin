@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "União",
       "admin_system_jobs_history": "Histórico de jobs",
       "investiture_requests": "Autorizações de investidura",
-      "investiture_settings": "Janela e porcentagem de investidura",
+      "investiture_settings": "Janela de investidura",
       "investiture_pastors": "Pastores por distrito"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Inventário dos clubes",
       "investiture_authorization": "Autorização de investiduras",
       "investiture_requests": "Autorizações",
-      "investiture_settings": "Janela e porcentagem",
+      "investiture_settings": "Janela de investidura",
       "validations": "Validações",
       "validations_investitures": "Investiduras de clube",
       "certificate_bulk_imports": "Cargas de certificados",
@@ -9405,17 +9405,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Janela e porcentagem de investidura",
-      "description": "Defina quando o campo local recebe e autoriza solicitações de investidura e qual porcentagem da classe é exigida.",
+      "title": "Janela de investidura",
+      "description": "Defina quando o campo local recebe e autoriza solicitações de investidura.",
       "breadcrumbHome": "Início",
       "breadcrumbGroup": "Autorização de investiduras",
       "yearPlaceholder": "Ano eclesiástico",
       "localFieldLabel": "Campo local",
       "localFieldPlaceholder": "Selecione um campo local",
       "selectLocalFieldTitle": "Selecione um campo local",
-      "selectLocalFieldDescription": "Escolha um campo local para ver ou editar sua janela e sua porcentagem.",
+      "selectLocalFieldDescription": "Escolha um campo local para ver ou editar sua janela.",
       "noYearTitle": "Não há ano eclesiástico para configurar",
-      "noYearDescription": "Quando existir um ano eclesiástico, você poderá definir a janela e a porcentagem.",
+      "noYearDescription": "Quando existir um ano eclesiástico, você poderá definir a janela.",
       "window": {
         "title": "Janela de solicitações",
         "description": "Período em que o campo local permite apresentar e autorizar solicitações de investidura.",

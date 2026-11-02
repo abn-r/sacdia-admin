@@ -12,9 +12,7 @@ import {
   type EcclesiasticalYear,
 } from "@/lib/api/catalogs";
 import {
-  getFieldClassThreshold,
   getInvestitureWindow,
-  type FieldClassThreshold,
   type InvestitureWindow,
 } from "@/lib/api/investiture-field-config";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -73,28 +71,15 @@ export default async function InvestitureSettingsPage({
   }
 
   let window: InvestitureWindow | null = null;
-  let threshold: FieldClassThreshold | null = null;
   let windowError: FieldConfigLoadError | null = null;
-  let thresholdError: FieldConfigLoadError | null = null;
 
   if (localFieldId !== null && yearId !== null) {
-    // Independent reads: the percentage is visible only to the Field and super-admin,
-    // so a 403 there must not hide the window that union, DIA and admin roles can read.
-    const [windowResult, thresholdResult] = await Promise.allSettled([
-      getInvestitureWindow(localFieldId, yearId),
-      getFieldClassThreshold(localFieldId, yearId),
-    ]);
-
-    if (windowResult.status === "fulfilled") {
-      window = windowResult.value;
-    } else {
-      windowError = toLoadError(windowResult.reason, t);
-    }
-
-    if (thresholdResult.status === "fulfilled") {
-      threshold = thresholdResult.value;
-    } else {
-      thresholdError = toLoadError(thresholdResult.reason, t);
+    // The class percentage is no longer shown: since 2026-11-02 only a
+    // validated requirement counts as complete, so it does not change anything.
+    try {
+      window = await getInvestitureWindow(localFieldId, yearId);
+    } catch (error) {
+      windowError = toLoadError(error, t);
     }
   }
 
@@ -104,9 +89,7 @@ export default async function InvestitureSettingsPage({
       yearId={yearId}
       years={years}
       window={window}
-      threshold={threshold}
       windowError={windowError}
-      thresholdError={thresholdError}
       localFieldPicker={
         canPickField ? (
           <LocalFieldPicker
