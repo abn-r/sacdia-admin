@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "Union",
       "admin_system_jobs_history": "Historique des tâches",
       "investiture_requests": "Autorisations d'investiture",
-      "investiture_settings": "Fenêtre et pourcentage d'investiture",
+      "investiture_settings": "Fenêtre d'investiture",
       "investiture_pastors": "Pasteurs par district"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Inventaire des clubs",
       "investiture_authorization": "Autorisation des investitures",
       "investiture_requests": "Autorisations",
-      "investiture_settings": "Fenêtre et pourcentage",
+      "investiture_settings": "Fenêtre d'investiture",
       "validations": "Validations",
       "validations_investitures": "Investitures de club",
       "certificate_bulk_imports": "Imports de certificats",
@@ -9267,10 +9267,6 @@
       "generic": "L'opération n'a pas pu être terminée. Réessayez.",
       "duration_min_not_met": "La durée minimale de la classe n'est pas encore atteinte",
       "duration_expired": "La durée de la classe a expiré pour cette inscription",
-      "class_threshold_edit_closed": "Le pourcentage de la classe ne peut plus être modifié pour ce champ local et cette année",
-      "class_threshold_field_not_found": "Champ local introuvable",
-      "class_threshold_year_not_found": "Année ecclésiastique introuvable",
-      "class_threshold_percent_invalid": "Le pourcentage doit être un entier entre 0 et 100",
       "window_edit_closed": "La fenêtre d'investiture ne peut plus être modifiée pour ce champ local et cette année",
       "window_field_not_found": "Champ local introuvable",
       "window_year_not_found": "Année ecclésiastique introuvable",
@@ -9405,17 +9401,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Fenêtre et pourcentage d'investiture",
-      "description": "Définissez quand le champ local reçoit et autorise les demandes d'investiture et quel pourcentage de la classe est exigé.",
+      "title": "Fenêtre d'investiture",
+      "description": "Définissez quand le champ local reçoit et autorise les demandes d'investiture.",
       "breadcrumbHome": "Accueil",
       "breadcrumbGroup": "Autorisation des investitures",
       "yearPlaceholder": "Année ecclésiastique",
       "localFieldLabel": "Champ local",
       "localFieldPlaceholder": "Sélectionnez un champ local",
       "selectLocalFieldTitle": "Sélectionnez un champ local",
-      "selectLocalFieldDescription": "Choisissez un champ local pour voir ou modifier sa fenêtre et son pourcentage.",
+      "selectLocalFieldDescription": "Choisissez un champ local pour voir ou modifier sa fenêtre.",
       "noYearTitle": "Aucune année ecclésiastique à configurer",
-      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre et le pourcentage.",
+      "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre.",
       "window": {
         "title": "Fenêtre des demandes",
         "description": "Période pendant laquelle le champ local permet de soumettre et d'autoriser des demandes d'investiture.",
@@ -9431,20 +9427,6 @@
         "startAfterEnd": "Le début ne peut pas être postérieur à la fin.",
         "outsideYear": "La date doit être comprise dans l'année ecclésiastique ({start} au {end}).",
         "saved": "Fenêtre enregistrée."
-      },
-      "threshold": {
-        "title": "Pourcentage minimum de la classe",
-        "description": "Pourcentage minimum d'avancement de la classe exigé pour inclure une personne dans une demande.",
-        "label": "Pourcentage minimum (%)",
-        "help": "Jusqu'au 30 juin, c'est le champ local qui le modifie ; ensuite, seul le super-admin le peut.",
-        "current": "Pourcentage en vigueur : {percent} %.",
-        "defaultNotice": "Pas encore configuré : la valeur par défaut est utilisée.",
-        "save": "Enregistrer le pourcentage",
-        "saving": "Enregistrement…",
-        "readOnly": "Lecture seule : votre rôle ou la date actuelle ne permettent pas de modifier le pourcentage.",
-        "restricted": "Seuls le champ local et le super-admin peuvent voir le pourcentage.",
-        "invalid": "Saisissez un nombre entier entre 0 et 100.",
-        "saved": "Pourcentage enregistré."
       }
     },
     "pastors": {

@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "União",
       "admin_system_jobs_history": "Histórico de jobs",
       "investiture_requests": "Autorizações de investidura",
-      "investiture_settings": "Janela e porcentagem de investidura",
+      "investiture_settings": "Janela de investidura",
       "investiture_pastors": "Pastores por distrito"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Inventário dos clubes",
       "investiture_authorization": "Autorização de investiduras",
       "investiture_requests": "Autorizações",
-      "investiture_settings": "Janela e porcentagem",
+      "investiture_settings": "Janela de investidura",
       "validations": "Validações",
       "validations_investitures": "Investiduras de clube",
       "certificate_bulk_imports": "Cargas de certificados",
@@ -9267,10 +9267,6 @@
       "generic": "Não foi possível concluir a operação. Tente novamente.",
       "duration_min_not_met": "A duração mínima da classe ainda não foi cumprida",
       "duration_expired": "A duração da classe expirou para esta inscrição",
-      "class_threshold_edit_closed": "A porcentagem da classe não pode mais ser alterada para este campo local e ano",
-      "class_threshold_field_not_found": "Campo local não encontrado",
-      "class_threshold_year_not_found": "Ano eclesiástico não encontrado",
-      "class_threshold_percent_invalid": "A porcentagem deve ser um inteiro entre 0 e 100",
       "window_edit_closed": "A janela de investidura não pode mais ser alterada para este campo local e ano",
       "window_field_not_found": "Campo local não encontrado",
       "window_year_not_found": "Ano eclesiástico não encontrado",
@@ -9405,17 +9401,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Janela e porcentagem de investidura",
-      "description": "Defina quando o campo local recebe e autoriza solicitações de investidura e qual porcentagem da classe é exigida.",
+      "title": "Janela de investidura",
+      "description": "Defina quando o campo local recebe e autoriza solicitações de investidura.",
       "breadcrumbHome": "Início",
       "breadcrumbGroup": "Autorização de investiduras",
       "yearPlaceholder": "Ano eclesiástico",
       "localFieldLabel": "Campo local",
       "localFieldPlaceholder": "Selecione um campo local",
       "selectLocalFieldTitle": "Selecione um campo local",
-      "selectLocalFieldDescription": "Escolha um campo local para ver ou editar sua janela e sua porcentagem.",
+      "selectLocalFieldDescription": "Escolha um campo local para ver ou editar sua janela.",
       "noYearTitle": "Não há ano eclesiástico para configurar",
-      "noYearDescription": "Quando existir um ano eclesiástico, você poderá definir a janela e a porcentagem.",
+      "noYearDescription": "Quando existir um ano eclesiástico, você poderá definir a janela.",
       "window": {
         "title": "Janela de solicitações",
         "description": "Período em que o campo local permite apresentar e autorizar solicitações de investidura.",
@@ -9431,20 +9427,6 @@
         "startAfterEnd": "O início não pode ser posterior ao fim.",
         "outsideYear": "A data deve estar dentro do ano eclesiástico ({start} a {end}).",
         "saved": "Janela salva."
-      },
-      "threshold": {
-        "title": "Porcentagem mínima da classe",
-        "description": "Porcentagem mínima de progresso da classe exigida para incluir uma pessoa em uma solicitação.",
-        "label": "Porcentagem mínima (%)",
-        "help": "Até 30 de junho quem edita é o campo local; depois, somente o super-admin.",
-        "current": "Porcentagem vigente: {percent} %.",
-        "defaultNotice": "Ainda não configurada: usa-se o valor padrão.",
-        "save": "Salvar porcentagem",
-        "saving": "Salvando…",
-        "readOnly": "Somente leitura: seu papel ou a data atual não permitem editar a porcentagem.",
-        "restricted": "Somente o campo local e o super-admin podem ver a porcentagem.",
-        "invalid": "Informe um número inteiro entre 0 e 100.",
-        "saved": "Porcentagem salva."
       }
     },
     "pastors": {

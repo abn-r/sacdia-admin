@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "Union",
       "admin_system_jobs_history": "Job history",
       "investiture_requests": "Investiture authorizations",
-      "investiture_settings": "Investiture window and percentage",
+      "investiture_settings": "Investiture window",
       "investiture_pastors": "Pastors by district"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Club inventory",
       "investiture_authorization": "Investiture authorization",
       "investiture_requests": "Authorizations",
-      "investiture_settings": "Window and percentage",
+      "investiture_settings": "Investiture window",
       "validations": "Validations",
       "validations_investitures": "Club investitures",
       "certificate_bulk_imports": "Certificate uploads",
@@ -9267,10 +9267,6 @@
       "generic": "The operation could not be completed. Please try again.",
       "duration_min_not_met": "The minimum class duration has not been met yet",
       "duration_expired": "The class duration has expired for this enrollment",
-      "class_threshold_edit_closed": "The class percentage can no longer be changed for this local field and year",
-      "class_threshold_field_not_found": "Local field not found",
-      "class_threshold_year_not_found": "Ecclesiastical year not found",
-      "class_threshold_percent_invalid": "The percentage must be an integer between 0 and 100",
       "window_edit_closed": "The investiture window can no longer be changed for this local field and year",
       "window_field_not_found": "Local field not found",
       "window_year_not_found": "Ecclesiastical year not found",
@@ -9405,17 +9401,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Investiture window and percentage",
-      "description": "Define when the local field receives and authorizes investiture requests and which class percentage is required.",
+      "title": "Investiture window",
+      "description": "Define when the local field receives and authorizes investiture requests.",
       "breadcrumbHome": "Home",
       "breadcrumbGroup": "Investiture authorization",
       "yearPlaceholder": "Ecclesiastical year",
       "localFieldLabel": "Local field",
       "localFieldPlaceholder": "Select a local field",
       "selectLocalFieldTitle": "Select a local field",
-      "selectLocalFieldDescription": "Pick a local field to view or edit its window and percentage.",
+      "selectLocalFieldDescription": "Pick a local field to view or edit its window.",
       "noYearTitle": "There is no ecclesiastical year to configure",
-      "noYearDescription": "Once an ecclesiastical year exists you will be able to set the window and the percentage.",
+      "noYearDescription": "Once an ecclesiastical year exists you will be able to set the window.",
       "window": {
         "title": "Request window",
         "description": "Period in which the local field allows investiture requests to be submitted and authorized.",
@@ -9431,20 +9427,6 @@
         "startAfterEnd": "The start cannot be later than the end.",
         "outsideYear": "The date must be within the ecclesiastical year ({start} to {end}).",
         "saved": "Window saved."
-      },
-      "threshold": {
-        "title": "Minimum class percentage",
-        "description": "Minimum class progress percentage required to include a person in a request.",
-        "label": "Minimum percentage (%)",
-        "help": "Until June 30 the local field can edit it; after that only a super-admin can.",
-        "current": "Current percentage: {percent} %.",
-        "defaultNotice": "Not configured yet: the default value is in use.",
-        "save": "Save percentage",
-        "saving": "Saving…",
-        "readOnly": "Read only: your role or the current date does not allow editing the percentage.",
-        "restricted": "Only the local field and super-admin can see the percentage.",
-        "invalid": "Enter a whole number between 0 and 100.",
-        "saved": "Percentage saved."
       }
     },
     "pastors": {

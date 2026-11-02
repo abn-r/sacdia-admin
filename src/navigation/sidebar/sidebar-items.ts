@@ -242,7 +242,7 @@ export const sidebarItems: NavGroup[] = [
           },
           {
             id: "investiture-settings",
-            title: "Ventana y porcentaje",
+            title: "Ventana de investidura",
             url: "/dashboard/investiture-settings",
             icon: CalendarRange,
             activeMatch: "prefix",

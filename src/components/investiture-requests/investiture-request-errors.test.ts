@@ -63,11 +63,11 @@ describe("getInvestitureRequestErrorMessage", () => {
   });
 
   it("returns the backend message for validation errors without a code", () => {
-    const error = new ApiError("minimum_percent must not be greater than 100", 400, {
-      message: ["minimum_percent must not be greater than 100"],
+    const error = new ApiError("slots must not be greater than 100", 400, {
+      message: ["slots must not be greater than 100"],
     });
     expect(getInvestitureRequestErrorMessage(error, t)).toBe(
-      "minimum_percent must not be greater than 100",
+      "slots must not be greater than 100",
     );
   });
 
@@ -99,7 +99,6 @@ describe("investiture request error catalog", () => {
     for (const prefix of [
       "INVESTITURE_REQUEST_",
       "INVESTITURE_WINDOW_",
-      "CLASS_THRESHOLD_",
       "INVESTITURE_PASTOR_",
       "INVESTITURE_DURATION_",
     ]) {

@@ -5,12 +5,11 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
-import type { FieldClassThreshold, InvestitureWindow } from "@/lib/api/investiture-field-config";
+import type { InvestitureWindow } from "@/lib/api/investiture-field-config";
 
 const mockPush = vi.hoisted(() => vi.fn());
 const mockRefresh = vi.hoisted(() => vi.fn());
 const mockUpdateWindow = vi.hoisted(() => vi.fn());
-const mockUpdateThreshold = vi.hoisted(() => vi.fn());
 const mockToast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
@@ -22,7 +21,6 @@ vi.mock("sonner", () => ({ toast: mockToast }));
 vi.mock("@/lib/api/investiture-field-config", async (orig) => ({
   ...(await orig<typeof import("@/lib/api/investiture-field-config")>()),
   updateInvestitureWindow: (...args: unknown[]) => mockUpdateWindow(...args),
-  updateFieldClassThreshold: (...args: unknown[]) => mockUpdateThreshold(...args),
 }));
 
 global.ResizeObserver = class ResizeObserver {
@@ -56,14 +54,6 @@ const editableWindow: InvestitureWindow = {
   can_edit: true,
 };
 
-const editableThreshold: FieldClassThreshold = {
-  local_field_id: 3,
-  ecclesiastical_year_id: 7,
-  minimum_percent: 80,
-  configured: false,
-  can_edit: true,
-};
-
 function renderPage(props: Partial<React.ComponentProps<typeof FieldConfigClientPage>> = {}) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
@@ -72,9 +62,7 @@ function renderPage(props: Partial<React.ComponentProps<typeof FieldConfigClient
         yearId={7}
         years={years as never}
         window={editableWindow}
-        threshold={editableThreshold}
         windowError={null}
-        thresholdError={null}
         {...props}
       />
     </NextIntlClientProvider>,
@@ -84,7 +72,6 @@ function renderPage(props: Partial<React.ComponentProps<typeof FieldConfigClient
 describe("FieldConfigClientPage", () => {
   beforeEach(() => {
     mockUpdateWindow.mockReset().mockResolvedValue({ ...editableWindow });
-    mockUpdateThreshold.mockReset().mockResolvedValue({ ...editableThreshold });
   });
 
   afterEach(() => {
@@ -92,32 +79,26 @@ describe("FieldConfigClientPage", () => {
     vi.clearAllMocks();
   });
 
-  it("renders the two cards and the range sentence of the saved window", () => {
+  it("renders the window card and the range sentence of the saved window", () => {
     renderPage();
 
     expect(
-      screen.getByRole("heading", { name: "Ventana y porcentaje de investidura" }),
+      screen.getByRole("heading", { name: "Ventana de investidura" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Ventana de solicitudes")).toBeInTheDocument();
-    expect(screen.getByText("Porcentaje mínimo de la clase")).toBeInTheDocument();
+    expect(screen.queryByText("Porcentaje mínimo de la clase")).not.toBeInTheDocument();
     expect(
       screen.getByText(/^Del .*2026.* al .*2026.*, inclusive, en la zona del Campo\.$/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Hasta el 30 de junio lo edita el Campo; después solo super-admin."),
     ).toBeInTheDocument();
   });
 
   it("is read-only without a save button when can_edit is false", () => {
     renderPage({
       window: { ...editableWindow, can_edit: false },
-      threshold: { ...editableThreshold, can_edit: false },
     });
 
     expect(screen.queryByRole("button", { name: "Guardar ventana" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Guardar porcentaje" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Inicio")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Porcentaje mínimo (%)")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Solo lectura/).length).toBeGreaterThan(0);
   });
 
@@ -177,33 +158,6 @@ describe("FieldConfigClientPage", () => {
     expect(mockUpdateWindow).not.toHaveBeenCalled();
   });
 
-  it("saves the minimum percentage as an integer", async () => {
-    const user = userEvent.setup();
-    renderPage();
-
-    const input = screen.getByLabelText("Porcentaje mínimo (%)");
-    expect(input).toHaveValue(80);
-    await user.clear(input);
-    await user.type(input, "75");
-    await user.click(screen.getByRole("button", { name: "Guardar porcentaje" }));
-
-    await waitFor(() => expect(mockUpdateThreshold).toHaveBeenCalledWith(3, 7, 75));
-    await waitFor(() => expect(mockToast.success).toHaveBeenCalledWith("Porcentaje guardado."));
-  });
-
-  it("rejects a percentage above 100 without calling the API", async () => {
-    const user = userEvent.setup();
-    renderPage();
-
-    const input = screen.getByLabelText("Porcentaje mínimo (%)");
-    await user.clear(input);
-    await user.type(input, "150");
-    await user.click(screen.getByRole("button", { name: "Guardar porcentaje" }));
-
-    expect(await screen.findByText("Ingresa un número entero entre 0 y 100.")).toBeInTheDocument();
-    expect(mockUpdateThreshold).not.toHaveBeenCalled();
-  });
-
   it("maps backend errors to a toast", async () => {
     const user = userEvent.setup();
     mockUpdateWindow.mockRejectedValue(
@@ -221,15 +175,6 @@ describe("FieldConfigClientPage", () => {
     expect(mockRefresh).not.toHaveBeenCalled();
   });
 
-  it("keeps the window usable when the percentage is restricted for the role", () => {
-    renderPage({ threshold: null, thresholdError: { status: 403, message: "Prohibido" } });
-
-    expect(screen.getByRole("button", { name: "Guardar ventana" })).toBeInTheDocument();
-    expect(
-      screen.getByText("Solo el Campo y super-admin pueden ver el porcentaje."),
-    ).toBeInTheDocument();
-  });
-
   it("shows the load error of the window as a banner", () => {
     renderPage({ window: null, windowError: { status: 403, message: "Sin acceso a la ventana." } });
 
@@ -239,7 +184,7 @@ describe("FieldConfigClientPage", () => {
   });
 
   it("asks for a local field when none is selected", () => {
-    renderPage({ localFieldId: null, window: null, threshold: null });
+    renderPage({ localFieldId: null, window: null });
 
     expect(screen.getByText("Selecciona un Campo")).toBeInTheDocument();
   });
