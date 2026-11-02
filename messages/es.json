@@ -153,7 +153,7 @@
       "admin_campamentos_config_union": "Unión",
       "admin_system_jobs_history": "Historial de ejecuciones",
       "investiture_requests": "Autorizaciones de investidura",
-      "investiture_settings": "Ventana y porcentaje de investidura",
+      "investiture_settings": "Ventana de investidura",
       "investiture_pastors": "Pastores por distrito"
     },
     "sidebar": {
@@ -164,7 +164,7 @@
       "club_inventory": "Inventario de clubes",
       "investiture_authorization": "Autorización de investiduras",
       "investiture_requests": "Autorizaciones",
-      "investiture_settings": "Ventana y porcentaje",
+      "investiture_settings": "Ventana de investidura",
       "validations": "Validaciones",
       "validations_investitures": "Investiduras de club",
       "certificate_bulk_imports": "Cargas certificados",
@@ -9405,17 +9405,17 @@
   },
   "investiture_config": {
     "settings": {
-      "title": "Ventana y porcentaje de investidura",
-      "description": "Define cuándo el Campo recibe y autoriza solicitudes de investidura y qué porcentaje de la clase se exige.",
+      "title": "Ventana de investidura",
+      "description": "Define cuándo el Campo recibe y autoriza solicitudes de investidura.",
       "breadcrumbHome": "Inicio",
       "breadcrumbGroup": "Autorización de investiduras",
       "yearPlaceholder": "Año eclesiástico",
       "localFieldLabel": "Campo",
       "localFieldPlaceholder": "Selecciona un Campo",
       "selectLocalFieldTitle": "Selecciona un Campo",
-      "selectLocalFieldDescription": "Elige un Campo para ver o editar su ventana y su porcentaje.",
+      "selectLocalFieldDescription": "Elige un Campo para ver o editar su ventana.",
       "noYearTitle": "No hay un año eclesiástico para configurar",
-      "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana y el porcentaje.",
+      "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana.",
       "window": {
         "title": "Ventana de solicitudes",
         "description": "Período en el que el Campo permite presentar y autorizar solicitudes de investidura.",
