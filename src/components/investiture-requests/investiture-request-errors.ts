@@ -2,18 +2,13 @@ import { ApiError } from "@/lib/api/client";
 
 /**
  * Backend error code -> `investiture_requests.errors.*` translation key.
- * Covers the authorization flow (requests, field window, class threshold,
+ * Covers the authorization flow (requests, field window,
  * district pastors) and the class-duration guards that surface in it.
  */
 export const INVESTITURE_REQUEST_ERROR_KEYS = {
   // Duration guards
   INVESTITURE_DURATION_MIN_NOT_MET: "errors.duration_min_not_met",
   INVESTITURE_DURATION_EXPIRED: "errors.duration_expired",
-  // Class threshold (field percentage)
-  CLASS_THRESHOLD_EDIT_CLOSED: "errors.class_threshold_edit_closed",
-  CLASS_THRESHOLD_FIELD_NOT_FOUND: "errors.class_threshold_field_not_found",
-  CLASS_THRESHOLD_YEAR_NOT_FOUND: "errors.class_threshold_year_not_found",
-  CLASS_THRESHOLD_PERCENT_INVALID: "errors.class_threshold_percent_invalid",
   // Field window
   INVESTITURE_WINDOW_EDIT_CLOSED: "errors.window_edit_closed",
   INVESTITURE_WINDOW_FIELD_NOT_FOUND: "errors.window_field_not_found",

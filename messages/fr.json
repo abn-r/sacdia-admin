@@ -9267,10 +9267,6 @@
       "generic": "L'opération n'a pas pu être terminée. Réessayez.",
       "duration_min_not_met": "La durée minimale de la classe n'est pas encore atteinte",
       "duration_expired": "La durée de la classe a expiré pour cette inscription",
-      "class_threshold_edit_closed": "Le pourcentage de la classe ne peut plus être modifié pour ce champ local et cette année",
-      "class_threshold_field_not_found": "Champ local introuvable",
-      "class_threshold_year_not_found": "Année ecclésiastique introuvable",
-      "class_threshold_percent_invalid": "Le pourcentage doit être un entier entre 0 et 100",
       "window_edit_closed": "La fenêtre d'investiture ne peut plus être modifiée pour ce champ local et cette année",
       "window_field_not_found": "Champ local introuvable",
       "window_year_not_found": "Année ecclésiastique introuvable",
@@ -9431,20 +9427,6 @@
         "startAfterEnd": "Le début ne peut pas être postérieur à la fin.",
         "outsideYear": "La date doit être comprise dans l'année ecclésiastique ({start} au {end}).",
         "saved": "Fenêtre enregistrée."
-      },
-      "threshold": {
-        "title": "Pourcentage minimum de la classe",
-        "description": "Pourcentage minimum d'avancement de la classe exigé pour inclure une personne dans une demande.",
-        "label": "Pourcentage minimum (%)",
-        "help": "Jusqu'au 30 juin, c'est le champ local qui le modifie ; ensuite, seul le super-admin le peut.",
-        "current": "Pourcentage en vigueur : {percent} %.",
-        "defaultNotice": "Pas encore configuré : la valeur par défaut est utilisée.",
-        "save": "Enregistrer le pourcentage",
-        "saving": "Enregistrement…",
-        "readOnly": "Lecture seule : votre rôle ou la date actuelle ne permettent pas de modifier le pourcentage.",
-        "restricted": "Seuls le champ local et le super-admin peuvent voir le pourcentage.",
-        "invalid": "Saisissez un nombre entier entre 0 et 100.",
-        "saved": "Pourcentage enregistré."
       }
     },
     "pastors": {

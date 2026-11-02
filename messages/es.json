@@ -9267,10 +9267,6 @@
       "generic": "No se pudo completar la operación. Intenta de nuevo.",
       "duration_min_not_met": "Todavía no se cumplió la duración mínima de la clase",
       "duration_expired": "La duración de la clase venció para este enrollment",
-      "class_threshold_edit_closed": "El porcentaje de la clase ya no se puede cambiar para este Campo y año",
-      "class_threshold_field_not_found": "Campo no encontrado",
-      "class_threshold_year_not_found": "Año eclesiástico no encontrado",
-      "class_threshold_percent_invalid": "El porcentaje debe ser un entero entre 0 y 100",
       "window_edit_closed": "La ventana de investidura ya no se puede cambiar para este Campo y año",
       "window_field_not_found": "Campo no encontrado",
       "window_year_not_found": "Año eclesiástico no encontrado",
@@ -9431,20 +9427,6 @@
         "startAfterEnd": "El inicio no puede ser posterior al fin.",
         "outsideYear": "La fecha debe estar dentro del año eclesiástico ({start} al {end}).",
         "saved": "Ventana guardada."
-      },
-      "threshold": {
-        "title": "Porcentaje mínimo de la clase",
-        "description": "Porcentaje mínimo de avance de la clase que se exige para incluir a una persona en una solicitud.",
-        "label": "Porcentaje mínimo (%)",
-        "help": "Hasta el 30 de junio lo edita el Campo; después solo super-admin.",
-        "current": "Porcentaje vigente: {percent} %.",
-        "defaultNotice": "Todavía no se configuró: se usa el valor por defecto.",
-        "save": "Guardar porcentaje",
-        "saving": "Guardando…",
-        "readOnly": "Solo lectura: tu rol o la fecha actual no permiten editar el porcentaje.",
-        "restricted": "Solo el Campo y super-admin pueden ver el porcentaje.",
-        "invalid": "Ingresa un número entero entre 0 y 100.",
-        "saved": "Porcentaje guardado."
       }
     },
     "pastors": {

@@ -9314,10 +9314,6 @@ export interface IntlMessages {
       generic: string;
       duration_min_not_met: string;
       duration_expired: string;
-      class_threshold_edit_closed: string;
-      class_threshold_field_not_found: string;
-      class_threshold_year_not_found: string;
-      class_threshold_percent_invalid: string;
       window_edit_closed: string;
       window_field_not_found: string;
       window_year_not_found: string;
@@ -9477,20 +9473,6 @@ export interface IntlMessages {
         required: string;
         startAfterEnd: string;
         outsideYear: string;
-        saved: string;
-      };
-      threshold: {
-        title: string;
-        description: string;
-        label: string;
-        help: string;
-        current: string;
-        defaultNotice: string;
-        save: string;
-        saving: string;
-        readOnly: string;
-        restricted: string;
-        invalid: string;
         saved: string;
       };
     };

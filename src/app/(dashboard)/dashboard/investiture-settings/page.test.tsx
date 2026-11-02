@@ -22,10 +22,8 @@ vi.mock("@/lib/api/catalogs", () => ({
 }));
 
 const getWindowMock = vi.fn();
-const getThresholdMock = vi.fn();
 vi.mock("@/lib/api/investiture-field-config", () => ({
   getInvestitureWindow: (...args: unknown[]) => getWindowMock(...args),
-  getFieldClassThreshold: (...args: unknown[]) => getThresholdMock(...args),
 }));
 
 const resolveScopeMock = vi.fn();
@@ -83,7 +81,6 @@ describe("InvestitureSettingsPage", () => {
     const element = await render();
 
     expect(getWindowMock).toHaveBeenCalledWith(3, 7);
-    expect(getThresholdMock).not.toHaveBeenCalled();
     expect(element.props.localFieldId).toBe(3);
     expect(element.props.yearId).toBe(7);
     expect(element.props.window).toEqual({ configured: true });

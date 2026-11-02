@@ -11,13 +11,11 @@ vi.mock("@/lib/api/client", async (importOriginal) => ({
 
 import {
   assignDistrictPastor,
-  getFieldClassThreshold,
   getInvestitureWindow,
   getPastorQuota,
   listDistrictPastors,
   removeDistrictPastor,
   searchPastorCandidates,
-  updateFieldClassThreshold,
   updateInvestitureWindow,
   updatePastorQuota,
 } from "./investiture-field-config";
@@ -44,20 +42,6 @@ describe("investiture-field-config API", () => {
       method: "PATCH",
       body: { start_date: "2026-10-01", end_date: "2026-12-20" },
     });
-  });
-
-  it("reads and patches the class threshold", async () => {
-    serverMock.mockResolvedValue(ok({ minimum_percent: 80 }));
-    await getFieldClassThreshold(7, 3);
-    expect(serverMock).toHaveBeenCalledWith("/local-fields/7/class-thresholds/3");
-
-    clientMock.mockResolvedValue(ok({ minimum_percent: 90 }));
-    const result = await updateFieldClassThreshold(7, 3, 90);
-    expect(clientMock).toHaveBeenCalledWith("/local-fields/7/class-thresholds/3", {
-      method: "PATCH",
-      body: { minimum_percent: 90 },
-    });
-    expect(result.minimum_percent).toBe(90);
   });
 
   it("reads and patches the pastor quota", async () => {

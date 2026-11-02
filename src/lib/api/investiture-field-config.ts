@@ -11,14 +11,6 @@ export type InvestitureWindow = {
   can_edit: boolean;
 };
 
-export type FieldClassThreshold = {
-  local_field_id: number;
-  ecclesiastical_year_id: number;
-  minimum_percent: number;
-  configured: boolean;
-  can_edit: boolean;
-};
-
 export type PastorQuota = { slots: number; configured: boolean; can_edit: boolean };
 
 export type DistrictPastor = {
@@ -46,8 +38,6 @@ export type PastorCandidate = {
 
 const windowPath = (localFieldId: number, yearId: number) =>
   `/local-fields/${localFieldId}/investiture-windows/${yearId}`;
-const thresholdPath = (localFieldId: number, yearId: number) =>
-  `/local-fields/${localFieldId}/class-thresholds/${yearId}`;
 const pastorsPath = (districtId: number) => `/districts/${districtId}/investiture-pastors`;
 
 // GET /local-fields/:lf/investiture-windows/:year
@@ -67,25 +57,6 @@ export async function updateInvestitureWindow(
     body,
   });
   return unwrapApiData<InvestitureWindow>(raw);
-}
-
-// GET /local-fields/:lf/class-thresholds/:year
-export async function getFieldClassThreshold(localFieldId: number, yearId: number): Promise<FieldClassThreshold> {
-  const raw = await apiRequest<unknown>(thresholdPath(localFieldId, yearId));
-  return unwrapApiData<FieldClassThreshold>(raw);
-}
-
-// PATCH /local-fields/:lf/class-thresholds/:year  body { minimum_percent }
-export async function updateFieldClassThreshold(
-  localFieldId: number,
-  yearId: number,
-  minimumPercent: number,
-): Promise<FieldClassThreshold> {
-  const raw = await apiRequestFromClient<unknown>(thresholdPath(localFieldId, yearId), {
-    method: "PATCH",
-    body: { minimum_percent: minimumPercent },
-  });
-  return unwrapApiData<FieldClassThreshold>(raw);
 }
 
 // GET /investiture-pastor-quota
