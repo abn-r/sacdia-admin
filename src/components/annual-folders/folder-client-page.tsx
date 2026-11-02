@@ -237,7 +237,9 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const canUpdateEvidence = isSuperAdmin || can("evidence_folders:update");
   const canSubmitFolder = isSuperAdmin || can("annual_folders:submit");
-  const canCloseFolder = canUpdateEvidence;
+  // Closing is a field action: the API requires annual_folders:evaluate and
+  // the folder in the actor's territory, not the club's evidence permission.
+  const canCloseFolder = isSuperAdmin || can("annual_folders:evaluate");
 
   // Upload dialog state
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -440,7 +442,9 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
               </Button>
             )}
 
-            {canCloseFolder && folder.status === "submitted" && (
+            {canCloseFolder &&
+              (folder.status === "submitted" ||
+                folder.status === "evaluated") && (
               <Button
                 size="sm"
                 variant="outline"
