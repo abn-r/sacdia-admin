@@ -7278,6 +7278,7 @@
         "MR_CONSENT_NOT_VERIFIED": "Le consentement du tuteur n'est pas encore vérifié. Vérifiez-le avant d'approuver.",
         "MR_NOT_FOUND": "La demande n'existe plus ou n'appartient pas à cette section.",
         "MR_ALREADY_PENDING": "La demande a déjà été traitée. Actualisez la liste.",
+        "MR_ALREADY_PROCESSED": "La demande a déjà été traitée. Actualisez la liste.",
         "FILE_REQUIRED": "Sélectionnez un fichier.",
         "FILE_TYPE_INVALID": "Format non valide. Utilisez JPG, PNG, WebP ou PDF.",
         "FILE_TOO_LARGE": "Le fichier dépasse 10 Mo.",
