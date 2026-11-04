@@ -12,6 +12,7 @@ import {
   loadReviewSectionOptions,
   resolveClubGrantSections,
 } from "@/lib/membership/section-options";
+import { deriveCapabilities } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 
 const scopeSection = (id: number, club: string | null, type: string | null) => ({
@@ -61,12 +62,25 @@ const userWith = (
   activeAssignmentId: string | null = (
     (grants.club_assignments?.[0] as { assignment_id?: string } | undefined)?.assignment_id ?? null
   ),
-): AuthUser =>
-  ({
+): AuthUser => {
+  const globalRoleNames = (grants.global_roles ?? [])
+    .map((role) => (role as { role_name?: unknown }).role_name)
+    .filter((name): name is string => typeof name === "string");
+  const capabilities = deriveCapabilities({
+    globalRoles: globalRoleNames,
+    territoryLevel: "open",
+    assignableGlobalRoles: [],
+  });
+  return {
     id: "u1",
     email: "u@test.com",
-    authorization: { grants, active_assignment: { assignment_id: activeAssignmentId } },
-  }) as unknown as AuthUser;
+    authorization: {
+      capabilities,
+      grants,
+      active_assignment: { assignment_id: activeAssignmentId },
+    },
+  } as unknown as AuthUser;
+};
 
 const APPROVE = "club_members:approve";
 const VERIFY = "consent:verify";
@@ -502,14 +516,14 @@ describe("loadReviewSectionOptions: coordinator queue flag", () => {
     }
   });
 
-  it("a non-coordinator global role carrying consent:verify does not offer the queue", async () => {
+  it("a global role outside coordination.hub_view carrying consent:verify does not offer the queue", async () => {
     route({
       "/coordination/me/scope": () =>
         scopePayload([scopeSection(7, "Club Águilas", "Conquistadores")]),
     });
 
     const result = await loadReviewSectionOptions("verify-only", {
-      clubGrants: coordinatorRoleGrants("admin"),
+      clubGrants: coordinatorRoleGrants("director-union"),
     });
 
     expect(result.coordinatorQueue).toBe(false);

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 
 const redirectMock = vi.fn((url: string) => {
@@ -30,15 +31,7 @@ vi.mock("@/components/dashboard/operations-dashboard-error", () => ({
 import DashboardHomePage from "./page";
 
 function buildUser(roles: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions: ["dashboard:read"] },
-    },
-  };
+  return buildAuthUser({ roles, permissions: ["dashboard:read"] });
 }
 
 describe("DashboardHomePage", () => {

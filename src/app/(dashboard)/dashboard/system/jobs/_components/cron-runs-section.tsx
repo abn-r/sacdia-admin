@@ -40,7 +40,7 @@ import type {
 } from "@/lib/api/analytics";
 import { runCronJob } from "@/lib/api/analytics";
 import { CRON_JOB_NAMES, getCronJobLabelKey } from "@/lib/system/cron-jobs";
-import { usePermissions } from "@/lib/auth/use-permissions";
+import { useCanCapability } from "@/lib/auth/screen-catalog/use-screen-access";
 import { useFormatDateTime, useFormatNumber } from "@/lib/format-locale";
 import {
   DETACHED_REFRESH_DELAY_MS,
@@ -249,7 +249,7 @@ function RunNowButton({
 export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const t = useTranslations("system_jobs.cronRuns");
   const router = useRouter();
-  const { isSuperAdmin } = usePermissions();
+  const canRunJobs = useCanCapability("admin-system-jobs", "run");
   const formatDateTime = useFormatDateTime();
   const formatNumber = useFormatNumber();
   const [confirmJob, setConfirmJob] = useState<string | null>(null);
@@ -258,7 +258,7 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
   const now = Date.now();
   const rows = buildJobRows(catalog, data);
   const rowsByName = new Map(rows.map((r) => [r.name, r]));
-  const showActions = isSuperAdmin && rows.some((r) => r.runnable);
+  const showActions = canRunJobs && rows.some((r) => r.runnable);
 
   const specificWarningKey =
     confirmJob && Object.hasOwn(JOB_SPECIFIC_WARNING_KEYS, confirmJob)

@@ -28,7 +28,11 @@ vi.mock("@/lib/auth/use-permissions", () => ({
     canAny: () => session.isSuperAdmin,
     canAll: () => session.isSuperAdmin,
     isSuperAdmin: session.isSuperAdmin,
+    hasCapability: () => session.isSuperAdmin,
     permissions: new Set<string>(),
+    capabilities: new Set<string>(
+      session.isSuperAdmin ? ["institutional_certificates.review"] : [],
+    ),
     roles: session.roles,
   }),
 }));

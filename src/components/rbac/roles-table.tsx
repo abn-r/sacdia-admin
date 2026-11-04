@@ -65,6 +65,7 @@ import {
   type SortDirection,
 } from "@/components/shared/sortable-header";
 import { deactivateRoleAction } from "@/lib/rbac/actions";
+import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { Role } from "@/lib/rbac/types";
 
 // ─── Alert component — may not exist yet, using inline div fallback ──────────
@@ -316,7 +317,8 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
     return sorted;
   }, [roles, activeTab, search, sortField, sortDirection]);
 
-  const isProtected = (role: Role) => role.role_name === "super-admin";
+  // The super-admin role row is immutable in the API; data about the row, not the actor.
+  const isProtected = (role: Role) => role.role_name === SUPER_ADMIN_ROLE;
 
   // One accessible path for edit/deactivate in both layouts: the row menu.
   const roleActions = (role: Role): RowAction[] => {

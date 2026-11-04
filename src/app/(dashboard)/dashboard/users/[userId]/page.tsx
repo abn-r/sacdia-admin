@@ -18,7 +18,6 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import {
   getAdminUserDisplayName,
   getAdminUserSecondaryLabel,
@@ -573,7 +572,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 userId={userId}
                 initialUserRoles={userRoles}
                 allRoles={allRoles}
-                actorIsSuperAdmin={extractRoles(currentUser).includes(SUPER_ADMIN_ROLE)}
               />
               {canSeeAccessToggles ? (
                 <UserAccessToggles

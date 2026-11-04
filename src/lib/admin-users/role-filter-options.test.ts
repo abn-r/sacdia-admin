@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import {
   filterUsersRoleOptionsByViewer,
   toUsersRoleFilterOptions,
@@ -98,41 +99,42 @@ function scopedValues(
   scopeType: string | null,
   actorRoles: string[],
 ): string[] {
+  const actor = buildAuthUser({ roles: actorRoles });
   return filterUsersRoleOptionsByViewer(toUsersRoleFilterOptions(SCOPED_CATALOG), {
     scopeType,
-    actorRoles,
+    assignableGlobalRoles: actor.authorization?.assignable_global_roles ?? [],
+    territoryLevel: actor.authorization?.territory?.level ?? null,
   }).map((option) => option.value);
 }
 
 describe("filterUsersRoleOptionsByViewer", () => {
-  it("lets platform admins see every catalog role even with a LOCAL_FIELD list scope", () => {
-    const values = scopedValues("LOCAL_FIELD", ["admin"]);
+  it("lets super-admin (territory all) see every catalog role even with a LOCAL_FIELD list scope", () => {
+    const values = scopedValues("LOCAL_FIELD", ["super-admin"]);
 
-    expect(values).toEqual(
-      expect.arrayContaining([
-        "super-admin",
-        "admin",
-        "director-dia",
-        "director-union",
-        "director-lf",
-        "coordinator",
-        "member",
-      ]),
-    );
     expect(values).toHaveLength(SCOPED_CATALOG.length);
   });
 
-  it("lets super-admin see every catalog role", () => {
-    expect(scopedValues("ALL", ["super-admin"])).toHaveLength(SCOPED_CATALOG.length);
+  it("limits an anchored admin to the roles the backend lets them assign (no admin peers)", () => {
+    const values = scopedValues("UNION", ["admin"]);
+
+    expect(values).toEqual(
+      expect.arrayContaining(["director-dia", "director-union", "director-lf", "coordinator", "member"]),
+    );
+    expect(values).not.toContain("admin");
+    expect(values).not.toContain("super-admin");
+    expect(values).not.toContain("assistant-admin");
   });
 
-  it("shows only CLUB roles for a campo local viewer", () => {
+  it("offers CLUB roles plus the T5 roles a campo local viewer may assign", () => {
     const values = scopedValues("LOCAL_FIELD", ["director-lf"]);
 
-    expect(values.sort()).toEqual(["director", "member"]);
+    expect(values).toEqual(
+      expect.arrayContaining(["director", "member", "coordinator", "pastor", "user"]),
+    );
     expect(values).not.toContain("director-lf");
-    expect(values).not.toContain("coordinator");
+    expect(values).not.toContain("assistant-lf");
     expect(values).not.toContain("director-union");
+    expect(values).not.toContain("admin");
   });
 
   it("shows campo local + club (and T5 below LF) for a unión viewer", () => {
@@ -171,5 +173,18 @@ describe("filterUsersRoleOptionsByViewer", () => {
     expect(values).not.toContain("assistant-dia");
     expect(values).not.toContain("admin");
     expect(values).not.toContain("super-admin");
+  });
+
+  it("offers only CLUB roles to an anchored viewer who may assign nothing", () => {
+    const values = filterUsersRoleOptionsByViewer(toUsersRoleFilterOptions(SCOPED_CATALOG), {
+      scopeType: "LOCAL_FIELD",
+      assignableGlobalRoles: [],
+      territoryLevel: "local_field",
+    }).map((option) => option.value);
+    expect(values.sort()).toEqual(["director", "member"]);
+  });
+
+  it("lets an open-territory viewer (no territorial role) see the whole catalog", () => {
+    expect(scopedValues("ALL", ["coordinator"])).toHaveLength(SCOPED_CATALOG.length);
   });
 });

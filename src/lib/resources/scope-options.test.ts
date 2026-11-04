@@ -1,31 +1,24 @@
 import { describe, expect, it } from "vitest";
 import type { ScopeLevel } from "@/lib/api/resources";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   isResourceScopeAllowed,
   resolveResourceScopeOptions,
 } from "./scope-options";
 
+/** `/auth/me` user whose `territory` the backend derived from `roleName` and the anchors in `global`. */
 function userWithRoles(
   roleName: string,
   global: Record<string, unknown>,
 ): AuthUser {
-  return {
+  return buildAuthUser({
     id: "user-1",
     email: "admin@sacdia.test",
-    authorization: {
-      grants: {
-        global_roles: [{ role_name: roleName, permissions: [] }],
-      },
-      effective: {
-        permissions: ["resources:create"],
-        scope: {
-          global,
-          club: null,
-        },
-      },
-    },
-  };
+    roles: [roleName],
+    permissions: ["resources:create"],
+    scope: global,
+  });
 }
 
 function userWithGlobalScope(global: Record<string, unknown>): AuthUser {

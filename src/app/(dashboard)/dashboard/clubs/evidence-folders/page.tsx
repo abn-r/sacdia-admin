@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { extractRoles } from "@/lib/auth/roles";
+import { hasCapability } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
@@ -118,7 +118,7 @@ export default async function ClubsEvidenceFoldersPage() {
       {!loadError && (
         <EvaluationClientPage
           mode="list"
-          currentUserRoles={extractRoles(currentUser)}
+          canConfirmUnion={hasCapability(currentUser, "folders.confirm_union")}
           clubTypes={clubTypes}
           ecclesiasticalYears={ecclesiasticalYears}
           unions={unions}

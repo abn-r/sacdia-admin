@@ -4,6 +4,7 @@ import {
   type CoordinatorScopeSection,
 } from "@/lib/api/coordination";
 import type { MembershipReviewMode } from "@/lib/auth/membership-review-mode";
+import { hasCapability as userHasCapability } from "@/lib/auth/permission-utils";
 import { CLUB_MEMBERS_APPROVE, CONSENT_VERIFY } from "@/lib/auth/permissions";
 import type { AuthUser } from "@/lib/auth/types";
 
@@ -110,15 +111,14 @@ export type ClubGrantSections = {
    */
   approveViaUnscopedList: boolean;
   /**
-   * The viewer holds a global coordinator role (coordinator / zone-coordinator /
-   * general-coordinator) that carries consent:verify. Only that source is served
-   * by GET /coordination/me/consent-pending; consent:verify from a club role or a
+   * The viewer enters the coordination hub (`coordination.hub_view`, the
+   * backend's coordinator-role rule) through a global role that carries
+   * consent:verify. Only that source is served by
+   * GET /coordination/me/consent-pending; consent:verify from a club role or a
    * direct grant answers 403 GUARD_PERMISSION_DENIED there.
    */
   coordinatorRoleCanVerify: boolean;
 };
-
-const COORDINATOR_ROLE_NAMES = new Set(["coordinator", "zone-coordinator", "general-coordinator"]);
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -172,11 +172,9 @@ export function resolveClubGrantSections(user: AuthUser | null | undefined): Clu
     hasPermission(grants?.direct_permissions, CLUB_MEMBERS_APPROVE) ||
     globalRoles.some((role) => hasPermission(asRecord(role)?.permissions, CLUB_MEMBERS_APPROVE));
 
-  const coordinatorRoleCanVerify = globalRoles.some((role) => {
-    const record = asRecord(role);
-    const name = typeof record?.role_name === "string" ? record.role_name.trim().toLowerCase() : "";
-    return COORDINATOR_ROLE_NAMES.has(name) && hasPermission(record?.permissions, CONSENT_VERIFY);
-  });
+  const coordinatorRoleCanVerify =
+    userHasCapability(user, "coordination.hub_view") &&
+    globalRoles.some((role) => hasPermission(asRecord(role)?.permissions, CONSENT_VERIFY));
 
   return { approve, verify, approveViaUnscopedList, coordinatorRoleCanVerify };
 }

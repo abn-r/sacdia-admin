@@ -17,7 +17,7 @@ import {
   listInvestitureRequestsForAuthorizer,
   type InvestitureRequest,
 } from "@/lib/api/investiture-requests";
-import { isPastorOnlyUser } from "@/lib/auth/roles";
+import { isPastorOnlyUser } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

@@ -47,7 +47,9 @@ vi.mock("@/lib/auth/use-permissions", () => ({
     canAny: () => false,
     canAll: () => false,
     isSuperAdmin: false,
+    hasCapability: () => false,
     permissions: mockPermissions,
+    capabilities: new Set<string>(),
     roles: mockRoles,
   }),
 }));

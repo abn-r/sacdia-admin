@@ -10,6 +10,7 @@ import { render, screen, waitFor, cleanup, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 
 global.ResizeObserver = class ResizeObserver {
@@ -74,28 +75,20 @@ import { CamporeeOrderCatalogClient } from "@/components/camporee-orders/campore
 
 const catalog = messages.camporee_orders.catalog;
 
-const SUPER_ADMIN: AuthUser = {
+const SUPER_ADMIN: AuthUser = buildAuthUser({
   id: "admin-1",
   email: "admin@test.com",
   roles: ["super-admin"],
-  authorization: {
-    effective: { permissions: ["camporee-orders:catalog-manage"] },
-  },
-};
+  permissions: ["camporee-orders:catalog-manage"],
+});
 
-const DIVISION_ADMIN: AuthUser = {
+const DIVISION_ADMIN: AuthUser = buildAuthUser({
   id: "dia-1",
   email: "dia@test.com",
   roles: ["director-dia"],
-  authorization: {
-    effective: {
-      permissions: ["camporee-orders:catalog-manage"],
-      scope: {
-        global: { division: { id: 4, name: "Interamericana" } },
-      },
-    },
-  },
-};
+  permissions: ["camporee-orders:catalog-manage"],
+  scope: { division: { id: 4, name: "Interamericana" } },
+});
 
 function renderCatalog() {
   return render(

@@ -232,14 +232,14 @@ function SectionRow({
 
 export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
   const t = useTranslations("annual_folders");
-  const { can, isSuperAdmin } = usePermissions();
+  const { can } = usePermissions();
   const [folder, setFolder] = useState<AnnualFolder>(initialFolder);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const canUpdateEvidence = isSuperAdmin || can("evidence_folders:update");
-  const canSubmitFolder = isSuperAdmin || can("annual_folders:submit");
+  const canUpdateEvidence = can("evidence_folders:update");
+  const canSubmitFolder = can("annual_folders:submit");
   // Closing is a field action: the API requires annual_folders:evaluate and
   // the folder in the actor's territory, not the club's evidence permission.
-  const canCloseFolder = isSuperAdmin || can("annual_folders:evaluate");
+  const canCloseFolder = can("annual_folders:evaluate");
 
   // Upload dialog state
   const [uploadOpen, setUploadOpen] = useState(false);
