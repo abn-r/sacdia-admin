@@ -38,6 +38,11 @@ export default async function DashboardLayout({
   // A territorial or admin role without a territory gets 403 from every scoped
   // API call, so block the whole panel with an explanation instead.
   const territoryUnconfigured = isTerritoryUnconfigured(initialUser);
+  // `pathname` is the URL of the request that rendered this layout. Layouts do
+  // not re-render on soft navigation, so when an intercepted route opens the
+  // `@modal` slot client-side this value is stale (it still names the page
+  // underneath). The slot gate below therefore only covers hard loads; every
+  // page in `@modal/(.)dashboard/**` gates itself with `canCapability`.
   const canOpenPage = canAccessDashboardPath(initialUser, pathname);
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible, locale, messages] = await Promise.all([
@@ -106,7 +111,7 @@ export default async function DashboardLayout({
               <PageAccessForbidden />
             )}
           </div>
-          {territoryUnconfigured ? null : modal}
+          {territoryUnconfigured || !canOpenPage ? null : modal}
         </SidebarInset>
       </SidebarProvider>
       </QueryProvider>

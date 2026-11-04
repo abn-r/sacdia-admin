@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
+import { FormModalForbidden } from "@/components/shared/form-modal-forbidden";
 import { EditRankingConfigModalContent } from "@/components/annual-rankings/edit-ranking-config-modal-content";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
+import { requireAdminUser } from "@/lib/auth/session";
 import { loadRankingConfigPageData } from "@/lib/annual-rankings/load-ranking-config-page-data";
 import AnnualRankingConfigPage from "../page";
 
@@ -16,8 +19,21 @@ type PageProps = {
  * underneath and the form opens as the same modal the intercepted route shows.
  */
 export default async function EditAnnualRankingConfigPage({ params }: PageProps) {
+  const user = await requireAdminUser();
   const { id } = await params;
   const t = await getTranslations("annual_folders.pageRankingConfig");
+
+  if (!canViewScreen(user, "annual-folders-ranking-config")) {
+    return (
+      <FormModalForbidden
+        title={t("editTitle")}
+        description={t("editDescription")}
+        className="sm:max-w-3xl"
+        dismissHref={ROUTE_BASE}
+      />
+    );
+  }
+
   const data = await loadRankingConfigPageData();
   const config = data.configs.find((item) => item.annual_ranking_config_id === id);
 

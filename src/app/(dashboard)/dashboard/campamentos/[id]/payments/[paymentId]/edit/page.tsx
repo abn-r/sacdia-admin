@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
+import { FormModalForbidden } from "@/components/shared/form-modal-forbidden";
 import { PaymentFormPage } from "@/components/camporees/payment-form-page";
+import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   camporeePaymentsListHref,
@@ -15,10 +17,17 @@ type Params = Promise<{ id: string; paymentId: string }>;
  * opens as the same modal the intercepted route shows.
  */
 export default async function CamporeePaymentEditPage({ params }: { params: Params }) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const { id, paymentId } = await params;
-  const props = await loadEditCamporeePaymentFormData(id, paymentId);
   const t = await getTranslations("camporees.paymentDialog");
+
+  // Camporee payments are written through the camporee itself (camporees:update):
+  // same gate as the detail page actions.
+  if (!canCapability(user, camporeeScreenId("local"), "update")) {
+    return <FormModalForbidden title={t("titleEdit")} description={t("descriptionEdit")} dismissHref={camporeePaymentsListHref(id)} />;
+  }
+
+  const props = await loadEditCamporeePaymentFormData(id, paymentId);
 
   return (
     <>
