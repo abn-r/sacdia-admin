@@ -2,28 +2,31 @@
 
 import { useCallback, useMemo } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { extractRoles, ALLOWED_ADMIN_ROLES, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
-import { extractPermissions } from "@/lib/auth/permission-utils";
+import type { CapabilityKey } from "@/lib/auth/generated/capability-keys";
+import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { extractCapabilities, extractPermissions } from "@/lib/auth/permission-utils";
 
 function normalizePermission(permission: string) {
   return permission.trim().toLowerCase();
 }
 
 /**
- * Hook para verificar permisos del usuario autenticado.
- * Fuente oficial: authorization.effective.permissions (+ grants) resuelta por backend.
+ * Hook para verificar permisos y capabilities del usuario autenticado.
+ * Fuente oficial: `authorization.effective.permissions` y
+ * `authorization.capabilities` resueltas por el backend en `/auth/me`.
  */
 export function usePermissions() {
   const { user } = useAuth();
 
   const roles = useMemo(() => new Set(extractRoles(user)), [user]);
-  // extractRoles() normalizes underscores to hyphens — use SUPER_ADMIN_ROLE ("super-admin")
   const isSuperAdmin = useMemo(() => roles.has(SUPER_ADMIN_ROLE), [roles]);
 
   const permissionSet = useMemo(
     () => new Set(extractPermissions(user)),
     [user],
   );
+
+  const capabilities = useMemo(() => extractCapabilities(user), [user]);
 
   // Verifica si el usuario tiene UN permiso específico
   const can = useCallback(
@@ -52,25 +55,28 @@ export function usePermissions() {
     [isSuperAdmin, permissionSet],
   );
 
-  // Verifica si tiene un rol administrativo válido
-  const hasRole = useCallback(
-    (role: string): boolean => roles.has(role),
-    [roles],
+  /** Capability publicada por el backend (sin bypass: el backend ya lo resolvió). */
+  const hasCapability = useCallback(
+    (capability: CapabilityKey): boolean => capabilities.has(capability),
+    [capabilities],
   );
 
-  const isAdmin = useMemo(
-    () => ALLOWED_ADMIN_ROLES.some((r) => roles.has(r)),
-    [roles],
+  const isAdmin = useMemo(() => capabilities.has("admin_panel.access"), [capabilities]);
+  const isPastorOnly = useMemo(
+    () => capabilities.has("admin_panel.pastor_only"),
+    [capabilities],
   );
 
   return {
     can,
     canAny,
     canAll,
-    hasRole,
+    hasCapability,
     isSuperAdmin,
     isAdmin,
+    isPastorOnly,
     permissions: permissionSet,
+    capabilities,
     roles,
   };
 }

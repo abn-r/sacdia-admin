@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
 import {
@@ -9,7 +10,7 @@ import {
   AUTH_COOKIE_OPTIONS,
 } from "@/lib/auth/cookies";
 import { apiRequest, ApiError } from "@/lib/api/client";
-import { hasAdminRole } from "@/lib/auth/roles";
+import { canAccessAdminPanel } from "@/lib/auth/permission-utils";
 import type { AuthUser, LoginResponse } from "@/lib/auth/types";
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
@@ -327,7 +328,12 @@ async function ensureAuthorizationContext(
   return unwrapAuthMePayload(refreshed);
 }
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+/**
+ * Session user from `GET /auth/me`. Memoized per request with React `cache`
+ * so the dashboard layout, the page, the `@modal` slot and Server Actions
+ * rendered in the same request share one round trip.
+ */
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<AuthUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
@@ -361,16 +367,21 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
     throw error;
   }
-}
+});
 
+/**
+ * Session user allowed into the panel (`admin_panel.access` capability from
+ * `/auth/me`). A signed-in user without it is logged out; no session bounces
+ * to refresh or login.
+ */
 export async function requireAdminUser() {
   const user = await getCurrentUser();
 
-  if (user && hasAdminRole(user)) {
+  if (user && canAccessAdminPanel(user)) {
     return user;
   }
 
-  if (user && !hasAdminRole(user)) {
+  if (user && !canAccessAdminPanel(user)) {
     redirect("/api/auth/logout?next=/login");
   }
 

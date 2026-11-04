@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildAuthUser } from "./testing/auth-user-fixture";
 import type { AuthUser } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -51,11 +52,11 @@ vi.mock("@/lib/api/client", async (importOriginal) => {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** `/auth/me` user with the phase 7 authorization block derived from `roles`. */
 function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
+  const roles = overrides.roles ?? ["admin"];
   return {
-    id: "user-1",
-    email: "admin@sacdia.org",
-    roles: ["admin"],
+    ...buildAuthUser({ id: "user-1", email: "admin@sacdia.org", roles }),
     ...overrides,
   };
 }
@@ -226,7 +227,7 @@ describe("requireAdminUser()", () => {
 
   it("redirects when user has no admin role", async () => {
     seedToken("valid-jwt");
-    const nonAdminUser = makeUser({ roles: ["member"] });
+    const nonAdminUser = makeUser({ roles: ["user"] });
     mockApiRequest.mockResolvedValueOnce(nonAdminUser);
     await expect(session.requireAdminUser()).rejects.toThrow(
       "REDIRECT:/api/auth/logout?next=/login",
@@ -251,7 +252,7 @@ describe("requireAdminUser()", () => {
     expect(mockRedirect).not.toHaveBeenCalled();
   });
 
-  it("redirects when user has coordinator role not in ALLOWED_ADMIN_ROLES — no, coordinator IS allowed", async () => {
+  it("returns the user when the coordinator role grants admin_panel.access", async () => {
     // This test documents that coordinator IS in ALLOWED_ADMIN_ROLES.
     seedToken("valid-jwt");
     const coordinator = makeUser({ roles: ["coordinator"] });

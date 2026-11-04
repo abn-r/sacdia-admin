@@ -4,7 +4,7 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { hasAdminRole } from "@/lib/auth/roles";
+import { canAccessAdminPanel } from "@/lib/auth/permission-utils";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import {
   clearSession,
@@ -199,7 +199,10 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
   const { accessToken, refreshToken, expiresAt, user } = normalizeAuthTokenResponse(auth);
   const deniedAccessInfo = getDeniedAccessInfo(t, auth);
 
-  if (user && !hasAdminRole(user)) {
+  // The login payload may omit `authorization`; the authoritative check is on
+  // the `/auth/me` profile below. Deny early only when the payload already
+  // carries capabilities and `admin_panel.access` is not among them.
+  if (user?.authorization?.capabilities && !canAccessAdminPanel(user)) {
     logDeniedAccess("login_role", parsed.data.email, deniedAccessInfo);
     return {
       error: deniedAccessInfo.userMessage,
@@ -226,7 +229,7 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     return { error: t("errors.profile_validation_failed") };
   }
 
-  if (!hasAdminRole(profile)) {
+  if (!canAccessAdminPanel(profile)) {
     return {
       error: t("errors.admin_role_required"),
     };
