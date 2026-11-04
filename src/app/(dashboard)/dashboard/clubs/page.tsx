@@ -5,7 +5,7 @@ import { Building2 } from "lucide-react";
 import { ClubsListClient } from "@/components/clubs/clubs-list-client";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { canCreateClubs, canUpdateClubs } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { fetchClubsList } from "@/lib/clubs/fetch-list";
 import {
@@ -65,8 +65,8 @@ export default async function ClubsPage({
     label: localField.name,
     value: localField.local_field_id,
   }));
-  const canEdit = canUpdateClubs(user);
-  const canBulkImport = canCreateClubs(user);
+  const canEdit = canCapability(user, "clubs", "update");
+  const canBulkImport = canCapability(user, "clubs", "bulk_create");
 
   if (!result.available) {
     return (

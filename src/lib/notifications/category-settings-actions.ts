@@ -7,7 +7,7 @@ import {
   patchNotificationCategorySetting,
   type PatchNotificationCategorySettingPayload,
 } from "@/lib/api/notifications";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 
 export type CategorySettingActionState = {
   error?: string;
@@ -18,7 +18,8 @@ export async function updateNotificationCategorySettingAction(
   _prev: CategorySettingActionState,
   payload: PatchNotificationCategorySettingPayload,
 ): Promise<CategorySettingActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("notifications-categories", "update");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("configuration.notifications.categories");
 
   try {

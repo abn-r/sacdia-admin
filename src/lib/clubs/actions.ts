@@ -18,10 +18,8 @@ import {
   updateClubRoleAssignment,
   type ClubPayload,
 } from "@/lib/api/clubs";
-import { canCapability } from "@/lib/auth/screen-catalog";
 import { unwrapObject } from "@/lib/api/response";
-import { requireAdminUser } from "@/lib/auth/session";
-import { canCreateClubs } from "@/lib/auth/permission-utils";
+import { requireCapability } from "@/lib/auth/require-capability";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 import type { AuthUser } from "@/lib/auth/types";
 import { unwrapApiData } from "@/lib/api/unwrap";
@@ -328,12 +326,10 @@ export async function createClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const user = await requireAdminUser();
+  const gate = await requireCapability("clubs", "create");
+  if (!gate.ok) return { error: gate.error };
+  const user = gate.user;
   const t = await getTranslations("clubs");
-
-  if (!canCreateClubs(user)) {
-    return { error: t("errors.create_club_failed") };
-  }
 
   const clubTypes = await loadCreateClubTypeOptions();
   const fieldErrors = collectFieldErrors(t, formData, clubTypes);
@@ -361,12 +357,10 @@ export async function createClubWithSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const user = await requireAdminUser();
+  const gate = await requireCapability("clubs", "create");
+  if (!gate.ok) return { error: gate.error };
+  const user = gate.user;
   const t = await getTranslations("clubs");
-
-  if (!canCreateClubs(user)) {
-    return { error: t("errors.create_club_failed") };
-  }
 
   const clubTypes = await loadCreateClubTypeOptions();
   const fieldErrors = collectFieldErrors(t, formData, clubTypes);
@@ -444,7 +438,9 @@ export async function updateClubAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const user = await requireAdminUser();
+  const gate = await requireCapability("clubs", "update");
+  if (!gate.ok) return { error: gate.error };
+  const user = gate.user;
   const t = await getTranslations("clubs");
 
   const fieldErrors = collectUpdateFieldErrors(t, formData);
@@ -474,10 +470,14 @@ export async function syncClubSectionsAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const sectionIdRaw = readString(formData, "section_id");
+  const gate = await requireCapability(
+    "clubs",
+    sectionIdRaw ? "sections.update" : "sections.create",
+  );
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
-  const sectionIdRaw = readString(formData, "section_id");
   const clubTypeIdRaw = readString(formData, "club_type_id");
   const activeRaw = readString(formData, "active");
 
@@ -516,7 +516,8 @@ export async function syncClubSectionsAction(
 }
 
 export async function deleteClubAction(formData: FormData) {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "delete");
+  if (!gate.ok) return;
 
   const clubId = Number(formData.get("id"));
   if (!Number.isFinite(clubId) || clubId <= 0) {
@@ -533,7 +534,8 @@ export async function createClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "sections.create");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
   const clubTypeIdRaw = readString(formData, "club_type_id");
@@ -587,7 +589,8 @@ export async function updateClubSectionAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "sections.update");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
   const payload: { active?: boolean; club_type_id?: number } = {};
@@ -630,7 +633,8 @@ export async function addClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "manage_roles");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
   const userId = readString(formData, "user_id");
@@ -688,7 +692,8 @@ export async function updateClubSectionMemberRoleAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "manage_roles");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
   if (!userId) {
@@ -746,7 +751,8 @@ export async function removeClubSectionMemberAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("clubs", "revoke_roles");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("clubs");
 
   const assignmentId = readString(formData, "assignment_id");
@@ -775,17 +781,11 @@ export async function succeedClubSectionDirectorAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const currentUser = await requireAdminUser();
-
   // Mirrors POST /clubs/:clubId/sections/:sectionId/director-succession:
-  // club_roles:assign + club_roles:revoke + literal
-  // super-admin/admin/director-lf/assistant-lf (clubs.service.ts:1694-1700).
-  if (!canCapability(currentUser, "clubs", "succeed_director")) {
-    return {
-      error:
-        "Solo super-admin, admin, director-lf y assistant-lf pueden ejecutar la sucesión anual de director.",
-    };
-  }
+  // club_roles:assign + club_roles:revoke + `club_roles.succeed_director`
+  // (the literal super-admin/admin/lf rule lives in the backend service).
+  const gate = await requireCapability("clubs", "succeed_director");
+  if (!gate.ok) return { error: gate.error };
 
   const t = await getTranslations("clubs");
   const currentAssignmentId = readString(formData, "current_assignment_id");
@@ -842,16 +842,10 @@ export async function designateClubSectionDirectorAction(
   _: ClubActionState,
   formData: FormData,
 ): Promise<ClubActionState> {
-  const currentUser = await requireAdminUser();
-
   // Mirrors POST /clubs/:clubId/sections/:sectionId/director-designation:
-  // club_roles:assign + ALLOWED_DESIGNATION_ROLES (service, literal match).
-  if (!canCapability(currentUser, "clubs", "designate_director")) {
-    return {
-      error:
-        "Solo super-admin, admin, director-lf y assistant-lf pueden designar director para el próximo año.",
-    };
-  }
+  // club_roles:assign + `club_roles.designate_director` (service rule).
+  const gate = await requireCapability("clubs", "designate_director");
+  if (!gate.ok) return { error: gate.error };
 
   const t = await getTranslations("clubs");
 

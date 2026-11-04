@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
+
 const mockRequireAdminUser = vi.fn();
 const mockSucceedClubSectionDirector = vi.fn();
 const mockDesignateClubSectionDirector = vi.fn();
@@ -57,15 +59,9 @@ describe("succeedClubSectionDirectorAction", () => {
   const ASSIGN_AND_REVOKE = ["club_roles:assign", "club_roles:revoke"];
 
   function setupUser(roles: string[], permissions = ASSIGN_AND_REVOKE) {
-    mockRequireAdminUser.mockResolvedValue({
-      id: "actor-1",
-      email: "actor@example.com",
-      roles,
-      authorization: {
-        grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-        effective: { permissions },
-      },
-    });
+    mockRequireAdminUser.mockResolvedValue(
+      buildAuthUser({ id: "actor-1", roles, permissions }),
+    );
   }
 
   beforeEach(() => {
@@ -109,7 +105,7 @@ describe("succeedClubSectionDirectorAction", () => {
       }),
     );
 
-    expect(union.error).toMatch(/director-lf|assistant-lf|admin/i);
+    expect(union.error).toBe("forbidden");
     expect(mockSucceedClubSectionDirector).not.toHaveBeenCalled();
 
     setupUser(["admin"], ["club_roles:assign"]);
@@ -157,15 +153,9 @@ describe("designateClubSectionDirectorAction", () => {
   // Gate = `clubs.designate_director` capability: club_roles:assign AND one of
   // ALLOWED_ROLES (literal match, as the backend service).
   function setupUser(roles: string[], permissions = ["club_roles:assign"]) {
-    mockRequireAdminUser.mockResolvedValue({
-      id: "actor-1",
-      email: "actor@example.com",
-      roles,
-      authorization: {
-        grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-        effective: { permissions },
-      },
-    });
+    mockRequireAdminUser.mockResolvedValue(
+      buildAuthUser({ id: "actor-1", roles, permissions }),
+    );
   }
 
   beforeEach(() => {

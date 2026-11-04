@@ -17,8 +17,7 @@ import {
   deactivateRole,
   getRoleWithPermissions,
 } from "@/lib/rbac/service";
-import { requireAdminUser } from "@/lib/auth/session";
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { requireCapability } from "@/lib/auth/require-capability";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   activePermissionIds,
@@ -30,13 +29,19 @@ const PERMISSIONS_PATH = "/dashboard/configuration/permissions";
 const ROLES_PATH = "/dashboard/configuration/roles";
 const MATRIX_PATH = "/dashboard/configuration/matrix";
 
-async function requireSuperAdminUser(): Promise<AuthUser | RbacActionState> {
-  const user = await requireAdminUser();
-  if (!extractRoles(user).includes(SUPER_ADMIN_ROLE)) {
-    const t = await getTranslations("rbac");
-    return { error: t("errors.forbidden_super_admin") };
+/**
+ * Every write in `/admin/rbac/*` is `rbac.manage` + `permissions:assign`
+ * (the `manage` verb of the roles / permissions screens).
+ */
+async function requireRbacManager(
+  screenId: "admin-system-roles" | "admin-system-permissions",
+): Promise<AuthUser | RbacActionState> {
+  const gate = await requireCapability(screenId, "manage");
+  if (gate.ok) {
+    return gate.user;
   }
-  return user;
+  const t = await getTranslations("rbac");
+  return { error: t("errors.forbidden_super_admin") };
 }
 
 function isForbidden(
@@ -71,7 +76,7 @@ export async function createPermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-permissions");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -110,7 +115,7 @@ export async function updatePermissionAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-permissions");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -147,7 +152,7 @@ export async function updatePermissionAction(
 }
 
 export async function deletePermissionAction(permissionId: string): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-permissions");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -177,7 +182,7 @@ export async function createRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -239,7 +244,7 @@ export async function updateRoleAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -279,7 +284,7 @@ export async function updateRoleAction(
 export async function deactivateRoleAction(
   roleId: string,
 ): Promise<{ error?: string }> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -304,7 +309,7 @@ export async function syncRolePermissionsAction(
   _: RbacActionState,
   formData: FormData,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -339,7 +344,7 @@ export async function setRolePermissionsAction(
   roleId: string,
   permissionIds: string[],
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -369,7 +374,7 @@ export async function toggleRolePermissionAction(
   permissionId: string,
   enabled: boolean,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }
@@ -402,7 +407,7 @@ export async function copyRolePermissionsAction(
   sourceRoleId: string,
   targetRoleId: string,
 ): Promise<RbacActionState> {
-  const gate = await requireSuperAdminUser();
+  const gate = await requireRbacManager("admin-system-roles");
   if (isForbidden(gate)) {
     return gate;
   }

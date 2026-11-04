@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { apiRequest, ApiError } from "@/lib/api/client";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 
 export type CompleteStepResult =
   | { ok: true; message: string }
@@ -13,7 +13,10 @@ async function completeStep(
   userId: string,
   step: 1 | 2 | 3,
 ): Promise<CompleteStepResult> {
-  await requireAdminUser();
+  // POST /users/:id/post-registration/step-N/complete — registration:complete
+  // (or users:update_profile), the `registration.complete` verb of the users screen.
+  const gate = await requireCapability("users", "registration.complete");
+  if (!gate.ok) return { ok: false, error: gate.error };
   const t = await getTranslations("post_registration");
 
   try {

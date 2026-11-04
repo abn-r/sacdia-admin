@@ -1,5 +1,5 @@
 import type { AuthUser } from "@/lib/auth/types";
-import { canCreateClubs } from "@/lib/auth/permission-utils";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { loadClubGeographyForTerritory } from "@/lib/clubs/territory-catalogs";
 import { resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
@@ -16,7 +16,8 @@ import {
  * modal. Returns `null` when the actor cannot create clubs.
  */
 export async function loadCreateClubFormData(user: AuthUser) {
-  if (!canCreateClubs(user)) {
+  // Page gate = `clubs.create` capability (clubs:create), as the API.
+  if (!canCapability(user, "clubs", "create")) {
     return null;
   }
 

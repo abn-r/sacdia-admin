@@ -17,7 +17,7 @@ import {
   type AchievementScope,
   type AchievementCriteria,
 } from "@/lib/api/achievements";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 
 type AchievementsTranslator = Awaited<
   ReturnType<typeof getTranslations<"achievements">>
@@ -94,7 +94,8 @@ export async function createAchievementCategoryAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   try {
@@ -116,7 +117,8 @@ export async function updateAchievementCategoryAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "id");
@@ -141,7 +143,8 @@ export async function deleteAchievementCategoryAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "id");
@@ -216,7 +219,8 @@ export async function createAchievementAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   const categoryId = parsePositiveNumber(formData, "category_id");
@@ -245,7 +249,8 @@ export async function updateAchievementAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   const achievementId = parsePositiveNumber(formData, "id");
@@ -277,7 +282,8 @@ export async function deleteAchievementAction(
   _: AchievementActionState,
   formData: FormData,
 ): Promise<AchievementActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("admin-system-achievements", "manage");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("achievements");
 
   const achievementId = parsePositiveNumber(formData, "id");

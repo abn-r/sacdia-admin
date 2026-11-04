@@ -47,8 +47,25 @@ type RedirectAlert = {
   description?: string;
 };
 
-const ENTITY_MUTATION_SCREEN: Partial<Record<EntityKey, string>> = {
+/**
+ * Screen of the catalog each entity mutates in. Every entity is listed so the
+ * action gate (`canCapability(screen, create|update|delete)`) is the same one
+ * the page uses for its buttons; an unmapped entity fails closed.
+ */
+const ENTITY_MUTATION_SCREEN: Record<EntityKey, string> = {
+  countries: "catalogs-countries",
+  unions: "catalogs-unions",
+  "local-fields": "catalogs-local-fields",
+  districts: "catalogs-districts",
+  churches: "catalogs-churches",
+  "relationship-types": "catalogs-relationship-types",
+  allergies: "catalogs-allergies",
+  diseases: "catalogs-diseases",
+  medicines: "catalogs-medicines",
   "ecclesiastical-years": "catalogs-ecclesiastical-years",
+  "club-types": "catalogs-club-types",
+  "club-ideals": "catalogs-club-ideals",
+  "activity-types": "catalogs-activity-types",
 };
 
 function catalogMutationDenied(
@@ -56,9 +73,9 @@ function catalogMutationDenied(
   entityKey: EntityKey,
   capabilityId: "create" | "update" | "delete",
 ): boolean {
-  const screenId = ENTITY_MUTATION_SCREEN[entityKey];
+  const screenId: string | undefined = ENTITY_MUTATION_SCREEN[entityKey];
   if (!screenId) {
-    return false;
+    return true;
   }
   return !canCapability(user, screenId, capabilityId);
 }
@@ -112,7 +129,7 @@ export async function createCatalogItemAction(
   }
 
   if (catalogMutationDenied(user, entityKey, "create")) {
-    return { error: t("errors.read_only_catalog") };
+    return { error: t("errors.forbidden_mutation") };
   }
 
   const fieldErrors = buildFieldErrors(t, config, formData);
@@ -158,7 +175,7 @@ export async function updateCatalogItemAction(
   }
 
   if (catalogMutationDenied(user, entityKey, "update")) {
-    return { error: t("errors.read_only_catalog") };
+    return { error: t("errors.forbidden_mutation") };
   }
 
   const fieldErrors = buildFieldErrors(t, config, formData);
@@ -205,7 +222,7 @@ export async function deleteCatalogItemAction(
   }
 
   if (catalogMutationDenied(user, entityKey, "delete")) {
-    return { error: t("errors.read_only_catalog") };
+    return { error: t("errors.forbidden_mutation") };
   }
 
   try {
