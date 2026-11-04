@@ -4,29 +4,45 @@ import type { AuthUser } from "@/lib/auth/types";
 /**
  * Canonical name of the super-admin role.
  * Backend PR #77 standardized all role names to hyphen form in the DB.
- * The super_admin / super-admin mismatch bug is resolved — there are no
- * more underscore role names in the API payload.
  * Use this constant everywhere instead of a raw string literal.
+ *
+ * Phase 7 (authz capabilities): role names are data (labels, grant rows,
+ * protected rows in the RBAC tables). Authorization decisions read
+ * `authorization.capabilities` from `/auth/me` instead — see
+ * `extractCapabilities` / `hasCapability` in `permission-utils.ts`.
  */
 export const SUPER_ADMIN_ROLE = "super-admin" as const satisfies GlobalRoleName;
 
-export const ALLOWED_ADMIN_ROLES = [
-  "super-admin",
+/**
+ * Platform administration roles. A user holding one of these can only be
+ * granted or revoked by an actor with `rbac.mutate_global_roles`
+ * (backend `RBAC_ROLE_SUPER_ADMIN_ONLY`). Data about role rows, not a gate.
+ */
+export const PLATFORM_ADMIN_ROLES = [
+  SUPER_ADMIN_ROLE,
   "admin",
   "assistant-admin",
-  "coordinator",
-  "zone-coordinator",
-  "general-coordinator",
-  "pastor",
-  "assistant-lf",
-  "director-lf",
-  "assistant-union",
-  "director-union",
-  "assistant-dia",
-  "director-dia",
 ] as const satisfies readonly GlobalRoleName[];
-const RBAC_LEGACY_FALLBACK_ENABLED =
-  process.env.NEXT_PUBLIC_RBAC_LEGACY_FALLBACK === "true";
+
+/**
+ * Display order (highest to lowest) of the global roles an actor may assign
+ * when creating a user. The actual set comes from
+ * `authorization.assignable_global_roles`; this only orders it.
+ */
+export const ASSIGNABLE_GLOBAL_ROLE_ORDER = [
+  "admin",
+  "director-dia",
+  "assistant-dia",
+  "director-union",
+  "assistant-union",
+  "director-lf",
+  "assistant-lf",
+  "general-coordinator",
+  "zone-coordinator",
+  "coordinator",
+  "pastor",
+  "user",
+] as const satisfies readonly GlobalRoleName[];
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -34,18 +50,14 @@ function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-/**
- * Defensive normalizer: lowercase + trim only.
- * The underscore→hyphen replacement was removed in tandem with backend PR #77,
- * which standardized all role names to hyphen form in the DB. Incoming
- * payloads no longer contain underscore role names.
- */
+/** Defensive normalizer: lowercase + trim only. */
 function normalizeRole(role: unknown): string | null {
   if (typeof role !== "string") {
     return null;
   }
 
-  return role.trim().toLowerCase();
+  const normalized = role.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
 }
 
 function unwrapResponse(user: AuthUser): AuthUser {
@@ -71,140 +83,74 @@ function addRole(set: Set<string>, value: unknown) {
   }
 }
 
-function extractCanonicalRoles(resolved: AuthUser): string[] {
-  const roles = new Set<string>();
-
-  // 1. Flat roles array (from login response: data.user.roles = ['super-admin', ...])
-  if (Array.isArray(resolved.roles)) {
-    resolved.roles.forEach((role) => addRole(roles, role));
+function addRolesFromGrant(set: Set<string>, grant: unknown) {
+  if (!isRecord(grant)) {
+    return;
   }
-
-  // 2. Canonical authorization structure (from /auth/me: authorization.grants.global_roles[])
-  const authorization = resolved.authorization;
-
-  if (isRecord(authorization)) {
-    const grants = authorization.grants;
-    if (isRecord(grants)) {
-      const addRolesFromGrantList = (grantList: unknown) => {
-        if (!Array.isArray(grantList)) {
-          return;
-        }
-
-        for (const grant of grantList) {
-          if (!isRecord(grant)) {
-            continue;
-          }
-
-          addRole(roles, grant.role_name);
-          addRole(roles, grant.role);
-          addRole(roles, grant.name);
-          addRole(roles, grant.key);
-        }
-      };
-
-      addRolesFromGrantList(grants.global_roles);
-      addRolesFromGrantList(grants.club_assignments);
-    }
-  }
-
-  return Array.from(roles);
+  addRole(set, grant.role_name);
+  addRole(set, grant.role);
+  addRole(set, grant.name);
+  addRole(set, grant.key);
 }
 
-function extractLegacyRoles(resolved: AuthUser): string[] {
-  const roles = new Set<string>();
-
-  addRole(roles, resolved.role);
-
-  if (Array.isArray(resolved.roles)) {
-    resolved.roles.forEach((role) => addRole(roles, role));
+function activeAssignmentId(authorization: UnknownRecord): string | null {
+  const active = authorization.active_assignment;
+  if (!isRecord(active) || typeof active.assignment_id !== "string") {
+    return null;
   }
-
-  const nestedKeys = ["global_role", "global_roles", "club_roles"];
-  nestedKeys.forEach((key) => {
-    const value = resolved[key];
-
-    if (Array.isArray(value)) {
-      value.forEach((role) => addRole(roles, role));
-      return;
-    }
-
-    addRole(roles, value);
-  });
-
-  const usersRoles = resolved["users_roles"];
-  if (Array.isArray(usersRoles)) {
-    for (const ur of usersRoles) {
-      if (!isRecord(ur)) {
-        continue;
-      }
-
-      const nestedRole = ur["roles"];
-      if (isRecord(nestedRole)) {
-        addRole(roles, nestedRole["role_name"]);
-      }
-    }
-  }
-
-  const metadata = resolved["metadata"];
-  if (isRecord(metadata)) {
-    addRole(roles, metadata["role"]);
-
-    const rolesList = metadata["roles"];
-    if (Array.isArray(rolesList)) {
-      rolesList.forEach((role) => addRole(roles, role));
-    }
-  }
-
-  return Array.from(roles);
+  const id = active.assignment_id.trim();
+  return id.length > 0 ? id : null;
 }
 
+/**
+ * Roles the actor holds right now, as the backend guards see them:
+ * `authorization.grants.global_roles[]` plus the club role of the ACTIVE
+ * assignment (`authorization.active_assignment`). Other club assignments are
+ * not aggregated: the guards only honour the active one, so a role from a
+ * dormant club would light up verbs that answer 403.
+ */
 export function extractRoles(user: AuthUser | null | undefined): string[] {
   if (!user) {
     return [];
   }
 
   const resolved = unwrapResponse(user);
-  const canonicalRoles = extractCanonicalRoles(resolved);
-  if (canonicalRoles.length > 0) {
-    return canonicalRoles;
-  }
-
-  if (!RBAC_LEGACY_FALLBACK_ENABLED) {
+  const roles = new Set<string>();
+  const authorization = resolved.authorization;
+  if (!isRecord(authorization)) {
     return [];
   }
 
-  return extractLegacyRoles(resolved);
+  const grants = authorization.grants;
+  if (isRecord(grants) && Array.isArray(grants.global_roles)) {
+    for (const grant of grants.global_roles) {
+      addRolesFromGrant(roles, grant);
+    }
+  }
+
+  const activeId = activeAssignmentId(authorization);
+  const active = authorization.active_assignment;
+  if (isRecord(active)) {
+    // Some payloads carry the role on the active assignment itself.
+    addRolesFromGrant(roles, active);
+  }
+  if (activeId && isRecord(grants) && Array.isArray(grants.club_assignments)) {
+    for (const grant of grants.club_assignments) {
+      if (isRecord(grant) && grant.assignment_id === activeId) {
+        addRolesFromGrant(roles, grant);
+      }
+    }
+  }
+
+  return Array.from(roles);
 }
 
-/** Role of the district pastor (global, no club). */
-export const PASTOR_ROLE = "pastor" as const satisfies GlobalRoleName;
+export function isSuperAdminUser(user: AuthUser | null | undefined): boolean {
+  return extractRoles(user).includes(SUPER_ADMIN_ROLE);
+}
 
 /**
  * Where a pastor-only user lands and the only dashboard subtree they can open
  * (decision 2026-10-08: the pastor sees just the authorization screen for now).
  */
 export const PASTOR_LANDING_PATH = "/dashboard/investiture-requests" as const;
-
-/**
- * True when the user's admin roles are exactly `{pastor}`. Non-admin roles
- * (club assignments such as `director`) do not count; any other admin role
- * (including super-admin) lifts the restriction.
- */
-export function isPastorOnlyRoles(roles: Iterable<string>): boolean {
-  const adminRoles = new Set<string>();
-  for (const role of roles) {
-    if ((ALLOWED_ADMIN_ROLES as readonly string[]).includes(role)) {
-      adminRoles.add(role);
-    }
-  }
-  return adminRoles.size === 1 && adminRoles.has(PASTOR_ROLE);
-}
-
-export function isPastorOnlyUser(user: AuthUser | null | undefined): boolean {
-  return isPastorOnlyRoles(extractRoles(user));
-}
-
-export function hasAdminRole(user: AuthUser | null | undefined): boolean {
-  const roleSet = new Set(extractRoles(user));
-  return ALLOWED_ADMIN_ROLES.some((role) => roleSet.has(role));
-}

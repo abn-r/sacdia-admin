@@ -1,7 +1,6 @@
-import type { AuthUser } from "@/lib/auth/types";
+import type { AuthorizationTerritory, AuthUser } from "@/lib/auth/types";
 import type { Division, LocalField, Union } from "@/lib/api/geography";
 import { listLocalFields, listUnions } from "@/lib/api/geography";
-import { extractRoles } from "@/lib/auth/roles";
 
 export type AdminTerritoryScope =
   | { level: "all" }
@@ -41,128 +40,105 @@ type EffectiveGlobalScope = {
   country?: ScopeNode;
 };
 
+type UserLike = Pick<AuthUser, "authorization"> | null | undefined;
+
 function toPositiveNumber(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-function readEffectiveGlobalScope(
-  user: Pick<AuthUser, "authorization"> | null | undefined,
-): EffectiveGlobalScope | null {
+/** Names of the anchors (display only); the level comes from `territory`. */
+function readEffectiveGlobalScope(user: UserLike): EffectiveGlobalScope | null {
   const effective = (user?.authorization as Record<string, unknown> | undefined)
     ?.effective as { scope?: { global?: EffectiveGlobalScope } } | undefined;
 
   return effective?.scope?.global ?? null;
 }
 
-const SUPER_ADMIN_ROLES = new Set(["super-admin"]);
-const DIVISION_ROLES = new Set(["director-dia", "assistant-dia"]);
-const UNION_ROLES = new Set(["director-union", "assistant-union"]);
-const LOCAL_FIELD_ROLES = new Set(["director-lf", "assistant-lf"]);
-const ADMIN_SCOPE_ROLES = new Set(["admin", "assistant-admin"]);
+const TERRITORY_LEVELS = new Set<AuthorizationTerritory["level"]>([
+  "all",
+  "open",
+  "unconfigured",
+  "division",
+  "union",
+  "local_field",
+]);
 
-function hasAnyRole(roles: Set<string>, allowed: Set<string>): boolean {
-  for (const role of allowed) {
-    if (roles.has(role)) {
-      return true;
-    }
+/**
+ * `authorization.territory` as published by `/auth/me`. The backend resolves
+ * the actor's anchor from its roles (`resolveActorTerritoryScope`); the panel
+ * only reads the result. Absent (backend not yet publishing it) → `open`: no
+ * UI narrowing, the API still scopes every call.
+ */
+export function readAuthorizationTerritory(user: UserLike): AuthorizationTerritory {
+  const raw = user?.authorization?.territory;
+  if (!raw || typeof raw !== "object" || !TERRITORY_LEVELS.has(raw.level)) {
+    return { level: "open", division_id: null, union_id: null, local_field_id: null };
   }
-  return false;
+  return {
+    level: raw.level,
+    division_id: toPositiveNumber(raw.division_id),
+    union_id: toPositiveNumber(raw.union_id),
+    local_field_id: toPositiveNumber(raw.local_field_id),
+  };
 }
 
 /**
- * True when a territorial or admin role has no territory to anchor to.
- *
- * Mirrors the backend `resolveActorTerritoryScope`, which answers
- * `unconfigured` and fails closed (403 ADMIN_USER_SCOPE_MISSING). Only
- * super-admin is global; admin and assistant-admin anchor to their union,
- * then local field, then division (canon: modelo-autorizacion.md). The panel
- * blocks these accounts instead of treating them as global.
+ * True when the backend answered `territory.level === "unconfigured"`: a
+ * territorial or admin role with no territory to anchor to. Those accounts get
+ * 403 ADMIN_USER_SCOPE_MISSING from every scoped call, so the panel blocks
+ * them with an explanation instead of treating them as global.
  */
-export function isTerritoryUnconfigured(
-  user: Pick<AuthUser, "authorization"> | null | undefined,
-): boolean {
-  const roles = new Set(extractRoles(user as AuthUser | null | undefined));
-  const globalScope = readEffectiveGlobalScope(user);
-  const localFieldId = toPositiveNumber(globalScope?.local_field?.id);
-  const unionId = toPositiveNumber(globalScope?.union?.id);
-  const divisionId = toPositiveNumber(globalScope?.division?.id);
-
-  if (hasAnyRole(roles, SUPER_ADMIN_ROLES)) return false;
-  if (hasAnyRole(roles, DIVISION_ROLES)) return !divisionId;
-  if (hasAnyRole(roles, UNION_ROLES)) return !unionId;
-  if (hasAnyRole(roles, LOCAL_FIELD_ROLES)) return !localFieldId;
-  if (hasAnyRole(roles, ADMIN_SCOPE_ROLES)) {
-    return !unionId && !localFieldId && !divisionId;
-  }
-  return false;
+export function isTerritoryUnconfigured(user: UserLike): boolean {
+  return readAuthorizationTerritory(user).level === "unconfigured";
 }
 
-export function resolveAdminTerritoryScope(
-  user: Pick<AuthUser, "authorization"> | null | undefined,
-): AdminTerritoryScope {
-  const roles = new Set(extractRoles(user as AuthUser | null | undefined));
+export function resolveAdminTerritoryScope(user: UserLike): AdminTerritoryScope {
+  const territory = readAuthorizationTerritory(user);
   const globalScope = readEffectiveGlobalScope(user);
-  const localFieldId = toPositiveNumber(globalScope?.local_field?.id);
-  const unionId = toPositiveNumber(globalScope?.union?.id);
-  const divisionId = toPositiveNumber(globalScope?.division?.id);
   const countryId = toPositiveNumber(globalScope?.country?.id);
+  const divisionId =
+    territory.division_id ??
+    toPositiveNumber(globalScope?.union?.division_id) ??
+    toPositiveNumber(globalScope?.local_field?.division_id) ??
+    toPositiveNumber(globalScope?.division?.id);
+  const unionId =
+    territory.union_id ??
+    toPositiveNumber(globalScope?.local_field?.union_id) ??
+    toPositiveNumber(globalScope?.union?.id);
 
-  const localFieldScope = (): AdminTerritoryScope => ({
-    level: "local_field",
-    localFieldId: localFieldId as number,
-    localFieldName: globalScope?.local_field?.name ?? null,
-    unionId: toPositiveNumber(globalScope?.local_field?.union_id) ?? unionId,
-    divisionId:
-      toPositiveNumber(globalScope?.local_field?.division_id) ??
-      toPositiveNumber(globalScope?.union?.division_id) ??
+  if (territory.level === "local_field" && territory.local_field_id) {
+    return {
+      level: "local_field",
+      localFieldId: territory.local_field_id,
+      localFieldName: globalScope?.local_field?.name ?? null,
+      unionId,
       divisionId,
-    countryId,
-  });
-
-  const unionScope = (): AdminTerritoryScope => ({
-    level: "union",
-    unionId: unionId as number,
-    unionName: globalScope?.union?.name ?? null,
-    divisionId: toPositiveNumber(globalScope?.union?.division_id) ?? divisionId,
-    countryId,
-  });
-
-  const divisionScope = (): AdminTerritoryScope => ({
-    level: "division",
-    divisionId: divisionId as number,
-    divisionName: globalScope?.division?.name ?? null,
-    countryId,
-  });
-
-  if (hasAnyRole(roles, SUPER_ADMIN_ROLES)) {
-    return { level: "all" };
+      countryId,
+    };
   }
 
-  if (hasAnyRole(roles, DIVISION_ROLES) && divisionId) {
-    return divisionScope();
+  if (territory.level === "union" && territory.union_id) {
+    return {
+      level: "union",
+      unionId: territory.union_id,
+      unionName: globalScope?.union?.name ?? null,
+      divisionId,
+      countryId,
+    };
   }
 
-  if (hasAnyRole(roles, UNION_ROLES) && unionId) {
-    return unionScope();
+  if (territory.level === "division" && territory.division_id) {
+    return {
+      level: "division",
+      divisionId: territory.division_id,
+      divisionName: globalScope?.division?.name ?? null,
+      countryId,
+    };
   }
 
-  if (hasAnyRole(roles, LOCAL_FIELD_ROLES) && localFieldId) {
-    return localFieldScope();
-  }
-
-  if (hasAnyRole(roles, ADMIN_SCOPE_ROLES)) {
-    if (unionId) {
-      return unionScope();
-    }
-    if (localFieldId) {
-      return localFieldScope();
-    }
-    if (divisionId) {
-      return divisionScope();
-    }
-  }
-
+  // `all`, `open`, `unconfigured` (blocked by the layout) and malformed
+  // anchors: no UI narrowing; the API scopes every call anyway.
   return { level: "all" };
 }
 

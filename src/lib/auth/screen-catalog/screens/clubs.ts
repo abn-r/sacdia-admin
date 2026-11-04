@@ -6,8 +6,12 @@ import {
   CLUB_MEMBERS_APPROVE,
   CLUB_ROLES_ASSIGN,
   CLUB_ROLES_REVOKE,
+  CLUB_SECTIONS_CREATE,
+  CLUB_SECTIONS_UPDATE,
   CLUBS_CREATE,
+  CLUBS_DELETE,
   CLUBS_READ,
+  CLUBS_UPDATE,
   CONSENT_VERIFY,
   COORDINATION_MANAGE,
   ECCLESIASTICAL_YEARS_UPDATE,
@@ -34,34 +38,13 @@ import {
   VALIDATION_READ,
 } from "@/lib/auth/permissions";
 
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
-
 import type { ScreenDefinition } from "../types";
-import {
-  catalogEditorAccess,
-  USER_MANAGEMENT_ROLES,
-  viewOnlyScreen,
-} from "./_helpers";
+import { capabilityAccess, catalogEditorAccess, viewOnlyScreen } from "./_helpers";
 
 const EVIDENCE_FOLDERS_READ = "evidence_folders:read";
 const ANNUAL_FOLDERS_EVALUATE = "annual_folders:evaluate";
 const ANNUAL_FOLDER_TEMPLATES_READ = "annual_folder_templates:read";
 const ANNUAL_FOLDER_TEMPLATES_DELETE = "annual_folder_templates:delete";
-
-/**
- * Literal global roles for director designation and annual succession.
- * Designation: `ALLOWED_DESIGNATION_ROLES` in
- * `sacdia-backend/src/clubs/director-designation.service.ts`.
- * Succession: `assertCanSucceedSectionDirector` in
- * `sacdia-backend/src/clubs/clubs.service.ts:1694-1700`.
- * Compared literally (not via GlobalRolesGuard) → `exactRoles`.
- */
-const DIRECTOR_FIELD_AND_ADMIN_ROLES = [
-  SUPER_ADMIN_ROLE,
-  "admin",
-  "director-lf",
-  "assistant-lf",
-] as const;
 
 function reportsPeriodicScreen(id: string): ScreenDefinition {
   return {
@@ -97,29 +80,43 @@ export const clubsScreens: ScreenDefinition[] = [
         href: "/dashboard/clubs/import",
         gate: { permissions: [CLUBS_CREATE] },
       },
-      // POST/DELETE /clubs/:clubId/sections/:sectionId/roles*
+      // PATCH /clubs/:clubId — clubs:update
+      { id: "update", kind: "button", gate: { permissions: [CLUBS_UPDATE] } },
+      // DELETE /clubs/:clubId — clubs:delete
+      { id: "delete", kind: "button", gate: { permissions: [CLUBS_DELETE] } },
+      // POST /clubs/:clubId/sections — club_sections:create
+      {
+        id: "sections.create",
+        kind: "button",
+        gate: { permissions: [CLUB_SECTIONS_CREATE] },
+      },
+      // PATCH /clubs/:clubId/sections/:sectionId — club_sections:update
+      {
+        id: "sections.update",
+        kind: "button",
+        gate: { permissions: [CLUB_SECTIONS_UPDATE] },
+      },
+      // POST /clubs/:clubId/sections/:sectionId/roles* and class counselors
       { id: "manage_roles", kind: "button", gate: { permissions: [CLUB_ROLES_ASSIGN] } },
+      // DELETE /clubs/:clubId/sections/:sectionId/roles/:assignmentId
+      { id: "revoke_roles", kind: "button", gate: { permissions: [CLUB_ROLES_REVOKE] } },
       {
         // POST /clubs/:clubId/sections/:sectionId/director-designation
+        // `ALLOWED_DESIGNATION_ROLES` (service, literal) → backend capability.
         id: "designate_director",
         kind: "button",
-        gate: {
-          permissions: [CLUB_ROLES_ASSIGN],
-          roles: [...DIRECTOR_FIELD_AND_ADMIN_ROLES],
-          exactRoles: true,
-        },
+        gate: capabilityAccess("club_roles.designate_director", [CLUB_ROLES_ASSIGN]),
       },
       {
         // POST /clubs/:clubId/sections/:sectionId/director-succession
-        // @RequirePermissions assign+revoke + hasAnyGlobalRole literal list.
+        // @RequirePermissions assign+revoke + literal role list (service).
         id: "succeed_director",
         kind: "button",
-        gate: {
-          permissions: [CLUB_ROLES_ASSIGN, CLUB_ROLES_REVOKE],
-          requireAll: true,
-          roles: [...DIRECTOR_FIELD_AND_ADMIN_ROLES],
-          exactRoles: true,
-        },
+        gate: capabilityAccess(
+          "club_roles.succeed_director",
+          [CLUB_ROLES_ASSIGN, CLUB_ROLES_REVOKE],
+          { requireAll: true },
+        ),
       },
     ],
   },
@@ -144,11 +141,9 @@ export const clubsScreens: ScreenDefinition[] = [
     surfaces: ["admin"],
     // coordination.controller.ts:44-55 class-level
     // @RequirePermissions('coordination:manage') + @GlobalRoles matching
-    // USER_MANAGEMENT_ROLES (admin/super-admin + lf/union/dia).
-    viewAny: {
-      permissions: [COORDINATION_MANAGE],
-      roles: [...USER_MANAGEMENT_ROLES],
-    },
+    // USER_MANAGEMENT_ROLES (admin/super-admin + lf/union/dia) →
+    // `users.manage_in_scope`.
+    viewAny: capabilityAccess("users.manage_in_scope", [COORDINATION_MANAGE]),
     capabilities: [],
   },
   {

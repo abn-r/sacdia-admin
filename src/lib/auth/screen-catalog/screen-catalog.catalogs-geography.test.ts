@@ -1,20 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import type { AuthUser } from "@/lib/auth/types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { canCapability, canViewScreen, getScreen } from "./index";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions },
-    },
-  };
-}
 
 describe("catalogs geography screens", () => {
   it("requires permission AND catalog-editor role for countries create", () => {

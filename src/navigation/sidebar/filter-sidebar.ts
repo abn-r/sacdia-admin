@@ -1,14 +1,13 @@
-import { expandRequiredRoles } from "@/lib/auth/screen-catalog";
+import { evaluateAccess, type AccessSubject } from "@/lib/auth/screen-catalog";
 
-import type { NavAccess } from "./nav-access";
 import { getNavItemAccess } from "./sidebar-item-access";
 import type { NavGroup, NavMainItem, NavSubItem } from "./sidebar-items";
 
-export type SidebarPermissionChecker = {
-  canAny: (permissions: string[]) => boolean;
-  canAll: (permissions: string[]) => boolean;
-  hasAnyRole: (roles: string[]) => boolean;
-  isSuperAdmin: boolean;
+/**
+ * Sidebar visibility uses the same subject and evaluator as page gates
+ * (`canAccessDashboardPath`) and in-page verbs (`canCapability`).
+ */
+export type SidebarAccessChecker = AccessSubject & {
   /** Pastor-only user: only the authorization list is shown (decision 2026-10-08). */
   pastorOnly?: boolean;
 };
@@ -16,8 +15,8 @@ export type SidebarPermissionChecker = {
 const PASTOR_SIDEBAR_ITEM_ID = "investiture-requests";
 
 function isItemAllowed(
-  item: { id: string; access?: NavAccess },
-  checker: SidebarPermissionChecker,
+  item: { id: string },
+  checker: SidebarAccessChecker,
 ): boolean {
   if (checker.isSuperAdmin) {
     return true;
@@ -33,31 +32,12 @@ function isItemAllowed(
     return false;
   }
 
-  const permissions = access.permissions ?? [];
-  const roles = access.roles ?? [];
-
-  if (permissions.length === 0 && roles.length === 0) {
-    return true;
-  }
-
-  const permissionsOk =
-    permissions.length === 0 ||
-    (access.requireAll
-      ? checker.canAll(permissions)
-      : checker.canAny(permissions));
-
-  // Same alias expansion as the backend GlobalRolesGuard (admin ⇒ assistant-admin, …).
-  // `exactRoles` (service-level literal checks) skips the alias expansion.
-  const rolesOk =
-    roles.length === 0 ||
-    checker.hasAnyRole(access.exactRoles ? roles : expandRequiredRoles(roles));
-
-  return permissionsOk && rolesOk;
+  return evaluateAccess(checker, access);
 }
 
 function filterSubItems(
   subItems: NavSubItem[],
-  checker: SidebarPermissionChecker,
+  checker: SidebarAccessChecker,
 ): NavSubItem[] {
   const filtered: NavSubItem[] = [];
 
@@ -84,7 +64,7 @@ function filterSubItems(
 
 function filterMainItem(
   item: NavMainItem,
-  checker: SidebarPermissionChecker,
+  checker: SidebarAccessChecker,
 ): NavMainItem | null {
   if ("subItems" in item && item.subItems) {
     const subItems = filterSubItems(item.subItems, checker);
@@ -103,7 +83,7 @@ function filterMainItem(
 
 export function filterSidebarItems(
   groups: NavGroup[],
-  checker: SidebarPermissionChecker,
+  checker: SidebarAccessChecker,
 ): NavGroup[] {
   return groups
     .map((group) => {

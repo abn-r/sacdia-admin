@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
+import { FormModalForbidden } from "@/components/shared/form-modal-forbidden";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { updateAchievementAction } from "@/lib/achievements/actions";
 import {
@@ -17,9 +19,22 @@ type Params = Promise<{ categoryId: string; achievementId: string }>;
  * and the form opens as the same modal the intercepted route shows.
  */
 export default async function EditAchievementPage({ params }: { params: Params }) {
-  await requireAdminUser();
+  const user = await requireAdminUser();
   const t = await getTranslations("achievements.pages.detailEdit");
   const { categoryId: categoryIdRaw, achievementId: achievementIdRaw } = await params;
+
+  // Same gate as the achievements pages and actions (`admin-system-achievements.manage`).
+  if (!canCapability(user, "admin-system-achievements", "manage")) {
+    return (
+      <FormModalForbidden
+        title={t("title")}
+        description={undefined}
+        className="sm:max-w-3xl"
+        dismissHref={achievementsListHref(categoryIdRaw)}
+      />
+    );
+  }
+
   const data = await loadEditAchievementFormData(categoryIdRaw, achievementIdRaw);
   const listHref = achievementsListHref(data.categoryId);
 

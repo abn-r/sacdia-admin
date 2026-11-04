@@ -37,6 +37,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { Camporee } from "@/lib/api/camporees";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 
 // ---------------------------------------------------------------------------
@@ -416,22 +417,12 @@ describe("CamporeeFormDialog", () => {
   });
 
   it("locks local field for a director-lf and does not call admin catalogs", async () => {
-    mocks.user = {
+    mocks.user = buildAuthUser({
       id: "u-lf",
       email: "director-lf@sacdia.com",
-      authorization: {
-        grants: {
-          global_roles: [{ role_name: "director-lf", permissions: [] }],
-        },
-        effective: {
-          scope: {
-            global: {
-              local_field: { id: 4, name: "Campo ACV", union_id: 1 },
-            },
-          },
-        },
-      },
-    };
+      roles: ["director-lf"],
+      scope: { local_field: { id: 4, name: "Campo ACV", union_id: 1 } },
+    });
 
     renderDialog();
 

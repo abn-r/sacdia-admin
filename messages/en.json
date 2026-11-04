@@ -5,6 +5,9 @@
       "forbiddenDescription": "Your role does not include the permissions required for this page.",
       "unconfiguredTerritoryTitle": "Your account has no territory assigned",
       "unconfiguredTerritoryDescription": "Your role needs a union, a local field or a division to use the panel. Ask a super-admin to set up your territory."
+    },
+    "modal": {
+      "forbiddenDetail": "Your role does not include the permissions needed to open this form."
     }
   },
   "nav": {
@@ -554,7 +557,8 @@
       "op_create_failed": "Could not create the record",
       "op_update_failed": "Could not update the record",
       "op_delete_failed": "Could not deactivate the record",
-      "load_data_failed": "Error loading data"
+      "load_data_failed": "Error loading data",
+      "forbidden_mutation": "You do not have permission to change this catalog."
     },
     "actionErrors": {
       "invalidForm": "The form data isn't valid.",
@@ -2502,7 +2506,8 @@
       "bucketSensitive": "Sensitive data",
       "bucketDestructive": "Delete",
       "countLabel": "{selected}/{total}",
-      "permissionKey": "{key}"
+      "permissionKey": "{key}",
+      "requiresCapability": "Requires the capability: {capability}"
     },
     "userRolesPanel": {
       "title": "System roles",
@@ -2569,7 +2574,8 @@
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Added: {permissions}.",
         "bundleChangesRemoved": "Removed: {permissions}.",
-        "bundleChangesMore": "and {count} more"
+        "bundleChangesMore": "and {count} more",
+        "requiresCapability": "Requires the capability: {capability}. The permission only takes effect on roles that satisfy it."
       },
       "permissions": {
         "title": "Permissions catalog",
@@ -6854,6 +6860,10 @@
       "toggleSidebar": "Toggle Sidebar",
       "sidebarTitle": "Menu",
       "sidebarDescription": "Main panel navigation."
+    },
+    "actionErrors": {
+      "forbidden": "You do not have permission to perform this action.",
+      "unauthenticated": "Your session expired. Sign in again."
     }
   },
   "translations": {

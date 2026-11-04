@@ -4,23 +4,8 @@ import {
   canAccessDashboardPath,
   resolveNavAccessForPath,
 } from "./require-page-access";
-import type { AuthUser } from "./types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: {
-        global_roles: roles.map((role_name) => ({ role_name })),
-      },
-      effective: {
-        permissions,
-      },
-    },
-  };
-}
 
 describe("resolveNavAccessForPath", () => {
   it("maps /dashboard exactly to dashboard:read", () => {
@@ -40,7 +25,7 @@ describe("resolveNavAccessForPath", () => {
       "/dashboard/catalogs/finance-categories",
     );
     expect(access?.permissions).toContain("catalogs:read");
-    expect(access?.roles).toContain("admin");
+    expect(access?.capability).toBe("catalogs.edit");
   });
 });
 

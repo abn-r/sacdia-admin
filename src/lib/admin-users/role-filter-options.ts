@@ -79,98 +79,41 @@ export function withCurrentRoleFilterOption(
 }
 
 /**
- * Territorial cargo for the users-list role Select.
- * Mirrors AdminUsersService.ROLE_HIERARCHY (assign-down, not own tier) plus
- * CLUB roles. Platform admins see the full catalog even if list scope is
- * UNION / LOCAL_FIELD because of a geographic anchor.
+ * Which GLOBAL roles the users-list role Select offers.
+ *
+ * The backend publishes the roles the actor may assign
+ * (`authorization.assignable_global_roles`, assign-down hierarchy) and the
+ * actor's territory. An unrestricted territory (`all` / `open`, e.g. platform
+ * admins) sees the whole catalog even when the list scope is UNION /
+ * LOCAL_FIELD because of a geographic anchor; everyone else filters GLOBAL
+ * options down to the assignable set. CLUB roles are always offered.
  */
-export type UsersRoleFilterCargo = "ALL" | "DIVISION" | "UNION" | "LOCAL_FIELD";
-
-const ADMIN_VIEWER_ROLES = new Set([
-  "super-admin",
-  "admin",
-  "assistant-admin",
-]);
-const DIVISION_TIER_ROLES = new Set(["director-dia", "assistant-dia"]);
-const UNION_TIER_ROLES = new Set(["director-union", "assistant-union"]);
-const LOCAL_FIELD_TIER_ROLES = new Set(["director-lf", "assistant-lf"]);
-const BASE_T5_ROLES = new Set([
-  "user",
-  "coordinator",
-  "zone-coordinator",
-  "general-coordinator",
-  "pastor",
-]);
-
-type RoleFilterTier =
-  | "admin"
-  | "division"
-  | "union"
-  | "local_field"
-  | "base"
-  | "club";
-
-const TIERS_BY_CARGO: Record<UsersRoleFilterCargo, ReadonlySet<RoleFilterTier>> = {
-  ALL: new Set(["admin", "division", "union", "local_field", "base", "club"]),
-  // División: unión downward (not DIA / admin).
-  DIVISION: new Set(["union", "local_field", "base", "club"]),
-  // Unión: campo local downward (LF + T5 + club; not UNION peers).
-  UNION: new Set(["local_field", "base", "club"]),
-  // Campo local: club roles only.
-  LOCAL_FIELD: new Set(["club"]),
+export type UsersRoleFilterViewer = {
+  scopeType?: string | null;
+  assignableGlobalRoles?: readonly string[];
+  territoryLevel?: string | null;
 };
 
 function normalizeRoleName(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function roleFilterTier(option: UsersRoleFilterOption): RoleFilterTier {
-  if (option.category === "CLUB") {
-    return "club";
-  }
-
-  const name = normalizeRoleName(option.value);
-  if (ADMIN_VIEWER_ROLES.has(name)) return "admin";
-  if (DIVISION_TIER_ROLES.has(name)) return "division";
-  if (UNION_TIER_ROLES.has(name)) return "union";
-  if (LOCAL_FIELD_TIER_ROLES.has(name)) return "local_field";
-  if (BASE_T5_ROLES.has(name)) return "base";
-  return "admin";
-}
-
-export function resolveUsersRoleFilterCargo(input: {
-  scopeType?: string | null;
-  actorRoles?: readonly string[];
-}): UsersRoleFilterCargo {
-  const roles = (input.actorRoles ?? []).map(normalizeRoleName);
-
-  if (roles.some((role) => ADMIN_VIEWER_ROLES.has(role))) {
-    return "ALL";
-  }
-
-  const scope = input.scopeType?.trim().toUpperCase();
-  if (
-    scope === "ALL" ||
-    scope === "DIVISION" ||
-    scope === "UNION" ||
-    scope === "LOCAL_FIELD"
-  ) {
-    return scope;
-  }
-
-  if (roles.some((role) => DIVISION_TIER_ROLES.has(role))) return "DIVISION";
-  if (roles.some((role) => UNION_TIER_ROLES.has(role))) return "UNION";
-  if (roles.some((role) => LOCAL_FIELD_TIER_ROLES.has(role))) {
-    return "LOCAL_FIELD";
-  }
-
-  return "ALL";
+function viewerSeesWholeCatalog(viewer: UsersRoleFilterViewer): boolean {
+  const level = viewer.territoryLevel?.trim().toLowerCase();
+  return level === "all" || level === "open";
 }
 
 export function filterUsersRoleOptionsByViewer(
   options: UsersRoleFilterOption[],
-  input: { scopeType?: string | null; actorRoles?: readonly string[] },
+  viewer: UsersRoleFilterViewer,
 ): UsersRoleFilterOption[] {
-  const allowed = TIERS_BY_CARGO[resolveUsersRoleFilterCargo(input)];
-  return options.filter((option) => allowed.has(roleFilterTier(option)));
+  if (viewerSeesWholeCatalog(viewer)) {
+    return options;
+  }
+
+  const assignable = new Set((viewer.assignableGlobalRoles ?? []).map(normalizeRoleName));
+  return options.filter(
+    (option) =>
+      option.category === "CLUB" || assignable.has(normalizeRoleName(option.value)),
+  );
 }

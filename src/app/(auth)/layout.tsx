@@ -4,7 +4,7 @@ import {
   canAttemptSessionRefresh,
   getCurrentUser,
 } from "@/lib/auth/session";
-import { hasAdminRole } from "@/lib/auth/roles";
+import { canAccessAdminPanel } from "@/lib/auth/permission-utils";
 
 export default async function AuthLayout({
   children,
@@ -13,7 +13,7 @@ export default async function AuthLayout({
 }) {
   const user = await getCurrentUser();
 
-  if (user && hasAdminRole(user)) {
+  if (user && canAccessAdminPanel(user)) {
     redirect("/dashboard");
   }
 

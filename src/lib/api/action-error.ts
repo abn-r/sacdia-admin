@@ -35,6 +35,125 @@ function extractErrorCode(error: ApiError): string | undefined {
   return undefined;
 }
 
+/** Machine code of a failed request (`payload.code` or `payload.error.code`). */
+export function getApiErrorCode(error: unknown): string | undefined {
+  return error instanceof ApiError ? extractErrorCode(error) : undefined;
+}
+
+export type ActionErrorKind =
+  /** 401: no session / expired token. Never "no permissions". */
+  | "unauthenticated"
+  /** 403 or an authorization code (see `FORBIDDEN_CODES`). */
+  | "forbidden"
+  | "not_found"
+  | "conflict"
+  | "validation"
+  | "rate_limited"
+  | "unavailable"
+  | "other";
+
+/** Why a request was forbidden, when the backend says so with a code. */
+export type ForbiddenReason =
+  /** `GUARD_PERMISSION_DENIED`: the actor lacks the permission/role. */
+  | "permission"
+  /** `GUARD_CLUB_SCOPE_REQUIRED`: the target is outside the active club scope. */
+  | "club_scope"
+  /** `ADMIN_USER_SCOPE_MISSING`: territorial role with no territory. */
+  | "scope_missing"
+  /** Any `*_FORBIDDEN` domain code (e.g. `CLUB_ROLE_MUTATION_FORBIDDEN`). */
+  | "domain"
+  /** Plain 403 without a recognised code. */
+  | "status";
+
+export type ActionErrorClassification = {
+  kind: ActionErrorKind;
+  status: number | null;
+  code: string | undefined;
+  forbiddenReason: ForbiddenReason | null;
+};
+
+const FORBIDDEN_CODE_REASONS: Record<string, ForbiddenReason> = {
+  GUARD_PERMISSION_DENIED: "permission",
+  GUARD_CLUB_SCOPE_REQUIRED: "club_scope",
+  ADMIN_USER_SCOPE_MISSING: "scope_missing",
+};
+
+function forbiddenReasonFromCode(code: string | undefined): ForbiddenReason | null {
+  if (!code) return null;
+  if (FORBIDDEN_CODE_REASONS[code]) return FORBIDDEN_CODE_REASONS[code];
+  if (code.endsWith("_FORBIDDEN")) return "domain";
+  return null;
+}
+
+/**
+ * Single classifier for failed requests. 401 and 403 are kept apart (a
+ * missing session is not a missing permission), and the backend's
+ * authorization codes (`GUARD_PERMISSION_DENIED`, `GUARD_CLUB_SCOPE_REQUIRED`,
+ * `*_FORBIDDEN`, `ADMIN_USER_SCOPE_MISSING`) classify as `forbidden` even when
+ * they arrive with another status. Feature modules keep their own copy but
+ * decide through this.
+ */
+export function classifyActionError(error: unknown): ActionErrorClassification {
+  if (!(error instanceof ApiError)) {
+    return { kind: "other", status: null, code: undefined, forbiddenReason: null };
+  }
+
+  const code = extractErrorCode(error);
+  const forbiddenReason = forbiddenReasonFromCode(code);
+  const status = error.status;
+
+  if (forbiddenReason) {
+    return { kind: "forbidden", status, code, forbiddenReason };
+  }
+  if (status === 401) {
+    return { kind: "unauthenticated", status, code, forbiddenReason: null };
+  }
+  if (status === 403) {
+    return { kind: "forbidden", status, code, forbiddenReason: "status" };
+  }
+  if (status === 404 || status === 405) {
+    return { kind: "not_found", status, code, forbiddenReason: null };
+  }
+  if (status === 409) {
+    return { kind: "conflict", status, code, forbiddenReason: null };
+  }
+  if (status === 400 || status === 422) {
+    return { kind: "validation", status, code, forbiddenReason: null };
+  }
+  if (status === 429) {
+    return { kind: "rate_limited", status, code, forbiddenReason: null };
+  }
+  if (status >= 500) {
+    return { kind: "unavailable", status, code, forbiddenReason: null };
+  }
+  return { kind: "other", status, code, forbiddenReason: null };
+}
+
+export function isForbiddenActionError(error: unknown): boolean {
+  return classifyActionError(error).kind === "forbidden";
+}
+
+export function isUnauthenticatedActionError(error: unknown): boolean {
+  return classifyActionError(error).kind === "unauthenticated";
+}
+
+/**
+ * Endpoint banner state (`EndpointErrorBanner`) for a failed page load:
+ * 401 and 403 both render as forbidden (with the login link decided by the
+ * caller), 429 as rate-limited, anything else as missing.
+ */
+export function toEndpointState(
+  error: unknown,
+): "forbidden" | "missing" | "rate-limited" {
+  const { kind } = classifyActionError(error);
+  if (kind === "unauthenticated" || kind === "forbidden") return "forbidden";
+  if (kind === "rate_limited") return "rate-limited";
+  return "missing";
+}
+
+export const UNAUTHENTICATED_ACTION_MESSAGE = "Tu sesión expiró. Inicia sesión de nuevo.";
+export const FORBIDDEN_ACTION_MESSAGE = "No tienes permisos para realizar esta acción.";
+
 export function getActionErrorMessage(
   error: unknown,
   fallbackMessage: string,
@@ -44,13 +163,18 @@ export function getActionErrorMessage(
     return error instanceof Error ? error.message : fallbackMessage;
   }
 
-  const domainCode = extractErrorCode(error);
+  const classification = classifyActionError(error);
+  const domainCode = classification.code;
   if (domainCode && DOMAIN_ERROR_MESSAGES[domainCode]) {
     return DOMAIN_ERROR_MESSAGES[domainCode];
   }
 
-  if (error.status === 401 || error.status === 403) {
-    return "No tienes permisos para realizar esta acción.";
+  if (classification.kind === "unauthenticated") {
+    return UNAUTHENTICATED_ACTION_MESSAGE;
+  }
+
+  if (classification.kind === "forbidden") {
+    return FORBIDDEN_ACTION_MESSAGE;
   }
 
   if (error.status === 404 || error.status === 405) {

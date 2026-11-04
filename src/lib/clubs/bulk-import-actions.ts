@@ -7,8 +7,7 @@ import { getActionErrorMessage } from "@/lib/api/action-error";
 import { createClub } from "@/lib/api/clubs";
 import { listClubTypes } from "@/lib/api/catalogs";
 import { unwrapApiData } from "@/lib/api/unwrap";
-import { canCreateClubs } from "@/lib/auth/permission-utils";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 import { listLocalFieldsForTerritory } from "@/lib/auth/territory-scope";
 
 export type BulkClubRow = {
@@ -61,10 +60,8 @@ function normalizeCreatedClubId(payload: unknown): number | null {
 export async function bulkCreateClubsAction(
   rows: BulkClubRow[],
 ): Promise<BulkClubsImportResult> {
-  const user = await requireAdminUser();
-  const t = await getTranslations("clubs");
-
-  if (!canCreateClubs(user)) {
+  const gate = await requireCapability("clubs", "bulk_create");
+  if (!gate.ok) {
     return {
       results: [],
       created: 0,
@@ -72,6 +69,8 @@ export async function bulkCreateClubsAction(
       forbidden: true,
     };
   }
+  const user = gate.user;
+  const t = await getTranslations("clubs");
 
   if (!Array.isArray(rows) || rows.length === 0) {
     return { results: [], created: 0, failed: 0 };

@@ -14,7 +14,7 @@ import {
   type ClassCounselorResponsibilityType,
   type ClubSection,
 } from "@/lib/api/clubs";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 import { unwrapApiData } from "@/lib/api/unwrap";
 import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
 
@@ -40,7 +40,8 @@ export async function assignClubRoleAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "manage_roles");
+    if (!gate.ok) return { error: gate.error };
     const clubId = Number(readString(formData, "club_id"));
     const sectionId = Number(readString(formData, "section_id"));
     const userId = readString(formData, "user_id");
@@ -72,7 +73,8 @@ export async function revokeClubRoleAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "revoke_roles");
+    if (!gate.ok) return { error: gate.error };
     const clubId = Number(readString(formData, "club_id"));
     const assignmentId = readString(formData, "assignment_id");
     if (!assignmentId) return { error: t("missingFields") };
@@ -91,7 +93,8 @@ export async function assignClassCounselorAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "manage_roles");
+    if (!gate.ok) return { error: gate.error };
     const clubId = Number(readString(formData, "club_id"));
     const sectionId = Number(readString(formData, "section_id"));
     const userId = readString(formData, "user_id");
@@ -124,7 +127,8 @@ export async function createClubSectionAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "sections.create");
+    if (!gate.ok) return { error: gate.error };
 
     const clubTypeId = Number(readString(formData, "club_type_id"));
     const soulsTarget = Number(readString(formData, "souls_target") || "0");
@@ -166,7 +170,8 @@ export async function toggleClubSectionActiveAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "sections.update");
+    if (!gate.ok) return { error: gate.error };
     const activeRaw = readString(formData, "active");
     if (activeRaw !== "true" && activeRaw !== "false") {
       return { error: t("invalidSectionStatus") };
@@ -214,7 +219,8 @@ export async function revokeClassCounselorAction(
 ): Promise<DetailActionState> {
   const t = await getTranslations("clubs.detail.actions");
   try {
-    await requireAdminUser();
+    const gate = await requireCapability("clubs", "revoke_roles");
+    if (!gate.ok) return { error: gate.error };
     const clubId = Number(readString(formData, "club_id"));
     const assignmentId = readString(formData, "assignment_id");
     if (!assignmentId) return { error: t("missingFields") };

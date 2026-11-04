@@ -28,7 +28,6 @@ export { evaluateAccess, subjectFromUser } from "./evaluate";
 export { expandRequiredRoles, GLOBAL_ROLE_ALIASES } from "./role-aliases";
 export { PAYMENT_ORDERS_PAGE_PERMISSIONS } from "./screens/operations";
 export { camporeeScreenId } from "./screens/campamentos";
-export { USER_MANAGEMENT_ROLES } from "./screens/_helpers";
 export type * from "./types";
 
 /**
@@ -210,7 +209,9 @@ function toSubject(subject: SubjectLike): AccessSubject {
     "permissions" in subject &&
     subject.permissions instanceof Set &&
     "roles" in subject &&
-    subject.roles instanceof Set
+    subject.roles instanceof Set &&
+    "capabilities" in subject &&
+    subject.capabilities instanceof Set
   ) {
     return subject as AccessSubject;
   }
@@ -250,8 +251,10 @@ export const OTHER_SCREEN_GROUP_ID = "__other__";
 export type ScreenKeyGroup<T> = {
   screenId: string;
   screen: ScreenDefinition | null;
-  /** API-declared roles on `viewAny`; shown as a hint in the matrix. */
+  /** API-declared roles on `viewAny` (legacy gates); shown as a hint in the matrix. */
   requiredRoles: string[];
+  /** Backend capability on `viewAny`, when the screen is capability-gated. */
+  requiredCapability: string | null;
   items: T[];
 };
 
@@ -294,6 +297,7 @@ export function groupByScreen<T>(
         screenId: screen.id,
         screen,
         requiredRoles: screen.viewAny.roles ?? [],
+        requiredCapability: screen.viewAny.capability ?? null,
         items: bucket,
       });
     }
@@ -303,6 +307,7 @@ export function groupByScreen<T>(
       screenId: OTHER_SCREEN_GROUP_ID,
       screen: null,
       requiredRoles: [],
+      requiredCapability: null,
       items: other,
     });
   }

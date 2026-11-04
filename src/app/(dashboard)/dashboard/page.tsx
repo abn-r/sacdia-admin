@@ -8,7 +8,8 @@ import {
 } from "@/lib/api/operations-dashboard";
 import { OperationsDashboardView } from "@/components/dashboard/operations-dashboard-view";
 import { OperationsDashboardError } from "@/components/dashboard/operations-dashboard-error";
-import { isPastorOnlyUser, PASTOR_LANDING_PATH } from "@/lib/auth/roles";
+import { isPastorOnlyUser } from "@/lib/auth/permission-utils";
+import { PASTOR_LANDING_PATH } from "@/lib/auth/roles";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;

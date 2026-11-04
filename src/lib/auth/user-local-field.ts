@@ -1,6 +1,8 @@
 import type { AuthUser } from "@/lib/auth/types";
-import { extractRoles } from "@/lib/auth/roles";
-import { resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
+import {
+  readAuthorizationTerritory,
+  resolveAdminTerritoryScope,
+} from "@/lib/auth/territory-scope";
 import type { LocalFieldOption } from "@/lib/types/materials";
 
 /**
@@ -14,25 +16,14 @@ export type UserLocalFieldScope =
   | { scope: "division"; divisionId: number }
   | { scope: "all" };
 
-const TERRITORIAL_ROLES = new Set([
-  "director-dia",
-  "assistant-dia",
-  "director-union",
-  "assistant-union",
-  "director-lf",
-  "assistant-lf",
-]);
-
-function hasTerritorialRole(user: AuthUser | null | undefined): boolean {
-  return extractRoles(user).some((role) => TERRITORIAL_ROLES.has(role));
-}
-
 /**
- * Role-first local_field constraint for materials and camporee forms.
+ * Territory-first local_field constraint for materials and camporee forms.
  *
- *   1. `resolveAdminTerritoryScope` (roles before home field)
- *   2. Club-only actors may still bind via `legacy.club.local_field_id`
- *   3. Territorial roles that failed to resolve never fall back to home field
+ *   1. `resolveAdminTerritoryScope` (`authorization.territory`)
+ *   2. Club-only actors (`open` territory) may still bind via
+ *      `legacy.club.local_field_id`
+ *   3. A territorial role whose anchor is missing (`unconfigured`) never
+ *      falls back to the home field
  */
 export function resolveUserLocalField(
   user: AuthUser | null | undefined,
@@ -51,7 +42,7 @@ export function resolveUserLocalField(
     return { scope: "division", divisionId: territory.divisionId };
   }
 
-  if (hasTerritorialRole(user)) {
+  if (readAuthorizationTerritory(user).level === "unconfigured") {
     return { scope: "all" };
   }
 

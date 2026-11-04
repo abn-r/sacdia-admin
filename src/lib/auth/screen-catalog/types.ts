@@ -1,3 +1,4 @@
+import type { CapabilityKey } from "@/lib/auth/generated/capability-keys";
 import type { NavAccess } from "@/navigation/sidebar/nav-access";
 
 export type { NavAccess };
@@ -7,13 +8,18 @@ export type ScreenSurface = "admin" | "app";
 export type ScreenCapabilityKind = "button" | "tab" | "route" | "section";
 
 /**
- * Gate of a capability. `roles` are expanded with the backend alias table
- * (`GlobalRolesGuard`) unless `exactRoles` is set — use `exactRoles: true`
- * only when the rule lives in a *service* that compares `role_name` literally
- * (e.g. director designation), never for `@GlobalRoles`.
+ * Gate of a capability.
+ *
+ * - `capability`: a key of `authorization.capabilities` (`/auth/me`). When
+ *   set it decides together with `permissions`; `roles` must be `[]` and
+ *   `exactRoles` is not read. The backend owns the role rule behind the key.
+ * - `roles` (legacy, role-replicating gates): expanded with the backend alias
+ *   table (`GlobalRolesGuard`) unless `exactRoles` is set. New gates should
+ *   use `capability` instead.
  */
 export type CapabilityGate = NavAccess & {
   exactRoles?: boolean;
+  capability?: CapabilityKey;
 };
 
 /**
@@ -33,6 +39,12 @@ export type ScreenCapability = {
    * is this capability instead of the parent screen `viewAny`.
    */
   href?: string;
+  /**
+   * Surfaces that show this verb. Defaults to the screen's surfaces; set
+   * `["admin"]` for a panel-only verb inside a screen the app also shows, so
+   * the Flutter dump (and its fixture) does not carry it.
+   */
+  surfaces?: ScreenSurface[];
 };
 
 export type ScreenDefinition = {
@@ -55,5 +67,6 @@ export type ScreenDefinition = {
 export type AccessSubject = {
   permissions: ReadonlySet<string>;
   roles: ReadonlySet<string>;
+  capabilities: ReadonlySet<string>;
   isSuperAdmin: boolean;
 };

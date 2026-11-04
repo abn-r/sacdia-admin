@@ -1,19 +1,13 @@
-import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import { hasCapability } from "@/lib/auth/permission-utils";
 import type { AuthUser } from "@/lib/auth/types";
 
 /**
- * Roles accepted by backend catalog-editor controllers that declare
- * `@GlobalRoles('admin', 'super-admin')`. `assistant-admin` is included
- * because GlobalRolesGuard aliases it with `admin`.
+ * Catalog editor controllers declare `@GlobalRoles('admin', 'super-admin')`;
+ * the backend publishes that rule as the `catalogs.edit` capability.
  *
  * `catalogs:read` is a shared reference permission (dropdowns, public
  * catalogs). It is not authorization to open `/dashboard/catalogs/*` CRUD.
  */
-export const CATALOG_EDITOR_ROLES = [
-  "admin",
-  "assistant-admin",
-  SUPER_ADMIN_ROLE,
-] as const;
 
 /**
  * Catalog routes whose backend does not use GlobalRoles admin/super-admin.
@@ -26,12 +20,7 @@ export const CATALOG_EDITOR_EXEMPT_PATH_PREFIXES = [
 export function canAccessCatalogEditor(
   user: AuthUser | null | undefined,
 ): boolean {
-  const roles = new Set(extractRoles(user));
-  if (roles.has(SUPER_ADMIN_ROLE)) {
-    return true;
-  }
-
-  return CATALOG_EDITOR_ROLES.some((role) => roles.has(role));
+  return hasCapability(user, "catalogs.edit");
 }
 
 export function isCatalogEditorPath(pathname: string): boolean {

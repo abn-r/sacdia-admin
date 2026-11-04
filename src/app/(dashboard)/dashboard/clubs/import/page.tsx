@@ -9,8 +9,8 @@ const getTranslations = getTranslationsStrict as unknown as (
 ) => Promise<LooseTranslator>;
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
+import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { canCreateClubs } from "@/lib/auth/permission-utils";
 import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
 import { bulkCreateClubsAction } from "@/lib/clubs/bulk-import-actions";
 import { loadClubGeographyForTerritory } from "@/lib/clubs/territory-catalogs";
@@ -42,7 +42,7 @@ function toCatalogOptions(
 
 export default async function ImportClubsPage() {
   const user = await requireAdminUser();
-  if (!canCreateClubs(user)) {
+  if (!canCapability(user, "clubs", "bulk_create")) {
     redirect("/dashboard/clubs");
   }
 

@@ -43,25 +43,9 @@ import {
   type Union,
   type LocalField,
 } from "@/lib/api/geography";
+import { ASSIGNABLE_GLOBAL_ROLE_ORDER } from "@/lib/auth/roles";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Role ordering (highest to lowest) ───────────────────────────────────────
-
-const ALL_CREATABLE_ROLES: AdminCreatableRole[] = [
-  "admin",
-  "director-dia",
-  "assistant-dia",
-  "director-union",
-  "assistant-union",
-  "director-lf",
-  "assistant-lf",
-  "general-coordinator",
-  "zone-coordinator",
-  "coordinator",
-  "pastor",
-  "user",
-];
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -320,7 +304,8 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
   }
 
   // Filter and order roles according to allowedRoles prop
-  const roleOptions = ALL_CREATABLE_ROLES.filter((r) => allowedRoles.includes(r));
+  // Display order (highest to lowest); the set itself comes from the backend.
+  const roleOptions = ASSIGNABLE_GLOBAL_ROLE_ORDER.filter((r) => allowedRoles.includes(r));
 
   async function goNext() {
     const valid = await form.trigger([...STEP_FIELDS[step]]);

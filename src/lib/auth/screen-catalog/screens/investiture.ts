@@ -3,63 +3,41 @@ import {
   CERTIFICATIONS_CONFIGURE,
   CERTIFICATIONS_PUBLISH,
   CERTIFICATIONS_REVIEW,
-  INVESTITURE_AUTHORIZER_ROLES,
-  INVESTITURE_FIELD_CONFIG_ROLES,
-  INVESTITURE_PASTOR_ASSIGN_ROLES,
   USER_CERTIFICATIONS_MANAGE,
   USER_CERTIFICATIONS_READ,
 } from "@/lib/auth/permissions";
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { CapabilityGate, ScreenDefinition } from "../types";
-import { roleOnlyAccess } from "./_helpers";
+import { capabilityAccess } from "./_helpers";
 
 /**
- * Class-level `@GlobalRoles` on `AdminCertificateBulkImportsController`
- * (`admin-certificate-bulk-imports.controller.ts` L34-40). SkipPermissions.
+ * `AdminCertificateBulkImportsController` (SkipPermissions, class
+ * `@GlobalRoles`). The service only accepts a global or local field reviewer
+ * scope; the backend folds both rules into `certificates.review_imports`.
  */
-const CERTIFICATE_BULK_ROLES = [
-  SUPER_ADMIN_ROLE,
-  "admin",
-  "assistant-admin",
-  "director-lf",
-  "assistant-lf",
-] as const;
+const CERTIFICATE_BULK_GATE: CapabilityGate = capabilityAccess(
+  "certificates.review_imports",
+);
 
-/**
- * The guard expands lf → union → dia aliases, but the service only accepts a
- * global or local field reviewer scope (`CERTIFICATE_IMPORT_REVIEWER_SCOPE_REQUIRED`
- * for union and division), so the screen matches the roles literally.
- */
-const CERTIFICATE_BULK_GATE: CapabilityGate = {
-  ...roleOnlyAccess(CERTIFICATE_BULK_ROLES),
-  exactRoles: true,
-};
+/** D11 queue: same reviewer rule, published as its own capability. */
+const HONOR_PROPOSALS_GATE: CapabilityGate = capabilityAccess(
+  "honors.review_instructor_proposals",
+);
 
 /**
  * Investiture-by-authorization screens (`investiture-requests` controller and
- * `classes/*investiture*` controllers). Roles only: the endpoints are
- * `@SkipPermissions` or `@GlobalRoles`.
- *
- * - requests: the service compares `director-lf` / `assistant-lf` literally
- *   (`FIELD_AUTHORIZER_ROLES`) and the pastor comes from the district
- *   assignment, so the lf/union/dia alias table must not widen the gate.
- * - pastors: `DistrictInvestiturePastorService.access()` resolves only Campo
- *   and unión roles; `director-dia` would get a 403.
- * - settings: `@GlobalRoles` with alias expansion; unión and división read,
- *   the API decides who edits (`can_edit`).
+ * `classes/*investiture*` controllers). The endpoints are `@SkipPermissions`
+ * or `@GlobalRoles`, so each screen reads the backend capability that mirrors
+ * its service rule (pastor from the district assignment, lf literal match,
+ * union/division consult-only for the field window).
  */
-const INVESTITURE_REQUESTS_GATE: CapabilityGate = {
-  permissions: [],
-  roles: [...INVESTITURE_AUTHORIZER_ROLES],
-  exactRoles: true,
-};
+const INVESTITURE_REQUESTS_GATE: CapabilityGate = capabilityAccess(
+  "investiture.authorize_requests",
+);
 
-const INVESTITURE_PASTORS_GATE: CapabilityGate = {
-  permissions: [],
-  roles: [...INVESTITURE_PASTOR_ASSIGN_ROLES],
-  exactRoles: true,
-};
+const INVESTITURE_PASTORS_GATE: CapabilityGate = capabilityAccess(
+  "investiture.assign_district_pastors",
+);
 
 export const investitureScreens: ScreenDefinition[] = [
   {
@@ -126,19 +104,19 @@ export const investitureScreens: ScreenDefinition[] = [
     // (`AdminHonorInstructorProposalsController`, doc §4.9). SkipPermissions.
     id: "honor-instructor-proposals",
     surfaces: ["admin"],
-    viewAny: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+    viewAny: HONOR_PROPOSALS_GATE,
     capabilities: [
       // POST admin/honor-instructor-proposals/:proposalId/approve
       {
         id: "approve",
         kind: "button",
-        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+        gate: HONOR_PROPOSALS_GATE,
       },
       // POST admin/honor-instructor-proposals/:proposalId/reject
       {
         id: "reject",
         kind: "button",
-        gate: roleOnlyAccess(CERTIFICATE_BULK_ROLES),
+        gate: HONOR_PROPOSALS_GATE,
       },
     ],
   },
@@ -151,17 +129,17 @@ export const investitureScreens: ScreenDefinition[] = [
      */
     id: "institutional-certificate-requests",
     surfaces: ["admin"],
-    viewAny: roleOnlyAccess([SUPER_ADMIN_ROLE]),
+    viewAny: capabilityAccess("institutional_certificates.review"),
     capabilities: [
       {
         id: "approve",
         kind: "button",
-        gate: roleOnlyAccess([SUPER_ADMIN_ROLE]),
+        gate: capabilityAccess("institutional_certificates.review"),
       },
       {
         id: "reject",
         kind: "button",
-        gate: roleOnlyAccess([SUPER_ADMIN_ROLE]),
+        gate: capabilityAccess("institutional_certificates.review"),
       },
     ],
   },
@@ -173,10 +151,18 @@ export const investitureScreens: ScreenDefinition[] = [
     capabilities: [],
   },
   {
+    // Field window and percentage: union and division consult, the Campo
+    // (and platform admins) edit. The page also reads `can_edit` from the API.
     id: "investiture-settings",
     surfaces: ["admin"],
-    viewAny: roleOnlyAccess([...INVESTITURE_FIELD_CONFIG_ROLES]),
-    capabilities: [],
+    viewAny: capabilityAccess("investiture.consult_field_window"),
+    capabilities: [
+      {
+        id: "configure",
+        kind: "button",
+        gate: capabilityAccess("investiture.configure_field_window"),
+      },
+    ],
   },
   {
     id: "investiture-pastors",

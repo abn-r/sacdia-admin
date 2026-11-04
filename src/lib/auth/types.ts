@@ -1,18 +1,38 @@
-export type AdminRole =
-  | "super-admin"
-  | "admin"
-  | "assistant-admin"
-  | "coordinator"
-  | "zone-coordinator"
-  | "general-coordinator";
-
 export type AuthorizationGrant = {
   assignment_id?: string | null;
   permissions?: string[];
   [key: string]: unknown;
 };
 
+/**
+ * `authorization.territory` of `GET /auth/me`. The backend resolves the actor's
+ * territorial anchor; the admin never derives it from role names again.
+ */
+export type AuthorizationTerritoryLevel =
+  | "all"
+  | "open"
+  | "unconfigured"
+  | "division"
+  | "union"
+  | "local_field";
+
+export type AuthorizationTerritory = {
+  level: AuthorizationTerritoryLevel;
+  division_id: number | null;
+  union_id: number | null;
+  local_field_id: number | null;
+};
+
 export type AuthorizationSnapshot = {
+  /**
+   * Sorted capability keys (`CAPABILITY_KEYS`). "The actor may attempt the
+   * verb on at least one target"; the API still answers 403 when the target
+   * does not match. Absent while the backend is behind → treated as `[]`.
+   */
+  capabilities?: string[];
+  territory?: AuthorizationTerritory;
+  /** Global roles the actor may assign when creating users (sorted). */
+  assignable_global_roles?: string[];
   effective?: {
     permissions?: string[];
     [key: string]: unknown;

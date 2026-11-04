@@ -159,6 +159,8 @@ export type PickerScreenGroup = {
   screenId: string;
   screen: ScreenDefinition | null;
   requiredRoles: string[];
+  /** Backend capability on `viewAny`, when the screen is capability-gated. */
+  requiredCapability: string | null;
   items: PickerPermissionRow[];
   buckets: PickerBucketGroup[];
 };
@@ -237,6 +239,7 @@ function toScreenGroup(
     screenId,
     screen,
     requiredRoles: screen?.viewAny.roles ?? [],
+    requiredCapability: screen?.viewAny.capability ?? null,
     items,
     buckets,
   };

@@ -34,28 +34,25 @@ import {
   isGlobalCategoryRole,
   type SystemRoleGroups,
 } from "@/lib/users/role-buckets";
+import { PLATFORM_ADMIN_ROLES } from "@/lib/auth/roles";
+import { useCanCapability } from "@/lib/auth/screen-catalog/use-screen-access";
 import type { Role, UserRole } from "@/lib/rbac/types";
 
 interface UserRolesPanelProps {
   userId: string;
   initialUserRoles: UserRole[];
   allRoles: Role[];
-  /**
-   * Platform administration roles (super-admin, admin, assistant-admin) are
-   * granted and revoked by super-admin only (backend RBAC_ROLE_SUPER_ADMIN_ONLY).
-   */
-  actorIsSuperAdmin?: boolean;
 }
 
-/** Global roles only a super-admin may assign or remove. */
-export const SUPER_ADMIN_ONLY_ROLES: ReadonlySet<string> = new Set([
-  "super-admin",
-  "admin",
-  "assistant-admin",
-]);
+/** Platform administration roles: data about role rows (`PLATFORM_ADMIN_ROLES`). */
+const PLATFORM_ADMIN_ROLE_SET: ReadonlySet<string> = new Set(PLATFORM_ADMIN_ROLES);
 
-function canMutateRole(roleName: string, actorIsSuperAdmin: boolean): boolean {
-  return actorIsSuperAdmin || !SUPER_ADMIN_ONLY_ROLES.has(roleName);
+/**
+ * Platform administration roles are granted and revoked only by an actor
+ * holding `rbac.mutate_global_roles` (backend RBAC_ROLE_SUPER_ADMIN_ONLY).
+ */
+function canMutateRole(roleName: string, canMutateGlobalRoles: boolean): boolean {
+  return canMutateGlobalRoles || !PLATFORM_ADMIN_ROLE_SET.has(roleName);
 }
 
 const ROLE_VARIANT_MAP: Record<string, "default" | "destructive" | "secondary" | "outline"> = {
@@ -72,9 +69,9 @@ export function UserRolesPanel({
   userId,
   initialUserRoles,
   allRoles,
-  actorIsSuperAdmin = false,
 }: UserRolesPanelProps) {
   const t = useTranslations("rbac");
+  const actorIsSuperAdmin = useCanCapability("users", "roles.mutate_global");
   const translateRole = useRoleLabel();
   const [userRoles, setUserRoles] = useState<UserRole[]>(initialUserRoles);
   const [addDialogOpen, setAddDialogOpen] = useState(false);

@@ -1,3 +1,4 @@
+import { isForbiddenActionError } from "@/lib/api/action-error";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { getClubLeadership } from "@/lib/api/club-detail";
 import {
@@ -49,12 +50,21 @@ function unwrapClub(payload: unknown): ClubFull {
   return wrapped as ClubFull;
 }
 
+/**
+ * Policy: a club the actor may not see (403, out of territory / club scope)
+ * is reported like a missing one (`null` → `notFound()`), so the URL does not
+ * reveal whether the club exists. The forbidden case is classified through
+ * `classifyActionError` like every other 403.
+ */
 export async function fetchClubById(clubId: number): Promise<ClubFull | null> {
   try {
     const payload = await apiRequest<unknown>(`/clubs/${clubId}`);
     return unwrapClub(payload);
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    if (isForbiddenActionError(error)) {
       return null;
     }
     throw error;

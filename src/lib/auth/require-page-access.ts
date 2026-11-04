@@ -1,4 +1,5 @@
-import { isPastorOnlyUser, PASTOR_LANDING_PATH } from "@/lib/auth/roles";
+import { isPastorOnlyUser } from "@/lib/auth/permission-utils";
+import { PASTOR_LANDING_PATH } from "@/lib/auth/roles";
 import {
   evaluateAccess,
   resolveAccessForPath,

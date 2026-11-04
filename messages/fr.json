@@ -5,6 +5,9 @@
       "forbiddenDescription": "Votre rôle n’inclut pas les autorisations nécessaires pour ouvrir cette page.",
       "unconfiguredTerritoryTitle": "Votre compte n’a aucun territoire attribué",
       "unconfiguredTerritoryDescription": "Votre rôle a besoin d’une union, d’un champ local ou d’une division pour utiliser le panneau. Demandez à un super-admin de configurer votre territoire."
+    },
+    "modal": {
+      "forbiddenDetail": "Votre rôle n'inclut pas les permissions nécessaires pour ouvrir ce formulaire."
     }
   },
   "nav": {
@@ -554,7 +557,8 @@
       "op_create_failed": "Impossible de créer l'enregistrement",
       "op_update_failed": "Impossible de mettre à jour l'enregistrement",
       "op_delete_failed": "Impossible de désactiver l’enregistrement",
-      "load_data_failed": "Erreur lors du chargement des données"
+      "load_data_failed": "Erreur lors du chargement des données",
+      "forbidden_mutation": "Vous n'avez pas la permission de modifier ce catalogue."
     },
     "actionErrors": {
       "invalidForm": "Les données du formulaire ne sont pas valides.",
@@ -2502,7 +2506,8 @@
       "bucketSensitive": "Données sensibles",
       "bucketDestructive": "Supprimer",
       "countLabel": "{selected}/{total}",
-      "permissionKey": "{key}"
+      "permissionKey": "{key}",
+      "requiresCapability": "Nécessite la capability : {capability}"
     },
     "userRolesPanel": {
       "title": "Rôles système",
@@ -2569,7 +2574,8 @@
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Ajoutées : {permissions}.",
         "bundleChangesRemoved": "Retirées : {permissions}.",
-        "bundleChangesMore": "et {count} de plus"
+        "bundleChangesMore": "et {count} de plus",
+        "requiresCapability": "Nécessite la capability : {capability}. La permission ne s'applique qu'aux rôles qui la satisfont."
       },
       "permissions": {
         "title": "Catalogue des permissions",
@@ -6854,6 +6860,10 @@
       "toggleSidebar": "Basculer la barre latérale",
       "sidebarTitle": "Menu",
       "sidebarDescription": "Navigation principale du panneau."
+    },
+    "actionErrors": {
+      "forbidden": "Vous n'avez pas la permission d'effectuer cette action.",
+      "unauthenticated": "Votre session a expiré. Reconnectez-vous."
     }
   },
   "translations": {

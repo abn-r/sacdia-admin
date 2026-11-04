@@ -19,7 +19,8 @@ import {
 } from "@/lib/admin-users/role-filter-options";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
-import { extractRoles } from "@/lib/auth/roles";
+import { readAuthorizationTerritory } from "@/lib/auth/territory-scope";
+import { extractAssignableGlobalRoles } from "@/lib/users/assignable-roles";
 import type { AuthUser } from "@/lib/auth/types";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -62,7 +63,8 @@ async function UsersContent({
     toUsersRoleFilterOptions(catalogRoles),
     {
       scopeType: scope?.type,
-      actorRoles: extractRoles(currentUser),
+      assignableGlobalRoles: extractAssignableGlobalRoles(currentUser),
+      territoryLevel: readAuthorizationTerritory(currentUser).level,
     },
   );
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);

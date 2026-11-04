@@ -418,22 +418,24 @@ export function PermissionsMatrix({
                         <span className="font-mono text-[10px] text-muted-foreground">
                           {group.items.length}
                         </span>
-                        {group.requiredRoles.length > 0 ? (
+                        {group.requiredCapability || group.requiredRoles.length > 0 ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span
                                 className="inline-flex items-center text-warning"
-                                aria-label={t("requiresRoles", {
-                                  roles: group.requiredRoles.join(", "),
-                                })}
+                                aria-label={
+                                  group.requiredCapability
+                                    ? t("requiresCapability", { capability: group.requiredCapability })
+                                    : t("requiresRoles", { roles: group.requiredRoles.join(", ") })
+                                }
                               >
                                 <ShieldAlert className="size-3.5" aria-hidden="true" />
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              {t("requiresRoles", {
-                                roles: group.requiredRoles.join(", "),
-                              })}
+                              {group.requiredCapability
+                                ? t("requiresCapability", { capability: group.requiredCapability })
+                                : t("requiresRoles", { roles: group.requiredRoles.join(", ") })}
                             </TooltipContent>
                           </Tooltip>
                         ) : null}

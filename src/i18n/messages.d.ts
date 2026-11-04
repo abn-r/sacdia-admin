@@ -35,6 +35,9 @@ export interface IntlMessages {
       unconfiguredTerritoryTitle: string;
       unconfiguredTerritoryDescription: string;
     };
+    modal: {
+      forbiddenDetail: string;
+    };
   };
   nav: {
     palette: {
@@ -584,6 +587,7 @@ export interface IntlMessages {
       op_update_failed: string;
       op_delete_failed: string;
       load_data_failed: string;
+      forbidden_mutation: string;
     };
     actionErrors: {
       invalidForm: string;
@@ -2532,6 +2536,7 @@ export interface IntlMessages {
       bucketDestructive: string;
       countLabel: string;
       permissionKey: string;
+      requiresCapability: string;
     };
     userRolesPanel: {
       title: string;
@@ -2599,6 +2604,7 @@ export interface IntlMessages {
         bundleChangesAdded: string;
         bundleChangesRemoved: string;
         bundleChangesMore: string;
+        requiresCapability: string;
       };
       permissions: {
         title: string;
@@ -2870,6 +2876,7 @@ export interface IntlMessages {
       "camporee_event_types:create": string;
       "camporee_event_types:update": string;
       "camporee_event_types:delete": string;
+      "camporee_events:read": string;
       "camporee_events:create": string;
       "camporee_events:update": string;
       "camporee_events:delete": string;
@@ -6885,6 +6892,10 @@ export interface IntlMessages {
       toggleSidebar: string;
       sidebarTitle: string;
       sidebarDescription: string;
+    };
+    actionErrors: {
+      forbidden: string;
+      unauthenticated: string;
     };
   };
   translations: {

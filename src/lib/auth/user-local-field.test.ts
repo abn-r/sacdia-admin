@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { GLOBAL_ROLE_NAMES, type GlobalRoleName } from "@/lib/auth/generated/role-names";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   canPickLocalField,
@@ -6,28 +8,26 @@ import {
   resolveUserLocalField,
 } from "./user-local-field";
 
+/** `/auth/me` user whose `territory` the backend derived from `roleName` and the anchors in `global`. */
 function userWithRoles(
   roleName: string,
   global: Record<string, unknown>,
   legacyClubLocalFieldId?: number,
 ): AuthUser {
-  return {
+  const user = buildAuthUser({
     id: "user-id",
     email: "director@example.com",
-    authorization: {
-      grants: {
-        global_roles: [{ role_name: roleName, permissions: [] }],
-      },
-      effective: {
-        scope: {
-          global,
-        },
-      },
-      ...(legacyClubLocalFieldId === undefined
-        ? {}
-        : { legacy: { club: { local_field_id: legacyClubLocalFieldId } } }),
-    },
-  };
+    // Club-only actors (`director`) hold no global role: open territory.
+    roles: GLOBAL_ROLE_NAMES.includes(roleName as GlobalRoleName) ? [roleName] : [],
+    scope: global,
+  });
+  if (legacyClubLocalFieldId !== undefined) {
+    user.authorization = {
+      ...user.authorization,
+      legacy: { club: { local_field_id: legacyClubLocalFieldId } },
+    };
+  }
+  return user;
 }
 
 describe("resolveUserLocalField", () => {

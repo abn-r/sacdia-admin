@@ -5,6 +5,9 @@
       "forbiddenDescription": "Tu rol no incluye los permisos necesarios para abrir esta página.",
       "unconfiguredTerritoryTitle": "Tu cuenta no tiene un territorio asignado",
       "unconfiguredTerritoryDescription": "Tu rol necesita una unión, un campo local o una división para operar el panel. Pide a un super-admin que configure tu territorio."
+    },
+    "modal": {
+      "forbiddenDetail": "Tu rol no incluye los permisos necesarios para abrir este formulario."
     }
   },
   "nav": {
@@ -554,7 +557,8 @@
       "op_create_failed": "No se pudo crear el registro",
       "op_update_failed": "No se pudo actualizar el registro",
       "op_delete_failed": "No se pudo desactivar el registro",
-      "load_data_failed": "Error al cargar datos"
+      "load_data_failed": "Error al cargar datos",
+      "forbidden_mutation": "No tienes permisos para modificar este catálogo."
     },
     "actionErrors": {
       "invalidForm": "Los datos del formulario no son válidos.",
@@ -2502,7 +2506,8 @@
       "bucketSensitive": "Datos sensibles",
       "bucketDestructive": "Borrar",
       "countLabel": "{selected}/{total}",
-      "permissionKey": "{key}"
+      "permissionKey": "{key}",
+      "requiresCapability": "Requiere la capability: {capability}"
     },
     "userRolesPanel": {
       "title": "Roles de sistema",
@@ -2569,7 +2574,8 @@
         "bundleUpdatedDesc": "{screen} · {role}",
         "bundleChangesAdded": "Se agregaron: {permissions}.",
         "bundleChangesRemoved": "Se quitaron: {permissions}.",
-        "bundleChangesMore": "y {count} más"
+        "bundleChangesMore": "y {count} más",
+        "requiresCapability": "Requiere la capability: {capability}. El permiso solo surte efecto en roles que la cumplan."
       },
       "permissions": {
         "title": "Catálogo de permisos",
@@ -6854,6 +6860,10 @@
       "toggleSidebar": "Alternar barra lateral",
       "sidebarTitle": "Menú",
       "sidebarDescription": "Navegación principal del panel."
+    },
+    "actionErrors": {
+      "forbidden": "No tienes permisos para realizar esta acción.",
+      "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo."
     }
   },
   "translations": {

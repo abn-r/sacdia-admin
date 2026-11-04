@@ -4,23 +4,8 @@ import {
   canAccessCatalogEditor,
   isCatalogEditorPath,
 } from "./catalog-editor-access";
-import type { AuthUser } from "./types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
-function buildUser(roles: string[], permissions: string[] = []): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: {
-        global_roles: roles.map((role_name) => ({ role_name })),
-      },
-      effective: {
-        permissions,
-      },
-    },
-  };
-}
 
 describe("canAccessCatalogEditor", () => {
   it("allows admin and assistant-admin", () => {

@@ -1,7 +1,7 @@
 import type { AuthUser } from "@/lib/auth/types";
-import { extractRoles } from "@/lib/auth/roles";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCreatableRole } from "@/lib/api/admin-users";
+import { resolveCreatableRoles } from "@/lib/users/assignable-roles";
 import { listCountries } from "@/lib/api/geography";
 import {
   listLocalFieldsForTerritory,
@@ -9,59 +9,6 @@ import {
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
 import type { NewUserGeography } from "@/components/users/new-user-form";
-
-// ─── Role-to-allowed-creatable-roles mapping ──────────────────────────────────
-
-/**
- * Returns the subset of AdminCreatableRole values the actor may assign.
- *
- * Hierarchy rule (Adventist club authority chain — must mirror backend
- * `ROLE_HIERARCHY` in `admin-users.service.ts`):
- *   - super-admin → all roles, including admin
- *   - admin → everything below admin (NOT admin itself; only super-admin
- *     creates admin). admin assigns director-dia.
- *   - director-dia / assistant-dia → UNION + LF + base (NOT DIA peers).
- *   - director-union / assistant-union → LF + base (NOT UNION peers).
- *   - director-lf / assistant-lf → base only (NOT LF peers). LF directors
- *     are appointed by the union, so the LF tier cannot grow itself.
- *
- * The backend enforces this server-side too; the UI filters the dropdown to
- * match so the actor never sees options that would bounce with a 403.
- */
-const BASE_T5_ROLES: AdminCreatableRole[] = [
-  "user",
-  "coordinator",
-  "zone-coordinator",
-  "general-coordinator",
-  "pastor",
-];
-const LF_ROLES: AdminCreatableRole[] = ["assistant-lf", "director-lf"];
-const UNION_ROLES: AdminCreatableRole[] = [
-  "assistant-union",
-  "director-union",
-];
-const DIA_ROLES: AdminCreatableRole[] = ["assistant-dia", "director-dia"];
-
-function resolveAllowedRoles(userRoles: string[]): AdminCreatableRole[] {
-  const roleSet = new Set(userRoles);
-
-  if (roleSet.has("super-admin")) {
-    return [...BASE_T5_ROLES, ...LF_ROLES, ...UNION_ROLES, ...DIA_ROLES, "admin"];
-  }
-  if (roleSet.has("admin")) {
-    return [...BASE_T5_ROLES, ...LF_ROLES, ...UNION_ROLES, ...DIA_ROLES];
-  }
-  if (roleSet.has("director-dia") || roleSet.has("assistant-dia")) {
-    return [...BASE_T5_ROLES, ...LF_ROLES, ...UNION_ROLES];
-  }
-  if (roleSet.has("director-union") || roleSet.has("assistant-union")) {
-    return [...BASE_T5_ROLES, ...LF_ROLES];
-  }
-  if (roleSet.has("director-lf") || roleSet.has("assistant-lf")) {
-    return [...BASE_T5_ROLES];
-  }
-  return [];
-}
 
 // ─── Loader ───────────────────────────────────────────────────────────────────
 
@@ -82,8 +29,10 @@ export async function loadNewUserFormData(
     return null;
   }
 
-  const userRoles = extractRoles(currentUser);
-  const allowedRoles = resolveAllowedRoles(userRoles);
+  // Roles the actor may assign come from the backend
+  // (`authorization.assignable_global_roles`, ROLE_HIERARCHY); the form only
+  // orders them. Territory narrows the geography pickers.
+  const allowedRoles = resolveCreatableRoles(currentUser);
   const territory = resolveAdminTerritoryScope(currentUser);
 
   let geography: NewUserGeography | undefined;

@@ -16,13 +16,14 @@ import {
 } from "@/lib/auth/permissions";
 
 import type { ScreenDefinition } from "../types";
-import { ADMIN_ROLES, USER_MANAGEMENT_ROLES } from "./_helpers";
+import { capabilityAccess } from "./_helpers";
 
 /**
  * `/dashboard/users` — mirrors `AdminUsersController`.
  *
  * Reads, create and bulk create: `@GlobalRoles(...USER_MANAGEMENT_ROLES)` at
- * method level. Administrative writes keep the class-level admin fence.
+ * method level → `users.manage_in_scope`. Administrative writes keep the
+ * class-level admin fence → `users.update_admin_fields`.
  * Family gates copy the transitional OR the API accepts today
  * (`<family>:read` OR `users:read_detail`, `<family>:update` OR
  * `users:update_profile`) — drop the `users:*` half when backend sunsets it.
@@ -32,30 +33,24 @@ export const usersScreen: ScreenDefinition = {
   path: "/dashboard/users",
   titleKey: "users",
   surfaces: ["admin"],
-  viewAny: { permissions: [USERS_READ], roles: [...USER_MANAGEMENT_ROLES] },
+  viewAny: capabilityAccess("users.manage_in_scope", [USERS_READ]),
   capabilities: [
     {
       id: "view_detail",
       kind: "route",
-      gate: {
-        permissions: [USERS_READ_DETAIL],
-        roles: [...USER_MANAGEMENT_ROLES],
-      },
+      gate: capabilityAccess("users.manage_in_scope", [USERS_READ_DETAIL]),
     },
     {
       id: "create",
       kind: "route",
       href: "/dashboard/users/new",
-      gate: { permissions: [USERS_CREATE], roles: [...USER_MANAGEMENT_ROLES] },
+      gate: capabilityAccess("users.manage_in_scope", [USERS_CREATE]),
     },
     {
       id: "bulk_create",
       kind: "route",
       href: "/dashboard/users/bulk-upload",
-      gate: {
-        permissions: [USERS_BULK_CREATE],
-        roles: [...USER_MANAGEMENT_ROLES],
-      },
+      gate: capabilityAccess("users.manage_in_scope", [USERS_BULK_CREATE]),
     },
     {
       id: "update_profile",
@@ -66,7 +61,14 @@ export const usersScreen: ScreenDefinition = {
       // Accesos: Roles switches, Resumen grid, aside rows + PATCH /admin/users/:userId.
       id: "update_admin",
       kind: "section",
-      gate: { permissions: [USERS_UPDATE_ADMIN], roles: [...ADMIN_ROLES] },
+      gate: capabilityAccess("users.update_admin_fields", [USERS_UPDATE_ADMIN]),
+    },
+    {
+      // POST/DELETE /admin/rbac/users/:userId/roles for platform admin roles
+      // (backend RBAC_ROLE_SUPER_ADMIN_ONLY).
+      id: "roles.mutate_global",
+      kind: "section",
+      gate: capabilityAccess("rbac.mutate_global_roles"),
     },
     {
       id: "health.read",

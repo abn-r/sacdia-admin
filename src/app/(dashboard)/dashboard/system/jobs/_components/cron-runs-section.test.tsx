@@ -12,6 +12,7 @@ import { render, screen, waitFor, cleanup, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../../../../../messages/es.json";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 import type { CronJobDefinition, CronRunsSummary } from "@/lib/api/analytics";
 
@@ -57,12 +58,8 @@ import { ApiError } from "@/lib/api/client";
 import { CronRunsSection, STALE_RUNNING_THRESHOLD_MS } from "./cron-runs-section";
 import { DETACHED_REFRESH_DELAY_MS } from "./cron-run-errors";
 
-const SUPER_ADMIN: AuthUser = {
-  id: "sa-1",
-  email: "sa@test.com",
-  roles: ["super-admin"],
-};
-const ADMIN: AuthUser = { id: "a-1", email: "a@test.com", roles: ["admin"] };
+const SUPER_ADMIN: AuthUser = buildAuthUser({ id: "sa-1", email: "sa@test.com", roles: ["super-admin"] });
+const ADMIN: AuthUser = buildAuthUser({ id: "a-1", email: "a@test.com", roles: ["admin"] });
 
 const JOB = "rankings-recalculate";
 const JOB_LABEL = "Clasificaciones anuales (recalcular)";

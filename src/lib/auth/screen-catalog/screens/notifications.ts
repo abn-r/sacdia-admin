@@ -1,4 +1,3 @@
-import { CATALOG_EDITOR_ROLES } from "@/lib/auth/catalog-editor-access";
 import {
   NOTIFICATIONS_BROADCAST,
   NOTIFICATIONS_CLUB,
@@ -6,7 +5,7 @@ import {
 } from "@/lib/auth/permissions";
 
 import type { ScreenDefinition } from "../types";
-import { roleOnlyAccess, viewOnlyScreen } from "./_helpers";
+import { capabilityAccess, viewOnlyScreen } from "./_helpers";
 
 const NOTIFICATION_SENDER_PERMISSIONS = [
   NOTIFICATIONS_SEND,
@@ -42,8 +41,13 @@ export const notificationsScreens: ScreenDefinition[] = [
   viewOnlyScreen("notifications-history", {
     permissions: [...NOTIFICATION_SENDER_PERMISSIONS],
   }),
-  viewOnlyScreen(
-    "notifications-categories",
-    roleOnlyAccess(CATALOG_EDITOR_ROLES),
-  ),
+  {
+    // Platform configuration (`system.config.read`); PATCH settings share it.
+    id: "notifications-categories",
+    surfaces: ["admin"],
+    viewAny: capabilityAccess("system.config.read"),
+    capabilities: [
+      { id: "update", kind: "button", gate: capabilityAccess("system.config.read") },
+    ],
+  },
 ];

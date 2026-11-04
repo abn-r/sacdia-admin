@@ -1,31 +1,30 @@
-import { CATALOG_EDITOR_ROLES } from "@/lib/auth/catalog-editor-access";
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
+import type { CapabilityKey } from "@/lib/auth/generated/capability-keys";
 
-import type { NavAccess, ScreenDefinition, ScreenSurface } from "../types";
-
-export const ADMIN_ROLES = ["admin", SUPER_ADMIN_ROLE] as const;
+import type { CapabilityGate, NavAccess, ScreenDefinition, ScreenSurface } from "../types";
 
 /**
- * `USER_MANAGEMENT_ROLES` in `sacdia-backend/src/admin/admin-users.controller.ts`.
- * admin + the six field-level roles (lf / union / dia).
+ * Gate decided by a backend capability (`authorization.capabilities`) plus
+ * optional permissions. Role rules stay on the API side.
  */
-export const USER_MANAGEMENT_ROLES = [
-  "admin",
-  SUPER_ADMIN_ROLE,
-  "director-lf",
-  "assistant-lf",
-  "director-union",
-  "assistant-union",
-  "director-dia",
-  "assistant-dia",
-] as const;
-
-export function catalogEditorAccess(permissions: string[]): NavAccess {
-  return { permissions, roles: [...CATALOG_EDITOR_ROLES] };
+export function capabilityAccess(
+  capability: CapabilityKey,
+  permissions: string[] = [],
+  options?: { requireAll?: boolean },
+): CapabilityGate {
+  return {
+    permissions,
+    roles: [],
+    capability,
+    ...(options?.requireAll ? { requireAll: true } : {}),
+  };
 }
 
-export function roleOnlyAccess(roles: readonly string[]): NavAccess {
-  return { permissions: [], roles: [...roles] };
+/**
+ * Catalog editor controllers (`@GlobalRoles('admin','super-admin')`):
+ * `catalogs.edit` + the entity permission.
+ */
+export function catalogEditorAccess(permissions: string[]): CapabilityGate {
+  return capabilityAccess("catalogs.edit", permissions);
 }
 
 /** Screen with `viewAny` only (no verbs wired yet). Path comes from the sidebar. */

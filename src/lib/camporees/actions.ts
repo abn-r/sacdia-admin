@@ -11,7 +11,7 @@ import {
   removeCamporeeMember,
   updateCamporee,
 } from "@/lib/api/camporees";
-import { requireAdminUser } from "@/lib/auth/session";
+import { requireCapability } from "@/lib/auth/require-capability";
 
 type CamporeesTranslator = Awaited<
   ReturnType<typeof getTranslations<"camporees">>
@@ -208,7 +208,8 @@ export async function createCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("campamentos-list-local", "create");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("camporees");
 
   try {
@@ -231,7 +232,8 @@ export async function updateCamporeeAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("campamentos-list-local", "update");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("camporees");
 
   try {
@@ -250,7 +252,8 @@ export async function updateCamporeeAction(
 }
 
 export async function deleteCamporeeAction(formData: FormData) {
-  await requireAdminUser();
+  const gate = await requireCapability("campamentos-list-local", "delete");
+  if (!gate.ok) return;
 
   const camporeeId = Number(formData.get("id"));
   if (!Number.isFinite(camporeeId) || camporeeId <= 0) {
@@ -267,7 +270,8 @@ export async function registerCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("campamentos-list-local", "members.register");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("camporees");
 
   const userId = readString(formData, "user_id");
@@ -319,7 +323,8 @@ export async function removeCamporeeMemberAction(
   _: CamporeeActionState,
   formData: FormData,
 ): Promise<CamporeeActionState> {
-  await requireAdminUser();
+  const gate = await requireCapability("campamentos-list-local", "members.register");
+  if (!gate.ok) return { error: gate.error };
   const t = await getTranslations("camporees");
 
   const userId = readString(formData, "user_id");

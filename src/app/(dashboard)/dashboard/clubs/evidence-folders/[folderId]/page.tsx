@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { extractRoles } from "@/lib/auth/roles";
+import { hasCapability } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
 
 const EvaluationClientPage = dynamic(
@@ -44,7 +44,7 @@ export default async function ClubsEvidenceFolderDetailPage({
     <EvaluationClientPage
       mode="detail"
       initialFolderId={folderId}
-      currentUserRoles={extractRoles(currentUser)}
+      canConfirmUnion={hasCapability(currentUser, "folders.confirm_union")}
     />
   );
 }

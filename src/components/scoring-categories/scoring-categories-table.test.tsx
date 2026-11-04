@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 
 import messages from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 
 const useAuthMock = vi.fn();
@@ -21,15 +22,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 import { ScoringCategoriesTable } from "./scoring-categories-table";
 
 function userWithRoles(roles: string[]): AuthUser {
-  return {
-    id: "u",
-    email: "u@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions: ["scoring_categories:read"] },
-    },
-  };
+  return buildAuthUser({ id: "u", email: "u@example.com", roles, permissions: ["scoring_categories:read"] });
 }
 
 function renderTable(fetchCategories: () => Promise<never[]>) {

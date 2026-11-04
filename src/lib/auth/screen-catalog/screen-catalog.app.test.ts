@@ -3,22 +3,11 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import type { AuthUser } from "@/lib/auth/types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { dumpAppCatalog } from "./dump";
 import { canViewScreen } from "./index";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions },
-    },
-  };
-}
 
 describe("app screens", () => {
   it("opens the coordinator hub with admin/coordinator aliases, not coordination:manage", () => {

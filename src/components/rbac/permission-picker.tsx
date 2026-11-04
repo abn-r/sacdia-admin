@@ -229,20 +229,22 @@ function PickerAccordion({
           <span className="flex-1 text-sm font-medium text-foreground">
             {title}
           </span>
-          {group.requiredRoles.length > 0 ? (
+          {group.requiredCapability || group.requiredRoles.length > 0 ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <AlertTriangle
                   className="size-3.5 shrink-0 text-warning"
-                  aria-label={tPicker("requiresRoles", {
-                    roles: group.requiredRoles.join(", "),
-                  })}
+                  aria-label={
+                    group.requiredCapability
+                      ? tPicker("requiresCapability", { capability: group.requiredCapability })
+                      : tPicker("requiresRoles", { roles: group.requiredRoles.join(", ") })
+                  }
                 />
               </TooltipTrigger>
               <TooltipContent>
-                {tPicker("requiresRoles", {
-                  roles: group.requiredRoles.join(", "),
-                })}
+                {group.requiredCapability
+                  ? tPicker("requiresCapability", { capability: group.requiredCapability })
+                  : tPicker("requiresRoles", { roles: group.requiredRoles.join(", ") })}
               </TooltipContent>
             </Tooltip>
           ) : null}
@@ -438,6 +440,7 @@ export function PermissionPicker({
                 screenId: group.screenId,
                 screen: group.screen,
                 requiredRoles: group.requiredRoles,
+                requiredCapability: group.requiredCapability,
                 items: group.items,
               },
               otherLabel,

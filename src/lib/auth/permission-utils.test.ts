@@ -1,15 +1,20 @@
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { AuthUser } from "./types";
 
-let permissionUtils: typeof import("./permission-utils");
+import {
+  canAccessAdminPanel,
+  canManageAdministrativeCompletion,
+  canReadSensitiveUserFamily,
+  canUpdateSensitiveUserFamily,
+  canViewAdministrativeCompletion,
+  extractCapabilities,
+  extractPermissions,
+  hasCapability,
+  isPastorOnlyUser,
+} from "./permission-utils";
+import { buildAuthUser } from "./testing/auth-user-fixture";
 
-beforeAll(async () => {
-  vi.stubEnv("NEXT_PUBLIC_RBAC_LEGACY_FALLBACK", "true");
-  vi.resetModules();
-  permissionUtils = await import("./permission-utils");
-});
-
-/** Canonical user: permissions live in authorization.effective (new RBAC model). */
+/** Canonical user: permissions live in authorization.effective. */
 function buildUser(permissions: string[]): AuthUser {
   return {
     id: "actor",
@@ -22,88 +27,110 @@ function buildUser(permissions: string[]): AuthUser {
   };
 }
 
-/**
- * Legacy user: permissions live in the top-level `permissions` array,
- * with no authorization.effective block — forces the legacy fallback path.
- */
-function buildLegacyUser(permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    permissions,
-  };
-}
+describe("extractPermissions", () => {
+  it("reads authorization.effective.permissions only (no legacy fallback)", () => {
+    expect(extractPermissions(buildUser(["health:read", " USERS:READ "]))).toEqual([
+      "health:read",
+      "users:read",
+    ]);
+    const legacy: AuthUser = {
+      id: "actor",
+      email: "actor@example.com",
+      permissions: ["users:update_profile"],
+    };
+    expect(extractPermissions(legacy)).toEqual([]);
+    expect(extractPermissions(null)).toEqual([]);
+  });
+});
 
-describe("permission-utils", () => {
+describe("extractCapabilities / hasCapability", () => {
+  it("returns the published capability set, normalized", () => {
+    const user: AuthUser = {
+      id: "actor",
+      email: "actor@example.com",
+      authorization: { capabilities: [" Catalogs.Edit ", "rbac.manage"] },
+    };
+    expect([...extractCapabilities(user)]).toEqual(["catalogs.edit", "rbac.manage"]);
+    expect(hasCapability(user, "catalogs.edit")).toBe(true);
+    expect(hasCapability(user, "audit.read_system")).toBe(false);
+  });
+
+  it("treats a missing capabilities array as deny-all", () => {
+    expect(extractCapabilities(buildUser(["catalogs:read"])).size).toBe(0);
+    expect(hasCapability(null, "catalogs.edit")).toBe(false);
+    expect(hasCapability({ id: "a", email: "a@b.c", roles: ["super-admin"] }, "rbac.manage")).toBe(
+      false,
+    );
+  });
+
+  it("unwraps a {status, data} envelope", () => {
+    const user = {
+      status: "success",
+      data: { id: "x", email: "x@y.z", authorization: { capabilities: ["rbac.manage"] } },
+    } as unknown as AuthUser;
+    expect(hasCapability(user, "rbac.manage")).toBe(true);
+  });
+});
+
+describe("canAccessAdminPanel (admin_panel.access)", () => {
+  it.each(["admin", "assistant-admin", "super-admin", "coordinator", "pastor", "director-lf"])(
+    "lets %s in",
+    (role) => {
+      expect(canAccessAdminPanel(buildAuthUser({ roles: [role] }))).toBe(true);
+    },
+  );
+
+  it("denies plain users, club-only actors and anonymous", () => {
+    expect(canAccessAdminPanel(buildAuthUser({ roles: ["user"] }))).toBe(false);
+    expect(canAccessAdminPanel(buildAuthUser({ roles: [], clubRole: "director" }))).toBe(false);
+    expect(canAccessAdminPanel(null)).toBe(false);
+    expect(canAccessAdminPanel({ id: "a", email: "a@b.c", roles: ["admin"] })).toBe(false);
+  });
+});
+
+describe("isPastorOnlyUser (admin_panel.pastor_only)", () => {
+  it("is true when the only global role is pastor, whatever the club roles", () => {
+    expect(isPastorOnlyUser(buildAuthUser({ roles: ["pastor"] }))).toBe(true);
+    expect(isPastorOnlyUser(buildAuthUser({ roles: ["pastor"], clubRole: "director" }))).toBe(true);
+  });
+
+  it("is false when pastor is combined with another global role, or without pastor", () => {
+    expect(isPastorOnlyUser(buildAuthUser({ roles: ["pastor", "director-lf"] }))).toBe(false);
+    expect(isPastorOnlyUser(buildAuthUser({ roles: ["pastor", "super-admin"] }))).toBe(false);
+    expect(isPastorOnlyUser(buildAuthUser({ roles: ["director-lf"] }))).toBe(false);
+    expect(isPastorOnlyUser(buildAuthUser({ roles: [] }))).toBe(false);
+    expect(isPastorOnlyUser(null)).toBe(false);
+  });
+});
+
+describe("sensitive user families", () => {
   it("grants sensitive family read access with fine permissions", () => {
     const user = buildUser(["health:read", "emergency_contacts:read"]);
 
-    expect(permissionUtils.canReadSensitiveUserFamily(user, "health")).toBe(true);
-    expect(
-      permissionUtils.canReadSensitiveUserFamily(user, "emergency_contacts"),
-    ).toBe(true);
-    expect(
-      permissionUtils.canReadSensitiveUserFamily(user, "legal_representative"),
-    ).toBe(false);
+    expect(canReadSensitiveUserFamily(user, "health")).toBe(true);
+    expect(canReadSensitiveUserFamily(user, "emergency_contacts")).toBe(true);
+    expect(canReadSensitiveUserFamily(user, "legal_representative")).toBe(false);
   });
 
-  it("keeps legacy users:read_detail fallback for sensitive family reads", () => {
+  it("keeps the transitional users:read_detail fallback for sensitive family reads", () => {
     const user = buildUser(["users:read_detail"]);
 
-    expect(permissionUtils.canReadSensitiveUserFamily(user, "health")).toBe(true);
-    expect(
-      permissionUtils.canReadSensitiveUserFamily(user, "post_registration"),
-    ).toBe(true);
+    expect(canReadSensitiveUserFamily(user, "health")).toBe(true);
+    expect(canReadSensitiveUserFamily(user, "post_registration")).toBe(true);
   });
 
-  it("grants sensitive family updates with fine permission or legacy fallback", () => {
-    const fineGrainedUser = buildUser(["legal_representative:update"]);
-    const legacyUser = buildLegacyUser(["users:update_profile"]);
-
+  it("grants sensitive family updates with fine permission or users:update_profile", () => {
     expect(
-      permissionUtils.canUpdateSensitiveUserFamily(
-        fineGrainedUser,
-        "legal_representative",
-      ),
+      canUpdateSensitiveUserFamily(buildUser(["legal_representative:update"]), "legal_representative"),
     ).toBe(true);
-    expect(
-      permissionUtils.canUpdateSensitiveUserFamily(legacyUser, "health"),
-    ).toBe(true);
+    expect(canUpdateSensitiveUserFamily(buildUser(["users:update_profile"]), "health")).toBe(true);
   });
 
   it("separates post-registration administrative completion from sensitive reads", () => {
-    const user = buildLegacyUser(["registration:complete"]);
+    const user = buildUser(["registration:complete"]);
 
-    expect(
-      permissionUtils.canReadSensitiveUserFamily(user, "post_registration"),
-    ).toBe(false);
-    expect(permissionUtils.canViewAdministrativeCompletion(user)).toBe(true);
-    expect(permissionUtils.canManageAdministrativeCompletion(user)).toBe(true);
-  });
-
-  it("gates club create on clubs:create, not local-field roles", () => {
-    const creator = buildUser(["clubs:create"]);
-    const assistantAdmin = {
-      id: "actor",
-      email: "actor@example.com",
-      roles: ["assistant-admin"],
-      authorization: {
-        grants: { global_roles: [{ role_name: "assistant-admin" }] },
-        effective: { permissions: ["clubs:create"] },
-      },
-    } satisfies AuthUser;
-    const directorLf = {
-      id: "actor",
-      email: "actor@example.com",
-      roles: ["director-lf"],
-      authorization: {
-        grants: { global_roles: [{ role_name: "director-lf" }] },
-        effective: { permissions: ["clubs:read"] },
-      },
-    } satisfies AuthUser;
-
-    expect(permissionUtils.canCreateClubs(creator)).toBe(true);
-    expect(permissionUtils.canCreateClubs(assistantAdmin)).toBe(true);
-    expect(permissionUtils.canCreateClubs(directorLf)).toBe(false);
+    expect(canReadSensitiveUserFamily(user, "post_registration")).toBe(false);
+    expect(canViewAdministrativeCompletion(user)).toBe(true);
+    expect(canManageAdministrativeCompletion(user)).toBe(true);
   });
 });

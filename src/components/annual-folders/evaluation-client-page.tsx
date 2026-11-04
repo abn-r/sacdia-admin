@@ -414,7 +414,8 @@ function QueueCard({ item }: QueueCardProps) {
 interface EvaluationClientPageProps {
   mode?: "list" | "detail";
   initialFolderId?: string;
-  currentUserRoles?: string[];
+  /** `folders.confirm_union` capability of the viewer (service rule, no super-admin bypass). */
+  canConfirmUnion?: boolean;
   clubTypes?: ClubType[];
   ecclesiasticalYears?: EcclesiasticalYear[];
   unions?: Union[];
@@ -423,13 +424,10 @@ interface EvaluationClientPageProps {
   rankingConfigs?: AnnualRankingConfig[];
 }
 
-// Service rule, not catalog: confirm-union is director-union/assistant-union with no super-admin bypass.
-const UNION_CONFIRMATION_ROLES = new Set(["director-union", "assistant-union"]);
-
 export function EvaluationClientPage({
   mode = "list",
   initialFolderId,
-  currentUserRoles = [],
+  canConfirmUnion = false,
   clubTypes = [],
   ecclesiasticalYears = [],
   unions = [],
@@ -448,9 +446,6 @@ export function EvaluationClientPage({
   });
   const isListMode = mode === "list";
   const isDetailMode = mode === "detail";
-  const canConfirmUnion = currentUserRoles.some((role) =>
-    UNION_CONFIRMATION_ROLES.has(role),
-  );
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [queueStatus, setQueueStatus] =

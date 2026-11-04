@@ -1,3 +1,4 @@
+import { isForbiddenActionError } from "@/lib/api/action-error";
 import { notFound } from "next/navigation";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -38,12 +39,19 @@ export function camporeePaymentsListHref(camporeeId: number | string) {
   return `/dashboard/campamentos/${camporeeId}?tab=payments`;
 }
 
-/** Confirms the camporee exists; 404/403 → notFound, anything else rethrows. */
+/**
+ * Confirms the camporee exists. Policy: a camporee the actor may not see
+ * (403, out of territory) is treated like a missing one (`notFound()`) so the
+ * URL does not reveal whether it exists; anything else rethrows.
+ */
 async function assertCamporee(camporeeId: number) {
   try {
     await getCamporeeById(camporeeId);
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    if (isForbiddenActionError(error)) {
       notFound();
     }
     throw error;
@@ -109,7 +117,8 @@ export async function loadEditCamporeePaymentFormData(
     const list = extractList<CamporeePayment>(payload);
     payment = list.find((p) => p.camporee_payment_id === paymentId) ?? null;
   } catch (error) {
-    if (error instanceof ApiError && error.status === 403) {
+    // Same policy as `assertCamporee`: forbidden reads as missing.
+    if (isForbiddenActionError(error)) {
       notFound();
     }
     throw error;

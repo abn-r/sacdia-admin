@@ -1,3 +1,4 @@
+import { classifyActionError, toEndpointState } from "@/lib/api/action-error";
 import {
   ApiError,
   apiRequest,
@@ -922,24 +923,19 @@ function normalizeDetailPayload(payload: unknown): AdminUserDetail | null {
 }
 
 function normalizeEndpointState(error: ApiError): AdminUsersResult["endpointState"] {
-  if (error.status === 401 || error.status === 403) {
-    return "forbidden";
-  }
-
-  if (error.status === 429) {
-    return "rate-limited";
-  }
-
-  return "missing";
+  return toEndpointState(error);
 }
 
 function normalizeEndpointDetail(error: ApiError): string {
-  if (error.status === 401) {
+  const { kind, forbiddenReason } = classifyActionError(error);
+  if (kind === "unauthenticated") {
     return "Sesión expirada o token inválido. Cierra sesión y vuelve a iniciar.";
   }
 
-  if (error.status === 403) {
-    return "Tu rol no tiene alcance configurado para consultar usuarios. Contacta a un super-admin.";
+  if (kind === "forbidden") {
+    return forbiddenReason === "scope_missing" || forbiddenReason === "status"
+      ? "Tu rol no tiene alcance configurado para consultar usuarios. Contacta a un super-admin."
+      : "Tu rol no tiene permisos para consultar usuarios.";
   }
 
   if (error.status === 429) {

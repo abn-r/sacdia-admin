@@ -1,30 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 import type { AuthUser } from "@/lib/auth/types";
 import {
   filterUnionsByTerritory,
   isTerritoryUnconfigured,
+  readAuthorizationTerritory,
   resolveAdminTerritoryScope,
   unionOptionFromTerritory,
 } from "./territory-scope";
 
+/** `/auth/me` user whose `territory` the backend derived from `roleName` and the anchors in `global`. */
 function userWithRoles(
   roleName: string,
   global: Record<string, unknown>,
 ): AuthUser {
-  return {
-    id: "user-id",
-    email: "director@example.com",
-    authorization: {
-      grants: {
-        global_roles: [{ role_name: roleName, permissions: [] }],
-      },
-      effective: {
-        scope: {
-          global,
-        },
-      },
-    },
-  };
+  return buildAuthUser({ id: "user-id", email: "director@example.com", roles: [roleName], scope: global });
 }
 
 describe("resolveAdminTerritoryScope", () => {
@@ -123,4 +113,34 @@ describe("isTerritoryUnconfigured", () => {
       expect(isTerritoryUnconfigured(userWithRoles(role, {}))).toBe(false);
     },
   );
+});
+
+describe("readAuthorizationTerritory", () => {
+  it("reads the published territory as is", () => {
+    expect(
+      readAuthorizationTerritory({
+        authorization: {
+          territory: { level: "union", division_id: 3, union_id: 20, local_field_id: null },
+        },
+      }),
+    ).toEqual({ level: "union", division_id: 3, union_id: 20, local_field_id: null });
+  });
+
+  it("falls back to open when the backend does not publish a territory yet", () => {
+    expect(readAuthorizationTerritory({ authorization: {} })).toEqual({
+      level: "open",
+      division_id: null,
+      union_id: null,
+      local_field_id: null,
+    });
+    expect(readAuthorizationTerritory(null).level).toBe("open");
+    expect(resolveAdminTerritoryScope({ authorization: {} })).toEqual({ level: "all" });
+    expect(isTerritoryUnconfigured({ authorization: {} })).toBe(false);
+  });
+
+  it("does not derive a territory from role names anymore", () => {
+    const user = buildAuthUser({ roles: ["director-union"], scope: { union: { id: 2 } } });
+    user.authorization = { ...user.authorization, territory: undefined };
+    expect(resolveAdminTerritoryScope(user)).toEqual({ level: "all" });
+  });
 });

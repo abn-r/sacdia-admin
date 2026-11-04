@@ -1,10 +1,17 @@
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import { UserRolesPanel } from "@/components/rbac/user-roles-panel";
 import type { Role, UserRole } from "@/lib/rbac/types";
+
+// `rbac.mutate_global_roles` of the actor (platform admin roles are super-admin only).
+const actor = vi.hoisted(() => ({ canMutateGlobalRoles: false }));
+
+vi.mock("@/lib/auth/screen-catalog/use-screen-access", () => ({
+  useCanCapability: () => actor.canMutateGlobalRoles,
+}));
 
 function makeRole(roleName: string, category = "GLOBAL"): Role {
   return {
@@ -34,14 +41,14 @@ function makeUserRole(roleName: string, category = "GLOBAL"): UserRole {
   };
 }
 
-function renderPanel(initialUserRoles: UserRole[], actorIsSuperAdmin = false) {
+function renderPanel(initialUserRoles: UserRole[], canMutateGlobalRoles = false) {
+  actor.canMutateGlobalRoles = canMutateGlobalRoles;
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <UserRolesPanel
         userId="user-1"
         initialUserRoles={initialUserRoles}
         allRoles={[makeRole("admin"), makeRole("pastor"), makeRole("user")]}
-        actorIsSuperAdmin={actorIsSuperAdmin}
       />
     </NextIntlClientProvider>,
   );
@@ -89,7 +96,7 @@ describe("UserRolesPanel", () => {
     expect(screen.queryByText("Administrativos")).not.toBeInTheDocument();
   });
 
-  it("hides the remove action on admin roles for a non-super-admin", () => {
+  it("hides the remove action on admin roles without rbac.mutate_global_roles", () => {
     renderPanel([makeUserRole("admin"), makeUserRole("pastor")]);
 
     const removeButtons = screen.getAllByRole("button", { name: /quitar|remover/i });
@@ -97,7 +104,7 @@ describe("UserRolesPanel", () => {
     expect(removeButtons[0].getAttribute("title")).toContain("Pastor");
   });
 
-  it("lets a super-admin remove admin roles", () => {
+  it("lets an actor with rbac.mutate_global_roles remove admin roles", () => {
     renderPanel([makeUserRole("admin"), makeUserRole("pastor")], true);
 
     expect(screen.getAllByRole("button", { name: /quitar|remover/i })).toHaveLength(2);

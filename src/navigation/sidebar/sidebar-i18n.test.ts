@@ -111,9 +111,9 @@ describe("sidebar localisation", () => {
   it("localises after permission filtering (filter keys on ids, not titles)", () => {
     const filtered = filterSidebarItems(sidebarItems, {
       isSuperAdmin: true,
-      canAny: () => false,
-      canAll: () => false,
-      hasAnyRole: () => false,
+      permissions: new Set(),
+      roles: new Set(),
+      capabilities: new Set(),
     });
     const fr = localizeSidebarItems(filtered, makeTranslator(locales[2]![1]));
     expect(fr).toHaveLength(filtered.length);

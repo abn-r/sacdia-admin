@@ -972,7 +972,9 @@ export async function submitBoundCamporeeAgendaEventAction(
   formData: FormData,
 ): Promise<CamporeeEventActionState> {
   formData.set("camporee_id", String(binding.camporeeId));
-  if (binding.isUnion) formData.set("is_union", "true");
+  // The screen (`camporeeScreenId`) the capability gate reads comes from the
+  // binding too, never from a hidden input the client could flip.
+  formData.set("is_union", binding.isUnion ? "true" : "false");
 
   if (binding.eventId) {
     formData.set("id", String(binding.eventId));
