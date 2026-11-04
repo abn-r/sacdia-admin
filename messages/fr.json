@@ -1594,6 +1594,13 @@
         "replaceDesignation": "Remplacer le désigné",
         "noDesignation": "Personne désignée pour l'année prochaine",
         "designateHint": "Il ne sera directeur qu'à l'entrée en vigueur de cette année.",
+        "designateWindowHint": "La désignation se fait du 1er octobre au 31 décembre.",
+        "lastAttempt": "Dernière tentative : {date}",
+        "designationBlock": {
+          "DIRECTOR_ALREADY_ACTIVE": "Le directeur actuel est toujours actif, le plan n'a donc pas été activé.",
+          "CLUB_ROLE_GUIDE_MAJOR_REQUIRED": "Le successeur n'est pas Guide Majeur, le plan n'a donc pas été activé.",
+          "MR_CONSENT_NOT_VERIFIED": "Le consentement du tuteur n'est pas vérifié, le plan n'a donc pas été activé."
+        },
         "successionHeading": "Succession du directeur {year}",
         "successionHint": "Termine le directeur de cette année et nomme le successeur maintenant. Ce n'est pas la désignation de l'année suivante.",
         "succeedNow": "Changer le directeur maintenant",

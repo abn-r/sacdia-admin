@@ -3,8 +3,9 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
-import { LayoutGrid } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { LayoutGrid, AlertTriangle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { formatDate } from "@/lib/format-locale";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Button } from "@/components/ui/button";
@@ -281,7 +282,7 @@ function DesignationSubmitButton({ label }: { label: string }) {
   );
 }
 
-function DesignationBlock({
+export function DesignationBlock({
   clubId,
   sectionId,
   nextYearId,
@@ -289,6 +290,8 @@ function DesignationBlock({
   successionId,
   version,
   members,
+  blockCode = null,
+  lastAttemptAt = null,
 }: {
   clubId: number;
   sectionId: number;
@@ -297,8 +300,11 @@ function DesignationBlock({
   successionId: string | null;
   version: number | null;
   members: ClubSectionMember[];
+  blockCode?: string | null;
+  lastAttemptAt?: string | null;
 }) {
   const t = useTranslations("clubs.detail.sections");
+  const locale = useLocale();
   const router = useRouter();
   const boundAction = designateClubSectionDirectorAction.bind(null, clubId, sectionId);
   const [state, action] = useActionState(boundAction, {} as ClubActionState);
@@ -329,6 +335,36 @@ function DesignationBlock({
       )}
 
       <p className="text-[11px] text-muted-foreground">{t("designateHint")}</p>
+      <p className="text-[11px] text-muted-foreground">{t("designateWindowHint")}</p>
+
+      {blockCode ? (
+        <div
+          role="status"
+          className="flex items-start gap-2 text-xs text-warning"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <div className="space-y-0.5">
+            <p className="font-medium">
+              {t.has(`designationBlock.${blockCode}` as never)
+                ? t(`designationBlock.${blockCode}` as never)
+                : blockCode}
+            </p>
+            {lastAttemptAt ? (
+              <p>
+                {t("lastAttempt", {
+                  date: formatDate(lastAttemptAt, locale, {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
+                })}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <form action={action} className="space-y-2 border-t pt-3">
         <input type="hidden" name="ecclesiastical_year_id" value={nextYearId} />
@@ -480,6 +516,8 @@ function SectionCard({
           successionId={designation?.succession_id ?? null}
           version={designation?.version ?? null}
           members={members}
+          blockCode={designation?.block_code ?? null}
+          lastAttemptAt={designation?.last_attempt_at ?? null}
         />
       ) : null}
 

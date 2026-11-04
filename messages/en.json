@@ -1594,6 +1594,13 @@
         "replaceDesignation": "Replace designee",
         "noDesignation": "No one designated for the next year",
         "designateHint": "Not a director until that year takes effect.",
+        "designateWindowHint": "Designation is open from October 1 to December 31.",
+        "lastAttempt": "Last attempt: {date}",
+        "designationBlock": {
+          "DIRECTOR_ALREADY_ACTIVE": "The current director is still active, so the plan was not activated.",
+          "CLUB_ROLE_GUIDE_MAJOR_REQUIRED": "The successor is not a Major Guide, so the plan was not activated.",
+          "MR_CONSENT_NOT_VERIFIED": "Guardian consent is not verified, so the plan was not activated."
+        },
         "successionHeading": "Director succession {year}",
         "successionHint": "End this year's director and name the successor now. This is not next year's designation.",
         "succeedNow": "Change director now",

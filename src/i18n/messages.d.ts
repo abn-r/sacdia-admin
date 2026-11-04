@@ -1623,6 +1623,13 @@ export interface IntlMessages {
         replaceDesignation: string;
         noDesignation: string;
         designateHint: string;
+        designateWindowHint: string;
+        lastAttempt: string;
+        designationBlock: {
+          DIRECTOR_ALREADY_ACTIVE: string;
+          CLUB_ROLE_GUIDE_MAJOR_REQUIRED: string;
+          MR_CONSENT_NOT_VERIFIED: string;
+        };
         successionHeading: string;
         successionHint: string;
         succeedNow: string;

@@ -5,6 +5,14 @@ type ActionErrorOptions = {
 };
 
 const DOMAIN_ERROR_MESSAGES: Record<string, string> = {
+  CLUB_DIRECTOR_PLAN_WINDOW_CLOSED:
+    "La designación del director del próximo año solo se puede hacer entre el 1 de octubre y el 31 de diciembre.",
+  CLUB_ROLE_MUTATION_FORBIDDEN:
+    "No tienes autoridad sobre los cargos de esta sección. Pídele a quien la tenga que haga el cambio.",
+  CLUB_ROLE_GUIDE_MAJOR_REQUIRED:
+    "El sucesor debe ser Guía Mayor para ser director. Elige a otro miembro o completa su investidura.",
+  CLUB_DIRECTOR_PLAN_YEAR_INVALID:
+    "El año eclesiástico indicado no es válido para designar al director.",
   MR_CONSENT_NOT_VERIFIED:
     "El miembro es menor y el consentimiento de su tutor aún no está verificado. Verifica el consentimiento del tutor antes de activar el rol.",
   CAMPOREE_EVENT_RESPONSIBLE_REQUIRED:
