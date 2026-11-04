@@ -1,22 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import type { AuthUser } from "@/lib/auth/types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 
 import { canCapability, canViewScreen, SCREEN_CATALOG } from "./index";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions },
-    },
-  };
-}
 
 describe("certifications-reviews", () => {
   it("shows certify only with certifications:certify (no @GlobalRoles)", () => {
@@ -278,9 +267,10 @@ describe("pastor in the rest of the catalog", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("the app authorization screen is app-only and uses exact roles", () => {
+  it("the app authorization screen is app-only and reads the backend capability", () => {
     const screen = SCREEN_CATALOG.find((s) => s.id === "app-investiture-authorizer");
     expect(screen?.surfaces).toEqual(["app"]);
-    expect(screen?.viewAny.exactRoles).toBe(true);
+    expect(screen?.viewAny.capability).toBe("investiture.authorize_requests");
+    expect(screen?.viewAny.roles).toEqual([]);
   });
 });

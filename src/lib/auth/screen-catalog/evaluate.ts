@@ -1,4 +1,4 @@
-import { extractPermissions } from "@/lib/auth/permission-utils";
+import { extractCapabilities, extractPermissions } from "@/lib/auth/permission-utils";
 import { extractRoles, SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 import type { AuthUser } from "@/lib/auth/types";
 
@@ -15,15 +15,34 @@ export function subjectFromUser(user: AuthUser | null | undefined): AccessSubjec
   return {
     roles,
     permissions: new Set(extractPermissions(user).map(normalizePermission)),
+    capabilities: extractCapabilities(user),
     isSuperAdmin: roles.has(SUPER_ADMIN_ROLE),
   };
 }
 
+/** True when the subject carries every (or any) permission of the gate. */
+function permissionsSatisfied(subject: AccessSubject, access: CapabilityGate): boolean {
+  const permissions = access.permissions ?? [];
+  if (permissions.length === 0) {
+    return true;
+  }
+  return access.requireAll
+    ? permissions.every((permission) =>
+        subject.permissions.has(normalizePermission(permission)),
+      )
+    : permissions.some((permission) =>
+        subject.permissions.has(normalizePermission(permission)),
+      );
+}
+
 /**
  * Single evaluator for `viewAny` and capability gates.
+ * Capability: when the gate names one, the subject must hold it (from
+ * `authorization.capabilities`) and the permission gate must pass; `roles`
+ * are not read.
  * Permissions: any-of by default, all-of with `requireAll`.
- * Roles: any-of after alias expansion (same as the backend guard), or literal
- * match when `exactRoles` is set (service-level rules).
+ * Roles (legacy gates): any-of after alias expansion (same as the backend
+ * guard), or literal match when `exactRoles` is set.
  * Empty gate = allowed. Super-admin bypasses everything.
  */
 export function evaluateAccess(
@@ -34,6 +53,13 @@ export function evaluateAccess(
     return true;
   }
 
+  if (access.capability) {
+    return (
+      subject.capabilities.has(access.capability) &&
+      permissionsSatisfied(subject, access)
+    );
+  }
+
   const permissions = access.permissions ?? [];
   const roles = access.roles ?? [];
 
@@ -41,17 +67,7 @@ export function evaluateAccess(
     return true;
   }
 
-  const permissionsOk =
-    permissions.length === 0 ||
-    (access.requireAll
-      ? permissions.every((permission) =>
-          subject.permissions.has(normalizePermission(permission)),
-        )
-      : permissions.some((permission) =>
-          subject.permissions.has(normalizePermission(permission)),
-        ));
-
-  if (!permissionsOk) {
+  if (!permissionsSatisfied(subject, access)) {
     return false;
   }
 

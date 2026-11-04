@@ -8,7 +8,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import type { PermissionKey } from "./generated/permission-keys";
-import type { GlobalRoleName } from "./generated/role-names";
 
 // --- Gestión de Usuarios ---
 export const USERS_READ = "users:read" satisfies PermissionKey;
@@ -116,6 +115,7 @@ export const ATTENDANCE_MANAGE = "attendance:manage" satisfies PermissionKey;
 export const CAMPOREES_READ   = "camporees:read" satisfies PermissionKey;
 export const CAMPOREES_CREATE = "camporees:create" satisfies PermissionKey;
 export const CAMPOREES_UPDATE = "camporees:update" satisfies PermissionKey;
+export const CAMPOREES_REGISTER = "camporees:register" satisfies PermissionKey;
 export const CAMPOREES_DELETE = "camporees:delete" satisfies PermissionKey;
 
 // --- Camporee Event Types (catalog) ---
@@ -136,27 +136,11 @@ export const VALIDATION_REVIEW = "validation:review" satisfies PermissionKey;
 export const VALIDATION_READ   = "validation:read" satisfies PermissionKey;
 
 
-// --- Investidura por autorización (roles, no permisos: SkipPermissions en la API) ---
-/** Quienes pueden autorizar solicitudes. El servicio compara estos nombres literalmente. */
-export const INVESTITURE_AUTHORIZER_ROLES = ["pastor", "director-lf", "assistant-lf"] as const satisfies readonly GlobalRoleName[];
-/** Ventana y porcentaje del Campo: `@GlobalRoles` con alias (unión y división consultan). */
-export const INVESTITURE_FIELD_CONFIG_ROLES = [
-  "director-lf",
-  "assistant-lf",
-  "admin",
-  "assistant-admin",
-  "director-union",
-  "assistant-union",
-  "director-dia",
-  "assistant-dia",
-] as const satisfies readonly GlobalRoleName[];
-/** Asignación de pastores por distrito. El servicio solo resuelve Campo y unión. */
-export const INVESTITURE_PASTOR_ASSIGN_ROLES = [
-  "director-lf",
-  "assistant-lf",
-  "director-union",
-  "assistant-union",
-] as const satisfies readonly GlobalRoleName[];
+// --- Investidura por autorización ---
+// Las reglas de rol (pastor / director-lf / unión / división) viven en el
+// backend y llegan como capabilities: `investiture.authorize_requests`,
+// `investiture.consult_field_window`, `investiture.configure_field_window`,
+// `investiture.assign_district_pastors` (ver generated/capability-keys.ts).
 
 // --- Finanzas ---
 export const FINANCES_READ = "finances:read" satisfies PermissionKey;

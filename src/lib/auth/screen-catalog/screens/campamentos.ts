@@ -19,6 +19,7 @@ import {
   CAMPOREES_CREATE,
   CAMPOREES_DELETE,
   CAMPOREES_READ,
+  CAMPOREES_REGISTER,
   CAMPOREES_UPDATE,
 } from "@/lib/auth/permissions";
 
@@ -37,6 +38,12 @@ const CAMPOREE_DETAIL_CAPABILITIES: ScreenCapability[] = [
   { id: "create", kind: "button", gate: { permissions: [CAMPOREES_CREATE] } },
   { id: "update", kind: "button", gate: { permissions: [CAMPOREES_UPDATE] } },
   { id: "delete", kind: "button", gate: { permissions: [CAMPOREES_DELETE] } },
+  {
+    // POST/DELETE camporees/:id/members — camporees:register (admin roster).
+    id: "members.register",
+    kind: "button",
+    gate: { permissions: [CAMPOREES_REGISTER] },
+  },
   {
     id: "events.create",
     kind: "button",

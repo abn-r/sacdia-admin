@@ -1,20 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import type { AuthUser } from "@/lib/auth/types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { canManageUserAccessFlags } from "./can-manage-user-access-flags";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions },
-    },
-  };
-}
 
 const UPDATE_ADMIN = ["users:update_admin"];
 
@@ -29,10 +18,10 @@ describe("canManageUserAccessFlags", () => {
     expect(canManageUserAccessFlags(buildUser(["super-admin"], []))).toBe(true);
   });
 
-  it("lets assistant-admin through the admin GlobalRoles alias", () => {
+  it("hides Accesos from assistant-admin (users.update_admin_fields is super-admin/admin only)", () => {
     expect(
       canManageUserAccessFlags(buildUser(["assistant-admin"], UPDATE_ADMIN)),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("hides Accesos from local-field directors even with users:update_admin", () => {

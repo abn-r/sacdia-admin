@@ -13,6 +13,8 @@ export type CatalogDumpGate = {
   roles?: string[];
   requireAll?: boolean;
   exactRoles?: boolean;
+  /** `authorization.capabilities` key; when present `roles` is always `[]`. */
+  capability?: string;
 };
 
 export type CatalogDumpCapability = {
@@ -36,6 +38,15 @@ export type CatalogDump = {
 
 function dumpGate(gate: CapabilityGate): CatalogDumpGate {
   const out: CatalogDumpGate = {};
+  if (gate.capability) {
+    // Capability gates are explicit: both lists are written even when empty
+    // so the Flutter evaluator never confuses them with an open gate.
+    out.permissions = [...(gate.permissions ?? [])].sort();
+    out.roles = [];
+    if (gate.requireAll) out.requireAll = true;
+    out.capability = gate.capability;
+    return out;
+  }
   if (gate.permissions && gate.permissions.length > 0) {
     out.permissions = [...gate.permissions].sort();
   }

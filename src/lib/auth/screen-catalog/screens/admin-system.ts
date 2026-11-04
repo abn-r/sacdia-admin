@@ -1,4 +1,3 @@
-import { CATALOG_EDITOR_ROLES } from "@/lib/auth/catalog-editor-access";
 import {
   ACHIEVEMENTS_MANAGE,
   AUDIT_READ,
@@ -8,19 +7,16 @@ import {
   ROLES_READ,
   SCORING_CATEGORIES_READ,
 } from "@/lib/auth/permissions";
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { CapabilityGate, ScreenDefinition } from "../types";
-import { roleOnlyAccess, viewOnlyScreen } from "./_helpers";
+import { capabilityAccess, catalogEditorAccess, viewOnlyScreen } from "./_helpers";
 
 /**
  * Every write in `RbacController` (`/admin/rbac/*`) is
- * `@GlobalRoles('super-admin')` + `@RequirePermissions('permissions:assign')`.
+ * `@GlobalRoles('super-admin')` + `@RequirePermissions('permissions:assign')`
+ * → `rbac.manage` + `permissions:assign`.
  */
-const RBAC_WRITE: CapabilityGate = {
-  permissions: [PERMISSIONS_ASSIGN],
-  roles: [SUPER_ADMIN_ROLE],
-};
+const RBAC_WRITE: CapabilityGate = capabilityAccess("rbac.manage", [PERMISSIONS_ASSIGN]);
 
 export const adminSystemScreens: ScreenDefinition[] = [
   {
@@ -49,29 +45,37 @@ export const adminSystemScreens: ScreenDefinition[] = [
 
   // `/divisions/scoring-categories` is `@GlobalRoles('admin', 'super-admin')` +
   // `scoring_categories:read`. Field roles hold the permission but the API
-  // rejects them, so the page needs the role too.
-  viewOnlyScreen("admin-settings-scoring-categories", {
-    permissions: [SCORING_CATEGORIES_READ],
-    roles: [...CATALOG_EDITOR_ROLES],
-  }),
-
-  viewOnlyScreen("admin-system-variables", roleOnlyAccess(CATALOG_EDITOR_ROLES)),
-  viewOnlyScreen("admin-system-jobs", roleOnlyAccess(CATALOG_EDITOR_ROLES)),
+  // rejects them, so the page needs `catalogs.edit` too.
   viewOnlyScreen(
-    "admin-system-jobs-history",
-    roleOnlyAccess(CATALOG_EDITOR_ROLES),
+    "admin-settings-scoring-categories",
+    catalogEditorAccess([SCORING_CATEGORIES_READ]),
   ),
+
+  viewOnlyScreen("admin-system-variables", capabilityAccess("system.config.read")),
+  {
+    id: "admin-system-jobs",
+    surfaces: ["admin"],
+    viewAny: capabilityAccess("system.config.read"),
+    // POST /admin/system/jobs/:name/run — super-admin only (`system.jobs.run`).
+    capabilities: [{ id: "run", kind: "button", gate: capabilityAccess("system.jobs.run") }],
+  },
+  viewOnlyScreen("admin-system-jobs-history", capabilityAccess("system.config.read")),
   // `/admin/achievements` is `@GlobalRoles('admin', 'super-admin')` +
   // `achievements:manage`. Field roles also hold the permission, but the API
-  // answers them 403, so the page needs the role too.
-  viewOnlyScreen("admin-system-achievements", {
-    permissions: [ACHIEVEMENTS_MANAGE],
-    roles: [...CATALOG_EDITOR_ROLES],
-  }),
-  viewOnlyScreen("admin-system-audit", {
-    permissions: [AUDIT_READ],
-    roles: [SUPER_ADMIN_ROLE],
-  }),
+  // answers them 403, so the page needs `catalogs.edit` too.
+  {
+    id: "admin-system-achievements",
+    surfaces: ["admin"],
+    viewAny: catalogEditorAccess([ACHIEVEMENTS_MANAGE]),
+    capabilities: [
+      // POST/PATCH/DELETE achievement-categories and achievements.
+      { id: "manage", kind: "button", gate: catalogEditorAccess([ACHIEVEMENTS_MANAGE]) },
+    ],
+  },
+  viewOnlyScreen(
+    "admin-system-audit",
+    capabilityAccess("audit.read_system", [AUDIT_READ]),
+  ),
 
   {
     id: "admin-system-roles",

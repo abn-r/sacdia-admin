@@ -32,7 +32,7 @@ import {
 } from "@/lib/auth/permissions";
 
 import type { ScreenDefinition } from "../types";
-import { roleOnlyAccess, viewOnlyScreen } from "./_helpers";
+import { capabilityAccess, viewOnlyScreen } from "./_helpers";
 
 /**
  * Union of tab viewAny keys for `/dashboard/payment-orders`.
@@ -94,12 +94,9 @@ export const operationsScreens: ScreenDefinition[] = [
     ],
   },
   // GET insurance/expiring — insurance.controller.ts:245-248
-  // @GlobalRoles('admin','coordinator') + @SkipPermissions.
-  // director-lf / assistant-lf enter via coordinator alias (not union/dia).
-  viewOnlyScreen(
-    "insurance-expiring",
-    roleOnlyAccess(["admin", "coordinator"]),
-  ),
+  // @GlobalRoles('admin','coordinator') + @SkipPermissions: the same rule the
+  // backend publishes as `coordination.hub_view`.
+  viewOnlyScreen("insurance-expiring", capabilityAccess("coordination.hub_view")),
   {
     id: "insurance-config",
     surfaces: ["admin"],

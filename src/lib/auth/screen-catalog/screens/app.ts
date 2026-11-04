@@ -8,7 +8,7 @@ import {
 } from "@/lib/auth/permissions";
 
 import type { ScreenDefinition } from "../types";
-import { roleOnlyAccess } from "./_helpers";
+import { capabilityAccess } from "./_helpers";
 
 /**
  * App-only screens (Flutter). Admin screens that the app also shows keep
@@ -24,9 +24,9 @@ export const appScreens: ScreenDefinition[] = [
     // analytics.controller.ts L63-64 GET sla-dashboard
     // class @SkipPermissions + method @GlobalRoles('admin','coordinator').
     // Distinct from admin `coordination` (`/admin/coordination` =
-    // coordination:manage + USER_MANAGEMENT_ROLES). director-lf / assistant-lf
-    // enter via coordinator alias; union/dia do not.
-    viewAny: roleOnlyAccess(["admin", "coordinator"]),
+    // coordination:manage + users.manage_in_scope). The backend publishes the
+    // alias-expanded rule as `coordination.hub_view`.
+    viewAny: capabilityAccess("coordination.hub_view"),
     capabilities: [],
   },
   {
@@ -84,21 +84,17 @@ export const appScreens: ScreenDefinition[] = [
     path: "/home/investiture",
     surfaces: ["app"],
     // Present/add/remove/change dates — investiture-authorization-requests
-    // controller; the service checks the section board role.
-    viewAny: roleOnlyAccess(["director", "secretary", "secretary-treasurer"]),
+    // controller; the service checks the board role of the ACTIVE assignment.
+    viewAny: capabilityAccess("investiture.board"),
     capabilities: [],
   },
   {
     id: "app-investiture-authorizer",
     path: "/investiture/authorize",
     surfaces: ["app"],
-    // GET/POST investiture-requests for authorizers; exact roles because the
-    // backend compares pastor/director-lf/assistant-lf literally.
-    viewAny: {
-      permissions: [],
-      roles: ["pastor", "director-lf", "assistant-lf"],
-      exactRoles: true,
-    },
+    // GET/POST investiture-requests for authorizers (pastor / Campo, compared
+    // literally by the service and published as one capability).
+    viewAny: capabilityAccess("investiture.authorize_requests"),
     capabilities: [],
   },
 ];

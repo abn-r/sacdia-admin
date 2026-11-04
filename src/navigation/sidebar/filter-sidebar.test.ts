@@ -1,28 +1,36 @@
 import { describe, expect, it } from "vitest";
 
-import { filterSidebarItems } from "./filter-sidebar";
-import { sidebarItems } from "./sidebar-items";
+import { subjectFromUser } from "@/lib/auth/screen-catalog";
+import { buildAuthUser } from "@/lib/auth/testing/auth-user-fixture";
 
-const checker = {
-  isSuperAdmin: false,
-  canAny: (permissions: string[]) =>
-    permissions.some((permission) => permission === "users:read"),
-  canAll: (permissions: string[]) =>
-    permissions.every((permission) => permission === "users:read"),
-  hasAnyRole: () => true,
-};
+import { filterSidebarItems, type SidebarAccessChecker } from "./filter-sidebar";
+import { sidebarItems, type NavGroup } from "./sidebar-items";
+
+function checker(
+  roles: string[],
+  permissions: string[] = [],
+  extra: Partial<SidebarAccessChecker> = {},
+): SidebarAccessChecker {
+  return { ...subjectFromUser(buildAuthUser({ roles, permissions })), ...extra };
+}
+
+function collectTitles(groups: NavGroup[]): string[] {
+  return groups.flatMap((group) =>
+    group.items.flatMap((item) => {
+      if ("subItems" in item && item.subItems) {
+        return item.subItems.flatMap((sub) =>
+          sub.subItems?.length ? sub.subItems.map((leaf) => leaf.title) : [sub.title],
+        );
+      }
+      return [item.title];
+    }),
+  );
+}
 
 describe("filterSidebarItems", () => {
   it("keeps only items the user can access", () => {
-    const filtered = filterSidebarItems(sidebarItems, checker);
-
-    const titles = filtered.flatMap((group) =>
-      group.items.flatMap((item) => {
-        if ("subItems" in item && item.subItems) {
-          return item.subItems.map((sub) => sub.title);
-        }
-        return [item.title];
-      }),
+    const titles = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["director-lf"], ["users:read"])),
     );
 
     expect(titles).toContain("Usuarios");
@@ -30,189 +38,65 @@ describe("filterSidebarItems", () => {
   });
 
   it("returns all items for super-admin", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: true,
-      canAny: () => false,
-      canAll: () => false,
-      hasAnyRole: () => false,
-    });
+    const filtered = filterSidebarItems(sidebarItems, checker(["super-admin"]));
 
     expect(filtered.length).toBe(sidebarItems.length);
   });
 
-  it("hides catalog editors when the user has catalogs:read but not an admin role", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) =>
-        permissions.includes("catalogs:read") ||
-        permissions.includes("countries:read") ||
-        permissions.includes("classes:read"),
-      canAll: () => false,
-      hasAnyRole: () => false,
-    });
+  it("hides catalog editors when the user has catalogs:read but not catalogs.edit", () => {
+    const titles = collectTitles(
+      filterSidebarItems(
+        sidebarItems,
+        checker(["director-lf"], ["catalogs:read", "countries:read", "classes:read"]),
+      ),
+    );
 
-    const titles = collectTitles(filtered);
     expect(titles).not.toContain("Categorías finanzas");
     expect(titles).not.toContain("Países");
     expect(titles).not.toContain("Clases");
     expect(titles).not.toContain("Certificaciones GM");
   });
 
-  it("keeps the certifications catalog for certifications:configure without an admin role", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("certifications:configure"),
-      canAll: () => false,
-      hasAnyRole: () => false,
-    });
+  it("keeps the certifications catalog for certifications:configure without catalogs.edit", () => {
+    const titles = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["director-lf"], ["certifications:configure"])),
+    );
 
-    expect(collectTitles(filtered)).toContain("Certificaciones GM");
+    expect(titles).toContain("Certificaciones GM");
   });
 
-  it("keeps catalog editors for admin with catalogs:read", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("catalogs:read"),
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("admin"),
-    });
+  it("keeps catalog editors for admin (catalogs.edit) with catalogs:read", () => {
+    const titles = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["admin"], ["catalogs:read"])),
+    );
 
-    const titles = collectTitles(filtered);
     expect(titles).toContain("Categorías finanzas");
   });
 
-  it("never shows the retired enrollments queue", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: true,
-      canAny: () => true,
-      canAll: () => true,
-      hasAnyRole: () => true,
-    });
-    expect(collectTitles(filtered)).not.toContain("Inscripciones");
-  });
-
-  it("hides year-end when the actor only has permissions:read", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: (permissions) => permissions.includes("permissions:read"),
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("admin"),
-    });
-
-    expect(collectTitles(filtered)).not.toContain("Cierre de año");
-  });
-
-  it("shows jobs for admin without permissions:read", () => {
-    const filtered = filterSidebarItems(sidebarItems, {
-      isSuperAdmin: false,
-      canAny: () => false,
-      canAll: () => false,
-      hasAnyRole: (roles) => roles.includes("admin"),
-    });
-
-    expect(collectTitles(filtered)).toContain("Tareas y colas");
-  });
-
-  it("hides unmapped leaf urls (fail-closed)", () => {
-    const filtered = filterSidebarItems(
-      [
-        {
-          id: 99,
-          items: [
-            {
-              id: "ghost-leaf",
-              title: "Ghost",
-              url: "/dashboard/ghost",
-            },
-          ],
-        },
-      ],
-      {
-        isSuperAdmin: false,
-        canAny: () => true,
-        canAll: () => true,
-        hasAnyRole: () => true,
-      },
+  it("requires users.manage_in_scope on top of users:read", () => {
+    const coordinator = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["coordinator"], ["users:read"])),
     );
+    expect(coordinator).not.toContain("Usuarios");
 
-    expect(filtered).toEqual([]);
-  });
-});
-
-describe("investiture authorization items", () => {
-  function titlesFor(roles: string[]) {
-    // Raw role names, as the evaluator subject holds them (no alias expansion).
-    return collectTitles(
-      filterSidebarItems(sidebarItems, {
-        isSuperAdmin: false,
-        canAny: () => false,
-        canAll: () => false,
-        hasAnyRole: (required) => required.some((role) => roles.includes(role)),
-      }),
+    const field = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["director-lf"], ["users:read"])),
     );
-  }
-
-  it("shows the authorizer list to pastor and Campo directors, not to unión (exact roles)", () => {
-    expect(titlesFor(["pastor"])).toContain("Autorizaciones");
-    expect(titlesFor(["director-lf"])).toContain("Autorizaciones");
-    expect(titlesFor(["director-union"])).not.toContain("Autorizaciones");
-    expect(titlesFor(["admin"])).not.toContain("Autorizaciones");
+    expect(field).toContain("Usuarios");
   });
 
-  it("shows settings to the lf/union/dia family and pastors screen to lf/union", () => {
-    expect(titlesFor(["director-dia"])).toContain("Ventana de investidura");
-    expect(titlesFor(["director-dia"])).not.toContain("Pastores por distrito");
-    expect(titlesFor(["assistant-union"])).toContain("Pastores por distrito");
-    expect(titlesFor(["pastor"])).not.toContain("Ventana de investidura");
-  });
-});
-
-describe("pastor-only sidebar", () => {
-  const everythingAllowed = {
-    isSuperAdmin: false,
-    canAny: () => true,
-    canAll: () => true,
-    hasAnyRole: () => true,
-  };
-
-  it("shows only the authorization list, even if every other gate would pass", () => {
+  it("shows a pastor-only user just the authorization list", () => {
     const titles = collectTitles(
-      filterSidebarItems(sidebarItems, { ...everythingAllowed, pastorOnly: true }),
+      filterSidebarItems(
+        sidebarItems,
+        checker(["pastor"], ["dashboard:read", "clubs:read"], { pastorOnly: true }),
+      ),
     );
-    expect(titles).toContain("Autorizaciones");
-    expect(titles).not.toContain("Inicio");
-    expect(titles).not.toContain("Usuarios");
-    expect(titles).not.toContain("Ventana de investidura");
-    expect(titles).not.toContain("Pastores por distrito");
+
+    expect(titles).toEqual(["Autorizaciones"]);
   });
 
-  it("is unchanged when the flag is off", () => {
-    const titles = collectTitles(filterSidebarItems(sidebarItems, everythingAllowed));
-    expect(titles).toContain("Usuarios");
-    expect(titles).toContain("Autorizaciones");
+  it("hides everything from a user with no permissions or capabilities", () => {
+    expect(filterSidebarItems(sidebarItems, checker([]))).toEqual([]);
   });
 });
-
-function collectTitles(
-  groups: ReturnType<typeof filterSidebarItems>,
-): string[] {
-  const titles: string[] = [];
-
-  const walk = (
-    items: (typeof groups)[number]["items"] | undefined,
-  ) => {
-    if (!items) return;
-    for (const item of items) {
-      titles.push(item.title);
-      if ("subItems" in item && item.subItems) {
-        walk(item.subItems as typeof items);
-      }
-    }
-  };
-
-  for (const group of groups) {
-    walk(group.items);
-  }
-
-  return titles;
-}

@@ -20,10 +20,9 @@ import {
   UNIONS_READ,
   UNIONS_UPDATE,
 } from "@/lib/auth/permissions";
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { ScreenCapability, ScreenDefinition } from "../types";
-import { catalogEditorAccess } from "./_helpers";
+import { capabilityAccess, catalogEditorAccess } from "./_helpers";
 
 /**
  * Geography + club taxonomy catalogs (`/dashboard/catalogs/*`).
@@ -58,12 +57,15 @@ function editorScreen(
   };
 }
 
-/** POST/DELETE club ideals and club types: method `@GlobalRoles('super-admin')`. */
+/**
+ * POST/DELETE club ideals and club types: method `@GlobalRoles('super-admin')`
+ * → `catalogs.manage_protected`.
+ */
 const SUPER_ADMIN_CATALOG_MUTATIONS: ScreenCapability[] = [
   {
     id: "create",
     kind: "button",
-    gate: { permissions: [CATALOGS_CREATE], roles: [SUPER_ADMIN_ROLE] },
+    gate: capabilityAccess("catalogs.manage_protected", [CATALOGS_CREATE]),
   },
   {
     id: "update",
@@ -73,7 +75,7 @@ const SUPER_ADMIN_CATALOG_MUTATIONS: ScreenCapability[] = [
   {
     id: "delete",
     kind: "button",
-    gate: { permissions: [CATALOGS_DELETE], roles: [SUPER_ADMIN_ROLE] },
+    gate: capabilityAccess("catalogs.manage_protected", [CATALOGS_DELETE]),
   },
 ];
 

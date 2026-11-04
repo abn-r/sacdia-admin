@@ -17,19 +17,19 @@ import {
   HONORS_READ,
   HONORS_UPDATE,
 } from "@/lib/auth/permissions";
-import { SUPER_ADMIN_ROLE } from "@/lib/auth/roles";
 
 import type { ScreenCapability, ScreenDefinition } from "../types";
-import { catalogEditorAccess } from "./_helpers";
+import { capabilityAccess, catalogEditorAccess } from "./_helpers";
 import { CAMPOREE_EVENT_TYPE_CAPABILITIES } from "./campamentos";
 
 /**
  * Domain catalogs: academics (classes), health, business, honors, activity
  * types, ecclesiastical years (`/dashboard/catalogs/*`).
  * Backend: `admin-reference.controller.ts`, `admin-phase-e-catalogs.controller.ts`.
- * Class-level `@GlobalRoles('admin','super-admin')` on both. Method
- * `@GlobalRoles('super-admin')` on ecclesiastical-year POST/DELETE (same
- * fence as club ideals/types). Other catalog writes stay `catalogEditorAccess`.
+ * Class-level `@GlobalRoles('admin','super-admin')` on both (`catalogs.edit`).
+ * Method `@GlobalRoles('super-admin')` on ecclesiastical-year POST/DELETE
+ * (`catalogs.manage_protected`, same fence as club ideals/types). Other
+ * catalog writes stay `catalogEditorAccess`.
  * `catalogs-certifications` lives in `investiture.ts`;
  * `catalogs-camporee-event-types` capabilities come from `campamentos.ts`.
  */
@@ -108,10 +108,9 @@ export const catalogsDomainScreens: ScreenDefinition[] = [
       {
         id: "create",
         kind: "button",
-        gate: {
-          permissions: [ECCLESIASTICAL_YEARS_CREATE],
-          roles: [SUPER_ADMIN_ROLE],
-        },
+        gate: capabilityAccess("catalogs.manage_protected", [
+          ECCLESIASTICAL_YEARS_CREATE,
+        ]),
       },
       {
         id: "update",
@@ -121,10 +120,9 @@ export const catalogsDomainScreens: ScreenDefinition[] = [
       {
         id: "delete",
         kind: "button",
-        gate: {
-          permissions: [ECCLESIASTICAL_YEARS_DELETE],
-          roles: [SUPER_ADMIN_ROLE],
-        },
+        gate: capabilityAccess("catalogs.manage_protected", [
+          ECCLESIASTICAL_YEARS_DELETE,
+        ]),
       },
     ],
   },

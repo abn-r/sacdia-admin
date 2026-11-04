@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import * as permissionConstants from "@/lib/auth/permissions";
-import type { AuthUser } from "@/lib/auth/types";
+import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import {
   bundleKeys,
@@ -19,20 +19,8 @@ import {
   resolveScreenPath,
   SCREEN_CATALOG,
   subjectFromUser,
-  USER_MANAGEMENT_ROLES,
 } from "./index";
 
-function buildUser(roles: string[], permissions: string[]): AuthUser {
-  return {
-    id: "actor",
-    email: "actor@example.com",
-    roles,
-    authorization: {
-      grants: { global_roles: roles.map((role_name) => ({ role_name })) },
-      effective: { permissions },
-    },
-  };
-}
 
 const KNOWN_KEYS = new Set<string>(
   (Object.values(permissionConstants) as unknown[]).filter(
@@ -158,14 +146,45 @@ describe("evaluateAccess", () => {
     ).toBe(false);
   });
 
-  it("requires permission AND role when both are declared", () => {
-    const subject = subjectFromUser(buildUser(["director-lf"], []));
+  it("requires permission AND capability when both are declared", () => {
+    const withoutPermission = subjectFromUser(buildUser(["director-lf"], []));
     expect(
-      evaluateAccess(subject, {
+      evaluateAccess(withoutPermission, {
         permissions: ["users:create"],
-        roles: [...USER_MANAGEMENT_ROLES],
+        roles: [],
+        capability: "users.manage_in_scope",
       }),
     ).toBe(false);
+
+    const withoutCapability = subjectFromUser(buildUser(["coordinator"], ["users:create"]));
+    expect(
+      evaluateAccess(withoutCapability, {
+        permissions: ["users:create"],
+        roles: [],
+        capability: "users.manage_in_scope",
+      }),
+    ).toBe(false);
+
+    const both = subjectFromUser(buildUser(["director-lf"], ["users:create"]));
+    expect(
+      evaluateAccess(both, {
+        permissions: ["users:create"],
+        roles: [],
+        capability: "users.manage_in_scope",
+      }),
+    ).toBe(true);
+  });
+
+  it("ignores roles and exactRoles when a capability is declared", () => {
+    const subject = subjectFromUser(buildUser(["pastor"], []));
+    expect(
+      evaluateAccess(subject, {
+        permissions: [],
+        roles: ["admin"],
+        exactRoles: true,
+        capability: "investiture.authorize_requests",
+      }),
+    ).toBe(true);
   });
 
   it("honours requireAll", () => {
@@ -244,13 +263,14 @@ describe("users screen", () => {
     expect(
       canCapability(buildUser(["super-admin"], []), "users", "update_admin"),
     ).toBe(true);
+    // `users.update_admin_fields` is published for super-admin and admin only.
     expect(
       canCapability(
         buildUser(["assistant-admin"], ["users:update_admin"]),
         "users",
         "update_admin",
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("accepts the legacy OR for sensitive families", () => {
@@ -578,7 +598,8 @@ describe("groupByScreen", () => {
       "clubs",
       OTHER_SCREEN_GROUP_ID,
     ]);
-    expect(groups[0]!.requiredRoles).toEqual([...USER_MANAGEMENT_ROLES]);
+    expect(groups[0]!.requiredRoles).toEqual([]);
+    expect(groups[0]!.requiredCapability).toBe("users.manage_in_scope");
     expect(groups[0]!.items.map((item) => item.permission_name)).toEqual([
       "users:create",
       "users:read",

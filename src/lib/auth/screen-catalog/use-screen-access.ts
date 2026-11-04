@@ -9,11 +9,11 @@ import type { AccessSubject } from "./types";
 
 /** Client-side twin of `canCapability` / `canViewScreen`; same evaluator. */
 export function useScreenAccess() {
-  const { permissions, roles, isSuperAdmin } = usePermissions();
+  const { permissions, roles, capabilities, isSuperAdmin } = usePermissions();
 
   const subject = useMemo<AccessSubject>(
-    () => ({ permissions, roles, isSuperAdmin }),
-    [permissions, roles, isSuperAdmin],
+    () => ({ permissions, roles, capabilities, isSuperAdmin }),
+    [permissions, roles, capabilities, isSuperAdmin],
   );
 
   const can = useCallback(
