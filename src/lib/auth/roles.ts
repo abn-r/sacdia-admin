@@ -1,3 +1,4 @@
+import type { GlobalRoleName } from "./generated/role-names";
 import type { AuthUser } from "@/lib/auth/types";
 
 /**
@@ -7,7 +8,7 @@ import type { AuthUser } from "@/lib/auth/types";
  * more underscore role names in the API payload.
  * Use this constant everywhere instead of a raw string literal.
  */
-export const SUPER_ADMIN_ROLE = "super-admin" as const;
+export const SUPER_ADMIN_ROLE = "super-admin" as const satisfies GlobalRoleName;
 
 export const ALLOWED_ADMIN_ROLES = [
   "super-admin",
@@ -23,7 +24,7 @@ export const ALLOWED_ADMIN_ROLES = [
   "director-union",
   "assistant-dia",
   "director-dia",
-] as const;
+] as const satisfies readonly GlobalRoleName[];
 const RBAC_LEGACY_FALLBACK_ENABLED =
   process.env.NEXT_PUBLIC_RBAC_LEGACY_FALLBACK === "true";
 
@@ -176,7 +177,7 @@ export function extractRoles(user: AuthUser | null | undefined): string[] {
 }
 
 /** Role of the district pastor (global, no club). */
-export const PASTOR_ROLE = "pastor" as const;
+export const PASTOR_ROLE = "pastor" as const satisfies GlobalRoleName;
 
 /**
  * Where a pastor-only user lands and the only dashboard subtree they can open

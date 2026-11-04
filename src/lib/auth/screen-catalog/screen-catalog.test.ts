@@ -13,7 +13,6 @@ import {
   collectSidebarLeaves,
   evaluateAccess,
   getScreen,
-  GLOBAL_ROLE_ALIASES,
   groupByScreen,
   OTHER_SCREEN_GROUP_ID,
   resolvePathEntry,
@@ -133,44 +132,6 @@ describe("screen catalog integrity", () => {
       }
     }
     expect(missing).toEqual([]);
-  });
-
-  it("mirrors GLOBAL_ROLE_ALIASES from the backend guard (when available)", () => {
-    const guardPath = resolve(
-      process.cwd(),
-      "../sacdia-backend/src/common/guards/global-roles.guard.ts",
-    );
-    if (!existsSync(guardPath)) {
-      return;
-    }
-    const guard = readFileSync(guardPath, "utf8");
-    for (const [role, aliases] of Object.entries(GLOBAL_ROLE_ALIASES)) {
-      const key = /^[a-z]+$/.test(role) ? role : `'${role}'`;
-      const match = guard.match(
-        new RegExp(`${key}:\\s*(FIELD_ADMIN_ROLES|\\[[\\s\\S]*?\\])`),
-      );
-      expect(match, `alias entry for ${role}`).not.toBeNull();
-      const rhs = match![1]!.trim();
-      if (rhs === "FIELD_ADMIN_ROLES") {
-        expect([...aliases].sort()).toEqual(
-          [
-            "director-lf",
-            "assistant-lf",
-            "director-union",
-            "assistant-union",
-            "director-dia",
-            "assistant-dia",
-          ].sort(),
-        );
-      } else {
-        const parsed = rhs
-          .replace(/^\[|\]$/g, "")
-          .split(",")
-          .map((token) => token.trim().replace(/^'|'$/g, ""))
-          .filter((token) => token.length > 0 && !token.startsWith("//"));
-        expect([...aliases].sort(), role).toEqual(parsed.sort());
-      }
-    }
   });
 });
 

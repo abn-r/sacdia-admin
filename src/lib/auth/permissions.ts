@@ -1,182 +1,144 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // Constantes de permisos del sistema SACDIA
 // ═══════════════════════════════════════════════════════════════════════════
-// Este archivo es solo para AUTOCOMPLETADO y type-safety.
-// La fuente de verdad es la tabla `permissions` en la base de datos.
-//
-// Para agregar un nuevo permiso:
-//   1. Crear el permiso en la tabla `permissions` de la DB
-//   2. Asignarlo al rol correspondiente en `role_permissions`
-//   3. Agregar la constante aquí en el grupo correspondiente
-//
-// Si un permiso existe en DB pero NO aquí, el sistema sigue funcionando.
-// Este archivo solo facilita el autocompletado en el IDE.
+// La fuente de verdad es el catálogo generado en `src/lib/auth/generated/`,
+// regenerado desde el seed del backend con `pnpm authz:generate`.
+// Este archivo solo nombra las claves para autocompletado y las agrupa;
+// una clave ausente del catálogo hace fallar `tsc`.
 // ═══════════════════════════════════════════════════════════════════════════
 
+import type { PermissionKey } from "./generated/permission-keys";
+import type { GlobalRoleName } from "./generated/role-names";
+
 // --- Gestión de Usuarios ---
-export const USERS_READ = "users:read";
-export const USERS_READ_DETAIL = "users:read_detail";
-export const USERS_UPDATE_PROFILE = "users:update_profile";
-export const USERS_UPDATE_ADMIN = "users:update_admin";
-export const USERS_CREATE = "users:create";
-export const USERS_BULK_CREATE = "users:bulk_create";
-export const HEALTH_READ = "health:read";
-export const HEALTH_UPDATE = "health:update";
-export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read";
-export const EMERGENCY_CONTACTS_UPDATE = "emergency_contacts:update";
-export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read";
-export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update";
-export const POST_REGISTRATION_READ = "post_registration:read";
-export const REGISTRATION_COMPLETE = "registration:complete";
+export const USERS_READ = "users:read" satisfies PermissionKey;
+export const USERS_READ_DETAIL = "users:read_detail" satisfies PermissionKey;
+export const USERS_UPDATE_PROFILE = "users:update_profile" satisfies PermissionKey;
+export const USERS_UPDATE_ADMIN = "users:update_admin" satisfies PermissionKey;
+export const USERS_CREATE = "users:create" satisfies PermissionKey;
+export const USERS_BULK_CREATE = "users:bulk_create" satisfies PermissionKey;
+export const HEALTH_READ = "health:read" satisfies PermissionKey;
+export const HEALTH_UPDATE = "health:update" satisfies PermissionKey;
+export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read" satisfies PermissionKey;
+export const EMERGENCY_CONTACTS_UPDATE = "emergency_contacts:update" satisfies PermissionKey;
+export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read" satisfies PermissionKey;
+export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update" satisfies PermissionKey;
+export const POST_REGISTRATION_READ = "post_registration:read" satisfies PermissionKey;
+export const REGISTRATION_COMPLETE = "registration:complete" satisfies PermissionKey;
 
 // --- Roles y Permisos ---
-export const ROLES_READ = "roles:read";
-export const PERMISSIONS_READ = "permissions:read";
-export const PERMISSIONS_ASSIGN = "permissions:assign";
-export const AUDIT_READ = "audit:read";
+export const ROLES_READ = "roles:read" satisfies PermissionKey;
+export const PERMISSIONS_READ = "permissions:read" satisfies PermissionKey;
+export const PERMISSIONS_ASSIGN = "permissions:assign" satisfies PermissionKey;
+export const AUDIT_READ = "audit:read" satisfies PermissionKey;
 
 // --- Clubes ---
-export const CLUBS_READ = "clubs:read";
-export const CLUBS_CREATE = "clubs:create";
-export const CLUBS_UPDATE = "clubs:update";
-export const CLUBS_DELETE = "clubs:delete";
+export const CLUBS_READ = "clubs:read" satisfies PermissionKey;
+export const CLUBS_CREATE = "clubs:create" satisfies PermissionKey;
+export const CLUBS_UPDATE = "clubs:update" satisfies PermissionKey;
+export const CLUBS_DELETE = "clubs:delete" satisfies PermissionKey;
 // Club sections (consolidated from club_instances)
-export const CLUB_SECTIONS_READ = "club_sections:read";
-export const CLUB_SECTIONS_CREATE = "club_sections:create";
-export const CLUB_SECTIONS_UPDATE = "club_sections:update";
-export const CLUB_ROLES_READ = "club_roles:read";
-export const CLUB_ROLES_ASSIGN = "club_roles:assign";
-export const CLUB_ROLES_REVOKE = "club_roles:revoke";
-export const COORDINATION_MANAGE = "coordination:manage";
+export const CLUB_SECTIONS_READ = "club_sections:read" satisfies PermissionKey;
+export const CLUB_SECTIONS_CREATE = "club_sections:create" satisfies PermissionKey;
+export const CLUB_SECTIONS_UPDATE = "club_sections:update" satisfies PermissionKey;
+export const CLUB_ROLES_READ = "club_roles:read" satisfies PermissionKey;
+export const CLUB_ROLES_ASSIGN = "club_roles:assign" satisfies PermissionKey;
+export const CLUB_ROLES_REVOKE = "club_roles:revoke" satisfies PermissionKey;
+export const COORDINATION_MANAGE = "coordination:manage" satisfies PermissionKey;
 // Club membership approval
-export const CLUB_MEMBERS_APPROVE = "club_members:approve";
-export const CLUB_MEMBERS_REJECT = "club_members:reject";
-export const CLUB_MEMBERS_LIST_PENDING = "club_members:list_pending";
+export const CLUB_MEMBERS_APPROVE = "club_members:approve" satisfies PermissionKey;
+export const CLUB_MEMBERS_REJECT = "club_members:reject" satisfies PermissionKey;
+export const CLUB_MEMBERS_LIST_PENDING = "club_members:list_pending" satisfies PermissionKey;
 // Verify a minor's paper consent form. Coordinators hold it without club_members:approve.
-export const CONSENT_VERIFY = "consent:verify";
+export const CONSENT_VERIFY = "consent:verify" satisfies PermissionKey;
 
 // --- Jerarquía Geográfica ---
-export const COUNTRIES_READ = "countries:read";
-export const COUNTRIES_CREATE = "countries:create";
-export const COUNTRIES_UPDATE = "countries:update";
-export const COUNTRIES_DELETE = "countries:delete";
-export const UNIONS_READ = "unions:read";
-export const UNIONS_CREATE = "unions:create";
-export const UNIONS_UPDATE = "unions:update";
-export const UNIONS_DELETE = "unions:delete";
-export const LOCAL_FIELDS_READ = "local_fields:read";
-export const LOCAL_FIELDS_CREATE = "local_fields:create";
-export const LOCAL_FIELDS_UPDATE = "local_fields:update";
-export const LOCAL_FIELDS_DELETE = "local_fields:delete";
-export const DISTRICTS_READ = "districts:read";
-export const DISTRICTS_CREATE = "districts:create";
-export const DISTRICTS_UPDATE = "districts:update";
-export const DISTRICTS_DELETE = "districts:delete";
-export const CHURCHES_READ = "churches:read";
-export const CHURCHES_CREATE = "churches:create";
-export const CHURCHES_UPDATE = "churches:update";
-export const CHURCHES_DELETE = "churches:delete";
+export const COUNTRIES_READ = "countries:read" satisfies PermissionKey;
+export const COUNTRIES_CREATE = "countries:create" satisfies PermissionKey;
+export const COUNTRIES_UPDATE = "countries:update" satisfies PermissionKey;
+export const COUNTRIES_DELETE = "countries:delete" satisfies PermissionKey;
+export const UNIONS_READ = "unions:read" satisfies PermissionKey;
+export const UNIONS_CREATE = "unions:create" satisfies PermissionKey;
+export const UNIONS_UPDATE = "unions:update" satisfies PermissionKey;
+export const UNIONS_DELETE = "unions:delete" satisfies PermissionKey;
+export const LOCAL_FIELDS_READ = "local_fields:read" satisfies PermissionKey;
+export const LOCAL_FIELDS_CREATE = "local_fields:create" satisfies PermissionKey;
+export const LOCAL_FIELDS_UPDATE = "local_fields:update" satisfies PermissionKey;
+export const LOCAL_FIELDS_DELETE = "local_fields:delete" satisfies PermissionKey;
+export const DISTRICTS_READ = "districts:read" satisfies PermissionKey;
+export const DISTRICTS_CREATE = "districts:create" satisfies PermissionKey;
+export const DISTRICTS_UPDATE = "districts:update" satisfies PermissionKey;
+export const DISTRICTS_DELETE = "districts:delete" satisfies PermissionKey;
+export const CHURCHES_READ = "churches:read" satisfies PermissionKey;
+export const CHURCHES_CREATE = "churches:create" satisfies PermissionKey;
+export const CHURCHES_UPDATE = "churches:update" satisfies PermissionKey;
+export const CHURCHES_DELETE = "churches:delete" satisfies PermissionKey;
 
 // --- Catálogos de Referencia ---
-export const CATALOGS_READ = "catalogs:read";
-export const CATALOGS_CREATE = "catalogs:create";
-export const CATALOGS_UPDATE = "catalogs:update";
-export const CATALOGS_DELETE = "catalogs:delete";
-export const RELATIONSHIP_TYPES_READ = "relationship_types:read";
-export const RELATIONSHIP_TYPES_CREATE = "relationship_types:create";
-export const RELATIONSHIP_TYPES_UPDATE = "relationship_types:update";
-export const RELATIONSHIP_TYPES_DELETE = "relationship_types:delete";
-export const ALLERGIES_READ = "allergies:read";
-export const ALLERGIES_CREATE = "allergies:create";
-export const ALLERGIES_UPDATE = "allergies:update";
-export const ALLERGIES_DELETE = "allergies:delete";
-export const DISEASES_READ = "diseases:read";
-export const DISEASES_CREATE = "diseases:create";
-export const DISEASES_UPDATE = "diseases:update";
-export const DISEASES_DELETE = "diseases:delete";
-export const MEDICINES_READ = "medicines:read";
-export const MEDICINES_CREATE = "medicines:create";
-export const MEDICINES_UPDATE = "medicines:update";
-export const MEDICINES_DELETE = "medicines:delete";
-export const CLUB_TYPES_READ = "club_types:read";
-export const CLUB_TYPES_CREATE = "club_types:create";
-export const CLUB_TYPES_UPDATE = "club_types:update";
-export const CLUB_TYPES_DELETE = "club_types:delete";
-export const CLUB_IDEALS_READ = "club_ideals:read";
-export const CLUB_IDEALS_CREATE = "club_ideals:create";
-export const CLUB_IDEALS_UPDATE = "club_ideals:update";
-export const CLUB_IDEALS_DELETE = "club_ideals:delete";
-export const ACTIVITY_TYPES_READ = "activity_types:read";
-export const ACTIVITY_TYPES_CREATE = "activity_types:create";
-export const ACTIVITY_TYPES_UPDATE = "activity_types:update";
-export const ACTIVITY_TYPES_DELETE = "activity_types:delete";
+export const CATALOGS_READ = "catalogs:read" satisfies PermissionKey;
+export const CATALOGS_CREATE = "catalogs:create" satisfies PermissionKey;
+export const CATALOGS_UPDATE = "catalogs:update" satisfies PermissionKey;
+export const CATALOGS_DELETE = "catalogs:delete" satisfies PermissionKey;
 
 // --- Clases y Honores ---
-export const CLASSES_READ = "classes:read";
-export const CLASSES_SUBMIT_PROGRESS = "classes:submit_progress";
-export const CLASSES_MANAGE = "classes:manage";
-export const CLASS_MODULES_MANAGE = "class_modules:manage";
-export const CLASS_SECTIONS_MANAGE = "class_sections:manage";
-export const HONORS_READ = "honors:read";
-export const HONORS_CREATE = "honors:create";
-export const HONORS_UPDATE = "honors:update";
-export const HONORS_DELETE = "honors:delete";
-export const USER_HONORS_SUBMIT = "user_honors:submit";
-export const USER_HONORS_VALIDATE = "user_honors:validate";
-export const HONOR_CATEGORIES_READ = "honor_categories:read";
-export const HONOR_CATEGORIES_CREATE = "honor_categories:create";
-export const HONOR_CATEGORIES_UPDATE = "honor_categories:update";
-export const HONOR_CATEGORIES_DELETE = "honor_categories:delete";
-
-// --- Categorías de Finanzas e Inventario ---
-export const FINANCE_CATEGORIES_MANAGE = "finance_categories:manage";
-export const INVENTORY_CATEGORIES_MANAGE = "inventory_categories:manage";
+export const CLASSES_READ = "classes:read" satisfies PermissionKey;
+export const CLASSES_SUBMIT_PROGRESS = "classes:submit_progress" satisfies PermissionKey;
+export const HONORS_READ = "honors:read" satisfies PermissionKey;
+export const HONORS_CREATE = "honors:create" satisfies PermissionKey;
+export const HONORS_UPDATE = "honors:update" satisfies PermissionKey;
+export const HONORS_DELETE = "honors:delete" satisfies PermissionKey;
+export const USER_HONORS_SUBMIT = "user_honors:submit" satisfies PermissionKey;
+export const USER_HONORS_VALIDATE = "user_honors:validate" satisfies PermissionKey;
+export const HONOR_CATEGORIES_READ = "honor_categories:read" satisfies PermissionKey;
+export const HONOR_CATEGORIES_CREATE = "honor_categories:create" satisfies PermissionKey;
+export const HONOR_CATEGORIES_UPDATE = "honor_categories:update" satisfies PermissionKey;
+export const HONOR_CATEGORIES_DELETE = "honor_categories:delete" satisfies PermissionKey;
 
 // --- Materiales (pedidos / catálogo LF) ---
-export const MATERIALS_READ = "materiales:read";
-export const MATERIALS_CREATE = "materiales:create";
-export const MATERIALS_APPROVE = "materiales:approve";
-export const MATERIALS_UPLOAD_RECEIPT = "materiales:upload-receipt";
-export const MATERIALS_VALIDATE_RECEIPT = "materiales:validate-receipt";
-export const MATERIALS_DELIVER = "materiales:deliver";
-export const MATERIALS_MANAGE_INVENTORY = "materiales:manage-inventory";
-export const MATERIALS_CONFIGURE = "materiales:configure";
+export const MATERIALS_READ = "materiales:read" satisfies PermissionKey;
+export const MATERIALS_CREATE = "materiales:create" satisfies PermissionKey;
+export const MATERIALS_APPROVE = "materiales:approve" satisfies PermissionKey;
+export const MATERIALS_UPLOAD_RECEIPT = "materiales:upload-receipt" satisfies PermissionKey;
+export const MATERIALS_VALIDATE_RECEIPT = "materiales:validate-receipt" satisfies PermissionKey;
+export const MATERIALS_DELIVER = "materiales:deliver" satisfies PermissionKey;
+export const MATERIALS_MANAGE_INVENTORY = "materiales:manage-inventory" satisfies PermissionKey;
+export const MATERIALS_CONFIGURE = "materiales:configure" satisfies PermissionKey;
 
 // --- Actividades ---
-export const ACTIVITIES_READ = "activities:read";
-export const ACTIVITIES_CREATE = "activities:create";
-export const ACTIVITIES_UPDATE = "activities:update";
-export const ACTIVITIES_DELETE = "activities:delete";
-export const ATTENDANCE_READ = "attendance:read";
-export const ATTENDANCE_MANAGE = "attendance:manage";
+export const ACTIVITIES_READ = "activities:read" satisfies PermissionKey;
+export const ACTIVITIES_CREATE = "activities:create" satisfies PermissionKey;
+export const ACTIVITIES_UPDATE = "activities:update" satisfies PermissionKey;
+export const ACTIVITIES_DELETE = "activities:delete" satisfies PermissionKey;
+export const ATTENDANCE_READ = "attendance:read" satisfies PermissionKey;
+export const ATTENDANCE_MANAGE = "attendance:manage" satisfies PermissionKey;
 
 // --- Camporees (management) ---
-export const CAMPOREES_READ   = "camporees:read";
-export const CAMPOREES_CREATE = "camporees:create";
-export const CAMPOREES_UPDATE = "camporees:update";
-export const CAMPOREES_DELETE = "camporees:delete";
+export const CAMPOREES_READ   = "camporees:read" satisfies PermissionKey;
+export const CAMPOREES_CREATE = "camporees:create" satisfies PermissionKey;
+export const CAMPOREES_UPDATE = "camporees:update" satisfies PermissionKey;
+export const CAMPOREES_DELETE = "camporees:delete" satisfies PermissionKey;
 
 // --- Camporee Event Types (catalog) ---
-export const CAMPOREE_EVENT_TYPES_READ   = "camporee_event_types:read";
-export const CAMPOREE_EVENT_TYPES_CREATE = "camporee_event_types:create";
-export const CAMPOREE_EVENT_TYPES_UPDATE = "camporee_event_types:update";
-export const CAMPOREE_EVENT_TYPES_DELETE = "camporee_event_types:delete";
+export const CAMPOREE_EVENT_TYPES_READ   = "camporee_event_types:read" satisfies PermissionKey;
+export const CAMPOREE_EVENT_TYPES_CREATE = "camporee_event_types:create" satisfies PermissionKey;
+export const CAMPOREE_EVENT_TYPES_UPDATE = "camporee_event_types:update" satisfies PermissionKey;
+export const CAMPOREE_EVENT_TYPES_DELETE = "camporee_event_types:delete" satisfies PermissionKey;
 
 // --- Camporee Events (templates + instances) ---
-export const CAMPOREE_EVENTS_READ   = "camporee_events:read";
-export const CAMPOREE_EVENTS_CREATE = "camporee_events:create";
-export const CAMPOREE_EVENTS_UPDATE = "camporee_events:update";
-export const CAMPOREE_EVENTS_DELETE = "camporee_events:delete";
+export const CAMPOREE_EVENTS_READ   = "camporee_events:read" satisfies PermissionKey;
+export const CAMPOREE_EVENTS_CREATE = "camporee_events:create" satisfies PermissionKey;
+export const CAMPOREE_EVENTS_UPDATE = "camporee_events:update" satisfies PermissionKey;
+export const CAMPOREE_EVENTS_DELETE = "camporee_events:delete" satisfies PermissionKey;
 
 // --- Validación (Validation) ---
-export const VALIDATION_SUBMIT = "validation:submit";
-export const VALIDATION_REVIEW = "validation:review";
-export const VALIDATION_READ   = "validation:read";
+export const VALIDATION_SUBMIT = "validation:submit" satisfies PermissionKey;
+export const VALIDATION_REVIEW = "validation:review" satisfies PermissionKey;
+export const VALIDATION_READ   = "validation:read" satisfies PermissionKey;
 
 
 // --- Investidura por autorización (roles, no permisos: SkipPermissions en la API) ---
 /** Quienes pueden autorizar solicitudes. El servicio compara estos nombres literalmente. */
-export const INVESTITURE_AUTHORIZER_ROLES = ["pastor", "director-lf", "assistant-lf"] as const;
+export const INVESTITURE_AUTHORIZER_ROLES = ["pastor", "director-lf", "assistant-lf"] as const satisfies readonly GlobalRoleName[];
 /** Ventana y porcentaje del Campo: `@GlobalRoles` con alias (unión y división consultan). */
 export const INVESTITURE_FIELD_CONFIG_ROLES = [
   "director-lf",
@@ -187,149 +149,148 @@ export const INVESTITURE_FIELD_CONFIG_ROLES = [
   "assistant-union",
   "director-dia",
   "assistant-dia",
-] as const;
+] as const satisfies readonly GlobalRoleName[];
 /** Asignación de pastores por distrito. El servicio solo resuelve Campo y unión. */
 export const INVESTITURE_PASTOR_ASSIGN_ROLES = [
   "director-lf",
   "assistant-lf",
   "director-union",
   "assistant-union",
-] as const;
+] as const satisfies readonly GlobalRoleName[];
 
 // --- Finanzas ---
-export const FINANCES_READ = "finances:read";
-export const FINANCES_CREATE = "finances:create";
-export const FINANCES_UPDATE = "finances:update";
-export const FINANCES_DELETE = "finances:delete";
+export const FINANCES_READ = "finances:read" satisfies PermissionKey;
+export const FINANCES_CREATE = "finances:create" satisfies PermissionKey;
+export const FINANCES_UPDATE = "finances:update" satisfies PermissionKey;
+export const FINANCES_DELETE = "finances:delete" satisfies PermissionKey;
 
 // --- Inventario ---
-export const INVENTORY_READ = "inventory:read";
-export const INVENTORY_CREATE = "inventory:create";
-export const INVENTORY_UPDATE = "inventory:update";
-export const INVENTORY_DELETE = "inventory:delete";
+export const INVENTORY_READ = "inventory:read" satisfies PermissionKey;
+export const INVENTORY_CREATE = "inventory:create" satisfies PermissionKey;
+export const INVENTORY_UPDATE = "inventory:update" satisfies PermissionKey;
+export const INVENTORY_DELETE = "inventory:delete" satisfies PermissionKey;
 
 // --- Notificaciones ---
-export const NOTIFICATIONS_SEND = "notifications:send";
-export const NOTIFICATIONS_BROADCAST = "notifications:broadcast";
-export const NOTIFICATIONS_CLUB = "notifications:club";
+export const NOTIFICATIONS_SEND = "notifications:send" satisfies PermissionKey;
+export const NOTIFICATIONS_BROADCAST = "notifications:broadcast" satisfies PermissionKey;
+export const NOTIFICATIONS_CLUB = "notifications:club" satisfies PermissionKey;
 
 // --- Unidades (Units) ---
-export const UNITS_READ = "units:read";
-export const UNITS_UPDATE = "units:update";
+export const UNITS_READ = "units:read" satisfies PermissionKey;
+export const UNITS_UPDATE = "units:update" satisfies PermissionKey;
 
 // --- Miembro del Mes ---
-export const MOM_READ      = "mom:read";
-export const MOM_SUPERVISE = "mom:supervise";
-export const MOM_EVALUATE  = "mom:evaluate";
+export const MOM_READ      = "mom:read" satisfies PermissionKey;
+export const MOM_SUPERVISE = "mom:supervise" satisfies PermissionKey;
+export const MOM_EVALUATE  = "mom:evaluate" satisfies PermissionKey;
 
 // --- Scoring Categories ---
-export const SCORING_CATEGORIES_READ   = "scoring_categories:read";
-export const SCORING_CATEGORIES_MANAGE = "scoring_categories:manage";
+export const SCORING_CATEGORIES_READ   = "scoring_categories:read" satisfies PermissionKey;
+export const SCORING_CATEGORIES_MANAGE = "scoring_categories:manage" satisfies PermissionKey;
 
 // --- Solicitudes (Requests) ---
-export const REQUESTS_READ   = "requests:read";
-export const REQUESTS_REVIEW = "requests:review";
+export const REQUESTS_READ   = "requests:read" satisfies PermissionKey;
+export const REQUESTS_REVIEW = "requests:review" satisfies PermissionKey;
 
 // --- Certificaciones de Usuario (User Certifications) ---
-export const USER_CERTIFICATIONS_READ   = "user_certifications:read";
-export const USER_CERTIFICATIONS_MANAGE = "user_certifications:manage";
+export const USER_CERTIFICATIONS_READ   = "user_certifications:read" satisfies PermissionKey;
+export const USER_CERTIFICATIONS_MANAGE = "user_certifications:manage" satisfies PermissionKey;
 
 // --- Logros (Achievements) ---
-export const ACHIEVEMENTS_READ = "achievements:read";
-export const ACHIEVEMENTS_MANAGE = "achievements:manage";
+export const ACHIEVEMENTS_READ = "achievements:read" satisfies PermissionKey;
+export const ACHIEVEMENTS_MANAGE = "achievements:manage" satisfies PermissionKey;
 
 // --- Rankings ---
-export const RANKINGS_READ = "rankings:read";
-export const RANKINGS_RECALCULATE = "rankings:recalculate";
+export const RANKINGS_READ = "rankings:read" satisfies PermissionKey;
+export const RANKINGS_RECALCULATE = "rankings:recalculate" satisfies PermissionKey;
 
 // 8.4-C extended institutional rankings
-export const RANKING_WEIGHTS_READ = "ranking_weights:read";
-export const RANKING_WEIGHTS_WRITE = "ranking_weights:write";
+export const RANKING_WEIGHTS_READ = "ranking_weights:read" satisfies PermissionKey;
+export const RANKING_WEIGHTS_WRITE = "ranking_weights:write" satisfies PermissionKey;
 
 // 8.4-A enrollment-level rankings
-export const MEMBER_RANKINGS_READ_SELF = "member_rankings:read_self";
-export const MEMBER_RANKINGS_READ_SECTION = "member_rankings:read_section";
-export const MEMBER_RANKINGS_READ_CLUB = "member_rankings:read_club";
-export const MEMBER_RANKINGS_READ_LF = "member_rankings:read_lf";
-export const MEMBER_RANKINGS_READ_UNION = "member_rankings:read_union";
-export const MEMBER_RANKINGS_READ_DIVISION = "member_rankings:read_division";
-export const MEMBER_RANKINGS_READ_GLOBAL = "member_rankings:read_global";
+export const MEMBER_RANKINGS_READ_SELF = "member_rankings:read_self" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_SECTION = "member_rankings:read_section" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_CLUB = "member_rankings:read_club" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_LF = "member_rankings:read_lf" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_UNION = "member_rankings:read_union" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_DIVISION = "member_rankings:read_division" satisfies PermissionKey;
+export const MEMBER_RANKINGS_READ_GLOBAL = "member_rankings:read_global" satisfies PermissionKey;
 
-export const MEMBER_RANKING_WEIGHTS_READ = "member_ranking_weights:read";
-export const MEMBER_RANKING_WEIGHTS_WRITE = "member_ranking_weights:write";
+export const MEMBER_RANKING_WEIGHTS_READ = "member_ranking_weights:read" satisfies PermissionKey;
+export const MEMBER_RANKING_WEIGHTS_WRITE = "member_ranking_weights:write" satisfies PermissionKey;
 
-export const SECTION_RANKINGS_READ_CLUB = "section_rankings:read_club";
-export const SECTION_RANKINGS_READ_LF = "section_rankings:read_lf";
-export const SECTION_RANKINGS_READ_UNION = "section_rankings:read_union";
-export const SECTION_RANKINGS_READ_DIVISION = "section_rankings:read_division";
-export const SECTION_RANKINGS_READ_GLOBAL = "section_rankings:read_global";
+export const SECTION_RANKINGS_READ_CLUB = "section_rankings:read_club" satisfies PermissionKey;
+export const SECTION_RANKINGS_READ_LF = "section_rankings:read_lf" satisfies PermissionKey;
+export const SECTION_RANKINGS_READ_UNION = "section_rankings:read_union" satisfies PermissionKey;
+export const SECTION_RANKINGS_READ_DIVISION = "section_rankings:read_division" satisfies PermissionKey;
+export const SECTION_RANKINGS_READ_GLOBAL = "section_rankings:read_global" satisfies PermissionKey;
 
 // --- Categorías de Premios (Award Categories) ---
-export const AWARD_CATEGORIES_CREATE = "award_categories:create";
-export const AWARD_CATEGORIES_READ = "award_categories:read";
-export const AWARD_CATEGORIES_UPDATE = "award_categories:update";
-export const AWARD_CATEGORIES_DELETE = "award_categories:delete";
+export const AWARD_CATEGORIES_CREATE = "award_categories:create" satisfies PermissionKey;
+export const AWARD_CATEGORIES_READ = "award_categories:read" satisfies PermissionKey;
+export const AWARD_CATEGORIES_UPDATE = "award_categories:update" satisfies PermissionKey;
+export const AWARD_CATEGORIES_DELETE = "award_categories:delete" satisfies PermissionKey;
 
 // --- Reportes y Dashboard ---
-export const REPORTS_READ = "reports:read";
-export const REPORTS_DOWNLOAD = "reports:download";
-export const REPORTS_UPDATE = "reports:update";
-export const DASHBOARD_VIEW = "dashboard:view";
+export const REPORTS_READ = "reports:read" satisfies PermissionKey;
+export const REPORTS_DOWNLOAD = "reports:download" satisfies PermissionKey;
+export const REPORTS_UPDATE = "reports:update" satisfies PermissionKey;
 
 // --- Recursos ---
-export const RESOURCES_READ = "resources:read";
-export const RESOURCES_CREATE = "resources:create";
-export const RESOURCES_UPDATE = "resources:update";
-export const RESOURCES_DELETE = "resources:delete";
-export const RESOURCE_CATEGORIES_READ = "resource_categories:read";
-export const RESOURCE_CATEGORIES_CREATE = "resource_categories:create";
-export const RESOURCE_CATEGORIES_UPDATE = "resource_categories:update";
-export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete";
+export const RESOURCES_READ = "resources:read" satisfies PermissionKey;
+export const RESOURCES_CREATE = "resources:create" satisfies PermissionKey;
+export const RESOURCES_UPDATE = "resources:update" satisfies PermissionKey;
+export const RESOURCES_DELETE = "resources:delete" satisfies PermissionKey;
+export const RESOURCE_CATEGORIES_READ = "resource_categories:read" satisfies PermissionKey;
+export const RESOURCE_CATEGORIES_CREATE = "resource_categories:create" satisfies PermissionKey;
+export const RESOURCE_CATEGORIES_UPDATE = "resource_categories:update" satisfies PermissionKey;
+export const RESOURCE_CATEGORIES_DELETE = "resource_categories:delete" satisfies PermissionKey;
 
 // --- Sistema ---
-export const ECCLESIASTICAL_YEARS_READ = "ecclesiastical_years:read";
-export const ECCLESIASTICAL_YEARS_CREATE = "ecclesiastical_years:create";
-export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update";
-export const ECCLESIASTICAL_YEARS_DELETE = "ecclesiastical_years:delete";
+export const ECCLESIASTICAL_YEARS_READ = "ecclesiastical_years:read" satisfies PermissionKey;
+export const ECCLESIASTICAL_YEARS_CREATE = "ecclesiastical_years:create" satisfies PermissionKey;
+export const ECCLESIASTICAL_YEARS_UPDATE = "ecclesiastical_years:update" satisfies PermissionKey;
+export const ECCLESIASTICAL_YEARS_DELETE = "ecclesiastical_years:delete" satisfies PermissionKey;
 
 // --- Certificaciones (motor configurable — definición de versiones) ---
-export const CERTIFICATIONS_CONFIGURE = "certifications:configure";
-export const CERTIFICATIONS_PUBLISH = "certifications:publish";
-export const CERTIFICATIONS_REVIEW = "certifications:review";
-export const CERTIFICATIONS_CERTIFY = "certifications:certify";
+export const CERTIFICATIONS_CONFIGURE = "certifications:configure" satisfies PermissionKey;
+export const CERTIFICATIONS_PUBLISH = "certifications:publish" satisfies PermissionKey;
+export const CERTIFICATIONS_REVIEW = "certifications:review" satisfies PermissionKey;
+export const CERTIFICATIONS_CERTIFY = "certifications:certify" satisfies PermissionKey;
 
 // --- Seguros (capacity model) y órdenes de pago territoriales ---
-export const INSURANCE_READ = "insurance:read";
-export const INSURANCE_CREATE = "insurance:create";
-export const INSURANCE_UPDATE = "insurance:update";
-export const INSURANCE_REVIEW = "insurance:review";
-export const INSURANCE_CONFIGURE = "insurance:configure";
-export const FIELD_PAYMENT_ORDERS_READ = "field-payment-orders:read";
-export const FIELD_PAYMENT_ORDERS_REVIEW = "field-payment-orders:review";
-export const FIELD_PAYMENT_ORDERS_CONFIGURE = "field-payment-orders:configure";
+export const INSURANCE_READ = "insurance:read" satisfies PermissionKey;
+export const INSURANCE_CREATE = "insurance:create" satisfies PermissionKey;
+export const INSURANCE_UPDATE = "insurance:update" satisfies PermissionKey;
+export const INSURANCE_REVIEW = "insurance:review" satisfies PermissionKey;
+export const INSURANCE_CONFIGURE = "insurance:configure" satisfies PermissionKey;
+export const FIELD_PAYMENT_ORDERS_READ = "field-payment-orders:read" satisfies PermissionKey;
+export const FIELD_PAYMENT_ORDERS_REVIEW = "field-payment-orders:review" satisfies PermissionKey;
+export const FIELD_PAYMENT_ORDERS_CONFIGURE = "field-payment-orders:configure" satisfies PermissionKey;
 
 // --- Pedidos de mercancía de camporee (distintos de inscripción) ---
-export const CAMPOREE_ORDERS_READ = "camporee-orders:read";
-export const CAMPOREE_ORDERS_CATALOG_MANAGE = "camporee-orders:catalog-manage";
+export const CAMPOREE_ORDERS_READ = "camporee-orders:read" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_CATALOG_MANAGE = "camporee-orders:catalog-manage" satisfies PermissionKey;
 export const CAMPOREE_ORDERS_OFFERING_CONFIGURE =
-  "camporee-orders:offering-configure";
-export const CAMPOREE_ORDERS_CREATE = "camporee-orders:create";
-export const CAMPOREE_ORDERS_UPLOAD_PROOF = "camporee-orders:upload-proof";
-export const CAMPOREE_ORDERS_REVIEW = "camporee-orders:review";
+  "camporee-orders:offering-configure" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_CREATE = "camporee-orders:create" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_UPLOAD_PROOF = "camporee-orders:upload-proof" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_REVIEW = "camporee-orders:review" satisfies PermissionKey;
 export const CAMPOREE_ORDERS_AUTHORIZE_WITHOUT_PROOF =
-  "camporee-orders:authorize-without-proof";
-export const CAMPOREE_ORDERS_DELIVER = "camporee-orders:deliver";
-export const CAMPOREE_ORDERS_DISTRIBUTE = "camporee-orders:distribute";
-export const CAMPOREE_SUPPLIES_READ = "camporee-supplies:read";
-export const CAMPOREE_SUPPLIES_CONFIGURE = "camporee-supplies:configure";
-export const CAMPOREE_SUPPLIES_REVIEW_PAY = "camporee-supplies:review-pay";
-export const CAMPOREE_SUPPLIES_DELIVER = "camporee-supplies:deliver";
+  "camporee-orders:authorize-without-proof" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_DELIVER = "camporee-orders:deliver" satisfies PermissionKey;
+export const CAMPOREE_ORDERS_DISTRIBUTE = "camporee-orders:distribute" satisfies PermissionKey;
+export const CAMPOREE_SUPPLIES_READ = "camporee-supplies:read" satisfies PermissionKey;
+export const CAMPOREE_SUPPLIES_CONFIGURE = "camporee-supplies:configure" satisfies PermissionKey;
+export const CAMPOREE_SUPPLIES_REVIEW_PAY = "camporee-supplies:review-pay" satisfies PermissionKey;
+export const CAMPOREE_SUPPLIES_DELIVER = "camporee-supplies:deliver" satisfies PermissionKey;
 
 // Agrupación por pantalla: ver `src/lib/auth/screen-catalog/` (groupByScreen).
 // El antiguo PERMISSION_GROUPS (por módulo) se retiró en 2026-09-15: no tenía consumidores.
 
-// Tipo derivado de las constantes (acepta cualquier string para compatibilidad con DB)
-export type PermissionKey = string;
+// Union de claves válidas, tomada del catálogo generado.
+export type { PermissionKey };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // i18n helpers — use these in all UI components instead of hardcoded strings

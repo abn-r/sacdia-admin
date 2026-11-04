@@ -2841,6 +2841,7 @@
       "camporee_event_types:create": "Créer un type d'événement de camporee",
       "camporee_event_types:update": "Modifier un type d'événement de camporee",
       "camporee_event_types:delete": "Supprimer un type d'événement de camporee",
+      "camporee_events:read": "Voir les événements de camporee",
       "camporee_events:create": "Créer un événement de camporee",
       "camporee_events:update": "Modifier un événement de camporee",
       "camporee_events:delete": "Supprimer un événement de camporee",
