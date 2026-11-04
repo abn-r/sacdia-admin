@@ -40,8 +40,10 @@ const CAMPOREE_DETAIL_CAPABILITIES: ScreenCapability[] = [
   { id: "delete", kind: "button", gate: { permissions: [CAMPOREES_DELETE] } },
   {
     // POST/DELETE camporees/:id/members — camporees:register (admin roster).
+    // Panel-only verb: the app registers through its own flow.
     id: "members.register",
     kind: "button",
+    surfaces: ["admin"],
     gate: { permissions: [CAMPOREES_REGISTER] },
   },
   {

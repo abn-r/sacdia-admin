@@ -45,24 +45,27 @@ describe("capability gates", () => {
     expect(roleGates).toEqual([]);
   });
 
-  it("dumps capability gates with explicit empty lists for the app", () => {
+  it("dumps capability gates as the app fixture expects (empty lists omitted)", () => {
     const dump = dumpAppCatalog();
     const byId = new Map(dump.screens.map((screen) => [screen.id, screen]));
     expect(byId.get("app-section-investiture")?.viewAny).toEqual({
-      permissions: [],
-      roles: [],
       capability: "investiture.board",
     });
     expect(byId.get("app-investiture-authorizer")?.viewAny).toEqual({
-      permissions: [],
-      roles: [],
       capability: "investiture.authorize_requests",
     });
     expect(byId.get("coordinator-hub")?.viewAny).toEqual({
-      permissions: [],
-      roles: [],
       capability: "coordination.hub_view",
     });
+  });
+
+  it("keeps panel-only verbs out of the app dump", () => {
+    const dump = dumpAppCatalog();
+    const local = dump.screens.find((screen) => screen.id === "campamentos-list-local");
+    expect(local?.capabilities.map((capability) => capability.id)).not.toContain(
+      "members.register",
+    );
+    expect(canCapability(buildAuthUser({ permissions: ["camporees:register"] }), "campamentos-list-local", "members.register")).toBe(true);
   });
 });
 

@@ -13,7 +13,7 @@ export type CatalogDumpGate = {
   roles?: string[];
   requireAll?: boolean;
   exactRoles?: boolean;
-  /** `authorization.capabilities` key; when present `roles` is always `[]`. */
+  /** `authorization.capabilities` key; such a gate carries no `roles`. */
   capability?: string;
 };
 
@@ -38,15 +38,6 @@ export type CatalogDump = {
 
 function dumpGate(gate: CapabilityGate): CatalogDumpGate {
   const out: CatalogDumpGate = {};
-  if (gate.capability) {
-    // Capability gates are explicit: both lists are written even when empty
-    // so the Flutter evaluator never confuses them with an open gate.
-    out.permissions = [...(gate.permissions ?? [])].sort();
-    out.roles = [];
-    if (gate.requireAll) out.requireAll = true;
-    out.capability = gate.capability;
-    return out;
-  }
   if (gate.permissions && gate.permissions.length > 0) {
     out.permissions = [...gate.permissions].sort();
   }
@@ -55,6 +46,9 @@ function dumpGate(gate: CapabilityGate): CatalogDumpGate {
   }
   if (gate.requireAll) out.requireAll = true;
   if (gate.exactRoles) out.exactRoles = true;
+  // Same convention as the other keys: empty lists are omitted. A gate with a
+  // capability is never "open" for the Flutter evaluator, whatever else it carries.
+  if (gate.capability) out.capability = gate.capability;
   return out;
 }
 
@@ -71,7 +65,9 @@ function dumpScreen(screen: ScreenDefinition): CatalogDumpScreen {
     id: screen.id,
     surfaces: [...screen.surfaces].sort(),
     viewAny: dumpGate(screen.viewAny),
-    capabilities: [...screen.capabilities]
+    // Panel-only verbs (`surfaces: ["admin"]`) stay out of the app fixture.
+    capabilities: screen.capabilities
+      .filter((capability) => (capability.surfaces ?? screen.surfaces).includes("app"))
       .map(dumpCapability)
       .sort((a, b) => a.id.localeCompare(b.id)),
   };

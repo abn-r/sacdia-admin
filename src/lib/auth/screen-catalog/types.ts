@@ -39,6 +39,12 @@ export type ScreenCapability = {
    * is this capability instead of the parent screen `viewAny`.
    */
   href?: string;
+  /**
+   * Surfaces that show this verb. Defaults to the screen's surfaces; set
+   * `["admin"]` for a panel-only verb inside a screen the app also shows, so
+   * the Flutter dump (and its fixture) does not carry it.
+   */
+  surfaces?: ScreenSurface[];
 };
 
 export type ScreenDefinition = {
