@@ -397,6 +397,9 @@ export type ClubDirectorDesignation = {
   status: string;
   version: number;
   outgoing_assignment_id: string | null;
+  attempt_count?: number;
+  last_attempt_at?: string | null;
+  block_code?: string | null;
 } | null;
 
 export async function getClubSectionDirectorDesignation(

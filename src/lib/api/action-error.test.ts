@@ -56,3 +56,15 @@ describe("getActionErrorMessage", () => {
     );
   });
 });
+
+describe("getActionErrorMessage director plan codes", () => {
+  it("maps CLUB_DIRECTOR_PLAN_WINDOW_CLOSED (403) to the window message, not the generic 403", () => {
+    const error = new ApiError("Forbidden", 403, {
+      code: "CLUB_DIRECTOR_PLAN_WINDOW_CLOSED",
+    });
+
+    const message = getActionErrorMessage(error, "fallback");
+    expect(message).toContain("1 de octubre");
+    expect(message).toContain("31 de diciembre");
+  });
+});
