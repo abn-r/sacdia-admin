@@ -4,6 +4,10 @@
  * Contract: docs/features/camporee-orders.md in the sacdia workspace
  */
 import {
+  classifyActionError,
+  UNAUTHENTICATED_ACTION_MESSAGE,
+} from "@/lib/api/action-error";
+import {
   API_BASE_URL,
   ApiError,
   apiRequest,
@@ -137,7 +141,11 @@ export function getCamporeeOrderErrorMessage(
     return CAMPOREE_ORDER_ERROR_MESSAGES[code];
   }
   if (error instanceof ApiError) {
-    if (error.status === 401 || error.status === 403) {
+    const { kind } = classifyActionError(error);
+    if (kind === "unauthenticated") {
+      return UNAUTHENTICATED_ACTION_MESSAGE;
+    }
+    if (kind === "forbidden") {
       return CAMPOREE_ORDER_ERROR_MESSAGES.CAMPOREE_ORDER_FORBIDDEN;
     }
     if (error.message) {

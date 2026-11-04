@@ -1,3 +1,4 @@
+import { classifyActionError } from "@/lib/api/action-error";
 import { ApiError } from "@/lib/api/client";
 
 /**
@@ -41,7 +42,11 @@ export function getClassRelationErrorMessage(
     if (code && CLASS_RELATION_ERROR_MESSAGES[code]) {
       return CLASS_RELATION_ERROR_MESSAGES[code];
     }
-    if (error.status === 401 || error.status === 403) {
+    const { kind } = classifyActionError(error);
+    if (kind === "unauthenticated") {
+      return "Tu sesión expiró. Inicia sesión de nuevo.";
+    }
+    if (kind === "forbidden") {
       return "No tienes permisos para realizar esta acción.";
     }
     if (error.status === 404) {

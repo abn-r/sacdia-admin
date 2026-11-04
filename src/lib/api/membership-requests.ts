@@ -1,3 +1,4 @@
+import { classifyActionError } from "@/lib/api/action-error";
 import { ApiError, apiRequest, apiRequestFromClient } from "@/lib/api/client";
 import { unwrapApiData } from "@/lib/api/unwrap";
 
@@ -222,12 +223,9 @@ export function toConsentErrorCode(value: string | null | undefined): ConsentErr
     : null;
 }
 
+/** Shared reader: `GUARD_PERMISSION_DENIED` / `GUARD_CLUB_SCOPE_REQUIRED` arrive as forbidden codes. */
 function readErrorCode(error: unknown): string | null {
-  if (!(error instanceof ApiError) || !error.payload || typeof error.payload !== "object") {
-    return null;
-  }
-  const code = (error.payload as { code?: unknown }).code;
-  return typeof code === "string" && code.trim() ? code : null;
+  return classifyActionError(error).code ?? null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

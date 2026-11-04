@@ -1,3 +1,4 @@
+import { classifyActionError, toEndpointState } from "@/lib/api/action-error";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { normalizeRankingListMeta } from "@/lib/api/ranking-list-meta";
 
@@ -232,14 +233,13 @@ function extractItemArray(payload: unknown): GenericRecord[] {
 function normalizeEndpointState(
   error: ApiError,
 ): MemberRankingsListResult["endpointState"] {
-  if (error.status === 401 || error.status === 403) return "forbidden";
-  if (error.status === 429) return "rate-limited";
-  return "missing";
+  return toEndpointState(error);
 }
 
 function normalizeEndpointDetail(error: ApiError): string {
-  if (error.status === 401) return "Sesión expirada o token inválido.";
-  if (error.status === 403) return "Tu rol no tiene permisos para ver rankings de miembros.";
+  const { kind } = classifyActionError(error);
+  if (kind === "unauthenticated") return "Sesión expirada o token inválido.";
+  if (kind === "forbidden") return "Tu rol no tiene permisos para ver rankings de miembros.";
   if (error.status === 429) return "Demasiadas solicitudes. Reintenta en unos segundos.";
   if (error.status >= 500) return "El servicio no está disponible temporalmente.";
   return "Las clasificaciones no están disponibles en este momento.";
