@@ -5,7 +5,7 @@ import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CoordinationAdminClient } from "@/components/coordination/coordination-admin-client";
 import { ApiError } from "@/lib/api/client";
-import { canViewScreen } from "@/lib/auth/screen-catalog";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   listLocalFieldsForTerritory,
@@ -58,6 +58,7 @@ export default async function CoordinationAdminPage() {
         <CoordinationAdminClient
           localFields={localFields}
           territoryScope={territoryScope}
+          canManage={canCapability(user, "coordination", "manage")}
         />
       )}
     </div>

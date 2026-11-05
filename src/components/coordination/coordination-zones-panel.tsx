@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +41,7 @@ type CoordinationZonesPanelProps = {
   localFieldId: number;
   zones: CoordinationZone[];
   districts: AdminDistrict[];
+  canManage: boolean;
   onChanged: () => Promise<void>;
 };
 
@@ -57,6 +59,7 @@ export function CoordinationZonesPanel({
   localFieldId,
   zones,
   districts,
+  canManage,
   onChanged,
 }: CoordinationZonesPanelProps) {
   const t = useTranslations("coordinationAdmin");
@@ -165,31 +168,33 @@ export function CoordinationZonesPanel({
         <CardDescription>{t("zones.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-          <div className="space-y-2">
-            <Label htmlFor="zone-name">{t("fields.name")}</Label>
-            <Input
-              id="zone-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder={t("zones.namePlaceholder")}
-            />
+        {canManage ? (
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <div className="space-y-2">
+              <Label htmlFor="zone-name">{t("fields.name")}</Label>
+              <Input
+                id="zone-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder={t("zones.namePlaceholder")}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zone-description">{t("fields.description")}</Label>
+              <Textarea
+                id="zone-description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder={t("zones.descriptionPlaceholder")}
+                className="min-h-9 py-2"
+              />
+            </div>
+            <Button onClick={handleCreateZone} disabled={creating}>
+              <Plus className="size-4" />
+              {t("actions.createZone")}
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="zone-description">{t("fields.description")}</Label>
-            <Textarea
-              id="zone-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder={t("zones.descriptionPlaceholder")}
-              className="min-h-9 py-2"
-            />
-          </div>
-          <Button onClick={handleCreateZone} disabled={creating}>
-            <Plus className="size-4" />
-            {t("actions.createZone")}
-          </Button>
-        </div>
+        ) : null}
 
         {zones.length === 0 ? (
           <EmptyState
@@ -225,16 +230,18 @@ export function CoordinationZonesPanel({
                         </p>
                       ) : null}
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={pendingKey === `zone-${zone.zone_id}`}
-                      onClick={() => handleToggleZone(zone)}
-                    >
-                      {zone.active
-                        ? t("actions.deactivate")
-                        : t("actions.activate")}
-                    </Button>
+                    {canManage ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={pendingKey === `zone-${zone.zone_id}`}
+                        onClick={() => handleToggleZone(zone)}
+                      >
+                        {zone.active
+                          ? t("actions.deactivate")
+                          : t("actions.activate")}
+                      </Button>
+                    ) : null}
                   </div>
 
                   <div className="flex flex-wrap gap-2">
@@ -243,7 +250,13 @@ export function CoordinationZonesPanel({
                         {t("zones.noDistricts")}
                       </p>
                     ) : (
-                      memberships.map((membership) => (
+                      memberships.map((membership) =>
+                        !canManage ? (
+                          <Badge key={membership.zone_district_id} variant="secondary">
+                            {membership.districts?.name ??
+                              `#${membership.districlub_type_id}`}
+                          </Badge>
+                        ) : (
                         <Button
                           key={membership.zone_district_id}
                           type="button"
@@ -264,11 +277,12 @@ export function CoordinationZonesPanel({
                             `#${membership.districlub_type_id}`}
                           <span className="text-muted-foreground">×</span>
                         </Button>
-                      ))
+                        ),
+                      )
                     )}
                   </div>
 
-                  {zone.active ? (
+                  {canManage && zone.active ? (
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                       <div className="min-w-0 flex-1 space-y-2">
                         <Label>{t("fields.district")}</Label>

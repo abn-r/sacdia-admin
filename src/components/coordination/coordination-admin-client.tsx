@@ -70,11 +70,14 @@ async function loadActiveClubTypes(): Promise<AdminClubType[]> {
 type CoordinationAdminClientProps = {
   localFields: LocalField[];
   territoryScope: AdminTerritoryScope;
+  /** `coordination.manage`: false hides every write control (read-only view). */
+  canManage: boolean;
 };
 
 export function CoordinationAdminClient({
   localFields,
   territoryScope,
+  canManage,
 }: CoordinationAdminClientProps) {
   const t = useTranslations("coordinationAdmin");
   const canPickLocalField = canAdminFilterByLocalField(territoryScope);
@@ -200,10 +203,12 @@ export function CoordinationAdminClient({
             </p>
           )}
         </div>
-        <CoordinationBackfillDialog
-          localFieldId={localFieldId}
-          onApplied={refresh}
-        />
+        {canManage ? (
+          <CoordinationBackfillDialog
+            localFieldId={localFieldId}
+            onApplied={refresh}
+          />
+        ) : null}
       </div>
 
       {loadError ? (
@@ -226,6 +231,7 @@ export function CoordinationAdminClient({
             localFieldId={localFieldId}
             zones={zones}
             districts={districts}
+            canManage={canManage}
             onChanged={refresh}
           />
           <CoordinationAssignmentsPanel
@@ -234,6 +240,7 @@ export function CoordinationAdminClient({
             clubTypes={clubTypes}
             clubs={clubs}
             assignments={assignments}
+            canManage={canManage}
             onChanged={refresh}
           />
         </div>

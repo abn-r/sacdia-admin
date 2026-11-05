@@ -144,7 +144,14 @@ export const clubsScreens: ScreenDefinition[] = [
     // USER_MANAGEMENT_ROLES (admin/super-admin + lf/union/dia) →
     // `users.manage_in_scope`.
     viewAny: capabilityAccess("users.manage_in_scope", [COORDINATION_MANAGE]),
-    capabilities: [],
+    // Writes (zones, zone districts, coordinator assignments, backfill) mirror
+    // coordination.controller.ts: @ExactGlobalRoles(admin, assistant-admin,
+    // super-admin, director-lf, assistant-lf), published as
+    // `coordination.manage`. Reads keep the class-level @GlobalRoles, so union
+    // and division still view the screen (viewAny above) without writing.
+    capabilities: [
+      { id: "manage", kind: "button", gate: capabilityAccess("coordination.manage") },
+    ],
   },
   {
     id: "activities",

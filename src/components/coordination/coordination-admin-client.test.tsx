@@ -56,7 +56,7 @@ vi.mock("@/lib/api/clubs", () => ({
 
 import { CoordinationAdminClient } from "@/components/coordination/coordination-admin-client";
 
-function renderForLocalFieldDirector() {
+function renderForLocalFieldDirector(canManage = true) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <CoordinationAdminClient
@@ -68,6 +68,7 @@ function renderForLocalFieldDirector() {
           } as never,
         ]}
         territoryScope={{ level: "local_field", localFieldId: 4 }}
+        canManage={canManage}
       />
     </NextIntlClientProvider>,
   );
@@ -150,5 +151,48 @@ describe("CoordinationAdminClient", () => {
 
     const roles = vi.mocked(listAdminUsers).mock.calls.map(([query]) => query?.role);
     expect(roles.sort()).toEqual(["coordinator", "general-coordinator", "zone-coordinator"]);
+  });
+
+  it("shows every write control when canManage is true", async () => {
+    renderForLocalFieldDirector(true);
+
+    expect(
+      await screen.findByText(messages.coordinationAdmin.zones.empty),
+    ).toBeInTheDocument();
+    const { actions, backfill } = messages.coordinationAdmin;
+    expect(screen.getByRole("button", { name: actions.createZone })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: actions.createAssignment })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: backfill.action })).toBeInTheDocument();
+  });
+
+  it("hides every write control but keeps the lists when canManage is false", async () => {
+    vi.mocked(listCoordinationZones).mockResolvedValueOnce([
+      {
+        zone_id: 9,
+        name: "Zona Norte",
+        active: true,
+        districts: [
+          {
+            zone_district_id: 1,
+            districlub_type_id: 7,
+            active: true,
+            districts: { name: "Distrito QA" },
+          },
+        ],
+      } as never,
+    ]);
+    renderForLocalFieldDirector(false);
+
+    expect(await screen.findByText("Zona Norte")).toBeInTheDocument();
+    expect(screen.getByText("Distrito QA")).toBeInTheDocument();
+    expect(screen.getByText(messages.coordinationAdmin.assignments.empty)).toBeInTheDocument();
+
+    const { actions, backfill } = messages.coordinationAdmin;
+    expect(screen.queryByRole("button", { name: actions.createZone })).toBeNull();
+    expect(screen.queryByRole("button", { name: actions.createAssignment })).toBeNull();
+    expect(screen.queryByRole("button", { name: actions.deactivate })).toBeNull();
+    expect(screen.queryByRole("button", { name: actions.assignDistrict })).toBeNull();
+    expect(screen.queryByRole("button", { name: backfill.action })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Distrito QA/ })).toBeNull();
   });
 });
