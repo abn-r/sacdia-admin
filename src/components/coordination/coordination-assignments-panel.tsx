@@ -69,6 +69,7 @@ type CoordinationAssignmentsPanelProps = {
   clubTypes: AdminClubType[];
   clubs: ClubOption[];
   assignments: CoordinatorAssignment[];
+  canManage: boolean;
   onChanged: () => Promise<void>;
 };
 
@@ -78,6 +79,7 @@ export function CoordinationAssignmentsPanel({
   clubTypes,
   clubs,
   assignments,
+  canManage,
   onChanged,
 }: CoordinationAssignmentsPanelProps) {
   const t = useTranslations("coordinationAdmin");
@@ -242,173 +244,175 @@ export function CoordinationAssignmentsPanel({
         <CardDescription>{t("assignments.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4 rounded-xl border border-border p-4">
-          <div>
-            <p className="font-medium text-foreground">
-              {t("assignments.newTitle")}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {t("assignments.newDescription")}
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{t("fields.coordinator")}</Label>
-              <Select
-                value={userId || undefined}
-                onValueChange={setUserId}
-                disabled={loadingUsers}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("fields.selectUser")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {coordinators.map((user) => (
-                    <SelectItem key={user.user_id} value={user.user_id}>
-                      {formatCoordinatorName(user)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {coordinators.length === 0 && !loadingUsers ? (
-                <p className="text-muted-foreground text-xs">
-                  {t("assignments.usersEmpty")}{" "}
-                  <Link
-                    href="/dashboard/users/new"
-                    className="text-primary underline-offset-4 hover:underline"
-                  >
-                    {t("assignments.usersEmptyLink")}
-                  </Link>
-                </p>
-              ) : null}
+        {canManage ? (
+          <div className="space-y-4 rounded-xl border border-border p-4">
+            <div>
+              <p className="font-medium text-foreground">
+                {t("assignments.newTitle")}
+              </p>
+              <p className="text-muted-foreground text-sm">
+                {t("assignments.newDescription")}
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label>{t("fields.type")}</Label>
-              <Select
-                value={assignmentType}
-                onValueChange={(value) => {
-                  setAssignmentType(value as CoordinatorAssignmentType);
-                  setZoneId("");
-                  setClubTypeId("");
-                  setClubId("");
-                  setClubSectionId("");
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GENERAL">
-                    {t("assignmentTypes.general")}
-                  </SelectItem>
-                  <SelectItem value="ZONE">{t("assignmentTypes.zone")}</SelectItem>
-                  <SelectItem value="SECTION">
-                    {t("assignmentTypes.section")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {assignmentType === "ZONE" ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>{t("fields.zone")}</Label>
-                <Select value={zoneId || undefined} onValueChange={setZoneId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("fields.selectZone")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeZones.map((zone) => (
-                      <SelectItem key={zone.zone_id} value={String(zone.zone_id)}>
-                        {zone.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>{t("fields.clubType")}</Label>
+                <Label>{t("fields.coordinator")}</Label>
                 <Select
-                  value={clubTypeId || undefined}
-                  onValueChange={setClubTypeId}
+                  value={userId || undefined}
+                  onValueChange={setUserId}
+                  disabled={loadingUsers}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("fields.selectClubType")} />
+                    <SelectValue placeholder={t("fields.selectUser")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {activeClubTypes.map((clubType) => (
-                      <SelectItem
-                        key={clubType.club_type_id}
-                        value={String(clubType.club_type_id)}
-                      >
-                        {clubType.name}
+                    {coordinators.map((user) => (
+                      <SelectItem key={user.user_id} value={user.user_id}>
+                        {formatCoordinatorName(user)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {coordinators.length === 0 && !loadingUsers ? (
+                  <p className="text-muted-foreground text-xs">
+                    {t("assignments.usersEmpty")}{" "}
+                    <Link
+                      href="/dashboard/users/new"
+                      className="text-primary underline-offset-4 hover:underline"
+                    >
+                      {t("assignments.usersEmptyLink")}
+                    </Link>
+                  </p>
+                ) : null}
               </div>
-            </div>
-          ) : null}
 
-          {assignmentType === "SECTION" ? (
-            <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>{t("fields.club")}</Label>
+                <Label>{t("fields.type")}</Label>
                 <Select
-                  value={clubId || undefined}
+                  value={assignmentType}
                   onValueChange={(value) => {
-                    setClubId(value);
+                    setAssignmentType(value as CoordinatorAssignmentType);
+                    setZoneId("");
+                    setClubTypeId("");
+                    setClubId("");
                     setClubSectionId("");
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("fields.selectClub")} />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {clubs.map((club) => (
-                      <SelectItem key={club.club_id} value={String(club.club_id)}>
-                        {club.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>{t("fields.section")}</Label>
-                <Select
-                  value={clubSectionId || undefined}
-                  onValueChange={setClubSectionId}
-                  disabled={!clubId}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("fields.selectSection")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sections.map((section) => (
-                      <SelectItem
-                        key={section.club_section_id}
-                        value={String(section.club_section_id)}
-                      >
-                        {section.club_type?.name ?? section.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="GENERAL">
+                      {t("assignmentTypes.general")}
+                    </SelectItem>
+                    <SelectItem value="ZONE">{t("assignmentTypes.zone")}</SelectItem>
+                    <SelectItem value="SECTION">
+                      {t("assignmentTypes.section")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-          ) : null}
 
-          <p className="text-muted-foreground text-xs">
-            {t("assignments.directorConflictRule")}
-          </p>
+            {assignmentType === "ZONE" ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>{t("fields.zone")}</Label>
+                  <Select value={zoneId || undefined} onValueChange={setZoneId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("fields.selectZone")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeZones.map((zone) => (
+                        <SelectItem key={zone.zone_id} value={String(zone.zone_id)}>
+                          {zone.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("fields.clubType")}</Label>
+                  <Select
+                    value={clubTypeId || undefined}
+                    onValueChange={setClubTypeId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("fields.selectClubType")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeClubTypes.map((clubType) => (
+                        <SelectItem
+                          key={clubType.club_type_id}
+                          value={String(clubType.club_type_id)}
+                        >
+                          {clubType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ) : null}
 
-          <Button onClick={handleCreate} disabled={creating}>
-            {t("actions.createAssignment")}
-          </Button>
-        </div>
+            {assignmentType === "SECTION" ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>{t("fields.club")}</Label>
+                  <Select
+                    value={clubId || undefined}
+                    onValueChange={(value) => {
+                      setClubId(value);
+                      setClubSectionId("");
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("fields.selectClub")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clubs.map((club) => (
+                        <SelectItem key={club.club_id} value={String(club.club_id)}>
+                          {club.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("fields.section")}</Label>
+                  <Select
+                    value={clubSectionId || undefined}
+                    onValueChange={setClubSectionId}
+                    disabled={!clubId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("fields.selectSection")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections.map((section) => (
+                        <SelectItem
+                          key={section.club_section_id}
+                          value={String(section.club_section_id)}
+                        >
+                          {section.club_type?.name ?? section.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ) : null}
+
+            <p className="text-muted-foreground text-xs">
+              {t("assignments.directorConflictRule")}
+            </p>
+
+            <Button onClick={handleCreate} disabled={creating}>
+              {t("actions.createAssignment")}
+            </Button>
+          </div>
+        ) : null}
 
         {assignments.length === 0 ? (
           <EmptyState
@@ -424,7 +428,7 @@ export function CoordinationAssignmentsPanel({
                 <TableHead>{t("fields.type")}</TableHead>
                 <TableHead>{t("fields.scope")}</TableHead>
                 <TableHead>{t("fields.status")}</TableHead>
-                <RowActionsHead />
+                {canManage ? <RowActionsHead /> : null}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -460,24 +464,26 @@ export function CoordinationAssignmentsPanel({
                       }
                     />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <RowActions
-                      label={
-                        formatCoordinatorName(assignment.users) ||
-                        String(assignment.user_id)
-                      }
-                      actions={[
-                        {
-                          label: assignment.active
-                            ? t("actions.deactivate")
-                            : t("actions.activate"),
-                          icon: Power,
-                          onSelect: () => handleToggle(assignment),
-                          disabled: pendingId === assignment.assignment_id,
-                        },
-                      ]}
-                    />
-                  </TableCell>
+                  {canManage ? (
+                    <TableCell className="text-right">
+                      <RowActions
+                        label={
+                          formatCoordinatorName(assignment.users) ||
+                          String(assignment.user_id)
+                        }
+                        actions={[
+                          {
+                            label: assignment.active
+                              ? t("actions.deactivate")
+                              : t("actions.activate"),
+                            icon: Power,
+                            onSelect: () => handleToggle(assignment),
+                            disabled: pendingId === assignment.assignment_id,
+                          },
+                        ]}
+                      />
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))}
             </TableBody>

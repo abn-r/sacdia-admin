@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
+import { buildAuthUser, buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { canCapability, canViewScreen } from "./index";
 
@@ -42,6 +42,33 @@ describe("coordination", () => {
     expect(
       canViewScreen(buildUser(["admin"], ["coordination:manage"]), "coordination"),
     ).toBe(true);
+  });
+
+  // assistant-admin is intentionally not asserted on canViewScreen here: the
+  // fixture derives users.manage_in_scope without it (viewAny is unchanged).
+  it("publishes the write verb to the roles the backend allows", () => {
+    for (const role of ["super-admin", "admin", "assistant-admin", "director-lf", "assistant-lf"]) {
+      const actor = buildUser([role], ["coordination:manage"]);
+      expect(canCapability(actor, "coordination", "manage"), role).toBe(true);
+    }
+  });
+
+  it("lets union and division read but not write", () => {
+    for (const role of ["director-union", "assistant-union", "director-dia", "assistant-dia"]) {
+      const actor = buildUser([role], ["coordination:manage"]);
+      expect(canViewScreen(actor, "coordination"), role).toBe(true);
+      expect(canCapability(actor, "coordination", "manage"), role).toBe(false);
+    }
+  });
+
+  it("follows the published capability when the backend withholds it", () => {
+    const withheld = buildAuthUser({
+      roles: ["director-lf"],
+      permissions: ["coordination:manage"],
+      capabilities: ["users.manage_in_scope"],
+    });
+    expect(canViewScreen(withheld, "coordination")).toBe(true);
+    expect(canCapability(withheld, "coordination", "manage")).toBe(false);
   });
 });
 

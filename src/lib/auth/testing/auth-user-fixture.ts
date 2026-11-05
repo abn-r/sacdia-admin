@@ -134,7 +134,10 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   grant("clubs.deactivate_active", a === "director");
   grant("clubs.manage_active", a === "director");
   grant("coordination.hub_view", platform || anyOf(g, COORDINATORS) || anyOf(g, FIELD));
-  grant("coordination.manage", tIn("all", "division", "union", "local_field"));
+  grant(
+    "coordination.manage",
+    (platform || anyOf(g, FIELD)) && tIn("all", "division", "union", "local_field"),
+  );
   grant(
     "field_payment_orders.review",
     anyOf(g, ["director-lf", "assistant-lf", "admin", "super-admin"]) && tIn("all", "local_field"),
