@@ -9,7 +9,6 @@ import {
   Pencil,
   Trash2,
   UserPlus,
-  Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -195,7 +194,7 @@ function JudgeCandidateBadges({
       {eligibilityReasons.map((reason) => (
         <span
           key={reason}
-          className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+          className="rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground"
         >
           {ELIGIBILITY_LABELS[reason]}
         </span>
@@ -203,12 +202,12 @@ function JudgeCandidateBadges({
       {roleLabels.slice(0, 2).map((role) => (
         <span
           key={role}
-          className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+          className="rounded-full bg-muted px-2 py-0.5 text-2xs font-medium text-muted-foreground"
         >
           {rolePrefix}: {role}
         </span>
       ))}
-      <span className="rounded-full bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-foreground/10">
+      <span className="rounded-full bg-muted/60 px-2 py-0.5 text-2xs font-medium text-muted-foreground ring-1 ring-foreground/10">
         {positionPrefix}: {cargoLabel}
       </span>
     </div>
@@ -453,9 +452,6 @@ export function CamporeeJudgesPanel({
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Users className="size-4" aria-hidden />
-          </div>
           <div>
             <h3 className="text-base font-semibold tracking-tight">{t("rosterTitle")}</h3>
             <p className="text-xs text-muted-foreground">

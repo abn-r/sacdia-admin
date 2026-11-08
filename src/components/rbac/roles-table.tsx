@@ -560,15 +560,11 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
                 <li key={role.role_id}>
                   <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        {protected_ ? (
-                          <Lock className="size-5 text-primary" aria-hidden="true" />
-                        ) : (
-                          <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
-                        )}
-                      </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{translateRole(role.role_name)}</p>
+                        <p className="flex items-center gap-1.5 truncate text-sm font-medium">
+                          {protected_ && <Lock className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
+                          {translateRole(role.role_name)}
+                        </p>
                         <p className="truncate font-mono text-xs text-muted-foreground">{role.role_name}</p>
                         {role.description && (
                           <p className="line-clamp-1 text-xs text-muted-foreground">
