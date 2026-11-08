@@ -25,7 +25,7 @@ const buttonVariants = cva(
         // Final confirmation of an irreversible action (AlertDialog footer).
         // Inline/row deletes keep the soft "destructive" variant.
         "destructive-solid":
-          "bg-destructive text-destructive-foreground shadow-xs hover:bg-[color-mix(in_oklch,var(--destructive),black_10%)] focus-visible:border-destructive focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/50",
+          "bg-destructive-solid text-destructive-foreground shadow-xs hover:bg-[color-mix(in_oklch,var(--destructive-solid),black_10%)] focus-visible:border-destructive focus-visible:ring-destructive/30 dark:focus-visible:ring-destructive/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

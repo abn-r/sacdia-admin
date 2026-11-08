@@ -50,7 +50,7 @@ export function EndpointErrorBanner({ state, detail, showLoginLink }: EndpointEr
           "mt-0.5 size-4 shrink-0",
           config.tone === "destructive"
             ? "text-destructive"
-            : "text-[color-mix(in_oklch,var(--warning),black_25%)] dark:text-warning",
+            : "text-warning",
         )}
       />
       <div className="min-w-0 flex-1 space-y-1">

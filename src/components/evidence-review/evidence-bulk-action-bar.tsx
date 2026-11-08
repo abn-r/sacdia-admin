@@ -176,7 +176,7 @@ export function EvidenceBulkActionBar({
         {canApprove && (
           <Button
             size="sm"
-            className="bg-success hover:bg-success/90 text-success-foreground"
+            className="bg-success-solid hover:bg-success-solid/90 text-success-foreground"
             onClick={() => setApproveDialogOpen(true)}
           >
             <CheckCircle2 className="mr-1.5 size-4" />
@@ -229,7 +229,7 @@ export function EvidenceBulkActionBar({
             <Button
               loading={isApproving}
               onClick={handleConfirmApprove}
-              className="bg-success hover:bg-success/90 text-success-foreground"
+              className="bg-success-solid hover:bg-success-solid/90 text-success-foreground"
             >
               Confirmar aprobación
             </Button>

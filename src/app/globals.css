@@ -25,12 +25,16 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-solid: var(--destructive-solid);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-success-solid: var(--success-solid);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-solid: var(--warning-solid);
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
+  --color-info-solid: var(--info-solid);
   --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -126,13 +130,22 @@
   --muted-foreground: #666666;
   --accent: #f4f4f4;
   --accent-foreground: #0a0a0a;
-  --destructive: #dc2626;
+  /*
+   * Semantic hues follow the primary/primary-solid split:
+   * `--x` is text-safe (>=4.5:1 on white and on its own /10 tint) and drives text, borders and tints;
+   * `--x-solid` keeps the brand hex for solid fills under `--x-foreground`.
+   */
+  --destructive: #c81e1e;
+  --destructive-solid: #dc2626;
   --destructive-foreground: #ffffff;
-  --success: #4fbf9f;
+  --success: #1d7458;
+  --success-solid: #4fbf9f;
   --success-foreground: #0a0a0a;
-  --warning: #fbbd5e;
+  --warning: #8a5a00;
+  --warning-solid: #fbbd5e;
   --warning-foreground: #0a0a0a;
-  --info: #2ea0da;
+  --info: #0c6a9c;
+  --info-solid: #2ea0da;
   --info-foreground: #0a0a0a;
   --border: #ebebeb;
   --input: #e3e3e3;
@@ -212,13 +225,18 @@
   /* Menu highlight must read against popover #171717. */
   --accent: #2a2a2a;
   --accent-foreground: #ededed;
-  --destructive: #dc2626;
+  /* Brand success/warning/info already clear 4.5:1 on dark cards; red needs a lighter text tone. */
+  --destructive: #f87171;
+  --destructive-solid: #dc2626;
   --destructive-foreground: #ffffff;
   --success: #4fbf9f;
+  --success-solid: #4fbf9f;
   --success-foreground: #0a0a0a;
   --warning: #fbbd5e;
+  --warning-solid: #fbbd5e;
   --warning-foreground: #0a0a0a;
   --info: #2ea0da;
+  --info-solid: #2ea0da;
   --info-foreground: #0a0a0a;
   --border: #262626;
   --input: #2e2e2e;

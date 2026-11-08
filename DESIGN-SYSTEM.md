@@ -51,6 +51,8 @@
 > - Detalle de entidad: `PageHeader` solo con breadcrumbs y el hero lleva el `h1` (nombre de la entidad). Sin botón "Volver" si hay breadcrumb.
 > - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
 
+> **Actualizado 2026-11-08 — Contraste semántico (auditoría de diseño)**. `success`, `warning`, `info` y `destructive` siguen el mismo split que `primary`: `--x` es apto para texto (≥4.5:1 sobre blanco y sobre su propio tinte `/10`) y alimenta texto, bordes y tintes; `--x-solid` conserva el hex de marca para rellenos sólidos bajo `--x-foreground` (`bg-success-solid text-success-foreground`). Claro: success `#1D7458`, warning `#8A5A00`, info `#0C6A9C`, destructive `#C81E1E`. Oscuro: success/warning/info usan el hex de marca; destructive `#F87171` (texto) y `#DC2626` (`-solid`). Nunca `text-white` sobre `bg-success`/`bg-warning`. Ya no hacen falta parches `color-mix(..., black N%)` para oscurecer texto o íconos semánticos.
+
 > **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
 
 ---

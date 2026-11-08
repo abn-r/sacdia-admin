@@ -190,21 +190,21 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
       return {
         label: "Documento",
         className:
-          "border-[color-mix(in_oklch,var(--chart-2)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-2)_15%,transparent)] text-[var(--chart-2)]",
+          "border-[color-mix(in_oklch,var(--chart-2)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-2)_15%,transparent)] text-[color-mix(in_oklch,var(--chart-2),black_40%)] dark:text-[var(--chart-2)]",
         Icon: FileText,
       };
     case "audio":
       return {
         label: "Audio",
         className:
-          "border-[color-mix(in_oklch,var(--chart-5)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-5)_15%,transparent)] text-[var(--chart-5)]",
+          "border-[color-mix(in_oklch,var(--chart-5)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-5)_15%,transparent)] text-[color-mix(in_oklch,var(--chart-5),black_40%)] dark:text-[var(--chart-5)]",
         Icon: Radio,
       };
     case "image":
       return {
         label: "Imagen",
         className:
-          "border-[color-mix(in_oklch,var(--chart-3)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-3)_15%,transparent)] text-[var(--chart-3)]",
+          "border-[color-mix(in_oklch,var(--chart-3)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-3)_15%,transparent)] text-[color-mix(in_oklch,var(--chart-3),black_40%)] dark:text-[var(--chart-3)]",
         Icon: Image,
       };
     case "video_link":
@@ -217,7 +217,7 @@ function resourceTypeBadgeConfig(type: ResourceType | null): {
       return {
         label: "Texto",
         className:
-          "border-[color-mix(in_oklch,var(--chart-4)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-4)_15%,transparent)] text-[var(--chart-4)]",
+          "border-[color-mix(in_oklch,var(--chart-4)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-4)_15%,transparent)] text-[color-mix(in_oklch,var(--chart-4),black_40%)] dark:text-[var(--chart-4)]",
         Icon: BookOpen,
       };
     default:

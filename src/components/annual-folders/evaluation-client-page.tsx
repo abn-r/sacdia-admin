@@ -887,7 +887,7 @@ export function EvaluationClientPage({
             <AlertDialogAction
               onClick={confirmReopen}
               disabled={isReopening}
-              className="bg-warning text-white hover:bg-warning/90"
+              className="bg-warning-solid text-warning-foreground hover:bg-warning-solid/90"
             >
               {isReopening ? t("evaluationClient.reopenSectionLoading") : t("evaluationClient.reopenSectionButton")}
             </AlertDialogAction>

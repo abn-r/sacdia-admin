@@ -1,11 +1,11 @@
 import { progressTone, type ProgressTone } from "@/lib/dashboard/operations-home";
 import { cn } from "@/lib/utils";
 
-// Darkened in light mode so the fill keeps contrast against the muted track (as StatusBadge does).
+// Semantic tokens are text-safe, so the fills keep non-text contrast against the muted track.
 const TONE_FILL: Record<Exclude<ProgressTone, "none">, string> = {
   destructive: "bg-destructive",
-  warning: "bg-[color-mix(in_oklch,var(--warning),black_25%)] dark:bg-warning",
-  success: "bg-[color-mix(in_oklch,var(--success),black_15%)] dark:bg-success",
+  warning: "bg-warning",
+  success: "bg-success",
 };
 
 interface OperationsMeterProps {

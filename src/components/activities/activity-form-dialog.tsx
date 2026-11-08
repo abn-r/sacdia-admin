@@ -770,7 +770,7 @@ export function ActivityFormDialog({
                         variant="ghost"
                         className={
                           repeatKind === "weekly"
-                            ? "bg-success text-white hover:bg-success/90 hover:text-white"
+                            ? "bg-success-solid text-success-foreground hover:bg-success-solid/90 hover:text-success-foreground"
                             : undefined
                         }
                         onClick={() => setRepeatKind("weekly")}
@@ -783,7 +783,7 @@ export function ActivityFormDialog({
                         variant="ghost"
                         className={
                           repeatKind === "interval"
-                            ? "bg-success text-white hover:bg-success/90 hover:text-white"
+                            ? "bg-success-solid text-success-foreground hover:bg-success-solid/90 hover:text-success-foreground"
                             : undefined
                         }
                         onClick={() => setRepeatKind("interval")}
@@ -811,7 +811,7 @@ export function ActivityFormDialog({
                               className={cn(
                                 "h-9 px-0 text-[11px]",
                                 weekday === day
-                                  ? "bg-success text-white hover:bg-success/90 hover:text-white"
+                                  ? "bg-success-solid text-success-foreground hover:bg-success-solid/90 hover:text-success-foreground"
                                   : "bg-background",
                               )}
                               onClick={() => setWeekday(day)}
