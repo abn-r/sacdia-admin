@@ -27,6 +27,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { getBestMatchLength, isLeafActive, isSubItemActiveFor } from "@/navigation/sidebar/nav-match";
 import type {
   NavBadge,
   NavGroup,
@@ -70,41 +71,9 @@ interface NavCollapsibleItemProps {
   readonly isSubItemActive: (subItem: NavSubItem) => boolean;
 }
 
-function matchesNavPath(
-  path: string,
-  url: string,
-  activeMatch?: NavSubItem["activeMatch"] | NavMainLinkItem["activeMatch"],
-): boolean {
-  switch (activeMatch) {
-    case "prefix":
-      return path === url || path.startsWith(`${url}/`);
-    case "clubs-list":
-      return (
-        path === url ||
-        (/^\/dashboard\/clubs\/[^/]+$/.test(path) &&
-          !path.startsWith("/dashboard/clubs/validations") &&
-          !path.startsWith("/dashboard/clubs/evidence-folders"))
-      );
-    case "evidence-folders":
-      return path === url || path.startsWith(`${url}/`);
-    case "exact":
-    default:
-      return path === url;
-  }
-}
-
-function matchesSubItem(path: string, subItem: NavSubItem): boolean {
-  if (subItem.subItems?.length) {
-    return subItem.subItems.some((child) => matchesSubItem(path, child));
-  }
-  if (!subItem.url) return false;
-
-  return matchesNavPath(path, subItem.url, subItem.activeMatch);
-}
-
 function CollapsedIconFallback({ title }: { title: string }) {
   return (
-    <span className="flex size-4 shrink-0 items-center justify-center rounded-xs font-medium text-[10px] outline">
+    <span className="flex size-4 shrink-0 items-center justify-center rounded-xs font-medium text-[11px] outline">
       {title.slice(0, 1)}
     </span>
   );
@@ -125,7 +94,10 @@ function useHydrated() {
 }
 
 function useHydratedCollapsibleOpen(shouldBeOpen: boolean) {
-  const [open, setOpen] = useState(false);
+  // usePathname() yields the same value on the server and on the first client
+  // render, so seeding from it causes no hydration mismatch and avoids the
+  // closed -> open layout shift. The effect keeps it in sync on navigation.
+  const [open, setOpen] = useState(shouldBeOpen);
 
   useEffect(() => {
     setOpen(shouldBeOpen);
@@ -137,22 +109,20 @@ function useHydratedCollapsibleOpen(shouldBeOpen: boolean) {
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
 
+  const bestLength = getBestMatchLength(path, items);
+
   const isItemActive = (item: NavMainItem) => {
     if (hasSubItems(item)) {
-      return item.subItems.some((sub) => matchesSubItem(path, sub));
+      return item.subItems.some((sub) => isSubItemActiveFor(path, sub, bestLength));
     }
 
-    if (!item.url) {
-      return false;
-    }
-
-    return matchesNavPath(path, item.url, item.activeMatch);
+    return isLeafActive(path, item, bestLength);
   };
 
-  const isSubItemActive = (subItem: NavSubItem) => matchesSubItem(path, subItem);
+  const isSubItemActive = (subItem: NavSubItem) => isSubItemActiveFor(path, subItem, bestLength);
 
   const isSubmenuOpen = (item: NavMainParentItem) => {
-    return item.subItems.some((sub) => matchesSubItem(path, sub));
+    return item.subItems.some((sub) => isSubItemActiveFor(path, sub, bestLength));
   };
 
   return (

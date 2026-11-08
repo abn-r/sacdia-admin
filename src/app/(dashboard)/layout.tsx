@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 import { AppSidebar } from "@/app/(dashboard)/dashboard/_components/sidebar/app-sidebar";
 import { HeaderUserMenu } from "@/app/(dashboard)/dashboard/_components/sidebar/header-user-menu";
@@ -51,6 +51,7 @@ export default async function DashboardLayout({
     getLocale(),
     getMessages(),
   ]);
+  const skipLabel = (await getTranslations("nav.a11y"))("skipToContent");
   const clientMessages = pickMessages(
     messages,
     getClientMessageNamespacesForDashboardPath("/dashboard", messages),
@@ -68,6 +69,12 @@ export default async function DashboardLayout({
           } as CSSProperties
         }
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md focus:ring-2 focus:ring-ring focus:outline-none"
+        >
+          {skipLabel}
+        </a>
         {territoryUnconfigured ? null : (
           <AppSidebar variant={variant} collapsible={collapsible} />
         )}
@@ -102,7 +109,11 @@ export default async function DashboardLayout({
               </div>
             </div>
           </header>
-          <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 outline-none has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0"
+          >
             {territoryUnconfigured ? (
               <TerritoryUnconfigured />
             ) : canOpenPage ? (
@@ -110,7 +121,7 @@ export default async function DashboardLayout({
             ) : (
               <PageAccessForbidden />
             )}
-          </div>
+          </main>
           {territoryUnconfigured || !canOpenPage ? null : modal}
         </SidebarInset>
       </SidebarProvider>

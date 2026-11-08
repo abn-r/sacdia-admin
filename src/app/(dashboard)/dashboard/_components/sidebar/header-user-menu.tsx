@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +19,7 @@ import { getInitials } from "@/lib/utils";
 
 export function HeaderUserMenu() {
   const { user } = useAuth();
+  const t = useTranslations("nav");
 
   if (!user) {
     return null;
@@ -29,7 +31,7 @@ export function HeaderUserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" className="rounded-lg outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
+        <button type="button" aria-label={t("userMenu")} className="rounded-lg max-md:grid max-md:size-11 max-md:place-items-center outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
           <Avatar className="size-8 rounded-lg">
             <AvatarImage src={avatar || undefined} alt={name} />
             <AvatarFallback>{getInitials(name)}</AvatarFallback>
@@ -47,7 +49,7 @@ export function HeaderUserMenu() {
         <DropdownMenuItem asChild>
           <a href="/api/auth/logout?next=/login" onClick={() => resetAnalyticsUser()}>
             <LogOut />
-            Cerrar sesión
+            {t("logout")}
           </a>
         </DropdownMenuItem>
       </DropdownMenuContent>

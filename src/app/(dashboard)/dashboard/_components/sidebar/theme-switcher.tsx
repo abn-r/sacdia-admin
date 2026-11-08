@@ -29,7 +29,7 @@ export function ThemeSwitcher() {
     <Button
       size="icon"
       variant="ghost"
-      className="text-muted-foreground hover:text-foreground [&_svg]:text-current"
+      className="text-muted-foreground hover:text-foreground max-md:size-11 [&_svg]:text-current"
       onClick={cycleTheme}
       aria-label={t("cycleLabel", { theme: t(`modes.${themeMode}`) })}
     >
