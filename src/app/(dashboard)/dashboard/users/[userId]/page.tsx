@@ -3,10 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import Link from "next/link";
 import {
-  Calendar,
   Layers,
   MailCheck,
-  ShieldCheck,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -226,12 +224,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
         roleNamesRaw.length === 0
           ? t("stats.rolesEmpty")
           : roleLabels.slice(0, 2).join(", "),
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <ShieldCheck className="size-3.5 text-primary" />
-          {t("stats.rolesRbacNote")}
-        </div>
-      ),
+      accent: t("stats.rolesRbacNote"),
     },
     {
       label: t("stats.lastUpdateLabel"),
@@ -244,12 +237,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
           ? t("stats.panelEnabled")
           : t("stats.panelDisabled")
         : undefined,
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Calendar className="size-3.5" />
-          {t("stats.auditTracking")}
-        </div>
-      ),
+      accent: t("stats.auditTracking"),
     },
   ];
 

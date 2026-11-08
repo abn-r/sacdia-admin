@@ -1,40 +1,34 @@
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
 
 export interface StatItem {
   label: string;
   value: ReactNode;
   sub?: string;
+  /** Extra plain-text line (no icons). */
   accent?: ReactNode;
 }
 
 export function UserDetailStats({ items }: { items: StatItem[] }) {
   if (items.length === 0) return null;
   return (
-    <div
-      className={cn(
-        "grid gap-3.5",
-        items.length === 1 && "grid-cols-1",
-        items.length === 2 && "grid-cols-1 sm:grid-cols-2",
-        items.length === 3 && "grid-cols-1 sm:grid-cols-3",
-        items.length >= 4 && "grid-cols-2 lg:grid-cols-4",
-      )}
-    >
+    <KpiStrip>
       {items.map((it) => (
-        <Card key={String(it.label)} className="gap-1 px-4 py-3.5">
-          <div className="text-[11px] font-semibold text-muted-foreground">
-            {it.label}
-          </div>
-          <div className="text-[22px] font-semibold tracking-tight text-foreground">
-            {it.value}
-          </div>
-          {it.sub ? (
-            <div className="text-xs text-muted-foreground">{it.sub}</div>
-          ) : null}
-          {it.accent ? <div className="mt-2">{it.accent}</div> : null}
-        </Card>
+        <KpiStripItem
+          key={String(it.label)}
+          label={it.label}
+          value={it.value}
+          subline={
+            it.sub || it.accent ? (
+              <>
+                {it.sub}
+                {it.sub && it.accent ? <br /> : null}
+                {it.accent}
+              </>
+            ) : undefined
+          }
+        />
       ))}
-    </div>
+    </KpiStrip>
   );
 }

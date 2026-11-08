@@ -34,7 +34,9 @@ const QUEUE_LABELS = {
 };
 
 function meterTone(element: Element | null) {
-  return element?.querySelector('[data-slot="operations-meter"]')?.getAttribute("data-tone");
+  return element
+    ?.querySelector('[data-slot="operations-meter"], [data-slot="kpi-strip-meter"]')
+    ?.getAttribute("data-tone");
 }
 
 describe("OperationsKpiRow", () => {
@@ -65,18 +67,19 @@ describe("OperationsKpiRow", () => {
     );
 
     const reports = screen.getByRole("link", { name: /Informes del mes/ });
+    const reportsCell = reports.closest('[role="listitem"]');
     expect(reports).toHaveAttribute("href", "/dashboard/reports");
     expect(reports).toHaveTextContent("45%");
     expect(reports).toHaveTextContent("9 de 20 secciones");
-    expect(meterTone(reports)).toBe("destructive");
+    expect(meterTone(reportsCell)).toBe("destructive");
 
-    const clubs = screen.getByText("Clubes operativos").closest("li");
+    const clubs = screen.getByText("Clubes operativos").closest('[role="listitem"]');
     expect(clubs).toHaveTextContent("8/ 10");
-    expect(meterTone(clubs)).toBe("success");
+    expect(meterTone(clubs)).toBe("neutral");
     expect(within(clubs as HTMLElement).queryByRole("link")).not.toBeInTheDocument();
 
-    const people = screen.getByText("Personas activas").closest("li");
-    expect(people?.querySelector('[data-slot="operations-meter"]')).toBeNull();
+    const people = screen.getByText("Personas activas").closest('[role="listitem"]');
+    expect(people?.querySelector('[data-slot="kpi-strip-meter"]')).toBeNull();
   });
 
   it("shows a dash and an empty bar when coverage is unknown", () => {
@@ -95,10 +98,10 @@ describe("OperationsKpiRow", () => {
       />,
     );
 
-    const card = screen.getByText("Informes del mes").closest("li");
+    const card = screen.getByText("Informes del mes").closest('[role="listitem"]');
     expect(card).toHaveTextContent("—");
-    expect(meterTone(card)).toBe("none");
-    expect(card?.querySelector('[data-slot="operations-meter"] > div')).toBeNull();
+    const fill = card?.querySelector('[data-slot="kpi-strip-meter"] > div') as HTMLElement;
+    expect(fill.style.width).toBe("0%");
   });
 
   it("uses warning between 50 and 79 percent", () => {
@@ -108,7 +111,7 @@ describe("OperationsKpiRow", () => {
         items={[{ id: "clubs", label: "Clubes", value: "6", pct: 60, caption: "x" }]}
       />,
     );
-    expect(meterTone(screen.getByText("Clubes").closest("li"))).toBe("warning");
+    expect(meterTone(screen.getByText("Clubes").closest('[role="listitem"]'))).toBe("warning");
   });
 });
 

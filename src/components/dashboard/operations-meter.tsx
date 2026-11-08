@@ -1,11 +1,11 @@
 import { progressTone, type ProgressTone } from "@/lib/dashboard/operations-home";
 import { cn } from "@/lib/utils";
 
-// Semantic tokens are text-safe, so the fills keep non-text contrast against the muted track.
+// Neutral by default; colour only below the risk thresholds (see progressTone).
 const TONE_FILL: Record<Exclude<ProgressTone, "none">, string> = {
-  destructive: "bg-destructive",
-  warning: "bg-warning",
-  success: "bg-success",
+  destructive: "bg-destructive-solid",
+  warning: "bg-warning-solid",
+  neutral: "bg-foreground/70",
 };
 
 interface OperationsMeterProps {

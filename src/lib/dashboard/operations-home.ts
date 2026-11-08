@@ -160,14 +160,14 @@ export function homeSectionOrder(mode: HomeMode): [HomeSection, HomeSection] {
   return mode === "dispatch" ? ["attention", "breakdown"] : ["breakdown", "attention"];
 }
 
-export type ProgressTone = "destructive" | "warning" | "success" | "none";
+export type ProgressTone = "destructive" | "warning" | "neutral" | "none";
 
-/** <50% destructive, 50–79% warning, ≥80% success; no value → no fill. */
+/** <50% destructive, 50–79% warning, ≥80% neutral (on target is not news); no value → no fill. */
 export function progressTone(pct: number | null | undefined): ProgressTone {
   if (pct === null || pct === undefined || Number.isNaN(pct)) return "none";
   if (pct < 50) return "destructive";
   if (pct < 80) return "warning";
-  return "success";
+  return "neutral";
 }
 
 const CHART_FALLBACK_COLORS = [

@@ -6,16 +6,13 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
-  ShieldAlert,
-  Clock,
-  Calendar,
-  AlertTriangle,
   ArrowLeft,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   ShieldOff,
 } from "lucide-react";
+import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -115,46 +112,6 @@ function computeKpis(items: ExpiringInsurance[]): KpiData {
   return { total, criticalCount, thisWeekCount, thisMonthCount };
 }
 
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
-
-type KpiCardProps = {
-  title: string;
-  value: number;
-  description: string;
-  icon: React.ElementType;
-  accent?: "default" | "destructive" | "warning" | "success";
-};
-
-function KpiCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-  accent = "default",
-}: KpiCardProps) {
-  const iconColors = {
-    default: "text-muted-foreground",
-    destructive: "text-destructive",
-    warning: "text-warning",
-    success: "text-success",
-  };
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className={`size-4 shrink-0 ${iconColors[accent]}`} />
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-bold tabular-nums">
-          {value.toLocaleString("es-MX")}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
 // ─── Table Sort Button ─────────────────────────────────────────────────────────
 
 function SortButton({
@@ -191,19 +148,15 @@ function SortButton({
 export function ExpiringDashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <KpiStrip>
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="pb-2">
-              <Skeleton className="h-4 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="mb-1 h-7 w-16" />
-              <Skeleton className="h-3 w-40" />
-            </CardContent>
-          </Card>
+          <div key={i} role="listitem" className="space-y-2 px-4 py-3.5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-16" />
+            <Skeleton className="h-3 w-32" />
+          </div>
         ))}
-      </div>
+      </KpiStrip>
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-3">
@@ -339,36 +292,31 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
         </span>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          title={t("expiring.kpi_total_title")}
-          value={kpis.total}
-          description={t("expiring.kpi_total_desc", { days: daysAhead })}
-          icon={ShieldAlert}
+      {/* KPIs */}
+      <KpiStrip>
+        <KpiStripItem
+          label={t("expiring.kpi_total_title")}
+          value={kpis.total.toLocaleString("es-MX")}
+          subline={t("expiring.kpi_total_desc", { days: daysAhead })}
+          emphasis
         />
-        <KpiCard
-          title={t("expiring.kpi_critical_title")}
-          value={kpis.criticalCount}
-          description={t("expiring.kpi_critical_desc")}
-          icon={AlertTriangle}
-          accent={kpis.criticalCount > 0 ? "destructive" : "default"}
+        <KpiStripItem
+          label={t("expiring.kpi_critical_title")}
+          value={kpis.criticalCount.toLocaleString("es-MX")}
+          subline={t("expiring.kpi_critical_desc")}
+          valueClassName={kpis.criticalCount > 0 ? "text-destructive" : undefined}
         />
-        <KpiCard
-          title={t("expiring.kpi_week_title")}
-          value={kpis.thisWeekCount}
-          description={t("expiring.kpi_week_desc")}
-          icon={Clock}
-          accent={kpis.thisWeekCount > 0 ? "warning" : "default"}
+        <KpiStripItem
+          label={t("expiring.kpi_week_title")}
+          value={kpis.thisWeekCount.toLocaleString("es-MX")}
+          subline={t("expiring.kpi_week_desc")}
         />
-        <KpiCard
-          title={t("expiring.kpi_month_title")}
-          value={kpis.thisMonthCount}
-          description={t("expiring.kpi_month_desc")}
-          icon={Calendar}
-          accent={kpis.thisMonthCount > 0 ? "warning" : "default"}
+        <KpiStripItem
+          label={t("expiring.kpi_month_title")}
+          value={kpis.thisMonthCount.toLocaleString("es-MX")}
+          subline={t("expiring.kpi_month_desc")}
         />
-      </div>
+      </KpiStrip>
 
       {/* Table */}
       <Card>

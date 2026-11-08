@@ -71,11 +71,6 @@ export async function OperationsDashboardChrome({
           <MapPin className="size-3" aria-hidden />
           {t("currentScope")}: {meta.scope.name}
         </Badge>
-        {meta.cached ? (
-          <Badge variant="outline" className="text-muted-foreground">
-            {t("cachedResponse")}
-          </Badge>
-        ) : null}
         {showBreadcrumb ? (
           <span aria-label={t("breadcrumbLabel")}>{breadcrumbText}</span>
         ) : null}
@@ -94,7 +89,11 @@ export async function OperationsDashboardChrome({
             {t("reportingMonth")}: {monthLabel}
           </span>
         </span>
-        <time dateTime={meta.computed_at} className="inline-flex items-center gap-1.5">
+        <time
+          dateTime={meta.computed_at}
+          title={meta.cached ? t("cachedResponse") : undefined}
+          className="inline-flex items-center gap-1.5 sm:ml-auto"
+        >
           <Clock className="size-3.5 shrink-0" aria-hidden />
           {t("computedAt", { date: formatDateTime(meta.computed_at, locale) })}
         </time>
