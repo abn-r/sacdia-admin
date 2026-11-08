@@ -114,6 +114,7 @@ vi.mock("@/components/ui/tabs", () => ({
 vi.mock("lucide-react", () => ({
   Download: () => <span aria-hidden="true" />,
   ExternalLink: () => <span aria-hidden="true" />,
+  Inbox: () => <span aria-hidden="true" />,
   Loader2: () => <span aria-hidden="true" />,
   Send: () => <span aria-hidden="true" />,
   Zap: () => <span aria-hidden="true" />,
