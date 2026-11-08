@@ -62,7 +62,7 @@ export function EventsToolbar({
 
   const debouncedQuery = useDebounce(query, 300);
 
-  // Push URL params whenever any filter changes
+  // Sync URL params when a filter changes
   React.useEffect(() => {
     const params = new URLSearchParams();
     // Preserve existing non-filter params (e.g. tab)
@@ -78,7 +78,19 @@ export function EventsToolbar({
     if (venue && venue !== "all") params.set("venue", venue);
     if (status && status !== "all") params.set("status", status);
 
-    router.push(`${basePath}?${params.toString()}`, { scroll: false });
+    // Skip when nothing changed (mount, or URL already in sync): avoids a
+    // redundant server re-render and extra history entries.
+    const normalize = (value: URLSearchParams) => {
+      const sorted = new URLSearchParams(value);
+      sorted.sort();
+      return sorted.toString();
+    };
+    if (normalize(params) === normalize(new URLSearchParams(searchParams.toString()))) {
+      return;
+    }
+
+    const qs = params.toString();
+    router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, category, section, venue, status, basePath, router]);
 

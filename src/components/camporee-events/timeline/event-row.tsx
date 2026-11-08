@@ -140,18 +140,10 @@ export function EventRow({
         className={cn(
           "group grid items-center gap-3.5 px-4 py-3 border-b border-border/60 last:border-b-0",
           "grid-cols-1 md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]",
-          "transition-colors hover:bg-muted/50 cursor-pointer relative",
+          "transition-colors hover:bg-muted/50 relative",
           isCancelled && "opacity-60",
         )}
       >
-        <div
-          aria-hidden
-          className={cn(
-            "absolute inset-y-0 left-0 w-[3px] opacity-0 group-hover:opacity-100 transition-opacity",
-            cat.dot,
-          )}
-        />
-
         {/* Time */}
         <div className="tabular-nums">
           <div className={cn(

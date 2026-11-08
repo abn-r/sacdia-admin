@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Building2, Eye, Pencil, Search } from "lucide-react";
+import { Building2, Eye, Search } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
@@ -194,6 +194,11 @@ export function ClubsListClient({
                     className="bg-background pl-9"
                   />
                 </div>
+                {currentSearch && safeTotalPages > 1 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("searchPageOnlyHint")}
+                  </p>
+                )}
               </div>
               <div className="w-[200px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-status">{tList("colStatus")}</Label>
@@ -322,12 +327,6 @@ export function ClubsListClient({
                                   label: t("actionView"),
                                   icon: Eye,
                                   href: `/dashboard/clubs/${clubId}`,
-                                  hidden: !clubId,
-                                },
-                                {
-                                  label: t("actionEdit"),
-                                  icon: Pencil,
-                                  href: `/dashboard/clubs/${clubId}?tab=edit`,
                                   hidden: !clubId,
                                 },
                               ]}
