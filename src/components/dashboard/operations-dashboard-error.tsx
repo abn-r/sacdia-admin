@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { RefreshButton } from "@/components/shared/refresh-button";
 
 type ErrorKind =
   | "auth"
@@ -53,7 +54,7 @@ export function OperationsDashboardError({ error }: OperationsDashboardErrorProp
     return (
       <div className="space-y-6">
         <PageHeader title={t("title")} description={t("forbiddenDescription")} />
-        <EndpointErrorBanner state="forbidden" detail={error.message} />
+        <EndpointErrorBanner state="forbidden" detail={error.message} action={<RefreshButton />} />
       </div>
     );
   }
@@ -62,7 +63,7 @@ export function OperationsDashboardError({ error }: OperationsDashboardErrorProp
     return (
       <div className="space-y-6">
         <PageHeader title={t("title")} description={t("notFoundDescription")} />
-        <EndpointErrorBanner state="missing" detail={error.message} />
+        <EndpointErrorBanner state="missing" detail={error.message} action={<RefreshButton />} />
       </div>
     );
   }
@@ -71,7 +72,7 @@ export function OperationsDashboardError({ error }: OperationsDashboardErrorProp
     return (
       <div className="space-y-6">
         <PageHeader title={t("title")} description={t("rateLimitedDescription")} />
-        <EndpointErrorBanner state="rate-limited" detail={error.message} />
+        <EndpointErrorBanner state="rate-limited" detail={error.message} action={<RefreshButton />} />
       </div>
     );
   }
@@ -107,10 +108,12 @@ export function OperationsDashboardError({ error }: OperationsDashboardErrorProp
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">{error.message}</p>
-            {kind === "auth" && (
+            {kind === "auth" ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href="/login">{t("goToLogin")}</Link>
               </Button>
+            ) : (
+              <RefreshButton className="mt-0" />
             )}
           </div>
         </div>

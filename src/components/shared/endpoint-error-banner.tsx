@@ -22,6 +22,11 @@ interface EndpointErrorBannerProps {
   state: EndpointState;
   detail: string;
   showLoginLink?: boolean;
+  /** Retry handler for client callers (re-runs the fetch that failed). */
+  onRetry?: () => void;
+  retrying?: boolean;
+  /** Custom action node, e.g. a client refresh button passed from a server page. */
+  action?: React.ReactNode;
 }
 
 /**
@@ -29,7 +34,14 @@ interface EndpointErrorBannerProps {
  * (what actually happened) sits right under it; hue only on the icon and a
  * faint tint, no badge.
  */
-export function EndpointErrorBanner({ state, detail, showLoginLink }: EndpointErrorBannerProps) {
+export function EndpointErrorBanner({
+  state,
+  detail,
+  showLoginLink,
+  onRetry,
+  retrying,
+  action,
+}: EndpointErrorBannerProps) {
   const t = useTranslations("shared.errorBanner");
   const config = stateConfig[state];
   const Icon = config.icon;
@@ -61,6 +73,12 @@ export function EndpointErrorBanner({ state, detail, showLoginLink }: EndpointEr
             <Link href="/login">{t("goToLogin")}</Link>
           </Button>
         )}
+        {onRetry && (
+          <Button variant="outline" size="sm" className="mt-2" loading={retrying} onClick={onRetry}>
+            {t("retry")}
+          </Button>
+        )}
+        {action}
       </div>
     </div>
   );

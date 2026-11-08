@@ -268,6 +268,7 @@
     },
     "profile": "My profile",
     "logout": "Sign out",
+    "userMenu": "User menu",
     "adminPanel": "Admin Panel",
     "commandPalette": {
       "title": "Global search",
@@ -628,6 +629,8 @@
       "clear": "Clear",
       "activeFilters": "Active filters",
       "filtersLabel": "Filters:",
+      "statusPlaceholder": "Status",
+      "activeFilterBadge": "Active filter",
       "searchChip": "Search: \"{value}\"",
       "clubTypeAll": "All club types"
     },
@@ -1792,6 +1795,7 @@
         "filtersTitle": "Filters",
         "filtersHint": "Refine the list by field",
         "searchPlaceholder": "Search by name or location…",
+        "searchPageOnlyHint": "Filtering this page only",
         "statusAll": "All statuses",
         "localFieldAll": "All fields",
         "colSections": "Active sections",
@@ -2323,6 +2327,7 @@
     }
   },
   "rbac": {
+    "userSearchPlaceholder": "Search by name or email...",
     "errors": {
       "create_permission_failed": "The permission could not be created",
       "update_permission_failed": "The permission could not be updated",
@@ -5353,6 +5358,16 @@
     }
   },
   "scoring_categories": {
+    "deleteDialog": {
+      "title": "Delete category",
+      "description": "Are you sure you want to delete the category <strong>\"{name}\"</strong>? This will deactivate it and it can no longer be used in new records. Historical records will be kept.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "dialog": {
+      "namePlaceholder": "E.g. Uniform"
+    },
     "toasts": {
       "deleted": "Category deleted"
     },
@@ -5928,6 +5943,8 @@
       "allYears": "All years",
       "allMonths": "All months",
       "refreshButton": "Refresh",
+      "summaryLoadError": "The financial summary could not be loaded.",
+      "transactionsLoadError": "The transactions could not be loaded.",
       "newTransactionButton": "New transaction",
       "transactionsTitle": "Transactions",
       "showing": "Showing {shown} of {total} transactions."
@@ -6379,7 +6396,8 @@
       "activitiesFoundOne": "activity found",
       "activitiesFoundOther": "activities found",
       "errors": {
-        "loadFailed": "Could not load activities"
+        "loadFailed": "Could not load activities",
+        "retry": "Retry"
       },
       "types": {
         "regular": "Regular",
@@ -6648,6 +6666,10 @@
       "club_type_all": "All types",
       "select_club_placeholder": "Select club",
       "all_categories": "All categories",
+      "label_local_field": "Local field",
+      "label_club_type": "Club type",
+      "label_club": "Club",
+      "label_category": "Category",
       "refresh_title": "Refresh",
       "refresh_sr": "Refresh",
       "new_item": "New item",
@@ -6840,7 +6862,14 @@
       "forbidden": "Access denied",
       "missing": "Not available",
       "rateLimited": "Rate limit reached",
-      "goToLogin": "Go to login"
+      "goToLogin": "Go to login",
+      "retry": "Retry"
+    },
+    "routeError": {
+      "title": "This section could not be loaded",
+      "description": "Something failed while showing this page. Retry or go back to the home page.",
+      "retry": "Retry",
+      "goHome": "Go to home"
     },
     "errorRetry": {
       "retry": "Retry",
@@ -7108,6 +7137,20 @@
     }
   },
   "classes": {
+    "relations": {
+      "selectHonorPlaceholder": "Select an honor",
+      "selectClassPlaceholder": "Select a class",
+      "noModule": "No module",
+      "moduleOf": "Module for {name}",
+      "deleteAria": "Delete {name}",
+      "honorDeleteTitle": "Delete honor",
+      "honorDeleteDescription": "Are you sure you want to remove “{name}” from this class? You can add it again later if needed.",
+      "prerequisiteDeleteTitle": "Delete prerequisite",
+      "prerequisiteDeleteDescription": "Are you sure you want to remove “{name}” as a prerequisite of this class?",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
     "list": {
       "empty_title": "No classes registered",
       "empty_description": "No progressive classes were found in the catalog.",
@@ -8057,6 +8100,16 @@
     }
   },
   "camporeeEvents": {
+    "editors": {
+      "rubricsEnableAria": "Enable scoring by rubrics",
+      "rubricDescriptionAria": "Description of criterion {index}",
+      "rubricPointsAria": "Points for criterion {index}",
+      "rubricDeleteAria": "Delete criterion {index}",
+      "penaltyFieldAria": "{field} — penalty {index}",
+      "scheduleDeleteAria": "Delete schedule",
+      "rubricTitlePlaceholder": "E.g. Technique",
+      "rubricDescriptionPlaceholder": "Optional description"
+    },
     "templates": {
       "title": "Event templates",
       "description": "Reusable event library for camporees.",
@@ -9140,6 +9193,8 @@
       "colTotal": "Total",
       "colPayStatus": "Payment",
       "deliverQty": "Quantity to deliver",
+      "deliverQtyInvalid": "Enter a quantity greater than 0.",
+      "deliverQtyExceeds": "It cannot exceed the remaining amount ({max}).",
       "lineDelivered": "Fully delivered"
     },
     "reports": {
@@ -9431,6 +9486,8 @@
       "selectLocalFieldDescription": "Pick a local field to view or edit its window.",
       "noYearTitle": "There is no ecclesiastical year to configure",
       "noYearDescription": "Once an ecclesiastical year exists you will be able to set the window.",
+      "localFieldsLoadError": "The list of local fields could not be loaded. The selector may be incomplete.",
+      "yearsLoadError": "The list of ecclesiastical years could not be loaded. The selector may be incomplete.",
       "window": {
         "title": "Request window",
         "description": "Period in which the local field allows investiture requests to be submitted and authorized.",

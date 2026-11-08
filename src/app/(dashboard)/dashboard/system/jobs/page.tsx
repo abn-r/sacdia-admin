@@ -13,6 +13,8 @@ import { CronRunsSection } from "./_components/cron-runs-section";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { RefreshButton } from "@/components/shared/refresh-button";
 import { PageHeader } from "@/components/shared/page-header";
 
 export const revalidate = 30;
@@ -59,23 +61,11 @@ function JobsOverviewSkeleton() {
 // ─── Error Banners ────────────────────────────────────────────────────────────
 
 function BullMQError({ message }: { message: string }) {
-  return (
-    <Card>
-      <CardContent className="py-10 text-center">
-        <p className="text-sm text-muted-foreground">{message}</p>
-      </CardContent>
-    </Card>
-  );
+  return <EndpointErrorBanner state="missing" detail={message} action={<RefreshButton />} />;
 }
 
 function CronError({ message }: { message: string }) {
-  return (
-    <Card>
-      <CardContent className="py-6 text-center">
-        <p className="text-sm text-muted-foreground">{message}</p>
-      </CardContent>
-    </Card>
-  );
+  return <EndpointErrorBanner state="missing" detail={message} action={<RefreshButton />} />;
 }
 
 // ─── Data Loader (parallel, graceful degradation) ─────────────────────────────

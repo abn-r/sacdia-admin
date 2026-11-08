@@ -1,11 +1,15 @@
 import React from "react";
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import es from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
 import { toApiErrorInfo } from "@/lib/api/error-code";
 import { OperationsDashboardError } from "@/components/dashboard/operations-dashboard-error";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -62,6 +66,13 @@ describe("OperationsDashboardError", () => {
       "href",
       "/login",
     );
+  });
+
+  it("offers a retry on server errors", () => {
+    renderError(new ApiError("Fallo interno", 500, null));
+    expect(
+      screen.getByRole("button", { name: es.shared.errorBanner.retry }),
+    ).toBeInTheDocument();
   });
 
   it("maps 400 and 500 to explicit error panels", () => {

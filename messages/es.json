@@ -268,6 +268,7 @@
     },
     "profile": "Mi perfil",
     "logout": "Cerrar sesión",
+    "userMenu": "Menú de usuario",
     "adminPanel": "Panel Administrativo",
     "commandPalette": {
       "title": "Búsqueda global",
@@ -628,6 +629,8 @@
       "clear": "Limpiar",
       "activeFilters": "Filtros activos",
       "filtersLabel": "Filtros:",
+      "statusPlaceholder": "Estado",
+      "activeFilterBadge": "Filtro activo",
       "searchChip": "Búsqueda: \"{value}\"",
       "clubTypeAll": "Todos los tipos"
     },
@@ -1792,6 +1795,7 @@
         "filtersTitle": "Filtros",
         "filtersHint": "Refina el listado por campo",
         "searchPlaceholder": "Buscar por nombre o ubicación…",
+        "searchPageOnlyHint": "Filtrando solo esta página",
         "statusAll": "Todos los estados",
         "localFieldAll": "Todos los campos",
         "colSections": "Secciones activas",
@@ -2323,6 +2327,7 @@
     }
   },
   "rbac": {
+    "userSearchPlaceholder": "Buscar por nombre o correo...",
     "errors": {
       "create_permission_failed": "No se pudo crear el permiso",
       "update_permission_failed": "No se pudo actualizar el permiso",
@@ -5353,6 +5358,16 @@
     }
   },
   "scoring_categories": {
+    "deleteDialog": {
+      "title": "Eliminar categoría",
+      "description": "¿Estás seguro que quieres eliminar la categoría <strong>\"{name}\"</strong>? Esta acción la desactivará y no podrá usarse en nuevos registros. Los registros históricos se conservarán.",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando..."
+    },
+    "dialog": {
+      "namePlaceholder": "Ej. Uniforme"
+    },
     "toasts": {
       "deleted": "Categoría eliminada"
     },
@@ -5928,6 +5943,8 @@
       "allYears": "Todos los años",
       "allMonths": "Todos los meses",
       "refreshButton": "Actualizar",
+      "summaryLoadError": "No se pudo cargar el resumen financiero.",
+      "transactionsLoadError": "No se pudieron cargar los movimientos.",
       "newTransactionButton": "Nuevo movimiento",
       "transactionsTitle": "Movimientos",
       "showing": "Mostrando {shown} de {total} movimientos."
@@ -6379,7 +6396,8 @@
       "activitiesFoundOne": "actividad encontrada",
       "activitiesFoundOther": "actividades encontradas",
       "errors": {
-        "loadFailed": "No se pudieron cargar las actividades"
+        "loadFailed": "No se pudieron cargar las actividades",
+        "retry": "Reintentar"
       },
       "types": {
         "regular": "Regular",
@@ -6648,6 +6666,10 @@
       "club_type_all": "Todos los tipos",
       "select_club_placeholder": "Seleccionar club",
       "all_categories": "Todas las categorías",
+      "label_local_field": "Campo local",
+      "label_club_type": "Tipo de club",
+      "label_club": "Club",
+      "label_category": "Categoría",
       "refresh_title": "Actualizar",
       "refresh_sr": "Actualizar",
       "new_item": "Nuevo ítem",
@@ -6840,7 +6862,14 @@
       "forbidden": "Acceso denegado",
       "missing": "No disponible",
       "rateLimited": "Límite de solicitudes",
-      "goToLogin": "Ir a login"
+      "goToLogin": "Ir a login",
+      "retry": "Reintentar"
+    },
+    "routeError": {
+      "title": "No se pudo cargar esta sección",
+      "description": "Algo falló al mostrar esta página. Reintenta o vuelve al inicio.",
+      "retry": "Reintentar",
+      "goHome": "Ir al inicio"
     },
     "errorRetry": {
       "retry": "Reintentar",
@@ -7108,6 +7137,20 @@
     }
   },
   "classes": {
+    "relations": {
+      "selectHonorPlaceholder": "Selecciona una especialidad",
+      "selectClassPlaceholder": "Selecciona una clase",
+      "noModule": "Sin módulo",
+      "moduleOf": "Módulo de {name}",
+      "deleteAria": "Eliminar {name}",
+      "honorDeleteTitle": "Eliminar especialidad",
+      "honorDeleteDescription": "¿Seguro que deseas quitar «{name}» de esta clase? Puedes volver a agregarla más tarde si es necesario.",
+      "prerequisiteDeleteTitle": "Eliminar prerrequisito",
+      "prerequisiteDeleteDescription": "¿Seguro que deseas quitar «{name}» como prerrequisito de esta clase?",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "deleting": "Eliminando..."
+    },
     "list": {
       "empty_title": "No hay clases registradas",
       "empty_description": "No se encontraron clases progresivas en el catálogo.",
@@ -8057,6 +8100,16 @@
     }
   },
   "camporeeEvents": {
+    "editors": {
+      "rubricsEnableAria": "Habilitar puntaje por rúbricas",
+      "rubricDescriptionAria": "Descripción del criterio {index}",
+      "rubricPointsAria": "Puntos del criterio {index}",
+      "rubricDeleteAria": "Eliminar criterio {index}",
+      "penaltyFieldAria": "{field} — penalización {index}",
+      "scheduleDeleteAria": "Eliminar horario",
+      "rubricTitlePlaceholder": "Ej. Técnica",
+      "rubricDescriptionPlaceholder": "Descripción opcional"
+    },
     "templates": {
       "title": "Plantillas de eventos",
       "description": "Biblioteca de eventos reutilizables para camporees.",
@@ -9140,6 +9193,8 @@
       "colTotal": "Total",
       "colPayStatus": "Pago",
       "deliverQty": "Cantidad a entregar",
+      "deliverQtyInvalid": "Ingresa una cantidad mayor a 0.",
+      "deliverQtyExceeds": "No puede superar lo pendiente ({max}).",
       "lineDelivered": "Entrega completa"
     },
     "reports": {
@@ -9431,6 +9486,8 @@
       "selectLocalFieldDescription": "Elige un Campo para ver o editar su ventana.",
       "noYearTitle": "No hay un año eclesiástico para configurar",
       "noYearDescription": "Cuando exista un año eclesiástico vas a poder definir la ventana.",
+      "localFieldsLoadError": "No se pudo cargar la lista de Campos. El selector puede estar incompleto.",
+      "yearsLoadError": "No se pudo cargar la lista de años eclesiásticos. El selector puede estar incompleto.",
       "window": {
         "title": "Ventana de solicitudes",
         "description": "Período en el que el Campo permite presentar y autorizar solicitudes de investidura.",

@@ -297,6 +297,7 @@ export interface IntlMessages {
     };
     profile: string;
     logout: string;
+    userMenu: string;
     adminPanel: string;
     commandPalette: {
       title: string;
@@ -657,6 +658,8 @@ export interface IntlMessages {
       clear: string;
       activeFilters: string;
       filtersLabel: string;
+      statusPlaceholder: string;
+      activeFilterBadge: string;
       searchChip: string;
       clubTypeAll: string;
     };
@@ -1821,6 +1824,7 @@ export interface IntlMessages {
         filtersTitle: string;
         filtersHint: string;
         searchPlaceholder: string;
+        searchPageOnlyHint: string;
         statusAll: string;
         localFieldAll: string;
         colSections: string;
@@ -2352,6 +2356,7 @@ export interface IntlMessages {
     };
   };
   rbac: {
+    userSearchPlaceholder: string;
     errors: {
       create_permission_failed: string;
       update_permission_failed: string;
@@ -5385,6 +5390,16 @@ export interface IntlMessages {
     };
   };
   scoring_categories: {
+    deleteDialog: {
+      title: string;
+      description: string;
+      cancel: string;
+      delete: string;
+      deleting: string;
+    };
+    dialog: {
+      namePlaceholder: string;
+    };
     toasts: {
       deleted: string;
     };
@@ -5960,6 +5975,8 @@ export interface IntlMessages {
       allYears: string;
       allMonths: string;
       refreshButton: string;
+      summaryLoadError: string;
+      transactionsLoadError: string;
       newTransactionButton: string;
       transactionsTitle: string;
       showing: string;
@@ -6412,6 +6429,7 @@ export interface IntlMessages {
       activitiesFoundOther: string;
       errors: {
         loadFailed: string;
+        retry: string;
       };
       types: {
         regular: string;
@@ -6680,6 +6698,10 @@ export interface IntlMessages {
       club_type_all: string;
       select_club_placeholder: string;
       all_categories: string;
+      label_local_field: string;
+      label_club_type: string;
+      label_club: string;
+      label_category: string;
       refresh_title: string;
       refresh_sr: string;
       new_item: string;
@@ -6873,6 +6895,13 @@ export interface IntlMessages {
       missing: string;
       rateLimited: string;
       goToLogin: string;
+      retry: string;
+    };
+    routeError: {
+      title: string;
+      description: string;
+      retry: string;
+      goHome: string;
     };
     errorRetry: {
       retry: string;
@@ -7140,6 +7169,20 @@ export interface IntlMessages {
     };
   };
   classes: {
+    relations: {
+      selectHonorPlaceholder: string;
+      selectClassPlaceholder: string;
+      noModule: string;
+      moduleOf: string;
+      deleteAria: string;
+      honorDeleteTitle: string;
+      honorDeleteDescription: string;
+      prerequisiteDeleteTitle: string;
+      prerequisiteDeleteDescription: string;
+      cancel: string;
+      delete: string;
+      deleting: string;
+    };
     list: {
       empty_title: string;
       empty_description: string;
@@ -8104,6 +8147,16 @@ export interface IntlMessages {
     };
   };
   camporeeEvents: {
+    editors: {
+      rubricsEnableAria: string;
+      rubricDescriptionAria: string;
+      rubricPointsAria: string;
+      rubricDeleteAria: string;
+      penaltyFieldAria: string;
+      scheduleDeleteAria: string;
+      rubricTitlePlaceholder: string;
+      rubricDescriptionPlaceholder: string;
+    };
     templates: {
       title: string;
       description: string;
@@ -9187,6 +9240,8 @@ export interface IntlMessages {
       colTotal: string;
       colPayStatus: string;
       deliverQty: string;
+      deliverQtyInvalid: string;
+      deliverQtyExceeds: string;
       lineDelivered: string;
     };
     reports: {
@@ -9478,6 +9533,8 @@ export interface IntlMessages {
       selectLocalFieldDescription: string;
       noYearTitle: string;
       noYearDescription: string;
+      localFieldsLoadError: string;
+      yearsLoadError: string;
       window: {
         title: string;
         description: string;
