@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import {
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -18,6 +17,7 @@ import { toast } from "sonner";
 
 import { DivisionFormDialog } from "@/components/catalogs/divisions/division-form-dialog";
 import { getDivisionColumns } from "@/components/catalogs/divisions/divisions-columns";
+import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
 import { PageHeader } from "@/components/shared/page-header";
 import {
   AlertDialog,
@@ -30,7 +30,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import {
   Select,
@@ -39,14 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { deleteDivisionAction } from "@/lib/catalogs/divisions/actions";
 import type { AdminDivision } from "@/lib/catalogs/divisions/types";
 
@@ -64,7 +55,6 @@ export function DivisionsPageClient({
   canDelete,
 }: DivisionsPageClientProps) {
   const t = useTranslations("catalogs");
-  const tPag = useTranslations("shared.pagination");
   const tFields = useTranslations("catalogs.fields");
   const entity = t("entities.divisions.singular");
   const entityPlural = t("entities.divisions.title").toLocaleLowerCase();
@@ -169,109 +159,39 @@ export function DivisionsPageClient({
         }
       />
 
-      <Card>
-        <CardHeader className="gap-4 border-b pb-4">
-          <CardTitle className="text-base">{t("crudPage.listOf", { entity: entityPlural })}</CardTitle>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <InputGroup className="lg:max-w-sm">
-              <InputGroupAddon>
-                <Search className="size-4" />
-              </InputGroupAddon>
-              <InputGroupInput
-                aria-label={t("filterBar.searchIn", { entity })}
-                value={searchValue}
-                onChange={(event) => {
-                  table.getColumn("search")?.setFilterValue(event.target.value);
-                  table.setPageIndex(0);
-                }}
-                placeholder={t("filterBar.searchPlaceholder", { entity })}
-              />
-            </InputGroup>
-            <Select
-              value={statusFilter}
-              onValueChange={(value) => {
-                table.getColumn("active")?.setFilterValue(value);
-                table.setPageIndex(0);
-              }}
-            >
-              <SelectTrigger className="w-full lg:w-44">
-                <SelectValue placeholder={t("filterBar.filterByStatus")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("filterBar.statusAll")}</SelectItem>
-                <SelectItem value="active">{t("filterBar.statusActive")}</SelectItem>
-                <SelectItem value="inactive">{t("filterBar.statusInactive")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) =>
-                    header.column.id === "search" ? null : (
-                      <TableHead key={header.id} className={header.column.columnDef.meta?.className}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    ),
-                  )}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.length > 0 ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) =>
-                      cell.column.id === "search" ? null : (
-                        <TableCell key={cell.id} className={cell.column.columnDef.meta?.className}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ),
-                    )}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                    {searchValue || statusFilter !== "all"
-                      ? t("crudPage.noResultsDesc", { entity })
-                      : t("crudPage.noRecords")}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-
-          <div className="flex items-center justify-between border-t px-4 py-3 text-muted-foreground text-sm">
-            <span>
-              {table.getFilteredRowModel().rows.length} {t("filterBar.records")}
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                {tPag("prevPage")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                {tPag("nextPage")}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-3">
+        <InputGroup className="w-full sm:w-72">
+          <InputGroupAddon>
+            <Search className="size-4" />
+          </InputGroupAddon>
+          <InputGroupInput
+            aria-label={t("filterBar.searchIn", { entity })}
+            value={searchValue}
+            onChange={(event) => {
+              table.getColumn("search")?.setFilterValue(event.target.value);
+              table.setPageIndex(0);
+            }}
+            placeholder={t("filterBar.searchPlaceholder", { entity })}
+          />
+        </InputGroup>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => {
+            table.getColumn("active")?.setFilterValue(value);
+            table.setPageIndex(0);
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder={t("filterBar.filterByStatus")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filterBar.statusAll")}</SelectItem>
+            <SelectItem value="active">{t("filterBar.statusActive")}</SelectItem>
+            <SelectItem value="inactive">{t("filterBar.statusInactive")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <CatalogTableView table={table} entity={entity} entityPlural={entityPlural} mobileTitleIds={["code", "name"]} />
 
       <DivisionFormDialog
         open={formOpen}

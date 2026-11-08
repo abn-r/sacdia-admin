@@ -23,6 +23,7 @@ import { CatalogDeleteDialog } from "@/components/catalogs/catalog-delete-dialog
 import type { EntityConfig, EntityKey } from "@/lib/catalogs/entities";
 import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { PageHeader } from "@/components/shared/page-header";
 import { usePanelPath } from "@/lib/v2/panel-path-context";
@@ -65,21 +66,7 @@ function normalizeText(value: string): string {
     .trim();
 }
 
-// ─── Table column padding convention ─────────────────────────────────────────
-// first col : pl-6 pr-4   — breathing room from card border
-// middle col: px-4        — consistent gutters
-// last col  : pl-4 pr-6   — mirror of first
-const COL_FIRST = "pl-6 pr-4";
-const COL_MID   = "px-4";
-const COL_LAST  = "pl-4 pr-6";
-
-// Header height + style shared by every <TableHead>
-const TH_BASE = "h-11 bg-muted/40 text-xs font-medium text-muted-foreground align-middle";
-
-// Row height — comfortable default; can be swapped to "h-10" for density
-const ROW_H = "h-14";
-
-// NoFilterResults removed — replaced by <EmptyState variant="no-results" />
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
 // ─── CatalogCrudPage ──────────────────────────────────────────────────────────
 
@@ -113,6 +100,8 @@ export function CatalogCrudPage({
   const [deleteItem, setDeleteItem] = useState<CatalogItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const mutationsEnabled = config.allowMutations !== false;
   const showCreate = canCreate ?? mutationsEnabled;
@@ -141,6 +130,44 @@ export function CatalogCrudPage({
     });
   }, [items, searchQuery, activeFilter, config.nameField]);
 
+  const totalPages = Math.max(Math.ceil(filteredItems.length / pageSize), 1);
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const getDisplayValue = (item: CatalogItem, field: (typeof displayFields)[number]): string => {
+    const val = item[field.name];
+    if (field.type === "select" && field.optionsEntityKey) {
+      const opts =
+        displaySelectOptions[field.optionsEntityKey] ?? selectOptions[field.optionsEntityKey] ?? [];
+      const match = opts.find((o) => o.value === Number(val));
+      return match?.label ?? String(val ?? "—");
+    }
+    return val != null ? String(val) : "—";
+  };
+
+  const renderRowActions = (item: CatalogItem, itemId: string | null) => (
+    <RowActions
+      label={String(item[config.nameField] ?? itemId ?? "")}
+      actions={[
+        {
+          label: tCrud("edit"),
+          icon: Pencil,
+          onSelect: () => setEditItem(item),
+          hidden: !showEdit,
+          disabled: !itemId,
+        },
+        {
+          label: `${tCrud("delete")}…`,
+          icon: Trash2,
+          destructive: true,
+          onSelect: () => setDeleteItem(item),
+          hidden: !showDelete,
+          disabled: !itemId,
+        },
+      ]}
+    />
+  );
+
   const editItemId = editItem ? getItemId(editItem) : null;
   const deleteItemId = deleteItem ? getItemId(deleteItem) : null;
   const hasFilters = searchQuery.trim() !== "" || activeFilter !== "all";
@@ -148,11 +175,10 @@ export function CatalogCrudPage({
   const handleClearFilters = () => {
     setSearchQuery("");
     setActiveFilter("all");
+    setPage(1);
   };
 
-  // ── Columns: first = ID, middle = data fields, last = actions (or status when read-only) ──
-  // We need to know which column is truly "last" for the right-padding class.
-  // Columns order: ID | ...displayFields | Estado | (Acciones if canMutate)
+  // Columns: ...displayFields | ID | Estado | (Acciones if the user can mutate)
   const lastColIsActions = showEdit || showDelete;
 
   return (
@@ -188,9 +214,15 @@ export function CatalogCrudPage({
         <CatalogFilterBar
           entityLabel={entityTitleLower}
           searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={(value) => {
+            setSearchQuery(value);
+            setPage(1);
+          }}
           statusFilter={activeFilter}
-          onStatusFilterChange={setActiveFilter}
+          onStatusFilterChange={(value) => {
+            setActiveFilter(value);
+            setPage(1);
+          }}
           totalCount={items.length}
           filteredCount={filteredItems.length}
           onClearFilters={handleClearFilters}
@@ -225,258 +257,122 @@ export function CatalogCrudPage({
           </Button>
         </EmptyState>
       ) : (
-        <>
+        <div className="flex flex-col gap-4">
           {/* ── Desktop table ── */}
           <div className="hidden md:block">
             <DataTableShell>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b border-border hover:bg-transparent">
-                      {/* ID — first column */}
-                      <TableHead className={`${TH_BASE} ${COL_FIRST} w-[72px]`}>
-                        ID
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {/* Data fields — identity (name) first */}
+                    {displayFields.map((f) => (
+                      <TableHead key={f.name}>
+                        {tCatalogs(f.label as Parameters<typeof tCatalogs>[0])}
                       </TableHead>
+                    ))}
+                    <TableHead className="w-[72px] text-right">ID</TableHead>
+                    <TableHead>{tCrud("colStatus")}</TableHead>
+                    {lastColIsActions && <RowActionsHead />}
+                  </TableRow>
+                </TableHeader>
 
-                      {/* Data fields — middle columns */}
-                      {displayFields.map((f) => (
-                        <TableHead
-                          key={f.name}
-                          className={`${TH_BASE} ${COL_MID}`}
-                        >
-                          {tCatalogs(f.label as Parameters<typeof tCatalogs>[0])}
-                        </TableHead>
-                      ))}
+                <TableBody>
+                  {pageItems.map((item, idx) => {
+                    const itemId = getItemId(item);
+                    const rowKey = itemId ? `${config.key}-${itemId}` : `${config.key}-row-${idx}`;
 
-                      {/* Estado — middle or last depending on canMutate */}
-                      <TableHead
-                        className={`${TH_BASE} ${lastColIsActions ? COL_MID : COL_LAST}`}
-                      >
-                        {tCrud("colStatus")}
-                      </TableHead>
+                    return (
+                      <TableRow key={rowKey}>
+                        {displayFields.map((f, fieldIndex) => {
+                          const display = getDisplayValue(item, f);
+                          const isLongText = f.type === "textarea";
 
-                      {/* Acciones — last column (only when mutations allowed) */}
-                      {lastColIsActions && (
-                        <RowActionsHead className={`${TH_BASE} ${COL_LAST}`} />
-                      )}
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {filteredItems.map((item, idx) => {
-                      const itemId = getItemId(item);
-                      const rowKey = itemId
-                        ? `${config.key}-${itemId}`
-                        : `${config.key}-row-${idx}`;
-
-                      return (
-                        <TableRow
-                          key={rowKey}
-                          className={`${ROW_H} border-b border-border transition-colors hover:bg-muted/30`}
-                        >
-                          {/* ID — first column */}
-                          <TableCell
-                            className={`${COL_FIRST} text-xs tabular-nums text-muted-foreground`}
-                          >
-                            {itemId ?? "—"}
-                          </TableCell>
-
-                          {/* Data fields — middle columns */}
-                          {displayFields.map((f) => {
-                            const val = item[f.name];
-                            let display: string;
-
-                            if (f.type === "select" && f.optionsEntityKey) {
-                              const opts =
-                                displaySelectOptions[f.optionsEntityKey] ??
-                                selectOptions[f.optionsEntityKey] ??
-                                [];
-                              const match = opts.find((o) => o.value === Number(val));
-                              display = match?.label ?? String(val ?? "—");
-                            } else {
-                              display = val != null ? String(val) : "—";
-                            }
-
-                            const isLongText = f.type === "textarea";
-
-                            return (
-                              <TableCell
-                                key={f.name}
-                                className={`${COL_MID} ${isLongText ? "max-w-[260px]" : ""}`}
-                              >
-                                {isLongText ? (
-                                  <span
-                                    className="block truncate text-sm text-muted-foreground"
-                                    title={display}
-                                  >
-                                    {display}
-                                  </span>
-                                ) : (
-                                  <span className="text-sm">{display}</span>
-                                )}
-                              </TableCell>
-                            );
-                          })}
-
-                          {/* Estado — middle or last */}
-                          <TableCell
-                            className={lastColIsActions ? COL_MID : COL_LAST}
-                          >
-                            <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
-                          </TableCell>
-
-                          {/* Acciones — last column */}
-                          {lastColIsActions && (
-                            <TableCell className={COL_LAST}>
-                              <RowActions
-                                label={String(item[config.nameField] ?? itemId ?? "")}
-                                actions={[
-                                  {
-                                    label: tCrud("edit"),
-                                    icon: Pencil,
-                                    onSelect: () => setEditItem(item),
-                                    hidden: !showEdit,
-                                    disabled: !itemId,
-                                  },
-                                  {
-                                    label: `${tCrud("delete")}…`,
-                                    icon: Trash2,
-                                    destructive: true,
-                                    onSelect: () => setDeleteItem(item),
-                                    hidden: !showDelete,
-                                    disabled: !itemId,
-                                  },
-                                ]}
-                              />
+                          return (
+                            <TableCell key={f.name} className={isLongText ? "max-w-[260px]" : undefined}>
+                              {isLongText ? (
+                                <span className="block truncate text-sm text-muted-foreground" title={display}>
+                                  {display}
+                                </span>
+                              ) : (
+                                <span className={fieldIndex === 0 ? "text-sm font-medium" : "text-sm"}>
+                                  {display}
+                                </span>
+                              )}
                             </TableCell>
-                          )}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+                          );
+                        })}
+
+                        <TableCell className="text-right text-xs tabular-nums text-muted-foreground">
+                          {itemId ?? "—"}
+                        </TableCell>
+
+                        <TableCell>
+                          <StatusBadge
+                            intent={flagStatusIntent(item.active !== false)}
+                            label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
+                            size="sm"
+                          />
+                        </TableCell>
+
+                        {lastColIsActions && (
+                          <TableCell>{renderRowActions(item, itemId)}</TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </DataTableShell>
           </div>
 
-          {/* ── Mobile cards ── */}
-          <ul
-            className="space-y-3 md:hidden"
-            aria-label={tCrud("listOf", { entity: entityTitleLower })}
-          >
-            {filteredItems.map((item, idx) => {
+          {/* ── Mobile: 2-line rows ── */}
+          <ul className="md:hidden" aria-label={tCrud("listOf", { entity: entityTitleLower })}>
+            {pageItems.map((item, idx) => {
               const itemId = getItemId(item);
-              const rowKey = itemId
-                ? `${config.key}-${itemId}`
-                : `${config.key}-row-${idx}`;
-
-              // Primary display: first displayField value
+              const rowKey = itemId ? `${config.key}-${itemId}` : `${config.key}-row-${idx}`;
               const primaryField = displayFields[0];
-              const primaryVal = primaryField
-                ? (() => {
-                    const val = item[primaryField.name];
-                    if (primaryField.type === "select" && primaryField.optionsEntityKey) {
-                      const opts =
-                        displaySelectOptions[primaryField.optionsEntityKey] ??
-                        selectOptions[primaryField.optionsEntityKey] ??
-                        [];
-                      const match = opts.find((o) => o.value === Number(val));
-                      return match?.label ?? String(val ?? "—");
-                    }
-                    return val != null ? String(val) : "—";
-                  })()
-                : "—";
-
-              // Secondary fields: remaining displayFields (up to 2 shown as dl pairs)
+              const primaryVal = primaryField ? getDisplayValue(item, primaryField) : "—";
               const secondaryFields = displayFields.slice(1, 3);
 
               return (
-                <li
-                  key={rowKey}
-                 
-                >
-                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
-                    {/* Card header: icon + name + edit chevron */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                        <Package className="size-5 text-primary" aria-hidden="true" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{primaryVal}</p>
-                        <p className="text-xs tabular-nums text-muted-foreground">
-                          #{itemId ?? "—"}
-                        </p>
-                      </div>
-                      {/* Edit action is in the bottom action bar — no duplicate chevron here */}
+                <li key={rowKey} className="flex items-start gap-2 border-b py-3 last:border-b-0">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="min-w-0 truncate text-sm font-medium">{primaryVal}</p>
+                      <StatusBadge
+                        intent={flagStatusIntent(item.active !== false)}
+                        label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
+                        size="sm"
+                      />
                     </div>
-
-                    {/* Status badge */}
-                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")} size="sm" />
-                    </div>
-
-                    {/* Secondary data fields */}
-                    {secondaryFields.length > 0 && (
-                      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                        {secondaryFields.map((f) => {
-                          const val = item[f.name];
-                          let display: string;
-                          if (f.type === "select" && f.optionsEntityKey) {
-                            const opts =
-                              displaySelectOptions[f.optionsEntityKey] ??
-                              selectOptions[f.optionsEntityKey] ??
-                              [];
-                            const match = opts.find((o) => o.value === Number(val));
-                            display = match?.label ?? String(val ?? "—");
-                          } else {
-                            display = val != null ? String(val) : "—";
-                          }
-                          return (
-                            <div key={f.name}>
-                              <dt className="text-muted-foreground">
-                                {tCatalogs(f.label as Parameters<typeof tCatalogs>[0])}
-                              </dt>
-                              <dd className="truncate">{display}</dd>
-                            </div>
-                          );
-                        })}
-                      </dl>
-                    )}
-
-                    {/* Actions row */}
-                    {lastColIsActions && itemId && (
-                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-border/40 pt-3">
-                        {showEdit ? (
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => setEditItem(item)}
-                            aria-label={tCrud("editItem", { item: primaryVal })}
-                          >
-                            <Pencil className="size-3" aria-hidden="true" />
-                            {tCrud("edit")}
-                          </Button>
-                        ) : null}
-                        {showDelete ? (
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => setDeleteItem(item)}
-                            aria-label={tCrud("deleteItem", { item: primaryVal })}
-                          >
-                            <Trash2 className="size-3" aria-hidden="true" />
-                            {tCrud("delete")}
-                          </Button>
-                        ) : null}
-                      </div>
-                    )}
+                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[13px] text-muted-foreground">
+                      <span className="tabular-nums">#{itemId ?? "—"}</span>
+                      {secondaryFields.map((f) => (
+                        <span key={f.name} className="min-w-0 break-words">
+                          {getDisplayValue(item, f)}
+                        </span>
+                      ))}
+                    </p>
                   </div>
+                  {lastColIsActions && <div className="-mr-1.5 shrink-0">{renderRowActions(item, itemId)}</div>}
                 </li>
               );
             })}
           </ul>
-        </>
+
+          <DataTablePagination
+            page={currentPage}
+            totalPages={totalPages}
+            total={filteredItems.length}
+            limit={pageSize}
+            limitOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        </div>
       )}
 
       {/* ── Dialogs ── */}

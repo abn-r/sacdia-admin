@@ -14,25 +14,45 @@ import {
 } from "@/components/ui/select";
 
 interface DataTablePaginationProps {
+  /** 1-based current page. */
   page: number;
   totalPages: number;
   total: number;
   limit: number;
   limitOptions?: number[];
+  /**
+   * Controlled mode: when provided, the component never touches the router and
+   * delegates navigation to the caller (e.g. client-side TanStack tables).
+   * Without it, page/limit are written to the URL (`?page=&limit=`).
+   */
+  onPageChange?: (page: number) => void;
+  /** Controlled mode: called with the new page size; the caller resets to page 1. */
+  onPageSizeChange?: (limit: number) => void;
 }
 
-export function DataTablePagination({
-  page,
-  totalPages,
-  total,
-  limit,
-  limitOptions = [20, 50, 100],
-}: DataTablePaginationProps) {
-  const t = useTranslations("shared.pagination");
+type PaginationViewProps = Omit<DataTablePaginationProps, "onPageChange" | "onPageSizeChange"> & {
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (limit: number) => void;
+};
+
+export function DataTablePagination(props: DataTablePaginationProps) {
+  const { onPageChange, onPageSizeChange, ...rest } = props;
+  if (onPageChange) {
+    return (
+      <PaginationView
+        {...rest}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange ?? (() => undefined)}
+      />
+    );
+  }
+  return <UrlPagination {...rest} />;
+}
+
+function UrlPagination(props: Omit<DataTablePaginationProps, "onPageChange" | "onPageSizeChange">) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const perPageLabelId = useId();
 
   function buildHref(newPage: number, newLimit?: number) {
     const params = new URLSearchParams(searchParams.toString());
@@ -41,12 +61,32 @@ export function DataTablePagination({
     return `${pathname}?${params.toString()}`;
   }
 
-  function handleLimitChange(value: string) {
-    router.push(buildHref(1, Number(value)));
-  }
+  return (
+    <PaginationView
+      {...props}
+      onPageChange={(newPage) => router.push(buildHref(newPage))}
+      onPageSizeChange={(newLimit) => router.push(buildHref(1, newLimit))}
+    />
+  );
+}
+
+function PaginationView({
+  page,
+  totalPages,
+  total,
+  limit,
+  limitOptions = [20, 50, 100],
+  onPageChange,
+  onPageSizeChange,
+}: PaginationViewProps) {
+  const t = useTranslations("shared.pagination");
+  const perPageLabelId = useId();
 
   const from = total === 0 ? 0 : Math.min((page - 1) * limit + 1, total);
   const to = Math.min(page * limit, total);
+  const options = limitOptions.includes(limit)
+    ? limitOptions
+    : [...limitOptions, limit].sort((a, b) => a - b);
 
   return (
     <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
@@ -58,12 +98,12 @@ export function DataTablePagination({
           <span id={perPageLabelId} className="text-sm text-muted-foreground">
             {t("perPage")}
           </span>
-          <Select defaultValue={String(limit)} onValueChange={handleLimitChange}>
+          <Select value={String(limit)} onValueChange={(value) => onPageSizeChange(Number(value))}>
             <SelectTrigger className="h-8 w-[70px]" aria-labelledby={perPageLabelId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {limitOptions.map((option) => (
+              {options.map((option) => (
                 <SelectItem key={option} value={String(option)}>
                   {option}
                 </SelectItem>
@@ -81,7 +121,7 @@ export function DataTablePagination({
             className="size-8"
             disabled={page <= 1}
             aria-label={t("prevPage")}
-            onClick={() => router.push(buildHref(page - 1))}
+            onClick={() => onPageChange(page - 1)}
           >
             <ChevronLeft className="size-4" />
           </Button>
@@ -91,7 +131,7 @@ export function DataTablePagination({
             className="size-8"
             disabled={page >= totalPages}
             aria-label={t("nextPage")}
-            onClick={() => router.push(buildHref(page + 1))}
+            onClick={() => onPageChange(page + 1)}
           >
             <ChevronRight className="size-4" />
           </Button>
