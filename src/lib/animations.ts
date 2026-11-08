@@ -9,6 +9,9 @@ export const EASE_DRAWER = "cubic-bezier(0.32, 0.72, 0, 1)";
 /** Press feedback scale — subtle, never below ~0.95. */
 export const PRESS_SCALE = "0.97";
 
+/** Tailwind needs the literal; keep in sync with PRESS_SCALE. Buttons only. */
+export const PRESS_SCALE_CLASSES = "active:not-aria-[haspopup]:scale-[0.97]";
+
 const STAGGER_BASE =
   "motion-reduce:animate-none animate-in fade-in slide-in-from-bottom-1 fill-mode-backwards duration-250 [animation-timing-function:var(--ease-out-expo)]";
 
@@ -28,7 +31,7 @@ export const EMPTY_STATE_ENTER_CLASSES =
 
 /** Overlay surfaces: dialog, popover, dropdown, select. */
 export const SURFACE_MOTION_CLASSES =
-  "duration-200 motion-reduce:animate-none motion-reduce:transition-none [animation-timing-function:var(--ease-out-expo)]";
+  "duration-200 data-closed:duration-150 motion-reduce:animate-none motion-reduce:transition-none [animation-timing-function:var(--ease-out-expo)]";
 
 /**
  * Pair with STAGGER_CLASSES on rare first-time surfaces only.

@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
