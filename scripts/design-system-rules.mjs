@@ -97,7 +97,7 @@ export const RULES = [
   },
   {
     id: "text-below-11px",
-    severity: "warn", // TODO: promote to error once events-summary-kpis.tsx (text-[10.5px]) is fixed
+    severity: "error",
     description: "text-[Npx] below 11px is illegible (use text-2xs or larger)",
     test: (line) =>
       [...line.matchAll(/text-\[(\d+(?:\.\d+)?)px\]/g)].some((m) => Number(m[1]) < 11),
@@ -112,7 +112,7 @@ export const RULES = [
   },
   {
     id: "window-confirm",
-    severity: "warn", // TODO: promote to error once succession-block.tsx uses AlertDialog
+    severity: "error",
     description: "Native confirm() is banned: use AlertDialog",
     test: (line) => /\b(?:window|globalThis)\.confirm\(|[!(=]\s*confirm\(/.test(line),
     allow: (file) => !isTsx(file) || isTestFile(file),
