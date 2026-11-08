@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { History, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -132,13 +133,7 @@ export function HistoryTab({ clubId, sections }: HistoryTabProps) {
       ) : null}
 
       {!loading && !error && filteredItems.length === 0 ? (
-        <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/20 px-4 py-10 text-center">
-          <span className="grid size-10 place-items-center rounded-full bg-muted text-muted-foreground">
-            <History className="size-5" />
-          </span>
-          <p className="text-sm font-semibold">{t("emptyTitle")}</p>
-          <p className="max-w-sm text-xs text-muted-foreground">{t("emptyDescription")}</p>
-        </div>
+        <EmptyState icon={History} title={t("emptyTitle")} description={t("emptyDescription")} />
       ) : null}
 
       <div className="space-y-2.5">

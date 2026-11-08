@@ -1,10 +1,11 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { Repeat } from "lucide-react";
+import { CalendarX, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/lib/api/activities";
 import { ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
@@ -79,9 +80,7 @@ function DayActivitiesList({
 
   if (activities.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
-        {t("emptyDay")}
-      </p>
+      <EmptyState icon={CalendarX} title={t("emptyDay")} />
     );
   }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useId, useState, useMemo, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -373,17 +374,11 @@ export function ExpiringDashboard({ items, daysAhead }: ExpiringDashboardProps) 
       <Card>
         <CardContent className="pt-0">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-              <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                <ShieldOff className="size-6 text-muted-foreground" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold">
-                {t("expiring.empty_title")}
-              </h3>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                {t("expiring.empty_description", { days: daysAhead })}
-              </p>
-            </div>
+            <EmptyState
+              icon={ShieldOff}
+              title={t("expiring.empty_title")}
+              description={t("expiring.empty_description", { days: daysAhead })}
+            />
           ) : (
             <>
               {/* Desktop table */}

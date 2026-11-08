@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useFormatNumber } from "@/lib/format-locale";
@@ -458,26 +459,20 @@ export function RankingsClientPage({
       </div>
 
       {sortedRankings.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <BarChart3 className="size-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold">
-            {tPage("emptyTitle")}
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            {tPage("emptyDescription")}
-          </p>
+        <EmptyState
+          icon={BarChart3}
+          title={tPage("emptyTitle")}
+          description={tPage("emptyDescription")}
+        >
           <Button
             variant="outline"
             size="sm"
-            className="mt-4"
             onClick={() => setRecalcOpen(true)}
           >
             <TrendingUp className="size-4" />
             {tPage("recalculate")}
           </Button>
-        </div>
+        </EmptyState>
       ) : (
         <>
           <div className="hidden rounded-lg border border-border/60 md:block">

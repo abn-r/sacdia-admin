@@ -1,7 +1,8 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import Link from "next/link";
-import { Building2, ChevronRight, Clock, MapPin, Repeat, Users } from "lucide-react";
+import { Building2, CalendarX, ChevronRight, Clock, MapPin, Repeat, Users } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -179,9 +180,9 @@ export function ActivitiesDateList({
     return (
       <div className="rounded-xl border bg-card p-4 shadow-xs">
         <h2 className="text-sm font-medium">{t("listTitle")}</h2>
-        <p className="mt-4 rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
-          {t("listEmpty")}
-        </p>
+        <div className="mt-4">
+          <EmptyState icon={CalendarX} title={t("listEmpty")} />
+        </div>
       </div>
     );
   }

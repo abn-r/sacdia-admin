@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
+import { LayoutGrid } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
@@ -57,9 +59,7 @@ export function GeneralTab({ data }: GeneralTabProps) {
       </DetailSection>
 
       {groups.length === 0 ? (
-        <div className="grid place-items-center gap-2 rounded-xl border border-dashed bg-muted/20 px-4 py-10 text-center">
-          <p className="text-sm text-muted-foreground">{t("noSections")}</p>
-        </div>
+        <EmptyState icon={LayoutGrid} title={t("noSections")} />
       ) : (
         groups.map((group, index) => {
           const sectionActive = isClubSectionActive(group);

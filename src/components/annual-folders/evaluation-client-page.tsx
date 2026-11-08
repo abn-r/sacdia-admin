@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -917,9 +918,7 @@ export function EvaluationClientPage({
 
     if (!folder) {
       return (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          {tFolders("notFoundDescription")}
-        </div>
+        <EmptyState icon={FolderSearch} title={tFolders("notFoundDescription")} />
       );
     }
 
@@ -1286,15 +1285,15 @@ export function EvaluationClientPage({
               Cargando carpetas...
             </div>
           ) : queueItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-              <FolderSearch className="mb-2 size-8 text-muted-foreground" />
-              <p className="text-sm font-medium">No hay carpetas para mostrar</p>
-              <p className="mt-1 max-w-md text-xs text-muted-foreground">
-                {folderSetupGap
+            <EmptyState
+              icon={FolderSearch}
+              title="No hay carpetas para mostrar"
+              description={
+                folderSetupGap
                   ? t("setup.emptyHint")
-                  : "Prueba cambiar el filtro de estado o buscar por otro nombre de club, sección, campo o plantilla."}
-              </p>
-            </div>
+                  : "Prueba cambiar el filtro de estado o buscar por otro nombre de club, sección, campo o plantilla."
+              }
+            />
           ) : (
             <div className="space-y-3">
               {queueItems.map((item) => (

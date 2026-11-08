@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
+import { Inbox } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -240,9 +242,7 @@ export function AnnualReportDetailClient({
             />
           </>
         ) : (
-          <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-            {t("common.computed.empty")}
-          </div>
+          <EmptyState icon={Inbox} title={t("common.computed.empty")} />
         )}
       </section>
 
