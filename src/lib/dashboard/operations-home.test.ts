@@ -178,8 +178,8 @@ describe("progressTone", () => {
     expect(progressTone(49.9)).toBe("destructive");
     expect(progressTone(50)).toBe("warning");
     expect(progressTone(79.99)).toBe("warning");
-    expect(progressTone(80)).toBe("success");
-    expect(progressTone(100)).toBe("success");
+    expect(progressTone(80)).toBe("neutral");
+    expect(progressTone(100)).toBe("neutral");
   });
 
   it("has no tone without a value", () => {

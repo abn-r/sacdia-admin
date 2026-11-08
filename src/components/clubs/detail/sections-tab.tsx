@@ -233,7 +233,7 @@ function OfficerRoleBlock({
 }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {heading}
       </p>
       {people.length > 0 ? (
@@ -324,7 +324,7 @@ export function DesignationBlock({
 
   return (
     <div className="mt-4 space-y-2 rounded-xl border border-dashed border-border/70 bg-muted/10 p-4">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {t("designatedHeading", { year: nextYearId })}
       </p>
 
@@ -334,8 +334,8 @@ export function DesignationBlock({
         <p className="text-sm text-muted-foreground">{t("noDesignation")}</p>
       )}
 
-      <p className="text-[11px] text-muted-foreground">{t("designateHint")}</p>
-      <p className="text-[11px] text-muted-foreground">{t("designateWindowHint")}</p>
+      <p className="text-2xs text-muted-foreground">{t("designateHint")}</p>
+      <p className="text-2xs text-muted-foreground">{t("designateWindowHint")}</p>
 
       {blockCode ? (
         <div
@@ -461,7 +461,7 @@ function SectionCard({
         <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("active") : t("inactive")} />
       }
     >
-      <p className="mb-3 text-[11px] font-semibold text-muted-foreground">
+      <p className="mb-3 text-2xs font-semibold text-muted-foreground">
         {t("typeEyebrow")}
       </p>
 

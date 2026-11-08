@@ -36,14 +36,14 @@ export function ActivitySeriesPanel({ seriesId }: { seriesId: number }) {
         : series.kind;
 
   return (
-    <Card className="overflow-hidden border-success/25 bg-success/10">
+    <Card className="overflow-hidden">
       <CardContent className="flex flex-wrap items-center gap-4 py-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success/15">
-          <Repeat className="size-5 text-success" aria-hidden />
-        </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold">{t("badge")}</p>
+            <p className="flex items-center gap-1.5 text-sm font-semibold">
+              <Repeat className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              {t("badge")}
+            </p>
             <Badge variant="soft-success">{kindLabel}</Badge>
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,6 +60,7 @@ export function ClassPrerequisitesDialog({
   canCreate,
   canDelete,
 }: ClassPrerequisitesDialogProps) {
+  const tRel = useTranslations("classes.relations");
   const [open, setOpen] = useState(false);
   const [prerequisites, setPrerequisites] = useState<ClassPrerequisiteRelation[]>(
     initialPrerequisites,
@@ -154,7 +156,7 @@ export function ClassPrerequisitesDialog({
                   <Label htmlFor="class-prerequisite-select">Clase prerrequisito</Label>
                   <Select value={selectedClassId} onValueChange={setSelectedClassId}>
                     <SelectTrigger id="class-prerequisite-select" className="w-full bg-background">
-                      <SelectValue placeholder="Selecciona una clase" />
+                      <SelectValue placeholder={tRel("selectClassPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {availableOptions.map((option) => (
@@ -190,7 +192,7 @@ export function ClassPrerequisitesDialog({
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setDeleteTarget(relation)}
-                        aria-label={`Eliminar ${relation.prerequisite.name}`}
+                        aria-label={tRel("deleteAria", { name: relation.prerequisite.name })}
                       >
                         <Trash2 className="size-4 text-destructive" />
                       </Button>
@@ -215,16 +217,17 @@ export function ClassPrerequisitesDialog({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar prerrequisito</AlertDialogTitle>
+            <AlertDialogTitle>{tRel("prerequisiteDeleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Seguro que deseas quitar «{deleteTarget?.prerequisite.name}» como
-              prerrequisito de esta clase?
+              {tRel("prerequisiteDeleteDescription", {
+                name: deleteTarget?.prerequisite.name ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tRel("cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
-              {deleting ? "Eliminando..." : "Eliminar"}
+              {deleting ? tRel("deleting") : tRel("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

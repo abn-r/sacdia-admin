@@ -1,10 +1,11 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { Repeat } from "lucide-react";
+import { CalendarOff, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/lib/api/activities";
 import { ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
@@ -42,7 +43,7 @@ function ActivityChip({
       href={href}
       className={cn(
         "block rounded-md border border-border/60 bg-background px-2 py-1 text-left transition-colors hover:bg-muted/50",
-        compact ? "truncate text-[11px]" : "text-sm",
+        compact ? "truncate text-2xs" : "text-sm",
       )}
     >
       <div className="truncate font-medium">
@@ -56,7 +57,7 @@ function ActivityChip({
           {activity.activity_time ? <span>{activity.activity_time}</span> : null}
           {activity.club_name ? <span>· {activity.club_name}</span> : null}
           {typeLabel ? (
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-2xs">
               {typeLabel}
             </Badge>
           ) : null}
@@ -79,9 +80,7 @@ function DayActivitiesList({
 
   if (activities.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
-        {t("emptyDay")}
-      </p>
+      <EmptyState icon={CalendarOff} title={t("emptyDay")} />
     );
   }
 
@@ -147,7 +146,7 @@ export function ActivitiesCalendarGrid({
                     isToday && "bg-primary/10",
                   )}
                 >
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-2xs uppercase text-muted-foreground">
                     {date.toLocaleDateString("es-MX", { weekday: "short" })}
                   </span>
                   <span className="text-lg font-semibold tabular-nums">{date.getDate()}</span>
@@ -231,7 +230,7 @@ export function ActivitiesCalendarGrid({
                   <button
                     type="button"
                     onClick={() => onSelectDate(date)}
-                    className="text-[11px] text-primary hover:underline"
+                    className="text-2xs text-primary hover:underline"
                   >
                     {t("moreCount", { count: dayActivities.length - 3 })}
                   </button>

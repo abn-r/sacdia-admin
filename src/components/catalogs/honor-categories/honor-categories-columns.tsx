@@ -63,6 +63,7 @@ export function getHonorCategoryColumns({
     {
       accessorKey: "honors_count",
       header: () => labels.honorsCount,
+      meta: { className: "text-right tabular-nums" },
       cell: ({ row }) => row.original.honors_count,
     },
     {
@@ -81,8 +82,7 @@ export function getHonorCategoryColumns({
     {
       id: "actions",
       header: () => <span className="sr-only">{labels.actions}</span>,
-      meta: { className: "sticky right-0 z-10 w-12 bg-card text-right" },
-      cell: ({ row }) => {
+            cell: ({ row }) => {
         const category = row.original;
 
         return (

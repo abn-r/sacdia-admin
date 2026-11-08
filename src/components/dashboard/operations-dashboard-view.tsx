@@ -147,6 +147,8 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
             operational: tHome("gapTable.columns.operational"),
           },
           emptyLabel: tHome("gapTable.emptyTitle", { level: childLevel }),
+          showAllLabel: tHome("gapTable.showAll", { count: children.length }),
+          showLessLabel: tHome("gapTable.showLess"),
           rows: rankChildrenByGap(children, hasReportingMonth).map(
             ({ child }): OperationsGapRow => {
               const childReportsPct = hasReportingMonth ? child.monthly_reports.coverage_pct : null;

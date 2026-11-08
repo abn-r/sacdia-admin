@@ -19,8 +19,9 @@ import {
   MapPin,
   Building2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -177,89 +178,69 @@ function formatFileSize(bytes: unknown): string {
 
 // ─── Badge helpers ──────────────────────────────────────────────────────────────
 
-// Resource type badges use Ember chart tokens (chart-2..5 + destructive) for
-// distinctive per-type identification while staying within the design system.
-// Pattern matches pipeline-history-dialog.tsx: text + color-mix backgrounds.
+// Resource type: neutral mark; the icon and label carry the distinction, not color.
 function resourceTypeBadgeConfig(type: ResourceType | null): {
   label: string;
-  className: string;
-  Icon: React.ElementType;
+  Icon: LucideIcon;
 } {
   switch (type) {
     case "document":
       return {
         label: "Documento",
-        className:
-          "border-[color-mix(in_oklch,var(--chart-2)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-2)_15%,transparent)] text-[var(--chart-2)]",
         Icon: FileText,
       };
     case "audio":
       return {
         label: "Audio",
-        className:
-          "border-[color-mix(in_oklch,var(--chart-5)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-5)_15%,transparent)] text-[var(--chart-5)]",
         Icon: Radio,
       };
     case "image":
       return {
         label: "Imagen",
-        className:
-          "border-[color-mix(in_oklch,var(--chart-3)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-3)_15%,transparent)] text-[var(--chart-3)]",
         Icon: Image,
       };
     case "video_link":
       return {
         label: "Video",
-        className: "border-destructive/35 bg-destructive/10 text-destructive",
         Icon: ExternalLink,
       };
     case "text":
       return {
         label: "Texto",
-        className:
-          "border-[color-mix(in_oklch,var(--chart-4)_35%,transparent)] bg-[color-mix(in_oklch,var(--chart-4)_15%,transparent)] text-[var(--chart-4)]",
         Icon: BookOpen,
       };
     default:
-      return { label: "Desconocido", className: "", Icon: FileText };
+      return { label: "Desconocido", Icon: FileText };
   }
 }
 
-// Scope level badges use semantic neutrals (muted/secondary) because scope
-// differentiation is conveyed by icon + label, not color. Avoids chromatic
-// collision with resource-type badges in the same row.
 function scopeLevelBadgeConfig(level: ScopeLevel | null): {
   label: string;
-  className: string;
   Icon: React.ElementType;
 } {
   switch (level) {
     case "system":
       return {
         label: "Sistema",
-        className: "border-border bg-muted text-muted-foreground",
         Icon: Globe,
       };
     case "union":
       return {
         label: "Unión",
-        className: "border-border bg-secondary text-secondary-foreground",
         Icon: Building2,
       };
     case "division":
       return {
         label: "División",
-        className: "border-border bg-muted/80 text-foreground",
         Icon: Globe,
       };
     case "local_field":
       return {
         label: "Campo",
-        className: "border-border bg-muted/60 text-foreground",
         Icon: MapPin,
       };
     default:
-      return { label: "—", className: "", Icon: Globe };
+      return { label: "—", Icon: Globe };
   }
 }
 
@@ -281,15 +262,7 @@ function DeleteButton() {
 function ResourceTypeBadge({ type }: { type: ResourceType | null }) {
   const config = resourceTypeBadgeConfig(type);
   const Icon = config.Icon;
-  return (
-    <Badge
-      variant="outline"
-      className={`gap-1 border text-xs font-medium ${config.className}`}
-    >
-      <Icon className="size-3" />
-      {config.label}
-    </Badge>
-  );
+  return <StatusBadge intent="neutral" icon={Icon} label={config.label} />;
 }
 
 function ScopeBadge({
@@ -304,7 +277,6 @@ function ScopeBadge({
   localFields: LocalField[];
 }) {
   const config = scopeLevelBadgeConfig(level);
-  const Icon = config.Icon;
 
   let label = config.label;
   if (level === "union" && scopeId) {
@@ -320,15 +292,9 @@ function ScopeBadge({
   if (!level) return <span className="text-muted-foreground">—</span>;
 
   return (
-    <Badge
-      variant="outline"
-      className={`gap-1 border text-xs font-medium ${config.className}`}
-    >
-      <Icon className="size-3 shrink-0" />
-      <span className="truncate max-w-[140px]" title={label}>
-        {label}
-      </span>
-    </Badge>
+    <span className="block max-w-[160px] truncate text-sm text-muted-foreground" title={label}>
+      {label}
+    </span>
   );
 }
 

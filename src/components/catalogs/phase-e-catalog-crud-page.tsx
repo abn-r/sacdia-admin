@@ -73,6 +73,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/shared/page-header";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import type { PhaseEActionState } from "@/lib/phase-e-catalogs/actions";
@@ -1156,117 +1157,111 @@ export function PhaseECatalogCrudPage({
         </PageHeader>
       )}
 
+      {!canMutate && <p className="text-sm text-muted-foreground">{t("noPermissions")}</p>}
+
       <div className="space-y-4">
         {/* Filter bar */}
-        <div className="rounded-xl border bg-muted/20 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
-          </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[300px] space-y-1">
-                <Label htmlFor={`${idPrefix}-filter-search`}>{t("filterName")}</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id={`${idPrefix}-filter-search`}
-                    placeholder={t("filterNamePlaceholder2")}
-                    value={searchInput}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    className="bg-background pl-9"
-                  />
-                </div>
-              </div>
-              {showClubType && classClubTypeOptions && classClubTypeOptions.length > 0 && (
-                <div className="w-[220px] space-y-1">
-                  <Label htmlFor={`${idPrefix}-filter-club-type`}>{t("filterClubType")}</Label>
-                  <Select
-                    value={currentClubTypeFilter}
-                    onValueChange={
-                      showClassModuleParent || showClassSectionModule
-                        ? handleClubTypeFilterChange
-                        : (v) => updateParam("club_type_id", v)
-                    }
-                  >
-                    <SelectTrigger id={`${idPrefix}-filter-club-type`} className="bg-background">
-                      <SelectValue placeholder={t("filterClubType")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
-                      {classClubTypeOptions.map((clubType) => (
-                        <SelectItem
-                          key={clubType.club_type_id}
-                          value={String(clubType.club_type_id)}
-                        >
-                          {clubType.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {(showClassModuleParent || showClassSectionModule) && (
-                <div className="w-[240px] space-y-1">
-                  <Label htmlFor={`${idPrefix}-filter-class`}>{t("filterClass")}</Label>
-                  <Select
-                    value={currentClassFilter}
-                    onValueChange={
-                      showClassSectionModule ? handleClassFilterChange : (v) => updateParam("class_id", v)
-                    }
-                  >
-                    <SelectTrigger id={`${idPrefix}-filter-class`} className="bg-background">
-                      <SelectValue placeholder={t("filterClass")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t("filterClassAll")}</SelectItem>
-                      {filteredClassParentOptions.map((parentClass) => (
-                        <SelectItem key={parentClass.class_id} value={String(parentClass.class_id)}>
-                          {parentClass.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {showClassSectionModule && (
-                <div className="w-[260px] space-y-1">
-                  <Label htmlFor={`${idPrefix}-filter-module`}>{t("filterModule")}</Label>
-                  <Select
-                    value={currentModuleFilter}
-                    onValueChange={(v) => updateParam("module_id", v)}
-                  >
-                    <SelectTrigger id={`${idPrefix}-filter-module`} className="bg-background">
-                      <SelectValue placeholder={t("filterModule")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t("filterModuleAll")}</SelectItem>
-                      {filteredSectionModuleOptions.map((moduleOption) => (
-                        <SelectItem key={moduleOption.module_id} value={String(moduleOption.module_id)}>
-                          {moduleOption.class_name} · {moduleOption.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor={`${idPrefix}-filter-status`}>{t("filterStatus")}</Label>
-                <Select
-                  value={currentStatusFilter}
-                  onValueChange={(v) => updateParam("active", v)}
-                >
-                  <SelectTrigger id={`${idPrefix}-filter-status`} className="bg-background">
-                    <SelectValue placeholder={t("filterStatus")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("statusAll")}</SelectItem>
-                    <SelectItem value="true">{t("statusActive")}</SelectItem>
-                    <SelectItem value="false">{t("statusInactive")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-full space-y-1 sm:w-[300px]">
+            <Label htmlFor={`${idPrefix}-filter-search`}>{t("filterName")}</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id={`${idPrefix}-filter-search`}
+                placeholder={t("filterNamePlaceholder2")}
+                value={searchInput}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+                className="bg-background pl-9"
+              />
             </div>
+          </div>
+          {showClubType && classClubTypeOptions && classClubTypeOptions.length > 0 && (
+            <div className="w-full space-y-1 sm:w-[220px]">
+              <Label htmlFor={`${idPrefix}-filter-club-type`}>{t("filterClubType")}</Label>
+              <Select
+                value={currentClubTypeFilter}
+                onValueChange={
+                  showClassModuleParent || showClassSectionModule
+                    ? handleClubTypeFilterChange
+                    : (v) => updateParam("club_type_id", v)
+                }
+              >
+                <SelectTrigger id={`${idPrefix}-filter-club-type`} className="bg-background">
+                  <SelectValue placeholder={t("filterClubType")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
+                  {classClubTypeOptions.map((clubType) => (
+                    <SelectItem
+                      key={clubType.club_type_id}
+                      value={String(clubType.club_type_id)}
+                    >
+                      {clubType.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {(showClassModuleParent || showClassSectionModule) && (
+            <div className="w-full space-y-1 sm:w-[240px]">
+              <Label htmlFor={`${idPrefix}-filter-class`}>{t("filterClass")}</Label>
+              <Select
+                value={currentClassFilter}
+                onValueChange={
+                  showClassSectionModule ? handleClassFilterChange : (v) => updateParam("class_id", v)
+                }
+              >
+                <SelectTrigger id={`${idPrefix}-filter-class`} className="bg-background">
+                  <SelectValue placeholder={t("filterClass")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("filterClassAll")}</SelectItem>
+                  {filteredClassParentOptions.map((parentClass) => (
+                    <SelectItem key={parentClass.class_id} value={String(parentClass.class_id)}>
+                      {parentClass.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {showClassSectionModule && (
+            <div className="w-full space-y-1 sm:w-[260px]">
+              <Label htmlFor={`${idPrefix}-filter-module`}>{t("filterModule")}</Label>
+              <Select
+                value={currentModuleFilter}
+                onValueChange={(v) => updateParam("module_id", v)}
+              >
+                <SelectTrigger id={`${idPrefix}-filter-module`} className="bg-background">
+                  <SelectValue placeholder={t("filterModule")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("filterModuleAll")}</SelectItem>
+                  {filteredSectionModuleOptions.map((moduleOption) => (
+                    <SelectItem key={moduleOption.module_id} value={String(moduleOption.module_id)}>
+                      {moduleOption.class_name} · {moduleOption.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <div className="w-full space-y-1 sm:w-[200px]">
+            <Label htmlFor={`${idPrefix}-filter-status`}>{t("filterStatus")}</Label>
+            <Select
+              value={currentStatusFilter}
+              onValueChange={(v) => updateParam("active", v)}
+            >
+              <SelectTrigger id={`${idPrefix}-filter-status`} className="bg-background">
+                <SelectValue placeholder={t("filterStatus")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("statusAll")}</SelectItem>
+                <SelectItem value="true">{t("statusActive")}</SelectItem>
+                <SelectItem value="false">{t("statusInactive")}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -1290,7 +1285,7 @@ export function PhaseECatalogCrudPage({
           </EmptyState>
         ) : (
           <>
-            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
+            <DataTableShell>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -1309,7 +1304,7 @@ export function PhaseECatalogCrudPage({
                     )}
                     <TableHead>{t("colStatus")}</TableHead>
                     {(canEdit || canDelete || detailPathPrefix) && (
-                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
+                      <RowActionsHead />
                     )}
                   </TableRow>
                 </TableHeader>
@@ -1403,7 +1398,7 @@ export function PhaseECatalogCrudPage({
                           <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
                         </TableCell>
                         {(canEdit || canDelete || detailPathPrefix) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-card">
+                          <TableCell>
                             <RowActions
                               label={itemName}
                               actions={[
@@ -1457,7 +1452,7 @@ export function PhaseECatalogCrudPage({
                   })}
                 </TableBody>
               </Table>
-            </div>
+            </DataTableShell>
 
             <DataTablePagination
               page={safePage}
@@ -1593,12 +1588,6 @@ export function PhaseECatalogCrudPage({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      )}
-
-      {!canMutate && (
-        <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          {t("noPermissions")}
-        </div>
       )}
 
       {recalculateState.error ? (

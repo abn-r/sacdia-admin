@@ -80,7 +80,7 @@ export function ContactsBlock({
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                 {c.primary ? (
-                  <Badge variant="default" className="text-[10px] uppercase">
+                  <Badge variant="default" className="text-2xs uppercase">
                     {principalLabel}
                   </Badge>
                 ) : null}

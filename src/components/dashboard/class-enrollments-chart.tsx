@@ -35,7 +35,7 @@ export function ClassEnrollmentsChart({
         <h2 id={headingId} className="font-semibold text-base tracking-tight">
           {title}
         </h2>
-        {groups.length > 0 ? (
+        {groups.length > 1 ? (
           <ul aria-label={legendLabel} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
             {groups.map((group) => (
               <li key={group.id} className="flex items-center gap-1.5 text-muted-foreground">

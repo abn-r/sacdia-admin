@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
@@ -793,27 +794,22 @@ export function TemplatesClientPage({
             {t("templates.loadingSections")}
           </div>
         ) : sortedSections.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-              <GripVertical className="size-6 text-muted-foreground" />
-            </div>
-            <h3 className="mt-4 text-base font-semibold">
-              {t("templates.noSectionsTitle")}
-            </h3>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              {t("templates.noSectionsDescription")}
-            </p>
+          <EmptyState
+            icon={GripVertical}
+            title={t("templates.noSectionsTitle")}
+            description={t("templates.noSectionsDescription")}
+          >
             {activeTemplateIsDraft ? (
-              <Button size="sm" className="mt-4" onClick={handleAddSection}>
+              <Button size="sm" onClick={handleAddSection}>
                 <Plus className="size-4" />
                 {t("templates.addSection")}
               </Button>
             ) : (
-              <p className="mt-4 text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Las plantillas publicadas quedan bloqueadas. Cópiala si necesitas cambios.
               </p>
             )}
-          </div>
+          </EmptyState>
         ) : (
           <>
             {/* Desktop: sections table */}
@@ -1173,24 +1169,23 @@ export function TemplatesClientPage({
 
       {/* List */}
       {filteredTemplates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <Plus className="size-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold">
-            {hasActiveFilters
+        <EmptyState
+          icon={Plus}
+          variant={hasActiveFilters ? "no-results" : "default"}
+          title={
+            hasActiveFilters
               ? t("templates.noResultsTitle")
-              : t("templates.noTemplatesTitle")}
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            {hasActiveFilters
+              : t("templates.noTemplatesTitle")
+          }
+          description={
+            hasActiveFilters
               ? t("templates.noResultsDescription")
-              : t("templates.noTemplatesDescription")}
-          </p>
+              : t("templates.noTemplatesDescription")
+          }
+        >
           {!hasActiveFilters && !cannotCreateTemplate && (
             <Button
               size="sm"
-              className="mt-4"
               onClick={() => {
                 setEditingTemplate(null);
                 setTemplateFormOpen(true);
@@ -1200,7 +1195,7 @@ export function TemplatesClientPage({
               {t("templates.newTemplate")}
             </Button>
           )}
-        </div>
+        </EmptyState>
       ) : (
         <>
           {/* Desktop: templates table */}

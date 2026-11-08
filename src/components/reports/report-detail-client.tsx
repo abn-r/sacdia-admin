@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ import {
   Send,
   Zap,
   ExternalLink,
+  Inbox,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -157,9 +159,7 @@ function AutoDataSection({
 }) {
   if (!hasReportAutoData(data)) {
     return (
-      <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-        {noDataMessage}
-      </div>
+      <EmptyState icon={Inbox} title={noDataMessage} />
     );
   }
 

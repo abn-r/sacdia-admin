@@ -4,6 +4,8 @@ import {
   type FieldConfigLoadError,
 } from "@/components/investiture-config/field-config-client-page";
 import { getInvestitureRequestErrorMessage } from "@/components/investiture-requests/investiture-request-errors";
+import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { RefreshButton } from "@/components/shared/refresh-button";
 import { LocalFieldPicker } from "@/components/local-field-config/local-field-picker";
 import { ApiError } from "@/lib/api/client";
 import {
@@ -48,10 +50,13 @@ export default async function InvestitureSettingsPage({
   const canPickField = canPickLocalField(scope);
 
   let localFields: LocalFieldOption[] = [];
+  let localFieldsFailed = false;
+  let yearsFailed = false;
   try {
     localFields = toLocalFieldOptions(await listLocalFieldsForTerritory(user));
   } catch {
-    // Without the list the picker is empty; single-field users still resolve their own field.
+    // Single-field users still resolve their own field; the picker gets a banner.
+    localFieldsFailed = true;
   }
 
   const localFieldId =
@@ -67,7 +72,8 @@ export default async function InvestitureSettingsPage({
   try {
     years = await listEcclesiasticalYears();
   } catch {
-    // The selector degrades to an empty list; the configuration still loads.
+    // The configuration still loads; the year selector gets a banner.
+    yearsFailed = true;
   }
 
   let window: InvestitureWindow | null = null;
@@ -83,7 +89,12 @@ export default async function InvestitureSettingsPage({
     }
   }
 
-  return (
+  const listErrors = [
+    localFieldsFailed && canPickField ? tPage("localFieldsLoadError") : null,
+    yearsFailed ? tPage("yearsLoadError") : null,
+  ].filter((message): message is string => message !== null);
+
+  const page = (
     <FieldConfigClientPage
       localFieldId={localFieldId}
       yearId={yearId}
@@ -101,6 +112,17 @@ export default async function InvestitureSettingsPage({
         ) : null
       }
     />
+  );
+
+  if (listErrors.length === 0) return page;
+
+  return (
+    <div className="space-y-4">
+      {listErrors.map((message) => (
+        <EndpointErrorBanner key={message} state="missing" detail={message} action={<RefreshButton />} />
+      ))}
+      {page}
+    </div>
   );
 }
 

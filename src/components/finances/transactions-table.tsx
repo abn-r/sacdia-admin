@@ -1,7 +1,6 @@
 "use client";
 
 import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -59,7 +58,6 @@ export function TransactionsTableSkeleton() {
               t("table.colCategory"),
               t("table.colSection"),
               t("table.colPeriod"),
-              t("table.colType"),
               t("table.colAmount"),
               t("table.colEvidence"),
               "",
@@ -218,9 +216,6 @@ export function TransactionsTable({
             <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colPeriod")}
             </TableHead>
-            <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-              {t("table.colType")}
-            </TableHead>
             <TableHead
               className="h-9 px-3 text-right"
               aria-sort={
@@ -273,21 +268,13 @@ export function TransactionsTable({
                 <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
                   {monthName(finance.month)}/{finance.year}
                 </TableCell>
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <Badge
-                    variant={isIncome ? "secondary" : "destructive"}
-                    className={isIncome ? "text-success" : undefined}
-                  >
-                    {isIncome ? t("table.typeIncome") : t("table.typeExpense")}
-                  </Badge>
-                </TableCell>
                 <TableCell className="px-3 py-2.5 align-middle text-right">
                   <span
                     className={`text-sm font-semibold tabular-nums ${
-                      isIncome ? "text-success" : "text-destructive"
+                      isIncome ? "text-success" : "text-foreground"
                     }`}
                   >
-                    {isIncome ? "+" : "-"}
+                    {isIncome ? "+" : "\u2212"}
                     {formatAmount(Math.abs(finance.amount))}
                   </span>
                 </TableCell>

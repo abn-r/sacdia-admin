@@ -1,17 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useFormatNumber } from "@/lib/format-locale";
-import {
-  ArrowRight,
-  BarChart3,
-  Eye,
-  Medal,
-  Search,
-  TrendingUp,
-  Trophy,
-} from "lucide-react";
+import { ArrowRight, BarChart3, Eye, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -81,52 +74,11 @@ function useFormatPoints() {
 }
 
 function RankBadge({ position }: { position: number | null }) {
-  const t = useTranslations("annual_folders.rankingsClientPage");
-  if (position === 1) {
-    return (
-      <span
-        title={t("place1")}
-        className="inline-flex size-7 items-center justify-center rounded-full bg-warning/15 text-warning-foreground dark:text-warning"
-      >
-        <Trophy className="size-4" />
-      </span>
-    );
-  }
-
-  if (position === 2) {
-    return (
-      <span
-        title={t("place2")}
-        className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-muted-foreground"
-      >
-        <Medal className="size-4" />
-      </span>
-    );
-  }
-
-  if (position === 3) {
-    return (
-      <span
-        title={t("place3")}
-        className="inline-flex size-7 items-center justify-center rounded-full bg-primary/15 text-primary"
-      >
-        <Medal className="size-4" />
-      </span>
-    );
-  }
-
   return (
-    <span className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+    <span className="inline-block min-w-6 text-center text-sm font-medium tabular-nums text-muted-foreground">
       {position ?? "—"}
     </span>
   );
-}
-
-function rowHighlight(position: number | null): string {
-  if (position === 1) return "bg-warning/10";
-  if (position === 2) return "bg-muted/40";
-  if (position === 3) return "bg-primary/10";
-  return "";
 }
 
 function RecognitionBadge({ row }: { row: AnnualRankingLeaderboardRow }) {
@@ -254,6 +206,16 @@ export function RankingsClientPage({
     }
   }, [selectedClubTypeId, selectedLocalFieldId, selectedYearId, tPage]);
 
+  // Apply filters as they change (skip the initial render: rows come from the server).
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    void handleSearch();
+  }, [handleSearch]);
+
   async function confirmRecalculate() {
     setIsRecalculating(true);
     try {
@@ -290,12 +252,13 @@ export function RankingsClientPage({
   const activeYear = ecclesiasticalYears.find(
     (year) => year.ecclesiastical_year_id === selectedYearId,
   );
-  const activeLocalField = localFields.find(
-    (field) => field.local_field_id === selectedLocalFieldId,
+
+  // Single club type per request: the column would repeat one value on every row.
+  const clubTypeNames = useMemo(
+    () => new Map(clubTypes.map((type) => [type.club_type_id, type.name])),
+    [clubTypes],
   );
-  const activeClubType = clubTypes.find(
-    (type) => type.club_type_id === selectedClubTypeId,
-  );
+  const showTypeColumn = new Set(rankings.map((row) => row.club_type_id)).size > 1;
 
   const sortedRankings = useMemo(() => {
     return [...rankings].sort((a, b) => {
@@ -405,16 +368,6 @@ export function RankingsClientPage({
           </Select>
         </div>
 
-        <Button
-          size="sm"
-          onClick={handleSearch}
-          disabled={isLoading}
-          className="h-9"
-        >
-          <Search className="size-4" />
-          {isLoading ? t("rankingsClientPage.searchLoading") : t("rankingsClientPage.searchButton")}
-        </Button>
-
         <div className="flex-1" />
 
         <Button
@@ -422,62 +375,36 @@ export function RankingsClientPage({
           size="sm"
           className="h-9"
           onClick={() => setRecalcOpen(true)}
-          disabled={isLoading || isRecalculating}
+          loading={isRecalculating}
+          disabled={isLoading}
         >
           <TrendingUp className="size-4" />
           {tPage("recalculate")}
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-        <BarChart3 className="size-4" />
-        <span>
-          {tPage.rich("clubsCount", {
-            count: rankings.length,
-            b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
-          })}
-        </span>
-        {activeClubType && (
-          <>
-            <span aria-hidden>·</span>
-            <span>{activeClubType.name}</span>
-          </>
-        )}
-        {activeYear && (
-          <>
-            <span aria-hidden>·</span>
-            <span>{activeYear.name}</span>
-          </>
-        )}
-        {activeLocalField && (
-          <>
-            <span aria-hidden>·</span>
-            <span>{activeLocalField.name}</span>
-          </>
-        )}
-      </div>
+      <p className="text-sm text-muted-foreground" aria-live="polite">
+        {tPage.rich("clubsCount", {
+          count: rankings.length,
+          b: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+        })}
+      </p>
 
       {sortedRankings.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <BarChart3 className="size-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold">
-            {tPage("emptyTitle")}
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            {tPage("emptyDescription")}
-          </p>
+        <EmptyState
+          icon={BarChart3}
+          title={tPage("emptyTitle")}
+          description={tPage("emptyDescription")}
+        >
           <Button
             variant="outline"
             size="sm"
-            className="mt-4"
             onClick={() => setRecalcOpen(true)}
           >
             <TrendingUp className="size-4" />
             {tPage("recalculate")}
           </Button>
-        </div>
+        </EmptyState>
       ) : (
         <>
           <div className="hidden rounded-lg border border-border/60 md:block">
@@ -504,9 +431,11 @@ export function RankingsClientPage({
                       {tPage("colClub")}
                     </SortableHeader>
                   </TableHead>
-                  <TableHead className="hidden xl:table-cell h-9 w-36 px-3 text-center">
-                    {tPage("colType")}
-                  </TableHead>
+                  {showTypeColumn && (
+                    <TableHead className="hidden xl:table-cell h-9 w-36 px-3 text-center">
+                      {tPage("colType")}
+                    </TableHead>
+                  )}
                   <TableHead className="h-9 w-36 px-3 text-right">
                     <SortableHeader
                       field="current_points"
@@ -546,10 +475,7 @@ export function RankingsClientPage({
               </TableHeader>
               <TableBody>
                 {sortedRankings.map((item) => (
-                  <TableRow
-                    key={item.club_enrollment_id}
-                    className={rowHighlight(item.rank_position)}
-                  >
+                  <TableRow key={item.club_enrollment_id}>
                     <TableCell className="text-center">
                       <RankBadge position={item.rank_position} />
                     </TableCell>
@@ -558,23 +484,21 @@ export function RankingsClientPage({
                         <Link
                           prefetch={false}
                           href={breakdownHref(item, selectedYearId)!}
-                          className={`hover:underline ${
-                            item.rank_position <= 3 ? "font-semibold" : "font-medium"
-                          }`}
+                          className="font-medium hover:underline"
                         >
                           {item.club_name}
                         </Link>
                       ) : (
-                        <span
-                          className={item.rank_position <= 3 ? "font-semibold" : "font-medium"}
-                        >
+                        <span className="font-medium">
                           {item.club_name}
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell text-center text-sm text-muted-foreground">
-                      {activeClubType?.name ?? item.club_type_id}
-                    </TableCell>
+                    {showTypeColumn && (
+                      <TableCell className="hidden xl:table-cell text-center text-sm text-muted-foreground">
+                        {clubTypeNames.get(item.club_type_id) ?? item.club_type_id}
+                      </TableCell>
+                    )}
                     <TableCell className="text-right text-sm font-medium tabular-nums">
                       {formatPoints(item.current_points)}
                       <span className="text-muted-foreground">
@@ -624,29 +548,19 @@ export function RankingsClientPage({
             {sortedRankings.map((item) => (
               <li key={item.club_enrollment_id}>
                 <div
-                  className={`rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40${
-                    item.rank_position === 1
-                      ? " bg-warning/10"
-                      : item.rank_position === 2
-                        ? " bg-muted/40"
-                        : item.rank_position === 3
-                          ? " bg-primary/10"
-                          : ""
-                  }`}
+                  className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40"
                 >
                   <div className="flex items-start gap-3">
                     <RankBadge position={item.rank_position} />
                     <div className="min-w-0 flex-1">
-                      <p
-                        className={`truncate ${
-                          item.rank_position <= 3 ? "font-semibold" : "font-medium"
-                        }`}
-                      >
+                      <p className="truncate font-medium">
                         {item.club_name}
                       </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {activeClubType?.name ?? item.club_type_id}
-                      </p>
+                      {showTypeColumn && (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {clubTypeNames.get(item.club_type_id) ?? item.club_type_id}
+                        </p>
+                      )}
                     </div>
                     <RecognitionBadge row={item} />
                   </div>

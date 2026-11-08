@@ -383,7 +383,7 @@ export function CronHistoryClient({
                           <span className="text-sm font-medium">
                             {jobDisplayName(item.job_name)}
                           </span>
-                          <span className="block text-[11px] text-muted-foreground font-mono">
+                          <span className="block text-2xs text-muted-foreground font-mono">
                             {item.job_name}
                           </span>
                         </TableCell>

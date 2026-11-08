@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,7 @@ export function RubricsEditor({
   enabledFieldName = "scoring_enabled",
   rubricsFieldName = "rubrics",
 }: RubricsEditorProps) {
+  const tEd = useTranslations("camporeeEvents.editors");
   const total = calculateRubricsTotal(value);
   const isValid = areRubricsValid(enabled, value, maxPoints);
 
@@ -94,7 +96,7 @@ export function RubricsEditor({
         </div>
         <div className="flex items-center gap-2">
           <Switch
-            aria-label="Habilitar puntaje por rúbricas"
+            aria-label={tEd("rubricsEnableAria")}
             checked={enabled}
             onCheckedChange={onEnabledChange}
           />
@@ -128,23 +130,23 @@ export function RubricsEditor({
                     value={rubric.title}
                     maxLength={120}
                     onChange={(event) => updateRubric(index, { title: event.target.value })}
-                    placeholder="Ej. Técnica"
+                    placeholder={tEd("rubricTitlePlaceholder")}
                   />
                   <Textarea
-                    aria-label={`Descripción criterio ${index + 1}`}
+                    aria-label={tEd("rubricDescriptionAria", { index: index + 1 })}
                     value={rubric.description ?? ""}
                     rows={2}
                     onChange={(event) =>
                       updateRubric(index, { description: event.target.value || null })
                     }
-                    placeholder="Descripción opcional"
+                    placeholder={tEd("rubricDescriptionPlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`rubric-points-${index}`}>Puntos</Label>
                   <Input
                     id={`rubric-points-${index}`}
-                    aria-label={`Puntos criterio ${index + 1}`}
+                    aria-label={tEd("rubricPointsAria", { index: index + 1 })}
                     type="number"
                     min={0}
                     step="0.01"
@@ -160,7 +162,7 @@ export function RubricsEditor({
                   size="icon"
                   className="self-start md:mt-7"
                   onClick={() => removeRubric(index)}
-                  aria-label={`Eliminar criterio ${index + 1}`}
+                  aria-label={tEd("rubricDeleteAria", { index: index + 1 })}
                 >
                   <Trash2 className="size-4" />
                 </Button>

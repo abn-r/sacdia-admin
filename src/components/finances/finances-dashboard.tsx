@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import dynamic from "next/dynamic";
 import { Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import {
   Select,
   SelectContent,
@@ -123,6 +124,8 @@ export function FinancesDashboard({
   const [result, setResult] = useState<PaginatedFinances | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [loadingTable, setLoadingTable] = useState(false);
+  const [summaryError, setSummaryError] = useState(false);
+  const [tableError, setTableError] = useState(false);
 
   // Dialogs
   const [formOpen, setFormOpen] = useState(false);
@@ -149,11 +152,13 @@ export function FinancesDashboard({
     }
 
     setLoadingSummary(true);
+    setSummaryError(false);
     try {
       const data = await getFinanceSummary(clubId, year, month);
       setSummary(data);
     } catch {
       setSummary(null);
+      setSummaryError(true);
     } finally {
       setLoadingSummary(false);
     }
@@ -162,6 +167,7 @@ export function FinancesDashboard({
   // Fetch transactions
   const fetchTransactions = useCallback(async () => {
     setLoadingTable(true);
+    setTableError(false);
     try {
       const baseFilters = {
         year,
@@ -197,6 +203,7 @@ export function FinancesDashboard({
       setResult(data);
     } catch {
       setResult(null);
+      setTableError(true);
     } finally {
       setLoadingTable(false);
     }
@@ -365,6 +372,12 @@ export function FinancesDashboard({
     <>
       {loadingSummary || (sectionId !== "all" && loadingTable) ? (
         <FinancesSummaryCardsSkeleton />
+      ) : summaryError || (sectionId !== "all" && tableError) ? (
+        <EndpointErrorBanner
+          state="missing"
+          detail={t("dashboard.summaryLoadError")}
+          onRetry={sectionId === "all" ? fetchSummary : fetchTransactions}
+        />
       ) : displaySummary ? (
         <FinancesSummaryCards summary={displaySummary} />
       ) : null}
@@ -373,6 +386,12 @@ export function FinancesDashboard({
         <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
         {loadingTable ? (
           <TransactionsTableSkeleton />
+        ) : tableError ? (
+          <EndpointErrorBanner
+            state="missing"
+            detail={t("dashboard.transactionsLoadError")}
+            onRetry={fetchTransactions}
+          />
         ) : (
           <TransactionsTable
             items={result?.data ?? []}

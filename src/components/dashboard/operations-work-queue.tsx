@@ -61,7 +61,7 @@ export function OperationsWorkQueue({
       {items.length === 0 ? (
         <p className="flex items-center gap-2 rounded-xl bg-card p-4 text-sm shadow-card">
           <CheckCircle2
-            className="size-4 shrink-0 text-[color-mix(in_oklch,var(--success),black_15%)] dark:text-success"
+            className="size-4 shrink-0 text-success"
             aria-hidden
           />
           {emptyLabel}

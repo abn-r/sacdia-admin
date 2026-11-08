@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FileText, Flag, MapPin, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { ClubDetailHero } from "@/components/clubs/detail/hero";
@@ -71,12 +70,7 @@ export function ClubDetailView({
       label: t("stats.membersLabel"),
       value: membersTotal,
       sub: t("stats.membersSub", { count: membersTotal }),
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Users className="size-3.5 text-primary" />
-          {tGeneral("membersCount", { count: membersTotal })}
-        </div>
-      ),
+      accent: tGeneral("membersCount", { count: membersTotal }),
     },
     {
       label: t("stats.sectionsLabel"),
@@ -90,23 +84,13 @@ export function ClubDetailView({
                 total: kpis.sectionsRegistered,
               })
             : t("stats.sectionsActive", { count: kpis.sectionsActive }),
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="size-3.5" />
-          {localField ?? t("sidebar.dash")}
-        </div>
-      ),
+      accent: localField ?? t("sidebar.dash"),
     },
     {
       label: t("stats.soulsLabel"),
       value: soulsTotal ?? t("sidebar.dash"),
       sub: t("stats.soulsSub"),
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Flag className="size-3.5 text-primary" />
-          {tGeneral("labelSoulsTarget")}
-        </div>
-      ),
+      accent: tGeneral("labelSoulsTarget"),
     },
     {
       label: t("stats.reportsLabel"),
@@ -115,12 +99,7 @@ export function ClubDetailView({
         reportsCount === 0
           ? t("stats.reportsEmpty")
           : t("stats.reportsSub", { count: reportsCount }),
-      accent: (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <FileText className="size-3.5" />
-          {t("tabs.reports")}
-        </div>
-      ),
+      accent: t("tabs.reports"),
     },
   ];
 

@@ -11,6 +11,7 @@ import {
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { deleteCamporeeEventTemplateAction } from "@/lib/camporee-events/actions";
+import { RefreshButton } from "@/components/shared/refresh-button";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { EventTemplateListClient } from "@/components/camporee-events/event-template-list-client";
 
@@ -39,6 +40,7 @@ export default async function EventTemplatesPage({
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let loadErrorState: "missing" | "rate-limited" = "missing";
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -51,9 +53,8 @@ export default async function EventTemplatesPage({
     items = extractItems(payload);
     ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
-      loadError = error instanceof ApiError ? error.message : t("loadError");
-    }
+    if (error instanceof ApiError && error.status === 429) loadErrorState = "rate-limited";
+    loadError = error instanceof ApiError ? error.message : t("loadError");
   }
 
   const canCreate = canCapability(user, "campamentos-plantillas", "create");
@@ -63,7 +64,7 @@ export default async function EventTemplatesPage({
   return (
     <div className="space-y-6">
       <EventTemplateListClient
-        banner={loadError ? <EndpointErrorBanner state="missing" detail={loadError} /> : null}
+        banner={loadError ? <EndpointErrorBanner state={loadErrorState} detail={loadError} action={<RefreshButton />} /> : null}
         items={items}
         meta={meta}
         canCreate={canCreate}

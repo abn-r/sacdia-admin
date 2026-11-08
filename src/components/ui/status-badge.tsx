@@ -39,17 +39,17 @@ const intentClasses: Partial<Record<StatusIntent, string>> = {
   warning: NEUTRAL_PILL,
   primary: "border-transparent bg-primary-solid text-primary-foreground",
   "progress-1":
-    "bg-[color-mix(in_srgb,var(--chart-1)_12%,transparent)] text-[var(--chart-1)] border-[color-mix(in_srgb,var(--chart-1)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-1)_12%,transparent)] text-[color-mix(in_oklch,var(--chart-1),black_40%)] dark:text-[var(--chart-1)] border-[color-mix(in_srgb,var(--chart-1)_25%,transparent)]",
   "progress-2":
-    "bg-[color-mix(in_srgb,var(--chart-2)_12%,transparent)] text-[var(--chart-2)] border-[color-mix(in_srgb,var(--chart-2)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-2)_12%,transparent)] text-[color-mix(in_oklch,var(--chart-2),black_40%)] dark:text-[var(--chart-2)] border-[color-mix(in_srgb,var(--chart-2)_25%,transparent)]",
   "progress-3":
-    "bg-[color-mix(in_srgb,var(--chart-3)_12%,transparent)] text-[var(--chart-3)] border-[color-mix(in_srgb,var(--chart-3)_25%,transparent)]",
+    "bg-[color-mix(in_srgb,var(--chart-3)_12%,transparent)] text-[color-mix(in_oklch,var(--chart-3),black_40%)] dark:text-[var(--chart-3)] border-[color-mix(in_srgb,var(--chart-3)_25%,transparent)]",
 };
 
 const intentIconClasses: Partial<Record<StatusIntent, string>> = {
   info: "text-info",
-  success: "text-[color-mix(in_oklch,var(--success),black_15%)] dark:text-success",
-  warning: "text-[color-mix(in_oklch,var(--warning),black_25%)] dark:text-warning",
+  success: "text-success",
+  warning: "text-warning",
 };
 
 // Default icons per intent — ensures WCAG 1.4.1 (not color-only distinction)
@@ -96,7 +96,7 @@ export function StatusBadge({
       variant={variant}
       className={cn(
         "gap-1",
-        size === "xs" && "h-5 px-1.5 text-[10px]",
+        size === "xs" && "h-5 px-1.5 text-2xs",
         size === "sm" && "h-5 px-2 text-xs",
         intentClass,
         className,

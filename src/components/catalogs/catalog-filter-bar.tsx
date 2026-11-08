@@ -138,7 +138,7 @@ export function CatalogFilterBar({
       aria-label={t("filtersOf", { entity: entityLabel })}
     >
       {/* ── Primary control row ── */}
-      <div className="flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-center">
+      <div className="flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:flex-wrap md:items-center">
 
         {/* Search input */}
         <div className="relative flex-1 md:max-w-md">
@@ -160,10 +160,10 @@ export function CatalogFilterBar({
           />
           {/* ⌘K keyboard hint */}
           <kbd
-            className="pointer-events-none absolute right-2 top-1/2 hidden h-6 -translate-y-1/2 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[11px] text-muted-foreground md:inline-flex"
+            className="pointer-events-none absolute right-2 top-1/2 hidden h-6 -translate-y-1/2 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-2xs text-muted-foreground md:inline-flex"
             aria-hidden="true"
           >
-            <span className="text-[10px]">⌘</span>K
+            <span className="text-2xs">⌘</span>K
           </kbd>
         </div>
 
@@ -183,12 +183,12 @@ export function CatalogFilterBar({
             >
               <div className="flex items-center gap-2">
                 <Filter className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                <SelectValue placeholder="Estado" />
+                <SelectValue placeholder={t("statusPlaceholder")} />
                 {isStatusActive && (
                   <Badge
                     variant="soft"
-                    className="ml-auto h-4 px-1 text-[10px] font-semibold"
-                    aria-label="Filtro activo"
+                    className="ml-auto h-4 px-1 text-2xs font-semibold"
+                    aria-label={t("activeFilterBadge")}
                   >
                     1
                   </Badge>
@@ -236,7 +236,7 @@ export function CatalogFilterBar({
           aria-label={t("activeFilters")}
           id={`${searchId}-status`}
         >
-          <span className="text-[11px] font-medium text-muted-foreground">
+          <span className="text-2xs font-medium text-muted-foreground">
             {t("filtersLabel")}
           </span>
           {isSearchActive && (

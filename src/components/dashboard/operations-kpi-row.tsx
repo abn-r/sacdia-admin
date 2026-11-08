@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { OperationsMeter } from "@/components/dashboard/operations-meter";
+import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
+import { progressTone } from "@/lib/dashboard/operations-home";
 
 export type OperationsKpi = {
   id: string;
@@ -19,46 +19,33 @@ export interface OperationsKpiRowProps {
   items: OperationsKpi[];
 }
 
-const CARD = "flex h-full min-w-0 flex-col rounded-xl bg-card p-3 shadow-card sm:p-4";
-const LINK_CARD =
-  "outline-none transition-shadow duration-150 hover:shadow-card-hover focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none";
-
-function KpiBody({ item }: { item: OperationsKpi }) {
-  return (
-    <>
-      <p className="truncate text-muted-foreground text-sm">{item.label}</p>
-      <p className="mt-1.5 font-semibold text-2xl tabular-nums tracking-tight">
-        {item.value}
-        {item.total ? (
-          <span className="ml-1 font-normal text-base text-muted-foreground">{item.total}</span>
-        ) : null}
-      </p>
-      <div className="mt-auto space-y-2 pt-3">
-        {item.pct !== undefined ? <OperationsMeter pct={item.pct} /> : null}
-        <p className="text-muted-foreground text-xs">{item.caption}</p>
-      </div>
-    </>
-  );
-}
-
 export function OperationsKpiRow({ label, items }: OperationsKpiRowProps) {
   return (
     <section aria-label={label}>
-      <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        {items.map((item) => (
-          <li key={item.id} data-kpi={item.id} className="flex">
-            {item.href ? (
-              <Link href={item.href} className={`${CARD} ${LINK_CARD} w-full`}>
-                <KpiBody item={item} />
-              </Link>
-            ) : (
-              <div className={`${CARD} w-full`}>
-                <KpiBody item={item} />
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <KpiStrip>
+        {items.map((item) => {
+          const tone = item.pct !== undefined ? progressTone(item.pct) : "none";
+          return (
+            <KpiStripItem
+              key={item.id}
+              data-kpi={item.id}
+              label={item.label}
+              value={item.value}
+              unit={item.total}
+              subline={item.caption}
+              href={item.href}
+              meter={
+                item.pct !== undefined
+                  ? {
+                      value: item.pct,
+                      tone: tone === "none" ? "neutral" : tone,
+                    }
+                  : undefined
+              }
+            />
+          );
+        })}
+      </KpiStrip>
     </section>
   );
 }

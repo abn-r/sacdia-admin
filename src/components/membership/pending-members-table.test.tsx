@@ -352,8 +352,10 @@ describe("PendingMembersTable (narrow widths)", () => {
   it("scrolls horizontally and pins the actions column to the right", () => {
     const { container } = renderTable([adult(), minor("pending")]);
 
-    // DS table pattern: scroll wrapper around the table.
-    expect(container.querySelector(".overflow-x-auto.rounded-xl")).not.toBeNull();
+    // DS table pattern: DataTableShell frame around the scrolling table.
+    expect(
+      container.querySelector('[data-slot="data-table-shell"] [data-slot="table-container"]'),
+    ).not.toBeNull();
 
     const head = screen.getByTestId("actions-head");
     expect(head.className).toContain("sticky");

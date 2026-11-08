@@ -386,7 +386,7 @@ function SystemRoleGroupsList({
       {sections.map((section) => (
         <div key={section.key}>
           {showHeadings ? (
-            <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+            <p className="mb-2 text-2xs font-semibold text-muted-foreground">
               {section.title}
             </p>
           ) : null}

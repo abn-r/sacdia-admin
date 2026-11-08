@@ -62,28 +62,22 @@ export function ScoringCategoryDeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Eliminar categoría</AlertDialogTitle>
+          <AlertDialogTitle>{t("deleteDialog.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Estás seguro que quieres eliminar la categoría{" "}
-            <strong>&quot;{category?.name}&quot;</strong>? Esta acción la desactivará y no
-            podrá usarse en nuevos registros. Los registros históricos se
-            conservarán.
+            {t.rich("deleteDialog.description", {
+              name: category?.name ?? "",
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>{t("deleteDialog.cancel")}</AlertDialogCancel>
           <Button
             loading={isDeleting}
             variant="destructive"
             onClick={handleConfirm}
           >
-            {isDeleting ? (
-              <>
-                Eliminando...
-              </>
-            ) : (
-              "Eliminar"
-            )}
+            {isDeleting ? t("deleteDialog.deleting") : t("deleteDialog.delete")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

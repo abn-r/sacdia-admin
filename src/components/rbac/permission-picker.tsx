@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useMemo, useCallback } from "react";
 import { Search, AlertTriangle, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -424,13 +425,15 @@ export function PermissionPicker({
       </div>
 
       {!hasSearchMatches ? (
-        <div className="rounded-lg border border-dashed p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            {search.trim()
+        <EmptyState
+          icon={Search}
+          variant="no-results"
+          title={
+            search.trim()
               ? tPicker("noMatches", { query: search })
-              : tPicker("noSurfaceMatches")}
-          </p>
-        </div>
+              : tPicker("noSurfaceMatches")
+          }
+        />
       ) : (
         <div className="space-y-2">
           {groups.map((group) => {

@@ -108,7 +108,7 @@ function CalendarPeriodPicker({
           variant="ghost"
           size="sm"
           aria-label={tCal("pickDate")}
-          className="min-w-[11.25rem] max-w-[20rem] font-medium capitalize"
+          className="min-w-[11.25rem] max-w-[20rem] font-medium"
         >
           <span className="truncate">{periodLabel}</span>
           <ChevronDown className="size-4 text-muted-foreground" />
@@ -298,13 +298,11 @@ export function ActivitiesCalendarClient({
       for (const activity of merged) unique.set(activity.activity_id, activity);
       setActivities(sortActivitiesByTime([...unique.values()]));
     } catch (error) {
-      setLoadError(
-        error instanceof Error ? error.message : t("view.errors.loadFailed"),
-      );
+      setLoadError(error instanceof Error ? error.message : "");
     } finally {
       setIsLoading(false);
     }
-  }, [filteredClubs, selectedClubId, selectedSection, t]);
+  }, [filteredClubs, selectedClubId, selectedSection]);
 
   useEffect(() => {
     void loadActivities();
@@ -337,19 +335,24 @@ export function ActivitiesCalendarClient({
 
   const periodLabel = useMemo(() => {
     if (view === "month") {
-      return anchor.toLocaleDateString(dateLocale, { month: "long", year: "numeric" });
+      const label = anchor.toLocaleDateString(dateLocale, {
+        month: "long",
+        year: "numeric",
+      });
+      return label.charAt(0).toLocaleUpperCase(dateLocale) + label.slice(1);
     }
     if (view === "week") {
       const weekStart = startOfWeek(anchor);
       const weekEnd = addDays(weekStart, 6);
       return `${weekStart.toLocaleDateString(dateLocale, { day: "numeric", month: "short" })} – ${weekEnd.toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" })}`;
     }
-    return anchor.toLocaleDateString(dateLocale, {
+    const dayLabel = anchor.toLocaleDateString(dateLocale, {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+    return dayLabel.charAt(0).toLocaleUpperCase(dateLocale) + dayLabel.slice(1);
   }, [anchor, dateLocale, view]);
 
   const handleLocalFieldChange = (value: string) => {
@@ -515,9 +518,27 @@ export function ActivitiesCalendarClient({
         </div>
       </div>
 
-      {loadError ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {loadError}
+      {loadError !== null ? (
+        <div
+          role="alert"
+          className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm"
+        >
+          <div className="min-w-0 space-y-0.5">
+            <p className="font-medium text-destructive">
+              {t("view.errors.loadFailed")}
+            </p>
+            {loadError ? (
+              <p className="text-xs text-muted-foreground">{loadError}</p>
+            ) : null}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            loading={isLoading}
+            onClick={() => void loadActivities()}
+          >
+            {t("view.errors.retry")}
+          </Button>
         </div>
       ) : null}
 
@@ -529,14 +550,16 @@ export function ActivitiesCalendarClient({
         />
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Badge variant="secondary">{activities.length}</Badge>
-            <span>
-              {activities.length === 1
-                ? t("view.activitiesFoundOne")
-                : t("view.activitiesFoundOther")}
-            </span>
-          </div>
+          {loadError === null ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Badge variant="secondary">{activities.length}</Badge>
+              <span>
+                {activities.length === 1
+                  ? t("view.activitiesFoundOne")
+                  : t("view.activitiesFoundOther")}
+              </span>
+            </div>
+          ) : null}
 
           <ActivitiesCalendarGrid
             view={view}
@@ -546,10 +569,12 @@ export function ActivitiesCalendarClient({
             detailPath={activityDetailPath}
           />
 
-          <ActivitiesDateList
-            activities={listActivities}
-            detailPath={activityDetailPath}
-          />
+          {loadError === null ? (
+            <ActivitiesDateList
+              activities={listActivities}
+              detailPath={activityDetailPath}
+            />
+          ) : null}
         </div>
       )}
 

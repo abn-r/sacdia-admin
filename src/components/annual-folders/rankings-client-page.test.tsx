@@ -158,18 +158,18 @@ describe("RankingsClientPage", () => {
     expect(screen.getByText("Campo local")).toBeInTheDocument();
     expect(screen.getAllByText("Centro Veracruz").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByRole("button", { name: /buscar/i }));
-
-    await waitFor(() => {
-      expect(mockListAnnualRankingsFromClient).toHaveBeenCalledWith({
-        clubTypeId: 2,
-        ecclesiasticalYearId: 1,
-        localFieldId: 10,
-      });
-    });
+    // Filters apply on change: there is no search button and no fetch on first render.
+    expect(screen.queryByRole("button", { name: /buscar/i })).toBeNull();
+    expect(mockListAnnualRankingsFromClient).not.toHaveBeenCalled();
 
     expect(screen.getAllByText("Diamante").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/9,500/).length).toBeGreaterThan(0);
+  });
+
+  it("hides the club type column when every row has the same type", () => {
+    renderPage();
+
+    expect(screen.queryByRole("columnheader", { name: /Tipo/ })).toBeNull();
   });
 
   it("links each club to the breakdown of its section", () => {
@@ -185,7 +185,7 @@ describe("RankingsClientPage", () => {
   it("renders the table column headers from the Spanish messages", () => {
     renderPage();
 
-    for (const name of ["Posición", "Club", "Tipo", "Puntos", "Progreso", "Rango", "Componentes"]) {
+    for (const name of ["Posición", "Club", "Puntos", "Progreso", "Rango", "Componentes"]) {
       expect(screen.getByRole("columnheader", { name: new RegExp(name) })).toBeInTheDocument();
     }
   });
@@ -205,12 +205,11 @@ describe("RankingsClientPage", () => {
       </NextIntlClientProvider>,
     );
 
-    for (const name of ["Position", "Club", "Type", "Points", "Progress", "Tier", "Components"]) {
+    for (const name of ["Position", "Club", "Points", "Progress", "Tier", "Components"]) {
       expect(screen.getByRole("columnheader", { name: new RegExp(name) })).toBeInTheDocument();
     }
     expect(screen.queryByRole("columnheader", { name: /Posición/ })).toBeNull();
     expect(screen.getByRole("button", { name: /Recalculate rankings/ })).toBeInTheDocument();
-    expect(screen.getAllByTitle("1st place").length).toBeGreaterThan(0);
     expect(screen.getAllByText("View details").length).toBeGreaterThan(0);
   });
 

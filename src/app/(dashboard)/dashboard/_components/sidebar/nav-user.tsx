@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +20,7 @@ import { getInitials } from "@/lib/utils";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
+  const t = useTranslations("nav");
   const { user } = useAuth();
 
   if (!user) {
@@ -71,7 +73,7 @@ export function NavUser() {
             <DropdownMenuItem asChild>
               <a href="/api/auth/logout?next=/login" onClick={() => resetAnalyticsUser()}>
                 <LogOut />
-                Cerrar sesión
+                {t("logout")}
               </a>
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useFormatQuantity } from "@/lib/format-locale";
 import { toast } from "sonner";
@@ -103,6 +103,26 @@ export function CamporeeSuppliesTab({
   const [productPrice, setProductPrice] = useState("");
   const [deliverQty, setDeliverQty] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [deliverErrors, setDeliverErrors] = useState<Record<string, string>>({});
+  const [pendingKeys, setPendingKeys] = useState<Record<string, boolean>>({});
+  const inFlightRef = useRef<Set<string>>(new Set());
+
+  /** Runs `task` at most once per key at a time; re-entry while in flight is ignored. */
+  const runExclusive = async (key: string, task: () => Promise<void>) => {
+    if (inFlightRef.current.has(key)) return;
+    inFlightRef.current.add(key);
+    setPendingKeys((current) => ({ ...current, [key]: true }));
+    try {
+      await task();
+    } finally {
+      inFlightRef.current.delete(key);
+      setPendingKeys((current) => {
+        const rest = { ...current };
+        delete rest[key];
+        return rest;
+      });
+    }
+  };
   const [payingPayment, setPayingPayment] = useState<CamporeeSupplyPayment | null>(null);
 
   const load = useCallback(async () => {
@@ -195,48 +215,72 @@ export function CamporeeSuppliesTab({
     }
   };
 
-  const toggleSlot = async (slotId: string, active: boolean) => {
-    try {
-      await updateCamporeeSupplySlot(camporeeId, camporeeType, slotId, { active });
-      await load();
-    } catch (error) {
-      toast.error(getCamporeeSupplyUiErrorMessage(error, t));
-    }
-  };
+  const toggleSlot = (slotId: string, active: boolean) =>
+    runExclusive(`slot:${slotId}`, async () => {
+      try {
+        await updateCamporeeSupplySlot(camporeeId, camporeeType, slotId, { active });
+        await load();
+      } catch (error) {
+        toast.error(getCamporeeSupplyUiErrorMessage(error, t));
+      }
+    });
 
-  const toggleProduct = async (productId: string, active: boolean) => {
-    try {
-      await updateCamporeeSupplyProduct(camporeeId, camporeeType, productId, {
-        active,
-      });
-      await load();
-    } catch (error) {
-      toast.error(getCamporeeSupplyUiErrorMessage(error, t));
-    }
-  };
+  const toggleProduct = (productId: string, active: boolean) =>
+    runExclusive(`product:${productId}`, async () => {
+      try {
+        await updateCamporeeSupplyProduct(camporeeId, camporeeType, productId, {
+          active,
+        });
+        await load();
+      } catch (error) {
+        toast.error(getCamporeeSupplyUiErrorMessage(error, t));
+      }
+    });
 
-  const markPaid = async (paymentId: string) => {
-    try {
-      await markCamporeeSupplyPaymentPaid(paymentId);
-      toast.success(t("toasts.markedPaid"));
-      await load();
-    } catch (error) {
-      toast.error(getCamporeeSupplyUiErrorMessage(error, t));
-    }
-  };
+  const markPaid = (paymentId: string) =>
+    runExclusive(`pay:${paymentId}`, async () => {
+      try {
+        await markCamporeeSupplyPaymentPaid(paymentId);
+        toast.success(t("toasts.markedPaid"));
+        await load();
+      } catch (error) {
+        toast.error(getCamporeeSupplyUiErrorMessage(error, t));
+      }
+    });
 
-  const deliver = async (lineId: string) => {
-    const qty = Number.parseFloat((deliverQty[lineId] ?? "").replace(",", "."));
-    if (!Number.isFinite(qty) || qty <= 0) return;
-    try {
-      await deliverCamporeeSupplyLine(camporeeId, camporeeType, lineId, { qty });
-      setDeliverQty((current) => ({ ...current, [lineId]: "" }));
-      toast.success(t("toasts.delivered"));
-      await load();
-    } catch (error) {
-      toast.error(getCamporeeSupplyUiErrorMessage(error, t));
-    }
-  };
+  const setDeliverError = (lineId: string, message: string | null) =>
+    setDeliverErrors((current) => {
+      if (message === null) {
+        const rest = { ...current };
+        delete rest[lineId];
+        return rest;
+      }
+      return { ...current, [lineId]: message };
+    });
+
+  const deliver = (line: { line_id: string; qty: string | number; delivered_qty: string | number }) =>
+    runExclusive(`deliver:${line.line_id}`, async () => {
+      const lineId = line.line_id;
+      const qty = Number.parseFloat((deliverQty[lineId] ?? "").replace(",", "."));
+      if (!Number.isFinite(qty) || qty <= 0) {
+        setDeliverError(lineId, t("plans.deliverQtyInvalid"));
+        return;
+      }
+      const remaining = Math.max(0, Number(line.qty) - Number(line.delivered_qty));
+      if (Number.isFinite(remaining) && qty > remaining) {
+        setDeliverError(lineId, t("plans.deliverQtyExceeds", { max: formatQty(remaining) }));
+        return;
+      }
+      setDeliverError(lineId, null);
+      try {
+        await deliverCamporeeSupplyLine(camporeeId, camporeeType, lineId, { qty });
+        setDeliverQty((current) => ({ ...current, [lineId]: "" }));
+        toast.success(t("toasts.delivered"));
+        await load();
+      } catch (error) {
+        toast.error(getCamporeeSupplyUiErrorMessage(error, t));
+      }
+    });
 
   return (
     <div className="space-y-8">
@@ -327,6 +371,7 @@ export function CamporeeSuppliesTab({
                             type="button"
                             size="sm"
                             variant="outline"
+                            loading={pendingKeys[`slot:${slot.slot_id}`] === true}
                             onClick={() => void toggleSlot(slot.slot_id, !slot.active)}
                           >
                             {slot.active ? t("actions.deactivate") : t("actions.activate")}
@@ -408,6 +453,7 @@ export function CamporeeSuppliesTab({
                             type="button"
                             size="sm"
                             variant="outline"
+                            loading={pendingKeys[`product:${product.product_id}`] === true}
                             onClick={() =>
                               void toggleProduct(product.product_id, !product.active)
                             }
@@ -522,26 +568,37 @@ export function CamporeeSuppliesTab({
                                   {t("plans.lineDelivered")}
                                 </span>
                               ) : (
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    aria-label={t("plans.deliverQty")}
-                                    className="w-24"
-                                    inputMode="decimal"
-                                    value={deliverQty[line.line_id] ?? ""}
-                                    onChange={(event) =>
-                                      setDeliverQty((current) => ({
-                                        ...current,
-                                        [line.line_id]: event.target.value,
-                                      }))
-                                    }
-                                  />
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    onClick={() => void deliver(line.line_id)}
-                                  >
-                                    {t("actions.deliver")}
-                                  </Button>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      aria-label={t("plans.deliverQty")}
+                                      aria-invalid={deliverErrors[line.line_id] ? true : undefined}
+                                      className="w-24"
+                                      inputMode="decimal"
+                                      value={deliverQty[line.line_id] ?? ""}
+                                      disabled={pendingKeys[`deliver:${line.line_id}`] === true}
+                                      onChange={(event) => {
+                                        setDeliverError(line.line_id, null);
+                                        setDeliverQty((current) => ({
+                                          ...current,
+                                          [line.line_id]: event.target.value,
+                                        }));
+                                      }}
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      loading={pendingKeys[`deliver:${line.line_id}`] === true}
+                                      onClick={() => void deliver(line)}
+                                    >
+                                      {t("actions.deliver")}
+                                    </Button>
+                                  </div>
+                                  {deliverErrors[line.line_id] ? (
+                                    <p role="alert" className="text-destructive text-xs">
+                                      {deliverErrors[line.line_id]}
+                                    </p>
+                                  ) : null}
                                 </div>
                               )}
                             </td>
@@ -702,6 +759,10 @@ export function CamporeeSuppliesTab({
           <AlertDialogFooter>
             <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
+              disabled={
+                payingPayment !== null &&
+                pendingKeys[`pay:${payingPayment.payment_id}`] === true
+              }
               onClick={() => {
                 if (payingPayment) void markPaid(payingPayment.payment_id);
               }}

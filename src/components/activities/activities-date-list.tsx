@@ -1,7 +1,8 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import Link from "next/link";
-import { Building2, ChevronRight, Clock, MapPin, Repeat, Users } from "lucide-react";
+import { Building2, CalendarOff, ChevronRight, Clock, MapPin, Repeat, Users } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -100,7 +101,7 @@ function ActivityListCard({
           <span className="text-xl font-semibold tabular-nums leading-none">
             {dateParts.day}
           </span>
-          <span className="text-[10px] capitalize text-muted-foreground">
+          <span className="text-2xs capitalize text-muted-foreground">
             {dateParts.month}
           </span>
         </div>
@@ -113,12 +114,12 @@ function ActivityListCard({
       <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
         <span className="shrink-0 font-medium text-foreground">{activity.name}</span>
         {typeLabel ? (
-          <Badge variant="secondary" className="shrink-0 text-[10px]">
+          <Badge variant="secondary" className="shrink-0 text-2xs">
             {typeLabel}
           </Badge>
         ) : null}
         {activity.activity_series_id ? (
-          <Badge variant="soft-success" className="shrink-0 text-[10px]">
+          <Badge variant="soft-success" className="shrink-0 text-2xs">
             <Repeat className="mr-1 size-3" aria-hidden />
             {tSeries("badge")}
           </Badge>
@@ -179,9 +180,9 @@ export function ActivitiesDateList({
     return (
       <div className="rounded-xl border bg-card p-4 shadow-xs">
         <h2 className="text-sm font-medium">{t("listTitle")}</h2>
-        <p className="mt-4 rounded-lg border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
-          {t("listEmpty")}
-        </p>
+        <div className="mt-4">
+          <EmptyState icon={CalendarOff} title={t("listEmpty")} />
+        </div>
       </div>
     );
   }

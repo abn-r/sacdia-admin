@@ -105,7 +105,7 @@ export function EvidenceApproveDialog({
           <Button
             loading={isSubmitting}
             onClick={handleApprove}
-            className="bg-success hover:bg-success/90 text-success-foreground"
+            className="bg-success-solid hover:bg-success-solid/90 text-success-foreground"
           >
             Aprobar
           </Button>

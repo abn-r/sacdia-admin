@@ -52,7 +52,7 @@ function MemberAvatar({ member }: { member: MemberOfMonthEntry }) {
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-warning text-[10px]">
+        <div className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-warning-solid text-2xs">
           <Trophy className="size-3 text-warning-foreground" />
         </div>
       </div>

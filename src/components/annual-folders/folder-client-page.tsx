@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -482,11 +483,7 @@ export function FolderClientPage({ initialFolder }: FolderClientPageProps) {
 
       {/* Sections */}
       {sortedSections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Esta carpeta no tiene secciones configuradas todavía.
-          </p>
-        </div>
+        <EmptyState icon={FileText} title="Esta carpeta no tiene secciones configuradas todavía." />
       ) : (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-muted-foreground">

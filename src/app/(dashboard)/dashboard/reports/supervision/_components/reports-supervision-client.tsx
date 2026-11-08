@@ -13,6 +13,9 @@ import {
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { EmptyState } from "@/components/shared/empty-state";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -172,151 +175,169 @@ export function ReportsSupervisionClient({
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         {/* División */}
-        <Select
-          value={searchParams.division_id ?? "all"}
-          onValueChange={(v) => handleHierarchyFilter("division_id", v)}
-          disabled={divisionLocked}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder={t("filterDivisionPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterDivisionAll")}</SelectItem>
-            {divisions.map((division) => (
-              <SelectItem key={division.division_id} value={String(division.division_id)}>
-                {division.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-division">{t("filterDivisionPlaceholder")}</Label>
+          <Select
+            value={searchParams.division_id ?? "all"}
+            onValueChange={(v) => handleHierarchyFilter("division_id", v)}
+            disabled={divisionLocked}
+          >
+            <SelectTrigger id="sup-filter-division" className="w-48">
+              <SelectValue placeholder={t("filterDivisionPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterDivisionAll")}</SelectItem>
+              {divisions.map((division) => (
+                <SelectItem key={division.division_id} value={String(division.division_id)}>
+                  {division.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Unión */}
-        <Select
-          value={searchParams.union_id ?? "all"}
-          onValueChange={(v) => handleHierarchyFilter("union_id", v)}
-          disabled={unionLocked}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder={t("filterUnionPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterUnionAll")}</SelectItem>
-            {unions.map((union) => (
-              <SelectItem key={union.union_id} value={String(union.union_id)}>
-                {union.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-union">{t("filterUnionPlaceholder")}</Label>
+          <Select
+            value={searchParams.union_id ?? "all"}
+            onValueChange={(v) => handleHierarchyFilter("union_id", v)}
+            disabled={unionLocked}
+          >
+            <SelectTrigger id="sup-filter-union" className="w-48">
+              <SelectValue placeholder={t("filterUnionPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterUnionAll")}</SelectItem>
+              {unions.map((union) => (
+                <SelectItem key={union.union_id} value={String(union.union_id)}>
+                  {union.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Tipo de club */}
-        <Select
-          value={searchParams.club_type_id ?? "all"}
-          onValueChange={(v) => handleFilter("club_type_id", v)}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={t("filterClubTypePlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
-            {clubTypes.map((ct) => (
-              <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
-                {ct.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-club-type">{t("filterClubTypePlaceholder")}</Label>
+          <Select
+            value={searchParams.club_type_id ?? "all"}
+            onValueChange={(v) => handleFilter("club_type_id", v)}
+          >
+            <SelectTrigger id="sup-filter-club-type" className="w-44">
+              <SelectValue placeholder={t("filterClubTypePlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
+              {clubTypes.map((ct) => (
+                <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
+                  {ct.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Campo local */}
-        <Select
-          value={searchParams.local_field_id ?? "all"}
-          onValueChange={(v) => handleHierarchyFilter("local_field_id", v)}
-          disabled={localFieldLocked}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
-            {localFields.map((lf) => (
-              <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
-                {lf.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-local-field">{t("filterLocalFieldPlaceholder")}</Label>
+          <Select
+            value={searchParams.local_field_id ?? "all"}
+            onValueChange={(v) => handleHierarchyFilter("local_field_id", v)}
+            disabled={localFieldLocked}
+          >
+            <SelectTrigger id="sup-filter-local-field" className="w-48">
+              <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
+              {localFields.map((lf) => (
+                <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
+                  {lf.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Mes */}
-        <Select
-          value={searchParams.month ?? "all"}
-          onValueChange={(v) => handleFilter("month", v)}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder={t("filterMonthPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
-            {MONTH_VALUES.map((v) => (
-              <SelectItem key={v} value={v}>
-                {t(`months.${v}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-month">{t("filterMonthPlaceholder")}</Label>
+          <Select
+            value={searchParams.month ?? "all"}
+            onValueChange={(v) => handleFilter("month", v)}
+          >
+            <SelectTrigger id="sup-filter-month" className="w-36">
+              <SelectValue placeholder={t("filterMonthPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
+              {MONTH_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`months.${v}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Año */}
-        <Select
-          value={searchParams.year ?? String(new Date().getFullYear())}
-          onValueChange={(v) => handleFilter("year", v)}
-        >
-          <SelectTrigger className="w-28">
-            <SelectValue placeholder={t("filterYearPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
-              (y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ),
-            )}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-year">{t("filterYearPlaceholder")}</Label>
+          <Select
+            value={searchParams.year ?? String(new Date().getFullYear())}
+            onValueChange={(v) => handleFilter("year", v)}
+          >
+            <SelectTrigger id="sup-filter-year" className="w-28">
+              <SelectValue placeholder={t("filterYearPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
+                (y) => (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                ),
+              )}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Estado */}
-        <Select
-          value={searchParams.status ?? "all"}
-          onValueChange={(v) => handleFilter("status", v)}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder={t("filterStatusPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
-            {STATUS_VALUES.map((v) => (
-              <SelectItem key={v} value={v}>
-                {t(`statusOptions.${v}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <Label htmlFor="sup-filter-status">{t("filterStatusPlaceholder")}</Label>
+          <Select
+            value={searchParams.status ?? "all"}
+            onValueChange={(v) => handleFilter("status", v)}
+          >
+            <SelectTrigger id="sup-filter-status" className="w-36">
+              <SelectValue placeholder={t("filterStatusPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
+              {STATUS_VALUES.map((v) => (
+                <SelectItem key={v} value={v}>
+                  {t(`statusOptions.${v}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-          <FileText className="mb-3 size-10 text-muted-foreground/50" />
-          <p className="text-sm font-medium text-muted-foreground">
-            {t("emptyTitle")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            {t("emptyHint")}
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title={t("emptyTitle")}
+          description={t("emptyHint")}
+        />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
-          <Table>
-            <TableHeader>
+        <>
+        <DataTableShell>
+          <Table className="max-md:block">
+            <TableHeader className="max-md:sr-only">
               <TableRow>
                 <TableHead>{t("tableColClub")}</TableHead>
                 <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
@@ -328,7 +349,7 @@ export function ReportsSupervisionClient({
                 <RowActionsHead />
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="max-md:block">
               {items.map((item) => {
                 const period = capitalizeFirst(
                   formatDate(new Date(item.year, item.month - 1, 1), {
@@ -337,8 +358,11 @@ export function ReportsSupervisionClient({
                   }),
                 );
                 return (
-                  <TableRow key={item.monthly_report_id}>
-                    <TableCell className="font-medium">
+                  <TableRow
+                    key={item.monthly_report_id}
+                    className="max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
+                  >
+                    <TableCell className="font-medium max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0 max-md:whitespace-normal">
                       <Link
                         href={`/dashboard/reports/${item.monthly_report_id}`}
                         className="hover:underline"
@@ -351,15 +375,16 @@ export function ReportsSupervisionClient({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
-                    <TableCell>{period}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:order-6 max-md:block max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.club_type ?? "—"}</TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:order-7 max-md:block max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.local_field ?? "—"}</TableCell>
+                    <td aria-hidden="true" className="hidden max-md:order-4 max-md:block max-md:h-0 max-md:basis-full" />
+                    <TableCell className="max-md:order-5 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{period}</TableCell>
+                    <TableCell className="max-md:order-2 max-md:p-0">
                       <ReportStatusBadge status={item.status} />
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
-                    <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:hidden">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                    <TableCell className="max-md:order-8 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
+                    <TableCell className="max-md:order-3 max-md:p-0">
                       <RowActions
                         label={[
                           item.club_name ?? String(item.monthly_report_id),
@@ -389,7 +414,8 @@ export function ReportsSupervisionClient({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
+        </>
       )}
 
       {/* Pagination */}

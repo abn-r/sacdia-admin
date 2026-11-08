@@ -59,13 +59,10 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
         // Always include inactive entries in form options so:
         // (a) Edit dialogs can preselect an existing inactive parent
         // (b) Parent dropdowns show all records for both create and edit
-        const [formOptions, displayOptions] = await Promise.all([
-          getSelectOptions(field.optionsEntityKey, true),
-          getSelectOptions(field.optionsEntityKey, true),
-        ]);
+        const options = await getSelectOptions(field.optionsEntityKey, true);
 
-        selectOptionsMap[field.optionsEntityKey] = formOptions;
-        displaySelectOptionsMap[field.optionsEntityKey] = displayOptions;
+        selectOptionsMap[field.optionsEntityKey] = options;
+        displaySelectOptionsMap[field.optionsEntityKey] = options;
       } catch {
         selectOptionsMap[field.optionsEntityKey!] = [];
         displaySelectOptionsMap[field.optionsEntityKey!] = [];

@@ -44,7 +44,7 @@ function HistoryEntry({
           {MONTH_NAMES[item.month]} {item.year}
         </span>
         {item.members.length > 1 && (
-          <Badge variant="warning" className="text-[10px]">
+          <Badge variant="warning" className="text-2xs">
             {t("history.tie")}
           </Badge>
         )}

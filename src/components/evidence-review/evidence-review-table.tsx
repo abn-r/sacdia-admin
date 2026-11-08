@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EvidenceStatusBadge } from "@/components/evidence-review/evidence-status-badge";
 import { EvidenceTypeBadge } from "@/components/evidence-review/evidence-type-badge";
@@ -185,7 +186,7 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
+      <DataTableShell className="hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -298,7 +299,70 @@ export function EvidenceReviewTable({ items, onRefresh }: EvidenceReviewTablePro
             })}
           </TableBody>
         </Table>
-      </div>
+      </DataTableShell>
+
+      {/* Mobile: 2-line rows */}
+      <DataTableShell className="md:hidden">
+        {selectableItems.length > 0 && (
+          <div className="flex items-center gap-3 border-b px-4 py-2">
+            <Checkbox
+              checked={allSelected ? true : someSelected ? "indeterminate" : false}
+              onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+              aria-label={t("select_all")}
+            />
+            <span className="text-[13px] text-muted-foreground">{t("select_all")}</span>
+          </div>
+        )}
+        <ul className="divide-y">
+          {items.map((item) => {
+            const isSelected = selectedIds.has(item.id);
+            const selectable = isPending(item.status, item.type);
+            const secondary = [getEvidenceEntityName(item), getEvidenceSectionName(item)]
+              .filter(Boolean)
+              .join(" · ");
+
+            return (
+              <li
+                key={`m-${item.type}-${item.id}`}
+                className={`flex items-start gap-3 px-4 py-3 ${isSelected ? "bg-muted/50" : ""}`}
+              >
+                {selectable ? (
+                  <Checkbox
+                    className="mt-0.5"
+                    checked={isSelected}
+                    onCheckedChange={() => toggleRow(item.id, selectable)}
+                    aria-label={t("select_row", { name: item.member_name })}
+                  />
+                ) : (
+                  <span className="mt-0.5 inline-block size-4 shrink-0" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate text-sm font-medium">{item.member_name}</span>
+                    <EvidenceStatusBadge status={item.status} type={item.type} />
+                  </div>
+                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+                    {secondary || "—"}
+                    {item.submitted_at ? ` · ${formatDate(item.submitted_at)}` : ""}
+                  </p>
+                  <p className="mt-0.5 line-clamp-2 text-[13px] text-muted-foreground">
+                    {getEvidenceDescription(item)}
+                  </p>
+                  <div className="mt-2">
+                    <EvidenceRowActions
+                      item={item}
+                      onApprove={() => setDialog({ kind: "approve", item })}
+                      onReject={() => setDialog({ kind: "reject", item })}
+                      onDetail={() => setDialog({ kind: "detail", item })}
+                      onHistory={() => setDialog({ kind: "history", item })}
+                    />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </DataTableShell>
 
       {/* ─── Dialogs ──────────────────────────────────────────────────────────── */}
 

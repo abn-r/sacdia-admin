@@ -67,16 +67,18 @@ export default async function ConfigurationPage() {
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {sections.map((section) => (
-          <Link key={section.href} href={section.href}>
+          <Link
+            key={section.href}
+            href={section.href}
+            className="rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
             <Card className="h-full transition-colors hover:bg-muted/50">
-              <CardHeader className="flex flex-row items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <section.icon className="size-5 text-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-sm">{section.title}</CardTitle>
-                  <CardDescription className="text-xs">{section.description}</CardDescription>
-                </div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <section.icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  {section.title}
+                </CardTitle>
+                <CardDescription className="text-xs">{section.description}</CardDescription>
               </CardHeader>
             </Card>
           </Link>

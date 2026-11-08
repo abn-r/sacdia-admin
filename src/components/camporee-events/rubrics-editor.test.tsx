@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import messages from "../../../messages/es.json";
 import { RubricsEditor, areRubricsValid } from "@/components/camporee-events/rubrics-editor";
 import type { CamporeeTemplateRubricInput } from "@/lib/api/camporee-scoring";
 
@@ -24,6 +26,7 @@ function Harness({
   const [enabled, setEnabled] = useState(true);
   const [rubrics, setRubrics] = useState(initial);
   return (
+    <NextIntlClientProvider locale="es" messages={messages}>
     <form>
       <RubricsEditor
         enabled={enabled}
@@ -34,6 +37,7 @@ function Harness({
       />
       <button type="submit">Guardar</button>
     </form>
+    </NextIntlClientProvider>
   );
 }
 
@@ -74,7 +78,7 @@ describe("RubricsEditor", () => {
   it("updates total as rubric points change", () => {
     render(<Harness maxPoints={100} initial={[{ title: "A", max_points: 80 }]} />);
 
-    fireEvent.change(screen.getByLabelText("Puntos criterio 1"), {
+    fireEvent.change(screen.getByLabelText("Puntos del criterio 1"), {
       target: { value: "100" },
     });
 

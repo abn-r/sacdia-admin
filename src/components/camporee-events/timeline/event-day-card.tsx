@@ -53,7 +53,7 @@ function HeatBar({ events }: { events: CamporeeEvent[] }) {
           );
         })}
       </div>
-      <div className="flex justify-between text-[9px] text-muted-foreground/70 mt-0.5">
+      <div className="flex justify-between text-2xs text-muted-foreground/70 mt-0.5">
         <span>06h</span><span>09h</span><span>12h</span>
         <span>15h</span><span>18h</span><span>21h</span><span>24h</span>
       </div>
@@ -111,7 +111,7 @@ export function EventDayCard({
             <div className="text-[15px] font-semibold tracking-tight">
               {day.diaSemana} · {day.fechaFmt}
             </div>
-            <div className="text-[12px] text-muted-foreground">Sin eventos programados</div>
+            <div className="text-xs text-muted-foreground">Sin eventos programados</div>
           </div>
         </div>
         {!readonly && (
@@ -136,7 +136,7 @@ export function EventDayCard({
           <div className="text-[15px] font-semibold tracking-tight">
             {day.diaSemana} · {day.fechaFmt}
           </div>
-          <div className="text-[12px] text-muted-foreground flex items-center gap-2 mt-0.5">
+          <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
             <span>{sorted.length} eventos programados</span>
             <span className="size-0.5 rounded-full bg-muted-foreground/40" />
             <span>{formatHours(totalMin)}h de contenido</span>
@@ -185,7 +185,7 @@ export function EventDayCard({
           <button
             type="button"
             onClick={() => onAdd(day.numero)}
-            className="w-full py-2.5 text-[12px] text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5 font-medium"
+            className="w-full py-2.5 text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5 font-medium"
           >
             <Plus className="size-3.5" /> Agregar evento al {day.diaSemana.toLowerCase()}
           </button>

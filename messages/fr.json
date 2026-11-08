@@ -264,10 +264,14 @@
       }
     },
     "a11y": {
-      "skipToContent": "Aller au contenu principal"
+      "skipToContent": "Aller au contenu principal",
+      "pendingCount": " ({count, plural, one {# en attente} other {# en attente}})",
+      "badgeNew": "Nouveau",
+      "badgeSoon": "Bientôt"
     },
     "profile": "Mon profil",
     "logout": "Déconnexion",
+    "userMenu": "Menu utilisateur",
     "adminPanel": "Panneau admin",
     "commandPalette": {
       "title": "Recherche globale",
@@ -628,6 +632,8 @@
       "clear": "Effacer",
       "activeFilters": "Filtres actifs",
       "filtersLabel": "Filtres :",
+      "statusPlaceholder": "Statut",
+      "activeFilterBadge": "Filtre actif",
       "searchChip": "Recherche : \"{value}\"",
       "clubTypeAll": "Tous les types"
     },
@@ -1609,6 +1615,9 @@
         "successionHint": "Termine le directeur de cette année et nomme le successeur maintenant. Ce n'est pas la désignation de l'année suivante.",
         "succeedNow": "Changer le directeur maintenant",
         "succeedConfirm": "Terminer le directeur actuel et nommer le successeur maintenant ?",
+        "successorLabel": "Nouveau directeur",
+        "succeedCancel": "Annuler",
+        "succeedConfirmAction": "Changer de directeur",
         "continuationsHeading": "Inscription annuelle",
         "continuationsHint": "Inclut les membres de cette section et les sauts de type vers ici (Aventuriers → Conquérants, Conquérants → Guides majeurs).",
         "continuationsLoading": "Chargement des candidats…",
@@ -1792,6 +1801,7 @@
         "filtersTitle": "Filtres",
         "filtersHint": "Affinez la liste par champ",
         "searchPlaceholder": "Rechercher par nom ou lieu…",
+        "searchPageOnlyHint": "Filtrage de cette page uniquement",
         "statusAll": "Tous les statuts",
         "localFieldAll": "Tous les champs",
         "colSections": "Sections actives",
@@ -1940,7 +1950,9 @@
             "reports": "Rapports",
             "operational": "Opérationnels"
           },
-          "emptyTitle": "{level, select, division {Aucune division dans ce périmètre} union {Aucune union dans ce périmètre} local_field {Aucun champ local dans ce périmètre} other {Aucun club dans ce périmètre}}"
+          "emptyTitle": "{level, select, division {Aucune division dans ce périmètre} union {Aucune union dans ce périmètre} local_field {Aucun champ local dans ce périmètre} other {Aucun club dans ce périmètre}}",
+          "showAll": "Tout voir ({count, number})",
+          "showLess": "Voir moins"
         },
         "stats": {
           "label": "Autres indicateurs de la période",
@@ -2323,6 +2335,7 @@
     }
   },
   "rbac": {
+    "userSearchPlaceholder": "Rechercher par nom ou e-mail...",
     "errors": {
       "create_permission_failed": "Impossible de créer la permission",
       "update_permission_failed": "Impossible de mettre à jour la permission",
@@ -5353,6 +5366,16 @@
     }
   },
   "scoring_categories": {
+    "deleteDialog": {
+      "title": "Supprimer la catégorie",
+      "description": "Voulez-vous vraiment supprimer la catégorie <strong>\"{name}\"</strong> ? Elle sera désactivée et ne pourra plus être utilisée dans de nouveaux enregistrements. Les enregistrements historiques seront conservés.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression..."
+    },
+    "dialog": {
+      "namePlaceholder": "Ex. Uniforme"
+    },
     "toasts": {
       "deleted": "Catégorie supprimée"
     },
@@ -5928,6 +5951,8 @@
       "allYears": "Toutes les années",
       "allMonths": "Tous les mois",
       "refreshButton": "Actualiser",
+      "summaryLoadError": "Impossible de charger le résumé financier.",
+      "transactionsLoadError": "Impossible de charger les transactions.",
       "newTransactionButton": "Nouvelle transaction",
       "transactionsTitle": "Transactions",
       "showing": "Affichage de {shown} sur {total} transactions."
@@ -6379,7 +6404,8 @@
       "activitiesFoundOne": "activité trouvée",
       "activitiesFoundOther": "activités trouvées",
       "errors": {
-        "loadFailed": "Impossible de charger les activités"
+        "loadFailed": "Impossible de charger les activités",
+        "retry": "Réessayer"
       },
       "types": {
         "regular": "Régulier",
@@ -6648,6 +6674,10 @@
       "club_type_all": "Tous les types",
       "select_club_placeholder": "Sélectionner un club",
       "all_categories": "Toutes les catégories",
+      "label_local_field": "Champ local",
+      "label_club_type": "Type de club",
+      "label_club": "Club",
+      "label_category": "Catégorie",
       "refresh_title": "Actualiser",
       "refresh_sr": "Actualiser",
       "new_item": "Nouvel article",
@@ -6792,6 +6822,9 @@
     }
   },
   "shared": {
+    "pageSkeleton": {
+      "loading": "Chargement…"
+    },
     "notFound": {
       "title": "Page introuvable",
       "description": "Cette adresse n'existe pas ou n'est plus disponible.",
@@ -6840,7 +6873,14 @@
       "forbidden": "Accès refusé",
       "missing": "Non disponible",
       "rateLimited": "Limite de requêtes atteinte",
-      "goToLogin": "Aller à la connexion"
+      "goToLogin": "Aller à la connexion",
+      "retry": "Réessayer"
+    },
+    "routeError": {
+      "title": "Impossible de charger cette section",
+      "description": "Une erreur est survenue lors de l'affichage de cette page. Réessayez ou revenez à l'accueil.",
+      "retry": "Réessayer",
+      "goHome": "Aller à l'accueil"
     },
     "errorRetry": {
       "retry": "Réessayer",
@@ -7108,6 +7148,20 @@
     }
   },
   "classes": {
+    "relations": {
+      "selectHonorPlaceholder": "Sélectionnez une spécialité",
+      "selectClassPlaceholder": "Sélectionnez une classe",
+      "noModule": "Sans module",
+      "moduleOf": "Module de {name}",
+      "deleteAria": "Supprimer {name}",
+      "honorDeleteTitle": "Supprimer la spécialité",
+      "honorDeleteDescription": "Voulez-vous vraiment retirer « {name} » de cette classe ? Vous pourrez la rajouter plus tard si nécessaire.",
+      "prerequisiteDeleteTitle": "Supprimer le prérequis",
+      "prerequisiteDeleteDescription": "Voulez-vous vraiment retirer « {name} » comme prérequis de cette classe ?",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression..."
+    },
     "list": {
       "empty_title": "Aucune classe enregistrée",
       "empty_description": "Aucune classe progressive n'a été trouvée dans le catalogue.",
@@ -7983,6 +8037,16 @@
     }
   },
   "camporeeEvents": {
+    "editors": {
+      "rubricsEnableAria": "Activer la notation par rubriques",
+      "rubricDescriptionAria": "Description du critère {index}",
+      "rubricPointsAria": "Points du critère {index}",
+      "rubricDeleteAria": "Supprimer le critère {index}",
+      "penaltyFieldAria": "{field} — pénalité {index}",
+      "scheduleDeleteAria": "Supprimer l'horaire",
+      "rubricTitlePlaceholder": "Ex. Technique",
+      "rubricDescriptionPlaceholder": "Description facultative"
+    },
     "templates": {
       "title": "Modèles d'événements",
       "description": "Bibliothèque d'événements réutilisables pour camporees.",
@@ -9140,6 +9204,8 @@
       "colTotal": "Total",
       "colPayStatus": "Paiement",
       "deliverQty": "Quantité à livrer",
+      "deliverQtyInvalid": "Saisissez une quantité supérieure à 0.",
+      "deliverQtyExceeds": "Elle ne peut pas dépasser le reste à livrer ({max}).",
       "lineDelivered": "Livraison complète"
     },
     "reports": {
@@ -9431,6 +9497,8 @@
       "selectLocalFieldDescription": "Choisissez un champ local pour voir ou modifier sa fenêtre.",
       "noYearTitle": "Aucune année ecclésiastique à configurer",
       "noYearDescription": "Dès qu'une année ecclésiastique existera, vous pourrez définir la fenêtre.",
+      "localFieldsLoadError": "Impossible de charger la liste des champs locaux. Le sélecteur peut être incomplet.",
+      "yearsLoadError": "Impossible de charger la liste des années ecclésiastiques. Le sélecteur peut être incomplet.",
       "window": {
         "title": "Fenêtre des demandes",
         "description": "Période pendant laquelle le champ local permet de soumettre et d'autoriser des demandes d'investiture.",

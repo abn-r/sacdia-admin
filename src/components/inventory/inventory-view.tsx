@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { Label } from "@/components/ui/label";
 import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -233,96 +234,108 @@ export function InventoryView({
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Select
-            value={
-              selectedLocalFieldId === "all"
-                ? "all"
-                : String(selectedLocalFieldId)
-            }
-            onValueChange={handleLocalFieldChange}
-            disabled={isLocalFieldLocked}
-          >
-            <SelectTrigger className="h-9 w-52">
-              <SelectValue placeholder={t("view.select_local_field_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {!isLocalFieldLocked && (
-                <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
-              )}
-              {localFields.map((lf) => (
-                <SelectItem
-                  key={lf.local_field_id}
-                  value={String(lf.local_field_id)}
-                >
-                  {lf.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-filter-local-field">{t("view.label_local_field")}</Label>
+            <Select
+              value={
+                selectedLocalFieldId === "all"
+                  ? "all"
+                  : String(selectedLocalFieldId)
+              }
+              onValueChange={handleLocalFieldChange}
+              disabled={isLocalFieldLocked}
+            >
+              <SelectTrigger id="inv-filter-local-field" className="h-9 w-52">
+                <SelectValue placeholder={t("view.select_local_field_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {!isLocalFieldLocked && (
+                  <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
+                )}
+                {localFields.map((lf) => (
+                  <SelectItem
+                    key={lf.local_field_id}
+                    value={String(lf.local_field_id)}
+                  >
+                    {lf.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={
-              selectedClubTypeId === "all" ? "all" : String(selectedClubTypeId)
-            }
-            onValueChange={handleClubTypeChange}
-          >
-            <SelectTrigger className="h-9 w-48">
-              <SelectValue placeholder={t("view.select_club_type_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("view.club_type_all")}</SelectItem>
-              {clubTypes.map((clubType) => (
-                <SelectItem
-                  key={clubType.club_type_id}
-                  value={String(clubType.club_type_id)}
-                >
-                  {clubType.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-filter-club-type">{t("view.label_club_type")}</Label>
+            <Select
+              value={
+                selectedClubTypeId === "all" ? "all" : String(selectedClubTypeId)
+              }
+              onValueChange={handleClubTypeChange}
+            >
+              <SelectTrigger id="inv-filter-club-type" className="h-9 w-48">
+                <SelectValue placeholder={t("view.select_club_type_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("view.club_type_all")}</SelectItem>
+                {clubTypes.map((clubType) => (
+                  <SelectItem
+                    key={clubType.club_type_id}
+                    value={String(clubType.club_type_id)}
+                  >
+                    {clubType.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={selectedSectionId ? String(selectedSectionId) : ""}
-            onValueChange={handleSectionChange}
-            disabled={filteredSections.length === 0}
-          >
-            <SelectTrigger className="h-9 w-52">
-              <SelectValue placeholder={t("view.select_club_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredSections.map((section) => (
-                <SelectItem
-                  key={section.club_section_id}
-                  value={String(section.club_section_id)}
-                >
-                  {section.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-filter-club">{t("view.label_club")}</Label>
+            <Select
+              value={selectedSectionId ? String(selectedSectionId) : ""}
+              onValueChange={handleSectionChange}
+              disabled={filteredSections.length === 0}
+            >
+              <SelectTrigger id="inv-filter-club" className="h-9 w-52">
+                <SelectValue placeholder={t("view.select_club_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredSections.map((section) => (
+                  <SelectItem
+                    key={section.club_section_id}
+                    value={String(section.club_section_id)}
+                  >
+                    {section.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={filterCategoryId ? String(filterCategoryId) : "all"}
-            onValueChange={handleCategoryFilter}
-            disabled={!selectedSectionId}
-          >
-            <SelectTrigger className="h-9 w-48">
-              <SelectValue placeholder={t("view.all_categories")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("view.all_categories")}</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem
-                  key={cat.inventory_category_id}
-                  value={String(cat.inventory_category_id)}
-                >
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-filter-category">{t("view.label_category")}</Label>
+            <Select
+              value={filterCategoryId ? String(filterCategoryId) : "all"}
+              onValueChange={handleCategoryFilter}
+              disabled={!selectedSectionId}
+            >
+              <SelectTrigger id="inv-filter-category" className="h-9 w-48">
+                <SelectValue placeholder={t("view.all_categories")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("view.all_categories")}</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem
+                    key={cat.inventory_category_id}
+                    value={String(cat.inventory_category_id)}
+                  >
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button
             variant="outline"

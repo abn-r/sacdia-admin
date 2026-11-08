@@ -214,9 +214,6 @@ export function PermissionsTable({
               <li key={perm.permission_id}>
                 <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                      <Key className="size-5 text-primary" aria-hidden="true" />
-                    </div>
                     <div className="min-w-0 flex-1">
                       <code className="block truncate rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
                         {perm.permission_name}
@@ -230,7 +227,7 @@ export function PermissionsTable({
                     </div>
                     <button
                       type="button"
-                      className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       onClick={() => setEditItem(perm)}
                       aria-label={t("permissionsTable.editAriaLabel", { name: perm.permission_name })}
                     >

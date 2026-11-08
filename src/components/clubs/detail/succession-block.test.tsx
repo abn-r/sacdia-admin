@@ -38,7 +38,6 @@ describe("SuccessionBlock", () => {
   beforeEach(() => {
     mockRefresh.mockReset();
     mockSucceed.mockReset();
-    vi.stubGlobal("confirm", vi.fn(() => true));
   });
 
   afterEach(() => {
@@ -68,14 +67,22 @@ describe("SuccessionBlock", () => {
       container.querySelector("select[name='successor_user_id']") as HTMLSelectElement,
       "successor-user",
     );
+    expect(
+      screen.getByLabelText(messages.clubs.detail.sections.successorLabel),
+    ).toBeTruthy();
 
-    const confirm = vi.mocked(window.confirm);
-    confirm.mockReturnValueOnce(false);
+    // Submitting opens a confirmation dialog instead of submitting right away.
     await user.click(
       screen.getByRole("button", { name: messages.clubs.detail.sections.succeedNow }),
     );
-    expect(confirm).toHaveBeenCalledWith(
-      messages.clubs.detail.sections.succeedConfirm,
+    expect(
+      await screen.findByText(messages.clubs.detail.sections.succeedConfirm),
+    ).toBeTruthy();
+    expect(mockSucceed).not.toHaveBeenCalled();
+
+    // Cancelling keeps the current director.
+    await user.click(
+      screen.getByRole("button", { name: messages.clubs.detail.sections.succeedCancel }),
     );
     expect(mockSucceed).not.toHaveBeenCalled();
   });

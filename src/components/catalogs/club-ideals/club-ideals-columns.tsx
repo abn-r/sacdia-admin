@@ -82,8 +82,9 @@ export function getClubIdealColumns({
     {
       accessorKey: "ideal_order",
       header: () => labels.idealOrder,
+      meta: { className: "text-right tabular-nums" },
       cell: ({ row }) => (
-        <span className="font-mono tabular-nums">{row.original.ideal_order}</span>
+        <span className="tabular-nums">{row.original.ideal_order}</span>
       ),
     },
     {
@@ -102,8 +103,7 @@ export function getClubIdealColumns({
     {
       id: "actions",
       header: () => <span className="sr-only">{labels.actions}</span>,
-      meta: { className: "sticky right-0 z-10 w-12 bg-card text-right" },
-      cell: ({ row }) => {
+            cell: ({ row }) => {
         const clubIdeal = row.original;
 
         return (

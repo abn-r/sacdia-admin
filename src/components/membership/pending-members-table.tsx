@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { RowActions } from "@/components/shared/row-actions";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
@@ -198,9 +199,9 @@ export function PendingMembersTable({
         />
       ) : (
         /* Table */
-        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-          <Table>
-            <TableHeader>
+        <DataTableShell>
+          <Table className="max-md:block">
+            <TableHeader className="max-md:sr-only">
               <TableRow>
                 <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
                   {t("table.col_member")}
@@ -222,7 +223,7 @@ export function PendingMembersTable({
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="max-md:block">
               {requests.map((req) => {
                 const isProcessing = processingId === req.assignment_id;
                 const consent = req.consent ?? null;
@@ -240,10 +241,10 @@ export function PendingMembersTable({
                 return (
                   <TableRow
                     key={req.assignment_id}
-                    className="group/row hover:bg-muted/30"
+                    className="group/row hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
                   >
                     {/* Member info */}
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="px-3 py-2.5 align-middle max-md:w-full max-md:p-0 max-md:whitespace-normal">
                       <div className="space-y-0.5">
                         <p className="font-medium leading-none">
                           {getUserName(req.users)}
@@ -265,19 +266,19 @@ export function PendingMembersTable({
                     </TableCell>
 
                     {/* Role */}
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:p-0 max-md:text-[13px]">
                       <Badge variant="outline" className="capitalize">
                         {getRoleName(req.roles)}
                       </Badge>
                     </TableCell>
 
                     {/* Requested date */}
-                    <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                    <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:p-0 max-md:text-[13px]">
                       {req.created_at ? formatDate(req.created_at) : "—"}
                     </TableCell>
 
                     {/* Expires at */}
-                    <TableCell className="px-3 py-2.5 align-middle">
+                    <TableCell className="px-3 py-2.5 align-middle max-md:p-0">
                       <div className="flex items-center gap-1.5">
                         {expiring && (
                           <Clock className="size-3.5 text-warning" />
@@ -312,7 +313,7 @@ export function PendingMembersTable({
                     {/* Actions */}
                     <TableCell
                       data-testid="actions-cell"
-                      className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY}`}
+                      className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY} max-md:static max-md:w-full max-md:border-l-0 max-md:bg-transparent max-md:p-0 max-md:pt-1`}
                     >
                       <RowActions
                         label={getUserName(req.users)}
@@ -389,7 +390,7 @@ export function PendingMembersTable({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
       )}
 
       {/* Consent verification dialog (minors) */}

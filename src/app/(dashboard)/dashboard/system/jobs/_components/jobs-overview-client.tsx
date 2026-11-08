@@ -94,7 +94,7 @@ function QueueCard({ queue }: { queue: JobCounts }) {
           )}
         </div>
         {hasActive && (
-          <Badge variant="default" className="text-[10px] px-1.5 py-0 shrink-0 ml-2">
+          <Badge variant="default" className="text-2xs px-1.5 py-0 shrink-0 ml-2">
             {t("activeLabel")}
           </Badge>
         )}

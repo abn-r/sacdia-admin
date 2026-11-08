@@ -39,10 +39,13 @@ async function scanFile(filePath) {
   const content = await readFile(filePath, "utf8");
   const lines = content.split("\n");
 
+  const active = RULES.filter(
+    (rule) => !rule.allow(rel) && (!rule.fileTest || rule.fileTest(content)),
+  );
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    for (const rule of RULES) {
-      if (rule.allow(rel)) continue;
+    for (const rule of active) {
       if (rule.test(line)) {
         findings.push({
           severity: rule.severity,

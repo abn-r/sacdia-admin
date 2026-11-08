@@ -108,10 +108,10 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
 
   return (
     <div className="mt-4 space-y-2 rounded-xl border border-border/70 bg-muted/10 p-4">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {t("continuationsHeading")}
       </p>
-      <p className="text-[11px] text-muted-foreground">{t("continuationsHint")}</p>
+      <p className="text-2xs text-muted-foreground">{t("continuationsHint")}</p>
 
       {loading ? (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -136,11 +136,11 @@ export function AnnualContinuationsBlock({ sectionId }: { sectionId: number }) {
                   />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{item.name}</span>
-                    <span className="block text-[11px] text-muted-foreground">
+                    <span className="block text-2xs text-muted-foreground">
                       {t("continuationsClass")}: {classLabel(item, t("continuationsPathComplete"))}
                     </span>
                     {!eligible ? (
-                      <span className="block text-[11px] text-destructive">
+                      <span className="block text-2xs text-destructive">
                         {blockedReasonLabel(item.blocked_reason) ??
                           item.blocked_reason ??
                           item.suggested_class.code ??

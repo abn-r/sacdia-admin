@@ -74,8 +74,7 @@ export function getLocalFieldColumns({
     {
       id: "actions",
       header: () => <span className="sr-only">{labels.actions}</span>,
-      meta: { className: "sticky right-0 z-10 w-12 bg-card text-right" },
-      cell: ({ row }) => {
+            cell: ({ row }) => {
         const localField = row.original;
 
         return (

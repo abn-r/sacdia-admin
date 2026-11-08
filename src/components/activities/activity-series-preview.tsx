@@ -45,25 +45,25 @@ export function ActivitySeriesPreviewList({
       </div>
       <div className="flex flex-wrap gap-1.5">
         {first ? (
-          <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-[11px] font-medium text-success">
+          <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-2xs font-medium text-success">
             {first}
           </span>
         ) : null}
         {visibleMiddle.map((date) => (
           <span
             key={date}
-            className="rounded-md bg-muted px-2 py-1 font-mono text-[11px] text-muted-foreground"
+            className="rounded-md bg-muted px-2 py-1 font-mono text-2xs text-muted-foreground"
           >
             {date}
           </span>
         ))}
         {remaining > 0 ? (
-          <span className="rounded-md px-2 py-1 text-[11px] text-muted-foreground">
+          <span className="rounded-md px-2 py-1 text-2xs text-muted-foreground">
             {t("previewMore", { count: remaining })}
           </span>
         ) : null}
         {last && last !== first ? (
-          <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-[11px] font-medium text-success">
+          <span className="rounded-md bg-success/15 px-2 py-1 font-mono text-2xs font-medium text-success">
             {last}
           </span>
         ) : null}

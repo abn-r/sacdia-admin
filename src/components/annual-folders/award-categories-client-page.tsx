@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
@@ -317,27 +318,26 @@ export function AwardCategoriesClientPage({
             <TabsContent value={activeFilter} className="mt-4">
               {/* List */}
               {filteredCategories.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-                    <Plus className="size-6 text-muted-foreground" />
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold">
-                    {activeFilter === "active"
+                <EmptyState
+                  icon={Plus}
+                  title={
+                    activeFilter === "active"
                       ? tCat("emptyActiveTitle", { scope: scopeLabel.toLowerCase() })
-                      : tCat("emptyLegacyTitle", { scope: scopeLabel.toLowerCase() })}
-                  </h3>
-                  <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                    {activeFilter === "active"
+                      : tCat("emptyLegacyTitle", { scope: scopeLabel.toLowerCase() })
+                  }
+                  description={
+                    activeFilter === "active"
                       ? tCat("emptyActiveDescription", { scope: scopeLabel.toLowerCase() })
-                      : tCat("emptyLegacyDescription", { scope: scopeLabel.toLowerCase() })}
-                  </p>
+                      : tCat("emptyLegacyDescription", { scope: scopeLabel.toLowerCase() })
+                  }
+                >
                   {activeFilter === "active" && (
-                    <Button size="sm" className="mt-4" onClick={handleCreate}>
+                    <Button size="sm" onClick={handleCreate}>
                       <Plus className="size-4" />
                       {tCat("newCategory")}
                     </Button>
                   )}
-                </div>
+                </EmptyState>
               ) : (
                 <>
                   {/* Desktop: categories table */}

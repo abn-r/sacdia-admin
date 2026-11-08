@@ -140,28 +140,20 @@ export function EventRow({
         className={cn(
           "group grid items-center gap-3.5 px-4 py-3 border-b border-border/60 last:border-b-0",
           "grid-cols-1 md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]",
-          "transition-colors hover:bg-muted/50 cursor-pointer relative",
+          "transition-colors hover:bg-muted/50 relative",
           isCancelled && "opacity-60",
         )}
       >
-        <div
-          aria-hidden
-          className={cn(
-            "absolute inset-y-0 left-0 w-[3px] opacity-0 group-hover:opacity-100 transition-opacity",
-            cat.dot,
-          )}
-        />
-
         {/* Time */}
         <div className="tabular-nums">
           <div className={cn(
-            "text-[14px] font-bold tracking-tight leading-tight",
+            "text-sm font-bold tracking-tight leading-tight",
             isCancelled && "line-through",
           )}>
             {event.startsAt}
           </div>
-          <div className="text-[11px] text-muted-foreground leading-tight">a {event.endsAt}</div>
-          <div className="text-[10px] text-muted-foreground/70 mt-0.5 flex items-center gap-1">
+          <div className="text-2xs text-muted-foreground leading-tight">a {event.endsAt}</div>
+          <div className="text-2xs text-muted-foreground/70 mt-0.5 flex items-center gap-1">
             <Clock className="size-2.5" />
             {durMin(event.startsAt, event.endsAt)} min
           </div>
@@ -176,7 +168,7 @@ export function EventRow({
             {event.title}
             {event.fromCatalog && (
               <span
-                className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded"
+                className="inline-flex items-center gap-1 text-2xs font-medium text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded"
                 title={t("catalogImportTitle")}
               >
                 <Copy className="size-2.5" />
@@ -190,7 +182,7 @@ export function EventRow({
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span
               className={cn(
-                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-bold",
+                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-2xs font-bold",
                 cat.tint,
               )}
             >
@@ -203,7 +195,7 @@ export function EventRow({
                 <span
                   key={s}
                   className={cn(
-                    "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                    "inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold",
                     sc?.tint,
                   )}
                 >
@@ -215,24 +207,24 @@ export function EventRow({
         </div>
 
         {/* Venue */}
-        <div className="flex items-start gap-1.5 text-[12px]">
+        <div className="flex items-start gap-1.5 text-xs">
           <Pin className="size-3 text-muted-foreground flex-shrink-0 mt-0.5" />
           <div className="min-w-0">
             <div className="truncate font-medium">{venue.name}</div>
-            <div className="text-[10.5px] text-muted-foreground">cap. {venue.capacity}</div>
+            <div className="text-2xs text-muted-foreground">cap. {venue.capacity}</div>
           </div>
         </div>
 
         {/* Leader */}
         <div className="flex items-center gap-2 min-w-0">
           <Avatar className="size-7">
-            <AvatarFallback className="text-[10px] bg-primary-solid text-primary-foreground font-bold">
+            <AvatarFallback className="text-2xs bg-primary-solid text-primary-foreground font-bold">
               {initials(event.leaderName)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <div className="text-[12px] font-medium truncate">{event.leaderName}</div>
-            <div className="text-[10.5px] text-muted-foreground truncate">
+            <div className="text-xs font-medium truncate">{event.leaderName}</div>
+            <div className="text-2xs text-muted-foreground truncate">
               {event.leaderRole ?? "responsable"}
             </div>
           </div>
@@ -250,12 +242,12 @@ export function EventRow({
                 value={capPct}
                 className={cn("h-1 mt-1", capPct > 90 && "[&>div]:bg-warning")}
               />
-              <div className="text-[10px] text-muted-foreground mt-0.5">
+              <div className="text-2xs text-muted-foreground mt-0.5">
                 {Math.round(capPct)}% del cupo
               </div>
             </>
           ) : (
-            <div className="text-[11px] text-muted-foreground/70">
+            <div className="text-2xs text-muted-foreground/70">
               {event.points > 0 ? "—" : "asistencia abierta"}
             </div>
           )}
@@ -264,12 +256,12 @@ export function EventRow({
         {/* Points */}
         <div className="text-center">
           {event.points > 0 ? (
-            <span className="inline-flex items-center gap-1 text-[10.5px] font-bold text-warning-soft-foreground bg-warning-soft px-2 py-0.5 rounded">
+            <span className="inline-flex items-center gap-1 text-2xs font-bold text-warning-soft-foreground bg-warning-soft px-2 py-0.5 rounded">
               <Trophy className="size-2.5" />
               {event.points} pts
             </span>
           ) : (
-            <span className="text-[11px] text-muted-foreground/60">—</span>
+            <span className="text-2xs text-muted-foreground/60">—</span>
           )}
         </div>
 

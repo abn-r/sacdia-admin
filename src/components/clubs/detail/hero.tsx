@@ -138,7 +138,7 @@ function Dot() {
 type MetaChipTone = "success" | "primary" | "neutral" | "muted";
 
 const metaChipToneClasses: Record<MetaChipTone, string> = {
-  success: "border-success/30 bg-success/10 text-[color-mix(in_oklch,var(--success),black_35%)] dark:text-success",
+  success: "border-success/30 bg-success/10 text-success",
   primary: "border-border/80 bg-background text-foreground shadow-xs",
   neutral: "border-border/60 bg-background/80 text-foreground",
   muted: "border-border bg-muted/60 text-muted-foreground",

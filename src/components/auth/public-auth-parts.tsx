@@ -18,7 +18,7 @@ export function BrandMark({ subtitle }: { subtitle: string }) {
         <div className="text-base font-bold tracking-tight text-foreground">
           SACDIA
         </div>
-        <div className="font-mono text-[11px] text-muted-foreground">
+        <div className="font-mono text-2xs text-muted-foreground">
           {subtitle}
         </div>
       </div>
