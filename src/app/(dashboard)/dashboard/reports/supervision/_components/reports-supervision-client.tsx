@@ -14,6 +14,8 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { EmptyState } from "@/components/shared/empty-state";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -326,19 +328,16 @@ export function ReportsSupervisionClient({
 
       {/* Table */}
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-          <FileText className="mb-3 size-10 text-muted-foreground/50" />
-          <p className="text-sm font-medium text-muted-foreground">
-            {t("emptyTitle")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            {t("emptyHint")}
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title={t("emptyTitle")}
+          description={t("emptyHint")}
+        />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
-          <Table>
-            <TableHeader>
+        <>
+        <DataTableShell>
+          <Table className="max-md:block">
+            <TableHeader className="max-md:sr-only">
               <TableRow>
                 <TableHead>{t("tableColClub")}</TableHead>
                 <TableHead className="hidden xl:table-cell">{t("tableColType")}</TableHead>
@@ -350,7 +349,7 @@ export function ReportsSupervisionClient({
                 <RowActionsHead />
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="max-md:block">
               {items.map((item) => {
                 const period = capitalizeFirst(
                   formatDate(new Date(item.year, item.month - 1, 1), {
@@ -359,8 +358,11 @@ export function ReportsSupervisionClient({
                   }),
                 );
                 return (
-                  <TableRow key={item.monthly_report_id}>
-                    <TableCell className="font-medium">
+                  <TableRow
+                    key={item.monthly_report_id}
+                    className="max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
+                  >
+                    <TableCell className="font-medium max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0 max-md:whitespace-normal">
                       <Link
                         href={`/dashboard/reports/${item.monthly_report_id}`}
                         className="hover:underline"
@@ -373,15 +375,16 @@ export function ReportsSupervisionClient({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
-                    <TableCell>{period}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:order-6 max-md:block max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.club_type ?? "—"}</TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:order-7 max-md:block max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.local_field ?? "—"}</TableCell>
+                    <td aria-hidden="true" className="hidden max-md:order-4 max-md:block max-md:h-0 max-md:basis-full" />
+                    <TableCell className="max-md:order-5 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{period}</TableCell>
+                    <TableCell className="max-md:order-2 max-md:p-0">
                       <ReportStatusBadge status={item.status} />
                     </TableCell>
-                    <TableCell className="hidden xl:table-cell">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
-                    <TableCell>{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell max-md:hidden">{item.generated_at ? formatDate(item.generated_at) : "—"}</TableCell>
+                    <TableCell className="max-md:order-8 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">{item.submitted_at ? formatDate(item.submitted_at) : "—"}</TableCell>
+                    <TableCell className="max-md:order-3 max-md:p-0">
                       <RowActions
                         label={[
                           item.club_name ?? String(item.monthly_report_id),
@@ -411,7 +414,8 @@ export function ReportsSupervisionClient({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
+        </>
       )}
 
       {/* Pagination */}

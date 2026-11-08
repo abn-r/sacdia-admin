@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Building2 } from "lucide-react";
 
 import { ClubsListClient } from "@/components/clubs/clubs-list-client";
-import { EmptyState } from "@/components/shared/empty-state";
+import { RefreshButton } from "@/components/shared/refresh-button";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -79,13 +78,7 @@ export default async function ClubsPage({
               : (result.error ?? t("endpointError"))
           }
         />
-        <EmptyState
-          icon={Building2}
-          title={t("cannotShow")}
-          description={
-            result.error === "UNEXPECTED" ? t("unexpectedError") : result.error
-          }
-        />
+        <RefreshButton className="mt-0" />
       </div>
     );
   }

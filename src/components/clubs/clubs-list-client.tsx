@@ -28,6 +28,7 @@ import {
 import { ClubsCreateMenu } from "@/components/clubs/clubs-create-menu";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import {
   getClubChurchName,
@@ -173,15 +174,7 @@ export function ClubsListClient({
       />
 
       <div className="space-y-4">
-        <div className="rounded-xl border bg-muted/20 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">
-              {t("filtersTitle")}
-            </h3>
-            <span className="text-xs text-muted-foreground">{t("filtersHint")}</span>
-          </div>
-          <div>
-            <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-wrap items-end gap-4">
               <div className="w-[300px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-search">{tList("colName")}</Label>
                 <div className="relative">
@@ -235,8 +228,6 @@ export function ClubsListClient({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          </div>
         </div>
 
         {showEmptyState ? (
@@ -250,7 +241,7 @@ export function ClubsListClient({
           />
         ) : (
           <>
-            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
+            <DataTableShell className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -258,7 +249,7 @@ export function ClubsListClient({
                     <TableHead className="hidden xl:table-cell">{tList("colLocalField")}</TableHead>
                     <TableHead className="hidden lg:table-cell">{tList("colDistrict")}</TableHead>
                     <TableHead>{tList("colChurch")}</TableHead>
-                    <TableHead>{t("colSections")}</TableHead>
+                    <TableHead className="text-right">{t("colSections")}</TableHead>
                     <TableHead>{tList("colStatus")}</TableHead>
                     {canEdit && (
                       <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
@@ -302,21 +293,19 @@ export function ClubsListClient({
                         <TableCell className="text-sm text-muted-foreground">
                           {getClubChurchName(club) ?? club.church_id ?? "—"}
                         </TableCell>
-                        <TableCell className="font-mono text-sm tabular-nums">
+                        <TableCell className="text-right font-mono text-sm tabular-nums">
                           {sections.length > 0
                             ? `${activeSections}/${sections.length}`
                             : "—"}
                         </TableCell>
                         <TableCell>
-                          <StatusBadge
-                            intent={flagStatusIntent(club.active !== false)}
-                            label={
-                              club.active !== false
-                                ? tList("statusActive")
-                                : tList("statusInactive")
-                            }
-                            size="sm"
-                          />
+                          {club.active === false && (
+                            <StatusBadge
+                              intent={flagStatusIntent(false)}
+                              label={tList("statusInactive")}
+                              size="sm"
+                            />
+                          )}
                         </TableCell>
                         {canEdit && (
                           <TableCell className="sticky right-0 z-10 border-l bg-card">
@@ -338,7 +327,79 @@ export function ClubsListClient({
                   })}
                 </TableBody>
               </Table>
-            </div>
+            </DataTableShell>
+
+            <DataTableShell className="md:hidden">
+              <ul className="divide-y" aria-label={tList("title")}>
+                {filteredItems.map((club, index) => {
+                  const clubId = getClubListId(club);
+                  const rowKey = clubId
+                    ? `club-m-${clubId}`
+                    : `club-m-idx-${(safePage - 1) * safeLimit + index}`;
+                  const sections = Array.isArray(club.club_sections) ? club.club_sections : [];
+                  const activeSections = sections.filter((section) => section.active !== false).length;
+                  const secondary = [
+                    getClubLocalFieldName(club) ?? club.local_field_id,
+                    getClubDistrictName(club) ?? club.district_id,
+                    getClubChurchName(club) ?? club.church_id,
+                  ]
+                    .filter((value) => value !== null && value !== undefined && value !== "")
+                    .join(" · ");
+                  const isActive = club.active !== false;
+
+                  return (
+                    <li key={rowKey} className="flex items-start gap-2 px-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="min-w-0 truncate text-sm font-medium">
+                            {clubId ? (
+                              <Link
+                                prefetch={false}
+                                href={`/dashboard/clubs/${clubId}`}
+                                className="hover:text-primary hover:underline underline-offset-4"
+                              >
+                                {club.name ?? "—"}
+                              </Link>
+                            ) : (
+                              (club.name ?? "—")
+                            )}
+                          </span>
+                          <span
+                            className="shrink-0 font-mono text-sm tabular-nums"
+                            title={t("colSections")}
+                          >
+                            {sections.length > 0 ? `${activeSections}/${sections.length}` : "—"}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 flex items-center gap-2 text-[13px] text-muted-foreground">
+                          <span className="min-w-0 truncate">{secondary || "—"}</span>
+                          {!isActive && (
+                            <StatusBadge
+                              intent={flagStatusIntent(false)}
+                              label={tList("statusInactive")}
+                              size="sm"
+                            />
+                          )}
+                        </p>
+                      </div>
+                      {canEdit && (
+                        <RowActions
+                          label={club.name ?? "—"}
+                          actions={[
+                            {
+                              label: t("actionView"),
+                              icon: Eye,
+                              href: `/dashboard/clubs/${clubId}`,
+                              hidden: !clubId,
+                            },
+                          ]}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </DataTableShell>
 
             <DataTablePagination
               page={safePage}

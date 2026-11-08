@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
 import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
@@ -257,9 +258,9 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
               description={t("empty_description")}
             />
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-              <Table>
-                <TableHeader>
+            <DataTableShell>
+              <Table className="max-md:block">
+                <TableHeader className="max-md:sr-only">
                   <TableRow>
                     <TableHead className={HEAD_CLASS}>{t("col_club")}</TableHead>
                     <TableHead className={HEAD_CLASS}>{t("col_type")}</TableHead>
@@ -271,7 +272,7 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                     </TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="max-md:block">
                   {page.items.map((item) => {
                     const consent = item.consent ?? null;
                     // Nothing to verify until a guardian (or club custody) exists.
@@ -281,25 +282,26 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                     const verifyDisabled = nothingToVerify || verifyBlock !== null;
 
                     return (
-                      <TableRow key={item.assignment_id} className="group/row hover:bg-muted/30">
-                        <TableCell className="px-3 py-2.5 align-middle text-sm font-medium">
+                      <TableRow key={item.assignment_id} className="group/row hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3">
+                        <td aria-hidden="true" className="hidden max-md:order-3 max-md:block max-md:h-0 max-md:basis-full" />
+                        <TableCell className="px-3 py-2.5 align-middle text-sm font-medium max-md:order-4 max-md:p-0 max-md:text-[13px] max-md:font-normal max-md:text-muted-foreground">
                           {item.club_name ?? "—"}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-5 max-md:p-0 max-md:text-[13px]">
                           {item.club_type_name ?? "—"}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-6 max-md:p-0 max-md:text-[13px]">
                           {item.district_name ?? "—"}
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle">
+                        <TableCell className="px-3 py-2.5 align-middle max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0 max-md:whitespace-normal">
                           <p className="font-medium leading-none">{getMinorName(item.users)}</p>
                         </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground">
+                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:order-7 max-md:p-0 max-md:text-[13px]">
                           {item.consent_form_uploaded_at
                             ? formatDatetime(item.consent_form_uploaded_at)
                             : "—"}
                         </TableCell>
-                        <TableCell className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY}`}>
+                        <TableCell className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY} max-md:static max-md:order-2 max-md:border-l-0 max-md:bg-transparent max-md:p-0`}>
                           <div className="flex items-center justify-end gap-1">
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -332,7 +334,7 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                   })}
                 </TableBody>
               </Table>
-            </div>
+            </DataTableShell>
           )}
 
           {/* Pager (offset) */}
