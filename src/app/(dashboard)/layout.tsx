@@ -21,6 +21,7 @@ import {
   getClientMessageNamespacesForDashboardPath,
   pickMessages,
 } from "@/lib/i18n/client-messages";
+import { loadSidebarInsights } from "@/lib/dashboard/sidebar-insights";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
@@ -44,6 +45,9 @@ export default async function DashboardLayout({
   // underneath). The slot gate below therefore only covers hard loads; every
   // page in `@modal/(.)dashboard/**` gates itself with `canCapability`.
   const canOpenPage = canAccessDashboardPath(initialUser, pathname);
+  // Not awaited: scope name and queue counts stream into the sidebar after the
+  // page renders. loadSidebarInsights never rejects.
+  const sidebarInsights = territoryUnconfigured ? undefined : loadSidebarInsights();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
   const [variant, collapsible, locale, messages] = await Promise.all([
     getPreference("sidebar_variant"),
@@ -76,7 +80,7 @@ export default async function DashboardLayout({
           {skipLabel}
         </a>
         {territoryUnconfigured ? null : (
-          <AppSidebar variant={variant} collapsible={collapsible} />
+          <AppSidebar variant={variant} collapsible={collapsible} insights={sidebarInsights} />
         )}
         <SidebarInset
           className={cn(
@@ -90,7 +94,7 @@ export default async function DashboardLayout({
         >
           <header
             className={cn(
-              "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear motion-reduce:transition-none group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
+              "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] duration-200 ease-[var(--ease-drawer)] motion-reduce:transition-none group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
               "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background/50 [html[data-navbar-style=sticky]_&]:backdrop-blur-md",
             )}
           >

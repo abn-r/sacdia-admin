@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useTranslations } from "next-intl";
+
 import { ChevronRight } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -27,6 +29,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+
+import { useSidebarInsights } from "./sidebar-insights-context";
 import { getBestMatchLength, isLeafActive, isSubItemActiveFor } from "@/navigation/sidebar/nav-match";
 import type {
   NavBadge,
@@ -177,6 +181,8 @@ function NavItem({ item, isItemActive, isSubItemActive, isSubmenuOpen }: NavItem
 }
 
 function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
+  const { counts } = useSidebarInsights();
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild aria-disabled={item.disabled} tooltip={item.title} isActive={isActive}>
@@ -188,6 +194,7 @@ function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
         >
           <NavLinkIcon item={item} showFallback={showIconFallback} />
           <span>{item.title}</span>
+          <QueueCount count={counts[item.id] ?? 0} className="ml-auto" />
         </Link>
       </SidebarMenuButton>
       <NavItemBadge badge={item.badge} />
@@ -234,6 +241,8 @@ function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemPro
 
 function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: NavCollapsibleItemProps) {
   const Icon = item.icon;
+  const { counts } = useSidebarInsights();
+  const groupCount = sumSubItemCounts(item.subItems, counts);
   const [open, setOpen] = useHydratedCollapsibleOpen(defaultOpen);
 
   return (
@@ -243,7 +252,12 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
           <SidebarMenuButton tooltip={item.title} isActive={isActive} disabled={item.disabled}>
             {Icon && <Icon />}
             <span>{item.title}</span>
-            <ChevronRight className="ml-auto transition-transform duration-200 ease-[var(--ease-out-expo)] group-data-[state=open]/collapsible:rotate-90" />
+            <QueueCount
+              count={groupCount}
+              className="ml-auto"
+              hideClassName="group-data-[state=open]/collapsible:hidden"
+            />
+            <ChevronRight className={cn(groupCount > 0 ? "group-data-[state=open]/collapsible:ml-auto" : "ml-auto", "transition-transform duration-100 ease-[var(--ease-out-expo)] motion-reduce:transition-none group-data-[state=open]/collapsible:rotate-90")} />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <NavItemBadge badge={item.badge} />
@@ -313,7 +327,7 @@ function NavNestedSubItemEntry({
           <SidebarMenuSubButton isActive={isGroupActive}>
             {SubIcon && <SubIcon />}
             <span>{subItem.title}</span>
-            <ChevronRight className="ml-auto size-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]/nested:rotate-90" />
+            <ChevronRight className="ml-auto size-3.5 shrink-0 transition-transform duration-100 motion-reduce:transition-none group-data-[state=open]/nested:rotate-90" />
           </SidebarMenuSubButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
@@ -340,6 +354,7 @@ function NavSubItemEntry({
   isSubItemActive: (subItem: NavSubItem) => boolean;
 }) {
   const SubIcon = subItem.icon;
+  const { counts } = useSidebarInsights();
 
   if (subItem.subItems?.length) {
     return (
@@ -364,27 +379,65 @@ function NavSubItemEntry({
         >
           {SubIcon && <SubIcon />}
           <span>{subItem.title}</span>
+          <QueueCount count={counts[subItem.id] ?? 0} className="ml-auto" />
         </Link>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>
   );
 }
 
+function sumSubItemCounts(
+  subItems: readonly NavSubItem[],
+  counts: Readonly<Record<string, number>>,
+): number {
+  return subItems.reduce(
+    (total, sub) =>
+      total + (sub.subItems?.length ? sumSubItemCounts(sub.subItems, counts) : (counts[sub.id] ?? 0)),
+    0,
+  );
+}
+
+/** Pending-work pill for action queues. Neutral: it counts work, it does not judge it. */
+function QueueCount({
+  count,
+  className,
+  hideClassName,
+}: {
+  count: number;
+  className?: string;
+  hideClassName?: string;
+}) {
+  const t = useTranslations("nav.a11y");
+
+  if (count <= 0) return null;
+
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-muted px-1.5 text-xs font-medium text-foreground tabular-nums group-data-[collapsible=icon]:hidden",
+          className,
+          hideClassName,
+        )}
+      >
+        {count}
+      </span>
+      <span className={cn("sr-only", hideClassName)}>{t("pendingCount", { count })}</span>
+    </>
+  );
+}
+
 function NavItemBadge({ badge }: { badge?: NavBadge }) {
+  const t = useTranslations("nav.a11y");
+
   if (!badge) {
     return null;
   }
 
   return (
-    <SidebarMenuBadge
-      className={cn(
-        "rounded-sm border capitalize",
-        badge === "new" &&
-          "border-green-600 text-green-600 peer-hover/menu-button:text-green-600 peer-data-active/menu-button:text-green-600",
-        badge === "soon" && "border-muted-foreground text-muted-foreground",
-      )}
-    >
-      {badge}
+    <SidebarMenuBadge className="rounded-sm border border-muted-foreground text-muted-foreground">
+      {badge === "new" ? t("badgeNew") : t("badgeSoon")}
     </SidebarMenuBadge>
   );
 }
