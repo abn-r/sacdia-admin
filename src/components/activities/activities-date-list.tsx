@@ -101,7 +101,7 @@ function ActivityListCard({
           <span className="text-xl font-semibold tabular-nums leading-none">
             {dateParts.day}
           </span>
-          <span className="text-[10px] capitalize text-muted-foreground">
+          <span className="text-2xs capitalize text-muted-foreground">
             {dateParts.month}
           </span>
         </div>
@@ -114,12 +114,12 @@ function ActivityListCard({
       <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
         <span className="shrink-0 font-medium text-foreground">{activity.name}</span>
         {typeLabel ? (
-          <Badge variant="secondary" className="shrink-0 text-[10px]">
+          <Badge variant="secondary" className="shrink-0 text-2xs">
             {typeLabel}
           </Badge>
         ) : null}
         {activity.activity_series_id ? (
-          <Badge variant="soft-success" className="shrink-0 text-[10px]">
+          <Badge variant="soft-success" className="shrink-0 text-2xs">
             <Repeat className="mr-1 size-3" aria-hidden />
             {tSeries("badge")}
           </Badge>

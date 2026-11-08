@@ -174,7 +174,7 @@ export function EvaluateMemberOfMonthDialog({
             </div>
           </div>
 
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-2xs text-muted-foreground">
             Si ya existe una evaluación para este período, será reemplazada.
           </p>
 

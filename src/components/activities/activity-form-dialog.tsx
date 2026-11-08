@@ -809,7 +809,7 @@ export function ActivityFormDialog({
                               variant="ghost"
                               aria-pressed={weekday === day}
                               className={cn(
-                                "h-9 px-0 text-[11px]",
+                                "h-9 px-0 text-2xs",
                                 weekday === day
                                   ? "bg-success-solid text-success-foreground hover:bg-success-solid/90 hover:text-success-foreground"
                                   : "bg-background",

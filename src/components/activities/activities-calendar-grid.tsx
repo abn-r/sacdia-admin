@@ -43,7 +43,7 @@ function ActivityChip({
       href={href}
       className={cn(
         "block rounded-md border border-border/60 bg-background px-2 py-1 text-left transition-colors hover:bg-muted/50",
-        compact ? "truncate text-[11px]" : "text-sm",
+        compact ? "truncate text-2xs" : "text-sm",
       )}
     >
       <div className="truncate font-medium">
@@ -57,7 +57,7 @@ function ActivityChip({
           {activity.activity_time ? <span>{activity.activity_time}</span> : null}
           {activity.club_name ? <span>· {activity.club_name}</span> : null}
           {typeLabel ? (
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-2xs">
               {typeLabel}
             </Badge>
           ) : null}
@@ -146,7 +146,7 @@ export function ActivitiesCalendarGrid({
                     isToday && "bg-primary/10",
                   )}
                 >
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-2xs uppercase text-muted-foreground">
                     {date.toLocaleDateString("es-MX", { weekday: "short" })}
                   </span>
                   <span className="text-lg font-semibold tabular-nums">{date.getDate()}</span>
@@ -230,7 +230,7 @@ export function ActivitiesCalendarGrid({
                   <button
                     type="button"
                     onClick={() => onSelectDate(date)}
-                    className="text-[11px] text-primary hover:underline"
+                    className="text-2xs text-primary hover:underline"
                   >
                     {t("moreCount", { count: dayActivities.length - 3 })}
                   </button>

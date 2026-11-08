@@ -52,10 +52,10 @@ export function SuccessionBlock({
 
   return (
     <div className="mt-4 space-y-2 rounded-xl border border-border/70 bg-card p-4">
-      <p className="text-[11px] font-semibold text-muted-foreground">
+      <p className="text-2xs font-semibold text-muted-foreground">
         {t("successionHeading", { year: currentYearId })}
       </p>
-      <p className="text-[11px] text-muted-foreground">{t("successionHint")}</p>
+      <p className="text-2xs text-muted-foreground">{t("successionHint")}</p>
 
       <form action={action} onSubmit={confirmSubmit} className="space-y-2 border-t pt-3">
         <input type="hidden" name="current_assignment_id" value={currentAssignmentId} />

@@ -157,14 +157,14 @@ export function MemberCombobox({
                 {selected.picture_url && (
                   <AvatarImage src={selected.picture_url} alt={selected.name} />
                 )}
-                <AvatarFallback className="text-[10px]">
+                <AvatarFallback className="text-2xs">
                   {getInitials(selected.name)}
                 </AvatarFallback>
               </Avatar>
               <span className="min-w-0">
                 <span className="block truncate text-sm">{selected.name}</span>
                 {selected.current_class_name && (
-                  <span className="block truncate text-[11px] text-muted-foreground">
+                  <span className="block truncate text-2xs text-muted-foreground">
                     {selected.current_class_name}
                   </span>
                 )}
@@ -233,7 +233,7 @@ export function MemberCombobox({
                           alt={member.name}
                         />
                       )}
-                      <AvatarFallback className="text-[10px]">
+                      <AvatarFallback className="text-2xs">
                         {getInitials(member.name)}
                       </AvatarFallback>
                     </Avatar>

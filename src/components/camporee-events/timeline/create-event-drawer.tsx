@@ -83,7 +83,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
       <SheetContent className="w-[520px] max-w-full sm:max-w-[520px] p-0 flex flex-col">
         <SheetHeader className="px-6 pt-5 pb-3 border-b border-border/60">
           <SheetTitle className="text-[16px] font-semibold tracking-tight">Crear evento</SheetTitle>
-          <SheetDescription className="text-[12px]">
+          <SheetDescription className="text-xs">
             Se guardará en este camporee. Puedes marcarlo como reutilizable para futuros camporees.
           </SheetDescription>
         </SheetHeader>
@@ -101,33 +101,33 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
               </TabsTrigger>
             </TabsList>
             <TabsContent value="catalog" className="mt-4 space-y-2">
-              <Label className="text-[12px]">Plantilla disponible</Label>
+              <Label className="text-xs">Plantilla disponible</Label>
               <Select>
                 <SelectTrigger className="w-full"><SelectValue placeholder="Elegir del catálogo…" /></SelectTrigger>
                 <SelectContent>
                   {data.templates.map((t) => (
                     <SelectItem key={t.id} value={t.id}>
                       {t.title}
-                      <span className="text-muted-foreground ml-1.5 text-[11px]">
+                      <span className="text-muted-foreground ml-1.5 text-2xs">
                         ({t.scope === "union" ? "Unión" : "Campo"} · usado {t.uses}x)
                       </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-2xs text-muted-foreground leading-relaxed">
                 Importar copia las propiedades base de la plantilla. Podrás ajustar día, horario, sede y cupo para este camporee.
               </p>
             </TabsContent>
           </Tabs>
 
           <div className="space-y-1.5">
-            <Label htmlFor="title" className="text-[12px] font-semibold">Título del evento</Label>
+            <Label htmlFor="title" className="text-xs font-semibold">Título del evento</Label>
             <Input id="title" defaultValue="Competencia de nudos y amarres" />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="desc" className="text-[12px] font-semibold">
+            <Label htmlFor="desc" className="text-xs font-semibold">
               Descripción <span className="text-muted-foreground font-normal">opcional</span>
             </Label>
             <Textarea
@@ -138,7 +138,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[12px] font-semibold">Categoría</Label>
+            <Label className="text-xs font-semibold">Categoría</Label>
             <div className="flex flex-wrap gap-1.5">
               {EVENT_CATEGORIES.map((c) => {
                 const on = c.id === category;
@@ -148,7 +148,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
                     type="button"
                     onClick={() => setCategory(c.id)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[12px] border transition-colors",
+                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs border transition-colors",
                       on ? cn("font-semibold", c.tint, c.border) : "border-border/60 text-foreground hover:bg-muted",
                     )}
                   >
@@ -162,7 +162,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Día</Label>
+              <Label className="text-xs font-semibold">Día</Label>
               <Select value={String(day)} onValueChange={(v) => setDay(parseInt(v))}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -175,17 +175,17 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Inicio</Label>
+              <Label className="text-xs font-semibold">Inicio</Label>
               <Input type="time" defaultValue="09:00" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Fin</Label>
+              <Label className="text-xs font-semibold">Fin</Label>
               <Input type="time" defaultValue="11:30" />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[12px] font-semibold">Secciones que participan</Label>
+            <Label className="text-xs font-semibold">Secciones que participan</Label>
             <div className="flex flex-wrap gap-1.5">
               {SECTIONS.map((s) => {
                 const on = sections.has(s);
@@ -196,7 +196,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
                     type="button"
                     onClick={() => toggleSection(s)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[12px] border transition-colors",
+                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs border transition-colors",
                       on ? cn("font-semibold", sc.tint) : "border-border/60 text-foreground hover:bg-muted",
                     )}
                   >
@@ -206,14 +206,14 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
                 );
               })}
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-2xs text-muted-foreground">
               Define quién puede inscribirse y filtra el evento en la app de los clubes.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Sede</Label>
+              <Label className="text-xs font-semibold">Sede</Label>
               <Select defaultValue={data.venues[3]?.id}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -226,7 +226,7 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Responsable</Label>
+              <Label className="text-xs font-semibold">Responsable</Label>
               <Select defaultValue="erick">
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -241,11 +241,11 @@ export function CreateEventDrawer({ open, onOpenChange, data, defaultDayNumber =
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">Cupo máximo</Label>
+              <Label className="text-xs font-semibold">Cupo máximo</Label>
               <Input type="number" defaultValue={200} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] font-semibold">
+              <Label className="text-xs font-semibold">
                 Puntos en juego <span className="text-muted-foreground font-normal">opcional</span>
               </Label>
               <Input type="number" defaultValue={50} />

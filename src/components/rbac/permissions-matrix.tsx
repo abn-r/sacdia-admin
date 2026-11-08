@@ -380,7 +380,7 @@ export function PermissionsMatrix({
                     <span className="text-xs leading-tight">
                       {translateRole(role.role_name)}
                     </span>
-                    <span className="font-mono text-[10px] font-normal text-muted-foreground">
+                    <span className="font-mono text-2xs font-normal text-muted-foreground">
                       {role.role_name}
                     </span>
                     <Badge
@@ -415,7 +415,7 @@ export function PermissionsMatrix({
                         <span className="text-xs font-semibold text-foreground">
                           {title}
                         </span>
-                        <span className="font-mono text-[10px] text-muted-foreground">
+                        <span className="font-mono text-2xs text-muted-foreground">
                           {group.items.length}
                         </span>
                         {group.requiredCapability || group.requiredRoles.length > 0 ? (

@@ -96,7 +96,7 @@ export function StatusBadge({
       variant={variant}
       className={cn(
         "gap-1",
-        size === "xs" && "h-5 px-1.5 text-[10px]",
+        size === "xs" && "h-5 px-1.5 text-2xs",
         size === "sm" && "h-5 px-2 text-xs",
         intentClass,
         className,

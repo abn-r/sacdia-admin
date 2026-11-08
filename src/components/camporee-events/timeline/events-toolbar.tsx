@@ -161,25 +161,25 @@ export function EventsToolbar({
 
       {/* Right side */}
       <div className="ml-auto flex gap-2 items-center">
-        <span className="text-[12px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Mostrando <b className="text-foreground">{data.events.length}</b> eventos en{" "}
           <b className="text-foreground">{data.days.length} días</b>
         </span>
-        <Button variant="outline" size="sm" className="h-8 text-[12px]">
+        <Button variant="outline" size="sm" className="h-8 text-xs">
           <SlidersHorizontal />
           Más filtros
         </Button>
-        <Button variant="outline" size="sm" className="h-8 text-[12px]">
+        <Button variant="outline" size="sm" className="h-8 text-xs">
           <Download />
           Exportar
         </Button>
         {onImportFromCatalog && (
-          <Button variant="outline" size="sm" className="h-8 text-[12px]" onClick={onImportFromCatalog}>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onImportFromCatalog}>
             <Library />
             Importar
           </Button>
         )}
-        <Button size="sm" className="h-8 text-[12px]" onClick={onCreate}>
+        <Button size="sm" className="h-8 text-xs" onClick={onCreate}>
           <Plus />
           Crear evento
         </Button>

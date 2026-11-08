@@ -197,7 +197,7 @@ export function FormModalSteps({ steps, current }: { steps: string[]; current: n
             >
               <span
                 className={cn(
-                  "flex size-5 items-center justify-center rounded-full text-[11px] font-medium tabular-nums transition-colors duration-150",
+                  "flex size-5 items-center justify-center rounded-full text-2xs font-medium tabular-nums transition-colors duration-150",
                   state === "active" && "bg-primary-solid text-primary-foreground",
                   state === "done" && "bg-primary/10 text-primary",
                   state === "pending" && "bg-background text-muted-foreground ring-1 ring-border",

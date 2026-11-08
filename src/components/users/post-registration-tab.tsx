@@ -322,7 +322,7 @@ export function PostRegistrationTab({
 
                       {/* Step 3 note when not completed */}
                       {!completed && step.number === 3 && (
-                        <p className="mt-3 text-[11px] text-muted-foreground italic">
+                        <p className="mt-3 text-2xs text-muted-foreground italic">
                           {t("postRegistration.step3_note")}
                         </p>
                       )}

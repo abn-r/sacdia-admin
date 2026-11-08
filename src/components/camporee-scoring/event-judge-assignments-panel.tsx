@@ -673,7 +673,7 @@ export function EventJudgeAssignmentsPanel({
             key={stat.label}
             className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
           >
-            <p className="text-[11px] font-medium text-muted-foreground">
+            <p className="text-2xs font-medium text-muted-foreground">
               {stat.label}
             </p>
             <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight">
@@ -691,7 +691,7 @@ export function EventJudgeAssignmentsPanel({
       )}
 
       <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
-        <div className="grid gap-3 border-b border-border/60 bg-muted/20 px-4 py-3 text-[11px] font-medium text-muted-foreground md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <div className="grid gap-3 border-b border-border/60 bg-muted/20 px-4 py-3 text-2xs font-medium text-muted-foreground md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
           <span>{t("matrixSectionColumn")}</span>
           <span>{t("matrixJudgesColumn")}</span>
         </div>

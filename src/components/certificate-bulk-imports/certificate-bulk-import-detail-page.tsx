@@ -598,7 +598,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg bg-muted/50 px-2 py-3">
       <div className="text-xl font-bold tabular-nums">{value}</div>
-      <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
+      <div className="text-2xs font-medium text-muted-foreground">{label}</div>
     </div>
   );
 }

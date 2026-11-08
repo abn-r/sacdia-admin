@@ -378,11 +378,11 @@ export function CronRunsSection({ data, catalog }: CronRunsSectionProps) {
                       <span className="text-sm font-medium" title={row.description ?? undefined}>
                         {label}
                       </span>
-                      <span className="block text-[11px] text-muted-foreground font-mono">
+                      <span className="block text-2xs text-muted-foreground font-mono">
                         {canonicalName}
                       </span>
                       {row.schedule && (
-                        <span className="block text-[11px] text-muted-foreground font-mono">
+                        <span className="block text-2xs text-muted-foreground font-mono">
                           {row.timeZone ? `${row.schedule} · ${row.timeZone}` : row.schedule}
                         </span>
                       )}

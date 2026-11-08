@@ -175,7 +175,7 @@ export function PenaltiesEditor({
                   placeholder="0"
                   className="h-8 text-sm"
                 />
-                <span className="shrink-0 text-[11px] text-muted-foreground">
+                <span className="shrink-0 text-2xs text-muted-foreground">
                   {l.minutes}
                 </span>
                 <Input
@@ -189,7 +189,7 @@ export function PenaltiesEditor({
                   placeholder="0"
                   className="h-8 text-sm"
                 />
-                <span className="shrink-0 text-[11px] text-muted-foreground">
+                <span className="shrink-0 text-2xs text-muted-foreground">
                   {l.seconds}
                 </span>
               </div>

@@ -106,7 +106,7 @@ export async function CamporeeInfoCard({ camporee }: CamporeeInfoCardProps) {
               {clubRegistrationClosed ? t("statusClosed") : t("statusOpen")}
             </Badge>
             {closedAtLabel && (
-              <span className="max-w-[16rem] text-right text-[11px] text-muted-foreground">
+              <span className="max-w-[16rem] text-right text-2xs text-muted-foreground">
                 {t("closedAt", { date: closedAtLabel })}
               </span>
             )}

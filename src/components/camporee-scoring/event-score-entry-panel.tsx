@@ -299,7 +299,7 @@ export function EventScoreEntryPanel({
                   <span className="font-medium">{event.title}</span>
                   <span
                     className={cn(
-                      "text-[11px]",
+                      "text-2xs",
                       isSelected ? "text-primary-foreground/80" : "text-muted-foreground",
                     )}
                   >
@@ -328,7 +328,7 @@ export function EventScoreEntryPanel({
             key={stat.label}
             className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
           >
-            <p className="text-[11px] font-medium text-muted-foreground">
+            <p className="text-2xs font-medium text-muted-foreground">
               {stat.label}
             </p>
             <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{stat.value}</p>
