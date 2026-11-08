@@ -1,2005 +1,976 @@
-# SACDIA Admin - Design System & Style Guide
+# SACDIA Admin - Design System
 
-> Documento de referencia para todas las interfaces del panel administrativo.
-> Cada nueva pantalla, componente o modal debe seguir estas definiciones.
+> Fuente única del diseño del panel. Describe el código **actual** de `development`.
+> Si el código y este documento difieren, es un error del documento: corrígelo en el mismo PR.
+> Valores de color, sombras y motion salen de `src/app/globals.css` y `src/lib/animations.ts`; no los copies a otro sitio.
+> Es también el `DESIGN.md` del plugin antislop: la dirección está en §0.
 
-> **Auditado: 2026-04-16** (estado histórico previo a la alineación cromática del 2026-06-24)
->
-> **Changelog de esta auditoria**:
-> - **Drift encontrado (6 items)**:
->   1. ~~`--font-display` / Instrument Serif~~ — 2026-09-17: **Geist** es `--font-sans` en todo el panel. Instrument Serif no es cara de producto. Ver §3.1.
->   2. `badge.tsx` tiene una variante adicional no documentada: `link` (`text-primary underline-offset-4 [a&]:hover:underline`). Documentada en seccion 5.2.
->   3. Nuevos componentes de `ui/` no documentados: `calendar.tsx`, `command.tsx`, `popover.tsx`, `progress.tsx`, `radio-group.tsx`, `scroll-area.tsx`, `sonner.tsx`. Documentados en seccion 5.18 (Nuevos componentes UI).
->   4. Nuevo componente shared `endpoint-error-banner.tsx` no documentado. Documentado en seccion 7.11.
->   5. Nuevo componente shared `module-list-page.tsx` (Server Component para listados de modulos genericos). Documentado en seccion 7.12.
->   6. CRUD pattern actualizado: la regla de la seccion 6.1 dice "Crear/Editar = Dialog modal" pero el doc Ember ya la cambio a "flujo por paginas". Confirmado como correcto — Dialog solo para excepciones puntuales. Sin drift, solo clarificacion.
-> - **Sin drift**: paleta OKLCH (todas las secciones 2.x), radio tokens (4.1), spacing (4.2-4.4), Button variants y sizes (5.1), Badge variants (5.2 salvo `link`), Tabs `line` variant (seccion nueva), iconos (8.x), dark mode (13.x).
-> - **2026-08-23**: §7.1 alineado con `page-header.tsx` (Geist semibold, sin Instrument). §9 alineado con `src/lib/animations.ts` y los primitivos de motion (stagger cap, command instant, tooltip skip-delay).
-> - **2026-09-17**: Navegación del dashboard y tablas operativas sin enter/stagger. `PAGE_ENTER_CLASSES` solo en login. `STAGGER_CLASSES` reservado a superficies raras. Sidebar `⌘B` instantáneo (`instant-motion`). Loaders respetan `prefers-reduced-motion`. Sheet exit 200ms. Empty state fade 200ms sin zoom. Identidad de producto: Scout Vibrante + **Geist** (todo el UI; Geist Mono para código). Canon de runtime: Hugeicons, `--radius: 0.625rem`, header `h-12`, preferencias por cookie (no `next-themes` ThemeProvider).
-
-> **Histórico 2026-04-15 — Ember Redesign**. Superado en paleta y tipografía. Runtime: Geist en todo el panel (§3). `--radius: 0.625rem`, Hugeicons, header `h-12`.
-
-> **Actualizado 2026-06-24 — Alineación con SACDIA App**. Paleta desde `sacdia-app/lib/core/theme/app_colors.dart`:
-
-> - **Primary** SACDIA Blue `#0073EA` para botones principales, AppBar, enlaces y navegación.
-> - **Secondary/Success** SACDIA Green `#4FBF9F` para completado, progreso y estados positivos.
-> - **Accent/Warning** SACDIA Yellow `#FBBD5E` para logros, recompensas y estados en progreso.
-> - **Light mode** usa superficies blancas/slate de la app (`#FFFFFF`, `#F8FAFC`, `#E2E8F0`).
-> - **Dark mode** usa true black/OLED de la app (`#000000`, `#1A1A1A`, `#252525`, `#303030`).
-> - Los valores de marca son exactos; los `*-foreground` del panel se ajustan cuando hace falta para mantener contraste legible en web.
-
-> **Actualizado 2026-10-15 — Crisp redesign** (rama `feat/admin-redesign`). Dirección visual: crisp/minimal (estilo Linear/Vercel).
-> - Acento = azul del logo SACDIA `#0073EA` (contraste blanco ≈4.6:1). Solo en CTA primario, enlaces, foco y gráficas.
-> - Dos tokens de azul: `--primary` (texto, enlaces, bordes, foco, tintes `bg-primary/10`) y `--primary-solid` (rellenos bajo texto blanco: Button default, Badge default, checkbox/switch marcados, paso activo). En claro ambos `#0073EA`; en oscuro `--primary` = `#4C9AFF` (6.5:1 sobre tarjetas) y `--primary-solid` sigue `#0073EA`. Relleno sólido = `bg-primary-solid`, nunca `bg-primary`.
-> - Neutros puros (sin tinte slate): texto `#0A0A0A`, secundario `#666666`, bordes `#EBEBEB`. Dark: `#0A0A0A` / `#141414` / `#262626`.
-> - Hover y activo de navegación son **neutros** (`--accent`, `--sidebar-accent`), nunca azul tenue.
-> - `--secondary` pasa a neutro (`#F4F4F4`); el verde vive solo en `--success`.
-> - Elevación por sombra: `shadow-card` (anillo 1px + contacto) en Card en lugar de `ring`/borde. Sombras `--shadow-*` con anillo hairline.
-> - `--radius: 0.5rem` (8px). Button y Select trigger press `scale(0.96)`.
-> - Destructivo: `variant="destructive-solid"` (rojo relleno) solo para la confirmación final de una acción irreversible (footer de AlertDialog); `variant="destructive"` (rojo suave) para eliminar en línea o en filas. Nunca `className="bg-destructive ..."` a mano.
-> - Móvil: el modal de formulario es una hoja inferior (`max-sm`), con foco inicial en el diálogo (no en la X ni en el primer campo). Filtros con `flex-wrap` y campos a ancho completo en móvil, nunca scroll horizontal. Campos ≥16px en `pointer: coarse` (evita zoom de iOS), sin resaltado de toque, `touch-action: manipulation` en controles, `theme-color` por esquema. Atajos de teclado (`⌘J`) solo con `pointer: fine`.
-> - Feedback: toasts neutros (sin `richColors`), color solo en el ícono por tipo. Texto corto y en pasado, sin "correctamente/exitosamente/con éxito" ("Sección creada"). Errores en página con `EndpointErrorBanner`: título del estado + detalle debajo, `role="alert"`, sin badge.
-> - Acciones en tablas: siempre `RowActions` + `RowActionsHead` (`src/components/shared/row-actions.tsx`). **A · CRUD**: el nombre enlaza al detalle; un solo menú "⋯" alineado a la derecha con acciones normales primero y destructivas al final tras un separador ("Eliminar…" si sigue confirmación). **B · Colas de revisión**: hasta 2 botones de texto de decisión vía `primary` (negativo `outline`, positivo relleno) + "⋯" para lo demás. Prohibido: íconos sueltos (ojo/lápiz/papelera), botones de texto sueltos en la celda, acciones que solo aparecen con hover. Condiciones con `hidden`, no armando el arreglo condicionalmente. Controles de datos en línea (Switch, input) no son acciones y se quedan en su celda.
-> - Carga en botones: `<Button loading={pending}>` (deshabilita, `aria-busy`, spinner en lugar del ícono, sin atenuar). Nunca `{pending && <Loader2/>}` dentro de un Button. `AlertDialogAction` acepta la misma prop `loading`. Solo los spinners fuera de botones usan `Loader2`.
-> - Foco: `--ring` es el azul pleno (claro `#0073EA`, oscuro `#4C9AFF`) para que el borde de foco supere 3:1; el halo usa `ring-ring/50`. `Skeleton` usa `rounded-md` por defecto. En oscuro `--accent` `#2A2A2A` y `--muted` `#232323` para que el resaltado de menús y los skeletons se distingan de popover/tarjeta.
-> - Campos (Input, Textarea, Select, NativeSelect, InputGroup, Combobox chips): fondo `bg-background` + `shadow-2xs` (dark: `bg-input/30`), no relleno gris.
-> - `StatusBadge` `neutral`/`info`/`success`/`warning`: pill neutro con borde; el color vive solo en el ícono. `destructive`, `primary` y `progress-*` conservan tinte.
-> - En formularios de página, `SelectTrigger` lleva `className="w-full"` para alinear con los inputs.
-> - Estados booleanos (activo/inactivo, habilitado, completado) siempre con `StatusBadge intent={flagStatusIntent(bool)}`; nunca `Badge` `default`/`soft` (azul) para estados.
-> - Cuadros decorativos de íconos: `bg-muted` + ícono `text-foreground`. `bg-primary/10` solo para estados seleccionado/actual (ej. día de hoy, opción elegida).
-> - Tablas: el scroll horizontal y su difuminado de borde viven en `<Table>`; el marco es `DataTableShell` (o `overflow-hidden rounded-xl border-transparent bg-card shadow-card`). Columnas secundarias se ocultan con `hidden lg|xl:table-cell` para caber a ~1200px con sidebar abierto; textos largos con `whitespace-normal` + `max-w-*`. En tablas TanStack, la clase va en `meta: { className }` de la columna y la página la aplica a `TableHead` y `TableCell` (tipado en `src/types/tanstack-table.d.ts`).
-> - Detalle de entidad: `PageHeader` solo con breadcrumbs y el hero lleva el `h1` (nombre de la entidad). Sin botón "Volver" si hay breadcrumb.
-> - Login: panel de marca neutro (`bg-sidebar`), sin degradado azul ni círculos decorativos. El azul queda solo en el botón de entrar.
-
-> **Actualizado 2026-11-08 — Contraste semántico (auditoría de diseño)**. `success`, `warning`, `info` y `destructive` siguen el mismo split que `primary`: `--x` es apto para texto (≥4.5:1 sobre blanco y sobre su propio tinte `/10`) y alimenta texto, bordes y tintes; `--x-solid` conserva el hex de marca para rellenos sólidos bajo `--x-foreground` (`bg-success-solid text-success-foreground`). Claro: success `#1D7458`, warning `#8A5A00`, info `#0C6A9C`, destructive `#C81E1E`. Oscuro: success/warning/info usan el hex de marca; destructive `#F87171` (texto) y `#DC2626` (`-solid`). Nunca `text-white` sobre `bg-success`/`bg-warning`. Ya no hacen falta parches `color-mix(..., black N%)` para oscurecer texto o íconos semánticos.
-
-> **Actualizado 2026-10-13 — Alineación antislop**. Radios por rol (§4.1), sin `rounded-3xl`/`rounded-4xl`. Labels en sentence case, sin `uppercase` + `tracking-*` (§3.2). Nueva §0 con diales y razones de Geist/Hugeicons. Audit: reglas `pill-radius` (error) y `uppercase-tracking`.
+Cómo leerlo: §2-§4 son tokens, §5-§8 primitivos y superficies, §9-§13 shell, componentes compartidos y patrones de pantalla, §14-§17 CRUD, catálogos, formularios y tablas, §18-§22 transversales, §23 audit y checklist. El historial está al final (§25).
 
 ---
 
 ## 0. Dirección antislop
 
-Este documento es el `DESIGN.md` que espera el plugin antislop: la **dirección** del panel. antislop es el **filtro**. Si una regla de antislop choca con algo de aquí, se respeta esto y se anota la excepción.
+El filtro de antislop se aplica sobre esta dirección. Si chocan, manda este documento y se anota la excepción.
 
-Dial: ENERGY 1 / RHYTHM 2 / MOTION 1
+Dial: **ENERGY 1 / RHYTHM 2 / MOTION 1**
 
 - **ENERGY 1**: herramienta de trabajo; calmada, sin decoración que compita con los datos.
-- **RHYTHM 2**: cada sección toma la composición que pide su contenido; no se repite la misma plantilla de cards en toda la pantalla.
-- **MOTION 1**: solo hover/focus y transiciones funcionales (ver §9). Sin loops ni animaciones de entrada decorativas.
+- **RHYTHM 2**: cada sección toma la composición que pide su contenido; no se repite la misma plantilla de cards.
+- **MOTION 1**: solo hover/focus y transiciones funcionales (§7). Sin loops ni entradas decorativas en el dashboard.
 
 Decisiones con razón escrita:
 
-- **Fuente — Geist** en todo el panel: sans neutra y legible para un panel denso en datos, con pesos reales y una variante mono pareada (Geist Mono) para valores tabulares y código.
-- **Iconos — Hugeicons**: decisión de identidad del panel, no default de librería. El alias `lucide-react` es solo compatibilidad (§8).
-- **Radios por rol**: ver §4.1.
-- **Labels en sentence case**: sin `uppercase` + `tracking-*` (ver §3.2).
+- **Geist** en todo el panel (Geist Mono para código y valores técnicos): sans neutra, pesos reales, legible en pantallas densas.
+- **Hugeicons** como librería de iconos: decisión de identidad. El alias `lucide-react` es solo compatibilidad (§6).
+- **Neutros puros + un acento** (azul del logo `#0073EA`). El color de estado vive en el texto y el ícono, no en rellenos grandes.
+- **Elevación por sombra con anillo hairline**, no por bordes (§8).
+- **Radios por rol** (§4.1).
+
+Prohibido en todo el panel (las reglas marcadas se verifican con `pnpm audit:design-system`, §23):
+
+| Prohibido | Alternativa |
+|---|---|
+| Cajas decorativas de ícono (tile `bg-primary/10` con ícono) | Ícono suelto o `bg-muted` + `text-foreground` solo si identifica la entidad |
+| Franjas de color laterales en tarjetas o filas (`side-stripe`) | Un marcador de estado (`StatusBadge`) |
+| Bandas de color en cabeceras de tabla o tarjeta | Cabecera sin fondo (§11) |
+| Degradados, glass, `backdrop-blur` en superficies de trabajo, glows `blur-3xl` | Superficie plana + sombra token |
+| Badges de colores por categoría (arcoíris) | `--chart-*` / `--cat-*` / `--section-*` (§2.5) |
+| `window.confirm` (`window-confirm`) | `AlertDialog` (§14.2) |
+| Texto de paginación escrito a mano (`hardcoded-pagination`) | `DataTablePagination` |
+| Español escrito a mano en JSX fuera de i18n (`hardcoded-spanish-ui`) | `next-intl` (§21) |
+| `uppercase` + `tracking-*` (`uppercase-tracking`) | Sentence case |
+| `rounded-3xl` / `rounded-4xl` (`pill-radius`) | Radio por rol |
+| `transition-all`, `ease-in`, `scale(0)` | Propiedades nombradas, `--ease-out-expo` |
 
 ---
 
 ## 1. Stack de UI
 
-| Capa | Tecnologia | Version |
-|------|-----------|---------|
-| Framework | Next.js (App Router) | 16.x |
-| Componentes | shadcn/ui (estilo `new-york`) | latest |
-| Primitivos | Radix UI (`radix-ui`) | 1.4.x |
-| Estilos | Tailwind CSS v4 + `tw-animate-css` | 4.x |
-| Iconos | Hugeicons (`@hugeicons/react`) + shim `lucide-react-compat` | latest |
-| Graficos | Recharts | 3.x |
-| Formularios | React Hook Form + Zod | 7.x / 4.x |
-| Toasts | Sonner | 2.x |
-| Temas | Preferencias SACDIA (cookie + `ThemeBootScript`) | — |
-| Utilidad CSS | `cn()` de `clsx` + `tailwind-merge` | - |
+| Capa | Tecnología |
+|---|---|
+| Framework | Next.js 16 (App Router), React 19 |
+| Componentes | shadcn/ui (`components.json`: estilo `radix-maia`, `iconLibrary: hugeicons`), primitivos `radix-ui` |
+| Estilos | Tailwind CSS v4 + `tw-animate-css`; tokens en `@theme inline` de `globals.css` |
+| Iconos | Hugeicons (`@hugeicons/react`, `@hugeicons/core-free-icons`) + shim `lucide-react` (§6) |
+| Gráficos | Recharts 3 (`ui/chart.tsx`) |
+| Formularios | React Hook Form + Zod; server actions con `fieldErrors` |
+| Tablas cliente | TanStack Table (`@tanstack/react-table`) |
+| Toasts | Sonner 2 (`ui/sonner.tsx`) |
+| Temas | Preferencias SACDIA (cookie `theme_mode` + `ThemeBootScript`), sin `next-themes` |
+| i18n | next-intl, 4 idiomas (`es` base, `en`, `fr`, `pt-BR`) |
+| Utilidad | `cn()` (`clsx` + `tailwind-merge`) |
 
-**Regla absoluta (retroactiva)**: Toda interfaz, nueva o existente, usa componentes de `@/components/ui/*` (shadcn/Radix) para elementos interactivos visibles. Si se necesita un componente que no existe, instalar via `npx shadcn@latest add <componente>`.
-
-**Excepciones tipicas permitidas**:
-- `<input type="hidden">` para formularios/server actions.
-- Elementos nativos requeridos por APIs del navegador o integraciones third-party sin wrapper equivalente.
-- Casos puntuales documentados en PR con justificacion tecnica (accesibilidad o compatibilidad).
+**Regla**: todo elemento interactivo visible sale de `@/components/ui/*`. Si falta uno, se instala con shadcn. Excepciones: `<input type="hidden">`, elementos nativos exigidos por APIs del navegador o integraciones sin wrapper (documentarlo en el PR), y `global-error.tsx` (§13.4).
 
 ---
 
-## 2. Paleta de Color (SACDIA App — Scout Vibrante)
+## 2. Color
 
-El sistema usa CSS custom properties expuestas a Tailwind v4 desde `src/app/globals.css`. La fuente de verdad cromática es `sacdia-app/lib/core/theme/app_colors.dart`; el panel conserva tokens semánticos shadcn (`primary`, `secondary`, `accent`, etc.) pero los alimenta con la paleta SACDIA App.
+Los tokens son variables CSS en `:root` y `.dark` de `globals.css`, expuestas a Tailwind con `@theme inline` (`bg-card`, `text-muted-foreground`, `border-border`…). Usa siempre el token semántico; no uses la paleta de Tailwind (`bg-blue-50`, `text-red-500`): las reglas `tailwind-palette-bg` / `tailwind-palette-text` avisan.
 
-> Nota de accesibilidad: los hex de marca son exactos. Los tokens `*-foreground` pueden usar tinta oscura (`#0F172A`) sobre fondos vibrantes cuando blanco no alcanza contraste AA para texto de UI.
+### 2.1 Superficies y texto
 
-### 2.1 Tokens de Marca
-
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--brand-primary` | `#0073EA` | SACDIA Blue: botones principales, AppBar, enlaces, navegación |
-| `--brand-primary-light` | `#E0EFFF` | Badges/chips/selecciones suaves |
-| `--brand-primary-dark` | `#005CC0` | Énfasis y pressed states |
-| `--brand-primary-surface` | `#EEF6FF` | Hover y selecciones muy sutiles |
-| `--brand-secondary` | `#4FBF9F` | SACDIA Green: éxito, completado, progreso |
-| `--brand-secondary-light` | `#E0F5EF` | Fondos success suaves |
-| `--brand-secondary-dark` | `#2D8A70` | Texto success |
-| `--brand-accent` | `#FBBD5E` | SACDIA Yellow: logros, recompensas, en progreso |
-| `--brand-accent-light` | `#FFF4E0` | Fondos warning suaves |
-| `--brand-accent-dark` | `#B8862B` | Texto warning de baja jerarquía |
-| `--brand-error` | `#DC2626` | Errores/destructivo |
-| `--brand-info` | `#2EA0DA` | Información general / enviado |
-
-Estos tokens también están expuestos como clases Tailwind `brand-*` (`bg-brand-primary`, `text-brand-secondary`, etc.) para casos donde se necesite referencia directa de marca. Por defecto, preferí los tokens semánticos (`bg-primary`, `text-success`, `bg-warning/10`).
-
-### 2.2 Tokens de Superficie
-
-| Token | Light Mode | Dark Mode | Uso |
-|-------|-----------|-----------|-----|
-| `--background` | `#FFFFFF` | `#0A0A0A` | Fondo general |
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--background` | `#FFFFFF` | `#0A0A0A` | Fondo general, inputs |
 | `--foreground` | `#0A0A0A` | `#EDEDED` | Texto principal |
-| `--card` | `#FFFFFF` | `#141414` | Cards, modales, bottom sheets |
-| `--card-foreground` | `#0A0A0A` | `#EDEDED` | Texto en tarjetas |
-| `--popover` | `#FFFFFF` | `#171717` | Popovers/menus |
-| `--muted` | `#F5F5F5` | `#1C1C1C` | Superficies secundarias |
-| `--muted-foreground` | `#666666` | `#A1A1A1` | Texto secundario/auxiliar |
-| `--accent` | `#F4F4F4` | `#1F1F1F` | Hover backgrounds / selección sutil (neutro) |
-| `--secondary` | `#F4F4F4` | `#1F1F1F` | Botones/badges secundarios neutros |
+| `--card` / `--card-foreground` | `#FFFFFF` / `#0A0A0A` | `#141414` / `#EDEDED` | Cards, tablas, KPIs |
+| `--popover` / `--popover-foreground` | `#FFFFFF` / `#0A0A0A` | `#171717` / `#EDEDED` | Menús, popovers, diálogos |
+| `--muted` | `#F5F5F5` | `#232323` | Skeletons, pistas de barras, fondos neutros |
+| `--muted-foreground` | `#666666` | `#A1A1A1` | Texto secundario (5.74:1 claro, 7.13:1 oscuro sobre card) |
+| `--accent` | `#F4F4F4` | `#2A2A2A` | Hover y resaltado de menús (neutro, nunca azul) |
+| `--secondary` / `--secondary-foreground` | `#F4F4F4` / `#171717` | `#1F1F1F` / `#EDEDED` | Botón y badge secundarios (neutros) |
+| `--border` | `#EBEBEB` | `#262626` | Divisores, bordes |
+| `--input` | `#E3E3E3` | `#2E2E2E` | Borde de campos |
+| `--ring` | `#0073EA` | `#4C9AFF` | Foco: color pleno (4.53:1 / 6.47:1, supera 3:1 de no-texto); el halo usa `ring-ring/50` |
 
-### 2.3 Colores Semánticos
+No existen `--disabled-bg` ni `--disabled-foreground`. Disabled es `opacity-50` uniforme + `pointer-events-none` / `cursor-not-allowed`.
 
-| Token | Light | Dark | Clase Tailwind | Uso |
-|-------|-------|------|----------------|-----|
-| `--primary` | `#0073EA` | `#0073EA` | `text-primary`, `bg-primary` | Acciones principales, enlaces, navegación |
-| `--secondary` | `#F4F4F4` | `#1F1F1F` | `text-secondary`, `bg-secondary` | Acción secundaria/chips neutros |
-| `--destructive` | `#DC2626` | `#DC2626` | `text-destructive`, `bg-destructive` | Errores, eliminaciones, alertas |
-| `--success` | `#4FBF9F` | `#4FBF9F` | `text-success`, `bg-success` | Estados activos/completados |
-| `--warning` | `#FBBD5E` | `#FBBD5E` | `text-warning`, `bg-warning` | Advertencias, pendientes, logros |
-| `--info` | `#2EA0DA` | `#2EA0DA` | `text-info`, `bg-info` | Info general, estados “enviado” |
+### 2.2 Primario: texto vs relleno
 
-Cada semántico mantiene un `*-foreground` pareado para texto sobre fondo pleno. Para fondos translucidos, usar `bg-{token}/10` o `/15` + `text-{token}` y validar contraste en ambos temas.
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--primary` | `#0073EA` | `#4C9AFF` | **Texto**, enlaces, bordes, foco, tintes `bg-primary/10` |
+| `--primary-solid` | `#0073EA` | `#0073EA` | **Rellenos** bajo `--primary-foreground` (`#FFFFFF`): Button default, Badge default, checkbox/switch marcados, paso activo, barra de Progress |
 
-### 2.4 Colores de Borde e Input
+Relleno sólido = `bg-primary-solid`, nunca `bg-primary`. Límite conocido: `text-primary` sobre su tinte `bg-primary/10` da 3.96:1 en claro; no lo uses para texto pequeño sobre tinte si puedes evitarlo (los variantes `soft` de Button/Badge sí lo hacen; son aceptables por ser etiquetas de acción, no cuerpo de texto).
 
-| Token | Light | Dark |
-|-------|-------|------|
-| `--border` | `#EBEBEB` | `#262626` |
-| `--input` | `#E3E3E3` | `#2E2E2E` |
-| `--ring` | `color-mix(in srgb, #0073EA 45%, transparent)` | `color-mix(in srgb, #0073EA 55%, transparent)` |
-| `--disabled-bg` | `#F1F5F9` | `#252525` |
-| `--disabled-foreground` | `#94A3B8` | `#5C5C5C` |
+### 2.3 Semánticos: split texto / relleno
 
-### 2.5 Colores de Gráfico
+`success`, `warning`, `info` y `destructive` siguen el mismo split que primary:
 
-Los 5 chart tokens forman la paleta ordenada para `StatusBadge progress-*`, dashboards y visualizaciones:
+- **`--x`** es apto para texto: ≥4.5:1 sobre blanco **y** sobre su propio tinte `/10`. Alimenta texto, íconos, bordes y tintes (`text-success`, `bg-success/10`, `border-warning/40`).
+- **`--x-solid`** conserva el hex de marca para rellenos sólidos, siempre bajo `--x-foreground`: `bg-success-solid text-success-foreground`.
 
-| Token | Valor | Uso semántico |
-|-------|-------|---------------|
-| `--chart-1` | `#0073EA` | Primary / etapa 1 |
-| `--chart-2` | `#F06151` | Coral / etapa 2 |
-| `--chart-3` | `#4FBF9F` | Success / etapa 3 |
-| `--chart-4` | `#FBBD5E` | Warning / recompensa |
-| `--chart-5` | `#AE69BA` | Morado complementario (clase Viajero) |
+| Token | `--x` claro | vs blanco / vs tinte 10% | `--x` oscuro | vs card `#141414` / vs tinte | `--x-solid` (ambos temas) | `--x-foreground` |
+|---|---|---|---|---|---|---|
+| success | `#1D7458` | 5.69 / 4.94 | `#4FBF9F` | 8.15 / 6.97 | `#4FBF9F` | `#0A0A0A` (8.75:1 sobre el solid) |
+| warning | `#8A5A00` | 5.93 / 5.16 | `#FBBD5E` | 11.00 / 9.07 | `#FBBD5E` | `#0A0A0A` (11.82:1) |
+| info | `#0C6A9C` | 5.90 / 5.11 | `#2EA0DA` | 6.28 / 5.52 | `#2EA0DA` | `#0A0A0A` (6.75:1) |
+| destructive | `#C81E1E` | 5.74 / 4.89 | `#F87171` | 6.66 / 5.86 | `#DC2626` | `#FFFFFF` (4.83:1) |
 
-### 2.6 Colores de Sidebar
+Reglas:
 
-El sidebar es neutro: el ítem activo usa fondo gris (`--sidebar-accent`) y texto fuerte, sin azul.
+- Nunca `bg-success|warning|info|destructive` (sin `-solid`) con `text-white` ni `text-*-foreground`: la regla `semantic-text-on-solid` lo marca como error. Usa `bg-x-solid`.
+- No oscurezcas con `color-mix(in oklch, var(--x), black N%)`: el token ya es legible (`color-mix-darkening`). Excepción vigente: `StatusBadge progress-*` aplica `black 40%` a `--chart-N` (no son semánticos).
+- Fondos translúcidos: `bg-x/10` o `/15` + `text-x`, validado en ambos temas.
+- `--warning-soft` / `--warning-soft-foreground` son un par de superficie suave para avisos (oklch, con variante oscura).
+- `destructive` suave (`bg-destructive/10 text-destructive`) para acciones en línea; sólido (`destructive-solid`) solo para la confirmación final irreversible (§5.1).
 
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--sidebar` | `#FAFAFA` | `#0A0A0A` | Fondo del sidebar |
-| `--sidebar-foreground` | `#5C5C5C` | `#A1A1A1` | Texto normal |
-| `--sidebar-primary` | `#0073EA` | `#0073EA` | Item activo |
-| `--sidebar-primary-foreground` | `#FFFFFF` | `#FFFFFF` | Texto sobre `sidebar-primary` |
-| `--sidebar-accent` | `#EDEDED` | `#1F1F1F` | Hover e ítem activo |
-| `--sidebar-border` | `#EBEBEB` | `#262626` | Divider/borde |
+### 2.4 Marca
 
-### 2.7 Reglas de Uso de Color
+`--brand-primary` `#0073EA`, `-light` `#E0EFFF`, `-dark` `#005CC0`, `-surface` `#EEF6FF`; `--brand-secondary` `#4FBF9F` (`-light` `#E0F5EF`, `-dark` `#2D8A70`); `--brand-accent` `#FBBD5E` (`-light` `#FFF4E0`, `-dark` `#B8862B`); `--brand-error` `#DC2626`; `--brand-info` `#2EA0DA`. Son los hex exactos de `sacdia-app/lib/core/theme/app_colors.dart`, expuestos como `bg-brand-*`. Los `-dark` **no** cumplen AA como texto (4.22:1 y 3.24:1): no los uses para texto; para texto success/warning usa `text-success` / `text-warning`. Prefiere siempre los tokens semánticos.
+
+### 2.5 Gráficos y categorías
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--chart-1` | `#0073EA` | `#4C9AFF` |
+| `--chart-2` | `#F06151` | igual |
+| `--chart-3` | `#4FBF9F` | igual |
+| `--chart-4` | `#FBBD5E` | igual |
+| `--chart-5` | `#AE69BA` | igual |
+
+- Los `--chart-*` son para series y para **categorías** (en lugar de un badge de color distinto por categoría). No son texto: sobre fondo claro `--chart-3/4` no cumplen 4.5:1 como texto.
+- `--cat-espiritual|competencia|taller|ceremonial|social` (categorías de evento de camporee) y `--section-aventureros|conquistadores|guias` (secciones de club) están definidos en oklch con variante oscura. `--section-guias` es teal, no rojo: el rojo está reservado a error y estado crítico.
+- Recharts: colores con `var(--chart-N)`; ejes `tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}`, `axisLine={false}`, `tickLine={false}`; rejilla `className="stroke-border"` discontinua; tooltip `bg-card` con `shadow-lg`. Gradientes de área solo dentro del gráfico (opacidad 0.3 → 0).
+
+### 2.6 Sidebar
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--sidebar` | `#FAFAFA` | `#0A0A0A` |
+| `--sidebar-foreground` | `#5C5C5C` (6.41:1) | `#A1A1A1` (7.66:1) |
+| `--sidebar-accent` / `-foreground` | `#EDEDED` / `#0A0A0A` | `#1F1F1F` / `#EDEDED` |
+| `--sidebar-primary` / `-foreground` | `#0073EA` / `#FFFFFF` | igual |
+| `--sidebar-border` | `#EBEBEB` | `#262626` |
+| `--sidebar-ring` | `#0073EA` | `#4C9AFF` |
+
+El ítem activo y el hover son grises (`--sidebar-accent`), nunca azul tenue. La etiqueta de grupo usa `text-sidebar-foreground` sin opacidad (contraste AA).
+
+### 2.7 Reglas de uso
 
 ```
-HACER:
-  bg-primary/10          -> Fondo tenue para iconos o badges brand
-  bg-destructive/10      -> Fondo tenue para estados de error
-  bg-success/10          -> Fondo tenue para estados activos
-  bg-warning/10          -> Fondo tenue para estados pendientes/logros
-  text-muted-foreground  -> Texto auxiliar, labels secundarios
-  bg-muted               -> Fondos neutros (skeletons, placeholders)
+HACER
+  text-muted-foreground          texto auxiliar
+  bg-muted                       skeletons, pistas de barras, fondos neutros
+  text-success / text-warning    texto y íconos de estado
+  bg-x/10 + text-x               tinte de estado (avisos, banners)
+  bg-x-solid text-x-foreground   relleno de estado
+  bg-primary-solid               relleno de acción
+  bg-primary/10 text-primary     SOLO para "seleccionado / actual" (día de hoy, opción elegida, paso hecho)
 
-EVITAR POR DEFECTO:
-  bg-blue-50, bg-red-100, bg-amber-50  -> Colores hardcoded de Tailwind
-  text-blue-600, text-red-500           -> Usar tokens semánticos
-  Cualquier color que no funcione en dark mode
-
-EXCEPCIÓN:
-  Se permiten colores hardcoded cuando haya solicitud explícita de mejora visual
-  y se valide compatibilidad en dark mode.
+EVITAR
+  bg-blue-50, text-gray-600, bg-white, border-gray-200   paleta Tailwind o blanco fijo
+  hex en JSX                      (fugas conocidas: achievements, ui/chart.tsx, rubrics-editor)
+  bg-primary/10 como caja decorativa de ícono
 ```
 
-## 3. Tipografia
+---
+
+## 3. Tipografía
 
 ### 3.1 Fuentes
 
-Cargadas via `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en `<html>` (para que `--font-geist` exista en `:root`) y `sansFont.className` en `<body>`. En `@theme inline` `--font-sans` / `--font-heading` / `--font-display` apuntan a `--font-geist` (nunca `--font-sans: var(--font-sans)`). Cookie `instrumentSerif` u otras caras viejas caen a Geist via `parsePreference`.
+Cargadas con `next/font/google` en `src/lib/fonts/registry.ts`. `fontVars` va en `<html>` y la clase de la sans en `<body>`. En `@theme inline`, `--font-sans`, `--font-heading` y `--font-display` apuntan a `--font-geist` (nunca `--font-sans: var(--font-sans)`); `--font-mono` a `--font-geist-mono`. Una sola familia: `font-display` es alias de Geist y no hay segunda cara. Cookies de preferencia con caras antiguas caen a Geist vía `parsePreference`.
 
-| Variable | Fuente | Uso |
-|----------|--------|-----|
-| `--font-sans` | `Geist` (`--font-geist`) | Todo el texto de UI |
-| `--font-mono` | `Geist Mono` (`--font-geist-mono`) | Codigo, valores tabulares |
-| `--font-heading` | alias de `--font-sans` | Titulos; misma familia |
+### 3.2 Escala
 
-**Regla de producto**: una familia para el panel. Geist en **todo** el admin. `font-display` es alias de Geist, no una segunda cara. Instrument Serif no se carga. Cookies viejas de Inter/Instrument caen a Geist via `parsePreference`.
+Nada por debajo de **11px**. `text-2xs` (`0.6875rem` / 11px, line-height `1rem`) es el token para micro-texto; el único tamaño arbitrario documentado es `text-[13px]`.
 
-**Titulos**: `<PageHeader>` h1 usa `--font-sans` con `font-semibold tracking-tight`. KPI: misma familia + `tabular-nums`.
+| Elemento | Clase |
+|---|---|
+| Título de página (h1) | `text-2xl font-semibold tracking-tight sm:text-3xl` (vía `PageHeader`) |
+| Título de card / sección | `text-base font-medium` (CardTitle, `font-heading`) o `text-base font-semibold` |
+| Título de diálogo | `text-base font-medium` (Dialog) / `text-lg font-semibold tracking-tight` (`RouteFormModal`) |
+| Texto normal | `text-sm` |
+| Texto auxiliar | `text-sm text-muted-foreground` |
+| Detalle compacto (línea 2 de fila móvil) | `text-[13px] text-muted-foreground` |
+| Etiqueta de campo | `text-sm font-medium` |
+| Cabecera de columna | `text-xs font-medium text-muted-foreground` |
+| Badge | `text-xs font-medium`; `StatusBadge size="xs"` usa `text-2xs` |
+| Micro-texto, contadores | `text-2xs` |
+| Cifra KPI | `text-2xl` (`text-3xl` si es la cifra que responde la pantalla), `font-semibold tabular-nums tracking-tight` |
+| Código inline | `font-mono text-xs rounded bg-muted px-1.5 py-0.5` |
 
-### 3.2 Escala Tipografica
+### 3.3 Reglas
 
-| Elemento | Clase | Tamano | Peso | Tracking |
-|----------|-------|--------|------|----------|
-| Titulo de pagina (h1) | `text-2xl font-semibold tracking-tight sm:text-3xl` | 1.5rem / 1.875rem | 600 | tight |
-| Subtitulo / Card Title | `text-base font-semibold` | 1rem | 600 | - |
-| Nombre de seccion (sidebar) | `text-xs font-medium text-muted-foreground` | 0.75rem | 500 | - |
-| Texto normal | `text-sm` | 0.875rem | 400 | - |
-| Texto auxiliar | `text-sm text-muted-foreground` | 0.875rem | 400 | - |
-| Descripcion corta | `text-[13px] text-muted-foreground` | 13px | 400 | - |
-| Label de formulario | `text-sm font-medium` | 0.875rem | 500 | - |
-| Label tipo tag | `text-xs font-medium` | 0.75rem | 500 | - |
-| Valores numericos | `tabular-nums` | - | - | - |
-| Table header | `text-xs font-medium text-muted-foreground` | 0.75rem | 500 | - |
-| Badge | `text-xs font-medium` | 0.75rem | 500 | - |
-| Micro texto | `text-[11px]` | 11px | - | - |
-| Footer de pagina | `text-sm text-muted-foreground` | 0.875rem | 400 | - |
-| Codigo inline | `rounded bg-muted px-1.5 py-0.5 text-xs font-mono` | 0.75rem | 400 | - |
-
-### 3.3 Reglas Tipograficas
-
-- Nunca usar `font-size` arbitrario fuera de la escala definida
-- Titulos principales: `font-semibold` (600). Geist tiene pesos reales.
-- Nunca usar `font-light` o `font-thin`
-- Valores numericos: siempre `tabular-nums` para alineacion consistente
-- Texto truncado: `truncate` con `max-w-*` definido
-- Labels, encabezados de tabla y nombres de sección en sentence case: nunca `uppercase` + `tracking-*` (regla `uppercase-tracking` del audit)
-- Nada por debajo de `text-[11px]`
+- Pesos: `font-normal`, `font-medium`, `font-semibold`. Sin `font-bold` en títulos nuevos (`h1-font-bold` es error), sin `font-light`/`font-thin`.
+- Todo `<h1>` de página pasa por `PageHeader` (`h1-font-semibold` avisa). Excepciones legítimas: login, y heros de detalle que llevan el nombre de la entidad.
+- Números: `tabular-nums` siempre en columnas y KPIs; `TableCell` ya lo aplica.
+- Sentence case en etiquetas, cabeceras y nombres de sección: nunca `uppercase` + `tracking-*`.
+- Tamaños `text-[10|11|12|14px]` sueltos avisan (`off-scale-text`); por debajo de 11px es error (`text-below-11px`). Usa `text-2xs`, `text-xs`, `text-sm`.
+- Truncar con `truncate` y un `max-w-*` o `min-w-0` explícito.
+- En dispositivos táctiles (`pointer: coarse`) los campos fuerzan 16px para evitar el zoom de iOS (`globals.css`); en escritorio conservan `text-sm`.
 
 ---
 
-## 4. Espaciado y Layout
+## 4. Espaciado, radios y layout
 
-### 4.1 Radios de Borde
+### 4.1 Radios por rol
 
-Base `0.5rem` (8px) en `globals.css`; `rounded-lg` equivale a `--radius`. El radio se elige por **rol**, no por gusto: crece con el tamaño del contenedor y el pill queda reservado para etiquetas.
+Base `--radius: 0.5rem`; `rounded-lg` = `--radius`. Se elige por rol, no por gusto.
 
 | Rol | Clase | Componentes |
-|-----|-------|-------------|
+|---|---|---|
 | Etiqueta / estado | `rounded-full` | Badge, StatusBadge, Avatar, Switch, Radio, Progress, Slider, dots, Kbd |
-| Control | `rounded-lg` | Button, Input, InputGroup, InputOTP, Select trigger, NativeSelect, Combobox, Textarea, Toggle, ToggleGroup, Tabs list, Menubar, ítems del Sidebar |
-| Ítem dentro de superficie | `rounded-lg` | Ítems de DropdownMenu, ContextMenu, Menubar, Select, Combobox, Command; media de Attachment |
-| Superficie | `rounded-xl` | Card, tabla contenedora, Popover, HoverCard, menús, Select/Combobox content, Command, Tooltip, Accordion, Item, Attachment, Skeleton |
-| Overlay | `rounded-2xl` | Dialog, AlertDialog, Drawer, Command en dialog |
-| Interno concéntrico | `rounded-md` | Tab trigger y botones dentro de un contenedor con `p-[3px]` |
+| Control | `rounded-lg` | Button, Input, Textarea, Select trigger, NativeSelect, Combobox, Toggle, Tabs list, ítems de Sidebar |
+| Ítem dentro de superficie | `rounded-lg` | Ítems de DropdownMenu, Select, Command, ContextMenu |
+| Superficie | `rounded-xl` | Card, `DataTableShell`, `KpiStrip`, Popover, menús, Tooltip, banners |
+| Overlay | `rounded-2xl` | Dialog, AlertDialog |
+| Interno concéntrico | `rounded-md` | Tab trigger, Skeleton, Checkbox |
 
-**Prohibido**: `rounded-3xl` y `rounded-4xl`. `pnpm audit:design-system --strict` falla con la regla `pill-radius`. `Sheet` no lleva radio (panel pegado al borde).
+`Sheet` no lleva radio. `rounded-3xl`/`4xl` están prohibidos (error `pill-radius`).
 
-### 4.2 Grid del Dashboard
+### 4.2 Estructura de página
 
 ```
-Layout principal:
-  Sidebar (w-60 = 240px, sticky top-0, h-screen) | Contenido (flex-1, max-w-[1536px] mx-auto)
-
-Contenido:
-  Header (h-12, sticky top-0, border-b)
-  Main (padding: p-4 md:p-6)
-
-Spacing vertical entre secciones:
-  space-y-6   -> Espaciado principal entre secciones de pagina
-  space-y-5   -> Dentro de cards o secciones menores
-  space-y-4   -> Formularios, listas de items
-  space-y-3   -> Elementos compactos
-
-Spacing de padding en Cards:
-  p-5         -> CardContent estandar
-  p-4         -> CardFooter, secciones compactas
-  p-7         -> Formularios de login (especial)
+SidebarProvider (--sidebar-width: calc(var(--spacing) * 68) = 272px)
+├── Sidebar
+└── SidebarInset
+    ├── header h-12 border-b
+    ├── <main id="main-content" tabIndex={-1} class="p-4 md:p-6">
+    └── {modal}  (slot @modal de rutas interceptadas)
 ```
 
-### 4.3 Grids de Tarjetas
+Espaciado vertical: `space-y-6` entre bloques de página, `space-y-4` en formularios y listas, `space-y-3` en elementos compactos. Card: `--card-spacing` 24px (`size="sm"`: 16px). Con layout centrado (`data-content-layout=centered`) el contenido tiene `max-w-screen-2xl`.
+
+### 4.3 Grids
 
 | Contexto | Clase |
-|----------|-------|
-| KPIs / Estadisticas (4 cols) | `grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4` |
-| Tarjetas de contenido (3 cols) | `grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3` |
-| Metricas simples (3 cols) | `grid grid-cols-1 gap-3 sm:grid-cols-3` |
-| Grafico + Sidebar | `grid grid-cols-1 gap-6 lg:grid-cols-3` con `col-span-2` en grafico |
+|---|---|
+| Tarjetas de contenido (3 col) | `grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3` |
+| Métricas simples | `grid grid-cols-1 gap-3 sm:grid-cols-3` |
+| Gráfico + lateral | `grid grid-cols-1 gap-6 lg:grid-cols-3` (`col-span-2` el gráfico) |
+| KPIs | `KpiStrip` (§12), no un grid de cards |
 
 ### 4.4 Breakpoints
 
-| Breakpoint | Pixel | Uso |
-|------------|-------|-----|
-| `sm` | 640px | Grids 2-col, elementos responsive |
-| `md` | 768px | Sidebar visible, tabla desktop, padding mayor |
-| `lg` | 1024px | Grids de graficos |
-| `xl` | 1280px | Grids de 3-4 columnas |
+`sm` 640 (grids de 2 col, filas de acciones en línea), `md` 768 (sidebar fijo, **tabla** en lugar de lista de 2 líneas, padding mayor), `lg` 1024, `xl` 1280 (columnas secundarias visibles). Mobile-first: clases base para móvil, prefijos para crecer.
 
 ---
 
-## 5. Componentes UI (shadcn/Radix)
+## 5. Componentes UI (`src/components/ui`)
 
 ### 5.1 Button
 
-**Import:** `@/components/ui/button`
+| Variante | Uso | Estilo |
+|---|---|---|
+| `default` | Acción primaria (una por vista) | `bg-primary-solid text-primary-foreground shadow-xs`; hover oscurece 10% |
+| `outline` | Secundaria, filtros, cancelar | `border-input bg-background shadow-2xs`; `dark:bg-input/30` |
+| `secondary` | Alternativa neutra | `bg-secondary text-secondary-foreground` |
+| `ghost` | Íconos, acciones sutiles | hover `bg-muted` |
+| `soft` | CTA con color sin llenar | `bg-primary/10 text-primary` |
+| `destructive` | Eliminar o desactivar **en línea o en filas** | `bg-destructive/10 text-destructive` (suave) |
+| `destructive-solid` | **Confirmación final** de acción irreversible (footer de AlertDialog) | `bg-destructive-solid text-destructive-foreground` |
+| `link` | Enlaces en texto | `text-primary underline-offset-4` |
 
-| Variante | Uso | Clase |
-|----------|-----|-------|
-| `default` | Acciones primarias (Crear, Guardar) | `bg-primary text-primary-foreground hover:bg-primary/90` |
-| `destructive` | Eliminar, desactivar | `bg-destructive text-white hover:bg-destructive/90` |
-| `outline` | Acciones secundarias, filtros, cancelar | `border bg-background shadow-xs hover:bg-accent` |
-| `secondary` | Alternativa secundaria con tono green SACDIA | `bg-secondary text-secondary-foreground hover:bg-secondary/80` |
-| `ghost` | Iconos, acciones sutiles en tablas | `hover:bg-accent hover:text-accent-foreground` |
-| `soft` | CTA secundario con color sin llenar | `bg-primary/10 text-primary hover:bg-primary/15` |
-| `link` | Links en texto, "Ver todos" | `text-primary underline-offset-4 hover:underline` |
+Nunca `className="bg-destructive ..."` a mano.
 
-**Nuevo en Ember (Fase 2)**: la variante `soft` cubre el gap entre `default` (lleno, grita) y `ghost`/`secondary` (menos dominante). Ideal para "Ver mas", "Exportar", CTAs de card header donde queres color sin competir con la accion primaria de la pagina.
+| Tamaño | Clase |
+|---|---|
+| `default` | `h-9 px-3` |
+| `xs` | `h-6 px-2.5 text-xs` |
+| `sm` | `h-8 px-3` |
+| `lg` | `h-10 px-4` |
+| `icon` / `icon-xs` / `icon-sm` / `icon-lg` | `size-9` / `size-6` / `size-8` / `size-10` |
 
-| Tamano | Uso | Valor |
-|--------|-----|-------|
-| `default` | Botones de accion principal | `h-9 px-4` |
-| `xs` | Botones micro en badges | `h-6 px-2 text-xs` |
-| `sm` | Botones en tablas, footers | `h-8 px-3` |
-| `lg` | Botones de login, CTAs grandes | `h-10 px-6` |
-| `icon` | Solo icono (header, acciones) | `size-9` |
-| `icon-xs` | Icono micro | `size-6` |
-| `icon-sm` | Icono en dropdown triggers | `size-8` |
-| `icon-lg` | Icono grande (hero, acciones destacadas) | `size-10` |
+Comportamiento común:
 
-**Patron de boton con icono:**
-```tsx
-<Button>
-  <Plus size={16} />
-  Crear nuevo
-</Button>
-```
+- Foco: `focus-visible:border-ring ring-[3px] ring-ring/50`. Inválido: `aria-invalid:border-destructive ring-destructive/20`.
+- **Press**: `PRESS_SCALE_CLASSES` (`active:not-aria-[haspopup]:scale-[0.97]`), con `motion-reduce:active:scale-100`. Solo los botones; los triggers que abren menú (`aria-haspopup`) y los campos no escalan.
+- Transición: propiedades nombradas, 150ms, `--ease-out-expo`.
+- **Carga**: `<Button loading={pending}>` deshabilita, pone `aria-busy`, cambia el ícono propio por un spinner sin atenuar. Nunca `{pending && <Loader2/>}` dentro de un Button. `AlertDialogAction` acepta la misma prop. `FormSubmitButton` (`shared`) lo conecta a `useFormStatus`; no marques pending en `onClick` (deshabilita antes del submit y la acción no corre).
+- Ícono + texto: ícono 16px (`size-4` por defecto), sin `mr-*`; el gap lo pone el botón.
 
 ### 5.2 Badge
 
-**Import:** `@/components/ui/badge`
-
-Badge ahora tiene 11 variantes — las 6 clasicas (pleno + outline) mas las 4 `soft-*` tinted + `soft` primary que agregamos en Fase 2/3 como base del `<StatusBadge>` unificado.
-
-**Variantes plenas (filled)**:
-
-| Variante | Uso | Estilo |
-|----------|-----|--------|
-| `default` | Tags genericos, conteos | `bg-primary text-primary-foreground` |
-| `secondary` | Labels neutros | `bg-secondary text-secondary-foreground` |
-| `destructive` | Estado error/inactivo | `bg-destructive text-white` |
-| `success` | Estado activo pleno | `bg-success text-success-foreground` |
-| `warning` | Estado pendiente pleno | `bg-warning text-warning-foreground` |
-| `outline` | Etiquetas sutiles | `border-border text-foreground` |
-| `ghost` | Hover only | `[a&]:hover:bg-accent` |
-| `link` | Badge como enlace inline | `text-primary underline-offset-4 [a&]:hover:underline` |
-
-**Variantes soft (tinted — preferidas para status)**:
-
-| Variante | Uso | Estilo |
-|----------|-----|--------|
-| `soft` | Tag primary tinted | `bg-primary/10 text-primary border-primary/20` |
-| `soft-info` | Status "enviado/en proceso" | `bg-info/10 text-info border-info/20` |
-| `soft-success` | Status "validado/aprobado" | `bg-success/10 text-success border-success/20` |
-| `soft-warning` | Status "pendiente/atencion" | `bg-warning/15 text-warning-foreground border-warning/30 dark:text-warning` |
-
-**Regla de uso**: para status de dominio (submitted, approved, rejected, pending, etc.) **NO** uses `<Badge variant="...">` directo — usa `<StatusBadge intent="...">` de la seccion 7.4 que delega a Badge con el variant correcto. Badge directo solo para tags genericos o labels estaticos.
-
-**Patron de uso**:
-```tsx
-// Status de dominio — preferir StatusBadge
-<StatusBadge intent="success" label="Aprobado" />
-
-// Tag estatico generico
-<Badge variant="outline">Solo lectura</Badge>
-<Badge variant="soft">Nuevo</Badge>
-```
-
-### 5.3 Card
-
-**Import:** `@/components/ui/card`
-
-Estructura base: `Card > CardHeader > CardTitle + CardDescription > CardContent > CardFooter`
-
-```tsx
-// Card estandar
-<Card>
-  <CardHeader>
-    <CardTitle>Titulo</CardTitle>
-    <CardDescription>Descripcion</CardDescription>
-  </CardHeader>
-  <CardContent>
-    {/* Contenido */}
-  </CardContent>
-</Card>
-
-// Card de estadistica (sin CardHeader)
-<Card className="group transition-all hover:border-primary/20">
-  <CardContent className="p-5">
-    {/* KPI con icono */}
-  </CardContent>
-</Card>
-
-// Card con acciones en footer
-<Card>
-  <CardContent className="p-5">{/* ... */}</CardContent>
-  <Separator />
-  <CardFooter className="gap-3 p-4">
-    <Button variant="outline" size="sm" className="flex-1">Editar</Button>
-    <Button variant="secondary" size="sm" className="flex-1">Permisos</Button>
-  </CardFooter>
-</Card>
-```
-
-**Clases base de Card** (Ember — sombra casi imperceptible + border sutil): `rounded-xl border border-border/60 bg-card text-card-foreground shadow-xs`
-
-La sombra default paso de `shadow-sm` a `shadow-xs` en Fase 2. El border cambio de `border` a `border-border/60`. Motivo: Finexy-style cards deben flotar sobre `bg-background` con contraste minimo, confiando en el microcontraste de luminosidad (card blanco sobre stone-50) mas que en el elevation visible.
-
-### 5.4 Table
-
-**Import:** `@/components/ui/table`
-
-```tsx
-<div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-  <Table>
-    <TableHeader>
-      <TableRow>
-        <TableHead>Nombre</TableHead>
-        <TableHead>Estado</TableHead>
-        <TableHead className="text-right">Acciones</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      <TableRow>
-        <TableCell>
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>CM</AvatarFallback>
-            </Avatar>
-            <span className="font-medium">Carlos Mendoza</span>
-          </div>
-        </TableCell>
-        <TableCell>
-          <Badge variant="success">Activo</Badge>
-        </TableCell>
-        <TableCell>
-          <div className="flex justify-end gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8">
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Editar</TooltipContent>
-            </Tooltip>
-          </div>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  </Table>
-</div>
-```
-
-**Estilos de cabecera:** `h-9 px-3 text-xs font-medium text-muted-foreground`
-**Estilos de celda:** `px-3 py-2.5 align-middle`
-**Hover en filas:** `hover:bg-muted/30`
+`h-5 rounded-full px-2 text-xs font-medium`. Variantes: `default` (`bg-primary-solid`), `secondary`, `destructive` (tinte), `success` (`bg-success-solid text-success-foreground`), `warning` (`bg-warning-solid`), `outline`, `ghost`, `link`, y los tintados `soft`, `soft-info`, `soft-success`, `soft-warning`, `soft-destructive` (`bg-x/10 text-x border-x/20`).
 
-### 5.5 Input
+Uso: `Badge` es para etiquetas estáticas (conteos, "Nuevo", "Solo lectura"). **No** uses `Badge default`/`soft` (azul) para estados. Los estados de dominio van por `StatusBadge` (§5.3).
 
-**Import:** `@/components/ui/input`
+### 5.3 StatusBadge (`ui/status-badge.tsx`)
 
-- Altura: `h-9`
-- Border radius: `rounded-lg` (control, ver §4.1)
-- Focus: `border-ring` + `ring-[3px] ring-ring/50`
-- Transicion: `color, border-color, box-shadow` a 150ms `--ease-out-expo`. `motion-reduce:transition-none`.
-- Con icono a la izquierda:
+Marca de estado unificada. Props: `intent`, `label`, `icon?` (`null` quita el ícono por defecto), `size?` (`xs` | `sm` | `default`), `className?`.
 
-```tsx
-<div className="relative">
-  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-  <Input placeholder="Buscar..." className="pl-8" />
-</div>
-```
-
-### 5.6 Select
-
-**Import:** `@/components/ui/select`
+| Intent | Apariencia | Ícono por defecto | Uso |
+|---|---|---|---|
+| `neutral` | pill neutro, texto muted | `MinusCircle` | Inactivo, borrador, sin enviar |
+| `info` | pill neutro, ícono `text-info` | `Info` | Enviado, en cola |
+| `success` | pill neutro, ícono `text-success` | `CheckCircle2` | Aprobado, validado, activo |
+| `warning` | pill neutro, ícono `text-warning` | `AlertTriangle` | Pendiente, requiere atención |
+| `destructive` | tinte rojo (Badge `destructive`) | `XCircle` | Rechazado, fallo |
+| `primary` | relleno `bg-primary-solid` | `Circle` | Estado final positivo (investido) |
+| `progress-1/2/3` | tinte `--chart-1/2/3` | — | Etapas ordenadas de un pipeline |
 
-- Mismo estilo que Input (`h-9`, `rounded-lg`)
-- Incluye icono Hugeicons `UnfoldMore` automatico
-- `appearance-none` para ocultar el select nativo
+El color vive solo en el ícono (nunca depende solo del color: WCAG 1.4.1). Los wrappers de dominio (`investiture-status-badge`, `evidence-status-badge`…) mapean enums del backend a `{ label, intent }` y son los únicos que conocen esos enums; `StatusBadge` no sabe qué es `SUBMITTED`.
 
-### 5.7 Textarea
-
-**Import:** `@/components/ui/textarea`
-
-- `min-h-[100px]`
-- Mismo border/focus que Input
-
-### 5.8 Label
-
-**Import:** `@/components/ui/label`
-
-- Clase: `text-sm font-medium`
-- Campos requeridos: agregar `<span className="ml-0.5 text-destructive">*</span>`
-
-### 5.9 Avatar
-
-**Import:** `@/components/ui/avatar`
-
-| Tamano | Clase | Pixel |
-|--------|-------|-------|
-| `sm` | `size-6` | 24px |
-| `default` | `size-8` | 32px |
-| `lg` | `size-10` | 40px |
-
-```tsx
-<Avatar>
-  <AvatarImage src="..." alt="..." />
-  <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-    CM
-  </AvatarFallback>
-</Avatar>
-```
-
-**AvatarGroup** para multiples avatars superpuestos:
-```tsx
-<AvatarGroup>
-  <Avatar><AvatarFallback>A</AvatarFallback></Avatar>
-  <Avatar><AvatarFallback>B</AvatarFallback></Avatar>
-  <AvatarGroupCount>+5</AvatarGroupCount>
-</AvatarGroup>
-```
-
-### 5.10 Checkbox
-
-**Import:** `@/components/ui/checkbox`
-
-- `size-4` (16px)
-- `rounded-[4px]`
-- Checked: `bg-primary text-primary-foreground`
-
-### 5.11 Switch
-
-**Import:** `@/components/ui/switch`
-
-| Tamano | Track | Thumb |
-|--------|-------|-------|
-| `default` | `h-5 w-9` | `size-4` |
-| `sm` | `h-4 w-7` | `size-3` |
-
-### 5.12 Skeleton
-
-**Import:** `@/components/ui/skeleton`
-
-- Clase: `animate-pulse rounded-xl bg-muted motion-reduce:animate-none`
-- Usar en loading states con dimensiones que simulen el contenido real
-- `prefers-reduced-motion`: sin pulse (global en `globals.css` + primitivo)
-
-### 5.13 Separator
-
-**Import:** `@/components/ui/separator`
-
-- Horizontal (default): `h-px w-full bg-border`
-- Vertical: `className="mx-1.5 h-6 w-px"` o pasar `orientation="vertical"` (la primitiva Radix sí soporta el prop)
-
-### 5.14 Tooltip
-
-**Import:** `@/components/ui/tooltip`
-
-```tsx
-<Tooltip>
-  <TooltipTrigger asChild>
-    <Button size="icon" variant="ghost">
-      <Pencil className="h-3.5 w-3.5" />
-    </Button>
-  </TooltipTrigger>
-  <TooltipContent>Editar</TooltipContent>
-</Tooltip>
-```
-
-- Provider global en `layout.tsx` con `delayDuration={300}`
-- Estilo: fondo oscuro invertido (`bg-foreground text-background`)
-
-### 5.15 DropdownMenu
-
-**Import:** `@/components/ui/dropdown-menu`
-
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="ghost" size="icon-sm">
-      <MoreHorizontal size={16} />
-    </Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent align="end">
-    <DropdownMenuItem>
-      <Pencil className="h-4 w-4" />
-      Editar
-    </DropdownMenuItem>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem variant="destructive">
-      <Trash className="h-4 w-4" />
-      Eliminar
-    </DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-```
-
-### 5.16 Collapsible
-
-**Import:** `@/components/ui/collapsible`
-
-- Usado en sidebar para submenus
-- **Sin** animacion de altura (nav de alta frecuencia). Abre/cierra instantaneo.
-
-### 5.17 Sheet (Panel lateral)
-
-**Import:** `@/components/ui/sheet`
-
-| Uso | Notas |
-|-----|-------|
-| **Sidebar mobile** | Patron original — overlay del menu en viewports `< md` |
-| **Compose panel** | Formulario de accion secundaria sobre un listado (ver **§6.1.2**) |
-
-- Soporta `side`: `top | right | bottom | left`
-- Default: `right`
-- Sidebar mobile: `w-3/4 sm:max-w-sm`
-- Enter: 300ms (`--duration-sheet`) + `--ease-drawer`. Exit: 200ms (`--duration-normal`). Fade + slide. `motion-reduce:animate-none`.
-- Compose panel: `sm:max-w-md`, `bg-background`, layout de tres zonas (header / body scroll / footer sticky) — ver **§11.5**
-
-### 5.18 Tabs
-
-**Import:** `@/components/ui/tabs`
-
-Tabs con dos variantes:
-
-| Variante de `TabsList` | Estilo | Uso |
-|------------------------|--------|-----|
-| `default` | `bg-muted rounded-lg p-[3px]` — tabs con fondo muted, active con `bg-background` | Tabs dentro de cards, paneles internos |
-| `line` | Fondo transparente, sin pill — active muestra underline naranja (`after:bg-primary`) con `text-primary` | Tabs de navegacion de seccion, separacion por categorias |
-
-```tsx
-// Variante default (pill style)
-<Tabs defaultValue="tab1">
-  <TabsList>
-    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
-    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
-  </TabsList>
-  <TabsContent value="tab1">...</TabsContent>
-</Tabs>
-
-// Variante line (underline style — commit fab11df)
-<Tabs defaultValue="tab1">
-  <TabsList variant="line">
-    <TabsTrigger value="tab1">Pestaña 1</TabsTrigger>
-    <TabsTrigger value="tab2">Pestaña 2</TabsTrigger>
-  </TabsList>
-  <TabsContent value="tab1">...</TabsContent>
-</Tabs>
-```
-
-**Orientacion**: soporta `horizontal` (default) y `vertical` via prop `orientation` en `<Tabs>`.
-
-### 5.19 Progress
-
-**Import:** `@/components/ui/progress`
-
-Barra de progreso lineal de Radix UI.
-
-```tsx
-<Progress value={75} />           // 75% completado
-<Progress value={null} />         // indeterminado (animacion de barrido)
-```
-
-- Track: `bg-primary/20 h-2 rounded-full`
-- Fill: `bg-primary`
-- Para progreso con label o gradiente custom, usar el patron de seccion 12.2 (Progress Bars DIY).
-
-### 5.20 Otros componentes UI instalados
-
-Los siguientes componentes estan instalados en `src/components/ui/` pero se usan en contextos puntuales. Seguir las mismas reglas de tokens y dark mode si se usan:
-
-| Componente | Archivo | Uso tipico |
-|------------|---------|------------|
-| `Calendar` | `calendar.tsx` | Seleccion de fecha en formularios con fecha expandida |
-| `Command` | `command.tsx` | Combobox con busqueda (base de selects con search) |
-| `Popover` | `popover.tsx` | Contenedor flotante sin modal (anchored overlay) |
-| `RadioGroup` | `radio-group.tsx` | Seleccion de una opcion entre varias |
-| `ScrollArea` | `scroll-area.tsx` | Scroll personalizado en contenedores acotados |
-| `Sonner` | `sonner.tsx` | Wrapper del provider de toasts (ver seccion 7.10) |
+Booleanos (activo/inactivo, habilitado, completado): `<StatusBadge intent={flagStatusIntent(value)} />` (`src/lib/status/flag-status.ts`: `true` → `success`, `false` → `neutral`).
+
+**Una marca de estado por fila.** Muestra la excepción o el estado inactivo; no pongas "Activo" en cada fila de una lista donde casi todo está activo. Si todas las filas comparten el estado, es columna redundante.
+
+### 5.4 Card
+
+`rounded-xl border-transparent bg-card shadow-card`, `gap` y `py` = `--card-spacing` (24px; `size="sm"` 16px). Partes: `CardHeader` (grid, admite `CardAction`), `CardTitle` (`font-heading text-base font-medium`), `CardDescription`, `CardContent`, `CardFooter`. `shadow-card` ya trae el anillo hairline: no añadas `border` ni `ring`. No pongas `transition-all` ni hover decorativo; `--shadow-card-hover` existe para cards que son enlaces. No anides una Card en otra Card.
+
+### 5.5 Table
+
+Primitivo de `ui/table.tsx`:
+
+- `Table` envuelve `<table>` en un contenedor con scroll horizontal y **desvanecido de borde** (`useEdgeFade`, atributos `data-overflow-start|end`). El marco redondeado lo pone `DataTableShell` (§10).
+- `TableHead`: `h-12 px-3 font-medium whitespace-nowrap`. Las cabeceras de columna del panel son **12px, muted y sin fondo** (`text-xs font-medium text-muted-foreground`, también con `SortableHeader`); no hay banda de color.
+- `TableCell`: `p-3 align-middle whitespace-nowrap tabular-nums`. Textos largos: `whitespace-normal max-w-*`.
+- `TableRow`: `border-b`, hover `bg-muted/50`, seleccionada `bg-muted`.
+- Columna de acciones pegada a la derecha (CSS en `globals.css` sobre `data-slot="row-actions"`, `RowActionsHead`); con ella el fade se reemplaza por una sombra hairline como señal de overflow.
+- Columnas secundarias se ocultan con `hidden lg:table-cell` / `hidden xl:table-cell` para caber a ~1200px con sidebar abierto. En TanStack, la clase va en `meta: { className }` de la columna (tipado en `src/types/tanstack-table.d.ts`) y la página la aplica a `TableHead` y `TableCell`.
+- Números y montos: alineados a la derecha con `tabular-nums`.
+
+Patrón completo de listado: §11.
+
+### 5.6 Campos
+
+| Componente | Notas |
+|---|---|
+| `Input` | `h-9 rounded-lg border-input bg-background shadow-2xs`, `dark:bg-input/30`; foco `ring-[3px] ring-ring/50`; `text-base md:text-sm` |
+| `Textarea` | Igual que Input; `min-h-16`, `field-sizing-content`, `resize-none` (usa `resize-y` si debe crecer) |
+| `Select` | Trigger igual que Input (`h-9`); en formularios de página `className="w-full"`; no escala al presionar |
+| `NativeSelect`, `InputGroup`, `Combobox` | Mismo fondo y sombra que Input |
+| `Label` | `text-sm font-medium`; obligatorio: `<span className="ml-0.5 text-destructive">*</span>` |
+| `Checkbox` | `size-4 rounded-md`; marcado `bg-primary-solid`; área táctil ampliada con `after:-inset-*` |
+| `Switch` | `default` 32×18px, `sm` 24×14px; marcado `bg-primary-solid`; área táctil ampliada |
+| `RadioGroup`, `Slider`, `InputOTP`, `Calendar`, `Command` | Mismas reglas de foco y tokens |
+
+Icono a la izquierda en un Input: `relative` + ícono `pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground` + `pl-8`.
+
+### 5.7 Navegación y contenedores
+
+| Componente | Notas |
+|---|---|
+| `Tabs` | `default`: lista `bg-muted p-[3px] h-9 rounded-lg`, activo `bg-background`. `line`: sin fondo, subrayado `after:bg-foreground` 2px bajo el activo. Admite `orientation="vertical"`. |
+| `Progress` | Pista `h-3 bg-muted rounded-full`, relleno `bg-primary-solid`. Para barras con umbral usa las del `KpiStrip` (§12). |
+| `Avatar` | `sm` 24px, `default` 32px, `lg` 40px; fallback `bg-muted text-muted-foreground`. `AvatarGroup` para apilados. |
+| `Skeleton` | `animate-pulse rounded-md bg-muted motion-reduce:animate-none`. Dimensiones que imiten el contenido real. |
+| `Separator` | Usa `orientation="vertical"` (Radix lo soporta) o `h-6 w-px`. |
+| `Tooltip` | `bg-foreground text-background rounded-xl text-xs`. `TooltipProvider` global con `delayDuration` y `skipDelayDuration` de 300ms; solo anima en `delayed-open`, `instant-open` sin animación. |
+| `Collapsible` / Accordion | Sin animación de altura (fade 150ms como máximo). |
+| `Alert` | `default` (`bg-card`) y `destructive` (texto rojo). Para avisos en formularios; con ícono. |
+| `Spinner` | Para spinners fuera de botones. `animate-spin motion-reduce:animate-none`. |
+| `Empty` (shadcn) | Eliminado: usa `EmptyState` (§10). |
 
 ---
 
-## 6. Patrones de CRUD
+## 6. Iconos
 
-### 6.1 Crear / Editar -> Modal sobre el listado (intercepting routes)
+- **Hugeicons** es la librería de producto. Los primitivos nuevos importan Hugeicons directo (`HugeiconsIcon` + `@hugeicons/core-free-icons`, p. ej. Dialog/Sheet close, Sonner, Spinner).
+- Los imports de `lucide-react` **no usan Lucide**: `tsconfig.json` y `next.config.ts` los redirigen a `src/lib/icons/lucide-react-compat.tsx` (glifos Hugeicons con API Lucide). Es la vía normal en código de pantallas y compartidos. Si falta un ícono, `pnpm icons:generate` regenera el compat. No añadas otra librería de iconos.
+- Los íconos son decorativos salvo que sean el único contenido del control: `aria-hidden="true"` en decorativos; el botón de solo ícono lleva `aria-label`.
 
-> **Actualizado 2026-10-15.** Reemplaza la regla anterior de "pagina dedicada obligatoria".
+| Contexto | Tamaño |
+|---|---|
+| Sidebar y botones con texto | 16px (`size-4`) |
+| Submenús, filas de tabla, indicadores inline | 14px (`size-3.5`) |
+| Dentro de badges | 12px (`size-3`) |
+| `EmptyState` | 24px (`size-6`) |
+| Hero / login | `size-8` |
 
-**REGLA**: Crear y Editar abren un **modal sobre el listado** usando *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se puede compartir y Back cierra el modal. Una navegacion directa o recarga **tambien** abre el modal, con el listado renderizado debajo; nunca se muestra como pagina suelta.
+Icono por acción: Crear `Plus`, Editar `Pencil`, Desactivar `Ban`, Eliminar `Trash2`, Buscar `Search`, Menú de fila `MoreHorizontal`, Cerrar `X`, Alerta `AlertTriangle`, Éxito `Check`/`CheckCircle2`, Enlace externo `ArrowUpRight`.
 
-**Piezas** (`src/components/shared/form-modal.tsx`):
+Contenedores: los íconos van sueltos. No hay "icon tiles" decorativos (§0). Excepciones: el círculo de `EmptyState` y `AlertDialogMedia` (`bg-muted`), que son parte del componente.
 
-| Pieza | Uso |
-|-------|-----|
-| `RouteFormModal` | Dialog del formulario. Cierre (Esc, overlay, X, Cancelar) anima la salida y hace `router.back()`; con `dismissHref` (carga directa) hace `router.replace(dismissHref)`. |
-| `FormModalSteps` | Tira de pasos numerados bajo el encabezado. Solo etiquetas; la navegacion vive en el footer. |
-| `FormModalBody` | Cuerpo con scroll (`overscroll-contain`). `stepKey` + `direction` animan el cambio de paso. |
-| `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha. |
-| `useFormModal(listHref)` | `close()` en Cancelar, `complete()` al guardar (cierra y refresca). Funciona igual en modal y en pagina. |
-| `FormPageFrame` | Pagina completa del formulario (encabezado con "Volver" + tarjeta). Excepcion a la regla de abajo: los formularios de eventos de camporee (local y union) y de plantillas de evento la usan en la carga directa de `/new` y `/[id]/edit`, porque ahi el listado de debajo es una pagina pesada que no aporta nada. Los modales interceptados no cambian. |
+---
 
-**Estructura de rutas** (slot `@modal` en `src/app/(dashboard)/`):
+## 7. Motion
+
+Fuente: `src/lib/animations.ts` + variables de `globals.css`. No copies duraciones ni curvas sueltas.
+
+### 7.1 Tokens
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--ease-out-expo` (`EASE_OUT_EXPO`) | `cubic-bezier(0.23, 1, 0.32, 1)` | **La** curva de entrada y de transiciones de UI |
+| `--ease-in-out-expo` | `cubic-bezier(0.77, 0, 0.175, 1)` | Reservada; no la uses sin motivo |
+| `--ease-drawer` (`EASE_DRAWER`) | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheet, bottom sheet de formularios y sidebar |
+| `--duration-fast` | 150ms | Press, hover, tooltip, salida de overlays |
+| `--duration-normal` | 200ms | Entrada de overlays, salida de Sheet, sidebar |
+| `--duration-slow` | 250ms | Entrada de login (no dashboard) |
+| `--duration-sheet` | 300ms | Entrada de Sheet |
+
+### 7.2 Constantes y helpers
+
+| Export | Valor / uso |
+|---|---|
+| `PRESS_SCALE` | `"0.97"`; `PRESS_SCALE_CLASSES` es el literal para Tailwind. **Solo botones.** |
+| `SURFACE_MOTION_CLASSES` | `duration-200 data-closed:duration-150`, `motion-reduce:animate-none`, `--ease-out-expo`. En todo overlay (Dialog, AlertDialog, Popover, Dropdown, Select…) |
+| `EMPTY_STATE_ENTER_CLASSES` | Fade 200ms, sin zoom. Lo aplica `EmptyState` |
+| `PAGE_ENTER_CLASSES` | Fade + 8px, 250ms. **Solo auth** (login, verificar correo, restablecer) |
+| `STAGGER_CLASSES` / `getStaggerStyle` | Superficies raras de primera vez. Nunca en tablas, listas, KPIs ni `loading.tsx` |
+
+### 7.3 Reglas
+
+- Una sola curva de entrada (`--ease-out-expo`). Nunca `ease-in`, nunca `scale(0)` (arranca en `0.95` + opacidad).
+- Transiciones con **propiedades nombradas**; prohibido `transition-all`.
+- **Press** `scale(0.97)` solo en `Button` (`PRESS_SCALE_CLASSES`). Select, inputs, badges, filas y cards no escalan.
+- **Overlays**: entrada 200ms, salida 150ms (`SURFACE_MOTION_CLASSES`). Modales centrados (zoom desde 95%). Popover, Dropdown, Select, Tooltip y HoverCard usan `origin-(--radix-*-content-transform-origin)`: nacen del trigger.
+- **Sheet**: entra 300ms, sale 200ms, con `--ease-drawer`. El bottom sheet de formularios en móvil usa la misma curva.
+- **Sin animación** en acciones frecuentes o de teclado: `⌘B` del sidebar (clase `instant-motion` en `html` durante el toggle), la paleta de comandos (`overlayInstant`, `animate-none`), `Collapsible` y chevrons de navegación (≤100ms), abrir tooltips con `skipDelay`.
+- **Sidebar**: ancho y posición con `duration-200` y `--ease-drawer` (no lineal). El click de puntero conserva la transición.
+- **Navegación del dashboard**: sin `PAGE_ENTER_CLASSES`; el layout no anima el contenido. Tablas, listas operativas y `loading.tsx` montan instantáneos.
+- Hover con transform: solo bajo `[@media(hover:hover)_and_(pointer:fine)]:`; los cambios de color pueden quedar sin gate.
+- **Reduced motion**: `motion-reduce:` quita spin, pulse, slide y zoom (color y opacidad pueden quedarse). `globals.css` apaga `animate-spin`, `animate-pulse` y la animación de los toasts. `.disable-transitions` y `.instant-motion` anulan transiciones.
+- Nada de movimiento perpetuo sin propósito (`animate-ping`, orbes flotantes).
+
+---
+
+## 8. Superficies y overlays
+
+### 8.1 Elevación
+
+| Token | Uso |
+|---|---|
+| `--shadow-card` | `Card`, `DataTableShell`, `KpiStrip`, marco de `FormPageFrame`. Anillo hairline 1px + contacto suave |
+| `--shadow-card-hover` | Card que es enlace |
+| `--shadow-2xs`, `--shadow-xs` | Campos y botones (profundidad mínima) |
+| `--shadow-sm` … `--shadow-2xl` | Todos incluyen el anillo hairline (en oscuro blanco al 8%) |
+
+**Superficie flotante** (Dropdown, Popover, Select, ContextMenu, Menubar, Combobox, Tooltip de gráficos) = `shadow-lg` sola. El token ya incluye el anillo: no sumes `ring-1` ni `border`, ni `shadow-xl/2xl` (doble anillo y blur excesivo). El Dialog es una superficie modal: `rounded-2xl`, `ring-1 ring-foreground/5` y `shadow-2xl`.
+
+### 8.2 Overlay único
+
+`Dialog`, `AlertDialog`, `Sheet` y `Drawer` comparten el mismo overlay: `fixed inset-0 z-50 bg-black/40 dark:bg-black/60`, fade, **sin blur**. Salida 150ms (`data-closed:duration-150`). Si añades un overlay nuevo, copia ese.
+
+### 8.3 Elegir la superficie
+
+| Situación | Superficie |
+|---|---|
+| Crear / editar entidad con CRUD propio | Modal de ruta interceptada (§14.1) |
+| Catálogo simple de 1-4 campos | `Dialog` (excepción, §15) |
+| Acción puntual con parámetros, o log / historial de solo lectura | `Dialog` |
+| Acción compuesta sobre un listado (más de 4 campos, variantes) | `Sheet` compose (§14.3) |
+| Confirmar eliminación o desactivación | `AlertDialog` (§14.2) |
+| Menú de acciones de fila | `DropdownMenu` vía `RowActions` (§11.5) |
+
+---
+
+## 9. Layout y navegación
+
+### 9.1 Shell (`src/app/(dashboard)/layout.tsx`)
+
+- **Skip link** (primer hijo del provider): `<a href="#main-content">` visible solo con foco, texto i18n `nav.a11y.skipToContent`.
+- **Landmarks**: `<header>` (h-12), sidebar como `nav`, `<main id="main-content" tabIndex={-1}>`. Todo el contenido de página va dentro de `main`; el `h1` es único por pantalla.
+- `main`: `p-4 md:p-6`; `has-data-[content-padding=false]` quita el padding (pantallas a sangre).
+- El header contiene `SidebarTrigger`, `SearchDialog` (izquierda) y `ThemeSwitcher` + `HeaderUserMenu` (derecha). Con `data-navbar-style=sticky` es `sticky top-0` con `bg-background/50 backdrop-blur-md` (única excepción de blur: la barra superior pegajosa).
+- Gates en el layout: territorio sin configurar (`TerritoryUnconfigured`), sin acceso a la ruta (`PageAccessForbidden`). El slot `modal` solo se monta si hay acceso. Las páginas de `@modal/(.)dashboard/**` se protegen solas con `canCapability` (el layout no se re-renderiza en navegación suave).
+
+### 9.2 Sidebar
+
+- Ancho 272px (`--sidebar-width`), `Sheet` en móvil (`< md`), modo ícono colapsable.
+- **Alcance bajo la marca**: el nombre del territorio del actor (`insights.scopeName`) se muestra como segunda línea `text-xs text-muted-foreground` bajo el nombre de la app.
+- **Contadores de colas**: `QueueCount` (`text-xs tabular-nums`, con texto `sr-only` "pendientes") en las colas de acción: `requests-assignments`, `requests-transfers`, `validations-investitures` (validaciones + honores) y `annual-folders-evaluate`. Solo valores > 0. Los datos salen de `loadSidebarInsights()` (`src/lib/dashboard/sidebar-insights.ts`): no se espera en el layout (la promesa se resuelve en el cliente), nunca rechaza (devuelve vacío ante error) y el backend la cachea 60s. El sidebar es decoración: nunca rompe el layout.
+- **Un solo ítem activo**: gana la coincidencia más específica. `getBestMatchLength` calcula la URL más larga que coincide y `isLeafActive` marca solo esa. Los modos de `activeMatch` son `exact` (por defecto), `prefix`, `clubs-list` y `evidence-folders` (`src/navigation/sidebar/nav-match.ts`). Añade `activeMatch` al ítem cuando una ruta hija no deba activar al padre.
+- Etiquetas de grupo `text-xs font-medium text-sidebar-foreground`, sin opacidad. Submenús: `Collapsible` instantáneo con borde `border-l border-border/60`. Activo y hover: `bg-sidebar-accent`.
+- Filtrado por permisos: `src/navigation/sidebar/filter-sidebar.ts`; items en `sidebar-items.ts`.
+
+### 9.3 Breadcrumbs y encabezados
+
+- `PageHeader` renderiza los breadcrumbs (`<nav aria-label>` i18n, chevron, último sin enlace). Páginas de detalle: `PageHeader` solo con breadcrumbs y el hero lleva el `h1`. Sin botón "Volver" si hay breadcrumb.
+
+---
+
+## 10. Componentes compartidos (`src/components/shared`)
+
+| Componente | Responsabilidad |
+|---|---|
+| `PageHeader` | `title?`, `description?`, `breadcrumbs?`, `actions?` (o `children`). h1 `text-2xl sm:text-3xl font-semibold tracking-tight`, descripción `max-w-prose text-sm text-muted-foreground`. Acciones a la derecha desde `sm`, debajo en móvil |
+| `EmptyState` | `icon`, `title`, `description?`, `children?` (acción), `variant` `default` \| `no-results`. Marco `border-dashed rounded-lg p-8`; círculo `size-12` (`bg-muted` / `bg-muted/40`); título `text-lg font-semibold`; fade 200ms. Es el **único** lugar donde se permite `border-dashed` (`dashed-empty-state`) |
+| `ListPageSkeleton({ rows = 8, filters = 3 })` | Espejo de una página de listado: encabezado, fila de filtros y `DataTableShell` con filas de 48px. Server component async, `aria-busy`, `role="status"` oculto |
+| `DetailPageSkeleton` | Espejo de un detalle: encabezado, barra de pestañas, 3 tarjetas y un bloque |
+| `DataTableShell` | Marco de tabla: `overflow-hidden rounded-xl border-transparent bg-card shadow-card`. El scroll vive en `<Table>` |
+| `DataTablePagination` | Pie de paginación, dos modos (§11.3) |
+| `RowActions` / `RowActionsHead` | Menú "⋯" de fila (§11.5) |
+| `SortableHeader` | Cabecera ordenable (`text-xs font-medium text-muted-foreground`, `aria-label` i18n "Ordenar por…") |
+| `KpiStrip` / `KpiStripItem` | KPIs en un contenedor dividido (§12) |
+| `EndpointErrorBanner` | Error dentro del bloque que falló (§13.2) |
+| `RefreshButton` | Reintento para páginas de servidor: `router.refresh()` con `loading` |
+| `ListFilterField` | `Label` + control con `id` enlazado y ancho `w-[200px]` (`w-full` en móvil) |
+| `ListFiltersShell` | Caja de filtros con fondo `bg-muted/20` y título. Legado en 4 pantallas; no la uses en pantallas nuevas |
+| `RouteFormModal`, `FormPageFrame`, `FormModalSteps/Body/Footer`, `useFormModal`, `useFormSteps` | Formularios de crear/editar (§14.1) |
+| `FormSubmitButton` | Submit con `useFormStatus` |
+| `PageAccessForbidden`, `TerritoryUnconfigured`, `PrerequisiteNotice` | Estados de acceso y prerequisitos |
+| `CatalogThumbnail`, `LocationPicker`, `PdfInlineViewer`, `selectors/*` | Utilidades de dominio compartidas |
+
+`LoadingSkeleton`, `ConfirmDialog`, `DataTable` genérico y `ModuleListPage` **no existen**. Las confirmaciones usan `AlertDialog` directo (§14.2).
+
+`Toaster` está montado en `src/app/layout.tsx`: `<Toaster position="top-center" closeButton />`.
+
+---
+
+## 11. Patrón de listado
+
+Todo listado de entidades sigue la misma estructura.
 
 ```
-src/app/(dashboard)/
-├── layout.tsx                         ← recibe { children, modal }
-├── @modal/default.tsx                 ← null
-├── @modal/[...catchAll]/page.tsx      ← null (limpia el slot al navegar)
-├── @modal/(.)dashboard/users/new/page.tsx   ← RouteFormModal + form
-└── dashboard/users/new/page.tsx             ← <UsersPage /> debajo + RouteFormModal dismissHref="/dashboard/users"
+PageHeader (título, descripción, acción primaria "Nuevo…")
+Filtros / búsqueda (cada control con etiqueta o aria-label)
+├─ (md+)  DataTableShell > Table
+├─ (<md)  lista de filas de 2 líneas
+├─ vacío  EmptyState FUERA de la tabla
+└─ DataTablePagination
 ```
 
-La carga de datos se extrae a un loader compartido (`src/lib/<dominio>/*-form-data.ts`) que usan ambas rutas; devuelve `null` si el actor no tiene permiso.
+### 11.1 Tabla (md+) y lista de 2 líneas (<md)
 
-**Pasos**: formularios con más de ~6 campos o con grupos claros se dividen en pasos (máx. 3–4). "Continuar" valida solo los campos del paso actual; Enter en un paso intermedio avanza en vez de enviar. Con server actions, todos los pasos quedan montados (`hidden`) para que el `FormData` lleve todo, y los `fieldErrors` del servidor regresan al paso que los contiene. Componentes pesados (mapa) se montan al visitar su paso.
+- Desde `md`, `DataTableShell` + `Table`. Por debajo de `md`, filas de 2 líneas (`ul`, `border-b py-3`), no una tabla con scroll lateral: línea 1 = identidad (nombre, a la izquierda) + marca de estado/valor clave (derecha); línea 2 = detalles `text-[13px] text-muted-foreground tabular-nums` separados por `gap-x-3`; acciones a la derecha. Referencia: `CatalogTableView` (`mobileTitleIds` define qué columnas son identidad; ids reservados `search`, `actions`, `active`).
+- Cabeceras 12px, muted, sin banda; sin `uppercase`.
+- Números y montos alineados a la derecha, `tabular-nums`. El signo del monto lleva el significado (+ / −); no dependas solo del color.
+- El nombre de la fila enlaza al detalle (acción principal); el resto va en "⋯".
+- Una marca de estado por fila (§5.3): muestra lo inactivo o excepcional.
+- Sin hover-reveal de acciones, sin stagger.
 
-**Motion**: entrada 200ms `--ease-out-expo` (fade + `zoom-in-95`), salida 150ms. Overlay `bg-black/40` (dark `/60`), sin blur. Cambio de paso: fade + desplazamiento de 8px desde el lado de origen; con reduced motion solo fade.
+### 11.2 Vacío y sin resultados
 
-**Referencias**: `users/new` (react-hook-form, 2 pasos) y `clubs/new` (server action + mapa, 3 pasos).
+`EmptyState` **fuera** de la tabla: no pintes una tabla vacía con una fila de texto. Dos casos distintos:
 
-### 6.1.1 Dialog — Excepciones Permitidas
+- Sin datos: `variant="default"`, título claro, acción opcional ("Crear…").
+- Filtro sin coincidencias: `variant="no-results"`, descripción con la entidad. En `CatalogTableView`, `isFiltered` decide cuál.
 
-> **Nota 2026-10-15**: las reglas de abajo sobre "pagina dedicada" quedan superadas por §6.1. Los `Dialog` de esta seccion siguen siendo validos para acciones secundarias que no tienen ruta propia.
+### 11.3 Paginación (`DataTablePagination`)
 
-La regla "Crear/Editar = paginas dedicadas" aplica a entidades de primera clase (clubs, usuarios, actividades, etc.). Existen cuatro patrones de excepcion donde un `Dialog` es correcto:
+Props: `page` (1-based), `totalPages`, `total`, `limit`, `limitOptions?` (por defecto `[20, 50, 100]`; los catálogos usan `[10, 20, 50, 100]`), y opcionalmente `onPageChange` / `onPageSizeChange`.
 
-| Patron | Archivo de referencia | Por que es Dialog y no pagina |
-|--------|----------------------|-------------------------------|
-| **Catalogo inline** | `src/components/catalogs/catalog-form-dialog.tsx` | Catalogos simples (1-3 campos) que viven como sub-entidad de una pagina padre. Navegar a una pagina dedicada rompe el flujo de la pagina padre. |
-| **Accion puntual con parametros** | `src/components/member-of-month/evaluate-dialog.tsx` | El dialogo lanza un calculo/operacion (no crea un registro editable) y captura un par de parametros (mes + año). No hay pantalla de edicion posterior. |
-| **Historial inline / log viewer** | `src/components/investiture/pipeline-history-dialog.tsx` | Muestra informacion de solo lectura (log de eventos) como overlay sobre la pantalla actual. Abrir una pagina nueva perderia el contexto del listado. |
-| **Panel embebido con formulario secundario** | `src/components/clubs/club-sections-panel.tsx` | El formulario de "nueva seccion" esta embebido dentro de un panel de detalle de club. Un dialog permite crear la seccion sin perder el contexto del club. |
+| Modo | Cuándo | Comportamiento |
+|---|---|---|
+| **URL** (sin `onPageChange`) | Listados paginados en servidor | Escribe `?page=&limit=` con `router.push`; cambiar el tamaño vuelve a la página 1 |
+| **Controlado** (con `onPageChange`) | Tablas TanStack en cliente | No toca el router; el llamador navega y resetea a página 1 al cambiar el tamaño |
 
-**Regla de decision para futuros casos:**
+Todo el texto sale de `shared.pagination` (`showing`, `perPage`, `pageOf`, `prevPage`, `nextPage`). No escribas "Anterior/Siguiente" a mano (`hardcoded-pagination`).
 
-Usar `Dialog` cuando se cumplan TODOS de los siguientes criterios:
-1. La operacion es secundaria respecto a la pantalla actual (no es el flujo principal).
-2. El formulario tiene 4 campos o menos, o es una accion parametrizada (no un recurso editable completo).
-3. Volver a la pantalla padre despues de la accion es el comportamiento esperado (no hay navegacion downstream).
-4. El contenido mostrado es de solo lectura (log, historial) o es una micro-entidad sin CRUD propio.
+### 11.4 Filtros y búsqueda
 
-Usar pagina dedicada (`/new`, `/[id]`) cuando:
-- El recurso tiene su propio ciclo de vida (puede editarse de nuevo mas adelante).
-- El formulario tiene 5+ campos o logica compleja (validaciones cruzadas, selects encadenados, uploads).
-- Se espera navegacion posterior al guardar (ej. ver detalle del recurso creado).
+- **Cada filtro o búsqueda tiene `Label` visible o `aria-label`.** Un placeholder no es etiqueta.
+- Los filtros se ajustan con `flex-wrap` y ocupan ancho completo en móvil; nunca scroll horizontal.
+- Si el filtro es de servidor y la API no lo soporta aún, dilo en la UI ("Filtrando solo esta página") en lugar de fingir.
+- Estado vacío tras filtrar: ofrece "Limpiar filtros".
+- `CatalogFilterBar` (búsqueda + estado + chips) es el filtro estándar de catálogos.
 
-Usar **`Sheet` compose panel** (§6.1.2) cuando el formulario supera un `Dialog` pero sigue siendo una accion secundaria sin CRUD propio.
+### 11.5 Acciones de fila (`RowActions`)
 
-### 6.1.2 Sheet — Compose panel (acciones sobre listado)
-
-**Patron oficial** para lanzar una accion compuesta desde un listado sin navegar a otra ruta. Referencia canonica: `src/components/notifications/notification-compose-sheet.tsx`.
-
-**Cuando usar `Sheet` compose (TODOS):**
-1. La operacion es secundaria respecto al listado/pantalla actual (no es alta/edicion de entidad principal).
-2. No existe pantalla de edicion posterior del recurso creado (accion puntual: enviar, disparar, registrar).
-3. Mantener visible el listado/contexto padre despues del submit es el comportamiento esperado.
-4. El formulario no entra comodo en un `Dialog` (mas de 4 campos, selects encadenados, advertencias, o variantes de envio).
-
-**Cuando NO usar (elegir otra opcion):**
-
-| Situacion | Usar en su lugar |
-|-----------|------------------|
-| Entidad con CRUD propio (`/new`, `/[id]`) | Pagina dedicada (§6.1) |
-| ≤4 campos planos, sin variantes | `Dialog` (§6.1.1) |
-| Solo confirmacion destructiva | `AlertDialog` (§6.2) |
-| Solo lectura (log, historial inline) | `Dialog` de solo lectura |
-
-**Casos de referencia:**
-
-| Patron | Archivo | Por que Sheet |
-|--------|---------|---------------|
-| **Compose multi-variante** | `src/components/notifications/notification-compose-sheet.tsx` | Enviar push con 3 modos (directo / broadcast / club) sobre historial; post-submit refresca tabla sin salir |
-| **Formulario medio en dominio acotado** | `src/app/(dashboard)/dashboard/materials/inventory/_components/product-form-sheet.tsx` | Alta rapida de producto desde inventario; precedente v1, migrar a este layout en refactors |
-
-**Anatomia obligatoria del compose panel:**
-
-```
-┌─────────────────────────────────────┐
-│ SheetHeader (border-b, px-6 py-5)   │  ← titulo + SheetDescription dinamica
-├─────────────────────────────────────┤
-│ Type selector (opcional, border-b)  │  ← cards/radiogroup si hay 2+ variantes
-├─────────────────────────────────────┤
-│ Body (flex-1 overflow-y-auto px-6)  │  ← formulario con FieldSet / Alert
-│                                     │
-├─────────────────────────────────────┤
-│ Footer sticky (border-t, pt-4)      │  ← submit full-width + hint opcional
-└─────────────────────────────────────┘
-```
-
-**Reglas de implementacion:**
-- Trigger en `PageHeader.actions`: boton primario con icono `Plus`.
-- `SheetContent`: `flex h-full flex-col gap-0 overflow-hidden bg-background p-0 sm:max-w-md`.
-- Descripcion contextual en `SheetDescription` (cambia si hay selector de tipo).
-- Selector de tipo: cards con icono + estado activo `border-primary bg-primary/5 ring-1 ring-primary/20` — no usar `Tabs` pill para este caso.
-- Formulario embebido: secciones `FieldSet` + `FieldLegend` (**Destinatario** / **Contenido**); ver §11.5.
-- Submit sticky dentro del form; al exito: cerrar sheet, `router.refresh()`, limpiar query params (`?compose=1`).
-- i18n: chrome del panel en `configuration.<feature>.compose.*`; campos en namespace del dominio.
-
-**Query params opcionales** (deep-link / redirect legacy):
-
-```
-?compose=1&type=direct|broadcast|club
-```
-
-La ruta `/send` u homologa puede redirigir al listado unificado con esos params.
-
-### 6.2 Eliminar / Desactivar -> Confirmacion (AlertDialog)
-
-**REGLA**: Eliminar y desactivar SIEMPRE usan `AlertDialog` con confirmacion obligatoria.
+Un único patrón en todas las tablas: `RowActions` + `RowActionsHead` (`shared/row-actions.tsx`). Prohibidos: íconos sueltos (ojo/lápiz/papelera), botones de texto sueltos en la celda y acciones que solo aparecen con hover. Los controles de datos en línea (Switch, input) no son acciones y se quedan en su celda.
 
 ```tsx
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+<RowActions
+  label={item.name}                       // "Acciones de {name}" para lectores de pantalla
+  actions={[
+    { label: t("edit"), icon: Pencil, href: `${base}/${item.id}/edit` },
+    { label: t("history"), icon: History, onSelect: openHistory },
+    { label: t("delete"), icon: Trash2, destructive: true, hidden: !canDelete, onSelect: askDelete },
+  ]}
+/>
+```
 
+| Patrón | Dónde | Composición |
+|---|---|---|
+| **A · CRUD** | Listados de entidades | Solo "⋯". Acciones normales primero; las destructivas al final, tras separador y en rojo. Etiqueta con "…" cuando sigue una confirmación ("Eliminar…") |
+| **B · Colas de revisión** | Validaciones, solicitudes | Hasta 2 botones de decisión en `primary` (negativo `outline`, positivo `default`) + "⋯" para el resto. Ancha la `RowActionsHead` con `className` |
+
+Acción: `label`, `icon?`, `href?` (tiene prioridad sobre `onSelect`), `external?` (nueva pestaña), `onSelect?`, `destructive?`, `disabled?`, `hidden?`. Condiciones con `hidden`, no armando el arreglo condicional. El menú es `modal={false}` para que un `AlertDialog` abierto desde un ítem no herede un body bloqueado. Si no hay acciones visibles ni `primary`, no renderiza nada.
+
+---
+
+## 12. KPIs y presentación de datos
+
+### 12.1 KpiStrip
+
+KPIs como tipografía, no como tarjetas. `KpiStrip` es **un** contenedor (`rounded-xl bg-card shadow-card`, hairlines `border-border` entre celdas) con columnas iguales; en móvil son 2 columnas (una celda impar final ocupa ambas), desde `sm` una fila. `role="list"` con `aria-label`.
+
+```tsx
+<KpiStrip aria-label={t("summary")}>
+  <KpiStripItem label="Pendientes" value={12} emphasis />
+  <KpiStripItem label="Asistencia" value="86" unit="%" meter={{ value: 86 }} />
+  <KpiStripItem label="Saldo" value="+$4,200" subline="vs. mes anterior" href="/dashboard/finances" />
+</KpiStrip>
+```
+
+`KpiStripItem`: `label`, `value`, `unit?` (muted tras la cifra), `subline?`, `emphasis?` (la cifra que responde la pregunta de la pantalla: `text-3xl`), `meter?: { value: 0-100 | null, tone? }`, `valueClassName?`, `href?` (toda la celda es enlace con foco visible), `data-kpi?`.
+
+Reglas:
+
+- **Sin tiles de ícono, sin sparklines, sin tendencias decorativas.** Solo etiqueta, cifra y, si aporta, una línea de contexto.
+- **Medidores neutros** (`bg-foreground/70`, pista `bg-muted`, `h-1`). `warning` o `destructive` solo cuando se cruza un umbral real, nunca como decoración.
+- Una cifra destacada por franja (`emphasis`).
+- El significado de un monto va en el signo y la etiqueta; el color de `valueClassName` solo refuerza.
+- Usado en: dashboard de operaciones, finanzas, seguro, resumen de eventos y estadísticas de usuario.
+
+### 12.2 Barras y progreso
+
+`Progress` de `ui` para progreso simple. Barras a medida: pista `h-1`-`h-2 rounded-full bg-muted`, relleno neutro; `transition-[width]` si se anima (nunca `transition-all`). Color de alerta solo bajo un umbral.
+
+### 12.3 Timeline y pasos
+
+Línea vertical `w-px bg-border` con puntos; el estado actual puede usar `bg-primary/10 text-primary` (excepción "seleccionado/actual"). Etiquetas de fase en `text-2xs` o `text-xs`, nunca `text-[10px]`.
+
+### 12.4 Gráficos
+
+Ver §2.5. Un gráfico por pregunta; sin leyendas redundantes si hay etiquetas directas; colores de `--chart-*`.
+
+---
+
+## 13. Estados: carga, error, vacío
+
+### 13.1 Carga
+
+- Cada ruta pesada tiene `loading.tsx` con `ListPageSkeleton` (listados) o `DetailPageSkeleton` (detalles), que **imitan el layout real**: ajusta `rows` y `filters` a la pantalla. Si la pantalla no coincide con ninguno, compón con `Skeleton` y `DataTableShell`.
+- Sin stagger ni entrada animada en `loading.tsx`.
+- En botones: `loading` (§5.1). Fuera de botones: `Spinner`.
+
+### 13.2 Errores dentro del bloque que falló
+
+- Un fallo de carga **no se traga como vacío**. Si el fetch falla, muestra `EndpointErrorBanner` en el lugar del bloque, con reintento; nunca `EmptyState` ni una tabla vacía.
+- `EndpointErrorBanner`: `state` `forbidden` (ícono `ShieldOff`, tono destructivo) \| `missing` (`ServerOff`, destructivo) \| `rate-limited` (`Clock`, warning), `detail`, `showLoginLink?`, `onRetry?` + `retrying?` (clientes que re-ejecutan el fetch), `action?` (nodo libre, p. ej. `<RefreshButton />` desde una página de servidor). `role="alert"`; título corto del estado + detalle debajo; el tono vive en el ícono y en un tinte tenue (`border-destructive/25 bg-destructive/5` o `border-warning/40 bg-warning/10`); sin badge.
+- Si un bloque falla pero el resto de la pantalla sirve, solo ese bloque muestra el error.
+
+### 13.3 Límite de ruta
+
+`src/app/(dashboard)/error.tsx` captura lo no controlado: `role="alert"`, `h1` "Algo salió mal" (i18n `shared.routeError`), **Reintentar** (`reset`) e **Ir al inicio**, y reporta a Sentry. Se renderiza dentro del shell (sidebar y header siguen vivos).
+
+### 13.4 Error global
+
+`src/app/global-error.tsx` reemplaza el layout raíz: sin providers, fuentes ni CSS de la app. Por eso usa estilos en línea y texto en español fijo; es la **única excepción** a "sin español en JSX fuera de i18n" y a "sin estilos inline".
+
+### 13.5 Vacío
+
+`EmptyState` (§10, §11.2). Copy: título breve ("Sin registros") + descripción útil + acción solo si el usuario puede actuar.
+
+### 13.6 Errores de formulario
+
+Error de campo: `text-destructive text-xs` bajo el control. Error general: `Alert variant="destructive"` o banner `rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive`. Los `fieldErrors` del servidor regresan al paso del formulario que los contiene.
+
+---
+
+## 14. Patrones de CRUD
+
+### 14.1 Crear / Editar: modal sobre el listado (rutas interceptadas)
+
+Crear y editar abren un **modal sobre el listado** con *intercepting routes* de Next.js. La URL (`/new`, `/[id]/edit`) se conserva: se comparte, y Back cierra el modal. La carga directa o recarga también abre el modal, con el listado debajo.
+
+Piezas (`src/components/shared/form-modal.tsx`):
+
+| Pieza | Uso |
+|---|---|
+| `RouteFormModal` | Dialog del formulario. Al cerrar espera 150ms de animación y luego `router.back()`, o `router.replace(dismissHref)` en carga directa. Enfoca el diálogo, no la X ni el primer campo (evita ring de error y teclado móvil). En móvil (`max-sm`) es una **hoja inferior** (`92dvh`, ancho completo, sube con `--ease-drawer`) |
+| `FormModalSteps` | Tira de pasos numerados; solo etiquetas, la navegación vive en el footer. Activo `bg-primary-solid`; hecho `bg-primary/10 text-primary` con check |
+| `FormModalBody` | Cuerpo con scroll y `overscroll-contain`; `stepKey` + `direction` animan el cambio de paso (fade + 8px; solo fade con reduced motion) |
+| `FormModalFooter` | "Paso X de Y" a la izquierda, acciones a la derecha, respeta `safe-area-inset-bottom` |
+| `useFormModal(listHref)` | `close()` en Cancelar, `complete()` al guardar (cierra y refresca). Funciona igual en modal y en página |
+| `useFormSteps(total)` | Estado de pasos |
+| `FormPageFrame` | **Fallback de página completa**: cabecera con "Volver" + card del formulario. Se usa en la carga directa de rutas cuyo listado de debajo es pesado y no aporta (formularios de eventos de camporee local y de unión, plantillas de evento) |
+
+Estructura de rutas (slot `@modal` en `src/app/(dashboard)/`):
+
+```
+(dashboard)/
+├── layout.tsx                          recibe { children, modal }
+├── @modal/default.tsx                  null
+├── @modal/[...catchAll]/page.tsx       null (limpia el slot)
+├── @modal/(.)dashboard/users/new/page.tsx   RouteFormModal + formulario
+└── dashboard/users/new/page.tsx             listado debajo + RouteFormModal dismissHref
+```
+
+La carga de datos va en un loader compartido (`src/lib/<dominio>/*-form-data.ts`) que usan ambas rutas; devuelve `null` si el actor no tiene permiso.
+
+**Pasos**: formularios con más de ~6 campos o grupos claros se dividen en pasos (máx. 3-4). "Continuar" valida solo el paso actual; Enter en un paso intermedio avanza. Con server actions todos los pasos quedan montados (`hidden`) para que el `FormData` lleve todo. Componentes pesados (mapa) se montan al visitar su paso.
+
+Referencias: `users/new` (react-hook-form, 2 pasos), `clubs/new` (server action + mapa, 3 pasos).
+
+### 14.2 Eliminar / desactivar: AlertDialog
+
+Siempre `AlertDialog` con confirmación; nunca `window.confirm`.
+
+```tsx
 <AlertDialog open={open} onOpenChange={setOpen}>
   <AlertDialogContent>
     <AlertDialogHeader>
-      <AlertDialogMedia className="bg-destructive/10">
-        <AlertTriangle className="h-5 w-5 text-destructive" />
-      </AlertDialogMedia>
-      <AlertDialogTitle>¿Desactivar registro?</AlertDialogTitle>
-      <AlertDialogDescription>
-        Estas a punto de desactivar <strong className="text-foreground">"Nombre"</strong>.
-        Este registro no se eliminara permanentemente, pero dejara de estar disponible.
-      </AlertDialogDescription>
+      <AlertDialogTitle>¿Desactivar “{name}”?</AlertDialogTitle>
+      <AlertDialogDescription>El registro deja de estar disponible; no se elimina.</AlertDialogDescription>
     </AlertDialogHeader>
     <AlertDialogFooter>
       <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
-      <AlertDialogAction variant="destructive" onClick={handleConfirm} disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Procesando...
-          </>
-        ) : (
-          "Desactivar"
-        )}
+      <AlertDialogAction variant="destructive-solid" loading={loading} onClick={confirm}>
+        Desactivar
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
 </AlertDialog>
 ```
 
-**Tamaños de AlertDialog:**
-- `size="default"` -> `sm:max-w-lg` (eliminacion con contexto)
-- `size="sm"` -> `max-w-xs` (confirmacion rapida)
+- `size="default"` (`max-w-xs`, `sm:max-w-md`) o `size="sm"` (`max-w-xs`).
+- Confirmación final irreversible = `destructive-solid`; el disparador en la fila es `RowActions` con `destructive: true`.
+- Título como pregunta; la descripción dice qué pasa. `AlertDialogMedia` (círculo `bg-muted`) es opcional.
+- Textos de botón en infinitivo ("Desactivar", "Eliminar"); estado de carga con `loading`, no cambiando el texto a mano.
 
-### 6.3 Flujo Completo de CRUD
+### 14.3 Sheet compose (acciones sobre un listado)
+
+Úsalo cuando se cumplan **todos**: la operación es secundaria respecto al listado, no hay pantalla de edición posterior (enviar, disparar, registrar), mantener el listado visible tras el submit es lo esperado, y el formulario no cabe cómodo en un Dialog (más de 4 campos, selects encadenados, variantes). Referencia: `notifications/notification-compose-sheet.tsx`.
 
 ```
-[Pagina de Listado]
-  |
-  |-- Boton "Crear nuevo" (esquina superior derecha)
-  |     -> Navega a /new (pagina de formulario)
-  |     -> onSubmit: POST -> toast.success -> redirect al listado
-  |
-  |-- Boton "Editar" (en cada fila / card)
-  |     -> Navega a /[id] (pagina de formulario prellenado)
-  |     -> onSubmit: PUT/PATCH -> toast.success -> redirect al listado
-  |
-  |-- Boton "Eliminar/Desactivar" (en cada fila / card)
-  |     -> Abre AlertDialog de confirmacion
-  |     -> onConfirm: DELETE -> toast.success -> recarga lista
+SheetHeader (border-b, px-6 py-5)    título + SheetDescription contextual
+Selector de tipo (opcional)           radiogroup/cards si hay 2+ variantes
+Body (flex-1 overflow-y-auto px-6)    FieldSet + FieldLegend variant="label"
+Footer sticky (border-t, pt-4)        submit w-full + hint opcional
 ```
 
-### 6.4 Layout de Pagina CRUD
+- Disparador en `PageHeader.actions` (botón primario con `Plus`).
+- `SheetContent`: `flex h-full flex-col gap-0 overflow-hidden bg-background p-0 sm:max-w-md`.
+- Al éxito: cerrar, `router.refresh()`, limpiar query params (`?compose=1&type=…`).
+- i18n: chrome en `configuration.<feature>.compose.*`.
 
-```tsx
-<div className="space-y-5">
-  {/* Header */}
-  <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">Titulo</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Descripcion</p>
-    </div>
-    <Link href={`${routeBase}/new`} className="shrink-0">
-      <Button>
-        <Plus className="mr-2 h-4 w-4" />
-        Nuevo elemento
-      </Button>
-    </Link>
-  </div>
+### 14.4 Flujo
 
-  {/* Buscador */}
-  <div className="relative max-w-sm">
-    <Search className="absolute left-3 top-2.5 text-muted-foreground" size={18} />
-    <Input placeholder="Buscar..." className="pl-10" />
-  </div>
-
-  {/* Tabla */}
-  <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-    <Table>...</Table>
-  </div>
-
-  {/* Footer */}
-  <div className="flex items-center justify-between border-t border-border pt-4">
-    <p className="text-sm text-muted-foreground">
-      Mostrando <span className="font-medium text-foreground">{filtered}</span> de{" "}
-      <span className="font-medium text-foreground">{total}</span> registros
-    </p>
-  </div>
-</div>
-```
+Listado → "Nuevo…" abre el modal de `/new` → guardar: acción, `toast.success`, cierra y refresca. Fila → "⋯" → Editar abre `/[id]/edit`; Eliminar abre `AlertDialog`; al confirmar, `toast.success` y refresco. Textos de toast en §20.
 
 ---
 
-## 7. Componentes Compartidos
+## 15. Catálogos
 
-### 7.1 PageHeader
+Existen **tres orquestadores** de catálogo. Comparten los primitivos de listado (§11) y esta decisión está tomada: **no se fusionan en PhaseE**.
 
-**Import:** `@/components/shared/page-header`
+| Orquestador | Páginas | Dónde |
+|---|---|---|
+| `PhaseECatalogCrudPage` (`catalogs/phase-e-catalog-crud-page.tsx`) | 12 | Catálogos genéricos con fetch cliente y toasts con título + descripción |
+| `*PageClient` + `CatalogTableView` | 10 | countries, divisions, unions, districts, churches, club-types, club-ideals, honor-categories, honors, local-fields. Tabla TanStack con filtros propios, paginación controlada y lista de 2 líneas en móvil |
+| `CatalogEntityPage` → `CatalogCrudPage` | 1 | `ecclesiastical-years`. Server component: auth, `listEntityItems`, `EndpointErrorBanner` si falla, `selectOptions`; la config sale de `lib/catalogs/entities.ts` |
 
-Titulo canonico de pagina. Misma familia que el resto del panel: Geist (`--font-sans`), `font-semibold`. `font-display` es alias de Geist.
+Reglas comunes:
 
-```tsx
-<PageHeader
-  title="Titulo de la pagina"
-  description="Descripcion corta de la seccion."
-  breadcrumbs={[                        // Opcional: array de breadcrumbs
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Seccion", href: "/dashboard/seccion" },
-    { label: "Detalle" },               // El ultimo sin href
-  ]}
-  actions={<Button>Accion</Button>}     // Opcional: ReactNode
->
-  {/* Legacy: `children` tambien se renderiza como actions (retrocompat) */}
-</PageHeader>
-```
+- Cabeceras, filas móviles, `EmptyState`, `DataTablePagination` y `RowActions` son los de §11; no reimplementes paginación ni vacíos.
+- **Crear/editar con `Dialog` (`CatalogFormDialog`) es una excepción aceptada para catálogos simples** (1-4 campos, sub-entidad sin ciclo de vida propio). Cualquier otro CRUD usa la ruta interceptada de §14.1 (con `FormPageFrame` de fallback donde aplique).
+- Desactivar con `CatalogDeleteDialog` (AlertDialog).
+- `club-ideals` usa diálogo propio (`club-ideal-form-dialog.tsx`).
+- Traducciones de catálogos: `TranslationsTabsField` (admite `secondField`) y `src/lib/generic-catalogs-i18n/{actions,helpers}.ts`.
+- Un catálogo nuevo de tipo genérico: registra la config en `lib/catalogs/entities.ts`, crea `catalogs/<entidad>/page.tsx` y usa el orquestador que corresponda a su forma.
 
-**Estilo aplicado al h1**: `font-semibold text-2xl text-foreground tracking-tight sm:text-3xl`.
-
-**Reglas**:
-- **NO** dejes un `h1` suelto con `font-bold` — pasa por `<PageHeader>`.
-- `text-2xl` en mobile, `text-3xl` en desktop (≥640px).
-- Breadcrumbs opcionales con separador chevron, semanticos (`<nav aria-label="Breadcrumb">`).
-- Description tiene `max-w-prose` para que no se estire todo el ancho.
-- Actions se agrupan a la derecha en desktop, debajo en mobile.
-
-### 7.2 EmptyState
-
-**Import:** `@/components/shared/empty-state`
-
-```tsx
-<EmptyState
-  icon={Inbox}                    // Default: Inbox
-  title="Sin registros"
-  description="Ajusta tus filtros o agrega un nuevo elemento."
-  action={<Button size="sm">Crear</Button>}  // Opcional
-/>
-```
-
-- Envuelto en `Card` con `border-dashed`
-- Icono en circulo `h-12 w-12 rounded-full bg-muted`
-- Centrado: `flex-col items-center justify-center px-6 py-12 text-center`
-
-### 7.3 LoadingSkeleton
-
-**Status: NO existe como componente shared.** Usar `<Skeleton>` directo de `@/components/ui/skeleton` con dimensiones que simulen el contenido final.
-
-```tsx
-import { Skeleton } from "@/components/ui/skeleton";
-
-<DataTableShell>
-  {Array.from({ length: 6 }).map((_, i) => (
-    <div key={i} className="flex items-center gap-4 border-b p-4 last:border-b-0">
-      <Skeleton className="h-4 w-40" />
-      <Skeleton className="hidden h-4 w-24 md:block" />
-      <Skeleton className="h-5 w-14" />
-    </div>
-  ))}
-</DataTableShell>
-```
-
-Patrón ejemplar en `src/app/(dashboard)/dashboard/clubs/page.tsx` (`ClubsSkeleton`).
-
-### 7.4 StatusBadge
-
-**Import:** `@/components/ui/status-badge` (vive en `ui/`, no `shared/`, desde Fase 3)
-
-Componente unificado para **todos los badges de status de dominio**. Reemplaza el patron anterior de "un wrapper por feature hardcodeando colores por estado". Los 7 wrappers existentes (`investiture-status-badge`, `pipeline-status-badge`, `folder-status-badge`, `evidence-status-badge`, `evidence-type-badge`, `validation-status-badge`, `request-status-badge`) son ahora thin wrappers sobre `StatusBadge` que solo mapean enums de dominio al intent generico.
-
-**API:**
-
-```tsx
-<StatusBadge
-  intent="success"                     // Requerido: ver tabla abajo
-  label="Aprobado"                     // Requerido: string
-  icon={CheckCircle2}                  // Opcional: LucideIcon
-  size="default"                       // Opcional: "xs" | "sm" | "default"
-  className="..."                      // Opcional: overrides
-/>
-```
-
-**Intents disponibles (9)**:
-
-| Intent | Badge variant usado | Uso |
-|--------|---------------------|-----|
-| `neutral` | `outline` | Estados inactivos, "sin enviar", draft |
-| `info` | `soft-info` | Enviado, en cola, info general |
-| `success` | `soft-success` | Aprobado, validado, completado |
-| `warning` | `soft-warning` | Pendiente, necesita atencion |
-| `destructive` | `destructive` (pleno) | Rechazado, fallo |
-| `primary` | `soft` | Estado final positivo (ej. investido) |
-| `progress-1` | `outline` + chart-1 tint | Pipeline stage 1 (ej. aprobado por director) |
-| `progress-2` | `outline` + chart-2 tint | Pipeline stage 2 (ej. aprobado por coordinacion) |
-| `progress-3` | `outline` + chart-3 tint | Pipeline stage 3 (ej. aprobado por campo) |
-
-**Los `progress-*`** reutilizan los chart tokens (`--chart-1/2/3`) con `color-mix(in oklch, ..., transparent)` para tints translucidos. Representan progresion ordenada en pipelines (ej. el pipeline de investidura tiene 3 etapas antes de `INVESTED`). Cada stage se ve con un tono distinto de la paleta ordenada de charts.
-
-**Patron wrapper feature-specific** (ejemplo real):
-
-```tsx
-// src/components/investiture/investiture-status-badge.tsx
-import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
-import type { InvestitureStatus } from "@/lib/api/investiture";
-
-const statusMap: Record<InvestitureStatus, { label: string; intent: StatusIntent }> = {
-  IN_PROGRESS: { label: "En progreso", intent: "neutral" },
-  SUBMITTED: { label: "Enviado", intent: "warning" },
-  CLUB_APPROVED: { label: "Aprobado por club", intent: "progress-1" },
-  COORDINATOR_APPROVED: { label: "Aprobado por coordinacion", intent: "progress-2" },
-  FIELD_APPROVED: { label: "Aprobado por campo", intent: "progress-3" },
-  APPROVED: { label: "Aprobado", intent: "success" },
-  REJECTED: { label: "Rechazado", intent: "destructive" },
-  INVESTED: { label: "Investido", intent: "primary" },
-};
-
-export function InvestitureStatusBadge({ status }: { status: InvestitureStatus }) {
-  const config = statusMap[status] ?? { label: status, intent: "neutral" as StatusIntent };
-  return <StatusBadge intent={config.intent} label={config.label} />;
-}
-```
-
-**Reglas**:
-- **NO** pongas logica de dominio dentro de `StatusBadge` — el componente no sabe que es "SUBMITTED". Los wrappers feature-specific son los unicos que conocen enums del backend.
-- **NO** dupliques estilos — siempre delegar a `<Badge variant="soft-*">`. La unica excepcion son los 3 `progress-*` que usan `color-mix` + `var(--chart-N)` inline.
-- Cuando el backend cambia un enum (ej. la migracion `20260413130000` que paso evidence status a uppercase), hay que actualizar el map del wrapper correspondiente.
-
-### 7.5 DataTable
-
-**Status: NO existe.** No hay componente `<DataTable>` de alto nivel. El proyecto usa `<DataTableShell>` (chrome canónico) wrappeando el `<Table>` primitivo de shadcn directamente. La búsqueda y filtros viven en `<CatalogFilterBar>` o se implementan inline. Ver §7.5b.
-
-### 7.5b DataTableShell
-
-**Import:** `@/components/shared/data-table-shell`
-
-```tsx
-<DataTableShell>
-  <Table>
-    <TableHeader>{/* ... */}</TableHeader>
-    <TableBody>{/* ... */}</TableBody>
-  </Table>
-</DataTableShell>
-```
-
-Chrome canónico para tablas: `rounded-xl border-border/60 bg-card shadow-xs overflow-hidden`. Reemplazó las 3 conventions previas (`rounded-md`, `rounded-lg`, etc.) que coexistían en el codebase.
-
-### 7.6 DataTablePagination
-
-**Import:** `@/components/shared/data-table-pagination`
-
-```tsx
-<DataTablePagination page={1} totalPages={5} onPageChange={setPage} />
-```
-
-### 7.7 ConfirmDialog
-
-**Status: NO existe como componente shared.** Las confirmaciones destructivas usan `<AlertDialog>` directamente. Ver `catalog-delete-dialog`, `delete-activity-dialog`, `delete-camporee-dialog`, etc. — patrones específicos por feature en lugar de un wrapper genérico.
-
-```tsx
-<AlertDialog open={open} onOpenChange={onOpenChange}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>¿Desactivar usuario?</AlertDialogTitle>
-      <AlertDialogDescription>El usuario dejará de tener acceso al sistema.</AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-      <AlertDialogAction onClick={handleConfirm}>Sí, desactivar</AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
-```
-
-### 7.8 CatalogEntityPage (orquestador canonico)
-
-**Import:** `@/components/catalogs/catalog-entity-page`
-
-**Este es el punto de entrada oficial para las ~13 paginas de catalogo.** Cada pagina en `app/(dashboard)/dashboard/catalogs/*/page.tsx` usa exclusivamente este componente. Es un Server Component asincrono.
-
-**Props:**
-
-| Prop | Tipo | Descripcion |
-|------|------|-------------|
-| `entityKey` | `EntityKey` | Clave del catalogo — resuelve config, endpoint, campos, y routeBase desde `entityConfigs` en `lib/catalogs/entities.ts` |
-
-**Responsabilidades internas de CatalogEntityPage:**
-1. `requireAdminUser()` — protege la ruta sin repetir logica en cada page.
-2. Fetcha items con `listEntityItems(entityKey)` — envuelve el error en un `EndpointErrorBanner` si falla.
-3. Resuelve `selectOptions` para campos tipo `select` con entidades relacionadas.
-4. Pasa todo a `CatalogCrudPage` (client component que maneja el estado de UI del listado + dialogo inline).
-
-**Uso tipico (consumer):**
-
-```tsx
-// src/app/(dashboard)/dashboard/catalogs/allergies/page.tsx
-import { CatalogEntityPage } from "@/components/catalogs/catalog-entity-page";
-
-export default function AllergiesPage() {
-  return <CatalogEntityPage entityKey="allergies" />;
-}
-```
-
-Para agregar un nuevo catalogo: (1) registrar la config en `lib/catalogs/entities.ts`, (2) crear la carpeta en `app/(dashboard)/dashboard/catalogs/{entity}/`, (3) agregar `page.tsx` con el snippet de arriba. No hay mas codigo.
-
-**Jerarquia de componentes internos** (para referencia — no usar directamente en pages):
-
-| Componente | Archivo | Rol |
-|------------|---------|-----|
-| `CatalogEntityPage` | `catalog-entity-page.tsx` | **Orquestador** — Server Component, fetching, auth |
-| `CatalogCrudPage` | `catalog-crud-page.tsx` | Client Component — tabla + estado de UI + dialogo de crear/editar |
-| `CatalogFormDialog` | `catalog-form-dialog.tsx` | Dialog de crear/editar (excepcion permitida per §6.1.1) |
-| `CatalogDeleteDialog` | `catalog-delete-dialog.tsx` | AlertDialog de desactivacion |
-
-### 7.9 CatalogDeleteDialog
-
-**Import:** `@/components/catalogs/catalog-delete-dialog`
-
-AlertDialog generico para desactivacion de registros de catalogo.
-
-### 7.10 Toaster (Sonner)
-
-**Import:** `@/components/ui/sonner` (re-export de `sonner`'s `Toaster`)
-
-Montado en `src/app/layout.tsx` directamente — no hay wrapper `AppToaster` shared.
-
-- Posición: `top-center`
-- `richColors` habilitado
-- `closeButton` habilitado
-
-**Uso de toasts:**
-```tsx
-import { toast } from "sonner";
-
-toast.success("Registro creado correctamente");
-toast.error("Error al guardar el registro");
-toast.warning("El registro ya existe");
-```
-
-### 7.11 EndpointErrorBanner
-
-**Import:** `@/components/shared/endpoint-error-banner`
-
-Banner de error para endpoints no disponibles, prohibidos o limitados por rate. Usado dentro de Server Components cuando el fetch falla.
-
-```tsx
-<EndpointErrorBanner
-  state="forbidden"     // "forbidden" | "missing" | "rate-limited"
-  detail="No tienes permisos para ver este recurso."
-  showLoginLink={true}  // Opcional: muestra boton "Ir a login"
-/>
-```
-
-| Estado | Icono | Badge variant |
-|--------|-------|---------------|
-| `forbidden` | `ShieldOff` | `destructive` |
-| `missing` | `ServerOff` | `secondary` |
-| `rate-limited` | `Clock` | `outline` |
-
-Estilo del contenedor: `rounded-lg border border-destructive/30 bg-destructive/5 p-4`.
-
-### 7.12 ModuleListPage
-
-**Import:** `@/components/shared/module-list-page`
-
-Server Component asincrono para paginas de listado de modulos con fetch de API integrado. Alternativa lightweight a `DataTable` cuando no se necesita busqueda client-side.
-
-```tsx
-// En un page.tsx (Server Component)
-<ModuleListPage
-  title="Recursos"
-  description="Lista de recursos del sistema."
-  endpoint="/resources"
-  icon={BookOpen}
-  columns={[
-    { key: "name", label: "Nombre" },
-    { key: "type", label: "Tipo", format: (v) => <Badge>{String(v)}</Badge> },
-    { key: "createdAt", label: "Fecha" },
-  ]}
-  idKey="id"
-/>
-```
-
-- Llama internamente a `apiRequest(endpoint)` y extrae el array del payload (soporta `[]`, `{data:[]}`, `{data:{data:[]}}`).
-- Si falla el fetch, renderiza `<EndpointErrorBanner>` en lugar de lanzar.
-- Columna de formato con `format?: (value, item) => ReactNode` para celdas custom.
-- Llama a `requireAdminUser()` — solo para rutas del dashboard admin.
+Otros usos legítimos de `Dialog` (todos con ≤4 campos o solo lectura): acción puntual parametrizada (`member-of-month/evaluate-dialog.tsx`), historial inline (`investiture/pipeline-history-dialog.tsx`), formulario secundario embebido en un panel de detalle (`clubs/club-sections-panel.tsx`).
 
 ---
 
-## 8. Iconos
+## 16. Formularios
 
-### 8.1 Libreria
-
-Iconos de producto: **Hugeicons** (`@hugeicons/react` + `@hugeicons/core-free-icons`).
-
-Imports `lucide-react` pasan por el shim `lucide-react-compat` (mismo API, glifos Hugeicons). No agregues otra libreria de iconos. Preferí Hugeicons directo en primitivos nuevos (`Spinner`, `Sheet` close, `Select` chevron).
-
-### 8.2 Tamanos Estandar
-
-| Contexto | Tamano | Clase |
-|----------|--------|-------|
-| Sidebar nav | 18x18 | `h-[18px] w-[18px]` |
-| Sidebar submenu | 14x14 | `h-3.5 w-3.5` |
-| Header actions | 18px | `size={18}` |
-| Botones con texto | 16px | `size={16}` |
-| Tabla acciones | 14x14 | `h-3.5 w-3.5` |
-| KPI cards | 18px | `size={18}` |
-| Indicadores inline | 14px | `size={14}` |
-| Hero / Login | 32x32 | `h-8 w-8` |
-
-### 8.3 Contenedores de Iconos
+### 16.1 Estructura
 
 ```tsx
-// Contenedor cuadrado (KPI, feature cards)
-<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-  <Icon size={18} className="text-primary" />
-</div>
-
-// Contenedor circular (empty states, avatars)
-<div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-  <Icon className="h-5 w-5 text-muted-foreground" />
-</div>
-
-// Contenedor circular pequeno (pasos, timeline)
-<div className="flex h-9 w-9 items-center justify-center rounded-full border bg-card text-muted-foreground">
-  <Icon className="h-4 w-4" />
-</div>
+<Field>
+  <FieldLabel htmlFor="name">Nombre <span className="ml-0.5 text-destructive">*</span></FieldLabel>
+  <Input id="name" name="name" />
+  <FieldError>{error}</FieldError>
+</Field>
 ```
 
-### 8.4 Iconos por Contexto
+- Componentes de `ui/field.tsx`: `FieldGroup`, `FieldSet`, `FieldLegend` (`variant="label"` para secciones), `Field`, `FieldLabel`, `FieldDescription`, `FieldError`. Una sección no repite su título como `<h3>` suelto.
+- Etiqueta siempre visible y enlazada (`htmlFor`/`id`). Los campos obligatorios llevan asterisco `text-destructive`.
+- `SelectTrigger className="w-full"` en formularios de página.
+- Espaciado entre campos `space-y-4` (o `gap-4` en `FieldSet`).
 
-| Accion | Icono | Import |
-|--------|-------|--------|
-| Crear/Agregar | `Plus` / Hugeicons `Add01` | `lucide-react` o `@hugeicons/core-free-icons` |
-| Editar | `Pencil` | shim lucide |
-| Eliminar/Desactivar | `Ban` o `Trash2` | shim lucide |
-| Buscar | `Search` | shim lucide |
-| Menu de acciones | `MoreHorizontal` | shim lucide |
-| Cerrar | `X` / Hugeicons `Cancel01` | Hugeicons en Sheet |
-| Cargando | `<Spinner />` (`animate-spin motion-reduce:animate-none`) | `@/components/ui/spinner` |
-| Alerta/Error | `AlertTriangle` o `AlertCircle` | shim lucide |
-| Exito | `Check` o `CheckCircle` | shim lucide |
-| Expandir | Hugeicons `ArrowDown01` / `UnfoldMore` | no rotar chevron 180 si hay icono open/close |
-| Link externo | `ArrowUpRight` | shim lucide |
-| Tendencia positiva | `TrendingUp` | shim lucide |
-| Tendencia negativa | `TrendingDown` | shim lucide |
+### 16.2 Validación
+
+Cliente: Zod + React Hook Form. Servidor: server actions con Zod y `fieldErrors`. Errores de campo inline; error general en `Alert` destructivo. Un campo inválido lleva `aria-invalid`.
+
+### 16.3 Tipos de campo
+
+| Tipo | Componente |
+|---|---|
+| Texto, email, número | `Input` |
+| Contraseña | `Input type="password"` con toggle de visibilidad |
+| Fecha | `Input type="date"` o `Calendar` en `Popover`; formato `yyyy-MM-dd` |
+| Texto largo | `Textarea` (`rows` ≥ 3) |
+| Booleano | `Switch` con etiqueta a la derecha |
+| Selección | `Select` (o `Combobox` con búsqueda) |
+| Aceptación / multi | `Checkbox` |
+
+### 16.4 En modal, página y sheet
+
+- Modal de ruta: `FormModalBody`/`FormModalFooter` (§14.1); botones `outline` (cancelar) y `default` (guardar) con `FormSubmitButton`.
+- Dialog (excepciones): `DialogFooter className="gap-2 pt-2"`.
+- Sheet compose: footer sticky con submit a ancho completo y `loading`.
+- Advertencias: `Alert` con ícono, no `div` de color a mano.
+
+### 16.5 Táctil
+
+Campos ≥16px en `pointer: coarse`, `touch-action: manipulation` en controles, sin resaltado de toque, objetivos táctiles de **≥44px por debajo de `md`** (p. ej. `max-md:min-h-11` en ítems de submenú del sidebar; en controles nuevos, amplía el área con `after:-inset-*` como Checkbox y Switch). Atajos de teclado (`⌘J`) solo con `pointer: fine`.
 
 ---
 
-## 9. Animaciones y Transiciones
+## 17. Gráficos y datos auxiliares
 
-Fuente de verdad: `src/lib/animations.ts` + tokens en `src/app/globals.css`. No copies duraciones sueltas.
-
-### 9.1 Tokens
-
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--ease-out-expo` | `cubic-bezier(0.23, 1, 0.32, 1)` | Entradas y press |
-| `--ease-drawer` | `cubic-bezier(0.32, 0.72, 0, 1)` | Sheet / drawer |
-| `--duration-fast` | `150ms` | Press, tooltip |
-| `--duration-normal` | `200ms` | Overlays |
-| `--duration-slow` | `250ms` | Login enter (no dashboard) |
-| `--duration-sheet` | `300ms` | Sheet **enter** only. Exit usa `--duration-normal` (200ms). |
-
-Helpers TS (usar estos, no strings sueltos):
-
-```tsx
-import {
-  PAGE_ENTER_CLASSES,       // login only — never dashboard layout
-  EMPTY_STATE_ENTER_CLASSES, // 200ms fade, no zoom
-  SURFACE_MOTION_CLASSES,   // 200ms overlays
-} from "@/lib/animations";
-```
-
-### 9.2 Reglas
-
-- UI ≤ 300ms. Nada de `ease-in`. Nada de `scale(0)` — arrancar en `scale(0.95)` + opacity.
-- No agregues `transition-all`. El rail del sidebar es excepcion settled; no lo copies.
-- Superficie de teclado (`⌘J` / command palette): **sin** animacion de overlay ni contenido (`overlayInstant`, `animate-none`).
-- Sidebar `⌘B` (y Enter/Space en el trigger): **sin** motion. Clase `instant-motion` en `html` durante el toggle. Click de puntero conserva `duration-200`.
-- Hover con **transform**: solo `[@media(hover:hover)_and_(pointer:fine)]:`. Color puede quedar sin gate.
-- `motion-reduce:` quita movimiento (spin, pulse, slide, zoom); color/opacity pueden quedarse.
-- Press: `scale(0.97)` a 150ms (`--ease-out-expo`).
-- Navegación del dashboard: **sin** `PAGE_ENTER_CLASSES`. El layout no anima el contenido.
-- Tablas, listas operativas y `loading.tsx` de ruta: **sin** stagger. Montar instantáneo.
-- Input/textarea: transicion nombrada 150ms, no `transition-all` ni `transition-colors` sin duration.
-
-### 9.3 Listas
-
-Tablas y listados del panel (users, catálogos, enrollments, investiture, camporee, reports, RBAC, inventory, requests, audit, finances KPIs): sin `STAGGER_CLASSES` ni `getStaggerStyle`.
-
-`STAGGER_CLASSES` queda exportado solo para superficies raras / primera vez. No lo copies en CRUD.
-
-### 9.4 Overlays
-
-- Dialog / AlertDialog: fade + `zoom-in-95` via `SURFACE_MOTION_CLASSES` (200ms). Selectores radix-nova: `data-open` / `data-closed`.
-- Command palette: `overlayInstant` en overlay; contenido `animate-none`.
-- Tooltip: `delayDuration={300}`, `skipDelayDuration={300}`. Anima solo `data-[state=delayed-open]`. `data-[state=instant-open]:animate-none`.
-- Accordion: fade 150ms, **sin** keyframes de altura.
-- Collapsible (sidebar): instantaneo, sin slide de altura.
-- Sheet: enter 300ms / exit 200ms.
-
-### 9.5 Login
-
-Entrada del form: `PAGE_ENTER_CLASSES` (250ms). Único uso de page-enter. No hay orbes flotantes ni `animate-fade-up`. No aplicar en `(dashboard)/layout.tsx`.
-
-### 9.6 Loading
-
-Usar `<Spinner />` de `@/components/ui/spinner`. No copies `Loader2` + `animate-spin` a mano: el primitivo y `globals.css` ya apagan spin/pulse con `prefers-reduced-motion`.
-
-```tsx
-import { Spinner } from "@/components/ui/spinner";
-
-<Button disabled={loading}>
-  {loading ? (
-    <>
-      <Spinner />
-      Procesando...
-    </>
-  ) : (
-    "Guardar"
-  )}
-</Button>
-
-<div className="flex items-center justify-center py-20">
-  <Spinner className="h-8 w-8 text-primary" />
-</div>
-```
-
-Skeletons: `<Skeleton>` de `@/components/ui/skeleton`. Ver §7.3.
+Ver §2.5 para colores y §12.4 para criterio. `ui/chart.tsx` (wrapper de Recharts) es el único punto de entrada; los hex que contiene son una fuga conocida. Listas descriptivas en móvil: `dl` con `dt` `text-xs text-muted-foreground` y `dd` `text-sm`, o las filas de 2 líneas de §11.1.
 
 ---
 
-## 10. Layout y Navegacion
+## 18. Dark mode
 
-### 10.1 Estructura del Dashboard
-
-```
-+-------------------------------------------------------------------+
-| Sidebar (w-60)  |  Header (h-12, sticky)                         |
-| - Brand logo    |  [Mobile menu] [Breadcrumbs] ... [Search]      |
-| - Nav groups    |  [Theme] [Notifications] [User]                |
-| - Separators    |                                                 |
-|                 +------------------------------------------------+
-|                 |  Main content (p-4 md:p-6)                     |
-|                 |  - PageHeader                                  |
-|                 |  - Content area (space-y-6)                    |
-|                 |  - Footer                                      |
-+-------------------------------------------------------------------+
-```
-
-### 10.2 Sidebar
-
-- Ancho: `--sidebar-width: calc(var(--spacing) * 68)` en `SidebarProvider` (`(dashboard)/layout.tsx`)
-- Oculto en mobile (`hidden md:block`)
-- Mobile: usa `Sheet` (panel lateral)
-- Brand: icono `h-8 w-8 rounded-lg` + nombre `text-lg font-bold`
-- Grupos separados por `Separator` y labels `text-xs font-medium text-muted-foreground`
-- Items activos: `bg-sidebar-accent text-sidebar-accent-foreground`
-- Items hover: `hover:bg-sidebar-accent/50`
-- Submenus: `Collapsible` con borde izquierdo `border-l border-sidebar-border`
-- Scrollbar custom: `custom-scrollbar`
-
-### 10.3 Header
-
-- Altura: `h-12` (`[--dashboard-header-height:--spacing(12)]`)
-- Sticky si `data-navbar-style=sticky`: `sticky top-0 z-50 bg-background/50 backdrop-blur-md`
-- Border: `border-b`
-- Contenido: SidebarTrigger + Search (izquierda) | ThemeSwitcher + User (derecha)
-
-### 10.4 Breadcrumbs
-
-- Formato: `Dashboard / Seccion / Subseccion`
-- Separador: `/`
-- Link activo: `text-foreground font-medium`
-- Links anteriores: `text-muted-foreground hover:text-foreground`
+- Valores en la columna "Oscuro" de §2; el selector es `@custom-variant dark (&:is(.dark *))`.
+- Por defecto **claro**. `ThemeSwitcher` cicla `light → dark → system`. Persistencia: cookie `theme_mode` + clase `.dark` en `<html>` (`applyThemeMode`); `ThemeBootScript` evita el parpadeo. Sonner lee `resolvedThemeMode` del store de preferencias, no `useTheme()`.
+- Usa tokens semánticos (`bg-card`, `text-muted-foreground`, `border-border`, `bg-x/10`); nunca paleta fija ni `bg-white`. Un color nuevo se valida en ambos temas.
+- Particularidades oscuras: `--primary` (`#4C9AFF`) para texto y `--primary-solid` (`#0073EA`) para rellenos; `--destructive` `#F87171` para texto y `#DC2626` para relleno; `--accent` `#2A2A2A` y `--muted` `#232323` para que menús y skeletons se distingan de popover/card; los campos usan `dark:bg-input/30`; las sombras usan anillo blanco al 8%.
+- Login y auth: panel de marca neutro (`bg-sidebar`), sin degradados, glows ni círculos decorativos; el azul solo en el botón de entrar. Card `rounded-2xl`. Entrada con `PAGE_ENTER_CLASSES`.
 
 ---
 
-## 11. Formularios
+## 19. Responsive
 
-### 11.1 Estructura de Campo
-
-```tsx
-<div className="space-y-2">
-  <Label htmlFor="fieldName">
-    Nombre del campo
-    {required && <span className="ml-0.5 text-destructive">*</span>}
-  </Label>
-  <Input
-    id="fieldName"
-    name="fieldName"
-    placeholder="Escribe aqui..."
-    required
-  />
-</div>
-```
-
-### 11.2 Validacion
-
-- **Client-side**: Zod schemas con React Hook Form
-- **Server-side**: Server actions con validacion Zod
-- **Errores inline**: `text-destructive` debajo del campo
-- **Error general**: Banner con borde destructive
-
-```tsx
-{error && (
-  <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
-    {error}
-  </p>
-)}
-```
-
-### 11.3 Tipos de Campo
-
-| Tipo | Componente | Notas |
-|------|-----------|-------|
-| Texto | `Input type="text"` | - |
-| Email | `Input type="email"` | - |
-| Password | `Input type="password"` | Con icono `Lock` a la izquierda |
-| Numero | `Input type="number"` | - |
-| Fecha | `Input type="date"` | Formato `yyyy-MM-dd` |
-| Texto largo | `Textarea` | `rows={3}` minimo |
-| Booleano | `Switch` | Con label inline a la derecha |
-| Seleccion | `Select` | Con opciones `<option>` |
-| Checkbox | `Checkbox` | Para aceptaciones o multi-select |
-
-### 11.4 Formularios en Modales (solo excepciones)
-
-- Espaciado entre campos: `space-y-4`
-- Padding del form: `py-2`
-- Footer: `DialogFooter className="gap-2 pt-2"`
-- Boton cancelar: `variant="outline"`
-- Boton submit: `variant="default"` (primario)
-- Estado loading: texto del boton cambia + `disabled`
-- Usar modal solo en casos puntuales no-CRUD principal.
-
-### 11.5 Formularios en Sheet (compose panel)
-
-Patron visual obligatorio cuando el formulario vive en un compose panel (§6.1.2). Referencia: `notification-forms.tsx` (modo `embedded`).
-
-**Estructura del formulario embebido:**
-
-```tsx
-<form action={action} className="flex min-h-full flex-col" noValidate>
-  {/* Status / Alert de error o exito */}
-  <div className="flex flex-col gap-6">
-    <FieldGroup>
-      <FieldSet className="gap-4">
-        <FieldLegend variant="label">{t("sectionRecipient")}</FieldLegend>
-        {/* campos de destino / contexto */}
-      </FieldSet>
-      <FieldSet className="gap-4">
-        <FieldLegend variant="label">{t("sectionContent")}</FieldLegend>
-        {/* titulo, cuerpo, parametros */}
-      </FieldSet>
-    </FieldGroup>
-  </div>
-  <div className="sticky bottom-0 mt-8 border-t bg-background pt-4">
-    <Button type="submit" className="w-full">Enviar</Button>
-    <p className="mt-2 text-center text-xs text-muted-foreground">{hint}</p>
-  </div>
-</form>
-```
-
-**Reglas:**
-- Secciones con `FieldSet` + `FieldLegend variant="label"` — no repetir titulo de seccion como `<h3>` suelto.
-- Advertencias: componente `Alert` con icono (`AlertTriangle`), no divs con colores hardcodeados.
-- Errores de campo: `text-destructive text-xs` debajo del control.
-- Errores generales / exito: `Alert` variant `destructive` o borde success.
-- Campos requeridos: asterisco `<span className="text-destructive">*</span>`.
-- `Textarea` de mensaje: `rows={4}`, `min-h-28`, `resize-y`.
-- Submit: `w-full` en footer sticky; loading con `Loader2` + `disabled`.
-- Props del form embebido: `embedded` + `onSuccess` para cerrar panel y refrescar listado padre.
-- No duplicar descripcion del panel en el cuerpo del form — va en `SheetDescription`.
-
-**i18n minimo del compose:**
-
-```json
-"compose": {
-  "title": "Nueva …",
-  "newButton": "Nueva …",
-  "typeLabel": "Tipo de …",
-  "sectionRecipient": "Destinatario",
-  "sectionContent": "Contenido",
-  "submitHint": "La accion se ejecutara de inmediato."
-}
-```
+- Mobile-first. Sidebar: `Sheet` en móvil. Listados: tabla desde `md`, filas de 2 líneas debajo (§11.1). Modales de formulario: hoja inferior en `max-sm`.
+- Filtros con `flex-wrap`; campos a ancho completo en móvil; nunca scroll horizontal de la página.
+- Objetivos táctiles ≥44px bajo `md` (§16.5); inputs ≥16px en táctil.
+- Header de página: `flex-col gap-4 sm:flex-row sm:items-start sm:justify-between` (lo resuelve `PageHeader`).
+- `theme-color` por esquema de color. Landscape sin inflado de fuente (`-webkit-text-size-adjust`).
 
 ---
 
-## 12. Patrones de Presentacion de Datos
+## 20. Toasts
 
-### 12.1 Tarjetas KPI / Estadisticas
-
-```tsx
-<Card className="group transition-all hover:border-primary/20">
-  <CardContent className="p-5">
-    <div className="flex items-center justify-between">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-        <Icon size={18} className="text-primary" />
-      </div>
-    </div>
-    <div className="mt-3">
-      <p className="text-3xl font-bold text-foreground">{value}</p>
-      <div className="mt-2 flex items-center gap-1 text-xs font-medium">
-        <TrendingUp size={14} className="text-success" />
-        <span className="text-success">+12.5%</span>
-        <span className="ml-1 text-muted-foreground">vs mes anterior</span>
-      </div>
-    </div>
-  </CardContent>
-</Card>
-```
-
-### 12.2 Progress Bars
-
-```tsx
-<div className="h-2 rounded-full bg-muted">
-  <div
-    className="h-full rounded-full transition-all duration-500"
-    style={{ width: `${percentage}%`, backgroundColor: color }}
-  />
-</div>
-```
-
-### 12.3 Graficos (Recharts)
-
-- Usar CSS variables para colores: `var(--chart-1)`, `var(--chart-2)`, etc.
-- `CartesianGrid`: `className="stroke-border" strokeOpacity={0.5} strokeDasharray="3 3"`
-- Ejes: `tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} axisLine={false} tickLine={false}`
-- Gradientes para areas: opacity 0.3 arriba -> 0 abajo
-- Tooltip custom con `bg-card border-border shadow-xl`
-
-### 12.4 Timeline / Pasos
-
-```tsx
-<div className="relative">
-  {/* Linea vertical */}
-  <div className="absolute left-[19px] top-3 h-[calc(100%-24px)] w-px bg-border" />
-  <div className="space-y-4">
-    {steps.map((step, i) => (
-      <div key={step.title} className="relative flex items-start gap-4 pl-1">
-        <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-card text-muted-foreground">
-          <Icon className="h-4 w-4" />
-        </div>
-        <div className="pt-1">
-          <Badge variant="outline" className="text-[10px]">Fase {i + 1}</Badge>
-          <p className="mt-1 text-sm font-medium">{step.title}</p>
-          <p className="text-xs text-muted-foreground">{step.description}</p>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
-```
-
-### 12.5 Listas Descriptivas (Mobile Cards)
-
-```tsx
-<div className="rounded-xl border border-border bg-card p-4">
-  <div className="mb-2 flex items-center justify-between">
-    <Badge variant="success">Activo</Badge>
-    <div className="flex gap-1">
-      <Button size="sm" variant="ghost">Editar</Button>
-    </div>
-  </div>
-  <dl className="space-y-1.5">
-    <div className="flex items-baseline justify-between gap-2">
-      <dt className="shrink-0 text-xs text-muted-foreground">Campo</dt>
-      <dd className="truncate text-right text-sm">Valor</dd>
-    </div>
-  </dl>
-</div>
-```
+- `Toaster` en `src/app/layout.tsx`: `position="top-center"`, `closeButton`, **sin `richColors`**. Superficie neutra (`--popover`), el color vive solo en el ícono (success/error/warning/info). `expand={false}`, `visibleToasts={4}`.
+- Copy corto y en pasado, sin "correctamente/exitosamente/con éxito": "Sección creada", "Registro desactivado". Título + `description` opcional (patrón de `PhaseECatalogCrudPage`).
+- Errores de formulario o de página: banner/`Alert` en el lugar, no solo toast. `toast.error` para fallos de acciones sin lugar donde pintar el error.
+- Un toast por acción; no los uses para estados persistentes.
 
 ---
 
-## 13. Dark Mode
+## 21. Idioma y textos
 
-### 13.1 Configuracion
-
-```tsx
-// src/app/layout.tsx — no next-themes ThemeProvider
-<html data-theme-mode={theme_mode} data-theme-preset="default" data-font="geist" ...>
-  <head>
-    <ThemeBootScript />
-  </head>
-  ...
-</html>
-```
-
-- Default: **light**. Toggle: `ThemeSwitcher` cicla `light → dark → system`.
-- Persistencia: cookie `theme_mode` + clase `.dark` en `<html>` via `applyThemeMode`.
-- Selector CSS: `@custom-variant dark (&:is(.dark *));`
-- Sonner lee `resolvedThemeMode` del store de preferencias, no `useTheme()`.
-- Identidad: Scout Vibrante fijo. No hay preset picker.
-
-### 13.2 Reglas de Compatibilidad
-
-```
-HACER:
-  bg-primary/10        -> Funciona en ambos modos
-  text-muted-foreground -> Se adapta automaticamente
-  bg-card              -> Blanco en light, navy en dark
-  border-border        -> Se adapta automaticamente
-
-EVITAR POR DEFECTO:
-  bg-blue-50           -> No se adapta a dark mode
-  text-gray-600        -> Usar text-muted-foreground
-  bg-white             -> Usar bg-card o bg-background
-  border-gray-200      -> Usar border-border
-  Colores hardcoded sin validacion en ambos temas
-
-EXCEPCION:
-  Se permiten colores hardcoded cuando se solicite explicitamente una mejora visual
-  y se valide en light/dark + contraste minimo.
-```
-
-### 13.3 Patrones Dark Mode
-
-```tsx
-// Correcto: usar tokens semanticos
-className="bg-primary/10 text-primary"
-className="bg-destructive/10 text-destructive"
-className="bg-muted text-muted-foreground"
-
-// Evitar por defecto: colores que no se adaptan
-className="bg-blue-50 text-blue-600"
-className="bg-amber-100 text-amber-800"
-```
-
-### 13.4 Login Page
-
-**File:** `src/app/(auth)/login/page.tsx`
-
-La pagina de login es DUAL-MODE (se adapta a light y dark) usando exclusivamente tokens semanticos. NO usa colores hardcoded ni dark-only. La descripcion anterior ("`bg-[#101022]`") era incorrecta — esos colores pertenecian al diseno anterior pre-Ember.
-
-#### Layout structure
-
-```
-div.relative.min-h-svh.overflow-hidden.bg-background   ← fondo semantico
-  ├── div.absolute.inset-0  (grid pattern — aria-hidden)
-  ├── div.absolute.-top-32.-left-32  (ambient glow top-left — aria-hidden)
-  ├── div.absolute.-bottom-32.-right-32  (ambient glow bottom-right — aria-hidden)
-  └── div.relative.z-10.w-full.max-w-sm  (card container — centered)
-       ├── Brand header (logo + wordmark — OUTSIDE the card)
-       ├── div.rounded-2xl.border.bg-card  (card body)
-       │    ├── h1 + subtitle
-       │    └── form (email + password + submit)
-       └── Bible verse (OUTSIDE the card, below)
-```
-
-#### Tokens utilizados
-
-| Elemento | Token / Clase |
-|----------|--------------|
-| Fondo de pagina | `bg-background` |
-| Grid pattern | `opacity-[0.03] dark:opacity-[0.06]` sobre `currentColor` |
-| Glow top-left | `size-[480px] rounded-full bg-primary/10 dark:bg-primary/15 blur-3xl` |
-| Glow bottom-right | `size-[360px] rounded-full bg-primary/8 dark:bg-primary/10 blur-3xl` |
-| Card border | `border-border/60` |
-| Card fondo | `bg-card` |
-| Card shadow | `shadow-sm` |
-| Card radius | `rounded-2xl` |
-| Logo container | `rounded-xl border border-border/60 bg-card shadow-sm` |
-| Titulo h1 | `text-xl font-semibold tracking-tight text-foreground` |
-| Subtitulo | `text-sm text-muted-foreground` |
-| Labels | `text-sm font-medium` |
-| Inputs | `h-10` (usa el InputDecorationTheme global) |
-| Password toggle | `text-muted-foreground/50 hover:text-muted-foreground` |
-| Error banner | `border-destructive/20 bg-destructive/5 text-destructive dark:border-destructive/30 dark:bg-destructive/10` |
-| Versiculo bible | `text-[11px] italic text-muted-foreground/40 dark:text-muted-foreground/30` |
-
-#### Grid pattern inline (no hay clase Tailwind equivalente)
-
-```tsx
-style={{
-  backgroundImage:
-    "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
-  backgroundSize: "64px 64px",
-}}
-```
-
-#### Animacion de entrada
-
-El contenedor de la card usa: `animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out`
-
-#### Comportamiento responsive
-
-Padding de pagina: `p-4` en todos los breakpoints. La card tiene `max-w-sm` (384px) y se centra con `flex items-center justify-center`. No hay layout diferente en mobile vs desktop.
-
-#### Regla para replicar
-
-Toda nueva pagina de auth (futura pantalla de registro, recuperacion de password, etc.) debe seguir este mismo patron: `bg-background` + glows `bg-primary/10` + card `bg-card border-border/60`. Nunca usar fondos oscuros hardcoded.
+- Español (neutro) por defecto; el panel está listo para `es`, `en`, `fr`, `pt-BR` (`messages/`, cookie `sacdia_admin_locale`). **Todo** texto de UI, `aria-label`, `title`, `sr-only`, placeholders y validaciones sale de `next-intl` (`useTranslations` / `getTranslations`). Namespaces compartidos: `shared.*` (`pageHeader`, `pagination`, `errorBanner`, `routeError`, `uiPrimitives`, `formModal`, `sortable`), `nav.*`, `catalogs.*`.
+- Español en JSX fuera de i18n avisa con `hardcoded-spanish-ui`; la única excepción es `global-error.tsx` (§13.4).
+- Números y fechas con el locale activo (`Intl.NumberFormat(locale)`); formato de fecha principal `dd/MM/yyyy`. Evita fijar `es-MX` en `toLocale…` (deuda conocida en ~10 sitios).
+- Botones en infinitivo ("Crear", "Guardar"); confirmaciones como pregunta + contexto; vacíos "Sin registros" + ayuda; carga en gerundio ("Guardando…").
+- Sentence case en etiquetas y títulos.
 
 ---
 
-## 14. Responsive Design
-
-### 14.1 Estrategia
-
-- **Mobile-first**: Clases base para mobile, `md:` para desktop
-- **Sidebar**: Oculto en mobile, Sheet como alternativa
-- **Tablas**: Desktop tabla / Mobile cards (patron dual)
-- **Grids**: 1 columna -> 2 columnas -> 3-4 columnas
-
-### 14.2 Patrones Comunes
-
-```tsx
-// Grid responsive
-className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-
-// Ocultar en mobile
-className="hidden md:block"
-className="hidden md:table-cell"
-
-// Mostrar solo en mobile
-className="md:hidden"
-
-// Header responsive
-className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
-
-// Padding responsive
-className="p-4 md:p-6"
-```
-
----
-
-## 15. Toasts y Notificaciones
-
-### 15.1 Posicion y Config
-
-- Posicion: `top-center` (montado en `src/app/layout.tsx`)
-- Rich colors: habilitado
-- Close button: habilitado
-
-### 15.2 Patrones de Uso
-
-```tsx
-// Exito despues de crear
-toast.success(`${entityName} creado correctamente`);
-
-// Exito despues de editar
-toast.success(`${entityName} actualizado correctamente`);
-
-// Exito despues de eliminar
-toast.success(`${entityName} desactivado correctamente`);
-
-// Error
-toast.error("Error al guardar el registro");
-toast.error(state.error); // De server action
-
-// Login error
-toast.error(state.error); // Muestra en toast + inline
-```
-
----
-
-## 16. Scrollbar Personalizado
-
-```css
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.15);
-  border-radius: 3px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.3);
-}
-```
-
-Aplicar con `className="custom-scrollbar"` en contenedores con scroll.
-
----
-
-## 17. Acciones en Tablas
-
-### 17.1 Patron con Tooltip + Icono
-
-```tsx
-<div className="flex justify-end gap-1">
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEdit(item)}>
-        <Pencil className="h-3.5 w-3.5" />
-      </Button>
-    </TooltipTrigger>
-    <TooltipContent>Editar</TooltipContent>
-  </Tooltip>
-
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(item)}>
-        <Ban className="h-3.5 w-3.5" />
-      </Button>
-    </TooltipTrigger>
-    <TooltipContent>Desactivar</TooltipContent>
-  </Tooltip>
-</div>
-```
-
-### 17.2 Patron con DropdownMenu (mas de 2 acciones)
-
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="ghost" size="icon-sm">
-      <MoreHorizontal size={16} />
-    </Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent align="end">
-    <DropdownMenuItem onClick={() => handleEdit(item)}>
-      <Pencil className="h-4 w-4" />
-      Editar
-    </DropdownMenuItem>
-    <DropdownMenuItem onClick={() => handleView(item)}>
-      <Eye className="h-4 w-4" />
-      Ver detalle
-    </DropdownMenuItem>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem variant="destructive" onClick={() => handleDelete(item)}>
-      <Trash2 className="h-4 w-4" />
-      Eliminar
-    </DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-```
-
-**Regla**: Usar Tooltip+iconos cuando hay 1-2 acciones. Usar DropdownMenu cuando hay 3+ acciones.
-
----
-
-## 18. Idioma y Textos
-
-- **Idioma por defecto**: espanol (es-MX)
-- **Preparado para i18n**: textos de UI, `aria-label`, `title`, `sr-only`, tooltips y validaciones deben poder traducirse.
-- **Formato de numeros**: usar locale activo (`new Intl.NumberFormat(locale)`), fallback `es-MX`.
-- **Formato de fechas**: locale activo (default `es-MX`), formato principal `dd/MM/yyyy`.
-- **Textos de botones**: Verbos en infinitivo ("Crear", "Editar", "Guardar", "Cancelar")
-- **Confirmaciones**: Pregunta + descripcion ("¿Desactivar registro?" + contexto)
-- **Mensajes vacios**: "Sin registros" + descripcion + accion opcional
-- **Loading text**: Gerundio ("Guardando...", "Procesando...", "Verificando...")
-
----
-
-## 19. Estructura de Archivos
+## 22. Estructura de archivos
 
 ```
 src/
 ├── app/
-│   ├── (auth)/              # Rutas de autenticacion (login)
-│   │   ├── layout.tsx       # Layout auth (sin orbes)
-│   │   └── login/page.tsx
-│   ├── (dashboard)/         # Rutas protegidas
-│   │   ├── layout.tsx       # Sidebar + Header h-12 + main
-│   │   ├── dashboard/page.tsx
-│   │   ├── catalogs/        # Modulos CRUD de catalogos
-│   │   ├── rbac/            # Roles y permisos
-│   │   └── [modulo]/        # Cada modulo del sistema
-│   ├── layout.tsx           # Root: ThemeBootScript, PreferencesStoreProvider, TooltipProvider, Toaster
-│   └── globals.css          # Tokens de color, animaciones
+│   ├── (auth)/                 login, verificar correo, restablecer
+│   ├── (dashboard)/
+│   │   ├── layout.tsx          shell: skip link, sidebar, header h-12, <main id="main-content">, slot @modal
+│   │   ├── error.tsx           límite de ruta (§13.3)
+│   │   ├── @modal/             rutas interceptadas de formularios
+│   │   └── dashboard/<módulo>/ páginas, loading.tsx, _components
+│   ├── (printable)/            vistas imprimibles
+│   ├── global-error.tsx        error global (§13.4)
+│   ├── layout.tsx              raíz: ThemeBootScript, preferencias, TooltipProvider, Toaster
+│   └── globals.css             tokens, @theme, motion, reglas globales
 ├── components/
-│   ├── ui/                  # Componentes base shadcn/Radix
-│   │   ├── alert-dialog.tsx
-│   │   ├── avatar.tsx
-│   │   ├── badge.tsx
-│   │   ├── breadcrumb.tsx
-│   │   ├── button.tsx
-│   │   ├── calendar.tsx           # Nuevo (auditoria 2026-04-16)
-│   │   ├── card.tsx
-│   │   ├── checkbox.tsx
-│   │   ├── collapsible.tsx
-│   │   ├── command.tsx            # Nuevo (auditoria 2026-04-16)
-│   │   ├── dialog.tsx
-│   │   ├── dropdown-menu.tsx
-│   │   ├── input.tsx
-│   │   ├── label.tsx
-│   │   ├── popover.tsx            # Nuevo (auditoria 2026-04-16)
-│   │   ├── progress.tsx           # Nuevo (auditoria 2026-04-16)
-│   │   ├── radio-group.tsx        # Nuevo (auditoria 2026-04-16)
-│   │   ├── scroll-area.tsx        # Nuevo (auditoria 2026-04-16)
-│   │   ├── select.tsx
-│   │   ├── separator.tsx
-│   │   ├── sheet.tsx
-│   │   ├── skeleton.tsx
-│   │   ├── sonner.tsx             # Nuevo (auditoria 2026-04-16)
-│   │   ├── status-badge.tsx
-│   │   ├── switch.tsx
-│   │   ├── table.tsx
-│   │   ├── tabs.tsx               # Nuevo (auditoria 2026-04-16)
-│   │   ├── textarea.tsx
-│   │   └── tooltip.tsx
-│   ├── shared/              # Componentes reutilizables
-│   │   ├── app-alert-listener.tsx
-│   │   ├── data-table-pagination.tsx
-│   │   ├── data-table-shell.tsx       # Chrome canónico de tabla (2026-05)
-│   │   ├── data-table-toolbar.tsx
-│   │   ├── empty-state.tsx            # Acepta variant: default | no-results
-│   │   ├── endpoint-error-banner.tsx  # Nuevo (auditoria 2026-04-16)
-│   │   ├── module-list-page.tsx       # Nuevo (auditoria 2026-04-16)
-│   │   ├── page-header.tsx
-│   │   ├── status-badge.tsx           # Wrapper genérico (alternativo a ui/status-badge)
-│   │   └── status-badge.tsx
-│   ├── layout/              # Componentes de layout
-│   │   ├── app-sidebar.tsx
-│   │   ├── breadcrumbs.tsx
-│   │   ├── header.tsx
-│   │   ├── mobile-sidebar.tsx
-│   │   ├── nav-items.ts
-│   │   └── user-nav.tsx
-│   ├── catalogs/            # Componentes de catalogos CRUD
-│   │   ├── catalog-crud-page.tsx
-│   │   ├── catalog-form-dialog.tsx
-│   │   ├── catalog-delete-dialog.tsx
-│   │   └── ...
-│   ├── theme-provider.tsx
-│   └── theme-toggle.tsx
-└── lib/
-    ├── utils.ts             # cn() utility
-    ├── auth/                # Autenticación JWT + Better Auth
-    ├── catalogs/            # Logica de catalogos
-    └── providers/           # React Query, etc.
+│   ├── ui/                     primitivos shadcn/Radix (§5)
+│   ├── shared/                 componentes compartidos (§10)
+│   ├── catalogs/               orquestadores y piezas de catálogos (§15)
+│   └── <dominio>/              un directorio por dominio
+├── lib/
+│   ├── animations.ts           motion (§7)
+│   ├── status/flag-status.ts   flagStatusIntent
+│   ├── dashboard/sidebar-insights.ts
+│   ├── icons/lucide-react-compat.tsx   generado, no editar
+│   └── …                       api/, auth/, catalogs/, i18n/, providers/
+├── navigation/sidebar/         ítems, filtrado, nav-match
+├── types/tanstack-table.d.ts   ColumnMeta.className
+└── i18n/ + messages/           next-intl
+scripts/
+├── audit-design-system.mjs     ejecutor del audit
+└── design-system-rules.mjs     reglas (§23)
 ```
 
 ---
 
-## 20. Checklist para Nuevas Interfaces
+## 23. Audit y checklist
 
-Antes de entregar cualquier nueva pantalla o componente, verificar:
+### 23.1 `pnpm audit:design-system`
 
-- [ ] Solo usa componentes de `@/components/ui/*` (nunca HTML nativo para inputs, botones, tablas)
-- [ ] Excepciones de HTML nativo documentadas (ej. `input hidden`, integraciones sin wrapper)
-- [ ] Colores usan tokens semanticos por defecto (hardcoded solo por solicitud visual explicita)
-- [ ] Funciona correctamente en dark mode
-- [ ] Formularios de crear/editar usan flujo por paginas (`/new`, `/[id]`)
-- [ ] Eliminaciones usan `AlertDialog` con confirmacion
-- [ ] Iconos son de `lucide-react` con tamanos estandar
-- [ ] Textos en espanol por defecto y listos para i18n
-- [ ] Loading states implementados (Skeleton o Loader2)
-- [ ] Empty states implementados (EmptyState component)
-- [ ] Errores mostrados con estilo destructive
-- [ ] Toasts para feedback de acciones
-- [ ] Responsive (mobile cards + desktop tabla si aplica)
-- [ ] Hover/focus states presentes en elementos interactivos
-- [ ] `PageHeader` usado como encabezado de pagina
-- [ ] Footer con conteo de registros si es listado
-- [ ] Acciones en tabla con Tooltip (1-2 acciones) o DropdownMenu (3+)
-- [ ] No hay imports sin usar
-- [ ] `pnpm build` compila sin errores
-- [ ] Radios según el rol del elemento (§4.1); nada de `rounded-3xl`/`rounded-4xl`
-- [ ] Labels y encabezados en sentence case, sin `uppercase` + `tracking-*`
+Escanea `src/**/*.{ts,tsx,css}` línea por línea. Con `--strict` sale con código 1 si hay algún hallazgo de severidad **error**. Reglas en `scripts/design-system-rules.mjs` (tests en `design-system-rules.test.mjs`):
+
+| Regla | Severidad | Detecta |
+|---|---|---|
+| `h1-font-bold` | error | `<h1>` con `font-bold` |
+| `h1-font-semibold` | warn | `<h1>` suelto con `font-semibold` (usa `PageHeader`) |
+| `tailwind-palette-bg` | warn | `bg-<paleta>-<n>` de Tailwind |
+| `tailwind-palette-text` | warn | `text-<paleta>-<n>` de Tailwind |
+| `hardcoded-spanish-ui` | warn | Español fijo en `title`/`description`/`label`/`aria-label`/`placeholder` |
+| `uppercase-tracking` | error | `uppercase` + `tracking-*` |
+| `pill-radius` | error | `rounded-3xl` / `rounded-4xl` |
+| `semantic-text-on-solid` | error | `bg-success\|warning\|info\|destructive` con texto blanco o `*-foreground` |
+| `text-below-11px` | error | `text-[Npx]` con N < 11 |
+| `off-scale-text` | warn | `text-[10\|11\|12\|14px]` |
+| `window-confirm` | error | `window.confirm` / `confirm()` en `.tsx` |
+| `dashed-empty-state` | warn | `border-dashed` en archivos con "No hay"/"Sin" y sin `EmptyState` |
+| `hardcoded-pagination` | error | `>Anterior<` / `>Siguiente<` |
+| `color-mix-darkening` | warn | `color-mix(... var(--success\|warning\|info\|destructive), black …)` |
+| `side-stripe` | warn | Franjas laterales `absolute inset-y-0 left-0 w-1..4` |
+
+No hay regla automática para: iconos decorativos en caja, `transition-all`, `backdrop-blur`, KPIs en cards, `Badge default/soft` como estado, filtros sin etiqueta ni errores tragados como vacío. Se revisan en code review con el checklist.
+
+### 23.2 Checklist para pantallas nuevas
+
+**Estructura**
+- [ ] `PageHeader` como encabezado (un solo `h1`); detalle con breadcrumbs y hero.
+- [ ] Contenido dentro de `<main>`; sin tocar skip link ni landmarks del shell.
+- [ ] `loading.tsx` con `ListPageSkeleton` / `DetailPageSkeleton` que imite el layout real.
+- [ ] Un fallo de carga muestra `EndpointErrorBanner` con reintento en el bloque; nunca un vacío.
+
+**Listados**
+- [ ] `DataTableShell` desde `md`; filas de 2 líneas debajo.
+- [ ] `EmptyState` fuera de la tabla (`default` vs `no-results`).
+- [ ] `DataTablePagination` (URL o controlada); sin texto de paginación manual.
+- [ ] `RowActions` (patrón A o B); sin íconos sueltos ni acciones por hover.
+- [ ] Cabeceras 12px muted sin banda; números a la derecha con `tabular-nums`.
+- [ ] Una marca de estado por fila, mostrando la excepción (`StatusBadge`, no `Badge`).
+- [ ] Cada filtro y búsqueda con etiqueta visible o `aria-label`.
+
+**Formularios y CRUD**
+- [ ] Crear/editar en modal de ruta interceptada (Dialog solo en catálogos simples y excepciones de §15).
+- [ ] Eliminar con `AlertDialog` + `destructive-solid`; sin `window.confirm`.
+- [ ] Botones asíncronos con `loading`; `FormSubmitButton` en forms con server action.
+- [ ] Campos con `Label` + `id`; errores de campo inline.
+
+**Visual**
+- [ ] Tokens semánticos; texto de estado con `text-x`, relleno con `bg-x-solid text-x-foreground`.
+- [ ] Sin cajas de ícono, franjas laterales, bandas, degradados, glass ni blur.
+- [ ] Radios por rol (§4.1); superficies flotantes con `shadow-lg` sola.
+- [ ] Nada bajo 11px; `text-2xs` o `text-xs`; sin `uppercase` + `tracking`.
+- [ ] Probado en claro y oscuro.
+
+**Motion y accesibilidad**
+- [ ] Sin `transition-all`; una sola curva; press 0.97 solo en botones.
+- [ ] Sin animación en acciones frecuentes o de teclado; `motion-reduce` respetado.
+- [ ] Objetivos táctiles ≥44px bajo `md`; foco visible; íconos decorativos `aria-hidden`.
+
+**Texto**
+- [ ] Todo el texto vía `next-intl`, locale activo para números y fechas.
+- [ ] Toasts cortos y en pasado.
+
+**Antes de abrir el PR**
+- [ ] `pnpm audit:design-system --strict` sin errores; `pnpm typecheck`, `pnpm lint` y `pnpm test` limpios.
+- [ ] Sin imports sin usar.
+
+---
+
+## 24. Fuentes de verdad
+
+| Qué | Dónde |
+|---|---|
+| Tokens de color, sombras, motion | `src/app/globals.css` |
+| Curvas, press, overlays | `src/lib/animations.ts` |
+| Primitivos | `src/components/ui/*` |
+| Compartidos | `src/components/shared/*` |
+| Reglas del audit | `scripts/design-system-rules.mjs` |
+| Sidebar | `src/navigation/sidebar/*`, `src/lib/dashboard/sidebar-insights.ts` |
+| Auditoría que originó esta versión | `../docs/audit/ADMIN-DESIGN-AUDIT-2026-11.md` |
+
+---
+
+## 25. Historial
+
+- **2026-04-15 — Ember**: primera reescritura visual (Geist, Hugeicons, `--radius` mayor, header `h-12`).
+- **2026-04-16 — Auditoría de drift**: se documentan `Badge link`, `calendar`, `command`, `popover`, `progress`, `radio-group`, `scroll-area`, `sonner` y `EndpointErrorBanner`.
+- **2026-06-24 — Scout Vibrante**: paleta alineada con `sacdia-app` (`#0073EA`, `#4FBF9F`, `#FBBD5E`).
+- **2026-08-23 / 2026-09-17**: `PageHeader` y motion alineados con `animations.ts`; navegación y tablas sin enter/stagger; `⌘B` instantáneo; Geist único.
+- **2026-10-13 — Alineación antislop**: radios por rol, sentence case, diales (§0), reglas `pill-radius` y `uppercase-tracking`.
+- **2026-10-15 — Crisp**: neutros puros y acento azul; split `--primary` / `--primary-solid`; sombras con anillo hairline; `--radius: 0.5rem`; `destructive-solid`; `RowActions`; `Button loading`; crear/editar en modal de ruta interceptada; toasts neutros; móvil (bottom sheet, 16px, objetivos táctiles).
+- **2026-11-08 — Auditoría de diseño**: split semántico texto/relleno (`--x` / `--x-solid`) con contraste AA y destructive oscuro `#F87171`; `text-2xs` y piso de 11px; `PRESS_SCALE` único (0.97, solo botones) y overlays iguales (`bg-black/40`, sin blur, 200/150ms); `shadow-lg` en flotantes; `KpiStrip` sin tiles; listado unificado (`DataTableShell`, filas móviles, `DataTablePagination` URL/controlada); `error.tsx` y `global-error`, skip link y landmarks; sidebar con alcance, contadores y un solo ítem activo; skeletons `ListPageSkeleton`/`DetailPageSkeleton`; nuevas reglas del audit; reescritura de este documento como fuente única (cuerpo = estado actual, historial al final).
