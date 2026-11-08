@@ -11,6 +11,7 @@
  */
 
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +76,7 @@ export function PenaltiesEditor({
   labels = {},
 }: PenaltiesEditorProps) {
   const l = { ...DEFAULT_LABELS, ...labels };
+  const tEd = useTranslations("camporeeEvents.editors");
 
   const addRow = useCallback(() => {
     onChange([...value, { description: "", points_deducted: 0, time_seconds: null }]);
@@ -167,7 +169,7 @@ export function PenaltiesEditor({
                   type="number"
                   min={0}
                   inputMode="numeric"
-                  aria-label={`${l.minutes} — penalización ${index + 1}`}
+                  aria-label={tEd("penaltyFieldAria", { field: l.minutes, index: index + 1 })}
                   value={timeParts.minutes}
                   onChange={(e) => updateTimePart(index, "minutes", e.target.value)}
                   placeholder="0"
@@ -181,7 +183,7 @@ export function PenaltiesEditor({
                   min={0}
                   max={59}
                   inputMode="numeric"
-                  aria-label={`${l.seconds} — penalización ${index + 1}`}
+                  aria-label={tEd("penaltyFieldAria", { field: l.seconds, index: index + 1 })}
                   value={timeParts.seconds}
                   onChange={(e) => updateTimePart(index, "seconds", e.target.value)}
                   placeholder="0"

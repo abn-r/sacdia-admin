@@ -120,7 +120,8 @@ export function UserPermissionsSearch({ allPermissions }: UserPermissionsSearchP
               <User className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
                 id="user-search-input"
-                placeholder="Buscar por nombre o correo..."
+                aria-label={t("userSearchPlaceholder")}
+                placeholder={t("userSearchPlaceholder")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {

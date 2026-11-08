@@ -183,12 +183,12 @@ export function CatalogFilterBar({
             >
               <div className="flex items-center gap-2">
                 <Filter className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-                <SelectValue placeholder="Estado" />
+                <SelectValue placeholder={t("statusPlaceholder")} />
                 {isStatusActive && (
                   <Badge
                     variant="soft"
                     className="ml-auto h-4 px-1 text-[10px] font-semibold"
-                    aria-label="Filtro activo"
+                    aria-label={t("activeFilterBadge")}
                   >
                     1
                   </Badge>

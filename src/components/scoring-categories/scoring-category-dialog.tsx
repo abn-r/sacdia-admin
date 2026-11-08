@@ -190,7 +190,7 @@ export function ScoringCategoryDialog({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej. Uniforme"
+                  placeholder={t("dialog.namePlaceholder")}
                   maxLength={100}
                   required
                   disabled={isSubmitting}

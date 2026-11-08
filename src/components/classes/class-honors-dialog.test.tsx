@@ -11,9 +11,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
+import esMessages from "../../../messages/es.json";
 
 // The shared Dialog primitive localizes its close button via next-intl.
-const UI_MESSAGES = { shared: { uiPrimitives: { close: "Cerrar" } } };
+const UI_MESSAGES = {
+  shared: { uiPrimitives: { close: "Cerrar" } },
+  classes: { relations: esMessages.classes.relations },
+};
 
 // ---------------------------------------------------------------------------
 // jsdom polyfills (Radix Dialog/Select use ResizeObserver, scrollIntoView,

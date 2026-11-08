@@ -64,6 +64,7 @@ export function ClubTypesPageClient({
   canDelete,
 }: ClubTypesPageClientProps) {
   const t = useTranslations("catalogs");
+  const tPag = useTranslations("shared.pagination");
   const tFields = useTranslations("catalogs.fields");
   const entity = t("entities.club-types.singular");
   const entityPlural = t("entities.club-types.title").toLocaleLowerCase();
@@ -173,6 +174,7 @@ export function ClubTypesPageClient({
                 <Search className="size-4" />
               </InputGroupAddon>
               <InputGroupInput
+                aria-label={t("filterBar.searchIn", { entity })}
                 value={searchValue}
                 onChange={(event) => {
                   table.getColumn("search")?.setFilterValue(event.target.value);
@@ -252,7 +254,7 @@ export function ClubTypesPageClient({
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                Anterior
+                {tPag("prevPage")}
               </Button>
               <Button
                 variant="outline"
@@ -260,7 +262,7 @@ export function ClubTypesPageClient({
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Siguiente
+                {tPag("nextPage")}
               </Button>
             </div>
           </div>
@@ -286,7 +288,14 @@ export function ClubTypesPageClient({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>{t("deleteDialog.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
+            <AlertDialogAction
+              variant="destructive-solid"
+              loading={deleting}
+              onClick={(event) => {
+                event.preventDefault();
+                void confirmDelete();
+              }}
+            >
               {deleting ? t("deleteDialog.deleting") : t("deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>

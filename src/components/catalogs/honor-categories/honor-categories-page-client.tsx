@@ -65,6 +65,7 @@ export function HonorCategoriesPageClient({
 }: HonorCategoriesPageClientProps) {
   const t = useTranslations("catalogs.entities.honor-categories");
   const tCatalogs = useTranslations("catalogs");
+  const tPag = useTranslations("shared.pagination");
   const tFields = useTranslations("catalogs.fields");
   const tHonor = useTranslations("catalogs.honorCategories");
   const entity = t("singular");
@@ -177,6 +178,7 @@ export function HonorCategoriesPageClient({
                 <Search className="size-4" />
               </InputGroupAddon>
               <InputGroupInput
+                aria-label={tCatalogs("filterBar.searchIn", { entity })}
                 value={searchValue}
                 onChange={(event) => {
                   table.getColumn("search")?.setFilterValue(event.target.value);
@@ -256,7 +258,7 @@ export function HonorCategoriesPageClient({
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                Anterior
+                {tPag("prevPage")}
               </Button>
               <Button
                 variant="outline"
@@ -264,7 +266,7 @@ export function HonorCategoriesPageClient({
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Siguiente
+                {tPag("nextPage")}
               </Button>
             </div>
           </div>
@@ -295,7 +297,14 @@ export function HonorCategoriesPageClient({
             <AlertDialogCancel disabled={deleting}>
               {tCatalogs("deleteDialog.cancel")}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
+            <AlertDialogAction
+              variant="destructive-solid"
+              loading={deleting}
+              onClick={(event) => {
+                event.preventDefault();
+                void confirmDelete();
+              }}
+            >
               {deleting ? tCatalogs("deleteDialog.deleting") : tCatalogs("deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +46,7 @@ export function ScheduleBlocksEditor({
   allowedSectionKinds: CamporeeEventSection[];
   timeError?: string | null;
 }) {
+  const tEd = useTranslations("camporeeEvents.editors");
   const [extrasOpen, setExtrasOpen] = useState(() =>
     value.some(
       (block) =>
@@ -164,7 +166,7 @@ export function ScheduleBlocksEditor({
                     variant="ghost"
                     size="icon"
                     onClick={() => removeBlock(index)}
-                    aria-label="Eliminar horario"
+                    aria-label={tEd("scheduleDeleteAria")}
                   >
                     <Trash2 className="size-4" />
                   </Button>

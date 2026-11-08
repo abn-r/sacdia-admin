@@ -361,6 +361,7 @@ export function RolesTable({ roles, isSuperAdmin }: RolesTableProps) {
         <div className="relative max-w-xs w-full">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            aria-label={tTable("searchPlaceholder")}
             placeholder={tTable("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}

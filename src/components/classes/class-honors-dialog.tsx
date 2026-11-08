@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Award, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -87,9 +88,10 @@ type ClassHonorsDialogProps = {
 function moduleLabel(
   relation: ClassHonorRelation,
   modules: ClassHonorModuleOption[],
+  noModuleLabel: string,
 ): string {
   if (relation.module?.name) return relation.module.name;
-  if (relation.module_id == null) return "Sin módulo";
+  if (relation.module_id == null) return noModuleLabel;
   return (
     modules.find((module) => module.module_id === relation.module_id)?.name ??
     `Módulo #${relation.module_id}`
@@ -105,6 +107,7 @@ export function ClassHonorsDialog({
   canUpdate = false,
   canDelete,
 }: ClassHonorsDialogProps) {
+  const tRel = useTranslations("classes.relations");
   const [open, setOpen] = useState(false);
   const [relations, setRelations] = useState<ClassHonorRelation[]>(initialRelations);
 
@@ -232,7 +235,7 @@ export function ClassHonorsDialog({
                   <Label htmlFor="class-honor-select">Especialidad</Label>
                   <Select value={selectedHonorId} onValueChange={setSelectedHonorId}>
                     <SelectTrigger id="class-honor-select" className="w-full bg-background">
-                      <SelectValue placeholder="Selecciona una especialidad" />
+                      <SelectValue placeholder={tRel("selectHonorPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {honorsCatalog.map((honor) => (
@@ -265,10 +268,10 @@ export function ClassHonorsDialog({
                   <Label htmlFor="class-honor-module">Módulo</Label>
                   <Select value={selectedModuleId} onValueChange={setSelectedModuleId}>
                     <SelectTrigger id="class-honor-module" className="w-full bg-background">
-                      <SelectValue placeholder="Sin módulo" />
+                      <SelectValue placeholder={tRel("noModule")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NONE_MODULE}>Sin módulo</SelectItem>
+                      <SelectItem value={NONE_MODULE}>{tRel("noModule")}</SelectItem>
                       {modules.map((module) => (
                         <SelectItem key={module.module_id} value={String(module.module_id)}>
                           {module.name}
@@ -321,13 +324,13 @@ export function ClassHonorsDialog({
                                   disabled={updatingId === relation.class_honor_id}
                                 >
                                   <SelectTrigger
-                                    aria-label={`Módulo de ${relation.honor.name}`}
+                                    aria-label={tRel("moduleOf", { name: relation.honor.name })}
                                     className="h-8 bg-background"
                                   >
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={NONE_MODULE}>Sin módulo</SelectItem>
+                                    <SelectItem value={NONE_MODULE}>{tRel("noModule")}</SelectItem>
                                     {modules.map((module) => (
                                       <SelectItem
                                         key={module.module_id}
@@ -341,7 +344,7 @@ export function ClassHonorsDialog({
                               </div>
                             ) : (
                               <p className="mt-0.5 text-xs text-muted-foreground">
-                                {moduleLabel(relation, modules)}
+                                {moduleLabel(relation, modules, tRel("noModule"))}
                               </p>
                             )}
                           </div>
@@ -351,7 +354,7 @@ export function ClassHonorsDialog({
                               variant="ghost"
                               size="icon-sm"
                               onClick={() => setDeleteTarget(relation)}
-                              aria-label={`Eliminar ${relation.honor.name}`}
+                              aria-label={tRel("deleteAria", { name: relation.honor.name })}
                             >
                               <Trash2 className="size-4 text-destructive" />
                             </Button>
@@ -379,16 +382,15 @@ export function ClassHonorsDialog({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar especialidad</AlertDialogTitle>
+            <AlertDialogTitle>{tRel("honorDeleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Seguro que deseas quitar «{deleteTarget?.honor.name}» de esta clase? Puedes
-              volver a agregarla más tarde si es necesario.
+              {tRel("honorDeleteDescription", { name: deleteTarget?.honor.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tRel("cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
-              {deleting ? "Eliminando..." : "Eliminar"}
+              {deleting ? tRel("deleting") : tRel("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

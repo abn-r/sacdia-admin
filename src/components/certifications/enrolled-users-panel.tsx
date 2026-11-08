@@ -113,8 +113,8 @@ export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUse
     return (
       <EmptyState
         icon={Users}
-        title="Sin usuarios inscritos"
-        description="Ningún usuario está inscrito en esta certificación."
+        title={t("enrolledUsers.emptyTitle")}
+        description={t("enrolledUsers.emptyDescription")}
       />
     );
   }
