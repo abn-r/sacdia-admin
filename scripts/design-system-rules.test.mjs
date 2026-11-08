@@ -69,3 +69,57 @@ describe("existing rules are preserved", () => {
     );
   });
 });
+
+describe("semantic-text-on-solid", () => {
+  const r = rule("semantic-text-on-solid");
+  it("flags soft semantic bg with white/foreground text", () => {
+    expect(r.test('"bg-success text-white"')).toBe(true);
+    expect(r.test('"bg-destructive text-destructive-foreground px-2"')).toBe(true);
+  });
+  it("ignores -solid, opacity and plain usages", () => {
+    expect(r.test('"bg-success-solid text-white"')).toBe(false);
+    expect(r.test('"bg-success/10 text-white"')).toBe(false);
+    expect(r.test('"bg-success text-foreground"')).toBe(false);
+  });
+});
+
+describe("text size rules", () => {
+  const small = rule("text-below-11px");
+  const off = rule("off-scale-text");
+  it("flags sizes below 11px", () => {
+    expect(small.test('"text-[10px]"')).toBe(true);
+    expect(small.test('"text-[10.5px]"')).toBe(true);
+    expect(small.test('"text-[11px]"')).toBe(false);
+  });
+  it("flags off-scale sizes", () => {
+    expect(off.test('"text-[12px]"')).toBe(true);
+    expect(off.test('"text-[13px]"')).toBe(false);
+  });
+  it("excludes the printable monthly report", () => {
+    expect(small.allow("src/components/reports/monthly-report/x.tsx")).toBe(true);
+  });
+});
+
+describe("window-confirm / pagination / misc", () => {
+  it("window-confirm", () => {
+    const r = rule("window-confirm");
+    expect(r.test("if (!window.confirm(msg)) return;")).toBe(true);
+    expect(r.test("if (!confirm(msg)) return;")).toBe(true);
+    expect(r.test("async function confirm() {")).toBe(false);
+    expect(r.allow("src/a.ts")).toBe(true);
+  });
+  it("hardcoded-pagination", () => {
+    const r = rule("hardcoded-pagination");
+    expect(r.test("<Button>Anterior</Button>")).toBe(true);
+    expect(r.test("<Button>{t('prev')}</Button>")).toBe(false);
+  });
+  it("dashed-empty-state gates on file content", () => {
+    const r = rule("dashed-empty-state");
+    expect(r.fileTest("No hay datos")).toBe(true);
+    expect(r.fileTest("No hay datos <EmptyState />")).toBe(false);
+  });
+  it("color-mix-darkening and side-stripe", () => {
+    expect(rule("color-mix-darkening").test("color-mix(in_oklch,var(--success),black_30%)")).toBe(true);
+    expect(rule("side-stripe").test('"absolute inset-y-0 left-0 w-1 bg-x"')).toBe(true);
+  });
+});
