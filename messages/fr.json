@@ -264,7 +264,10 @@
       }
     },
     "a11y": {
-      "skipToContent": "Aller au contenu principal"
+      "skipToContent": "Aller au contenu principal",
+      "pendingCount": " ({count, plural, one {# en attente} other {# en attente}})",
+      "badgeNew": "Nouveau",
+      "badgeSoon": "Bientôt"
     },
     "profile": "Mon profil",
     "logout": "Déconnexion",
@@ -1612,6 +1615,9 @@
         "successionHint": "Termine le directeur de cette année et nomme le successeur maintenant. Ce n'est pas la désignation de l'année suivante.",
         "succeedNow": "Changer le directeur maintenant",
         "succeedConfirm": "Terminer le directeur actuel et nommer le successeur maintenant ?",
+        "successorLabel": "Nouveau directeur",
+        "succeedCancel": "Annuler",
+        "succeedConfirmAction": "Changer de directeur",
         "continuationsHeading": "Inscription annuelle",
         "continuationsHint": "Inclut les membres de cette section et les sauts de type vers ici (Aventuriers → Conquérants, Conquérants → Guides majeurs).",
         "continuationsLoading": "Chargement des candidats…",
@@ -1944,7 +1950,9 @@
             "reports": "Rapports",
             "operational": "Opérationnels"
           },
-          "emptyTitle": "{level, select, division {Aucune division dans ce périmètre} union {Aucune union dans ce périmètre} local_field {Aucun champ local dans ce périmètre} other {Aucun club dans ce périmètre}}"
+          "emptyTitle": "{level, select, division {Aucune division dans ce périmètre} union {Aucune union dans ce périmètre} local_field {Aucun champ local dans ce périmètre} other {Aucun club dans ce périmètre}}",
+          "showAll": "Tout voir ({count, number})",
+          "showLess": "Voir moins"
         },
         "stats": {
           "label": "Autres indicateurs de la période",
@@ -6814,6 +6822,9 @@
     }
   },
   "shared": {
+    "pageSkeleton": {
+      "loading": "Chargement…"
+    },
     "notFound": {
       "title": "Page introuvable",
       "description": "Cette adresse n'existe pas ou n'est plus disponible.",

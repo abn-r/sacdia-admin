@@ -264,7 +264,10 @@
       }
     },
     "a11y": {
-      "skipToContent": "Skip to main content"
+      "skipToContent": "Skip to main content",
+      "pendingCount": " ({count, plural, one {# pending} other {# pending}})",
+      "badgeNew": "New",
+      "badgeSoon": "Coming soon"
     },
     "profile": "My profile",
     "logout": "Sign out",
@@ -1612,6 +1615,9 @@
         "successionHint": "End this year's director and name the successor now. This is not next year's designation.",
         "succeedNow": "Change director now",
         "succeedConfirm": "End the current director and name the successor now?",
+        "successorLabel": "New director",
+        "succeedCancel": "Cancel",
+        "succeedConfirmAction": "Change director",
         "continuationsHeading": "Annual enrollment",
         "continuationsHint": "Includes members of this section and type jumps into it (Adventurers → Pathfinders, Pathfinders → Master Guides).",
         "continuationsLoading": "Loading candidates…",
@@ -1944,7 +1950,9 @@
             "reports": "Reports",
             "operational": "Operational"
           },
-          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}"
+          "emptyTitle": "{level, select, division {No divisions in this scope} union {No unions in this scope} local_field {No local fields in this scope} other {No clubs in this scope}}",
+          "showAll": "View all ({count, number})",
+          "showLess": "Show less"
         },
         "stats": {
           "label": "Other period indicators",
@@ -6814,6 +6822,9 @@
     }
   },
   "shared": {
+    "pageSkeleton": {
+      "loading": "Loading…"
+    },
     "notFound": {
       "title": "We couldn't find this page",
       "description": "The address doesn't exist or is no longer available.",

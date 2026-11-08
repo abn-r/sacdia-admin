@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { CalendarX, Repeat } from "lucide-react";
+import { CalendarOff, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@/lib/api/activities";
 import { ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
@@ -80,7 +80,7 @@ function DayActivitiesList({
 
   if (activities.length === 0) {
     return (
-      <EmptyState icon={CalendarX} title={t("emptyDay")} />
+      <EmptyState icon={CalendarOff} title={t("emptyDay")} />
     );
   }
 

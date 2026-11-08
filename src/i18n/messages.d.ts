@@ -294,6 +294,9 @@ export interface IntlMessages {
     };
     a11y: {
       skipToContent: string;
+      pendingCount: string;
+      badgeNew: string;
+      badgeSoon: string;
     };
     profile: string;
     logout: string;
@@ -1641,6 +1644,9 @@ export interface IntlMessages {
         successionHint: string;
         succeedNow: string;
         succeedConfirm: string;
+        successorLabel: string;
+        succeedCancel: string;
+        succeedConfirmAction: string;
         continuationsHeading: string;
         continuationsHint: string;
         continuationsLoading: string;
@@ -1974,6 +1980,8 @@ export interface IntlMessages {
             operational: string;
           };
           emptyTitle: string;
+          showAll: string;
+          showLess: string;
         };
         stats: {
           label: string;
@@ -6846,6 +6854,9 @@ export interface IntlMessages {
     };
   };
   shared: {
+    pageSkeleton: {
+      loading: string;
+    };
     notFound: {
       title: string;
       description: string;

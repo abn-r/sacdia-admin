@@ -14,12 +14,12 @@ interface ListPageSkeletonProps {
  * table frame. Flat bg-muted bars; Skeleton already honours reduced motion.
  */
 export async function ListPageSkeleton({ rows = 8, filters = 3 }: ListPageSkeletonProps) {
-  const t = await getTranslations("shared.pageSkeleton");
+  const t = await getTranslations("shared");
 
   return (
     <div className="space-y-6" aria-busy="true">
       <span className="sr-only" role="status">
-        {t("loading")}
+        {t("pageSkeleton.loading")}
       </span>
       <div className="space-y-2">
         <Skeleton className="h-8 w-48" />
@@ -45,12 +45,12 @@ export async function ListPageSkeleton({ rows = 8, filters = 3 }: ListPageSkelet
 
 /** Loading placeholder for a detail page: header, summary card and a content block. */
 export async function DetailPageSkeleton() {
-  const t = await getTranslations("shared.pageSkeleton");
+  const t = await getTranslations("shared");
 
   return (
     <div className="space-y-6" aria-busy="true">
       <span className="sr-only" role="status">
-        {t("loading")}
+        {t("pageSkeleton.loading")}
       </span>
       <div className="space-y-2">
         <Skeleton className="h-8 w-64" />

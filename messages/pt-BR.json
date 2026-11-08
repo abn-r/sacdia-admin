@@ -264,7 +264,10 @@
       }
     },
     "a11y": {
-      "skipToContent": "Ir para o conteúdo principal"
+      "skipToContent": "Ir para o conteúdo principal",
+      "pendingCount": " ({count, plural, one {# pendente} other {# pendentes}})",
+      "badgeNew": "Novo",
+      "badgeSoon": "Em breve"
     },
     "profile": "Meu perfil",
     "logout": "Sair",
@@ -1612,6 +1615,9 @@
         "successionHint": "Encerra o diretor deste ano e nomeia o sucessor agora. Não é a designação do próximo ano.",
         "succeedNow": "Trocar diretor agora",
         "succeedConfirm": "Encerrar o diretor atual e nomear o sucessor agora?",
+        "successorLabel": "Novo diretor",
+        "succeedCancel": "Cancelar",
+        "succeedConfirmAction": "Trocar diretor",
         "continuationsHeading": "Inscrição anual",
         "continuationsHint": "Inclui membros desta seção e saltos de tipo para cá (Aventureiros → Desbravadores, Desbravadores → Guias Maiores).",
         "continuationsLoading": "Carregando candidatos…",
@@ -1944,7 +1950,9 @@
             "reports": "Relatórios",
             "operational": "Operacionais"
           },
-          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}"
+          "emptyTitle": "{level, select, division {Sem divisões neste escopo} union {Sem uniões neste escopo} local_field {Sem campos locais neste escopo} other {Sem clubes neste escopo}}",
+          "showAll": "Ver todos ({count, number})",
+          "showLess": "Ver menos"
         },
         "stats": {
           "label": "Outros indicadores do período",
@@ -6814,6 +6822,9 @@
     }
   },
   "shared": {
+    "pageSkeleton": {
+      "loading": "Carregando…"
+    },
     "notFound": {
       "title": "Não encontramos esta página",
       "description": "O endereço não existe ou não está mais disponível.",
