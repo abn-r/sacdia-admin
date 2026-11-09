@@ -1376,7 +1376,8 @@
       "assignment_removed": "Affectation supprimée",
       "role_updated": "Rôle mis à jour",
       "retry_failed_sections": "Vous pouvez continuer vers le détail du club et relancer les sections en échec",
-      "section_toggled": "Statut de la section mis à jour."
+      "section_toggled": "Statut de la section mis à jour.",
+      "club_updated": "Club mis à jour"
     },
     "fields": {
       "local_field": "Champ local",
@@ -1439,7 +1440,8 @@
       "cardTitle": "Informations générales",
       "submitButton": "Enregistrer les modifications",
       "placeholderSelect": "Sélectionner",
-      "labelActive": "Club actif"
+      "labelActive": "Club actif",
+      "coordinatesHint": "Retirer le repère conserve l'emplacement enregistré."
     },
     "sections": {
       "description": "Un club peut avoir des sections pour chaque type de club (Aventuriers, Éclaireurs, Guides Maîtres).",
@@ -1790,6 +1792,10 @@
         "title": "Créer un club",
         "description": "Enregistrez un club et choisissez ses sections.",
         "back": "Retour"
+      },
+      "edit": {
+        "title": "Modifier le club",
+        "description": "Mettez à jour les informations du club. Le champ local, le district et l'église ne peuvent pas être modifiés."
       },
       "v2": {
         "metadataTitle": "Clubs v2",

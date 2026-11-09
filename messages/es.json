@@ -1376,7 +1376,8 @@
       "assignment_removed": "Asignación removida",
       "role_updated": "Rol actualizado",
       "retry_failed_sections": "Puedes continuar al detalle del club y reintentar las secciones fallidas",
-      "section_toggled": "Estado de la sección actualizado."
+      "section_toggled": "Estado de la sección actualizado.",
+      "club_updated": "Club actualizado"
     },
     "fields": {
       "local_field": "Campo local",
@@ -1439,7 +1440,8 @@
       "cardTitle": "Información general",
       "submitButton": "Guardar cambios",
       "placeholderSelect": "Seleccionar",
-      "labelActive": "Club activo"
+      "labelActive": "Club activo",
+      "coordinatesHint": "Si quitas el pin, se conserva la ubicación guardada."
     },
     "sections": {
       "description": "Un club puede tener secciones para cada tipo de club (Aventureros, Conquistadores, Guías Mayores).",
@@ -1790,6 +1792,10 @@
         "title": "Crear club",
         "description": "Registra un club y elige sus secciones.",
         "back": "Volver"
+      },
+      "edit": {
+        "title": "Editar club",
+        "description": "Actualiza los datos del club. Campo local, distrito e iglesia no se pueden cambiar."
       },
       "v2": {
         "metadataTitle": "Clubes v2",

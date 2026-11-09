@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
@@ -11,6 +12,11 @@ import ClubsPage from "../page";
  * Direct load / refresh of /clubs/new: the list renders underneath and the
  * form opens as the same modal the intercepted route shows.
  */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("clubs.pages.new");
+  return { title: t("title") };
+}
+
 export default async function NewClubPage() {
   const user = await requireAdminUser();
   const data = await loadCreateClubFormData(user);

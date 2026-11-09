@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Building2, Eye, Search } from "lucide-react";
+import { Building2, Eye, Pencil, Search } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
@@ -293,6 +293,12 @@ export function ClubsListClient({
                                   href: `/dashboard/clubs/${clubId}`,
                                   hidden: !clubId,
                                 },
+                                {
+                                  label: t("actionEdit"),
+                                  icon: Pencil,
+                                  href: `/dashboard/clubs/${clubId}/edit`,
+                                  hidden: !clubId,
+                                },
                               ]}
                             />
                           </TableCell>
@@ -365,6 +371,12 @@ export function ClubsListClient({
                               label: t("actionView"),
                               icon: Eye,
                               href: `/dashboard/clubs/${clubId}`,
+                              hidden: !clubId,
+                            },
+                            {
+                              label: t("actionEdit"),
+                              icon: Pencil,
+                              href: `/dashboard/clubs/${clubId}/edit`,
                               hidden: !clubId,
                             },
                           ]}
