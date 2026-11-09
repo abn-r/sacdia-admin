@@ -185,6 +185,15 @@ describe("PaymentOrderDetail", () => {
 
     await user.click(screen.getByRole("button", { name: "Aprobar" }));
 
+    // Opening the confirmation must not approve yet.
+    const dialog = await screen.findByRole("alertdialog");
+    expect(mockApprove).not.toHaveBeenCalled();
+    expect(dialog).toHaveTextContent("OP-2026-0007");
+
+    await user.click(
+      screen.getByRole("button", { name: "Confirmar aprobación" }),
+    );
+
     await waitFor(() => {
       expect(mockApprove).toHaveBeenCalledWith(ORDER_ID);
     });

@@ -8696,6 +8696,9 @@ export interface IntlMessages {
       rejectDescription: string;
       rejectPlaceholder: string;
       confirmReject: string;
+      approveTitle: string;
+      approveDescription: string;
+      confirmApprove: string;
       cancel: string;
       proofFileGeneric: string;
       proofFileJpeg: string;
