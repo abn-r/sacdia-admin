@@ -540,7 +540,7 @@ export function CamporeeSuppliesTab({
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-sm">
+                  <table className="w-full text-sm">
                     <thead className="text-left">
                       <tr>
                         <th className="px-2 py-1 font-medium">{t("plans.colDate")}</th>
@@ -548,13 +548,15 @@ export function CamporeeSuppliesTab({
                         <th className="px-2 py-1 font-medium">{t("plans.colProduct")}</th>
                         <th className="px-2 py-1 font-medium">{t("plans.colQty")}</th>
                         <th className="px-2 py-1 font-medium">{t("plans.colDelivered")}</th>
-                        {canDeliver && <th className="px-2 py-1 font-medium" />}
+                        {canDeliver && (
+                          <th className="sticky right-0 bg-background px-2 py-1 font-medium" />
+                        )}
                       </tr>
                     </thead>
                     <tbody>
                       {selectedPlan.lines.map((line) => (
                         <tr key={line.line_id} className="border-t">
-                          <td className="px-2 py-2">{line.date}</td>
+                          <td className="whitespace-nowrap px-2 py-2">{line.date}</td>
                           <td className="px-2 py-2">
                             {line.slot_label} {line.deliver_time}
                           </td>
@@ -562,14 +564,14 @@ export function CamporeeSuppliesTab({
                           <td className="px-2 py-2">{formatQty(line.qty)}</td>
                           <td className="px-2 py-2">{formatQty(line.delivered_qty)}</td>
                           {canDeliver && (
-                            <td className="px-2 py-2">
+                            <td className="sticky right-0 bg-background px-2 py-2">
                               {isSupplyLineFullyDelivered(line) ? (
                                 <span className="text-muted-foreground text-xs">
                                   {t("plans.lineDelivered")}
                                 </span>
                               ) : (
                                 <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex flex-wrap items-center gap-2">
                                     <Input
                                       aria-label={t("plans.deliverQty")}
                                       aria-invalid={deliverErrors[line.line_id] ? true : undefined}
@@ -669,7 +671,7 @@ export function CamporeeSuppliesTab({
               </div>
             </div>
             <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[720px] text-sm">
+              <table className="w-full min-w-[600px] text-sm">
                 <thead className="bg-muted/40 text-left">
                   <tr>
                     <th className="px-3 py-2 font-medium">{t("plans.colDate")}</th>
@@ -683,14 +685,14 @@ export function CamporeeSuppliesTab({
                 <tbody>
                   {(kitchen?.rows ?? []).map((row, index) => (
                     <tr key={`${row.date}-${row.slot_label}-${row.product_name}-${index}`} className="border-t">
-                      <td className="px-3 py-2">{row.date}</td>
+                      <td className="whitespace-nowrap px-3 py-2">{row.date}</td>
                       <td className="px-3 py-2">
                         {row.slot_label} {row.deliver_time}
                       </td>
                       <td className="px-3 py-2">{row.product_name}</td>
                       <td className="px-3 py-2">{row.club_name}</td>
-                      <td className="px-3 py-2">{formatQty(row.qty)}</td>
-                      <td className="px-3 py-2">{formatQty(row.delivered_qty)}</td>
+                      <td className="whitespace-nowrap px-3 py-2">{formatQty(row.qty)}</td>
+                      <td className="whitespace-nowrap px-3 py-2">{formatQty(row.delivered_qty)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -701,7 +703,7 @@ export function CamporeeSuppliesTab({
           <section className="space-y-3">
             <h3 className="text-sm font-medium">{t("reports.cash")}</h3>
             <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[720px] text-sm">
+              <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left">
                   <tr>
                     <th className="px-3 py-2 font-medium">{t("plans.colClub")}</th>

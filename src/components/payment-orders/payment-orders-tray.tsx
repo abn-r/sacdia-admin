@@ -151,18 +151,18 @@ export function PaymentOrdersTray({
         <EmptyState icon={Inbox} title={t("tray.empty")} />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[560px] xl:min-w-[760px] text-sm">
             <thead className="bg-muted/40 text-left">
               <tr>
                 <th className="px-3 py-2 font-medium">{t("tray.colFolio")}</th>
                 <th className="px-3 py-2 font-medium">{t("tray.colPurpose")}</th>
-                <th className="px-3 py-2 font-medium">
+                <th className="hidden px-3 py-2 font-medium xl:table-cell">
                   {t("tray.colBeneficiaries")}
                 </th>
                 <th className="px-3 py-2 font-medium">{t("tray.colTotal")}</th>
                 <th className="px-3 py-2 font-medium">{t("tray.colStatus")}</th>
-                <th className="px-3 py-2 font-medium">{t("tray.colIssued")}</th>
-                <th className="px-3 py-2 font-medium" />
+                <th className="hidden px-3 py-2 font-medium xl:table-cell">{t("tray.colIssued")}</th>
+                <th className="sticky right-0 bg-background px-3 py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
@@ -174,7 +174,9 @@ export function PaymentOrdersTray({
                   <td className="px-3 py-2">
                     {t(`purpose.${order.purpose}`)}
                   </td>
-                  <td className="px-3 py-2">{order.lines?.length ?? "—"}</td>
+                  <td className="hidden px-3 py-2 xl:table-cell">
+                    {order.lines?.length ?? "—"}
+                  </td>
                   <td className="px-3 py-2">
                     {formatCentavos(order.total_centavos, order.currency)}
                   </td>
@@ -185,10 +187,10 @@ export function PaymentOrdersTray({
                       size="sm"
                     />
                   </td>
-                  <td className="px-3 py-2 text-muted-foreground">
+                  <td className="hidden px-3 py-2 text-muted-foreground xl:table-cell">
                     {formatDate(order.created_at)}
                   </td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="sticky right-0 bg-background px-3 py-2 text-right">
                     <Button
                       type="button"
                       size="sm"

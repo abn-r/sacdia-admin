@@ -106,23 +106,25 @@ export function PaymentObligationsClient() {
         <EmptyState icon={Inbox} title={t("tray.empty")} />
       ) : (
         <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[840px] text-sm">
+          <table className="w-full min-w-[560px] xl:min-w-[840px] text-sm">
             <thead className="bg-muted/40 text-left">
               <tr>
                 <th className="px-3 py-2 font-medium">{t("tray.colFolio")}</th>
-                <th className="px-3 py-2 font-medium">{t("tray.colSource")}</th>
+                <th className="hidden px-3 py-2 font-medium xl:table-cell">{t("tray.colSource")}</th>
                 <th className="px-3 py-2 font-medium">{t("tray.colPurpose")}</th>
                 <th className="px-3 py-2 font-medium">{t("tray.colTotal")}</th>
                 <th className="px-3 py-2 font-medium">{t("tray.colStatus")}</th>
-                <th className="px-3 py-2 font-medium">{t("tray.colCreated")}</th>
-                <th className="px-3 py-2 font-medium" />
+                <th className="hidden px-3 py-2 font-medium xl:table-cell">{t("tray.colCreated")}</th>
+                <th className="sticky right-0 bg-background px-3 py-2 font-medium" />
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={`${item.source}-${item.source_id}`} className="border-t">
                   <td className="px-3 py-2 font-mono">{item.folio}</td>
-                  <td className="px-3 py-2">{t(SOURCE_LABEL_KEY[item.source])}</td>
+                  <td className="hidden px-3 py-2 xl:table-cell">
+                    {t(SOURCE_LABEL_KEY[item.source])}
+                  </td>
                   <td className="px-3 py-2">{t(`purpose.${item.purpose}`)}</td>
                   <td className="px-3 py-2">
                     {formatCentavos(item.total_centavos, item.currency)}
@@ -134,10 +136,10 @@ export function PaymentObligationsClient() {
                       size="sm"
                     />
                   </td>
-                  <td className="px-3 py-2 text-muted-foreground">
+                  <td className="hidden px-3 py-2 text-muted-foreground xl:table-cell">
                     {formatDate(item.created_at)}
                   </td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="sticky right-0 bg-background px-3 py-2 text-right">
                     <Button type="button" size="sm" variant="secondary" asChild>
                       <Link href={paymentObligationDetailPath(item)}>
                         {actionLabel(item.action_required, item.source)}
