@@ -275,6 +275,13 @@ export const sidebarItems: NavGroup[] = [
         activeMatch: "prefix",
       },
       {
+        id: "payment-orders",
+        title: "Órdenes de pago",
+        url: "/dashboard/payment-orders",
+        icon: Receipt,
+        activeMatch: "prefix",
+      },
+      {
         id: "club-inventory",
         title: "Inventario de clubes",
         url: "/dashboard/inventory",
@@ -304,13 +311,6 @@ export const sidebarItems: NavGroup[] = [
             id: "insurance-config",
             title: "Configuración",
             url: "/dashboard/insurance/config",
-            icon: Shield,
-            activeMatch: "prefix",
-          },
-          {
-            id: "payment-orders",
-            title: "Órdenes de pago",
-            url: "/dashboard/payment-orders",
             icon: Shield,
             activeMatch: "prefix",
           },
