@@ -9154,7 +9154,7 @@
     },
     "status": {
       "PAYMENT_DUE": "Pago pendiente",
-      "UNDER_REVIEW": "En revisión",
+      "UNDER_REVIEW": "Comprobante enviado",
       "PROOF_REJECTED": "Comprobante rechazado",
       "ORDER_REVIEW": "Revisión de pedido"
     },

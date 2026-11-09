@@ -9154,7 +9154,7 @@
     },
     "status": {
       "PAYMENT_DUE": "Paiement dû",
-      "UNDER_REVIEW": "En révision",
+      "UNDER_REVIEW": "Justificatif envoyé",
       "PROOF_REJECTED": "Justificatif rejeté",
       "ORDER_REVIEW": "Révision commande"
     },

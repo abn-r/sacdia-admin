@@ -9154,7 +9154,7 @@
     },
     "status": {
       "PAYMENT_DUE": "Payment due",
-      "UNDER_REVIEW": "Under review",
+      "UNDER_REVIEW": "Proof submitted",
       "PROOF_REJECTED": "Proof rejected",
       "ORDER_REVIEW": "Order review"
     },
