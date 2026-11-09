@@ -1801,7 +1801,6 @@
         "filtersTitle": "Filtros",
         "filtersHint": "Refine a listagem por campo",
         "searchPlaceholder": "Buscar por nome ou localização…",
-        "searchPageOnlyHint": "Filtrando apenas esta página",
         "statusAll": "Todos os status",
         "localFieldAll": "Todos os campos",
         "colSections": "Seções ativas",

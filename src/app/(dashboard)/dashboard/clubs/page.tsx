@@ -37,6 +37,11 @@ export default async function ClubsPage({
   const limit = Math.min(readPositiveNumberParam(raw, "limit") ?? 20, 100);
   const activeRaw = readParam(raw, "active");
   const localFieldRaw = readParam(raw, "localFieldId");
+  // `name` and `q` are older aliases the list client still accepts.
+  const search =
+    (readParam(raw, "search") ?? readParam(raw, "name") ?? readParam(raw, "q"))
+      ?.trim()
+      .slice(0, 100) || undefined;
 
   const active =
     activeRaw === "true" ? true : activeRaw === "false" ? false : undefined;
@@ -58,6 +63,7 @@ export default async function ClubsPage({
     limit,
     active,
     localFieldId: canAdminFilterByLocalField(territory) ? localFieldId : undefined,
+    search,
   });
 
   const localFieldOptions = localFields.map((localField) => ({

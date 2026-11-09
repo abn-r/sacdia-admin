@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -51,20 +51,6 @@ interface ClubsListClientProps {
   localFieldOptions: LocalFieldOption[];
   canEdit: boolean;
   canBulkImport?: boolean;
-}
-
-function matchesSearch(club: ClubListItem, query: string): boolean {
-  const haystack = [
-    club.name,
-    getClubLocalFieldName(club),
-    getClubDistrictName(club),
-    getClubChurchName(club),
-  ]
-    .filter((value): value is string => Boolean(value))
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(query);
 }
 
 export function ClubsListClient({
@@ -154,16 +140,10 @@ export function ClubsListClient({
     currentSearch || currentStatusFilter !== "all" || currentLocalField !== "all",
   );
 
-  const filteredItems = useMemo(() => {
-    const query = currentSearch.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter((club) => matchesSearch(club, query));
-  }, [currentSearch, items]);
-
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
-  const showEmptyState = items.length === 0 || filteredItems.length === 0;
+  const showEmptyState = items.length === 0;
 
   return (
     <div className="space-y-6">
@@ -187,11 +167,6 @@ export function ClubsListClient({
                     className="bg-background pl-9"
                   />
                 </div>
-                {currentSearch && safeTotalPages > 1 && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("searchPageOnlyHint")}
-                  </p>
-                )}
               </div>
               <div className="w-[200px] space-y-1 max-sm:w-full [&_[data-slot=select-trigger]]:w-full">
                 <Label htmlFor="clubs-status">{tList("colStatus")}</Label>
@@ -257,7 +232,7 @@ export function ClubsListClient({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredItems.map((club, index) => {
+                  {items.map((club, index) => {
                     const clubId = getClubListId(club);
                     const rowKey = clubId
                       ? `club-${clubId}`
@@ -331,7 +306,7 @@ export function ClubsListClient({
 
             <DataTableShell className="md:hidden">
               <ul className="divide-y" aria-label={tList("title")}>
-                {filteredItems.map((club, index) => {
+                {items.map((club, index) => {
                   const clubId = getClubListId(club);
                   const rowKey = clubId
                     ? `club-m-${clubId}`

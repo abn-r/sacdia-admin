@@ -34,6 +34,7 @@ export type ClubsListQuery = {
   limit: number;
   active?: boolean;
   localFieldId?: number;
+  search?: string;
 };
 
 export type ClubsListResult = {
@@ -68,6 +69,8 @@ export function buildClubsListParams(query: ClubsListQuery): URLSearchParams {
   if (query.active === true) params.set("active", "true");
   if (query.active === false) params.set("active", "false");
   if (query.localFieldId) params.set("localFieldId", String(query.localFieldId));
+  const search = query.search?.trim();
+  if (search) params.set("search", search);
   return params;
 }
 

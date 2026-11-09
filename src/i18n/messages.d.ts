@@ -1830,7 +1830,6 @@ export interface IntlMessages {
         filtersTitle: string;
         filtersHint: string;
         searchPlaceholder: string;
-        searchPageOnlyHint: string;
         statusAll: string;
         localFieldAll: string;
         colSections: string;
