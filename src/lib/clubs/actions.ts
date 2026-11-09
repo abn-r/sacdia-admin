@@ -74,24 +74,6 @@ function parseRequiredNumber(
   return parsed;
 }
 
-function parseOptionalNumber(
-  t: ClubsTranslator,
-  formData: FormData,
-  fieldName: string,
-) {
-  const value = readString(formData, fieldName);
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    throw new Error(t("validation.field_invalid", { field: fieldName }));
-  }
-
-  return parsed;
-}
-
 function parseCoordinates(t: ClubsTranslator, formData: FormData) {
   const latRaw = readString(formData, "coordinates_lat");
   const lngRaw = readString(formData, "coordinates_lng");
@@ -230,48 +212,41 @@ async function loadCreateClubTypeOptions(): Promise<SelectOption[]> {
   }
 }
 
+/**
+ * PATCH /clubs/:clubId body (`UpdateClubDto`): name, description, address,
+ * coordinates, active. Church, district and local field are not editable, so
+ * they are never sent. A present text field is always sent, even when empty,
+ * so an edit form can clear description/address; `active` is sent whenever the
+ * form carries it, including `false`.
+ */
 function buildUpdatePayload(t: ClubsTranslator, formData: FormData) {
   const payload: Record<string, unknown> = {};
 
-  const name = readString(formData, "name");
-  const description = readString(formData, "description");
-  const address = readString(formData, "address");
-
-  if (name) {
+  if (formData.has("name")) {
+    const name = readString(formData, "name");
+    if (!name) {
+      throw new Error(t("validation.club_name_required"));
+    }
     payload.name = name;
   }
 
-  if (description) {
-    payload.description = description;
+  if (formData.has("description")) {
+    payload.description = readString(formData, "description");
   }
 
-  if (address) {
-    payload.address = address;
+  if (formData.has("address")) {
+    payload.address = readString(formData, "address");
   }
 
-  const localFieldId = parseOptionalNumber(t, formData, "local_field_id");
-  const districtId = parseOptionalNumber(t, formData, "district_id");
-  const churchId = parseOptionalNumber(t, formData, "church_id");
-
-  if (localFieldId !== undefined) {
-    payload.local_field_id = localFieldId;
-  }
-
-  if (districtId !== undefined) {
-    payload.district_id = districtId;
-  }
-
-  if (churchId !== undefined) {
-    payload.church_id = churchId;
-  }
-
+  // The API cannot clear coordinates, so an empty pair is omitted (kept as is).
   const coordinates = parseCoordinates(t, formData);
   if (coordinates) {
     payload.coordinates = coordinates;
   }
 
   if (formData.has("active")) {
-    payload.active = formData.get("active") === "on" || formData.get("active") === "true";
+    const active = formData.get("active");
+    payload.active = active === "on" || active === "true";
   }
 
   if (Object.keys(payload).length === 0) {
@@ -405,19 +380,6 @@ function collectUpdateFieldErrors(
     errors.name = t("validation.club_name_required");
   }
 
-  for (const field of ["local_field_id", "district_id", "church_id"] as const) {
-    const value = readString(formData, field);
-    if (value && !Number.isFinite(Number(value))) {
-      const label =
-        field === "local_field_id"
-          ? t("fields.local_field")
-          : field === "district_id"
-            ? t("fields.district")
-            : t("fields.church");
-      errors[field] = t("validation.field_invalid", { field: label });
-    }
-  }
-
   const latRaw = readString(formData, "coordinates_lat");
   const lngRaw = readString(formData, "coordinates_lng");
   if ((latRaw || lngRaw) && (!latRaw || !lngRaw)) {
@@ -462,7 +424,9 @@ export async function updateClubAction(
 
   revalidatePath("/dashboard/clubs");
   revalidatePath(`/dashboard/clubs/${clubId}`);
-  redirect("/dashboard/clubs");
+  // No redirect: the form closes itself (`useFormModal().complete()`), which
+  // returns to the page the user opened it from (list or detail).
+  return { success: t("success.club_updated") };
 }
 
 export async function syncClubSectionsAction(

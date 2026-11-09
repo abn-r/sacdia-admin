@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { ClubDetailHero } from "@/components/clubs/detail/hero";
@@ -32,6 +35,8 @@ interface ClubDetailViewProps {
   quarterlyReportsError?: boolean;
   /** reports:read — rows link to the report detail. */
   canOpenReports?: boolean;
+  /** clubs:update — shows the "Editar" action in the header. */
+  canEdit?: boolean;
   defaultTab: ClubDetailTab;
 }
 
@@ -42,11 +47,13 @@ export function ClubDetailView({
   annualReportsError = false,
   quarterlyReportsError = false,
   canOpenReports = false,
+  canEdit = false,
   defaultTab,
 }: ClubDetailViewProps) {
   const t = useTranslations("clubs.detail");
   const tGeneral = useTranslations("clubs.detail.general");
   const tList = useTranslations("clubs.pages.list");
+  const tActions = useTranslations("clubs.pages.v2");
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -121,6 +128,16 @@ export function ClubDetailView({
           { label: tList("title"), href: "/dashboard/clubs" },
           { label: clubName },
         ]}
+        actions={
+          canEdit ? (
+            <Button asChild variant="outline" size="sm">
+              <Link prefetch={false} href={`/dashboard/clubs/${data.clubId}/edit`}>
+                <Pencil aria-hidden="true" />
+                {tActions("actionEdit")}
+              </Link>
+            </Button>
+          ) : undefined
+        }
       />
 
       <ClubDetailHero

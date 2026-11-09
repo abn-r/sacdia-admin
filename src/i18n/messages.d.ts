@@ -1406,6 +1406,7 @@ export interface IntlMessages {
       role_updated: string;
       retry_failed_sections: string;
       section_toggled: string;
+      club_updated: string;
     };
     fields: {
       local_field: string;
@@ -1469,6 +1470,7 @@ export interface IntlMessages {
       submitButton: string;
       placeholderSelect: string;
       labelActive: string;
+      coordinatesHint: string;
     };
     sections: {
       description: string;
@@ -1819,6 +1821,10 @@ export interface IntlMessages {
         title: string;
         description: string;
         back: string;
+      };
+      edit: {
+        title: string;
+        description: string;
       };
       v2: {
         metadataTitle: string;

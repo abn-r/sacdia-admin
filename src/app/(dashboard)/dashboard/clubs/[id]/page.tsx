@@ -38,6 +38,7 @@ export default async function ClubDetailPage({
   const canCreateSections = canCapability(user, "clubs", "sections.create");
   const canDesignate = canCapability(user, "clubs", "designate_director");
   const canSucceedDirector = canCapability(user, "clubs", "succeed_director");
+  const canEdit = canCapability(user, "clubs", "update");
   const canEnrollAnnualContinuations = canCapability(
     user,
     "annual_continuations",
@@ -74,6 +75,7 @@ export default async function ClubDetailPage({
       canOpenReports={
         canViewScreen(user, "reports-annual") && canViewScreen(user, "reports-quarterly")
       }
+      canEdit={canEdit}
       defaultTab={resolveClubDetailTab(tab)}
     />
   );

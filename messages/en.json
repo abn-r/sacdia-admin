@@ -1376,7 +1376,8 @@
       "assignment_removed": "Assignment removed",
       "role_updated": "Role updated",
       "retry_failed_sections": "You can continue to the club detail and retry the failed sections",
-      "section_toggled": "Section status updated."
+      "section_toggled": "Section status updated.",
+      "club_updated": "Club updated"
     },
     "fields": {
       "local_field": "Local field",
@@ -1439,7 +1440,8 @@
       "cardTitle": "General information",
       "submitButton": "Save changes",
       "placeholderSelect": "Select",
-      "labelActive": "Active club"
+      "labelActive": "Active club",
+      "coordinatesHint": "Removing the pin keeps the saved location."
     },
     "sections": {
       "description": "A club can have sections for each club type (Adventurers, Pathfinders, Master Guides).",
@@ -1790,6 +1792,10 @@
         "title": "Create club",
         "description": "Register a club and choose its sections.",
         "back": "Back"
+      },
+      "edit": {
+        "title": "Edit club",
+        "description": "Update the club details. Local field, district and church cannot be changed."
       },
       "v2": {
         "metadataTitle": "Clubs v2",
