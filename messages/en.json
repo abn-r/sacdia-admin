@@ -8658,7 +8658,11 @@
       "proofFilePdf": "Payment receipt PDF",
       "proofFilePng": "Payment receipt PNG",
       "unknownBeneficiary": "User",
-      "downloadPdf": "Download PDF"
+      "downloadPdf": "Download PDF",
+      "club": "Club",
+      "section": "Section",
+      "camporee": "Camporee",
+      "localField": "Local field"
     },
     "reassignments": {
       "empty": "No reassignment requests",

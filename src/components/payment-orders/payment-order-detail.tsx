@@ -120,6 +120,22 @@ export function PaymentOrderDetail({
     latestProof != null &&
     currentUserId != null &&
     latestProof.uploaded_by_id === currentUserId;
+  const contextRows = order
+    ? [
+        { key: "club", label: t("detail.club"), value: order.club_name },
+        { key: "section", label: t("detail.section"), value: order.section_name },
+        {
+          key: "camporee",
+          label: t("detail.camporee"),
+          value: order.camporee_name,
+        },
+        {
+          key: "localField",
+          label: t("detail.localField"),
+          value: order.local_field_name,
+        },
+      ].filter((row) => row.value != null && row.value.trim() !== "")
+    : [];
   const canReview = order?.status === "PROOF_SUBMITTED";
 
   const openProof = async () => {
@@ -194,6 +210,21 @@ export function PaymentOrderDetail({
             <SheetDescription>
               {order ? order.folio_reference : "…"}
             </SheetDescription>
+            {contextRows.length > 0 && (
+              <dl
+                className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 pt-1 text-sm"
+                data-testid="order-context"
+              >
+                {contextRows.map((row) => (
+                  <div key={row.key} className="contents">
+                    <dt className="text-muted-foreground">{row.label}</dt>
+                    <dd className="min-w-0 truncate font-medium" title={row.value ?? undefined}>
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </SheetHeader>
 
           {loading || !order ? (

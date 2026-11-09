@@ -8706,6 +8706,10 @@ export interface IntlMessages {
       proofFilePng: string;
       unknownBeneficiary: string;
       downloadPdf: string;
+      club: string;
+      section: string;
+      camporee: string;
+      localField: string;
     };
     reassignments: {
       empty: string;

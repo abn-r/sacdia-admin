@@ -234,4 +234,29 @@ describe("PaymentOrderDetail", () => {
       expect(mockReject).toHaveBeenCalledWith(ORDER_ID, "Monto incorrecto");
     });
   });
+
+  it("shows club, section and camporee when the backend provides them", async () => {
+    mockGetPaymentOrder.mockResolvedValue({
+      ...STUB_ORDER,
+      club_name: "Club Alfa",
+      section_name: "Conquistadores",
+      camporee_name: "Camporee Local 2026",
+      local_field_name: null,
+    });
+    renderDetail();
+    await screen.findByText("OP-2026-0007");
+
+    const context = screen.getByTestId("order-context");
+    expect(context).toHaveTextContent("Club Alfa");
+    expect(context).toHaveTextContent("Conquistadores");
+    expect(context).toHaveTextContent("Camporee Local 2026");
+    expect(context).not.toHaveTextContent("Campo local");
+  });
+
+  it("hides the context block when the backend does not send names", async () => {
+    renderDetail();
+    await screen.findByText("OP-2026-0007");
+
+    expect(screen.queryByTestId("order-context")).not.toBeInTheDocument();
+  });
 });

@@ -8658,7 +8658,11 @@
       "proofFilePdf": "Justificatif PDF",
       "proofFilePng": "Justificatif PNG",
       "unknownBeneficiary": "Utilisateur",
-      "downloadPdf": "Télécharger le PDF"
+      "downloadPdf": "Télécharger le PDF",
+      "club": "Club",
+      "section": "Section",
+      "camporee": "Camporee",
+      "localField": "Champ local"
     },
     "reassignments": {
       "empty": "Aucune demande de réaffectation",

@@ -8658,7 +8658,11 @@
       "proofFilePdf": "Comprovante PDF",
       "proofFilePng": "Comprovante PNG",
       "unknownBeneficiary": "Usuário",
-      "downloadPdf": "Baixar PDF"
+      "downloadPdf": "Baixar PDF",
+      "club": "Clube",
+      "section": "Seção",
+      "camporee": "Camporee",
+      "localField": "Campo local"
     },
     "reassignments": {
       "empty": "Nenhuma solicitação de reatribuição",
