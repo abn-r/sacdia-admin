@@ -173,7 +173,7 @@ function MetaChip({
       ) : null}
       <span className="truncate">
         <span className="font-normal text-muted-foreground">{label}</span>
-        <span className="mx-1 text-muted-foreground/50">·</span>
+        <span className="mx-1 text-muted-foreground/50" aria-hidden="true">·</span>
         <span>{children}</span>
       </span>
     </span>

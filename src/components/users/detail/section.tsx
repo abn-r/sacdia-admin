@@ -16,7 +16,7 @@ export function DetailSection({ num, title, action, children, className }: Secti
       <CardHeader className="flex flex-row items-center justify-between gap-3 px-6 pb-0">
         <h3 className="inline-flex items-center gap-2 text-2xs font-semibold text-muted-foreground">
           {num ? (
-            <span className="font-mono text-muted-foreground/70">{num}</span>
+            <span className="font-mono text-muted-foreground">{num}</span>
           ) : null}
           {title}
         </h3>
@@ -50,7 +50,7 @@ export function DetailField({ k, v, muted, className }: FieldProps) {
         className={cn(
           "text-sm font-medium",
           muted || !hasValue
-            ? "italic font-normal text-muted-foreground/70"
+            ? "italic font-normal text-muted-foreground"
             : "text-foreground",
         )}
       >
@@ -102,7 +102,7 @@ export function DetailChipList({
         ) : null}
       </div>
       {items.length === 0 ? (
-        <div className="text-sm italic text-muted-foreground/70">—</div>
+        <div className="text-sm italic text-muted-foreground">—</div>
       ) : (
         <ul className="flex flex-wrap gap-2">
           {items.map((item) => (
