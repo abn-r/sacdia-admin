@@ -35,6 +35,7 @@ export function GeneralTab({ data }: GeneralTabProps) {
   const district = clubLocationName(club.district, club.districts);
   const church = clubLocationName(club.church, club.churches);
   const address = club.address?.trim() || undefined;
+  const description = club.description?.trim() || undefined;
 
   return (
     <div className="space-y-3.5">
@@ -56,6 +57,11 @@ export function GeneralTab({ data }: GeneralTabProps) {
             <DetailField k={t("labelChurch")} v={church} muted={!church} />
           </div>
         </DetailCols2>
+        <DetailField
+          k={t("labelDescription")}
+          v={description ? <span className="whitespace-pre-line font-normal">{description}</span> : undefined}
+          muted={!description}
+        />
       </DetailSection>
 
       {groups.length === 0 ? (

@@ -1465,7 +1465,7 @@
       "submitButton": "Guardar cambios",
       "placeholderSelect": "Seleccionar",
       "labelActive": "Club activo",
-      "coordinatesHint": "Si quitas el pin, se conserva la ubicación guardada."
+      "coordinatesHint": "Puedes mover la ubicación, pero no quitarla."
     },
     "sections": {
       "description": "Un club puede tener secciones para cada tipo de club (Aventureros, Conquistadores, Guías Mayores).",
@@ -1597,6 +1597,7 @@
         "labelName": "Nombre",
         "labelStatus": "Estado",
         "labelAddress": "Dirección",
+        "labelDescription": "Descripción",
         "labelLocalField": "Campo local",
         "labelDistrict": "Distrito",
         "labelChurch": "Iglesia",

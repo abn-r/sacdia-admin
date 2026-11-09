@@ -22,11 +22,13 @@ vi.mock("@/components/shared/location-picker", () => ({
   LocationPicker: ({
     initialLat,
     initialLng,
+    allowClear = true,
   }: {
     initialLat?: number | null;
     initialLng?: number | null;
+    allowClear?: boolean;
   }) => (
-    <div>
+    <div data-testid="location-picker" data-allow-clear={String(allowClear)}>
       <input type="hidden" name="coordinates_lat" value={initialLat ?? ""} readOnly />
       <input type="hidden" name="coordinates_lng" value={initialLng ?? ""} readOnly />
     </div>
@@ -52,10 +54,11 @@ const baseProps = {
 
 function renderForm(
   formAction: (prev: ClubActionState, formData: FormData) => Promise<ClubActionState>,
+  overrides: Partial<typeof baseProps> | { lat: null; lng: null } = {},
 ) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <EditClubForm {...baseProps} formAction={formAction} />
+      <EditClubForm {...baseProps} {...overrides} formAction={formAction} />
     </NextIntlClientProvider>,
   );
 }
@@ -142,5 +145,37 @@ describe("EditClubForm", () => {
     await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith("Club actualizado"));
     expect(mockPush).toHaveBeenCalledWith("/dashboard/clubs");
     expect(mockRefresh).toHaveBeenCalled();
+  });
+});
+
+describe("EditClubForm location", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  it("lets a saved location move but not be removed", () => {
+    renderForm(vi.fn());
+
+    expect(screen.getByTestId("location-picker")).toHaveAttribute("data-allow-clear", "false");
+    expect(screen.getByText(messages.clubs.edit.coordinatesHint)).toBeInTheDocument();
+  });
+
+  it("allows removing a pin when the club had no saved location", () => {
+    renderForm(vi.fn(), { lat: null, lng: null });
+
+    expect(screen.getByTestId("location-picker")).toHaveAttribute("data-allow-clear", "true");
+    expect(screen.queryByText(messages.clubs.edit.coordinatesHint)).not.toBeInTheDocument();
   });
 });
