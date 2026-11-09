@@ -8650,13 +8650,20 @@
       "rejectDescription": "O clube poderá enviar um novo comprovante com o mesmo folio.",
       "rejectPlaceholder": "Motivo da rejeição (obrigatório)",
       "confirmReject": "Confirmar rejeição",
+      "approveTitle": "Aprovar pagamento",
+      "approveDescription": "Você vai aprovar o comprovante da ordem {folio} no valor de {amount}. Esta ação confirma o pagamento.",
+      "confirmApprove": "Confirmar aprovação",
       "cancel": "Cancelar",
       "proofFileGeneric": "Comprovante",
       "proofFileJpeg": "Comprovante JPEG",
       "proofFilePdf": "Comprovante PDF",
       "proofFilePng": "Comprovante PNG",
       "unknownBeneficiary": "Usuário",
-      "downloadPdf": "Baixar PDF"
+      "downloadPdf": "Baixar PDF",
+      "club": "Clube",
+      "section": "Seção",
+      "camporee": "Camporee",
+      "localField": "Campo local"
     },
     "reassignments": {
       "empty": "Nenhuma solicitação de reatribuição",
@@ -9155,7 +9162,7 @@
     },
     "status": {
       "PAYMENT_DUE": "Pagamento pendente",
-      "UNDER_REVIEW": "Em revisão",
+      "UNDER_REVIEW": "Comprovante enviado",
       "PROOF_REJECTED": "Comprovante rejeitado",
       "ORDER_REVIEW": "Revisão de pedido"
     },
@@ -9217,7 +9224,9 @@
       "unitPrice": "Preço unitário",
       "active": "Ativo",
       "yes": "Sim",
-      "no": "Não"
+      "no": "Não",
+      "emptySlots": "Ainda não há horários configurados.",
+      "emptyProducts": "Ainda não há produtos no catálogo."
     },
     "plans": {
       "title": "Planos por seção",
@@ -9248,7 +9257,9 @@
       "charges": "Cargos",
       "refunds": "Devoluções",
       "net": "Líquido",
-      "outstanding": "Pendente"
+      "outstanding": "Pendente",
+      "emptyKitchen": "Não há entregas programadas para este relatório.",
+      "emptyCash": "Ainda não há movimentos de caixa."
     },
     "status": {
       "DRAFT": "Rascunho",

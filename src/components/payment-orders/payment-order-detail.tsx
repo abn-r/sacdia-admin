@@ -6,6 +6,16 @@ import { toast } from "sonner";
 import { AlertTriangle, Download, ExternalLink } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -76,6 +86,7 @@ export function PaymentOrderDetail({
   const [acting, setActing] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
   const load = useCallback(async () => {
@@ -109,6 +120,22 @@ export function PaymentOrderDetail({
     latestProof != null &&
     currentUserId != null &&
     latestProof.uploaded_by_id === currentUserId;
+  const contextRows = order
+    ? [
+        { key: "club", label: t("detail.club"), value: order.club_name },
+        { key: "section", label: t("detail.section"), value: order.section_name },
+        {
+          key: "camporee",
+          label: t("detail.camporee"),
+          value: order.camporee_name,
+        },
+        {
+          key: "localField",
+          label: t("detail.localField"),
+          value: order.local_field_name,
+        },
+      ].filter((row) => row.value != null && row.value.trim() !== "")
+    : [];
   const canReview = order?.status === "PROOF_SUBMITTED";
 
   const openProof = async () => {
@@ -146,9 +173,11 @@ export function PaymentOrderDetail({
     try {
       await approvePaymentOrder(orderId);
       toast.success(t("toasts.approved"));
+      setApproveOpen(false);
       onChanged();
       onOpenChange(false);
     } catch (error) {
+      setApproveOpen(false);
       toast.error(getPaymentOrderErrorMessage(error, t));
     } finally {
       setActing(false);
@@ -181,6 +210,21 @@ export function PaymentOrderDetail({
             <SheetDescription>
               {order ? order.folio_reference : "…"}
             </SheetDescription>
+            {contextRows.length > 0 && (
+              <dl
+                className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 pt-1 text-sm"
+                data-testid="order-context"
+              >
+                {contextRows.map((row) => (
+                  <div key={row.key} className="contents">
+                    <dt className="text-muted-foreground">{row.label}</dt>
+                    <dd className="min-w-0 truncate font-medium" title={row.value ?? undefined}>
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </SheetHeader>
 
           {loading || !order ? (
@@ -345,10 +389,9 @@ export function PaymentOrderDetail({
               {canReview && (
                 <div className="flex gap-2">
                   <Button
-                    loading={acting}
                     type="button"
-                    onClick={() => void approve()}
-                    disabled={isMakerChecker}
+                    onClick={() => setApproveOpen(true)}
+                    disabled={isMakerChecker || acting}
                   >
                     {t("detail.approve")}
                   </Button>
@@ -366,6 +409,36 @@ export function PaymentOrderDetail({
           )}
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={approveOpen} onOpenChange={setApproveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("detail.approveTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("detail.approveDescription", {
+                folio: order?.folio_reference ?? "",
+                amount: order
+                  ? formatCentavos(order.total_centavos, order.currency)
+                  : "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={acting}>
+              {t("detail.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={acting}
+              onClick={(event) => {
+                event.preventDefault();
+                void approve();
+              }}
+            >
+              {t("detail.confirmApprove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>

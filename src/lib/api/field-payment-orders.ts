@@ -96,6 +96,14 @@ export type PaymentOrder = {
   approved_by_id: string | null;
   cancelled_by_id: string | null;
   created_at: string;
+  /**
+   * Context names returned by `GET /payment-orders/:orderId`. Optional: older
+   * backends omit them, and `camporee_name` is null for insurance orders.
+   */
+  club_name?: string | null;
+  section_name?: string | null;
+  camporee_name?: string | null;
+  local_field_name?: string | null;
   lines?: PaymentOrderLine[];
   proofs?: PaymentOrderProof[];
 };

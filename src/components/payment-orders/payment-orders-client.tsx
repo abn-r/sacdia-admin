@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,20 +14,41 @@ import {
 
 interface PaymentOrdersClientProps {
   tabs: PaymentOrderTabFlags;
+  /** Order to open on load (from the `?orderId=` deep link). */
+  initialOrderId?: string | null;
 }
 
-export function PaymentOrdersClient({ tabs }: PaymentOrdersClientProps) {
+export function PaymentOrdersClient({
+  tabs,
+  initialOrderId = null,
+}: PaymentOrdersClientProps) {
   const t = useTranslations("payment_orders");
   const tObligations = useTranslations("payment_obligations");
   const visible = visiblePaymentOrderTabs(tabs);
-  const defaultTab = visible[0];
+  // A deep link to a specific order lands on the orders tab, where its
+  // detail sheet opens.
+  const opensOrder = (orderId: string | null) =>
+    Boolean(orderId) && visible.includes("orders");
+  const defaultTab = opensOrder(initialOrderId) ? "orders" : visible[0];
+  const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab);
+  // The obligations tab links here with a new `?orderId=` while this client
+  // stays mounted, so switch tabs when the deep link changes.
+  const [linkedOrderId, setLinkedOrderId] = useState(initialOrderId);
+  if (initialOrderId !== linkedOrderId) {
+    setLinkedOrderId(initialOrderId);
+    if (opensOrder(initialOrderId)) setActiveTab("orders");
+  }
 
   if (!defaultTab) {
     return null;
   }
 
   return (
-    <Tabs defaultValue={defaultTab} className="space-y-4">
+    <Tabs
+      value={activeTab ?? defaultTab}
+      onValueChange={setActiveTab}
+      className="space-y-4"
+    >
       {visible.length > 1 ? (
         <TabsList>
           {tabs.pending ? (
@@ -49,7 +71,7 @@ export function PaymentOrdersClient({ tabs }: PaymentOrdersClientProps) {
       ) : null}
       {tabs.orders ? (
         <TabsContent value="orders">
-          <PaymentOrdersTray />
+          <PaymentOrdersTray initialOrderId={initialOrderId} />
         </TabsContent>
       ) : null}
       {tabs.reassignments ? (

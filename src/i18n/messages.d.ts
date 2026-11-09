@@ -8697,6 +8697,9 @@ export interface IntlMessages {
       rejectDescription: string;
       rejectPlaceholder: string;
       confirmReject: string;
+      approveTitle: string;
+      approveDescription: string;
+      confirmApprove: string;
       cancel: string;
       proofFileGeneric: string;
       proofFileJpeg: string;
@@ -8704,6 +8707,10 @@ export interface IntlMessages {
       proofFilePng: string;
       unknownBeneficiary: string;
       downloadPdf: string;
+      club: string;
+      section: string;
+      camporee: string;
+      localField: string;
     };
     reassignments: {
       empty: string;
@@ -9265,6 +9272,8 @@ export interface IntlMessages {
       active: string;
       yes: string;
       no: string;
+      emptySlots: string;
+      emptyProducts: string;
     };
     plans: {
       title: string;
@@ -9296,6 +9305,8 @@ export interface IntlMessages {
       refunds: string;
       net: string;
       outstanding: string;
+      emptyKitchen: string;
+      emptyCash: string;
     };
     status: {
       DRAFT: string;

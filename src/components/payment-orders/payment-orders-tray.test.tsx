@@ -175,4 +175,19 @@ describe("PaymentOrdersTray", () => {
     });
     expect(await screen.findByText("Detalle de la orden")).toBeInTheDocument();
   });
+
+  it("opens the detail sheet for the order from the orderId link", async () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <PaymentOrdersTray initialOrderId={STUB_ORDER.field_payment_order_id} />
+      </NextIntlClientProvider>,
+    );
+
+    await waitFor(() => {
+      expect(mockGetPaymentOrder).toHaveBeenCalledWith(
+        STUB_ORDER.field_payment_order_id,
+      );
+    });
+    expect(await screen.findByText("Detalle de la orden")).toBeInTheDocument();
+  });
 });
