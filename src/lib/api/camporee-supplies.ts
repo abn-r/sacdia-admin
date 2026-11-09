@@ -44,6 +44,7 @@ export async function getCamporeeSupplyCatalog(
 ): Promise<CamporeeSupplyCatalog> {
   const payload = await apiRequest<unknown>(
     `${camporeeCollection(kind)}/${camporeeId}/supply-catalog`,
+    { cache: "no-store" },
   );
   return unwrapApiData<CamporeeSupplyCatalog>(payload);
 }
@@ -126,6 +127,7 @@ export async function listCamporeeSupplyPlans(
 ): Promise<CamporeeSupplyPlan[]> {
   const payload = await apiRequest<unknown>(
     `${camporeeCollection(kind)}/${camporeeId}/supply-plans`,
+    { cache: "no-store" },
   );
   return unwrapApiData<CamporeeSupplyPlan[]>(payload);
 }
@@ -137,7 +139,7 @@ export async function getCamporeeSupplyKitchenReport(
 ): Promise<KitchenReport> {
   const payload = await apiRequest<unknown>(
     `${camporeeCollection(kind)}/${camporeeId}/supply-reports/kitchen`,
-    { params: date ? { date } : undefined },
+    { params: date ? { date } : undefined, cache: "no-store" },
   );
   return unwrapApiData<KitchenReport>(payload);
 }
@@ -148,6 +150,7 @@ export async function getCamporeeSupplyCashReport(
 ): Promise<CashReport> {
   const payload = await apiRequest<unknown>(
     `${camporeeCollection(kind)}/${camporeeId}/supply-reports/cash`,
+    { cache: "no-store" },
   );
   return unwrapApiData<CashReport>(payload);
 }

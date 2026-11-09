@@ -38,7 +38,9 @@ describe("camporee-supplies api", () => {
     });
 
     const catalog = await getCamporeeSupplyCatalog(3, "local");
-    expect(apiRequest).toHaveBeenCalledWith("/camporees/3/supply-catalog");
+    expect(apiRequest).toHaveBeenCalledWith("/camporees/3/supply-catalog", {
+      cache: "no-store",
+    });
     expect(catalog.supply_edit_cutoff_local_time).toBe("21:00");
   });
 

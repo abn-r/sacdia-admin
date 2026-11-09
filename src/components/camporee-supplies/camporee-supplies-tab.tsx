@@ -274,8 +274,22 @@ export function CamporeeSuppliesTab({
       }
       setDeliverError(lineId, null);
       try {
-        await deliverCamporeeSupplyLine(camporeeId, camporeeType, lineId, { qty });
+        const updatedPlan = await deliverCamporeeSupplyLine(
+          camporeeId,
+          camporeeType,
+          lineId,
+          { qty },
+        );
         setDeliverQty((current) => ({ ...current, [lineId]: "" }));
+        // Show the delivery right away from the POST response, then reconcile
+        // with the server (kitchen/cash reports change too).
+        if (updatedPlan?.plan_id) {
+          setPlans((current) =>
+            current.map((plan) =>
+              plan.plan_id === updatedPlan.plan_id ? updatedPlan : plan,
+            ),
+          );
+        }
         toast.success(t("toasts.delivered"));
         await load();
       } catch (error) {

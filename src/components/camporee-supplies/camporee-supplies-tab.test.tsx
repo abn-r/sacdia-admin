@@ -17,6 +17,7 @@ const mockListPlans = vi.fn();
 const mockKitchen = vi.fn();
 const mockCash = vi.fn();
 const mockMarkPaid = vi.fn();
+const mockDeliver = vi.fn();
 
 vi.mock("@/lib/api/camporee-supplies", async (importOriginal) => {
   const original =
@@ -28,6 +29,7 @@ vi.mock("@/lib/api/camporee-supplies", async (importOriginal) => {
     getCamporeeSupplyKitchenReport: (...args: unknown[]) => mockKitchen(...args),
     getCamporeeSupplyCashReport: (...args: unknown[]) => mockCash(...args),
     markCamporeeSupplyPaymentPaid: (...args: unknown[]) => mockMarkPaid(...args),
+    deliverCamporeeSupplyLine: (...args: unknown[]) => mockDeliver(...args),
   };
 });
 
@@ -140,6 +142,7 @@ describe("CamporeeSuppliesTab", () => {
     mockKitchen.mockReset();
     mockCash.mockReset();
     mockMarkPaid.mockReset();
+    mockDeliver.mockReset();
     mockGetCatalog.mockResolvedValue(STUB_CATALOG);
     mockListPlans.mockResolvedValue([STUB_PLAN]);
     mockKitchen.mockResolvedValue({ timezone: "America/Mexico_City", date: null, rows: [] });
@@ -283,5 +286,33 @@ describe("CamporeeSuppliesTab", () => {
     expect(within(rice).getAllByRole("cell")[5]).toHaveTextContent(/^0$/);
     expect(within(beans).getAllByRole("cell")[4]).toHaveTextContent(/^6$/);
     expect(within(beans).getAllByRole("cell")[5]).toHaveTextContent(/^2\.5$/);
+  });
+
+  it("applies the delivered plan to the table before the reload resolves", async () => {
+    const user = userEvent.setup();
+    const delivered: CamporeeSupplyPlan = {
+      ...STUB_PLAN,
+      lines: [{ ...STUB_PLAN.lines[0]!, delivered_qty: "3.000" }],
+    };
+    mockDeliver.mockResolvedValue(delivered);
+    renderTab();
+    await screen.findByText("INS20260001");
+    await user.click(screen.getByRole("button", { name: "Ver detalle" }));
+
+    // Hold the reload open so only the POST response can update the table.
+    let release: (plans: CamporeeSupplyPlan[]) => void = () => {};
+    mockListPlans.mockReturnValueOnce(
+      new Promise<CamporeeSupplyPlan[]>((resolve) => {
+        release = resolve;
+      }),
+    );
+    await user.type(screen.getByLabelText("Cantidad a entregar"), "3");
+    await user.click(screen.getByRole("button", { name: "Entregar" }));
+
+    const row = screen.getByText("2026-08-29").closest("tr") as HTMLElement;
+    await waitFor(() => {
+      expect(within(row).getAllByRole("cell")[4]).toHaveTextContent(/^3$/);
+    });
+    release([delivered]);
   });
 });
