@@ -5829,6 +5829,8 @@
       "col_coverage": "Coverage",
       "col_status": "Status",
       "status_no_insurance": "No insurance",
+      "list_label": "Members and their insurance",
+      "mobile_ends": "Ends {date}",
       "status_expired": "Expired",
       "status_active": "Active",
       "status_inactive": "Inactive",

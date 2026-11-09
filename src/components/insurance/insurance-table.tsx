@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import {
   SortableHeader,
   type SortDirection,
@@ -152,6 +153,50 @@ export function InsuranceTable({
     });
   }, [items, sortField, sortDirection]);
 
+  function statusBadge(member: MemberInsurance) {
+    const ins = member.insurance;
+    if (!ins) return <StatusBadge intent="neutral" label={t("table.status_no_insurance")} size="sm" />;
+    if (isExpired(ins.end_date)) {
+      return <StatusBadge intent="destructive" label={t("table.status_expired")} size="sm" />;
+    }
+    return ins.active ? (
+      <StatusBadge intent="success" label={t("table.status_active")} size="sm" />
+    ) : (
+      <StatusBadge intent="neutral" label={t("table.status_inactive")} size="sm" />
+    );
+  }
+
+  function rowActions(member: MemberInsurance) {
+    const ins = member.insurance;
+    return (
+      <RowActions
+        label={memberFullName(member) || t("table.no_name")}
+        actions={[
+          {
+            label: t("table.action_view_evidence"),
+            icon: ExternalLink,
+            href: ins?.evidence_file_url ?? undefined,
+            external: true,
+            hidden: !ins?.evidence_file_url,
+          },
+          {
+            label: ins ? t("table.action_edit") : t("table.action_register"),
+            icon: Pencil,
+            onSelect: () => onEdit?.(member),
+            hidden: !onEdit || !((ins && canUpdate) || (!ins && canCreate)),
+          },
+          {
+            label: `${t("table.action_deactivate")}…`,
+            icon: Trash2,
+            destructive: true,
+            onSelect: () => onDelete?.(member),
+            hidden: !onDelete || !ins,
+          },
+        ]}
+      />
+    );
+  }
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -163,163 +208,163 @@ export function InsuranceTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead
-              className="h-9 px-3"
-              aria-sort={sortField === "member_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="member_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                {t("table.col_member")}
-              </SortableHeader>
-            </TableHead>
-            <TableHead
-              className="h-9 px-3"
-              aria-sort={sortField === "insurance_type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="insurance_type" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                {t("table.col_type")}
-              </SortableHeader>
-            </TableHead>
-            <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
-              {t("table.col_policy")}
-            </TableHead>
-            <TableHead
-              className="hidden xl:table-cell h-9 px-3"
-              aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                {t("table.col_provider")}
-              </SortableHeader>
-            </TableHead>
-            <TableHead
-              className="h-9 px-3"
-              aria-sort={sortField === "end_date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="end_date" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                {t("table.col_validity")}
-              </SortableHeader>
-            </TableHead>
-            <TableHead
-              className="h-9 px-3"
-              aria-sort={sortField === "coverage_amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="coverage_amount" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
-                {t("table.col_coverage")}
-              </SortableHeader>
-            </TableHead>
-            <TableHead
-              className="h-9 px-3"
-              aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                {t("table.col_status")}
-              </SortableHeader>
-            </TableHead>
-            <RowActionsHead className="h-9 px-3" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <>
+      <DataTableShell className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead
+                className="h-9 px-3"
+                aria-sort={sortField === "member_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="member_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  {t("table.col_member")}
+                </SortableHeader>
+              </TableHead>
+              <TableHead
+                className="h-9 px-3"
+                aria-sort={sortField === "insurance_type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="insurance_type" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  {t("table.col_type")}
+                </SortableHeader>
+              </TableHead>
+              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
+                {t("table.col_policy")}
+              </TableHead>
+              <TableHead
+                className="hidden xl:table-cell h-9 px-3"
+                aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  {t("table.col_provider")}
+                </SortableHeader>
+              </TableHead>
+              <TableHead
+                className="h-9 px-3"
+                aria-sort={sortField === "end_date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="end_date" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  {t("table.col_validity")}
+                </SortableHeader>
+              </TableHead>
+              <TableHead
+                className="h-9 px-3"
+                aria-sort={sortField === "coverage_amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="coverage_amount" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
+                  {t("table.col_coverage")}
+                </SortableHeader>
+              </TableHead>
+              <TableHead
+                className="h-9 px-3"
+                aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+              >
+                <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
+                  {t("table.col_status")}
+                </SortableHeader>
+              </TableHead>
+              <RowActionsHead className="h-9 px-3" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedItems.map((member) => {
+              const ins = member.insurance;
+              const expired = isExpired(ins?.end_date);
+
+              return (
+                <TableRow key={member.user_id} className="hover:bg-muted/30">
+                  {/* Member */}
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    <div>
+                      <span className="font-medium">{memberFullName(member) || t("table.no_name")}</span>
+                      {member.current_class?.name && (
+                        <p className="text-xs text-muted-foreground">{member.current_class.name}</p>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  {/* Type */}
+                  <TableCell className="px-3 py-2.5 align-middle">
+                    {insuranceTypeBadge(ins?.insurance_type)}
+                  </TableCell>
+
+                  {/* Policy number */}
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
+                    {ins?.policy_number ?? "—"}
+                  </TableCell>
+
+                  {/* Provider */}
+                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
+                    <span
+                      className="block max-w-[140px] truncate text-sm text-muted-foreground"
+                      title={ins?.provider ?? undefined}
+                    >
+                      {ins?.provider ?? "—"}
+                    </span>
+                  </TableCell>
+
+                  {/* Dates */}
+                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+                    {ins ? (
+                      <span className={expired ? "text-destructive" : undefined}>
+                        {formatDate(ins.start_date)} — {formatDate(ins.end_date)}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+
+                  {/* Coverage */}
+                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+                    {formatCurrency(ins?.coverage_amount)}
+                  </TableCell>
+
+                  {/* Status */}
+                  <TableCell className="px-3 py-2.5 align-middle">{statusBadge(member)}</TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="px-3 py-2.5 align-middle">{rowActions(member)}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </DataTableShell>
+
+      {/* Phones: two lines per member, one status mark, actions at the end. */}
+      <DataTableShell className="md:hidden">
+        <ul className="divide-y" aria-label={t("table.list_label")}>
           {sortedItems.map((member) => {
             const ins = member.insurance;
-            const expired = isExpired(ins?.end_date);
+            const secondary = [
+              member.current_class?.name,
+              // The end date goes before the type so truncation drops the type first.
+              ins?.end_date ? t("table.mobile_ends", { date: formatDate(ins.end_date) }) : null,
+              ins?.insurance_type ? INSURANCE_TYPE_LABELS[ins.insurance_type] : null,
+            ]
+              .filter(Boolean)
+              .join(" · ");
 
             return (
-              <TableRow key={member.user_id} className="hover:bg-muted/30">
-                {/* Member */}
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <div>
-                    <span className="font-medium">{memberFullName(member) || t("table.no_name")}</span>
-                    {member.current_class?.name && (
-                      <p className="text-xs text-muted-foreground">{member.current_class.name}</p>
-                    )}
-                  </div>
-                </TableCell>
-
-                {/* Type */}
-                <TableCell className="px-3 py-2.5 align-middle">
-                  {insuranceTypeBadge(ins?.insurance_type)}
-                </TableCell>
-
-                {/* Policy number */}
-                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
-                  {ins?.policy_number ?? "—"}
-                </TableCell>
-
-                {/* Provider */}
-                <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
-                  <span
-                    className="block max-w-[140px] truncate text-sm text-muted-foreground"
-                    title={ins?.provider ?? undefined}
-                  >
-                    {ins?.provider ?? "—"}
-                  </span>
-                </TableCell>
-
-                {/* Dates */}
-                <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                  {ins ? (
-                    <span className={expired ? "text-destructive" : undefined}>
-                      {formatDate(ins.start_date)} — {formatDate(ins.end_date)}
+              <li key={member.user_id} className="flex items-start gap-2 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="min-w-0 truncate text-sm font-medium">
+                      {memberFullName(member) || t("table.no_name")}
                     </span>
-                  ) : (
-                    "—"
-                  )}
-                </TableCell>
-
-                {/* Coverage */}
-                <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                  {formatCurrency(ins?.coverage_amount)}
-                </TableCell>
-
-                {/* Status */}
-                <TableCell className="px-3 py-2.5 align-middle">
-                  {!ins ? (
-                    <StatusBadge intent="neutral" label={t("table.status_no_insurance")} size="sm" />
-                  ) : expired ? (
-                    <StatusBadge intent="destructive" label={t("table.status_expired")} size="sm" />
-                  ) : ins.active ? (
-                    <StatusBadge intent="success" label={t("table.status_active")} size="sm" />
-                  ) : (
-                    <StatusBadge intent="neutral" label={t("table.status_inactive")} size="sm" />
-                  )}
-                </TableCell>
-
-                {/* Actions */}
-                <TableCell className="px-3 py-2.5 align-middle">
-                  <RowActions
-                    label={memberFullName(member) || t("table.no_name")}
-                    actions={[
-                      {
-                        label: t("table.action_view_evidence"),
-                        icon: ExternalLink,
-                        href: ins?.evidence_file_url ?? undefined,
-                        external: true,
-                        hidden: !ins?.evidence_file_url,
-                      },
-                      {
-                        label: ins ? t("table.action_edit") : t("table.action_register"),
-                        icon: Pencil,
-                        onSelect: () => onEdit?.(member),
-                        hidden: !onEdit || !((ins && canUpdate) || (!ins && canCreate)),
-                      },
-                      {
-                        label: `${t("table.action_deactivate")}…`,
-                        icon: Trash2,
-                        destructive: true,
-                        onSelect: () => onDelete?.(member),
-                        hidden: !onDelete || !ins,
-                      },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
+                    <span className="shrink-0">{statusBadge(member)}</span>
+                  </div>
+                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground tabular-nums">
+                    {secondary || "—"}
+                  </p>
+                </div>
+                {rowActions(member)}
+              </li>
             );
           })}
-        </TableBody>
-      </Table>
-    </div>
+        </ul>
+      </DataTableShell>
+    </>
   );
 }

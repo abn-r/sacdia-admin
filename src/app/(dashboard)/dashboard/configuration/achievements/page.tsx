@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { ApiError } from "@/lib/api/client";
@@ -73,6 +74,11 @@ function extractMeta(payload: unknown, fallbackPage: number, fallbackLimit: numb
     Math.max(1, Math.ceil(total / Math.max(limit, 1)));
 
   return { page, limit, total, totalPages };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("achievements.crud.categories");
+  return { title: t("pageTitle") };
 }
 
 export default async function AchievementsPage({

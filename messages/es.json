@@ -5829,6 +5829,8 @@
       "col_coverage": "Cobertura",
       "col_status": "Estado",
       "status_no_insurance": "Sin seguro",
+      "list_label": "Miembros y su seguro",
+      "mobile_ends": "Vence {date}",
       "status_expired": "Vencido",
       "status_active": "Vigente",
       "status_inactive": "Inactivo",

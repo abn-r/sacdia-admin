@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RefreshCw, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -254,70 +255,79 @@ export function InsuranceView({
     <div className="space-y-5">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-end gap-3">
           {/* Local field selector */}
-          <Select
-            value={
-              selectedLocalFieldId === "all"
-                ? "all"
-                : String(selectedLocalFieldId)
-            }
-            onValueChange={handleLocalFieldChange}
-            disabled={isLocalFieldLocked}
-          >
-            <SelectTrigger className="h-9 w-52" aria-label={t("view.filter_local_field")}>
-              <SelectValue placeholder={t("view.select_local_field_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {!isLocalFieldLocked && (
-                <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
-              )}
-              {localFields.map((lf) => (
-                <SelectItem
-                  key={lf.local_field_id}
-                  value={String(lf.local_field_id)}
-                >
-                  {lf.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1 max-sm:w-full">
+            <Label htmlFor="insurance-filter-local-field">{t("view.filter_local_field")}</Label>
+            <Select
+              value={
+                selectedLocalFieldId === "all"
+                  ? "all"
+                  : String(selectedLocalFieldId)
+              }
+              onValueChange={handleLocalFieldChange}
+              disabled={isLocalFieldLocked}
+            >
+              <SelectTrigger id="insurance-filter-local-field" className="h-9 w-52 max-sm:w-full">
+                <SelectValue placeholder={t("view.select_local_field_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {!isLocalFieldLocked && (
+                  <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
+                )}
+                {localFields.map((lf) => (
+                  <SelectItem
+                    key={lf.local_field_id}
+                    value={String(lf.local_field_id)}
+                  >
+                    {lf.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Club selector */}
-          <Select
-            value={selectedClubId ? String(selectedClubId) : ""}
-            onValueChange={handleClubChange}
-            disabled={filteredClubs.length === 0}
-          >
-            <SelectTrigger className="h-9 w-52" aria-label={t("view.filter_club")}>
-              <SelectValue placeholder={t("view.select_club_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredClubs.map((club) => (
-                <SelectItem key={club.club_id} value={String(club.club_id)}>
-                  {club.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1 max-sm:w-full">
+            <Label htmlFor="insurance-filter-club">{t("view.filter_club")}</Label>
+            <Select
+              value={selectedClubId ? String(selectedClubId) : ""}
+              onValueChange={handleClubChange}
+              disabled={filteredClubs.length === 0}
+            >
+              <SelectTrigger id="insurance-filter-club" className="h-9 w-52 max-sm:w-full">
+                <SelectValue placeholder={t("view.select_club_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredClubs.map((club) => (
+                  <SelectItem key={club.club_id} value={String(club.club_id)}>
+                    {club.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Section selector */}
-          <Select
-            value={selectedSectionId ? String(selectedSectionId) : ""}
-            onValueChange={handleSectionChange}
-            disabled={!selectedClubId || sections.length === 0}
-          >
-            <SelectTrigger className="h-9 w-48" aria-label={t("view.filter_section")}>
-              <SelectValue placeholder={t("view.select_section_placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {sections.map((s) => (
-                <SelectItem key={s.club_section_id} value={String(s.club_section_id)}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1 max-sm:flex-1">
+            <Label htmlFor="insurance-filter-section">{t("view.filter_section")}</Label>
+            <Select
+              value={selectedSectionId ? String(selectedSectionId) : ""}
+              onValueChange={handleSectionChange}
+              disabled={!selectedClubId || sections.length === 0}
+            >
+              <SelectTrigger id="insurance-filter-section" className="h-9 w-48 max-sm:w-full">
+                <SelectValue placeholder={t("view.select_section_placeholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {sections.map((s) => (
+                  <SelectItem key={s.club_section_id} value={String(s.club_section_id)}>
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button
             variant="outline"
@@ -366,7 +376,7 @@ export function InsuranceView({
             {canOpenPaymentOrders ? (
               <Link
                 href="/dashboard/payment-orders"
-                className="inline-block font-medium text-primary underline-offset-4 hover:underline"
+                className="inline-block font-medium text-foreground underline underline-offset-4 transition-colors duration-150 hover:text-primary"
               >
                 {t("view.legacy_disabled_link")}
               </Link>
