@@ -1801,7 +1801,6 @@
         "filtersTitle": "Filters",
         "filtersHint": "Refine the list by field",
         "searchPlaceholder": "Search by name or location…",
-        "searchPageOnlyHint": "Filtering this page only",
         "statusAll": "All statuses",
         "localFieldAll": "All fields",
         "colSections": "Active sections",
