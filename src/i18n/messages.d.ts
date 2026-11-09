@@ -48,8 +48,30 @@ export interface IntlMessages {
       generalGroup: string;
       shortcutHint: string;
     };
+    indexes: {
+      catalogsDescription: string;
+      configurationDescription: string;
+      sections: {
+        geography: string;
+        clubs: string;
+        health: string;
+        business: string;
+        honors: string;
+        camporees: string;
+        local_field: string;
+        investiture_setup: string;
+        camporee_config: string;
+        evaluation: string;
+        system: string;
+        security: string;
+      };
+    };
     sections: {
       overview: string;
+      pending: string;
+      clubs_members: string;
+      operation: string;
+      evaluation_events: string;
       catalogs: string;
       administration: string;
       clubs: string;
@@ -190,6 +212,8 @@ export interface IntlMessages {
     };
     sidebar: {
       home: string;
+      certifications_reviews: string;
+      clubs_evidence_folders_templates: string;
       requests_transfers: string;
       requests_membership: string;
       finances: string;

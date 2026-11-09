@@ -12,6 +12,8 @@ import type { NavGroup, NavMainItem, NavSubItem } from "./sidebar-items";
  *  2. Otherwise `nav.sidebar.<id with "-" replaced by "_">`.
  */
 export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
+  "admin-catalogs": "catalogs_root",
+  "admin-settings": "configuration",
   "users": "users",
   "clubs": "clubs",
   "coordination": "coordination",
@@ -25,8 +27,6 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
   "investiture-pastors": "investiture_pastors",
   "honor-instructor-proposals": "honor_instructor_proposals",
   "institutional-certificate-requests": "institutional_certificate_requests",
-  "clubs-evidence-folders-templates": "annual_folders_templates",
-  "certifications-reviews": "certifications_reviews",
   "year-end": "year_end",
   "annual-folders-templates": "annual_folders_templates",
   "member-of-month": "member_of_month",
@@ -75,14 +75,11 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
 
 /** Group id -> `nav.sections` key. */
 export const NAV_SECTION_KEY_BY_GROUP_ID: Readonly<Record<number, string>> = {
-  1: "clubs",
-  2: "operations",
-  3: "validation",
-  4: "rankings_analytics",
-  5: "campamentos",
-  6: "materials",
-  7: "communications",
-  8: "administration",
+  1: "pending",
+  2: "clubs_members",
+  3: "operation",
+  4: "evaluation_events",
+  5: "administration",
 };
 
 /** Message key relative to the `nav` namespace for a sidebar item id. */

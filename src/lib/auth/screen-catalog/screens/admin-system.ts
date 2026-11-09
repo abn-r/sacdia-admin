@@ -82,13 +82,6 @@ export const adminSystemScreens: ScreenDefinition[] = [
     surfaces: ["admin"],
     viewAny: { permissions: [ROLES_READ] },
     capabilities: [
-      {
-        // /dashboard/configuration index (not a sidebar leaf).
-        id: "configuration_index",
-        kind: "route",
-        href: "/dashboard/configuration",
-        gate: { permissions: [PERMISSIONS_READ, ROLES_READ] },
-      },
       // POST/PATCH/DELETE roles, POST/PUT/DELETE roles/:id/permissions
       { id: "manage", kind: "button", gate: RBAC_WRITE },
     ],

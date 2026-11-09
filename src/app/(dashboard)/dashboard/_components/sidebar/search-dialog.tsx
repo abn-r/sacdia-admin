@@ -18,6 +18,18 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
+import type { NavTranslator } from "@/lib/auth/screen-catalog/screen-title";
+import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
+import { usePermissions } from "@/lib/auth/use-permissions";
+import {
+  CATALOGS_INDEX_SECTIONS,
+  CONFIGURATION_INDEX_SECTIONS,
+} from "@/navigation/sidebar/index-pages";
+import {
+  resolveIndexSections,
+  type ResolvedIndexSection,
+} from "@/navigation/sidebar/index-pages-resolve";
 import type { NavGroup, NavMainItem, NavSubItem } from "@/navigation/sidebar/sidebar-items";
 import { useSidebarItems } from "@/navigation/sidebar/use-sidebar-items";
 
@@ -96,6 +108,28 @@ function buildSearchItems(groups: NavGroup[]): SearchItem[] {
   );
 }
 
+/**
+ * Pages that left the sidebar for an index (catalogs, configuration) stay
+ * searchable. Items already reachable from the sidebar tree are skipped.
+ */
+function buildIndexSearchItems(
+  group: string,
+  sections: ResolvedIndexSection[],
+  seen: ReadonlySet<string>,
+): SearchItem[] {
+  return sections.flatMap((section) =>
+    section.links
+      .filter((link) => !seen.has(link.id))
+      .map((link) => ({
+        id: link.id,
+        group,
+        label: section.title === link.title ? link.title : `${section.title} · ${link.title}`,
+        url: link.url,
+        icon: link.icon,
+      })),
+  );
+}
+
 function getAvailableItems(items: SearchItem[]) {
   return items.filter(
     (item) => item.url && !item.disabled && !item.url.includes("coming-soon"),
@@ -116,14 +150,34 @@ export function SearchDialog() {
   const router = useRouter();
   const sidebarItems = useSidebarItems();
   const t = useTranslations("nav.commandPalette");
+  const tNav = useTranslations("nav");
+  const { subject } = useScreenAccess();
+  const { isPastorOnly } = usePermissions();
 
-  const searchItems = React.useMemo(
-    () => buildSearchItems(sidebarItems),
-    [sidebarItems],
-  );
+  const searchItems = React.useMemo(() => {
+    const base = buildSearchItems(sidebarItems);
+    if (isPastorOnly) return base;
+    const translator = tNav as unknown as NavTranslator;
+    const canOpen = (link: { id: string }) => canViewScreen(subject, link.id);
+    const seen = new Set(base.map((item) => item.id));
+    return [
+      ...base,
+      ...buildIndexSearchItems(
+        tNav("items.catalogs_root"),
+        resolveIndexSections(CATALOGS_INDEX_SECTIONS, canOpen, translator),
+        seen,
+      ),
+      ...buildIndexSearchItems(
+        tNav("items.configuration"),
+        resolveIndexSections(CONFIGURATION_INDEX_SECTIONS, canOpen, translator),
+        seen,
+      ),
+    ];
+  }, [sidebarItems, subject, isPastorOnly, tNav]);
+  // Default list (empty query) stays the sidebar; index pages only add search hits.
   const recommendations = React.useMemo(
-    () => getAvailableItems(searchItems),
-    [searchItems],
+    () => getAvailableItems(buildSearchItems(sidebarItems)),
+    [sidebarItems],
   );
 
   React.useEffect(() => {

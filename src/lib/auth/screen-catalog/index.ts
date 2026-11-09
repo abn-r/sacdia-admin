@@ -1,4 +1,5 @@
 import type { AuthUser } from "@/lib/auth/types";
+import { ALL_INDEX_LINKS } from "@/navigation/sidebar/index-pages";
 import {
   sidebarItems,
   type NavGroup,
@@ -6,6 +7,7 @@ import {
 } from "@/navigation/sidebar/sidebar-items";
 
 import { evaluateAccess, subjectFromUser } from "./evaluate";
+import { buildAdminIndexScreens } from "./screens/admin-indexes";
 import { adminSystemScreens } from "./screens/admin-system";
 import { appScreens } from "./screens/app";
 import { campamentosScreens } from "./screens/campamentos";
@@ -35,7 +37,7 @@ export type * from "./types";
  * matrix display order. Add new families as their own file under
  * `./screens/` and register them here.
  */
-export const SCREEN_CATALOG: readonly ScreenDefinition[] = [
+const LEAF_SCREENS: readonly ScreenDefinition[] = [
   ...homeScreens,
   usersScreen,
   ...clubsScreens,
@@ -46,6 +48,12 @@ export const SCREEN_CATALOG: readonly ScreenDefinition[] = [
   ...catalogsGeographyScreens,
   ...catalogsDomainScreens,
   ...adminSystemScreens,
+];
+
+export const SCREEN_CATALOG: readonly ScreenDefinition[] = [
+  ...LEAF_SCREENS,
+  // After the leaves: the hub gates are built from their `viewAny`.
+  ...buildAdminIndexScreens(LEAF_SCREENS),
   ...appScreens,
 ];
 
@@ -83,8 +91,15 @@ export function collectSidebarLeaves(groups: NavGroup[] = sidebarItems): Sidebar
   return out;
 }
 
+/**
+ * Leaves behind an index page (catalogs, configuration) are no longer in the
+ * sidebar tree but still take their url/title from the same lists.
+ */
 const SIDEBAR_LEAF_BY_ID: ReadonlyMap<string, SidebarLeaf> = new Map(
-  collectSidebarLeaves().map((leaf) => [leaf.id, leaf]),
+  [
+    ...ALL_INDEX_LINKS.map(({ id, url, title }) => ({ id, url, title })),
+    ...collectSidebarLeaves(),
+  ].map((leaf) => [leaf.id, leaf]),
 );
 
 // ─── Lookups ─────────────────────────────────────────────────────────────────
@@ -129,6 +144,8 @@ export function bundleKeys(screen: ScreenDefinition): string[] {
 
 type PathEntry = {
   href: string;
+  /** Hub page: matches only its own URL, never as a prefix. */
+  exactOnly?: boolean;
   access: CapabilityGate;
   screenId: string;
   capabilityId?: string;
@@ -139,7 +156,12 @@ function buildPathEntries(): PathEntry[] {
   for (const screen of SCREEN_CATALOG) {
     const path = resolveScreenPath(screen);
     if (path) {
-      entries.push({ href: path, access: screen.viewAny, screenId: screen.id });
+      entries.push({
+        href: path,
+        access: screen.viewAny,
+        screenId: screen.id,
+        ...(screen.pathMatch === "exact" ? { exactOnly: true } : {}),
+      });
     }
     for (const capability of screen.capabilities) {
       if (capability.kind === "route" && capability.href) {
@@ -190,7 +212,8 @@ export function resolvePathEntry(pathname: string): PathEntry | undefined {
   }
 
   return PATH_ENTRIES.filter(
-    (entry) => entry.href !== "/dashboard" && path.startsWith(`${entry.href}/`),
+    (entry) =>
+      !entry.exactOnly && entry.href !== "/dashboard" && path.startsWith(`${entry.href}/`),
   ).sort((left, right) => right.href.length - left.href.length)[0];
 }
 
