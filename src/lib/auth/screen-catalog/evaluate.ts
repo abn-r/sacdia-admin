@@ -53,6 +53,10 @@ export function evaluateAccess(
     return true;
   }
 
+  if (access.anyOf) {
+    return access.anyOf.some((gate) => evaluateAccess(subject, gate));
+  }
+
   if (access.capability) {
     return (
       subject.capabilities.has(access.capability) &&

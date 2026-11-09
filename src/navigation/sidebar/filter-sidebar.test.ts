@@ -43,7 +43,7 @@ describe("filterSidebarItems", () => {
     expect(filtered.length).toBe(sidebarItems.length);
   });
 
-  it("hides catalog editors when the user has catalogs:read but not catalogs.edit", () => {
+  it("hides the Catálogos entry when the user only has catalogs:read (no editor access)", () => {
     const titles = collectTitles(
       filterSidebarItems(
         sidebarItems,
@@ -51,26 +51,36 @@ describe("filterSidebarItems", () => {
       ),
     );
 
-    expect(titles).not.toContain("Categorías finanzas");
-    expect(titles).not.toContain("Países");
-    expect(titles).not.toContain("Clases");
-    expect(titles).not.toContain("Certificaciones GM");
+    expect(titles).not.toContain("Catálogos");
   });
 
-  it("keeps the certifications catalog for certifications:configure without catalogs.edit", () => {
+  it("shows Catálogos for certifications:configure without catalogs.edit (certifications catalog only)", () => {
     const titles = collectTitles(
       filterSidebarItems(sidebarItems, checker(["director-lf"], ["certifications:configure"])),
     );
 
-    expect(titles).toContain("Certificaciones GM");
+    expect(titles).toContain("Catálogos");
   });
 
-  it("keeps catalog editors for admin (catalogs.edit) with catalogs:read", () => {
+  it("shows Catálogos for admin (catalogs.edit) with a catalog read permission", () => {
     const titles = collectTitles(
       filterSidebarItems(sidebarItems, checker(["admin"], ["catalogs:read"])),
     );
 
-    expect(titles).toContain("Categorías finanzas");
+    expect(titles).toContain("Catálogos");
+  });
+
+  it("shows Configuración when the user can reach one of its links, and hides it otherwise", () => {
+    const withRoles = collectTitles(
+      filterSidebarItems(sidebarItems, checker([], ["roles:read"])),
+    );
+    expect(withRoles).toContain("Configuración");
+
+    const without = collectTitles(
+      filterSidebarItems(sidebarItems, checker([], ["users:read"])),
+    );
+    expect(without).not.toContain("Configuración");
+    expect(without).not.toContain("Catálogos");
   });
 
   it("requires users.manage_in_scope on top of users:read", () => {
@@ -93,7 +103,39 @@ describe("filterSidebarItems", () => {
       ),
     );
 
-    expect(titles).toEqual(["Autorizaciones"]);
+    expect(titles).toEqual(["Autorizaciones de investidura"]);
+  });
+
+  it("keeps the approved structure: 6 groups, daily queues first, max 2 levels", () => {
+    expect(sidebarItems.map((group) => group.label)).toEqual([
+      undefined,
+      "Por atender",
+      "Clubes y miembros",
+      "Operación",
+      "Evaluación y eventos",
+      "Administración",
+    ]);
+
+    for (const group of sidebarItems) {
+      for (const item of group.items) {
+        for (const sub of "subItems" in item ? (item.subItems ?? []) : []) {
+          expect(sub.subItems, `${item.id} > ${sub.id}`).toBeUndefined();
+        }
+      }
+    }
+
+    const pending = sidebarItems[1]!.items.map((item) => item.id);
+    expect(pending).toEqual([
+      "requests",
+      "validations",
+      "investiture-requests",
+      "certifications-reviews",
+    ]);
+  });
+
+  it("keeps Clubes and Actividades together in Clubes y miembros", () => {
+    const ids = sidebarItems[2]!.items.map((item) => item.id);
+    expect(ids).toEqual(["clubs", "users", "coordination", "activities", "notifications"]);
   });
 
   it("hides everything from a user with no permissions or capabilities", () => {

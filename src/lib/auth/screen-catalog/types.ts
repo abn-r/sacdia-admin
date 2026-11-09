@@ -20,6 +20,12 @@ export type ScreenCapabilityKind = "button" | "tab" | "route" | "section";
 export type CapabilityGate = NavAccess & {
   exactRoles?: boolean;
   capability?: CapabilityKey;
+  /**
+   * Index-page gate: passes when ANY nested gate passes (the user can reach at
+   * least one child). Used only by hub pages (`/dashboard/catalogs`,
+   * `/dashboard/configuration`); when set, the other fields are not read.
+   */
+  anyOf?: CapabilityGate[];
 };
 
 /**
@@ -57,6 +63,11 @@ export type ScreenDefinition = {
   path?: string;
   /** `nav.items.*` key for a localised title. Falls back to the sidebar title. */
   titleKey?: string;
+  /**
+   * `exact`: the path gates only that URL and never acts as a prefix for
+   * deeper unmapped URLs (hub pages: an unmapped child must stay fail-closed).
+   */
+  pathMatch?: "exact";
   surfaces: ScreenSurface[];
   /** Enter the screen / see it in the sidebar. Verbs never imply this. */
   viewAny: CapabilityGate;

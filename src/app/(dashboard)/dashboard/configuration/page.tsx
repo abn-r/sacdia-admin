@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Bell, Grid3X3, Key, Settings2, Trophy, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { LinkIndexSections, type LinkIndexCopy } from "@/components/shared/link-index-sections";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
+import type { NavTranslator } from "@/lib/auth/screen-catalog/screen-title";
 import { requireAdminUser } from "@/lib/auth/session";
+import {
+  CONFIGURATION_INDEX_PATH,
+  CONFIGURATION_INDEX_SECTIONS,
+} from "@/navigation/sidebar/index-pages";
+import { resolveIndexSections } from "@/navigation/sidebar/index-pages-resolve";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("nav.items");
@@ -12,78 +19,59 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ConfigurationPage() {
-  const tNav = await getTranslations("nav.items");
+  const tNav = await getTranslations("nav");
   const tRbac = await getTranslations("rbac.pages.root");
   const tSettings = await getTranslations("settings.pages.root");
   const tAchievements = await getTranslations("achievements.crud.categories");
   const tNotifications = await getTranslations("configuration.notifications");
-  await requireAdminUser();
+  const user = await requireAdminUser();
+  // The layout hides a forbidden page but renders in parallel: gate here too.
+  if (!canAccessDashboardPath(user, CONFIGURATION_INDEX_PATH)) {
+    return <PageAccessForbidden />;
+  }
 
-  const sections = [
-    {
+  const sections = resolveIndexSections(
+    CONFIGURATION_INDEX_SECTIONS,
+    (link) => canAccessDashboardPath(user, link.url),
+    tNav as unknown as NavTranslator,
+  );
+
+  // Cards that already had a description keep their original copy.
+  const copy: LinkIndexCopy = {
+    "notifications-hub": {
       title: tNotifications("title"),
       description: tNotifications("description"),
-      href: "/dashboard/configuration/notifications",
-      icon: Bell,
     },
-    {
+    "admin-system-achievements": {
       title: tAchievements("pageTitle"),
       description: tAchievements("pageDescription"),
-      href: "/dashboard/configuration/achievements",
-      icon: Trophy,
     },
-    {
+    "admin-system-variables": {
       title: tSettings("title"),
       description: tSettings("description"),
-      href: "/dashboard/configuration/variables",
-      icon: Settings2,
     },
-    {
+    "admin-system-permissions": {
       title: tRbac("sectionPermissions"),
       description: tRbac("sectionPermissionsDesc"),
-      href: "/dashboard/configuration/permissions",
-      icon: Key,
     },
-    {
+    "admin-system-roles": {
       title: tRbac("sectionRoles"),
       description: tRbac("sectionRolesDesc"),
-      href: "/dashboard/configuration/roles",
-      icon: Users,
     },
-    {
+    "admin-system-matrix": {
       title: tRbac("sectionMatrix"),
       description: tRbac("sectionMatrixDesc"),
-      href: "/dashboard/configuration/matrix",
-      icon: Grid3X3,
     },
-  ];
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={tNav("configuration")}
-        description={tRbac("description")}
-        breadcrumbs={[{ label: tNav("configuration") }]}
+        title={tNav("items.configuration")}
+        description={tNav("indexes.configurationDescription")}
+        breadcrumbs={[{ label: tNav("items.configuration") }]}
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {sections.map((section) => (
-          <Link
-            key={section.href}
-            href={section.href}
-            className="rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          >
-            <Card className="h-full transition-colors hover:bg-muted/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <section.icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  {section.title}
-                </CardTitle>
-                <CardDescription className="text-xs">{section.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <LinkIndexSections sections={sections} copy={copy} />
     </div>
   );
 }

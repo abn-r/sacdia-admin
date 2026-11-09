@@ -32,6 +32,12 @@ export function isCatalogEditorPath(pathname: string): boolean {
   if (!path.startsWith("/dashboard/catalogs")) {
     return false;
   }
+  // The index is a link list gated per link (`admin-catalogs`, any-of the
+  // linked catalogs), so it also opens for users who only reach the
+  // certifications catalog.
+  if (path.replace(/\/+$/, "") === "/dashboard/catalogs") {
+    return false;
+  }
 
   return !CATALOG_EDITOR_EXEMPT_PATH_PREFIXES.some(
     (prefix) => path === prefix || path.startsWith(`${prefix}/`),

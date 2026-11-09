@@ -11,6 +11,7 @@ import {
   sidebarGroupMessageKey,
   sidebarItemMessageKey,
 } from "./sidebar-i18n";
+import { CATALOGS_INDEX_SECTIONS, CONFIGURATION_INDEX_SECTIONS } from "./index-pages";
 import { sidebarItems, type NavGroup, type NavSubItem } from "./sidebar-items";
 
 type Messages = { nav: Record<string, unknown> };
@@ -70,16 +71,27 @@ describe("sidebar localisation", () => {
   });
 
   it.each(locales)(
-    "%s keeps group-parent titles identical to their section label (command palette grouping)",
+    "%s uses distinct group labels (command palette headings)",
     (_l, messages) => {
       const localized = localizeSidebarItems(sidebarItems, makeTranslator(messages));
-      for (const [groupId, itemId] of [
-        [5, "campamentos"],
-        [6, "materials"],
-      ] as const) {
-        const group = localized.find((g) => g.id === groupId)!;
-        const item = group.items.find((i) => i.id === itemId)!;
-        expect(item.title).toBe(group.label);
+      const labels = localized.flatMap((g) => (g.label ? [g.label] : []));
+      expect(new Set(labels).size).toBe(labels.length);
+    },
+  );
+
+  it.each(locales)(
+    "%s resolves every index-page section and link title",
+    (_l, messages) => {
+      const t = makeTranslator(messages);
+      for (const key of ["indexes.catalogsDescription", "indexes.configurationDescription"]) {
+        expect(t.has(key), key).toBe(true);
+      }
+      const sections = [...CATALOGS_INDEX_SECTIONS, ...CONFIGURATION_INDEX_SECTIONS];
+      for (const section of sections) {
+        expect(t.has(`indexes.sections.${section.id}`), section.id).toBe(true);
+        for (const link of section.links) {
+          expect(t.has(sidebarItemMessageKey(link.id)), link.id).toBe(true);
+        }
       }
     },
   );
@@ -103,7 +115,8 @@ describe("sidebar localisation", () => {
     );
 
     expect(en[0]!.items[0]!.title).toBe("Home");
-    expect(en[1]!.label).toBe("Club management");
+    expect(en[1]!.label).toBe("To review");
+    expect(en[2]!.label).toBe("Clubs and members");
     expect(localized.find((i) => i.id === "users")!.title).toBe("Users");
     expect(localized.find((i) => i.id === "requests-transfers")!.title).toBe("Transfers");
   });

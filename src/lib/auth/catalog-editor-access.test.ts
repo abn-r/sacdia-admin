@@ -44,6 +44,11 @@ describe("isCatalogEditorPath", () => {
     ).toBe(false);
   });
 
+  it("exempts the catalogs index (gated per link, any-of)", () => {
+    expect(isCatalogEditorPath("/dashboard/catalogs")).toBe(false);
+    expect(isCatalogEditorPath("/dashboard/catalogs/")).toBe(false);
+  });
+
   it("fails closed when the pathname is missing", () => {
     expect(isCatalogEditorPath("")).toBe(true);
   });
