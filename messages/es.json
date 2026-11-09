@@ -9223,7 +9223,9 @@
       "unitPrice": "Precio unitario",
       "active": "Activo",
       "yes": "Sí",
-      "no": "No"
+      "no": "No",
+      "emptySlots": "Aún no hay horarios configurados.",
+      "emptyProducts": "Aún no hay productos en el catálogo."
     },
     "plans": {
       "title": "Planes por sección",
@@ -9254,7 +9256,9 @@
       "charges": "Cargos",
       "refunds": "Devoluciones",
       "net": "Neto",
-      "outstanding": "Pendiente"
+      "outstanding": "Pendiente",
+      "emptyKitchen": "No hay entregas programadas para este reporte.",
+      "emptyCash": "No hay movimientos de caja todavía."
     },
     "status": {
       "DRAFT": "Borrador",

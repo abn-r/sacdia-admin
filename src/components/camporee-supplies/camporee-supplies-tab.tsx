@@ -205,6 +205,7 @@ export function CamporeeSuppliesTab({
         unit_cost_centavos: centavos,
       });
       setProductName("");
+      setProductUom("BAG");
       setProductPrice("");
       toast.success(t("toasts.productCreated"));
       await load();
@@ -380,6 +381,16 @@ export function CamporeeSuppliesTab({
                       )}
                     </tr>
                   ))}
+                  {(catalog?.slots ?? []).length === 0 && (
+                    <tr className="border-t">
+                      <td
+                        colSpan={canConfigure ? 4 : 3}
+                        className="px-3 py-4 text-center text-muted-foreground"
+                      >
+                        {t("catalog.emptySlots")}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -464,6 +475,16 @@ export function CamporeeSuppliesTab({
                       )}
                     </tr>
                   ))}
+                  {(catalog?.products ?? []).length === 0 && (
+                    <tr className="border-t">
+                      <td
+                        colSpan={canConfigure ? 5 : 4}
+                        className="px-3 py-4 text-center text-muted-foreground"
+                      >
+                        {t("catalog.emptyProducts")}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -695,6 +716,16 @@ export function CamporeeSuppliesTab({
                       <td className="whitespace-nowrap px-3 py-2">{formatQty(row.delivered_qty)}</td>
                     </tr>
                   ))}
+                  {(kitchen?.rows ?? []).length === 0 && (
+                    <tr className="border-t">
+                      <td
+                        colSpan={6}
+                        className="px-3 py-4 text-center text-muted-foreground"
+                      >
+                        {t("reports.emptyKitchen")}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -733,6 +764,16 @@ export function CamporeeSuppliesTab({
                       </td>
                     </tr>
                   ))}
+                  {(cash?.sections ?? []).length === 0 && (
+                    <tr className="border-t">
+                      <td
+                        colSpan={6}
+                        className="px-3 py-4 text-center text-muted-foreground"
+                      >
+                        {t("reports.emptyCash")}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

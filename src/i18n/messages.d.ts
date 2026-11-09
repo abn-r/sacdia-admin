@@ -9271,6 +9271,8 @@ export interface IntlMessages {
       active: string;
       yes: string;
       no: string;
+      emptySlots: string;
+      emptyProducts: string;
     };
     plans: {
       title: string;
@@ -9302,6 +9304,8 @@ export interface IntlMessages {
       refunds: string;
       net: string;
       outstanding: string;
+      emptyKitchen: string;
+      emptyCash: string;
     };
     status: {
       DRAFT: string;

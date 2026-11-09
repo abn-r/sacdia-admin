@@ -9223,7 +9223,9 @@
       "unitPrice": "Unit price",
       "active": "Active",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "emptySlots": "No time slots configured yet.",
+      "emptyProducts": "No products in the catalog yet."
     },
     "plans": {
       "title": "Plans by section",
@@ -9254,7 +9256,9 @@
       "charges": "Charges",
       "refunds": "Refunds",
       "net": "Net",
-      "outstanding": "Outstanding"
+      "outstanding": "Outstanding",
+      "emptyKitchen": "No deliveries scheduled for this report.",
+      "emptyCash": "No cash movements yet."
     },
     "status": {
       "DRAFT": "Draft",

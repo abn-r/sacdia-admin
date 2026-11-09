@@ -9223,7 +9223,9 @@
       "unitPrice": "Prix unitaire",
       "active": "Actif",
       "yes": "Oui",
-      "no": "Non"
+      "no": "Non",
+      "emptySlots": "Aucun créneau configuré pour le moment.",
+      "emptyProducts": "Aucun produit dans le catalogue pour le moment."
     },
     "plans": {
       "title": "Plans par section",
@@ -9254,7 +9256,9 @@
       "charges": "Charges",
       "refunds": "Remboursements",
       "net": "Net",
-      "outstanding": "Restant"
+      "outstanding": "Restant",
+      "emptyKitchen": "Aucune livraison prévue pour ce rapport.",
+      "emptyCash": "Aucun mouvement de caisse pour le moment."
     },
     "status": {
       "DRAFT": "Brouillon",
