@@ -10,20 +10,36 @@ import {
   parsePreference,
 } from "@/lib/preferences/preferences-config";
 
-export async function getValueFromCookie(key: string): Promise<string | undefined> {
-  const cookieStore = await cookies();
-  return cookieStore.get(key)?.value;
+const PREFERENCE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
+
+function isPreferenceKey(key: string): key is PreferenceKey {
+  return Object.hasOwn(PREFERENCE_REGISTRY, key);
 }
 
-export async function setValueToCookie(
-  key: string,
-  value: string,
-  options: { path?: string; maxAge?: number } = {},
-): Promise<void> {
+/**
+ * Writes one UI preference cookie.
+ *
+ * Every exported server action is a public endpoint that any page script can
+ * call with any arguments. So this only accepts a registered "server-cookie"
+ * preference with one of its allowed values, and ignores everything else. It
+ * can never read or overwrite the auth cookies.
+ */
+export async function setPreferenceCookie(key: string, value: string): Promise<void> {
+  if (!isPreferenceKey(key) || getPreferencePersistence(key) !== "server-cookie") {
+    return;
+  }
+
+  const allowedValues = PREFERENCE_REGISTRY[key].values as readonly string[];
+  if (!allowedValues.includes(value)) {
+    return;
+  }
+
   const cookieStore = await cookies();
   cookieStore.set(key, value, {
-    path: options.path ?? "/",
-    maxAge: options.maxAge ?? 60 * 60 * 24 * 7, // default: 7 days
+    path: "/",
+    maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
