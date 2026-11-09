@@ -42,13 +42,25 @@ function formatDate(value: string | null | undefined) {
   }
 }
 
-export function PaymentOrdersTray() {
+interface PaymentOrdersTrayProps {
+  initialOrderId?: string | null;
+}
+
+export function PaymentOrdersTray({
+  initialOrderId = null,
+}: PaymentOrdersTrayProps) {
   const t = useTranslations("payment_orders");
   const [purpose, setPurpose] = useState<PurposeFilter>("ALL");
   const [status, setStatus] = useState<StatusFilter>("ALL");
   const [orders, setOrders] = useState<PaymentOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(
+    initialOrderId,
+  );
+
+  useEffect(() => {
+    if (initialOrderId) setSelectedOrderId(initialOrderId);
+  }, [initialOrderId]);
 
   const load = useCallback(async () => {
     setLoading(true);

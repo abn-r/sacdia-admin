@@ -7,13 +7,25 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("payment_orders.page");
   return { title: t("title") };
 }
 
-export default async function PaymentOrdersPage() {
+export default async function PaymentOrdersPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const user = await requireAdminUser();
+  const params = await searchParams;
+  const rawOrderId = params.orderId;
+  const orderId =
+    typeof rawOrderId === "string" && rawOrderId.trim().length > 0
+      ? rawOrderId.trim()
+      : null;
   const t = await getTranslations("payment_orders");
   const tPending = await getTranslations("payment_obligations");
 
@@ -44,7 +56,7 @@ export default async function PaymentOrdersPage() {
         title={tPending("page.title")}
         description={tPending("page.description")}
       />
-      <PaymentOrdersClient tabs={tabs} />
+      <PaymentOrdersClient tabs={tabs} initialOrderId={orderId} />
     </div>
   );
 }
