@@ -333,6 +333,14 @@ html {
   :is([data-slot="table-cell"]:has([data-slot="row-actions"]), [data-slot="table-head"][data-row-actions]) {
   box-shadow: -8px 0 8px -8px oklch(0 0 0 / 0.18);
 }
+/* A black shadow vanishes on the dark card, so dark mode adds a border-colored
+   hairline and a deeper shadow to keep the overflow visible. */
+.dark [data-slot="table-container"][data-overflow-end]
+  :is([data-slot="table-cell"]:has([data-slot="row-actions"]), [data-slot="table-head"][data-row-actions]) {
+  box-shadow:
+    -1px 0 0 var(--border),
+    -10px 0 10px -8px oklch(0 0 0 / 0.6);
+}
 
 /* Skip the double-tap-zoom wait so taps fire immediately. */
 button,
