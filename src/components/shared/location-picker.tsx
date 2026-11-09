@@ -41,6 +41,8 @@ type LocationPickerProps = {
   initialLng?: number | null;
   initialAddress?: string | null;
   onLocationChange?: (value: LocationPickerValue | null) => void;
+  /** Show the "remove pin" action. Off when a saved location may move but never be cleared. */
+  allowClear?: boolean;
 };
 
 function PlaceAutocomplete({
@@ -143,6 +145,7 @@ function LocationPickerFields({
   initialLat,
   initialLng,
   initialAddress,
+  allowClear = true,
   onLocationChange,
 }: LocationPickerFieldsProps) {
   const t = useTranslations("clubs.locationPicker");
@@ -267,7 +270,7 @@ function LocationPickerFields({
         ) : (
           <span>{t("noPin")}</span>
         )}
-        {position && (
+        {position && allowClear && (
           <Button
             type="button"
             variant="ghost"

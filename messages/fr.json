@@ -1465,7 +1465,7 @@
       "submitButton": "Enregistrer les modifications",
       "placeholderSelect": "Sélectionner",
       "labelActive": "Club actif",
-      "coordinatesHint": "Retirer le repère conserve l'emplacement enregistré."
+      "coordinatesHint": "Vous pouvez déplacer l'emplacement, mais pas le supprimer."
     },
     "sections": {
       "description": "Un club peut avoir des sections pour chaque type de club (Aventuriers, Éclaireurs, Guides Maîtres).",
@@ -1597,6 +1597,7 @@
         "labelName": "Nom",
         "labelStatus": "Statut",
         "labelAddress": "Adresse",
+        "labelDescription": "Description",
         "labelLocalField": "Champ local",
         "labelDistrict": "District",
         "labelChurch": "Église",

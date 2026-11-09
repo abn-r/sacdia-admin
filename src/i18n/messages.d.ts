@@ -1626,6 +1626,7 @@ export interface IntlMessages {
         labelName: string;
         labelStatus: string;
         labelAddress: string;
+        labelDescription: string;
         labelLocalField: string;
         labelDistrict: string;
         labelChurch: string;

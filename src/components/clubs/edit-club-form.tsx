@@ -51,6 +51,7 @@ export function EditClubForm({
   const [state, action] = useActionState(formAction, initialState);
   const modal = useFormModal(LIST_HREF);
   const [active, setActive] = useState(initialActive);
+  const hasSavedLocation = lat !== null && lng !== null;
 
   const fieldErrors = state.fieldErrors ?? {};
   const describedBy = (field: string) => (fieldErrors[field] ? `${field}-error` : undefined);
@@ -146,8 +147,10 @@ export function EditClubForm({
               mapsMapId={googleMapsMapId}
               initialLat={lat}
               initialLng={lng}
+              // A saved location can be moved but not removed: PATCH /clubs/:id cannot clear it.
+              allowClear={!hasSavedLocation}
             />
-            <FieldDescription>{t("edit.coordinatesHint")}</FieldDescription>
+            {hasSavedLocation ? <FieldDescription>{t("edit.coordinatesHint")}</FieldDescription> : null}
             {fieldErrors.coordinates ? (
               <FieldError id="coordinates-error">{fieldErrors.coordinates}</FieldError>
             ) : null}
