@@ -469,6 +469,12 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     requestHeaders.set("Authorization", `Bearer ${resolvedToken}`);
   }
 
+  // Server-side only: let the backend see the real client IP (trusted proxy).
+  const { getForwardedClientIpHeaders } = await import("./forwarded-client-ip");
+  for (const [name, value] of Object.entries(await getForwardedClientIpHeaders())) {
+    requestHeaders.set(name, value);
+  }
+
   let requestBody: BodyInit | undefined;
   if (typeof body !== "undefined" && method !== "GET") {
     if (isBodyInit(body)) {

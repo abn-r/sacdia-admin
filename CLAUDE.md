@@ -95,6 +95,7 @@ No hay archivo de ejemplo en el repo. Variables leídas por el código:
 - `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`
 - `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_RELEASE`
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`
+- `ADMIN_PROXY_SECRET` (SECRETO, solo servidor, nunca `NEXT_PUBLIC_`; debe coincidir con el del backend; permite reenviar la IP real del cliente en `x-sacdia-client-ip`)
 
 ## CI y deployment
 
