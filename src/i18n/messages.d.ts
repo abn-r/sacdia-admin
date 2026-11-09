@@ -5861,6 +5861,8 @@ export interface IntlMessages {
       col_coverage: string;
       col_status: string;
       status_no_insurance: string;
+      list_label: string;
+      mobile_ends: string;
       status_expired: string;
       status_active: string;
       status_inactive: string;

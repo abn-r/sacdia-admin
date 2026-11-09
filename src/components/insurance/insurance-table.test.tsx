@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { MemberInsurance } from "@/lib/api/insurance";
@@ -48,7 +48,7 @@ describe("InsuranceTable status colors", () => {
   it("shows current coverage as a success status, not with the brand accent", () => {
     renderTable();
 
-    const status = screen.getByText(messages.insurance.table.status_active);
+    const status = within(screen.getByRole("table")).getByText(messages.insurance.table.status_active);
 
     // Crisp StatusBadge: neutral pill, the success hue lives on the icon.
     expect(status.querySelector("svg")?.getAttribute("class")).toContain("success");
@@ -77,5 +77,17 @@ describe("InsuranceTable provider cell", () => {
     renderTable();
 
     expect(screen.getByText(LONG_PROVIDER)).toHaveAttribute("title", LONG_PROVIDER);
+  });
+});
+
+describe("InsuranceTable phone list", () => {
+  it("renders each member as a two-line row with one status and the end date", () => {
+    renderTable();
+
+    const list = screen.getByRole("list", { name: messages.insurance.table.list_label });
+    const rows = within(list).getAllByRole("listitem");
+    expect(rows.length).toBeGreaterThan(0);
+    expect(within(rows[0]).getAllByText(messages.insurance.table.status_active)).toHaveLength(1);
+    expect(within(rows[0]).getByText(/Vence /)).toBeInTheDocument();
   });
 });

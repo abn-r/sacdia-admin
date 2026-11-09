@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
@@ -99,7 +99,7 @@ describe("InsuranceView payment orders block", () => {
     renderView([7]);
 
     expect(screen.queryByText(messages.insurance.view.legacy_disabled_title)).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: /acciones de/i }));
+    await userEvent.click(within(screen.getByRole("table")).getByRole("button", { name: /acciones de/i }));
     expect(await screen.findByRole("menuitem", { name: /registrar seguro/i })).toBeInTheDocument();
   });
 });
