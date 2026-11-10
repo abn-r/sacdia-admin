@@ -166,6 +166,8 @@
       "insurance_config": "Configuração",
       "payment_orders": "Ordens de pagamento",
       "certifications_reviews": "Revisões de certificações",
+      "service_credentials_review": "Comprovantes de aconselhamento",
+      "role_requirements": "Requisitos de cargos",
       "campamentos_plantillas": "Modelos",
       "campamentos_judges": "Juízes",
       "campamentos_pedidos_catalogo": "Catálogo de pedidos",
@@ -2895,6 +2897,8 @@
       "camporee_events:update": "Editar evento de campori",
       "camporee_events:delete": "Excluir evento de campori",
       "certifications:review": "Revisar certificações",
+      "role_requirements:manage": "Gerenciar requisitos de cargos",
+      "service_credentials:review": "Revisar comprovantes de aconselhamento",
       "certifications:certify": "Certificar",
       "club_ideals:read": "Ver ideais de clube",
       "club_ideals:create": "Criar ideal de clube",
@@ -9942,6 +9946,204 @@
         "achievements": "Conquistas anuais do clube",
         "communityService": "Serviço à comunidade"
       }
+    }
+  },
+  "service_credentials": {
+    "page": {
+      "title": "Comprovantes de aconselhamento",
+      "description": "Revise os comprovantes de aconselhamento enviados por quem tem um cargo em um clube. Uma aprovação basta."
+    },
+    "tabs": {
+      "label": "Status da revisão",
+      "pending": "Pendentes",
+      "approved": "Aprovados",
+      "rejected": "Rejeitados"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Nome ou clube"
+    },
+    "table": {
+      "person": "Pessoa",
+      "club": "Clube",
+      "completed": "Concluído em",
+      "submitted": "Enviado em",
+      "status": "Status",
+      "reviewer": "Revisado por",
+      "actions": "Ações",
+      "review": "Revisar",
+      "view": "Ver",
+      "reviewedOn": "Revisado em {date}",
+      "refresh": "Atualizar"
+    },
+    "status": {
+      "PENDING_REVIEW": "Pendente",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado"
+    },
+    "roles": {
+      "director": "Diretor",
+      "deputy-director": "Subdiretor",
+      "secretary": "Secretário",
+      "treasurer": "Tesoureiro",
+      "secretary-treasurer": "Secretário-tesoureiro",
+      "counselor": "Conselheiro",
+      "director-lf": "Diretor do campo local",
+      "assistant-lf": "Assistente do campo local",
+      "coordinator": "Coordenador",
+      "zone-coordinator": "Coordenador de zona",
+      "general-coordinator": "Coordenador geral",
+      "pastor": "Pastor",
+      "admin": "Administrador",
+      "super-admin": "Superadministrador"
+    },
+    "empty": {
+      "pending": {
+        "title": "Nenhum comprovante pendente",
+        "description": "Quando alguém do seu escopo enviar um comprovante, ele aparecerá aqui."
+      },
+      "approved": {
+        "title": "Nenhum comprovante aprovado",
+        "description": "Os comprovantes que você aprovar aparecerão aqui."
+      },
+      "rejected": {
+        "title": "Nenhum comprovante rejeitado",
+        "description": "Os comprovantes que você rejeitar aparecerão aqui."
+      },
+      "noResultsTitle": "Sem resultados",
+      "noResultsDescription": "Nenhum comprovante corresponde a “{search}”.",
+      "clearSearch": "Limpar busca"
+    },
+    "error": {
+      "title": "Não foi possível carregar a fila",
+      "retry": "Tentar novamente"
+    },
+    "detail": {
+      "title": "Comprovante de aconselhamento",
+      "description": "{name} · {club}",
+      "close": "Fechar",
+      "loadFailed": "Não foi possível carregar o comprovante.",
+      "fields": {
+        "person": "Pessoa",
+        "club": "Clube",
+        "completed": "Concluído em",
+        "submitted": "Enviado em",
+        "status": "Status",
+        "reviewedAt": "Data da revisão",
+        "reviewer": "Revisado por",
+        "expiresAt": "Vence em",
+        "reason": "Motivo da rejeição"
+      },
+      "preview": {
+        "loading": "Carregando arquivo…",
+        "failed": "Não foi possível exibir o arquivo aqui. Abra-o em uma nova aba.",
+        "openInNewTab": "Abrir em nova aba",
+        "imageAlt": "Comprovante de {name}",
+        "pdfTitle": "Comprovante de {name} (PDF)",
+        "linkExpires": "O link do arquivo expira em 15 minutos. Se parar de abrir, feche e abra este comprovante novamente."
+      },
+      "approve": {
+        "expiresLabel": "Vencimento (opcional)",
+        "expiresHint": "Sem data, o comprovante não vence.",
+        "expiresPast": "A data de vencimento deve ser posterior a hoje.",
+        "action": "Aprovar"
+      },
+      "reject": {
+        "action": "Rejeitar…",
+        "title": "Rejeitar este comprovante?",
+        "description": "{name} verá o motivo no app e poderá enviar um novo comprovante.",
+        "reasonLabel": "Motivo da rejeição",
+        "reasonHint": "Entre {min} e {max} caracteres. A pessoa lerá exatamente o que você escrever.",
+        "reasonTooShort": "Escreva pelo menos {min} caracteres.",
+        "reasonTooLong": "O motivo não pode passar de {max} caracteres.",
+        "cancel": "Cancelar",
+        "confirm": "Rejeitar"
+      },
+      "alreadyReviewed": "Este comprovante já foi revisado."
+    },
+    "toasts": {
+      "approved": "Comprovante aprovado",
+      "rejected": "Comprovante rejeitado",
+      "listFailed": "Não foi possível carregar a fila."
+    },
+    "errors": {
+      "notFound": "Este comprovante não está mais disponível no seu escopo.",
+      "notPending": "Outra pessoa já revisou este comprovante. Atualizamos a lista.",
+      "selfReview": "Você não pode revisar o seu próprio comprovante.",
+      "dateInvalid": "A data de vencimento deve ser posterior a hoje.",
+      "forbidden": "Seu papel não pode revisar comprovantes.",
+      "generic": "Não foi possível concluir a ação. Tente novamente."
+    }
+  },
+  "role_requirements": {
+    "page": {
+      "title": "Requisitos de cargos",
+      "description": "Defina se o comprovante de aconselhamento é informativo, gera um aviso ou é obrigatório para quem recebe cada cargo."
+    },
+    "table": {
+      "role": "Cargo",
+      "clubType": "Tipo de clube",
+      "requirement": "Requisito",
+      "mode": "Modalidade",
+      "effectiveFrom": "Vigente desde",
+      "equivalent": "Certificação equivalente",
+      "actions": "Ações",
+      "edit": "Editar",
+      "allClubTypes": "Todos",
+      "none": "—",
+      "immediate": "Imediatamente"
+    },
+    "requirementType": {
+      "COUNSELOR_TRAINING": "Comprovante de aconselhamento"
+    },
+    "modes": {
+      "INFO": "Informativa",
+      "WARN": "Aviso",
+      "BLOCK": "Obrigatória"
+    },
+    "modeHints": {
+      "INFO": "Apenas informação; não avisa nem bloqueia.",
+      "WARN": "Avisa ao atribuir o cargo, mas não o impede.",
+      "BLOCK": "Impede atribuir o cargo a quem não tenha o comprovante aprovado."
+    },
+    "empty": {
+      "title": "Nenhum requisito configurado",
+      "description": "Ainda não há requisitos de cargos para configurar."
+    },
+    "error": {
+      "title": "Não foi possível carregar os requisitos",
+      "retry": "Tentar novamente"
+    },
+    "edit": {
+      "title": "Editar requisito",
+      "description": "{role} · {requirement}",
+      "modeLabel": "Modalidade",
+      "effectiveLabel": "Vigente desde",
+      "effectiveHint": "Opcional. Só tem efeito na modalidade Obrigatória: sem data, vale imediatamente.",
+      "effectiveBlockHint": "Na modalidade Obrigatória, sem data o requisito vale imediatamente. Com data, vale a partir desse dia.",
+      "equivalentLabel": "Certificação equivalente",
+      "equivalentNone": "Nenhuma",
+      "equivalentHint": "Quem tiver esta certificação cumpre o requisito sem enviar o comprovante.",
+      "equivalentUnavailable": "Não foi possível carregar a lista de certificações; este campo não será alterado.",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    },
+    "blockConfirm": {
+      "title": "Tornar o comprovante obrigatório?",
+      "descriptionOnDate": "A partir de {date}, o cargo “{role}” não poderá ser atribuído a quem não tenha o comprovante aprovado. Quem já tem o cargo o mantém.",
+      "descriptionImmediate": "A partir de agora, o cargo “{role}” não poderá ser atribuído a quem não tenha o comprovante aprovado. Quem já tem o cargo o mantém.",
+      "cancel": "Cancelar",
+      "confirm": "Tornar obrigatório"
+    },
+    "toasts": {
+      "saved": "Requisito atualizado"
+    },
+    "errors": {
+      "notFound": "Este requisito não existe mais. Atualizamos a lista.",
+      "certificationInvalid": "A certificação equivalente não é válida.",
+      "dateInvalid": "A data de vigência não é válida.",
+      "forbidden": "Seu papel não pode alterar requisitos.",
+      "generic": "Não foi possível salvar o requisito. Tente novamente."
     }
   }
 }

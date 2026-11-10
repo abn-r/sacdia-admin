@@ -158,6 +158,7 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   grant("reports.view_local_field", g.has("assistant-admin") || fieldWithScope);
   grant("reports.view_union", anyOf(g, UNION) && t === "union");
   grant("scoring_categories.manage", anyOf(g, ["super-admin", "admin"]));
+  grant("service_credentials.review", platform || anyOf(g, [...FIELD, ...COORDINATORS, "pastor"]));
   grant("system.config.read", platform);
   grant("system.jobs.run", superAdmin);
   grant("units.manage", a !== null && STAFF.includes(a));

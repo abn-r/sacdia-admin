@@ -166,6 +166,8 @@
       "insurance_config": "Configuración",
       "payment_orders": "Órdenes de pago",
       "certifications_reviews": "Revisiones de certificaciones",
+      "service_credentials_review": "Constancias de consejería",
+      "role_requirements": "Requisitos de cargos",
       "campamentos_plantillas": "Plantillas",
       "campamentos_judges": "Jueces",
       "campamentos_pedidos_catalogo": "Catálogo pedidos",
@@ -2895,6 +2897,8 @@
       "camporee_events:update": "Editar evento de camporee",
       "camporee_events:delete": "Eliminar evento de camporee",
       "certifications:review": "Revisar certificaciones",
+      "role_requirements:manage": "Gestionar requisitos de cargos",
+      "service_credentials:review": "Revisar constancias de consejería",
       "certifications:certify": "Certificar",
       "club_ideals:read": "Ver ideales de club",
       "club_ideals:create": "Crear ideal de club",
@@ -9942,6 +9946,204 @@
         "achievements": "Logros anuales del club",
         "communityService": "Servicio a la comunidad"
       }
+    }
+  },
+  "service_credentials": {
+    "page": {
+      "title": "Constancias de consejería",
+      "description": "Revisa las constancias de consejería que suben las personas con cargo en un club. Con una aprobación basta."
+    },
+    "tabs": {
+      "label": "Estado de la revisión",
+      "pending": "Pendientes",
+      "approved": "Aprobadas",
+      "rejected": "Rechazadas"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Nombre o club"
+    },
+    "table": {
+      "person": "Persona",
+      "club": "Club",
+      "completed": "Completada",
+      "submitted": "Enviada",
+      "status": "Estado",
+      "reviewer": "Revisó",
+      "actions": "Acciones",
+      "review": "Revisar",
+      "view": "Ver",
+      "reviewedOn": "Revisada el {date}",
+      "refresh": "Actualizar"
+    },
+    "status": {
+      "PENDING_REVIEW": "Pendiente",
+      "APPROVED": "Aprobada",
+      "REJECTED": "Rechazada"
+    },
+    "roles": {
+      "director": "Director",
+      "deputy-director": "Subdirector",
+      "secretary": "Secretario",
+      "treasurer": "Tesorero",
+      "secretary-treasurer": "Secretario-tesorero",
+      "counselor": "Consejero",
+      "director-lf": "Director de campo local",
+      "assistant-lf": "Asistente de campo local",
+      "coordinator": "Coordinador",
+      "zone-coordinator": "Coordinador de zona",
+      "general-coordinator": "Coordinador general",
+      "pastor": "Pastor",
+      "admin": "Administrador",
+      "super-admin": "Superadministrador"
+    },
+    "empty": {
+      "pending": {
+        "title": "Sin constancias pendientes",
+        "description": "Cuando alguien suba una constancia dentro de tu alcance, aparecerá aquí."
+      },
+      "approved": {
+        "title": "Sin constancias aprobadas",
+        "description": "Las constancias que apruebes aparecerán aquí."
+      },
+      "rejected": {
+        "title": "Sin constancias rechazadas",
+        "description": "Las constancias que rechaces aparecerán aquí."
+      },
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "Ninguna constancia coincide con «{search}».",
+      "clearSearch": "Limpiar búsqueda"
+    },
+    "error": {
+      "title": "No se pudo cargar la bandeja",
+      "retry": "Reintentar"
+    },
+    "detail": {
+      "title": "Constancia de consejería",
+      "description": "{name} · {club}",
+      "close": "Cerrar",
+      "loadFailed": "No se pudo cargar la constancia.",
+      "fields": {
+        "person": "Persona",
+        "club": "Club",
+        "completed": "Completada",
+        "submitted": "Enviada",
+        "status": "Estado",
+        "reviewedAt": "Fecha de revisión",
+        "reviewer": "Revisó",
+        "expiresAt": "Vence",
+        "reason": "Motivo del rechazo"
+      },
+      "preview": {
+        "loading": "Cargando archivo…",
+        "failed": "No se pudo mostrar el archivo aquí. Ábrelo en una pestaña nueva.",
+        "openInNewTab": "Abrir en pestaña nueva",
+        "imageAlt": "Constancia de {name}",
+        "pdfTitle": "Constancia de {name} (PDF)",
+        "linkExpires": "El enlace al archivo vence en 15 minutos. Si no abre, cierra y vuelve a abrir esta constancia."
+      },
+      "approve": {
+        "expiresLabel": "Vencimiento (opcional)",
+        "expiresHint": "Sin fecha, la constancia no vence.",
+        "expiresPast": "La fecha de vencimiento debe ser posterior a hoy.",
+        "action": "Aprobar"
+      },
+      "reject": {
+        "action": "Rechazar…",
+        "title": "¿Rechazar esta constancia?",
+        "description": "{name} verá el motivo en la app y podrá subir una constancia nueva.",
+        "reasonLabel": "Motivo del rechazo",
+        "reasonHint": "Entre {min} y {max} caracteres. La persona lo verá tal como lo escribas.",
+        "reasonTooShort": "Escribe al menos {min} caracteres.",
+        "reasonTooLong": "El motivo no puede pasar de {max} caracteres.",
+        "cancel": "Cancelar",
+        "confirm": "Rechazar"
+      },
+      "alreadyReviewed": "Esta constancia ya fue revisada."
+    },
+    "toasts": {
+      "approved": "Constancia aprobada",
+      "rejected": "Constancia rechazada",
+      "listFailed": "No se pudo cargar la bandeja."
+    },
+    "errors": {
+      "notFound": "Esta constancia ya no está disponible en tu alcance.",
+      "notPending": "Otra persona ya revisó esta constancia. Actualizamos la lista.",
+      "selfReview": "No puedes revisar tu propia constancia.",
+      "dateInvalid": "La fecha de vencimiento debe ser posterior a hoy.",
+      "forbidden": "Tu rol no puede revisar constancias.",
+      "generic": "No se pudo completar la acción. Inténtalo de nuevo."
+    }
+  },
+  "role_requirements": {
+    "page": {
+      "title": "Requisitos de cargos",
+      "description": "Define si la constancia de consejería es informativa, genera un aviso u obliga a quien recibe cada cargo."
+    },
+    "table": {
+      "role": "Cargo",
+      "clubType": "Tipo de club",
+      "requirement": "Requisito",
+      "mode": "Modalidad",
+      "effectiveFrom": "Vigente desde",
+      "equivalent": "Certificación equivalente",
+      "actions": "Acciones",
+      "edit": "Editar",
+      "allClubTypes": "Todos",
+      "none": "—",
+      "immediate": "Desde ya"
+    },
+    "requirementType": {
+      "COUNSELOR_TRAINING": "Constancia de consejería"
+    },
+    "modes": {
+      "INFO": "Informativa",
+      "WARN": "Aviso",
+      "BLOCK": "Obligatoria"
+    },
+    "modeHints": {
+      "INFO": "Solo se muestra la información; no avisa ni bloquea.",
+      "WARN": "Avisa al asignar el cargo, pero no lo impide.",
+      "BLOCK": "Impide asignar el cargo a quien no tenga la constancia aprobada."
+    },
+    "empty": {
+      "title": "Sin requisitos configurados",
+      "description": "Aún no hay requisitos de cargos para configurar."
+    },
+    "error": {
+      "title": "No se pudieron cargar los requisitos",
+      "retry": "Reintentar"
+    },
+    "edit": {
+      "title": "Editar requisito",
+      "description": "{role} · {requirement}",
+      "modeLabel": "Modalidad",
+      "effectiveLabel": "Vigente desde",
+      "effectiveHint": "Opcional. Solo tiene efecto con la modalidad Obligatoria: sin fecha, aplica desde ya.",
+      "effectiveBlockHint": "Con la modalidad Obligatoria, sin fecha el requisito aplica desde ya. Con fecha, aplica desde ese día.",
+      "equivalentLabel": "Certificación equivalente",
+      "equivalentNone": "Ninguna",
+      "equivalentHint": "Quien tenga esta certificación cumple el requisito sin subir la constancia.",
+      "equivalentUnavailable": "No se pudo cargar la lista de certificaciones; este campo no se modificará.",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "blockConfirm": {
+      "title": "¿Hacer obligatoria la constancia?",
+      "descriptionOnDate": "Desde el {date}, no se podrá asignar el cargo «{role}» a quien no tenga la constancia aprobada. Quienes ya tienen el cargo lo conservan.",
+      "descriptionImmediate": "Desde ahora, no se podrá asignar el cargo «{role}» a quien no tenga la constancia aprobada. Quienes ya tienen el cargo lo conservan.",
+      "cancel": "Cancelar",
+      "confirm": "Hacer obligatoria"
+    },
+    "toasts": {
+      "saved": "Requisito actualizado"
+    },
+    "errors": {
+      "notFound": "Este requisito ya no existe. Actualizamos la lista.",
+      "certificationInvalid": "La certificación equivalente no es válida.",
+      "dateInvalid": "La fecha de vigencia no es válida.",
+      "forbidden": "Tu rol no puede modificar requisitos.",
+      "generic": "No se pudo guardar el requisito. Inténtalo de nuevo."
     }
   }
 }

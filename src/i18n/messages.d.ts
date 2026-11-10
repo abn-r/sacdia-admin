@@ -195,6 +195,8 @@ export interface IntlMessages {
       insurance_config: string;
       payment_orders: string;
       certifications_reviews: string;
+      service_credentials_review: string;
+      role_requirements: string;
       campamentos_plantillas: string;
       campamentos_judges: string;
       campamentos_pedidos_catalogo: string;
@@ -2924,6 +2926,8 @@ export interface IntlMessages {
       "camporee_events:update": string;
       "camporee_events:delete": string;
       "certifications:review": string;
+      "role_requirements:manage": string;
+      "service_credentials:review": string;
       "certifications:certify": string;
       "club_ideals:read": string;
       "club_ideals:create": string;
@@ -9989,6 +9993,204 @@ export interface IntlMessages {
         achievements: string;
         communityService: string;
       };
+    };
+  };
+  service_credentials: {
+    page: {
+      title: string;
+      description: string;
+    };
+    tabs: {
+      label: string;
+      pending: string;
+      approved: string;
+      rejected: string;
+    };
+    search: {
+      label: string;
+      placeholder: string;
+    };
+    table: {
+      person: string;
+      club: string;
+      completed: string;
+      submitted: string;
+      status: string;
+      reviewer: string;
+      actions: string;
+      review: string;
+      view: string;
+      reviewedOn: string;
+      refresh: string;
+    };
+    status: {
+      PENDING_REVIEW: string;
+      APPROVED: string;
+      REJECTED: string;
+    };
+    roles: {
+      director: string;
+      "deputy-director": string;
+      secretary: string;
+      treasurer: string;
+      "secretary-treasurer": string;
+      counselor: string;
+      "director-lf": string;
+      "assistant-lf": string;
+      coordinator: string;
+      "zone-coordinator": string;
+      "general-coordinator": string;
+      pastor: string;
+      admin: string;
+      "super-admin": string;
+    };
+    empty: {
+      pending: {
+        title: string;
+        description: string;
+      };
+      approved: {
+        title: string;
+        description: string;
+      };
+      rejected: {
+        title: string;
+        description: string;
+      };
+      noResultsTitle: string;
+      noResultsDescription: string;
+      clearSearch: string;
+    };
+    error: {
+      title: string;
+      retry: string;
+    };
+    detail: {
+      title: string;
+      description: string;
+      close: string;
+      loadFailed: string;
+      fields: {
+        person: string;
+        club: string;
+        completed: string;
+        submitted: string;
+        status: string;
+        reviewedAt: string;
+        reviewer: string;
+        expiresAt: string;
+        reason: string;
+      };
+      preview: {
+        loading: string;
+        failed: string;
+        openInNewTab: string;
+        imageAlt: string;
+        pdfTitle: string;
+        linkExpires: string;
+      };
+      approve: {
+        expiresLabel: string;
+        expiresHint: string;
+        expiresPast: string;
+        action: string;
+      };
+      reject: {
+        action: string;
+        title: string;
+        description: string;
+        reasonLabel: string;
+        reasonHint: string;
+        reasonTooShort: string;
+        reasonTooLong: string;
+        cancel: string;
+        confirm: string;
+      };
+      alreadyReviewed: string;
+    };
+    toasts: {
+      approved: string;
+      rejected: string;
+      listFailed: string;
+    };
+    errors: {
+      notFound: string;
+      notPending: string;
+      selfReview: string;
+      dateInvalid: string;
+      forbidden: string;
+      generic: string;
+    };
+  };
+  role_requirements: {
+    page: {
+      title: string;
+      description: string;
+    };
+    table: {
+      role: string;
+      clubType: string;
+      requirement: string;
+      mode: string;
+      effectiveFrom: string;
+      equivalent: string;
+      actions: string;
+      edit: string;
+      allClubTypes: string;
+      none: string;
+      immediate: string;
+    };
+    requirementType: {
+      COUNSELOR_TRAINING: string;
+    };
+    modes: {
+      INFO: string;
+      WARN: string;
+      BLOCK: string;
+    };
+    modeHints: {
+      INFO: string;
+      WARN: string;
+      BLOCK: string;
+    };
+    empty: {
+      title: string;
+      description: string;
+    };
+    error: {
+      title: string;
+      retry: string;
+    };
+    edit: {
+      title: string;
+      description: string;
+      modeLabel: string;
+      effectiveLabel: string;
+      effectiveHint: string;
+      effectiveBlockHint: string;
+      equivalentLabel: string;
+      equivalentNone: string;
+      equivalentHint: string;
+      equivalentUnavailable: string;
+      cancel: string;
+      save: string;
+    };
+    blockConfirm: {
+      title: string;
+      descriptionOnDate: string;
+      descriptionImmediate: string;
+      cancel: string;
+      confirm: string;
+    };
+    toasts: {
+      saved: string;
+    };
+    errors: {
+      notFound: string;
+      certificationInvalid: string;
+      dateInvalid: string;
+      forbidden: string;
+      generic: string;
     };
   };
 }
