@@ -24,6 +24,7 @@ import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
+import { CamporeeScoreBreakdown } from "@/components/camporee-scoring/camporee-score-breakdown";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type {
@@ -31,6 +32,7 @@ import type {
   CamporeeEventRubric,
   CamporeeJudge,
   CamporeeLeaderboard as CamporeeLeaderboardData,
+  CamporeeScoreBreakdown as CamporeeScoreBreakdownData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 
@@ -123,6 +125,7 @@ interface CamporeeDetailTabsProps {
   initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
   initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
   initialLeaderboard?: CamporeeLeaderboardData | null;
+  initialScoreBreakdown?: CamporeeScoreBreakdownData | null;
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -175,6 +178,7 @@ export function CamporeeDetailTabs({
   initialScoringTargetsByEvent = {},
   initialRubricsByEvent = {},
   initialLeaderboard = null,
+  initialScoreBreakdown = null,
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
@@ -513,12 +517,13 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="ranking" className="mt-4">
+      <TabsContent value="ranking" className="mt-4 space-y-8">
         <CamporeeLeaderboard
           leaderboard={initialLeaderboard}
           events={initialEvents}
           targetsByEvent={initialScoringTargetsByEvent}
         />
+        <CamporeeScoreBreakdown breakdown={initialScoreBreakdown} />
       </TabsContent>
     </Tabs>
   );

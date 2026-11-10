@@ -3580,6 +3580,26 @@ export interface IntlMessages {
       coverageEvents: string;
       sectionFallback: string;
     };
+    scoreBreakdown: {
+      title: string;
+      description: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      colSection: string;
+      colTotal: string;
+      maxPoints: string;
+      noShow: string;
+      cellLabel: string;
+      sectionFallback: string;
+      dialogTotal: string;
+      colRubric: string;
+      colPoints: string;
+      minimumAdjustment: string;
+      judgeComment: string;
+      noJudgeComment: string;
+      evaluatedBy: string;
+      evaluatedByOn: string;
+    };
     list: {
       countSingular: string;
       countPlural: string;
@@ -3637,6 +3657,30 @@ export interface IntlMessages {
       helpAgendaVisibleFrom: string;
     };
     eventInstanceForm: {
+      attachments: {
+        title: string;
+        description: string;
+        empty: string;
+        dropPrefix: string;
+        pick: string;
+        uploading: string;
+        open: string;
+        delete: string;
+        deleteTitle: string;
+        deleteDescription: string;
+        cancel: string;
+        confirmDelete: string;
+        deleting: string;
+        uploaded: string;
+        deleted: string;
+        uploadFailed: string;
+        deleteFailed: string;
+        loadFailed: string;
+        errorType: string;
+        errorSize: string;
+        errorLimit: string;
+        count: string;
+      };
       titleCreate: string;
       titleEdit: string;
       descriptionCreate: string;

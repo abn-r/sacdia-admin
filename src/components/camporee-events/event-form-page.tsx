@@ -51,6 +51,7 @@ import {
 import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
+import { EventAttachmentsSection } from "@/components/camporee-events/event-attachments-section";
 import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
 import { useFormSteps } from "@/components/shared/use-form-steps";
 import type {
@@ -579,6 +580,13 @@ export function EventFormPage({
                 })}
               </div>
             </section>
+          )}
+
+          {isEdit && event && (
+            <EventAttachmentsSection
+              eventId={event.camporee_event_id}
+              initialAttachments={event.attachments}
+            />
           )}
         </div>
 
