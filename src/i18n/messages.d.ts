@@ -196,6 +196,7 @@ export interface IntlMessages {
       payment_orders: string;
       certifications_reviews: string;
       service_credentials_review: string;
+      club_enrollments_review: string;
       role_requirements: string;
       campamentos_plantillas: string;
       campamentos_judges: string;
@@ -2928,6 +2929,7 @@ export interface IntlMessages {
       "certifications:review": string;
       "role_requirements:manage": string;
       "service_credentials:review": string;
+      "club_enrollments:validate": string;
       "certifications:certify": string;
       "club_ideals:read": string;
       "club_ideals:create": string;
@@ -10118,6 +10120,141 @@ export interface IntlMessages {
       notPending: string;
       selfReview: string;
       dateInvalid: string;
+      forbidden: string;
+      generic: string;
+    };
+  };
+  club_enrollments: {
+    page: {
+      title: string;
+      description: string;
+    };
+    tabs: {
+      label: string;
+      pending: string;
+      approved: string;
+      rejected: string;
+    };
+    search: {
+      label: string;
+      placeholder: string;
+    };
+    filters: {
+      year: string;
+      currentYear: string;
+      localField: string;
+      allLocalFields: string;
+      clubType: string;
+      allClubTypes: string;
+    };
+    table: {
+      club: string;
+      localField: string;
+      director: string;
+      submitted: string;
+      reviewer: string;
+      reviewedAt: string;
+      actions: string;
+      review: string;
+      view: string;
+    };
+    status: {
+      pending_validation: string;
+      active: string;
+      rejected: string;
+    };
+    roles: {
+      director: string;
+      "deputy-director": string;
+      secretary: string;
+      treasurer: string;
+      "secretary-treasurer": string;
+      counselor: string;
+      "director-lf": string;
+      "assistant-lf": string;
+      coordinator: string;
+      "zone-coordinator": string;
+      "general-coordinator": string;
+      pastor: string;
+      admin: string;
+      "super-admin": string;
+    };
+    empty: {
+      pending: {
+        title: string;
+        description: string;
+      };
+      approved: {
+        title: string;
+        description: string;
+      };
+      rejected: {
+        title: string;
+        description: string;
+      };
+      noResultsTitle: string;
+      noResultsDescription: string;
+      clearFilters: string;
+    };
+    detail: {
+      title: string;
+      description: string;
+      close: string;
+      unassigned: string;
+      openMap: string;
+      feeYes: string;
+      feeNo: string;
+      feeWithAmount: string;
+      sections: {
+        meetings: string;
+        goal: string;
+        board: string;
+        submission: string;
+        review: string;
+      };
+      boardHint: string;
+      fields: {
+        address: string;
+        days: string;
+        schedule: string;
+        soulsTarget: string;
+        fee: string;
+        director: string;
+        deputies: string;
+        secretary: string;
+        treasurer: string;
+        secretaryTreasurer: string;
+        submittedBy: string;
+        submittedAt: string;
+        status: string;
+        reviewedBy: string;
+        reviewedAt: string;
+        reason: string;
+      };
+      approve: {
+        action: string;
+      };
+      reject: {
+        action: string;
+        title: string;
+        description: string;
+        reasonLabel: string;
+        reasonHint: string;
+        reasonTooShort: string;
+        reasonTooLong: string;
+        cancel: string;
+        confirm: string;
+      };
+    };
+    toasts: {
+      approved: string;
+      rejected: string;
+      listFailed: string;
+    };
+    errors: {
+      notFound: string;
+      notPending: string;
+      selfReview: string;
       forbidden: string;
       generic: string;
     };

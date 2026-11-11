@@ -242,6 +242,7 @@ export const CERTIFICATIONS_CONFIGURE = "certifications:configure" satisfies Per
 export const CERTIFICATIONS_PUBLISH = "certifications:publish" satisfies PermissionKey;
 export const CERTIFICATIONS_REVIEW = "certifications:review" satisfies PermissionKey;
 export const SERVICE_CREDENTIALS_REVIEW = "service_credentials:review" satisfies PermissionKey;
+export const CLUB_ENROLLMENTS_VALIDATE = "club_enrollments:validate" satisfies PermissionKey;
 export const ROLE_REQUIREMENTS_MANAGE = "role_requirements:manage" satisfies PermissionKey;
 export const CERTIFICATIONS_CERTIFY = "certifications:certify" satisfies PermissionKey;
 

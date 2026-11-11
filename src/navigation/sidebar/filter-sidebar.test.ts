@@ -124,6 +124,24 @@ describe("filterSidebarItems", () => {
     ]);
   });
 
+  it("shows a pastor-only validator the section enrollment queue too", () => {
+    const titles = collectTitles(
+      filterSidebarItems(
+        sidebarItems,
+        checker(
+          ["pastor"],
+          ["dashboard:read", "clubs:read", "club_enrollments:validate"],
+          { pastorOnly: true },
+        ),
+      ),
+    );
+
+    expect(titles).toEqual([
+      "Autorizaciones de investidura",
+      "Inscripciones de sección",
+    ]);
+  });
+
   it("keeps the approved structure: 6 groups, daily queues first, max 2 levels", () => {
     expect(sidebarItems.map((group) => group.label)).toEqual([
       undefined,
@@ -149,6 +167,7 @@ describe("filterSidebarItems", () => {
       "investiture-requests",
       "certifications-reviews",
       "service-credentials-review",
+      "club-enrollments-review",
     ]);
   });
 
