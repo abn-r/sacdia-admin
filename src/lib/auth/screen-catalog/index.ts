@@ -18,6 +18,7 @@ import { homeScreens } from "./screens/home";
 import { investitureScreens } from "./screens/investiture";
 import { notificationsScreens } from "./screens/notifications";
 import { operationsScreens } from "./screens/operations";
+import { serviceCredentialsScreens } from "./screens/service-credentials";
 import { usersScreen } from "./screens/users";
 import type {
   AccessSubject,
@@ -43,6 +44,7 @@ const LEAF_SCREENS: readonly ScreenDefinition[] = [
   ...clubsScreens,
   ...investitureScreens,
   ...operationsScreens,
+  ...serviceCredentialsScreens,
   ...campamentosScreens,
   ...notificationsScreens,
   ...catalogsGeographyScreens,

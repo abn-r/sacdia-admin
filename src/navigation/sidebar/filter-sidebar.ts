@@ -8,11 +8,18 @@ import type { NavGroup, NavMainItem, NavSubItem } from "./sidebar-items";
  * (`canAccessDashboardPath`) and in-page verbs (`canCapability`).
  */
 export type SidebarAccessChecker = AccessSubject & {
-  /** Pastor-only user: only the authorization list is shown (decision 2026-10-08). */
+  /**
+   * Pastor-only user: only the pastor's own queues are shown — investiture
+   * authorizations (decision 2026-10-08) and counselor credential review
+   * (D7, 2026-11-10).
+   */
   pastorOnly?: boolean;
 };
 
-const PASTOR_SIDEBAR_ITEM_ID = "investiture-requests";
+const PASTOR_SIDEBAR_ITEM_IDS: ReadonlySet<string> = new Set([
+  "investiture-requests",
+  "service-credentials-review",
+]);
 
 function isItemAllowed(
   item: { id: string },
@@ -22,7 +29,7 @@ function isItemAllowed(
     return true;
   }
 
-  if (checker.pastorOnly && item.id !== PASTOR_SIDEBAR_ITEM_ID) {
+  if (checker.pastorOnly && !PASTOR_SIDEBAR_ITEM_IDS.has(item.id)) {
     return false;
   }
 

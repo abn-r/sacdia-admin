@@ -106,6 +106,24 @@ describe("filterSidebarItems", () => {
     expect(titles).toEqual(["Autorizaciones de investidura"]);
   });
 
+  it("shows a pastor-only reviewer the credential queue too (D7)", () => {
+    const titles = collectTitles(
+      filterSidebarItems(
+        sidebarItems,
+        checker(
+          ["pastor"],
+          ["dashboard:read", "clubs:read", "service_credentials:review"],
+          { pastorOnly: true },
+        ),
+      ),
+    );
+
+    expect(titles).toEqual([
+      "Autorizaciones de investidura",
+      "Constancias de consejería",
+    ]);
+  });
+
   it("keeps the approved structure: 6 groups, daily queues first, max 2 levels", () => {
     expect(sidebarItems.map((group) => group.label)).toEqual([
       undefined,
@@ -130,6 +148,7 @@ describe("filterSidebarItems", () => {
       "validations",
       "investiture-requests",
       "certifications-reviews",
+      "service-credentials-review",
     ]);
   });
 

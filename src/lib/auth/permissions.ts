@@ -241,6 +241,8 @@ export const ECCLESIASTICAL_YEARS_DELETE = "ecclesiastical_years:delete" satisfi
 export const CERTIFICATIONS_CONFIGURE = "certifications:configure" satisfies PermissionKey;
 export const CERTIFICATIONS_PUBLISH = "certifications:publish" satisfies PermissionKey;
 export const CERTIFICATIONS_REVIEW = "certifications:review" satisfies PermissionKey;
+export const SERVICE_CREDENTIALS_REVIEW = "service_credentials:review" satisfies PermissionKey;
+export const ROLE_REQUIREMENTS_MANAGE = "role_requirements:manage" satisfies PermissionKey;
 export const CERTIFICATIONS_CERTIFY = "certifications:certify" satisfies PermissionKey;
 
 // --- Seguros (capacity model) y órdenes de pago territoriales ---

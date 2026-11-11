@@ -166,6 +166,8 @@
       "insurance_config": "Configuration",
       "payment_orders": "Ordres de paiement",
       "certifications_reviews": "Révisions de certifications",
+      "service_credentials_review": "Attestations de conseil",
+      "role_requirements": "Exigences des fonctions",
       "campamentos_plantillas": "Modèles",
       "campamentos_judges": "Juges",
       "campamentos_pedidos_catalogo": "Catalogue de commandes",
@@ -2895,6 +2897,8 @@
       "camporee_events:update": "Modifier un événement de camporee",
       "camporee_events:delete": "Supprimer un événement de camporee",
       "certifications:review": "Examiner les certifications",
+      "role_requirements:manage": "Gérer les exigences des fonctions",
+      "service_credentials:review": "Examiner les attestations de conseil",
       "certifications:certify": "Certifier",
       "club_ideals:read": "Voir les idéaux de club",
       "club_ideals:create": "Créer un idéal de club",
@@ -9942,6 +9946,204 @@
         "achievements": "Réalisations annuelles du club",
         "communityService": "Service à la communauté"
       }
+    }
+  },
+  "service_credentials": {
+    "page": {
+      "title": "Attestations de conseil",
+      "description": "Examinez les attestations de conseil téléversées par les personnes ayant une fonction dans un club. Une seule approbation suffit."
+    },
+    "tabs": {
+      "label": "État de la révision",
+      "pending": "En attente",
+      "approved": "Approuvées",
+      "rejected": "Rejetées"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Nom ou club"
+    },
+    "table": {
+      "person": "Personne",
+      "club": "Club",
+      "completed": "Terminée",
+      "submitted": "Envoyée",
+      "status": "État",
+      "reviewer": "Examinée par",
+      "actions": "Actions",
+      "review": "Examiner",
+      "view": "Voir",
+      "reviewedOn": "Examinée le {date}",
+      "refresh": "Actualiser"
+    },
+    "status": {
+      "PENDING_REVIEW": "En attente",
+      "APPROVED": "Approuvée",
+      "REJECTED": "Rejetée"
+    },
+    "roles": {
+      "director": "Directeur",
+      "deputy-director": "Directeur adjoint",
+      "secretary": "Secrétaire",
+      "treasurer": "Trésorier",
+      "secretary-treasurer": "Secrétaire-trésorier",
+      "counselor": "Conseiller",
+      "director-lf": "Directeur du champ local",
+      "assistant-lf": "Assistant du champ local",
+      "coordinator": "Coordinateur",
+      "zone-coordinator": "Coordinateur de zone",
+      "general-coordinator": "Coordinateur général",
+      "pastor": "Pasteur",
+      "admin": "Administrateur",
+      "super-admin": "Super-administrateur"
+    },
+    "empty": {
+      "pending": {
+        "title": "Aucune attestation en attente",
+        "description": "Lorsque quelqu’un de votre périmètre téléversera une attestation, elle apparaîtra ici."
+      },
+      "approved": {
+        "title": "Aucune attestation approuvée",
+        "description": "Les attestations que vous approuvez apparaîtront ici."
+      },
+      "rejected": {
+        "title": "Aucune attestation rejetée",
+        "description": "Les attestations que vous rejetez apparaîtront ici."
+      },
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Aucune attestation ne correspond à « {search} ».",
+      "clearSearch": "Effacer la recherche"
+    },
+    "error": {
+      "title": "Impossible de charger la file",
+      "retry": "Réessayer"
+    },
+    "detail": {
+      "title": "Attestation de conseil",
+      "description": "{name} · {club}",
+      "close": "Fermer",
+      "loadFailed": "Impossible de charger l’attestation.",
+      "fields": {
+        "person": "Personne",
+        "club": "Club",
+        "completed": "Terminée",
+        "submitted": "Envoyée",
+        "status": "État",
+        "reviewedAt": "Date de révision",
+        "reviewer": "Examinée par",
+        "expiresAt": "Expire le",
+        "reason": "Motif du rejet"
+      },
+      "preview": {
+        "loading": "Chargement du fichier…",
+        "failed": "Impossible d’afficher le fichier ici. Ouvrez-le dans un nouvel onglet.",
+        "openInNewTab": "Ouvrir dans un nouvel onglet",
+        "imageAlt": "Attestation de {name}",
+        "pdfTitle": "Attestation de {name} (PDF)",
+        "linkExpires": "Le lien du fichier expire dans 15 minutes. S’il ne s’ouvre plus, fermez puis rouvrez cette attestation."
+      },
+      "approve": {
+        "expiresLabel": "Date d’expiration (facultatif)",
+        "expiresHint": "Sans date, l’attestation n’expire pas.",
+        "expiresPast": "La date d’expiration doit être postérieure à aujourd’hui.",
+        "action": "Approuver"
+      },
+      "reject": {
+        "action": "Rejeter…",
+        "title": "Rejeter cette attestation ?",
+        "description": "{name} verra le motif dans l’application et pourra téléverser une nouvelle attestation.",
+        "reasonLabel": "Motif du rejet",
+        "reasonHint": "Entre {min} et {max} caractères. La personne le lira tel que vous l’écrivez.",
+        "reasonTooShort": "Écrivez au moins {min} caractères.",
+        "reasonTooLong": "Le motif ne peut pas dépasser {max} caractères.",
+        "cancel": "Annuler",
+        "confirm": "Rejeter"
+      },
+      "alreadyReviewed": "Cette attestation a déjà été examinée."
+    },
+    "toasts": {
+      "approved": "Attestation approuvée",
+      "rejected": "Attestation rejetée",
+      "listFailed": "Impossible de charger la file."
+    },
+    "errors": {
+      "notFound": "Cette attestation n’est plus disponible dans votre périmètre.",
+      "notPending": "Quelqu’un d’autre a déjà examiné cette attestation. La liste a été actualisée.",
+      "selfReview": "Vous ne pouvez pas examiner votre propre attestation.",
+      "dateInvalid": "La date d’expiration doit être postérieure à aujourd’hui.",
+      "forbidden": "Votre rôle ne permet pas d’examiner des attestations.",
+      "generic": "L’action n’a pas pu être effectuée. Réessayez."
+    }
+  },
+  "role_requirements": {
+    "page": {
+      "title": "Exigences des fonctions",
+      "description": "Définissez si l’attestation de conseil est informative, génère un avertissement ou est obligatoire pour la personne qui reçoit chaque fonction."
+    },
+    "table": {
+      "role": "Fonction",
+      "clubType": "Type de club",
+      "requirement": "Exigence",
+      "mode": "Mode",
+      "effectiveFrom": "En vigueur depuis",
+      "equivalent": "Certification équivalente",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "allClubTypes": "Tous",
+      "none": "—",
+      "immediate": "Immédiatement"
+    },
+    "requirementType": {
+      "COUNSELOR_TRAINING": "Attestation de conseil"
+    },
+    "modes": {
+      "INFO": "Informative",
+      "WARN": "Avertissement",
+      "BLOCK": "Obligatoire"
+    },
+    "modeHints": {
+      "INFO": "Information seulement ; elle n’avertit ni ne bloque.",
+      "WARN": "Avertit lors de l’attribution de la fonction, sans l’empêcher.",
+      "BLOCK": "Empêche d’attribuer la fonction à toute personne sans attestation approuvée."
+    },
+    "empty": {
+      "title": "Aucune exigence configurée",
+      "description": "Il n’y a pas encore d’exigences de fonctions à configurer."
+    },
+    "error": {
+      "title": "Impossible de charger les exigences",
+      "retry": "Réessayer"
+    },
+    "edit": {
+      "title": "Modifier l’exigence",
+      "description": "{role} · {requirement}",
+      "modeLabel": "Mode",
+      "effectiveLabel": "En vigueur depuis",
+      "effectiveHint": "Facultatif. N’a d’effet qu’en mode Obligatoire : sans date, elle s’applique immédiatement.",
+      "effectiveBlockHint": "En mode Obligatoire, sans date l’exigence s’applique immédiatement. Avec une date, elle s’applique à partir de ce jour.",
+      "equivalentLabel": "Certification équivalente",
+      "equivalentNone": "Aucune",
+      "equivalentHint": "Toute personne détenant cette certification remplit l’exigence sans téléverser l’attestation.",
+      "equivalentUnavailable": "Impossible de charger la liste des certifications ; ce champ ne sera pas modifié.",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "blockConfirm": {
+      "title": "Rendre l’attestation obligatoire ?",
+      "descriptionOnDate": "À partir du {date}, la fonction « {role} » ne pourra pas être attribuée à une personne sans attestation approuvée. Les personnes qui ont déjà la fonction la conservent.",
+      "descriptionImmediate": "Dès maintenant, la fonction « {role} » ne pourra pas être attribuée à une personne sans attestation approuvée. Les personnes qui ont déjà la fonction la conservent.",
+      "cancel": "Annuler",
+      "confirm": "Rendre obligatoire"
+    },
+    "toasts": {
+      "saved": "Exigence mise à jour"
+    },
+    "errors": {
+      "notFound": "Cette exigence n’existe plus. La liste a été actualisée.",
+      "certificationInvalid": "La certification équivalente n’est pas valide.",
+      "dateInvalid": "La date d’entrée en vigueur n’est pas valide.",
+      "forbidden": "Votre rôle ne permet pas de modifier les exigences.",
+      "generic": "Impossible d’enregistrer l’exigence. Réessayez."
     }
   }
 }

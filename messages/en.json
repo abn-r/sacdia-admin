@@ -166,6 +166,8 @@
       "insurance_config": "Settings",
       "payment_orders": "Payment orders",
       "certifications_reviews": "Certification reviews",
+      "service_credentials_review": "Counselor credentials",
+      "role_requirements": "Role requirements",
       "campamentos_plantillas": "Templates",
       "campamentos_judges": "Judges",
       "campamentos_pedidos_catalogo": "Order catalog",
@@ -2895,6 +2897,8 @@
       "camporee_events:update": "Edit camporee event",
       "camporee_events:delete": "Delete camporee event",
       "certifications:review": "Review certifications",
+      "role_requirements:manage": "Manage role requirements",
+      "service_credentials:review": "Review counselor credentials",
       "certifications:certify": "Certify",
       "club_ideals:read": "View club ideals",
       "club_ideals:create": "Create club ideal",
@@ -9942,6 +9946,204 @@
         "achievements": "Club annual achievements",
         "communityService": "Community service"
       }
+    }
+  },
+  "service_credentials": {
+    "page": {
+      "title": "Counselor credentials",
+      "description": "Review the counseling credentials uploaded by people who hold a club role. One approval is enough."
+    },
+    "tabs": {
+      "label": "Review status",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Name or club"
+    },
+    "table": {
+      "person": "Person",
+      "club": "Club",
+      "completed": "Completed",
+      "submitted": "Submitted",
+      "status": "Status",
+      "reviewer": "Reviewed by",
+      "actions": "Actions",
+      "review": "Review",
+      "view": "View",
+      "reviewedOn": "Reviewed on {date}",
+      "refresh": "Refresh"
+    },
+    "status": {
+      "PENDING_REVIEW": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "roles": {
+      "director": "Director",
+      "deputy-director": "Deputy director",
+      "secretary": "Secretary",
+      "treasurer": "Treasurer",
+      "secretary-treasurer": "Secretary-treasurer",
+      "counselor": "Counselor",
+      "director-lf": "Local field director",
+      "assistant-lf": "Local field assistant",
+      "coordinator": "Coordinator",
+      "zone-coordinator": "Zone coordinator",
+      "general-coordinator": "General coordinator",
+      "pastor": "Pastor",
+      "admin": "Administrator",
+      "super-admin": "Super administrator"
+    },
+    "empty": {
+      "pending": {
+        "title": "No pending credentials",
+        "description": "When someone in your scope uploads a credential, it will show up here."
+      },
+      "approved": {
+        "title": "No approved credentials",
+        "description": "Credentials you approve will show up here."
+      },
+      "rejected": {
+        "title": "No rejected credentials",
+        "description": "Credentials you reject will show up here."
+      },
+      "noResultsTitle": "No results",
+      "noResultsDescription": "No credential matches “{search}”.",
+      "clearSearch": "Clear search"
+    },
+    "error": {
+      "title": "The queue could not be loaded",
+      "retry": "Retry"
+    },
+    "detail": {
+      "title": "Counselor credential",
+      "description": "{name} · {club}",
+      "close": "Close",
+      "loadFailed": "The credential could not be loaded.",
+      "fields": {
+        "person": "Person",
+        "club": "Club",
+        "completed": "Completed",
+        "submitted": "Submitted",
+        "status": "Status",
+        "reviewedAt": "Review date",
+        "reviewer": "Reviewed by",
+        "expiresAt": "Expires",
+        "reason": "Rejection reason"
+      },
+      "preview": {
+        "loading": "Loading file…",
+        "failed": "The file could not be shown here. Open it in a new tab.",
+        "openInNewTab": "Open in new tab",
+        "imageAlt": "Credential of {name}",
+        "pdfTitle": "Credential of {name} (PDF)",
+        "linkExpires": "The file link expires in 15 minutes. If it stops opening, close and reopen this credential."
+      },
+      "approve": {
+        "expiresLabel": "Expiry date (optional)",
+        "expiresHint": "Without a date, the credential does not expire.",
+        "expiresPast": "The expiry date must be after today.",
+        "action": "Approve"
+      },
+      "reject": {
+        "action": "Reject…",
+        "title": "Reject this credential?",
+        "description": "{name} will see the reason in the app and can upload a new credential.",
+        "reasonLabel": "Rejection reason",
+        "reasonHint": "Between {min} and {max} characters. The person will read it exactly as you write it.",
+        "reasonTooShort": "Write at least {min} characters.",
+        "reasonTooLong": "The reason cannot exceed {max} characters.",
+        "cancel": "Cancel",
+        "confirm": "Reject"
+      },
+      "alreadyReviewed": "This credential has already been reviewed."
+    },
+    "toasts": {
+      "approved": "Credential approved",
+      "rejected": "Credential rejected",
+      "listFailed": "The queue could not be loaded."
+    },
+    "errors": {
+      "notFound": "This credential is no longer available in your scope.",
+      "notPending": "Someone else already reviewed this credential. We refreshed the list.",
+      "selfReview": "You cannot review your own credential.",
+      "dateInvalid": "The expiry date must be after today.",
+      "forbidden": "Your role cannot review credentials.",
+      "generic": "The action could not be completed. Try again."
+    }
+  },
+  "role_requirements": {
+    "page": {
+      "title": "Role requirements",
+      "description": "Set whether the counseling credential is informational, raises a warning, or is mandatory for whoever receives each role."
+    },
+    "table": {
+      "role": "Role",
+      "clubType": "Club type",
+      "requirement": "Requirement",
+      "mode": "Mode",
+      "effectiveFrom": "Effective from",
+      "equivalent": "Equivalent certification",
+      "actions": "Actions",
+      "edit": "Edit",
+      "allClubTypes": "All",
+      "none": "—",
+      "immediate": "Immediately"
+    },
+    "requirementType": {
+      "COUNSELOR_TRAINING": "Counseling credential"
+    },
+    "modes": {
+      "INFO": "Informational",
+      "WARN": "Warning",
+      "BLOCK": "Mandatory"
+    },
+    "modeHints": {
+      "INFO": "Information only; it neither warns nor blocks.",
+      "WARN": "Warns when the role is assigned, but does not prevent it.",
+      "BLOCK": "Prevents assigning the role to anyone without an approved credential."
+    },
+    "empty": {
+      "title": "No requirements configured",
+      "description": "There are no role requirements to configure yet."
+    },
+    "error": {
+      "title": "The requirements could not be loaded",
+      "retry": "Retry"
+    },
+    "edit": {
+      "title": "Edit requirement",
+      "description": "{role} · {requirement}",
+      "modeLabel": "Mode",
+      "effectiveLabel": "Effective from",
+      "effectiveHint": "Optional. Only matters in Mandatory mode: without a date it applies immediately.",
+      "effectiveBlockHint": "In Mandatory mode, without a date the requirement applies immediately. With a date, it applies from that day.",
+      "equivalentLabel": "Equivalent certification",
+      "equivalentNone": "None",
+      "equivalentHint": "Anyone holding this certification meets the requirement without uploading the credential.",
+      "equivalentUnavailable": "The certifications list could not be loaded; this field will not be changed.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "blockConfirm": {
+      "title": "Make the credential mandatory?",
+      "descriptionOnDate": "From {date}, the “{role}” role cannot be assigned to anyone without an approved credential. People who already hold the role keep it.",
+      "descriptionImmediate": "From now on, the “{role}” role cannot be assigned to anyone without an approved credential. People who already hold the role keep it.",
+      "cancel": "Cancel",
+      "confirm": "Make mandatory"
+    },
+    "toasts": {
+      "saved": "Requirement updated"
+    },
+    "errors": {
+      "notFound": "This requirement no longer exists. We refreshed the list.",
+      "certificationInvalid": "The equivalent certification is not valid.",
+      "dateInvalid": "The effective date is not valid.",
+      "forbidden": "Your role cannot change requirements.",
+      "generic": "The requirement could not be saved. Try again."
     }
   }
 }
