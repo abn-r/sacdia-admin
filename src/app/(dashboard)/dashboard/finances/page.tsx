@@ -5,6 +5,8 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { FinancesViewSwitcher } from "@/components/finances/finances-view-switcher";
+import { canViewFinancesOverview } from "@/lib/finances/overview-access";
 import { FinancesClubSelector } from "@/components/finances/finances-club-selector";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { listClubTypes } from "@/lib/api/catalogs";
@@ -78,12 +80,19 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("page.title") };
 }
 
-export default async function FinancesPage() {
+export default async function FinancesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ club?: string | string[] }>;
+}) {
   const user = await requireAdminUser();
   if (!canViewScreen(user, "finances")) {
     redirect("/dashboard");
   }
   const t = await getTranslations("finances");
+  const clubParam = (await searchParams).club;
+  const initialClubId = Number(Array.isArray(clubParam) ? clubParam[0] : clubParam);
+  const showOverviewLink = canViewFinancesOverview(user);
   const territoryScope = resolveAdminTerritoryScope(user);
 
   const clubTypes = await listClubTypes().catch(() => []);
@@ -107,6 +116,8 @@ export default async function FinancesPage() {
         description={t("page.description")}
       />
 
+      {showOverviewLink ? <FinancesViewSwitcher active="by-club" /> : null}
+
       {errorMessage && (
         <EndpointErrorBanner
           state="missing"
@@ -125,6 +136,11 @@ export default async function FinancesPage() {
           clubs={clubs}
           localFields={localFields}
           territoryScope={territoryScope}
+          initialClubId={
+            Number.isInteger(initialClubId) && initialClubId > 0
+              ? initialClubId
+              : undefined
+          }
         />
       )}
     </div>

@@ -5976,13 +5976,16 @@
       "amount_invalid": "Insira um valor válido",
       "amount_positive": "O valor deve ser positivo",
       "category_required": "Selecione uma categoria",
-      "date_required": "Insira a data"
+      "date_required": "Insira a data",
+      "note_invalid": "O motivo deve ter entre 5 e 500 caracteres"
     },
     "errors": {
       "delete_transaction_failed": "Não foi possível excluir o movimento",
       "update_transaction_failed": "Não foi possível atualizar o movimento",
       "create_transaction_failed": "Não foi possível criar o movimento",
-      "upload_evidence_failed": "Não foi possível enviar a evidência"
+      "upload_evidence_failed": "Não foi possível enviar a evidência",
+      "closed_note_required": "O mês está fechado: informe o motivo da alteração (de 5 a 500 caracteres).",
+      "period_closed": "O mês está fechado e somente um administrador pode alterá-lo."
     },
     "dashboard": {
       "filtersLabel": "Filtros:",
@@ -5993,7 +5996,16 @@
       "transactionsLoadError": "Não foi possível carregar os movimentos.",
       "newTransactionButton": "Novo movimento",
       "transactionsTitle": "Movimentos",
-      "showing": "Exibindo {shown} de {total} movimentos."
+      "showing": "Exibindo {shown} de {total} movimentos.",
+      "exportButton": "Exportar",
+      "exportExcel": "Excel (.xlsx)",
+      "exportPdf": "PDF",
+      "exporting": "Exportando…",
+      "exportYearRequired": "Escolha um ano para exportar",
+      "exportFailed": "Não foi possível exportar o arquivo.",
+      "exportForbidden": "Você não tem permissão para exportar estes dados.",
+      "exported": "Arquivo baixado: {file}",
+      "pagination": "Paginação dos lançamentos"
     },
     "form": {
       "titleNew": "Novo movimento",
@@ -6023,7 +6035,10 @@
       "evidenceLimit": "São permitidas apenas 3 fotos de evidência por movimento.",
       "evidenceImageOnly": "Somente arquivos de imagem podem ser anexados.",
       "evidenceAdd": "Selecionar fotos do comprovante",
-      "evidenceRemove": "Remover evidência"
+      "evidenceRemove": "Remover evidência",
+      "noteLabel": "Motivo da alteração",
+      "notePlaceholder": "Explique por que um mês fechado está sendo alterado",
+      "noteHelper": "O mês está fechado. Informe o motivo da alteração (de 5 a 500 caracteres); ele fica registrado."
     },
     "table": {
       "colDate": "Data",
@@ -6055,12 +6070,15 @@
       "cannotUndo": "Esta ação não pode ser desfeita.",
       "descriptionFallback": "Esta ação não pode ser desfeita.",
       "cancelButton": "Cancelar",
-      "confirmButton": "Excluir"
+      "confirmButton": "Excluir",
+      "reasonLabel": "Motivo da exclusão",
+      "reasonPlaceholder": "Explique por que este lançamento está sendo excluído",
+      "reasonHelper": "O mês está fechado. Informe por que você está excluindo este lançamento (de 5 a 500 caracteres)."
     },
     "summary": {
-      "totalIncome": "Total de Receitas",
-      "totalExpense": "Total de Despesas",
-      "balance": "Saldo",
+      "totalIncome": "Receitas do período",
+      "totalExpense": "Despesas do período",
+      "balance": "Saldo acumulado",
       "movementsCount": "{count} movimento",
       "movementsCountPlural": "{count} movimentos",
       "incomeMovementsCount": "{count} receita",
@@ -6069,7 +6087,10 @@
       "expenseMovementsCountPlural": "{count} despesas",
       "inPeriod": "no período",
       "positiveBalance": "Saldo positivo",
-      "negativeBalance": "Saldo negativo"
+      "negativeBalance": "Saldo negativo",
+      "net": "Líquido do período",
+      "balanceHint": "Acumulado até o fim do período",
+      "inYear": "No ano: +{income} / −{expense}"
     },
     "months": {
       "january": "Janeiro",
@@ -6107,6 +6128,68 @@
       "sectionLabel": "Seção do clube",
       "sectionPlaceholder": "Selecione uma seção",
       "sectionAll": "Todas as seções"
+    },
+    "closed": {
+      "badge": "Mês fechado",
+      "summaryNotice": "Mês fechado: as alterações exigem um motivo e só podem ser feitas por um administrador.",
+      "rowTooltip": "Este lançamento pertence a um mês fechado."
+    },
+    "byCategory": {
+      "title": "Por categoria",
+      "incomeTitle": "Receitas",
+      "expenseTitle": "Despesas",
+      "total": "Total",
+      "movements": "{count, plural, one {# lançamento} other {# lançamentos}}",
+      "empty": "Sem lançamentos neste período.",
+      "loadError": "Não foi possível carregar o detalhamento por categoria.",
+      "yearRequired": "Escolha um ano para ver o detalhamento por categoria."
+    },
+    "views": {
+      "label": "Visão de finanças",
+      "byClub": "Por clube",
+      "overview": "Consolidado"
+    },
+    "overview": {
+      "title": "Consolidado de finanças",
+      "description": "Receitas, despesas e saldo dos clubes do seu território.",
+      "filters": {
+        "localField": "Campo local",
+        "allLocalFields": "Todos os campos locais",
+        "year": "Ano",
+        "month": "Mês",
+        "allMonths": "Ano inteiro"
+      },
+      "totals": {
+        "label": "Totais do consolidado",
+        "income": "Receitas",
+        "expenses": "Despesas",
+        "net": "Líquido",
+        "balance": "Saldo acumulado",
+        "movements": "Lançamentos"
+      },
+      "table": {
+        "club": "Clube",
+        "localField": "Campo local",
+        "income": "Receitas",
+        "expenses": "Despesas",
+        "net": "Líquido",
+        "balance": "Saldo",
+        "movements": "Lançamentos",
+        "missedMonths": "Meses sem lançamentos",
+        "lastMovement": "Último lançamento",
+        "openClub": "Ver finanças de {club}"
+      },
+      "missed": {
+        "none": "Em dia",
+        "badge": "{count, plural, one {# mês} other {# meses}}",
+        "tooltip": "Sem lançamentos em: {months}"
+      },
+      "noLastMovement": "Sem lançamentos",
+      "loadError": "Não foi possível carregar o consolidado de finanças.",
+      "empty": {
+        "title": "Nenhum clube para mostrar",
+        "description": "Não há clubes no seu território para os filtros selecionados."
+      }
     }
   },
   "certifications": {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,17 +20,16 @@ import {
   TransactionsTable,
   TransactionsTableSkeleton,
 } from "@/components/finances/transactions-table";
+import { FinancesByCategory } from "@/components/finances/finances-by-category";
+import { FinancesExportButton } from "@/components/finances/finances-export-button";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import {
   listFinances,
   getFinanceSummary,
-  mergeFinanceSummaryForDisplay,
-  summarizeFinances,
   type Finance,
   type FinanceSummary,
-  type FinanceSortField,
   type PaginatedFinances,
 } from "@/lib/api/finances";
-import type { SortDirection } from "@/components/shared/sortable-header";
 import type { TransactionFormDialogProps, ClubSection } from "@/components/finances/transaction-form-dialog";
 import type { DeleteTransactionDialogProps } from "@/components/finances/delete-transaction-dialog";
 import type { FinanceEvidenceViewerDialogProps } from "@/components/finances/finance-evidence-viewer-dialog";
@@ -82,6 +81,7 @@ const MONTH_KEYS = [
 ] as const;
 
 const currentYear = new Date().getFullYear();
+const DEFAULT_PAGE_SIZE = 20;
 const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -115,9 +115,12 @@ export function FinancesDashboard({
   const [year, setYear] = useState<number | undefined>(currentYear);
   const [month, setMonth] = useState<number | undefined>(undefined);
 
-  // Sort
-  const [sortField, setSortField] = useState<FinanceSortField>("date");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  // Pagination (server-side)
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
+  // Bumped after every refresh so the by-category block reloads too.
+  const [reloadToken, setReloadToken] = useState(0);
+  const transactionsRequest = useRef(0);
 
   // Data
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
@@ -134,95 +137,72 @@ export function FinancesDashboard({
   const [deleteFinance, setDeleteFinanceState] = useState<Finance | null>(null);
   const [evidenceFinance, setEvidenceFinance] = useState<Finance | null>(null);
 
-  const selectedSection =
-    sectionId === "all"
-      ? null
-      : sections.find((section) => section.club_section_id === sectionId) ?? null;
-
   const formSections =
     sectionId === "all"
       ? sections
       : sections.filter((section) => section.club_section_id === sectionId);
 
-  // Fetch summary
-  const fetchSummary = useCallback(async () => {
-    if (sectionId !== "all") {
-      setSummary(null);
-      return;
-    }
+  const selectedSectionId = sectionId === "all" ? undefined : sectionId;
 
+  // Fetch summary (the backend scopes it to the section when one is selected)
+  const fetchSummary = useCallback(async () => {
     setLoadingSummary(true);
     setSummaryError(false);
     try {
-      const data = await getFinanceSummary(clubId, year, month);
-      setSummary(data);
+      setSummary(await getFinanceSummary(clubId, year, month, selectedSectionId));
     } catch {
       setSummary(null);
       setSummaryError(true);
     } finally {
       setLoadingSummary(false);
     }
-  }, [clubId, year, month, sectionId]);
+  }, [clubId, year, month, selectedSectionId]);
 
-  // Fetch transactions
+  // Fetch one page of movements; year, month and section are server-side filters.
   const fetchTransactions = useCallback(async () => {
+    const requestId = ++transactionsRequest.current;
     setLoadingTable(true);
     setTableError(false);
     try {
-      const baseFilters = {
+      const data = await listFinances(clubId, {
         year,
         month,
-        sortBy: sortField,
-        sortOrder: sortDirection,
-        clubTypeId: selectedSection?.club_type_id,
-      };
-      let data = await listFinances(clubId, {
-        ...baseFilters,
-        limit: 50,
+        clubSectionId: selectedSectionId,
+        page,
+        limit,
       });
-
-      if (data.total > data.data.length) {
-        const fullLimit = Math.min(data.total, 500);
-        data = await listFinances(clubId, {
-          ...baseFilters,
-          limit: fullLimit,
-        });
-      }
-
-      if (sectionId !== "all") {
-        const scoped = data.data.filter(
-          (item) => item.club_section_id === sectionId,
-        );
-        data = {
-          ...data,
-          data: scoped,
-          total: scoped.length,
-        };
-      }
-
+      // A newer request (filter or page change) superseded this one.
+      if (requestId !== transactionsRequest.current) return;
       setResult(data);
     } catch {
+      if (requestId !== transactionsRequest.current) return;
       setResult(null);
       setTableError(true);
     } finally {
-      setLoadingTable(false);
+      if (requestId === transactionsRequest.current) setLoadingTable(false);
     }
-  }, [clubId, year, month, sortField, sortDirection, sectionId, selectedSection]);
+  }, [clubId, year, month, selectedSectionId, page, limit]);
 
-  const handleSort = (field: FinanceSortField, direction: SortDirection) => {
-    setSortField(field);
-    setSortDirection(direction);
-  };
-
-  // Refresh both on mount and filter change
+  // Refresh summary, page and category breakdown (after a mutation or on demand)
   const refresh = useCallback(() => {
     fetchSummary();
     fetchTransactions();
+    setReloadToken((token) => token + 1);
   }, [fetchSummary, fetchTransactions]);
 
+  // Summary reloads only when its own filters change; the table also on paging.
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    fetchSummary();
+  }, [fetchSummary]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  // Any filter change goes back to the first page.
+  useEffect(() => {
+    setPage(1);
+  }, [clubId, year, month, selectedSectionId]);
 
   const sectionLabels = useMemo(
     () =>
@@ -234,48 +214,6 @@ export function FinancesDashboard({
       ),
     [sections],
   );
-
-  const displaySummary = useMemo(() => {
-    const transactions = result?.data ?? [];
-
-    if (sectionId !== "all") {
-      if (transactions.length === 0) {
-        return {
-          club_id: clubId,
-          period:
-            month && year
-              ? `${year}-${String(month).padStart(2, "0")}`
-              : year
-                ? String(year)
-                : "all",
-          total_income: 0,
-          total_expense: 0,
-          balance: 0,
-          movement_count: 0,
-          income_count: 0,
-          expense_count: 0,
-        };
-      }
-
-      return summarizeFinances(
-        transactions,
-        clubId,
-        month && year
-          ? `${year}-${String(month).padStart(2, "0")}`
-          : year
-            ? String(year)
-            : "all",
-      );
-    }
-
-    return mergeFinanceSummaryForDisplay(
-      summary,
-      transactions,
-      result?.total ?? 0,
-      clubId,
-      month,
-    );
-  }, [summary, result, clubId, month, year, sectionId]);
 
   // Handlers
   function handleEdit(finance: Finance) {
@@ -345,6 +283,13 @@ export function FinancesDashboard({
       </Select>
 
       <div className="ml-auto flex items-center gap-2 self-end">
+        <FinancesExportButton
+          clubId={clubId}
+          year={year}
+          month={month}
+          clubSectionId={selectedSectionId}
+        />
+
         <Button
           variant="outline"
           size="sm"
@@ -370,17 +315,25 @@ export function FinancesDashboard({
 
   const body = (
     <>
-      {loadingSummary || (sectionId !== "all" && loadingTable) ? (
+      {loadingSummary ? (
         <FinancesSummaryCardsSkeleton />
-      ) : summaryError || (sectionId !== "all" && tableError) ? (
+      ) : summaryError ? (
         <EndpointErrorBanner
           state="missing"
           detail={t("dashboard.summaryLoadError")}
-          onRetry={sectionId === "all" ? fetchSummary : fetchTransactions}
+          onRetry={fetchSummary}
         />
-      ) : displaySummary ? (
-        <FinancesSummaryCards summary={displaySummary} />
+      ) : summary ? (
+        <FinancesSummaryCards summary={summary} />
       ) : null}
+
+      <FinancesByCategory
+        clubId={clubId}
+        year={year}
+        month={month}
+        clubSectionId={selectedSectionId}
+        reloadToken={reloadToken}
+      />
 
       <div className="space-y-3">
         <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
@@ -393,25 +346,28 @@ export function FinancesDashboard({
             onRetry={fetchTransactions}
           />
         ) : (
-          <TransactionsTable
-            items={result?.data ?? []}
-            sectionLabels={sectionLabels}
-            onEdit={canUpdate ? handleEdit : undefined}
-            onDelete={canDelete ? handleDelete : undefined}
-            onViewEvidence={setEvidenceFinance}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-          />
-        )}
-
-        {result && result.total > result.data.length && (
-          <p className="text-sm text-muted-foreground">
-            {t("dashboard.showing", {
-              shown: result.data.length,
-              total: result.total,
-            })}
-          </p>
+          <>
+            <TransactionsTable
+              items={result?.data ?? []}
+              sectionLabels={sectionLabels}
+              onEdit={canUpdate ? handleEdit : undefined}
+              onDelete={canDelete ? handleDelete : undefined}
+              onViewEvidence={setEvidenceFinance}
+            />
+            {result && result.total > 0 ? (
+              <DataTablePagination
+                page={result.page}
+                totalPages={Math.max(1, Math.ceil(result.total / limit))}
+                total={result.total}
+                limit={limit}
+                onPageChange={setPage}
+                onPageSizeChange={(next) => {
+                  setLimit(next);
+                  setPage(1);
+                }}
+              />
+            ) : null}
+          </>
         )}
       </div>
 
@@ -421,6 +377,7 @@ export function FinancesDashboard({
         clubId={clubId}
         sections={formSections}
         finance={editFinance}
+        periodClosedHint={summary?.period_closed === true}
         onSuccess={refresh}
       />
 

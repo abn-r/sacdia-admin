@@ -5976,13 +5976,16 @@
       "amount_invalid": "Saisissez un montant valide",
       "amount_positive": "Le montant doit être positif",
       "category_required": "Sélectionnez une catégorie",
-      "date_required": "Saisissez la date"
+      "date_required": "Saisissez la date",
+      "note_invalid": "Le motif doit comporter entre 5 et 500 caractères"
     },
     "errors": {
       "delete_transaction_failed": "Impossible de supprimer la transaction",
       "update_transaction_failed": "Impossible de mettre à jour la transaction",
       "create_transaction_failed": "Impossible de créer la transaction",
-      "upload_evidence_failed": "Impossible de téléverser la preuve"
+      "upload_evidence_failed": "Impossible de téléverser la preuve",
+      "closed_note_required": "Le mois est clôturé : indiquez le motif de la modification (de 5 à 500 caractères).",
+      "period_closed": "Le mois est clôturé et seul un administrateur peut le modifier."
     },
     "dashboard": {
       "filtersLabel": "Filtres :",
@@ -5993,7 +5996,16 @@
       "transactionsLoadError": "Impossible de charger les transactions.",
       "newTransactionButton": "Nouvelle transaction",
       "transactionsTitle": "Transactions",
-      "showing": "Affichage de {shown} sur {total} transactions."
+      "showing": "Affichage de {shown} sur {total} transactions.",
+      "exportButton": "Exporter",
+      "exportExcel": "Excel (.xlsx)",
+      "exportPdf": "PDF",
+      "exporting": "Exportation…",
+      "exportYearRequired": "Choisissez une année à exporter",
+      "exportFailed": "Le fichier n’a pas pu être exporté.",
+      "exportForbidden": "Vous n’avez pas la permission d’exporter ces données.",
+      "exported": "Fichier téléchargé : {file}",
+      "pagination": "Pagination des mouvements"
     },
     "form": {
       "titleNew": "Nouvelle transaction",
@@ -6023,7 +6035,10 @@
       "evidenceLimit": "Seules 3 photos de preuve sont autorisées par transaction.",
       "evidenceImageOnly": "Seuls les fichiers image peuvent être joints.",
       "evidenceAdd": "Sélectionner des photos du justificatif",
-      "evidenceRemove": "Retirer la preuve"
+      "evidenceRemove": "Retirer la preuve",
+      "noteLabel": "Motif de la modification",
+      "notePlaceholder": "Expliquez pourquoi un mois clôturé est modifié",
+      "noteHelper": "Le mois est clôturé. Indiquez le motif de la modification (de 5 à 500 caractères) ; il est enregistré."
     },
     "table": {
       "colDate": "Date",
@@ -6055,12 +6070,15 @@
       "cannotUndo": "Cette action est irréversible.",
       "descriptionFallback": "Cette action est irréversible.",
       "cancelButton": "Annuler",
-      "confirmButton": "Supprimer"
+      "confirmButton": "Supprimer",
+      "reasonLabel": "Motif de la suppression",
+      "reasonPlaceholder": "Expliquez pourquoi ce mouvement est supprimé",
+      "reasonHelper": "Le mois est clôturé. Indiquez pourquoi vous supprimez ce mouvement (de 5 à 500 caractères)."
     },
     "summary": {
-      "totalIncome": "Total des revenus",
-      "totalExpense": "Total des dépenses",
-      "balance": "Solde",
+      "totalIncome": "Recettes de la période",
+      "totalExpense": "Dépenses de la période",
+      "balance": "Solde cumulé",
       "movementsCount": "{count} transaction",
       "movementsCountPlural": "{count} transactions",
       "incomeMovementsCount": "{count} entrée de revenu",
@@ -6069,7 +6087,10 @@
       "expenseMovementsCountPlural": "{count} dépenses",
       "inPeriod": "sur la période",
       "positiveBalance": "Solde positif",
-      "negativeBalance": "Solde négatif"
+      "negativeBalance": "Solde négatif",
+      "net": "Net de la période",
+      "balanceHint": "Cumulé jusqu’à la fin de la période",
+      "inYear": "Sur l’année : +{income} / −{expense}"
     },
     "months": {
       "january": "Janvier",
@@ -6107,6 +6128,68 @@
       "sectionLabel": "Section du club",
       "sectionPlaceholder": "Sélectionnez une section",
       "sectionAll": "Toutes les sections"
+    },
+    "closed": {
+      "badge": "Mois clôturé",
+      "summaryNotice": "Mois clôturé : les modifications exigent un motif et ne peuvent être faites que par un administrateur.",
+      "rowTooltip": "Ce mouvement appartient à un mois clôturé."
+    },
+    "byCategory": {
+      "title": "Par catégorie",
+      "incomeTitle": "Recettes",
+      "expenseTitle": "Dépenses",
+      "total": "Total",
+      "movements": "{count, plural, one {# mouvement} other {# mouvements}}",
+      "empty": "Aucun mouvement sur cette période.",
+      "loadError": "La ventilation par catégorie n’a pas pu être chargée.",
+      "yearRequired": "Choisissez une année pour voir la ventilation par catégorie."
+    },
+    "views": {
+      "label": "Vue des finances",
+      "byClub": "Par club",
+      "overview": "Consolidé"
+    },
+    "overview": {
+      "title": "Consolidé des finances",
+      "description": "Recettes, dépenses et solde des clubs de votre territoire.",
+      "filters": {
+        "localField": "Champ local",
+        "allLocalFields": "Tous les champs locaux",
+        "year": "Année",
+        "month": "Mois",
+        "allMonths": "Toute l’année"
+      },
+      "totals": {
+        "label": "Totaux du consolidé",
+        "income": "Recettes",
+        "expenses": "Dépenses",
+        "net": "Net",
+        "balance": "Solde cumulé",
+        "movements": "Mouvements"
+      },
+      "table": {
+        "club": "Club",
+        "localField": "Champ local",
+        "income": "Recettes",
+        "expenses": "Dépenses",
+        "net": "Net",
+        "balance": "Solde",
+        "movements": "Mouvements",
+        "missedMonths": "Mois sans mouvements",
+        "lastMovement": "Dernier mouvement",
+        "openClub": "Voir les finances de {club}"
+      },
+      "missed": {
+        "none": "À jour",
+        "badge": "{count, plural, one {# mois} other {# mois}}",
+        "tooltip": "Aucun mouvement en : {months}"
+      },
+      "noLastMovement": "Aucun mouvement",
+      "loadError": "Le consolidé des finances n’a pas pu être chargé.",
+      "empty": {
+        "title": "Aucun club à afficher",
+        "description": "Aucun club de votre territoire ne correspond aux filtres sélectionnés."
+      }
     }
   },
   "certifications": {

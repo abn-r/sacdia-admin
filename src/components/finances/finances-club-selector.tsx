@@ -33,12 +33,15 @@ interface FinancesClubSelectorProps {
   clubs: ClubOption[];
   localFields: LocalField[];
   territoryScope: AdminTerritoryScope;
+  /** Pre-selected club (e.g. coming from the consolidated view). */
+  initialClubId?: number;
 }
 
 export function FinancesClubSelector({
   clubs,
   localFields,
   territoryScope,
+  initialClubId,
 }: FinancesClubSelectorProps) {
   const t = useTranslations("finances.clubSelector");
   const showLocalFieldFilter = canAdminFilterByLocalField(territoryScope);
@@ -47,7 +50,11 @@ export function FinancesClubSelector({
     "all",
   );
   const [selectedClubId, setSelectedClubId] = useState<number | null>(
-    clubs.length === 1 ? clubs[0].club_id : null,
+    clubs.length === 1
+      ? clubs[0].club_id
+      : initialClubId && clubs.some((club) => club.club_id === initialClubId)
+        ? initialClubId
+        : null,
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | "all">(
     "all",

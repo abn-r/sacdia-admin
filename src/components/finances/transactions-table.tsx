@@ -1,6 +1,7 @@
 "use client";
 
-import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
+import { Pencil, Trash2, Lock, Image as ImageIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -117,9 +118,10 @@ interface TransactionsTableProps {
   onEdit?: (finance: Finance) => void;
   onDelete?: (finance: Finance) => void;
   onViewEvidence: (finance: Finance) => void;
-  sortField: FinanceSortField;
-  sortDirection: SortDirection;
-  onSort: (field: FinanceSortField, direction: SortDirection) => void;
+  /** Sorting is optional: the paginated list endpoint has a fixed order (date desc). */
+  sortField?: FinanceSortField;
+  sortDirection?: SortDirection;
+  onSort?: (field: FinanceSortField, direction: SortDirection) => void;
 }
 
 export function TransactionsTable({
@@ -128,8 +130,8 @@ export function TransactionsTable({
   onEdit,
   onDelete,
   onViewEvidence,
-  sortField,
-  sortDirection,
+  sortField = "date",
+  sortDirection = "desc",
   onSort,
 }: TransactionsTableProps) {
   const t = useTranslations("finances");
@@ -179,14 +181,20 @@ export function TransactionsTable({
                   : "none"
               }
             >
-              <SortableHeader
-                field="date"
-                activeField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              >
-                {t("table.colDate")}
-              </SortableHeader>
+              {onSort ? (
+                <SortableHeader
+                  field="date"
+                  activeField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                >
+                  {t("table.colDate")}
+                </SortableHeader>
+              ) : (
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t("table.colDate")}
+                </span>
+              )}
             </TableHead>
             <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colDescription")}
@@ -201,14 +209,20 @@ export function TransactionsTable({
                   : "none"
               }
             >
-              <SortableHeader
-                field="category"
-                activeField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-              >
-                {t("table.colCategory")}
-              </SortableHeader>
+              {onSort ? (
+                <SortableHeader
+                  field="category"
+                  activeField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                >
+                  {t("table.colCategory")}
+                </SortableHeader>
+              ) : (
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t("table.colCategory")}
+                </span>
+              )}
             </TableHead>
             <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colSection")}
@@ -226,15 +240,21 @@ export function TransactionsTable({
                   : "none"
               }
             >
-              <SortableHeader
-                field="amount"
-                activeField={sortField}
-                direction={sortDirection}
-                onSort={onSort}
-                align="right"
-              >
-                {t("table.colAmount")}
-              </SortableHeader>
+              {onSort ? (
+                <SortableHeader
+                  field="amount"
+                  activeField={sortField}
+                  direction={sortDirection}
+                  onSort={onSort}
+                  align="right"
+                >
+                  {t("table.colAmount")}
+                </SortableHeader>
+              ) : (
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t("table.colAmount")}
+                </span>
+              )}
             </TableHead>
             <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
               {t("table.colEvidence")}
@@ -250,7 +270,18 @@ export function TransactionsTable({
             return (
               <TableRow key={finance.finance_id} className="hover:bg-muted/30">
                 <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                  {formatDate(finance.finance_date, { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {formatDate(finance.finance_date, { day: "2-digit", month: "2-digit", year: "numeric" })}
+                    {finance.period_closed ? (
+                      <Badge
+                        variant="soft-warning"
+                        title={t("closed.rowTooltip")}
+                      >
+                        <Lock aria-hidden="true" data-icon="inline-start" />
+                        {t("closed.badge")}
+                      </Badge>
+                    ) : null}
+                  </div>
                 </TableCell>
                 <TableCell className="max-w-xs whitespace-normal px-3 py-2.5 align-middle">
                   <span className="text-sm">

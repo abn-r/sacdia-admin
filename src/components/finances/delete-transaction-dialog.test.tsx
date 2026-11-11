@@ -87,6 +87,7 @@ const STUB_INCOME_FINANCE: Finance = {
   finance_date: "2026-05-01T00:00:00.000Z",
   club_section_id: 7,
   active: true,
+  period_closed: false,
   finances_categories: { name: "Cuota", type: 0 },
 };
 
@@ -102,6 +103,7 @@ const STUB_EXPENSE_FINANCE: Finance = {
   finance_date: "2026-05-10T00:00:00.000Z",
   club_section_id: 7,
   active: true,
+  period_closed: false,
   finances_categories: { name: "Materiales", type: 1 },
 };
 
@@ -283,5 +285,68 @@ describe("DeleteTransactionDialog", () => {
     const strong = document.querySelector("strong");
     expect(strong).toBeInTheDocument();
     expect(strong?.className).toContain("text-destructive");
+  });
+  // ── Closed month ─────────────────────────────────────────────────────────
+
+  it("does not ask for a reason when the month is open", () => {
+    renderDialog();
+
+    expect(screen.queryByLabelText(new RegExp(t.delete.reasonLabel))).not.toBeInTheDocument();
+  });
+
+  it("requires a reason (5-500) before deleting a closed-month movement", async () => {
+    const { onSuccess } = renderDialog({
+      finance: { ...STUB_INCOME_FINANCE, period_closed: true },
+    });
+
+    expect(screen.getByText(t.delete.reasonHelper)).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
+    });
+    expect(mockDeleteFinance).not.toHaveBeenCalled();
+    expect(screen.getByText(t.validation.note_invalid)).toBeInTheDocument();
+
+    // Too short: still blocked
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(new RegExp(t.delete.reasonLabel)), {
+        target: { value: "ab" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
+    });
+    expect(mockDeleteFinance).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(new RegExp(t.delete.reasonLabel)), {
+        target: { value: "  Error de captura  " },
+      });
+      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
+    });
+
+    await waitFor(() => {
+      expect(mockDeleteFinance).toHaveBeenCalledWith(42, "Error de captura");
+    });
+    expect(onSuccess).toHaveBeenCalledOnce();
+  });
+
+  it("maps FINANCE_PERIOD_CLOSED (403) to its message", async () => {
+    mockDeleteFinance.mockRejectedValue(
+      Object.assign(new Error("forbidden"), {
+        status: 403,
+        payload: { code: "FINANCE_PERIOD_CLOSED" },
+      }),
+    );
+    renderDialog({ finance: { ...STUB_INCOME_FINANCE, period_closed: true } });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(new RegExp(t.delete.reasonLabel)), {
+        target: { value: "Motivo valido" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
+    });
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(t.errors.period_closed);
+    });
   });
 });

@@ -5976,13 +5976,16 @@
       "amount_invalid": "Ingresa un monto válido",
       "amount_positive": "El monto debe ser positivo",
       "category_required": "Selecciona una categoría",
-      "date_required": "Ingresa la fecha"
+      "date_required": "Ingresa la fecha",
+      "note_invalid": "El motivo debe tener entre 5 y 500 caracteres"
     },
     "errors": {
       "delete_transaction_failed": "No se pudo eliminar el movimiento",
       "update_transaction_failed": "No se pudo actualizar el movimiento",
       "create_transaction_failed": "No se pudo crear el movimiento",
-      "upload_evidence_failed": "No se pudo subir la evidencia"
+      "upload_evidence_failed": "No se pudo subir la evidencia",
+      "closed_note_required": "El mes está cerrado: indica el motivo del cambio (de 5 a 500 caracteres).",
+      "period_closed": "El mes está cerrado y solo un administrador puede modificarlo."
     },
     "dashboard": {
       "filtersLabel": "Filtros:",
@@ -5993,7 +5996,16 @@
       "transactionsLoadError": "No se pudieron cargar los movimientos.",
       "newTransactionButton": "Nuevo movimiento",
       "transactionsTitle": "Movimientos",
-      "showing": "Mostrando {shown} de {total} movimientos."
+      "showing": "Mostrando {shown} de {total} movimientos.",
+      "exportButton": "Exportar",
+      "exportExcel": "Excel (.xlsx)",
+      "exportPdf": "PDF",
+      "exporting": "Exportando…",
+      "exportYearRequired": "Elige un año para exportar",
+      "exportFailed": "No se pudo exportar el archivo.",
+      "exportForbidden": "No tienes permiso para exportar estos datos.",
+      "exported": "Archivo descargado: {file}",
+      "pagination": "Paginación de movimientos"
     },
     "form": {
       "titleNew": "Nuevo movimiento",
@@ -6023,7 +6035,10 @@
       "evidenceLimit": "Solo se permiten hasta 3 fotos de evidencia por movimiento.",
       "evidenceImageOnly": "Solo se pueden adjuntar imágenes.",
       "evidenceAdd": "Selecciona fotos del comprobante",
-      "evidenceRemove": "Quitar evidencia"
+      "evidenceRemove": "Quitar evidencia",
+      "noteLabel": "Motivo del cambio",
+      "notePlaceholder": "Explica por qué se modifica un mes cerrado",
+      "noteHelper": "El mes está cerrado. Indica el motivo del cambio (de 5 a 500 caracteres); queda registrado."
     },
     "table": {
       "colDate": "Fecha",
@@ -6055,12 +6070,15 @@
       "cannotUndo": "Esta acción no se puede deshacer.",
       "descriptionFallback": "Esta acción no se puede deshacer.",
       "cancelButton": "Cancelar",
-      "confirmButton": "Eliminar"
+      "confirmButton": "Eliminar",
+      "reasonLabel": "Motivo de la eliminación",
+      "reasonPlaceholder": "Explica por qué se elimina este movimiento",
+      "reasonHelper": "El mes está cerrado. Indica por qué eliminas este movimiento (de 5 a 500 caracteres)."
     },
     "summary": {
-      "totalIncome": "Total Ingresos",
-      "totalExpense": "Total Egresos",
-      "balance": "Balance",
+      "totalIncome": "Ingresos del periodo",
+      "totalExpense": "Egresos del periodo",
+      "balance": "Saldo acumulado",
       "movementsCount": "{count} movimiento",
       "movementsCountPlural": "{count} movimientos",
       "incomeMovementsCount": "{count} ingreso",
@@ -6069,7 +6087,10 @@
       "expenseMovementsCountPlural": "{count} egresos",
       "inPeriod": "en el período",
       "positiveBalance": "Saldo positivo",
-      "negativeBalance": "Saldo negativo"
+      "negativeBalance": "Saldo negativo",
+      "net": "Neto del periodo",
+      "balanceHint": "Acumulado hasta el final del periodo",
+      "inYear": "En el año: +{income} / −{expense}"
     },
     "months": {
       "january": "Enero",
@@ -6107,6 +6128,68 @@
       "sectionLabel": "Sección del club",
       "sectionPlaceholder": "Selecciona una sección",
       "sectionAll": "Todas las secciones"
+    },
+    "closed": {
+      "badge": "Mes cerrado",
+      "summaryNotice": "Mes cerrado: los cambios requieren un motivo y solo los puede hacer un administrador.",
+      "rowTooltip": "Este movimiento pertenece a un mes cerrado."
+    },
+    "byCategory": {
+      "title": "Por categoría",
+      "incomeTitle": "Ingresos",
+      "expenseTitle": "Egresos",
+      "total": "Total",
+      "movements": "{count, plural, one {# movimiento} other {# movimientos}}",
+      "empty": "Sin movimientos en este periodo.",
+      "loadError": "No se pudo cargar el desglose por categoría.",
+      "yearRequired": "Elige un año para ver el desglose por categoría."
+    },
+    "views": {
+      "label": "Vista de finanzas",
+      "byClub": "Por club",
+      "overview": "Consolidado"
+    },
+    "overview": {
+      "title": "Consolidado de finanzas",
+      "description": "Ingresos, egresos y saldo de los clubes de tu territorio.",
+      "filters": {
+        "localField": "Campo local",
+        "allLocalFields": "Todos los campos locales",
+        "year": "Año",
+        "month": "Mes",
+        "allMonths": "Todo el año"
+      },
+      "totals": {
+        "label": "Totales del consolidado",
+        "income": "Ingresos",
+        "expenses": "Egresos",
+        "net": "Neto",
+        "balance": "Saldo acumulado",
+        "movements": "Movimientos"
+      },
+      "table": {
+        "club": "Club",
+        "localField": "Campo local",
+        "income": "Ingresos",
+        "expenses": "Egresos",
+        "net": "Neto",
+        "balance": "Saldo",
+        "movements": "Movimientos",
+        "missedMonths": "Meses sin movimientos",
+        "lastMovement": "Último movimiento",
+        "openClub": "Ver finanzas de {club}"
+      },
+      "missed": {
+        "none": "Al día",
+        "badge": "{count, plural, one {# mes} other {# meses}}",
+        "tooltip": "Sin movimientos en: {months}"
+      },
+      "noLastMovement": "Sin movimientos",
+      "loadError": "No se pudo cargar el consolidado de finanzas.",
+      "empty": {
+        "title": "Sin clubes para mostrar",
+        "description": "No hay clubes en tu territorio para los filtros seleccionados."
+      }
     }
   },
   "certifications": {
