@@ -167,6 +167,7 @@
       "payment_orders": "Ordres de paiement",
       "certifications_reviews": "Révisions de certifications",
       "service_credentials_review": "Attestations de conseil",
+      "club_enrollments_review": "Enregistrements annuels",
       "role_requirements": "Exigences des fonctions",
       "campamentos_plantillas": "Modèles",
       "campamentos_judges": "Juges",
@@ -2899,6 +2900,7 @@
       "certifications:review": "Examiner les certifications",
       "role_requirements:manage": "Gérer les exigences des fonctions",
       "service_credentials:review": "Examiner les attestations de conseil",
+      "club_enrollments:validate": "Valider les enregistrements annuels de club",
       "certifications:certify": "Certifier",
       "club_ideals:read": "Voir les idéaux de club",
       "club_ideals:create": "Créer un idéal de club",
@@ -10073,6 +10075,141 @@
       "dateInvalid": "La date d’expiration doit être postérieure à aujourd’hui.",
       "forbidden": "Votre rôle ne permet pas d’examiner des attestations.",
       "generic": "L’action n’a pas pu être effectuée. Réessayez."
+    }
+  },
+  "club_enrollments": {
+    "page": {
+      "title": "Enregistrements annuels de club",
+      "description": "Examinez les enregistrements annuels envoyés par les sections de club dans votre périmètre."
+    },
+    "tabs": {
+      "label": "État de la révision",
+      "pending": "En attente",
+      "approved": "Approuvés",
+      "rejected": "Refusés"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Nom du club"
+    },
+    "filters": {
+      "year": "Année ecclésiastique",
+      "currentYear": "Année en cours",
+      "localField": "Champ local",
+      "allLocalFields": "Tous les champs",
+      "clubType": "Type de club",
+      "allClubTypes": "Tous les types"
+    },
+    "table": {
+      "club": "Club",
+      "localField": "Champ local",
+      "director": "Directeur",
+      "submitted": "Envoyé",
+      "reviewer": "Examinée par",
+      "reviewedAt": "Date de révision",
+      "actions": "Actions",
+      "review": "Examiner",
+      "view": "Voir"
+    },
+    "status": {
+      "pending_validation": "En attente",
+      "active": "Approuvé",
+      "rejected": "Refusé"
+    },
+    "roles": {
+      "director": "Directeur",
+      "deputy-director": "Directeur adjoint",
+      "secretary": "Secrétaire",
+      "treasurer": "Trésorier",
+      "secretary-treasurer": "Secrétaire-trésorier",
+      "counselor": "Conseiller",
+      "director-lf": "Directeur du champ local",
+      "assistant-lf": "Assistant du champ local",
+      "coordinator": "Coordinateur",
+      "zone-coordinator": "Coordinateur de zone",
+      "general-coordinator": "Coordinateur général",
+      "pastor": "Pasteur",
+      "admin": "Administrateur",
+      "super-admin": "Super-administrateur"
+    },
+    "empty": {
+      "pending": {
+        "title": "Aucun enregistrement en attente",
+        "description": "Quand une section enverra son enregistrement annuel dans votre périmètre, il apparaîtra ici."
+      },
+      "approved": {
+        "title": "Aucun enregistrement approuvé",
+        "description": "Les enregistrements que vous approuvez apparaîtront ici."
+      },
+      "rejected": {
+        "title": "Aucun enregistrement refusé",
+        "description": "Les enregistrements que vous refusez apparaîtront ici."
+      },
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Aucun enregistrement ne correspond aux filtres.",
+      "clearFilters": "Effacer les filtres"
+    },
+    "detail": {
+      "title": "Enregistrement annuel de la section",
+      "description": "{section} · {year}",
+      "close": "Fermer",
+      "unassigned": "Non attribué",
+      "openMap": "Ouvrir dans Google Maps",
+      "feeYes": "Oui",
+      "feeNo": "Non",
+      "feeWithAmount": "Oui, {amount}",
+      "sections": {
+        "meetings": "Réunions",
+        "goal": "Objectif et cotisation",
+        "board": "Comité",
+        "submission": "Envoi",
+        "review": "Révision"
+      },
+      "boardHint": "Reprise des postes de la section au moment de l’envoi de l’enregistrement.",
+      "fields": {
+        "address": "Adresse",
+        "days": "Jours",
+        "schedule": "Horaire",
+        "soulsTarget": "Objectif d'âmes",
+        "fee": "Cotisation",
+        "director": "Directeur",
+        "deputies": "Directeurs adjoints",
+        "secretary": "Secrétaire",
+        "treasurer": "Trésorier",
+        "secretaryTreasurer": "Secrétaire-trésorier",
+        "submittedBy": "Envoyé par",
+        "submittedAt": "Date d'envoi",
+        "status": "État",
+        "reviewedBy": "Examinée par",
+        "reviewedAt": "Date de révision",
+        "reason": "Motif du refus"
+      },
+      "approve": {
+        "action": "Approuver"
+      },
+      "reject": {
+        "action": "Refuser…",
+        "title": "Refuser cet enregistrement ?",
+        "description": "Le comité de {name} verra le motif et pourra renvoyer l’enregistrement.",
+        "reasonLabel": "Motif du refus",
+        "reasonHint": "Entre {min} et {max} caractères. Le comité le verra tel que vous l’écrivez.",
+        "reasonTooShort": "Écrivez au moins {min} caractères.",
+        "reasonTooLong": "Le motif ne peut pas dépasser {max} caractères.",
+        "cancel": "Annuler",
+        "confirm": "Refuser"
+      }
+    },
+    "toasts": {
+      "approved": "Enregistrement approuvé",
+      "rejected": "Enregistrement refusé",
+      "listFailed": "Impossible de charger la liste."
+    },
+    "errors": {
+      "notFound": "Cet enregistrement n’est plus disponible dans votre périmètre.",
+      "notPending": "Quelqu’un d’autre a déjà examiné cet enregistrement. La liste a été actualisée.",
+      "selfReview": "Vous ne pouvez pas examiner l’enregistrement d’une section dont vous faites partie du comité.",
+      "forbidden": "Votre rôle ne peut pas examiner les enregistrements annuels.",
+      "generic": "Impossible de terminer l’action. Réessayez."
     }
   },
   "role_requirements": {

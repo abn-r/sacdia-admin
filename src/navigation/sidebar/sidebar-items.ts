@@ -208,6 +208,13 @@ export const sidebarItems: NavGroup[] = [
         icon: FileSearch,
         activeMatch: "prefix",
       },
+      {
+        id: "club-enrollments-review",
+        title: "Inscripciones de sección",
+        url: "/dashboard/club-enrollments",
+        icon: ClipboardList,
+        activeMatch: "prefix",
+      },
     ],
   },
   {

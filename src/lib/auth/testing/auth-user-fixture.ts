@@ -130,6 +130,7 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   grant("club_roles.assign_section", anyOf(g, ["super-admin", "admin", ...FIELD]));
   grant("club_roles.designate_director", anyOf(g, ["super-admin", "admin", ...FIELD]));
   grant("club_roles.succeed_director", anyOf(g, ["super-admin", "admin", ...FIELD]));
+  grant("club_enrollments.validate", platform || anyOf(g, [...FIELD, ...UNION, ...DIVISION, ...COORDINATORS, "pastor"]));
   grant("club_sections.create_active", a === "director");
   grant("clubs.deactivate_active", a === "director");
   grant("clubs.manage_active", a === "director");

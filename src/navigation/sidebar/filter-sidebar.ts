@@ -11,7 +11,7 @@ export type SidebarAccessChecker = AccessSubject & {
   /**
    * Pastor-only user: only the pastor's own queues are shown — investiture
    * authorizations (decision 2026-10-08) and counselor credential review
-   * (D7, 2026-11-10).
+   * (D7, 2026-11-10) and club section enrollment validation.
    */
   pastorOnly?: boolean;
 };
@@ -19,6 +19,7 @@ export type SidebarAccessChecker = AccessSubject & {
 const PASTOR_SIDEBAR_ITEM_IDS: ReadonlySet<string> = new Set([
   "investiture-requests",
   "service-credentials-review",
+  "club-enrollments-review",
 ]);
 
 function isItemAllowed(

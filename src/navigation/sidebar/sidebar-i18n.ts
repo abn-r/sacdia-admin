@@ -26,6 +26,7 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
   "payment-orders": "payment_orders",
   "investiture-pastors": "investiture_pastors",
   "service-credentials-review": "service_credentials_review",
+  "club-enrollments-review": "club_enrollments_review",
   "role-requirements": "role_requirements",
   "honor-instructor-proposals": "honor_instructor_proposals",
   "institutional-certificate-requests": "institutional_certificate_requests",

@@ -167,6 +167,7 @@
       "payment_orders": "Payment orders",
       "certifications_reviews": "Certification reviews",
       "service_credentials_review": "Counselor credentials",
+      "club_enrollments_review": "Annual registrations",
       "role_requirements": "Role requirements",
       "campamentos_plantillas": "Templates",
       "campamentos_judges": "Judges",
@@ -2899,6 +2900,7 @@
       "certifications:review": "Review certifications",
       "role_requirements:manage": "Manage role requirements",
       "service_credentials:review": "Review counselor credentials",
+      "club_enrollments:validate": "Validate club annual registrations",
       "certifications:certify": "Certify",
       "club_ideals:read": "View club ideals",
       "club_ideals:create": "Create club ideal",
@@ -10072,6 +10074,141 @@
       "selfReview": "You cannot review your own credential.",
       "dateInvalid": "The expiry date must be after today.",
       "forbidden": "Your role cannot review credentials.",
+      "generic": "The action could not be completed. Try again."
+    }
+  },
+  "club_enrollments": {
+    "page": {
+      "title": "Club annual registrations",
+      "description": "Review the annual registrations that club sections submit within your scope."
+    },
+    "tabs": {
+      "label": "Review status",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Club name"
+    },
+    "filters": {
+      "year": "Ecclesiastical year",
+      "currentYear": "Current year",
+      "localField": "Local field",
+      "allLocalFields": "All local fields",
+      "clubType": "Club type",
+      "allClubTypes": "All types"
+    },
+    "table": {
+      "club": "Club",
+      "localField": "Local field",
+      "director": "Director",
+      "submitted": "Submitted",
+      "reviewer": "Reviewed by",
+      "reviewedAt": "Review date",
+      "actions": "Actions",
+      "review": "Review",
+      "view": "View"
+    },
+    "status": {
+      "pending_validation": "Pending",
+      "active": "Approved",
+      "rejected": "Rejected"
+    },
+    "roles": {
+      "director": "Director",
+      "deputy-director": "Deputy director",
+      "secretary": "Secretary",
+      "treasurer": "Treasurer",
+      "secretary-treasurer": "Secretary-treasurer",
+      "counselor": "Counselor",
+      "director-lf": "Local field director",
+      "assistant-lf": "Local field assistant",
+      "coordinator": "Coordinator",
+      "zone-coordinator": "Zone coordinator",
+      "general-coordinator": "General coordinator",
+      "pastor": "Pastor",
+      "admin": "Administrator",
+      "super-admin": "Super administrator"
+    },
+    "empty": {
+      "pending": {
+        "title": "No pending registrations",
+        "description": "When a section submits its annual registration within your scope, it will show up here."
+      },
+      "approved": {
+        "title": "No approved registrations",
+        "description": "Registrations you approve will show up here."
+      },
+      "rejected": {
+        "title": "No rejected registrations",
+        "description": "Registrations you reject will show up here."
+      },
+      "noResultsTitle": "No results",
+      "noResultsDescription": "No registration matches the filters.",
+      "clearFilters": "Clear filters"
+    },
+    "detail": {
+      "title": "Section annual registration",
+      "description": "{section} · {year}",
+      "close": "Close",
+      "unassigned": "Unassigned",
+      "openMap": "Open in Google Maps",
+      "feeYes": "Yes",
+      "feeNo": "No",
+      "feeWithAmount": "Yes, {amount}",
+      "sections": {
+        "meetings": "Meetings",
+        "goal": "Goal and fee",
+        "board": "Board",
+        "submission": "Submission",
+        "review": "Review"
+      },
+      "boardHint": "Taken from the section's roles when the registration was submitted.",
+      "fields": {
+        "address": "Address",
+        "days": "Days",
+        "schedule": "Schedule",
+        "soulsTarget": "Souls target",
+        "fee": "Fee",
+        "director": "Director",
+        "deputies": "Deputy directors",
+        "secretary": "Secretary",
+        "treasurer": "Treasurer",
+        "secretaryTreasurer": "Secretary-treasurer",
+        "submittedBy": "Submitted by",
+        "submittedAt": "Submission date",
+        "status": "Status",
+        "reviewedBy": "Reviewed by",
+        "reviewedAt": "Review date",
+        "reason": "Rejection reason"
+      },
+      "approve": {
+        "action": "Approve"
+      },
+      "reject": {
+        "action": "Reject…",
+        "title": "Reject this registration?",
+        "description": "The board of {name} will see the reason and can submit the registration again.",
+        "reasonLabel": "Rejection reason",
+        "reasonHint": "Between {min} and {max} characters. The board will see it as you write it.",
+        "reasonTooShort": "Write at least {min} characters.",
+        "reasonTooLong": "The reason cannot exceed {max} characters.",
+        "cancel": "Cancel",
+        "confirm": "Reject"
+      }
+    },
+    "toasts": {
+      "approved": "Registration approved",
+      "rejected": "Registration rejected",
+      "listFailed": "The queue could not be loaded."
+    },
+    "errors": {
+      "notFound": "This registration is no longer available in your scope.",
+      "notPending": "Someone else already reviewed this registration. We refreshed the list.",
+      "selfReview": "You cannot review the registration of a section whose board you are on.",
+      "forbidden": "Your role cannot review annual registrations.",
       "generic": "The action could not be completed. Try again."
     }
   },

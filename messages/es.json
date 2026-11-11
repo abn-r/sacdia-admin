@@ -167,6 +167,7 @@
       "payment_orders": "Órdenes de pago",
       "certifications_reviews": "Revisiones de certificaciones",
       "service_credentials_review": "Constancias de consejería",
+      "club_enrollments_review": "Registros anuales",
       "role_requirements": "Requisitos de cargos",
       "campamentos_plantillas": "Plantillas",
       "campamentos_judges": "Jueces",
@@ -2899,6 +2900,7 @@
       "certifications:review": "Revisar certificaciones",
       "role_requirements:manage": "Gestionar requisitos de cargos",
       "service_credentials:review": "Revisar constancias de consejería",
+      "club_enrollments:validate": "Validar registros anuales de club",
       "certifications:certify": "Certificar",
       "club_ideals:read": "Ver ideales de club",
       "club_ideals:create": "Crear ideal de club",
@@ -10072,6 +10074,141 @@
       "selfReview": "No puedes revisar tu propia constancia.",
       "dateInvalid": "La fecha de vencimiento debe ser posterior a hoy.",
       "forbidden": "Tu rol no puede revisar constancias.",
+      "generic": "No se pudo completar la acción. Inténtalo de nuevo."
+    }
+  },
+  "club_enrollments": {
+    "page": {
+      "title": "Registros anuales de club",
+      "description": "Revisa los registros anuales que envían las secciones de club dentro de tu alcance."
+    },
+    "tabs": {
+      "label": "Estado de la revisión",
+      "pending": "Pendientes",
+      "approved": "Aprobados",
+      "rejected": "Rechazados"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Nombre del club"
+    },
+    "filters": {
+      "year": "Año eclesiástico",
+      "currentYear": "Año vigente",
+      "localField": "Campo local",
+      "allLocalFields": "Todos los campos",
+      "clubType": "Tipo de club",
+      "allClubTypes": "Todos los tipos"
+    },
+    "table": {
+      "club": "Club",
+      "localField": "Campo local",
+      "director": "Director",
+      "submitted": "Enviado",
+      "reviewer": "Revisó",
+      "reviewedAt": "Fecha de revisión",
+      "actions": "Acciones",
+      "review": "Revisar",
+      "view": "Ver"
+    },
+    "status": {
+      "pending_validation": "Pendiente",
+      "active": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "roles": {
+      "director": "Director",
+      "deputy-director": "Subdirector",
+      "secretary": "Secretario",
+      "treasurer": "Tesorero",
+      "secretary-treasurer": "Secretario-tesorero",
+      "counselor": "Consejero",
+      "director-lf": "Director de campo local",
+      "assistant-lf": "Asistente de campo local",
+      "coordinator": "Coordinador",
+      "zone-coordinator": "Coordinador de zona",
+      "general-coordinator": "Coordinador general",
+      "pastor": "Pastor",
+      "admin": "Administrador",
+      "super-admin": "Superadministrador"
+    },
+    "empty": {
+      "pending": {
+        "title": "Sin registros pendientes",
+        "description": "Cuando una sección envíe su registro anual dentro de tu alcance, aparecerá aquí."
+      },
+      "approved": {
+        "title": "Sin registros aprobados",
+        "description": "Los registros que apruebes aparecerán aquí."
+      },
+      "rejected": {
+        "title": "Sin registros rechazados",
+        "description": "Los registros que rechaces aparecerán aquí."
+      },
+      "noResultsTitle": "Sin resultados",
+      "noResultsDescription": "Ningún registro coincide con los filtros.",
+      "clearFilters": "Limpiar filtros"
+    },
+    "detail": {
+      "title": "Registro anual de la sección",
+      "description": "{section} · {year}",
+      "close": "Cerrar",
+      "unassigned": "Sin asignar",
+      "openMap": "Ver en Google Maps",
+      "feeYes": "Sí",
+      "feeNo": "No",
+      "feeWithAmount": "Sí, {amount}",
+      "sections": {
+        "meetings": "Reuniones",
+        "goal": "Meta y cuota",
+        "board": "Directiva",
+        "submission": "Envío",
+        "review": "Revisión"
+      },
+      "boardHint": "Tomada de los cargos de la sección al enviar el registro.",
+      "fields": {
+        "address": "Dirección",
+        "days": "Días",
+        "schedule": "Horario",
+        "soulsTarget": "Meta de almas",
+        "fee": "Cuota",
+        "director": "Director",
+        "deputies": "Subdirectores",
+        "secretary": "Secretario",
+        "treasurer": "Tesorero",
+        "secretaryTreasurer": "Secretario-tesorero",
+        "submittedBy": "Enviado por",
+        "submittedAt": "Fecha de envío",
+        "status": "Estado",
+        "reviewedBy": "Revisó",
+        "reviewedAt": "Fecha de revisión",
+        "reason": "Motivo del rechazo"
+      },
+      "approve": {
+        "action": "Aprobar"
+      },
+      "reject": {
+        "action": "Rechazar…",
+        "title": "¿Rechazar este registro?",
+        "description": "La directiva de {name} verá el motivo y podrá enviar el registro de nuevo.",
+        "reasonLabel": "Motivo del rechazo",
+        "reasonHint": "Entre {min} y {max} caracteres. La directiva lo verá tal como lo escribas.",
+        "reasonTooShort": "Escribe al menos {min} caracteres.",
+        "reasonTooLong": "El motivo no puede pasar de {max} caracteres.",
+        "cancel": "Cancelar",
+        "confirm": "Rechazar"
+      }
+    },
+    "toasts": {
+      "approved": "Registro aprobado",
+      "rejected": "Registro rechazado",
+      "listFailed": "No se pudo cargar la bandeja."
+    },
+    "errors": {
+      "notFound": "Este registro ya no está disponible en tu alcance.",
+      "notPending": "Otra persona ya revisó este registro. Actualizamos la lista.",
+      "selfReview": "No puedes revisar el registro de una sección en cuya directiva estás.",
+      "forbidden": "Tu rol no puede revisar registros anuales.",
       "generic": "No se pudo completar la acción. Inténtalo de nuevo."
     }
   },
