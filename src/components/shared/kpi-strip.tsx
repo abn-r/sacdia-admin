@@ -13,15 +13,35 @@ const METER_FILL: Record<MeterTone, string> = {
 export interface KpiStripProps {
   children: ReactNode;
   className?: string;
+  /**
+   * Breakpoint from which the strip becomes one row. Default `sm`; use `xl`
+   * when the cells hold long figures (5+ money amounts) that would not fit.
+   */
+  rowFrom?: "sm" | "xl";
   /** Accessible name of the group. */
   "aria-label"?: string;
 }
 
 /**
  * KPIs as type, not tiles: one container split by hairlines into equal columns.
- * Phone: 2 columns (an odd last cell spans both). From `sm`: one row, equal columns.
+ * 2 columns (an odd last cell spans both) until `rowFrom` (`sm` by default): then one row, equal columns.
  */
-export function KpiStrip({ children, className, ...rest }: KpiStripProps) {
+const ROW_CLASSES: Record<NonNullable<KpiStripProps["rowFrom"]>, string> = {
+  sm: cn(
+    "sm:grid-flow-col sm:auto-cols-fr sm:grid-cols-none",
+    "sm:[&>*]:border-t-0 sm:[&>*:nth-child(odd)]:border-l",
+    "[&>*:first-child]:sm:border-l-0 sm:[&>*:nth-child(-n+2)]:border-t-0",
+    "sm:[&>*:last-child:nth-child(odd)]:col-span-1",
+  ),
+  xl: cn(
+    "xl:grid-flow-col xl:auto-cols-fr xl:grid-cols-none",
+    "xl:[&>*]:border-t-0 xl:[&>*:nth-child(odd)]:border-l",
+    "[&>*:first-child]:xl:border-l-0 xl:[&>*:nth-child(-n+2)]:border-t-0",
+    "xl:[&>*:last-child:nth-child(odd)]:col-span-1",
+  ),
+};
+
+export function KpiStrip({ children, className, rowFrom = "sm", ...rest }: KpiStripProps) {
   return (
     <div
       role="list"
@@ -29,12 +49,11 @@ export function KpiStrip({ children, className, ...rest }: KpiStripProps) {
       aria-label={rest["aria-label"]}
       className={cn(
         "grid grid-cols-2 overflow-hidden rounded-xl bg-card shadow-card",
-        "sm:grid-flow-col sm:auto-cols-fr sm:grid-cols-none",
         // Hairlines: every cell paints a top/left rule, the container's overflow clips the outer ones.
-        "[&>*]:border-border [&>*]:border-t [&>*]:border-l sm:[&>*]:border-t-0",
-        "[&>*:nth-child(odd)]:border-l-0 sm:[&>*:nth-child(odd)]:border-l",
-        "[&>*:first-child]:sm:border-l-0 [&>*:nth-child(-n+2)]:border-t-0 sm:[&>*:nth-child(-n+2)]:border-t-0",
-        "[&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child:nth-child(odd)]:col-span-1",
+        "[&>*]:border-border [&>*]:border-t [&>*]:border-l",
+        "[&>*:nth-child(odd)]:border-l-0 [&>*:nth-child(-n+2)]:border-t-0",
+        "[&>*:last-child:nth-child(odd)]:col-span-2",
+        ROW_CLASSES[rowFrom],
         className,
       )}
     >
