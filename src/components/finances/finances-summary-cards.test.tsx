@@ -22,8 +22,12 @@ const base: FinanceSummary = {
   period: "2026",
   total_income: 100000,
   total_expense: 20000,
-  balance: 80000,
+  net: 80000,
+  balance: 350000,
   movement_count: 12,
+  year_income: 500000,
+  year_expenses: 150000,
+  period_closed: null,
 };
 
 describe("FinancesSummaryCards subtitles", () => {
@@ -46,5 +50,43 @@ describe("FinancesSummaryCards subtitles", () => {
     renderCards(base);
 
     expect(screen.getAllByText("en el período")).toHaveLength(2);
+  });
+});
+
+describe("FinancesSummaryCards new meanings", () => {
+  it("shows the period income, expenses, net and accumulated balance labels", () => {
+    renderCards(base);
+
+    expect(screen.getByText("Ingresos del periodo")).toBeInTheDocument();
+    expect(screen.getByText("Egresos del periodo")).toBeInTheDocument();
+    expect(screen.getByText("Neto del periodo")).toBeInTheDocument();
+    expect(screen.getAllByText("Saldo acumulado").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("listitem")).toHaveLength(4);
+  });
+
+  it("prints the year-to-date line from year_income / year_expenses", () => {
+    renderCards(base);
+
+    const line = screen.getByText(/^En el año: \+/);
+    expect(line.textContent).toContain("500,000");
+    expect(line.textContent).toContain("150,000");
+  });
+
+  it("marks a negative net and balance as destructive", () => {
+    renderCards({ ...base, net: -500, balance: -1000 });
+
+    const neg = screen.getAllByText(/500|1,000/).filter((el) =>
+      el.className.includes("text-destructive"),
+    );
+    expect(neg.length).toBe(2);
+  });
+
+  it("shows the closed-month indicator only when period_closed is true", () => {
+    const { unmount } = renderCards({ ...base, period_closed: true });
+    expect(screen.getByText("Mes cerrado")).toBeInTheDocument();
+    unmount();
+
+    renderCards({ ...base, period_closed: false });
+    expect(screen.queryByText("Mes cerrado")).not.toBeInTheDocument();
   });
 });

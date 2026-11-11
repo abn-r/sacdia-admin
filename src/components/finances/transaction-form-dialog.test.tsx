@@ -119,6 +119,7 @@ const STUB_FINANCE: Finance = {
   finance_date: "2025-03-15T00:00:00.000Z",
   club_section_id: 10,
   active: true,
+  period_closed: false,
 };
 
 const financeMessages = messages.finances;
@@ -451,5 +452,73 @@ describe("TransactionFormDialog", () => {
         financeMessages.toasts.categories_load_failed,
       );
     });
+  });
+  // ── Closed month ─────────────────────────────────────────────────────────
+
+  it("does not show the change-reason field for an open month", async () => {
+    renderDialog({ finance: STUB_FINANCE });
+    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
+
+    expect(screen.queryByLabelText(new RegExp(financeMessages.form.noteLabel))).not.toBeInTheDocument();
+  });
+
+  it("requires the change reason when editing a closed-month movement and sends it as post_closing_note", async () => {
+    renderDialog({ finance: { ...STUB_FINANCE, period_closed: true } });
+    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
+
+    expect(screen.getByText(financeMessages.form.noteHelper)).toBeInTheDocument();
+
+    await submitForm();
+    await waitFor(() => {
+      expect(screen.getByText(financeMessages.validation.note_invalid)).toBeInTheDocument();
+    });
+    expect(mockUpdateFinance).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(new RegExp(financeMessages.form.noteLabel)), {
+        target: { value: "  Correccion de monto  " },
+      });
+    });
+    await submitForm();
+
+    await waitFor(() => expect(mockUpdateFinance).toHaveBeenCalledOnce());
+    const [, payload] = mockUpdateFinance.mock.calls[0] as [number, { post_closing_note?: string }];
+    expect(payload.post_closing_note).toBe("Correccion de monto");
+  });
+
+  it("starts with the reason field when creating in a closed month (hint)", async () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <TransactionFormDialog
+          open={true}
+          onOpenChange={vi.fn()}
+          clubId={1}
+          sections={STUB_SECTIONS}
+          periodClosedHint
+          onSuccess={vi.fn()}
+        />
+      </NextIntlClientProvider>,
+    );
+    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
+
+    expect(screen.getByLabelText(new RegExp(financeMessages.form.noteLabel))).toBeInTheDocument();
+  });
+
+  it("reveals the reason field and shows its message on 400 FINANCE_CLOSED_PERIOD_NOTE_REQUIRED", async () => {
+    mockUpdateFinance.mockRejectedValue(
+      Object.assign(new Error("note required"), {
+        status: 400,
+        payload: { code: "FINANCE_CLOSED_PERIOD_NOTE_REQUIRED" },
+      }),
+    );
+    renderDialog({ finance: STUB_FINANCE });
+    await waitFor(() => expect(mockGetFinanceCategories).toHaveBeenCalledOnce());
+
+    await submitForm();
+
+    await waitFor(() => {
+      expect(mockToastError).toHaveBeenCalledWith(financeMessages.errors.closed_note_required);
+    });
+    expect(screen.getByLabelText(new RegExp(financeMessages.form.noteLabel))).toBeInTheDocument();
   });
 });

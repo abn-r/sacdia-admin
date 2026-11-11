@@ -6009,12 +6009,15 @@ export interface IntlMessages {
       amount_positive: string;
       category_required: string;
       date_required: string;
+      note_invalid: string;
     };
     errors: {
       delete_transaction_failed: string;
       update_transaction_failed: string;
       create_transaction_failed: string;
       upload_evidence_failed: string;
+      closed_note_required: string;
+      period_closed: string;
     };
     dashboard: {
       filtersLabel: string;
@@ -6026,6 +6029,15 @@ export interface IntlMessages {
       newTransactionButton: string;
       transactionsTitle: string;
       showing: string;
+      exportButton: string;
+      exportExcel: string;
+      exportPdf: string;
+      exporting: string;
+      exportYearRequired: string;
+      exportFailed: string;
+      exportForbidden: string;
+      exported: string;
+      pagination: string;
     };
     form: {
       titleNew: string;
@@ -6056,6 +6068,9 @@ export interface IntlMessages {
       evidenceImageOnly: string;
       evidenceAdd: string;
       evidenceRemove: string;
+      noteLabel: string;
+      notePlaceholder: string;
+      noteHelper: string;
     };
     table: {
       colDate: string;
@@ -6088,6 +6103,9 @@ export interface IntlMessages {
       descriptionFallback: string;
       cancelButton: string;
       confirmButton: string;
+      reasonLabel: string;
+      reasonPlaceholder: string;
+      reasonHelper: string;
     };
     summary: {
       totalIncome: string;
@@ -6102,6 +6120,9 @@ export interface IntlMessages {
       inPeriod: string;
       positiveBalance: string;
       negativeBalance: string;
+      net: string;
+      balanceHint: string;
+      inYear: string;
     };
     months: {
       january: string;
@@ -6139,6 +6160,68 @@ export interface IntlMessages {
       sectionLabel: string;
       sectionPlaceholder: string;
       sectionAll: string;
+    };
+    closed: {
+      badge: string;
+      summaryNotice: string;
+      rowTooltip: string;
+    };
+    byCategory: {
+      title: string;
+      incomeTitle: string;
+      expenseTitle: string;
+      total: string;
+      movements: string;
+      empty: string;
+      loadError: string;
+      yearRequired: string;
+    };
+    views: {
+      label: string;
+      byClub: string;
+      overview: string;
+    };
+    overview: {
+      title: string;
+      description: string;
+      filters: {
+        localField: string;
+        allLocalFields: string;
+        year: string;
+        month: string;
+        allMonths: string;
+      };
+      totals: {
+        label: string;
+        income: string;
+        expenses: string;
+        net: string;
+        balance: string;
+        movements: string;
+      };
+      table: {
+        club: string;
+        localField: string;
+        income: string;
+        expenses: string;
+        net: string;
+        balance: string;
+        movements: string;
+        missedMonths: string;
+        lastMovement: string;
+        openClub: string;
+      };
+      missed: {
+        none: string;
+        badge: string;
+        tooltip: string;
+      };
+      noLastMovement: string;
+      loadError: string;
+      empty: {
+        title: string;
+        description: string;
+      };
     };
   };
   certifications: {

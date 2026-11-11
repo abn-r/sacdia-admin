@@ -44,6 +44,8 @@ export type Finance = {
   club_section_id: number;
   created_by?: string | null;
   active: boolean;
+  /** True when the movement's month is closed (legacy rows without section count as closed). */
+  period_closed: boolean;
   created_at?: string | null;
   modified_at?: string | null;
   finances_categories?: {
@@ -60,12 +62,73 @@ export type Finance = {
 export type FinanceSummary = {
   club_id: number;
   period: string;
+  /** Income of the requested period only. */
   total_income: number;
+  /** Expenses of the requested period only. */
   total_expense: number;
+  /** total_income - total_expense of the period. */
+  net: number;
+  /** All-time cumulative balance up to the end of the period. */
   balance: number;
   movement_count: number;
+  /** Ecclesiastical-year-to-date income through the selected month. */
+  year_income: number;
+  year_expenses: number;
+  /** Only meaningful when a month was requested; null otherwise. */
+  period_closed: boolean | null;
   income_count?: number;
   expense_count?: number;
+};
+
+export type FinanceCategoryBreakdownItem = {
+  category_id: number;
+  name: string;
+  total: number;
+  count: number;
+};
+
+export type FinanceByCategory = {
+  club_id: number;
+  club_section_id: number | null;
+  period: string;
+  income: FinanceCategoryBreakdownItem[];
+  expenses: FinanceCategoryBreakdownItem[];
+  totals: { income: number; expenses: number };
+};
+
+export type FinanceOverviewRow = {
+  club_id: number;
+  club_name: string;
+  local_field: { local_field_id: number; name: string } | null;
+  income: number;
+  expenses: number;
+  net: number;
+  balance: number;
+  movements: number;
+  months_without_movements: number;
+  missed_months: number[];
+  last_movement_at: string | null;
+};
+
+export type FinanceOverview = {
+  period: string;
+  data: FinanceOverviewRow[];
+  totals: {
+    income: number;
+    expenses: number;
+    net: number;
+    balance: number;
+    movements: number;
+  };
+  meta: { page: number; limit: number; total: number; totalPages: number };
+};
+
+export type FinanceOverviewFilters = {
+  localFieldId?: number;
+  year?: number;
+  month?: number;
+  page?: number;
+  limit?: number;
 };
 
 export type PaginatedFinances = {
@@ -82,12 +145,32 @@ export type FinanceFilters = {
   year?: number;
   month?: number;
   clubTypeId?: number;
+  clubSectionId?: number;
   categoryId?: number;
   page?: number;
   limit?: number;
-  sortBy?: FinanceSortField;
-  sortOrder?: FinanceSortOrder;
 };
+
+/** Backend error codes of closed-month writes. */
+export const FINANCE_CLOSED_PERIOD_NOTE_REQUIRED =
+  "FINANCE_CLOSED_PERIOD_NOTE_REQUIRED";
+export const FINANCE_PERIOD_CLOSED = "FINANCE_PERIOD_CLOSED";
+
+export const POST_CLOSING_NOTE_MIN = 5;
+export const POST_CLOSING_NOTE_MAX = 500;
+
+/** Reads the backend `{ code }` of a failed request (ApiError.payload), if any. */
+export function getFinanceErrorCode(error: unknown): string | null {
+  const payload =
+    error && typeof error === "object"
+      ? (error as { payload?: unknown }).payload
+      : null;
+  if (payload && typeof payload === "object") {
+    const code = (payload as { code?: unknown }).code;
+    if (typeof code === "string") return code;
+  }
+  return null;
+}
 
 export type CreateFinancePayload = {
   year: number;
@@ -98,6 +181,8 @@ export type CreateFinancePayload = {
   finance_category_id: number;
   finance_date: string;
   club_section_id: number;
+  /** Required by the backend when the month is closed (5-500 chars). */
+  post_closing_note?: string;
 };
 
 export type UpdateFinancePayload = {
@@ -105,6 +190,8 @@ export type UpdateFinancePayload = {
   description?: string;
   finance_category_id?: number;
   finance_date?: string;
+  /** Required by the backend when the month is closed (5-500 chars). */
+  post_closing_note?: string;
 };
 
 type FinanceRecord = Record<string, unknown>;
@@ -163,11 +250,12 @@ function normalizeFinanceCategory(
 ): Finance["finances_categories"] {
   if (!raw || typeof raw !== "object") return null;
   const category = raw as FinanceRecord;
-  const typeRaw = category.type;
+  // `/transactions` rows carry `typeCode` (0/1) and the string type on the row itself.
+  const typeRaw = category.type ?? category.typeCode;
   const type =
     typeRaw === 0 || typeRaw === 1
       ? (typeRaw as FinanceCategoryType)
-      : typeRaw === "0"
+      : typeRaw === "0" || typeRaw === "income"
         ? 0
         : 1;
 
@@ -206,6 +294,7 @@ export function normalizeFinance(raw: FinanceRecord): Finance | null {
     created_by:
       typeof raw.created_by === "string" ? raw.created_by : null,
     active: raw.active !== false,
+    period_closed: raw.period_closed === true,
     created_at: typeof raw.created_at === "string" ? raw.created_at : null,
     modified_at: typeof raw.modified_at === "string" ? raw.modified_at : null,
     finances_categories: normalizeFinanceCategory(
@@ -261,13 +350,21 @@ function normalizeFinanceSummary(
         nestedData ??
         root;
 
+  const totalIncome = Number(data.total_income ?? 0);
+  const totalExpense = Number(data.total_expense ?? 0);
+
   return {
     club_id: Number(data.club_id ?? clubId),
     period: String(data.period ?? "all"),
-    total_income: Number(data.total_income ?? 0),
-    total_expense: Number(data.total_expense ?? 0),
+    total_income: totalIncome,
+    total_expense: totalExpense,
+    net: Number(data.net ?? totalIncome - totalExpense),
     balance: Number(data.balance ?? 0),
     movement_count: Number(data.movement_count ?? 0),
+    year_income: Number(data.year_income ?? 0),
+    year_expenses: Number(data.year_expenses ?? 0),
+    period_closed:
+      typeof data.period_closed === "boolean" ? data.period_closed : null,
   };
 }
 
@@ -299,82 +396,6 @@ function normalizePaginatedFinances(payload: unknown): PaginatedFinances {
   };
 }
 
-export function summarizeFinances(
-  items: Finance[],
-  clubId: number,
-  period = "all",
-): FinanceSummary {
-  let totalIncome = 0;
-  let totalExpense = 0;
-  let incomeCount = 0;
-  let expenseCount = 0;
-
-  for (const item of items) {
-    if (isIncomeCategoryType(item.finances_categories?.type)) {
-      totalIncome += item.amount;
-      incomeCount += 1;
-    } else {
-      totalExpense += item.amount;
-      expenseCount += 1;
-    }
-  }
-
-  return {
-    club_id: clubId,
-    period,
-    total_income: totalIncome,
-    total_expense: totalExpense,
-    balance: totalIncome - totalExpense,
-    movement_count: items.length,
-    income_count: incomeCount,
-    expense_count: expenseCount,
-  };
-}
-
-export function mergeFinanceSummaryForDisplay(
-  apiSummary: FinanceSummary | null,
-  transactions: Finance[],
-  totalCount: number,
-  clubId: number,
-  month?: number,
-): FinanceSummary | null {
-  if (!apiSummary && transactions.length === 0) {
-    return null;
-  }
-
-  const hasFullList =
-    totalCount > 0 && transactions.length >= totalCount;
-  const clientSummary =
-    transactions.length > 0
-      ? summarizeFinances(
-          transactions,
-          clubId,
-          apiSummary?.period ?? "all",
-        )
-      : null;
-
-  if (!apiSummary) {
-    return clientSummary;
-  }
-
-  if (!clientSummary || !hasFullList) {
-    return apiSummary;
-  }
-
-  if (month !== undefined) {
-    return {
-      ...apiSummary,
-      total_income: clientSummary.total_income,
-      total_expense: clientSummary.total_expense,
-      movement_count: clientSummary.movement_count,
-      income_count: clientSummary.income_count,
-      expense_count: clientSummary.expense_count,
-    };
-  }
-
-  return clientSummary;
-}
-
 // ─── API functions ────────────────────────────────────────────────────────────
 
 /**
@@ -390,7 +411,11 @@ export async function getFinanceCategories(
 }
 
 /**
- * GET /api/v1/clubs/:clubId/finances
+ * GET /api/v1/clubs/:clubId/finances (paginated, max 100 per page).
+ *
+ * Used instead of `/finances/transactions` because only this endpoint returns
+ * `club_section_id` per row and accepts `year` + `month` (the transactions one
+ * filters by date range and omits the section).
  */
 export async function listFinances(
   clubId: number,
@@ -400,11 +425,10 @@ export async function listFinances(
   if (filters.year) params.year = filters.year;
   if (filters.month) params.month = filters.month;
   if (filters.clubTypeId) params.clubTypeId = filters.clubTypeId;
+  if (filters.clubSectionId) params.club_section_id = filters.clubSectionId;
   if (filters.categoryId) params.categoryId = filters.categoryId;
   if (filters.page) params.page = filters.page;
   if (filters.limit) params.limit = filters.limit;
-  if (filters.sortBy) params.sortBy = filters.sortBy;
-  if (filters.sortOrder) params.sortOrder = filters.sortOrder;
 
   const payload = await apiRequest<unknown>(`/clubs/${clubId}/finances`, {
     params,
@@ -419,16 +443,224 @@ export async function getFinanceSummary(
   clubId: number,
   year?: number,
   month?: number,
+  clubSectionId?: number,
 ): Promise<FinanceSummary> {
   const params: Record<string, number | undefined> = {};
   if (year) params.year = year;
   if (month) params.month = month;
+  if (clubSectionId) params.club_section_id = clubSectionId;
 
   const payload = await apiRequest<unknown>(
     `/clubs/${clubId}/finances/summary`,
     { params },
   );
   return normalizeFinanceSummary(payload, clubId);
+}
+
+function normalizeBreakdown(raw: unknown): FinanceCategoryBreakdownItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((row): row is FinanceRecord => !!row && typeof row === "object")
+    .map((row) => ({
+      category_id: Number(row.category_id ?? 0),
+      name: String(row.name ?? ""),
+      total: Number(row.total ?? 0),
+      count: Number(row.count ?? 0),
+    }));
+}
+
+/**
+ * GET /api/v1/clubs/:clubId/finances/by-category (year required)
+ */
+export async function getFinanceByCategory(
+  clubId: number,
+  year: number,
+  month?: number,
+  clubSectionId?: number,
+): Promise<FinanceByCategory> {
+  const params: Record<string, number | undefined> = { year };
+  if (month) params.month = month;
+  if (clubSectionId) params.club_section_id = clubSectionId;
+
+  const payload = await apiRequest<unknown>(
+    `/clubs/${clubId}/finances/by-category`,
+    { params },
+  );
+  const root =
+    payload && typeof payload === "object"
+      ? (payload as FinanceRecord)
+      : ({} as FinanceRecord);
+  const data = (
+    root.data && typeof root.data === "object" ? root.data : root
+  ) as FinanceRecord;
+  const totals = (
+    data.totals && typeof data.totals === "object" ? data.totals : {}
+  ) as FinanceRecord;
+
+  return {
+    club_id: Number(data.club_id ?? clubId),
+    club_section_id:
+      data.club_section_id == null ? null : Number(data.club_section_id),
+    period: String(data.period ?? ""),
+    income: normalizeBreakdown(data.income),
+    expenses: normalizeBreakdown(data.expenses),
+    totals: {
+      income: Number(totals.income ?? 0),
+      expenses: Number(totals.expenses ?? 0),
+    },
+  };
+}
+
+/**
+ * GET /api/v1/finances/overview (territorial / admin roles only; club roles get 403)
+ */
+export async function getFinanceOverview(
+  filters: FinanceOverviewFilters = {},
+): Promise<FinanceOverview> {
+  const params: Record<string, number | undefined> = {};
+  if (filters.localFieldId) params.local_field_id = filters.localFieldId;
+  if (filters.year) params.year = filters.year;
+  if (filters.month) params.month = filters.month;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit) params.limit = filters.limit;
+
+  const payload = await apiRequest<unknown>("/finances/overview", { params });
+  const root =
+    payload && typeof payload === "object"
+      ? (payload as FinanceRecord)
+      : ({} as FinanceRecord);
+  const data = (
+    root.data && typeof root.data === "object" && !Array.isArray(root.data)
+      ? root.data
+      : root
+  ) as FinanceRecord;
+  const totals = (
+    data.totals && typeof data.totals === "object" ? data.totals : {}
+  ) as FinanceRecord;
+  const meta = (
+    data.meta && typeof data.meta === "object" ? data.meta : {}
+  ) as FinanceRecord;
+  const rows = Array.isArray(data.data) ? data.data : [];
+
+  const normalized: FinanceOverviewRow[] = rows
+    .filter((row): row is FinanceRecord => !!row && typeof row === "object")
+    .map((row) => {
+      const lf =
+        row.local_field && typeof row.local_field === "object"
+          ? (row.local_field as FinanceRecord)
+          : null;
+      return {
+        club_id: Number(row.club_id ?? 0),
+        club_name: String(row.club_name ?? ""),
+        local_field: lf
+          ? {
+              local_field_id: Number(lf.local_field_id ?? 0),
+              name: String(lf.name ?? ""),
+            }
+          : null,
+        income: Number(row.income ?? 0),
+        expenses: Number(row.expenses ?? 0),
+        net: Number(row.net ?? 0),
+        balance: Number(row.balance ?? 0),
+        movements: Number(row.movements ?? 0),
+        months_without_movements: Number(row.months_without_movements ?? 0),
+        missed_months: Array.isArray(row.missed_months)
+          ? row.missed_months.map(Number).filter((m) => m >= 1 && m <= 12)
+          : [],
+        last_movement_at:
+          typeof row.last_movement_at === "string"
+            ? row.last_movement_at
+            : null,
+      };
+    });
+
+  return {
+    period: String(data.period ?? ""),
+    data: normalized,
+    totals: {
+      income: Number(totals.income ?? 0),
+      expenses: Number(totals.expenses ?? 0),
+      net: Number(totals.net ?? 0),
+      balance: Number(totals.balance ?? 0),
+      movements: Number(totals.movements ?? 0),
+    },
+    meta: {
+      page: Number(meta.page ?? 1),
+      limit: Number(meta.limit ?? normalized.length),
+      total: Number(meta.total ?? normalized.length),
+      totalPages: Number(meta.totalPages ?? 1),
+    },
+  };
+}
+
+export type FinanceExportFormat = "xlsx" | "pdf";
+
+export type FinanceExportFilters = {
+  clubId: number;
+  /** Output format; defaults to xlsx. */
+  format?: FinanceExportFormat;
+  year: number;
+  month?: number;
+  clubSectionId?: number;
+};
+
+/** Same-origin URL of the export proxy (attaches the httpOnly-cookie token server-side). */
+export function buildFinanceExportUrl(filters: FinanceExportFilters): string {
+  const query = new URLSearchParams({
+    clubId: String(filters.clubId),
+    year: String(filters.year),
+  });
+  if (filters.month) query.set("month", String(filters.month));
+  if (filters.clubSectionId) {
+    query.set("club_section_id", String(filters.clubSectionId));
+  }
+  if (filters.format === "pdf") query.set("format", "pdf");
+  return `/api/finances/export?${query.toString()}`;
+}
+
+function filenameFromContentDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const star = /filename\*=UTF-8''([^;]+)/i.exec(header);
+  if (star?.[1]) {
+    try {
+      return decodeURIComponent(star[1].trim());
+    } catch {
+      /* fall through */
+    }
+  }
+  const plain = /filename="?([^";]+)"?/i.exec(header);
+  return plain?.[1]?.trim() ?? null;
+}
+
+/**
+ * Downloads the xlsx or pdf export keeping the server's filename.
+ * Client-side only. Throws an Error carrying `status` on failure.
+ */
+export async function downloadFinanceExport(
+  filters: FinanceExportFilters,
+): Promise<string> {
+  const response = await fetch(buildFinanceExportUrl(filters), {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    const error = new Error(`Export failed with status ${response.status}`);
+    (error as Error & { status?: number }).status = response.status;
+    throw error;
+  }
+
+  const filename =
+    filenameFromContentDisposition(response.headers.get("content-disposition")) ??
+    `finanzas-${filters.clubId}-${filters.year}.${filters.format ?? "xlsx"}`;
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  return filename;
 }
 
 /**
@@ -483,9 +715,13 @@ export async function updateFinance(
  * DELETE /api/v1/finances/:financeId (soft delete)
  * Client-side only (mutation)
  */
-export async function deleteFinance(financeId: number): Promise<unknown> {
+export async function deleteFinance(
+  financeId: number,
+  reason?: string,
+): Promise<unknown> {
   return apiRequestFromClient<unknown>(`/finances/${financeId}`, {
     method: "DELETE",
+    ...(reason ? { body: { reason } } : {}),
   });
 }
 

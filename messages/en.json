@@ -5976,13 +5976,16 @@
       "amount_invalid": "Enter a valid amount",
       "amount_positive": "Amount must be positive",
       "category_required": "Select a category",
-      "date_required": "Enter the date"
+      "date_required": "Enter the date",
+      "note_invalid": "The reason must be between 5 and 500 characters"
     },
     "errors": {
       "delete_transaction_failed": "Could not delete the transaction",
       "update_transaction_failed": "Could not update the transaction",
       "create_transaction_failed": "Could not create the transaction",
-      "upload_evidence_failed": "Could not upload the evidence file"
+      "upload_evidence_failed": "Could not upload the evidence file",
+      "closed_note_required": "The month is closed: state the reason for the change (5 to 500 characters).",
+      "period_closed": "The month is closed and only an administrator can change it."
     },
     "dashboard": {
       "filtersLabel": "Filters:",
@@ -5993,7 +5996,16 @@
       "transactionsLoadError": "The transactions could not be loaded.",
       "newTransactionButton": "New transaction",
       "transactionsTitle": "Transactions",
-      "showing": "Showing {shown} of {total} transactions."
+      "showing": "Showing {shown} of {total} transactions.",
+      "exportButton": "Export",
+      "exportExcel": "Excel (.xlsx)",
+      "exportPdf": "PDF",
+      "exporting": "Exporting…",
+      "exportYearRequired": "Choose a year to export",
+      "exportFailed": "The file could not be exported.",
+      "exportForbidden": "You do not have permission to export this data.",
+      "exported": "File downloaded: {file}",
+      "pagination": "Movements pagination"
     },
     "form": {
       "titleNew": "New transaction",
@@ -6023,7 +6035,10 @@
       "evidenceLimit": "Only up to 3 evidence photos are allowed per transaction.",
       "evidenceImageOnly": "Only image files can be attached.",
       "evidenceAdd": "Select receipt photos",
-      "evidenceRemove": "Remove evidence"
+      "evidenceRemove": "Remove evidence",
+      "noteLabel": "Reason for the change",
+      "notePlaceholder": "Explain why a closed month is being changed",
+      "noteHelper": "The month is closed. State the reason for the change (5 to 500 characters); it is recorded."
     },
     "table": {
       "colDate": "Date",
@@ -6055,12 +6070,15 @@
       "cannotUndo": "This action cannot be undone.",
       "descriptionFallback": "This action cannot be undone.",
       "cancelButton": "Cancel",
-      "confirmButton": "Delete"
+      "confirmButton": "Delete",
+      "reasonLabel": "Reason for deletion",
+      "reasonPlaceholder": "Explain why this movement is being deleted",
+      "reasonHelper": "The month is closed. State why you are deleting this movement (5 to 500 characters)."
     },
     "summary": {
-      "totalIncome": "Total Income",
-      "totalExpense": "Total Expenses",
-      "balance": "Balance",
+      "totalIncome": "Income for the period",
+      "totalExpense": "Expenses for the period",
+      "balance": "Accumulated balance",
       "movementsCount": "{count} transaction",
       "movementsCountPlural": "{count} transactions",
       "incomeMovementsCount": "{count} income entry",
@@ -6069,7 +6087,10 @@
       "expenseMovementsCountPlural": "{count} expenses",
       "inPeriod": "in the period",
       "positiveBalance": "Positive balance",
-      "negativeBalance": "Negative balance"
+      "negativeBalance": "Negative balance",
+      "net": "Net for the period",
+      "balanceHint": "Accumulated through the end of the period",
+      "inYear": "This year: +{income} / −{expense}"
     },
     "months": {
       "january": "January",
@@ -6107,6 +6128,68 @@
       "sectionLabel": "Club section",
       "sectionPlaceholder": "Select a section",
       "sectionAll": "All sections"
+    },
+    "closed": {
+      "badge": "Month closed",
+      "summaryNotice": "Month closed: changes require a reason and can only be made by an administrator.",
+      "rowTooltip": "This movement belongs to a closed month."
+    },
+    "byCategory": {
+      "title": "By category",
+      "incomeTitle": "Income",
+      "expenseTitle": "Expenses",
+      "total": "Total",
+      "movements": "{count, plural, one {# movement} other {# movements}}",
+      "empty": "No movements in this period.",
+      "loadError": "The category breakdown could not be loaded.",
+      "yearRequired": "Choose a year to see the category breakdown."
+    },
+    "views": {
+      "label": "Finances view",
+      "byClub": "By club",
+      "overview": "Overview"
+    },
+    "overview": {
+      "title": "Finances overview",
+      "description": "Income, expenses and balance of the clubs in your territory.",
+      "filters": {
+        "localField": "Local field",
+        "allLocalFields": "All local fields",
+        "year": "Year",
+        "month": "Month",
+        "allMonths": "Whole year"
+      },
+      "totals": {
+        "label": "Overview totals",
+        "income": "Income",
+        "expenses": "Expenses",
+        "net": "Net",
+        "balance": "Accumulated balance",
+        "movements": "Movements"
+      },
+      "table": {
+        "club": "Club",
+        "localField": "Local field",
+        "income": "Income",
+        "expenses": "Expenses",
+        "net": "Net",
+        "balance": "Balance",
+        "movements": "Movements",
+        "missedMonths": "Months without movements",
+        "lastMovement": "Last movement",
+        "openClub": "View finances of {club}"
+      },
+      "missed": {
+        "none": "Up to date",
+        "badge": "{count, plural, one {# month} other {# months}}",
+        "tooltip": "No movements in: {months}"
+      },
+      "noLastMovement": "No movements",
+      "loadError": "The finances overview could not be loaded.",
+      "empty": {
+        "title": "No clubs to show",
+        "description": "There are no clubs in your territory for the selected filters."
+      }
     }
   },
   "certifications": {

@@ -41,7 +41,12 @@ import {
   type Finance,
   type FinanceCategory,
   type CreateFinancePayload,
+  POST_CLOSING_NOTE_MAX,
 } from "@/lib/api/finances";
+import {
+  getClosedPeriodErrorKey,
+  normalizePostClosingNote,
+} from "@/lib/finances/errors";
 import {
   financeAmountToDisplay,
   financeDisplayToApiAmount,
@@ -68,6 +73,7 @@ const formSchema = z.object({
     .number()
     .min(1),
   finance_date: z.string().min(1),
+  post_closing_note: z.string().optional(),
   club_type_id: z.coerce.number().optional(),
   club_section_id: z.coerce.number().optional(),
 });
@@ -110,6 +116,12 @@ export interface TransactionFormDialogProps {
   sections: ClubSection[];
   /** If provided, dialog is in edit mode */
   finance?: Finance | null;
+  /**
+   * Create mode: the month currently shown on the dashboard is closed, so the
+   * change-reason field starts visible. The backend stays the authority: a
+   * 400 FINANCE_CLOSED_PERIOD_NOTE_REQUIRED reveals the field as well.
+   */
+  periodClosedHint?: boolean;
   onSuccess: () => void;
 }
 
@@ -121,6 +133,7 @@ export function TransactionFormDialog({
   clubId,
   sections,
   finance,
+  periodClosedHint = false,
   onSuccess,
 }: TransactionFormDialogProps) {
   const isEdit = !!finance;
@@ -129,6 +142,10 @@ export function TransactionFormDialog({
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingEvidenceFiles, setPendingEvidenceFiles] = useState<File[]>([]);
+  const [noteRevealed, setNoteRevealed] = useState(false);
+  const noteRequired = isEdit
+    ? finance?.period_closed === true || noteRevealed
+    : periodClosedHint || noteRevealed;
 
   // Fetch categories on open
   useEffect(() => {
@@ -151,6 +168,7 @@ export function TransactionFormDialog({
       description: "",
       finance_category_id: undefined,
       finance_date: today,
+      post_closing_note: "",
       club_type_id: undefined,
       club_section_id: undefined,
     },
@@ -160,6 +178,7 @@ export function TransactionFormDialog({
   useEffect(() => {
     if (open) {
       setPendingEvidenceFiles([]);
+      setNoteRevealed(false);
       form.reset({
         year: finance?.year ?? currentYear,
         month: finance?.month ?? new Date().getMonth() + 1,
@@ -169,6 +188,7 @@ export function TransactionFormDialog({
         finance_date: finance?.finance_date
           ? finance.finance_date.split("T")[0]
           : today,
+        post_closing_note: "",
         club_type_id: finance?.club_type_id ?? sections[0]?.club_type_id,
         club_section_id: finance?.club_section_id ?? sections[0]?.club_section_id,
       });
@@ -183,6 +203,13 @@ export function TransactionFormDialog({
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
+    const rawNote = (values.post_closing_note ?? "").trim();
+    const note = normalizePostClosingNote(values.post_closing_note);
+    // Required in a closed month; when typed anywhere it must still be 5-500.
+    if ((noteRequired || rawNote.length > 0) && !note) {
+      form.setError("post_closing_note", { message: t("validation.note_invalid") });
+      return;
+    }
     setIsSubmitting(true);
     try {
       if (isEdit && finance) {
@@ -191,6 +218,7 @@ export function TransactionFormDialog({
           description: values.description,
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
+          ...(note ? { post_closing_note: note } : {}),
         });
         if (pendingEvidenceFiles.length > 0) {
           await uploadPendingEvidences(finance.finance_id);
@@ -210,6 +238,7 @@ export function TransactionFormDialog({
           finance_category_id: values.finance_category_id,
           finance_date: values.finance_date,
           club_section_id: values.club_section_id,
+          ...(note ? { post_closing_note: note } : {}),
         };
         const created = await createFinance(clubId, payload);
         if (pendingEvidenceFiles.length > 0) {
@@ -220,8 +249,14 @@ export function TransactionFormDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
+      const closedKey = getClosedPeriodErrorKey(err);
+      if (closedKey === "closed_note_required") {
+        setNoteRevealed(true);
+        form.setError("post_closing_note", { message: t("validation.note_invalid") });
+      }
+      const message = closedKey
+        ? t(`errors.${closedKey}`)
+        : err instanceof Error
           ? err.message
           : pendingEvidenceFiles.length > 0
             ? t("errors.upload_evidence_failed")
@@ -477,6 +512,34 @@ export function TransactionFormDialog({
                 </FormItem>
               )}
             />
+
+            {noteRequired ? (
+              <FormField
+                control={form.control}
+                name="post_closing_note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("form.noteLabel")}{" "}
+                      <span aria-hidden="true" className="ml-0.5 text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={t("form.notePlaceholder")}
+                        className="min-h-[80px] resize-none"
+                        maxLength={POST_CLOSING_NOTE_MAX}
+                        aria-required="true"
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      {t("form.noteHelper")}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
 
             <FinanceEvidenceField
               existingEvidences={finance?.evidences ?? []}

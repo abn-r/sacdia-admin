@@ -41,6 +41,7 @@ import {
 } from "@/lib/api/catalogs";
 import { listLocalFields } from "@/lib/api/geography";
 import { unwrapApiData } from "@/lib/api/unwrap";
+import { pickYearOptions } from "@/lib/ecclesiastical-year-options";
 import { useFormatDate } from "@/lib/format-locale";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -70,27 +71,6 @@ function toId(value: string): number | null {
 function personName(person: { user_id: string; name: string | null } | null): string {
   if (!person) return "—";
   return person.name?.trim() || person.user_id;
-}
-
-const PREVIOUS_YEARS = 4;
-
-type YearRow = { ecclesiastical_year_id: number; name: string; start_date?: string };
-
-/** Active year, the next one when it exists, and the 4 before the active one (newest first). */
-function pickYearOptions(
-  years: ReadonlyArray<YearRow>,
-  activeId: number | null,
-): Array<{ value: string; label: string }> {
-  // Ids are not chronological (years were loaded out of order): sort by date, then name.
-  const yearKey = (y: YearRow) => y.start_date ?? y.name;
-  const sorted = [...years].sort((a, b) => yearKey(b).localeCompare(yearKey(a)));
-  const activeIndex = sorted.findIndex((y) => y.ecclesiastical_year_id === activeId);
-  // Without a known active year there is nothing to anchor on: offer the latest ones.
-  const slice =
-    activeIndex === -1
-      ? sorted.slice(0, PREVIOUS_YEARS + 1)
-      : sorted.slice(Math.max(0, activeIndex - 1), activeIndex + 1 + PREVIOUS_YEARS);
-  return slice.map((y) => ({ value: String(y.ecclesiastical_year_id), label: y.name }));
 }
 
 export function ClubEnrollmentReviewQueue() {
