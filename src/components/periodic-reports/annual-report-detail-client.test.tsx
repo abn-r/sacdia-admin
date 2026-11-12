@@ -16,8 +16,6 @@ const api = vi.hoisted(() => ({
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
   regenerateAnnual: vi.fn(),
-  finalizeAnnual: vi.fn(),
-  updateAnnualManual: vi.fn(),
   downloadAnnual: vi.fn(),
 }));
 
@@ -32,8 +30,6 @@ vi.mock("@/lib/api/reports", async (importOriginal) => {
   return {
     ...actual,
     regenerateAnnualReport: api.regenerateAnnual,
-    finalizeAnnualReport: api.finalizeAnnual,
-    updateAnnualReportManualData: api.updateAnnualManual,
     triggerAnnualReportPdfDownload: api.downloadAnnual,
   };
 });
@@ -48,8 +44,27 @@ const annual: AdminAnnualReport = {
   status: "draft",
   auto_generated_at: "2026-07-02T15:00:00.000Z",
   club: { club_id: 4, name: "Club Águilas" },
-  computed_data: { member_count: 18, months_reported: 12, top_achievers: [] },
-  manual_data: null,
+  computed_data: {
+    member_count: 18,
+    months_reported: 12,
+    finances: { income: 5000, expenses: 3000, balance: 2000, total_balance: 7500, transactions: 40 },
+    top_achievers: [{ user_id: "u9", name: "Luis Pérez", honors_count: 4 }],
+    monthly_data: {
+      months_submitted: 1,
+      months_covered: [{ year: 2026, month: 3 }],
+      planning_meetings: 4,
+      baptized_this_year: null,
+      all_investitures_completed: null,
+      annual_achievements_description: null,
+      community_service_description: [{ year: 2026, month: 3, text: "Limpieza del parque" }],
+    },
+  },
+};
+const closed: AdminAnnualReport = {
+  ...annual,
+  status: "finalized",
+  finalized_at: "2026-08-17T03:30:00.000Z",
+  finalized_by: null,
 };
 
 function wrap(node: React.ReactNode) {
@@ -60,19 +75,39 @@ function wrap(node: React.ReactNode) {
   );
 }
 
-const ALL_ALLOWED = { canUpdate: true, canFinalize: true, canDownload: true };
+const DEFAULTS = { canRegenerate: true, canDownload: true };
 
 describe("AnnualReportDetailClient", () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(cleanup);
 
-  it("shows the ecclesiastical year and the draft actions", () => {
-    wrap(<AnnualReportDetailClient report={annual} {...ALL_ALLOWED} />);
+  it("shows the ecclesiastical year, En curso status, finances and monthly data without ranking", () => {
+    wrap(<AnnualReportDetailClient report={annual} {...DEFAULTS} />);
 
     expect(screen.getByText("2025-2026")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardar datos manuales" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Recalcular" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Finalizar" })).toBeInTheDocument();
+    expect(screen.getByText("En curso")).toBeInTheDocument();
+    expect(screen.getByText("Resultado del periodo")).toBeInTheDocument();
+    expect(screen.getByText("Saldo acumulado")).toBeInTheDocument();
+    expect(screen.queryByText("Percentil en el ranking")).not.toBeInTheDocument();
+    expect(screen.getByText("Luis Pérez")).toBeInTheDocument();
+    expect(screen.getByText("Basado en 1 mes con informe mensual enviado")).toBeInTheDocument();
+    expect(screen.getByText("Reuniones de planificación").nextElementSibling).toHaveTextContent("4");
+    expect(screen.getByText("Bautizados en el año").nextElementSibling).toHaveTextContent("—");
+    expect(screen.getByText(/Marzo de 2026:/)).toBeInTheDocument();
+    expect(screen.getByText("Limpieza del parque")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Recalcular" })).not.toBeInTheDocument();
+  });
+
+  it("does not crash on old rows without monthly_data", () => {
+    wrap(
+      <AnnualReportDetailClient
+        report={{ ...annual, computed_data: { member_count: 2 } }}
+        {...DEFAULTS}
+      />,
+    );
+
+    expect(screen.getByText(/no envió ningún informe mensual/)).toBeInTheDocument();
   });
 
   it("shows translated directiva role names and falls back for unknown roles", () => {
@@ -89,7 +124,7 @@ describe("AnnualReportDetailClient", () => {
             ],
           },
         }}
-        {...ALL_ALLOWED}
+        {...DEFAULTS}
       />,
     );
 
@@ -99,28 +134,27 @@ describe("AnnualReportDetailClient", () => {
     expect(screen.queryByText("deputy-director")).not.toBeInTheDocument();
   });
 
-  it("hides the manual form and the edit actions when finalized", () => {
-    wrap(
-      <AnnualReportDetailClient
-        report={{ ...annual, status: "finalized", finalized_at: "2026-08-01T12:00:00.000Z" }}
-        {...ALL_ALLOWED}
-      />,
-    );
+  it("shows Cerrado with the closing date and offers Recalcular only to global admins", () => {
+    wrap(<AnnualReportDetailClient report={closed} {...DEFAULTS} />);
 
-    expect(screen.queryByRole("button", { name: "Guardar datos manuales" })).not.toBeInTheDocument();
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
+    expect(screen.getByText("Cerrado el")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Recalcular" })).toBeInTheDocument();
+
+    cleanup();
+    wrap(<AnnualReportDetailClient report={closed} canRegenerate={false} canDownload />);
     expect(screen.queryByRole("button", { name: "Recalcular" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
   });
 
-  it("asks for confirmation before finalizing", async () => {
-    api.finalizeAnnual.mockResolvedValue({ ...annual, status: "finalized" });
-    wrap(<AnnualReportDetailClient report={annual} {...ALL_ALLOWED} />);
+  it("asks for confirmation before recalculating a closed report", async () => {
+    api.regenerateAnnual.mockResolvedValue({ ...closed });
+    wrap(<AnnualReportDetailClient report={closed} {...DEFAULTS} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalizar" }));
-    expect(await screen.findByRole("alertdialog")).toHaveTextContent("irreversible");
-    expect(api.finalizeAnnual).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Recalcular" }));
+    expect(await screen.findByRole("alertdialog")).toHaveTextContent("¿Recalcular este informe cerrado?");
+    expect(api.regenerateAnnual).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalizar informe" }));
-    await waitFor(() => expect(api.finalizeAnnual).toHaveBeenCalledWith(31));
+    fireEvent.click(screen.getByRole("button", { name: "Recalcular informe" }));
+    await waitFor(() => expect(api.regenerateAnnual).toHaveBeenCalledWith(31));
   });
 });

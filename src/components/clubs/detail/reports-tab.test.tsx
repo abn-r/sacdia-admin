@@ -46,8 +46,8 @@ describe("ReportsTab", () => {
       "href",
       "/dashboard/reports/quarterly/11",
     );
-    expect(screen.getByText("Finalizado")).toBeInTheDocument();
-    expect(screen.getByText("Borrador")).toBeInTheDocument();
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
+    expect(screen.getByText("En curso")).toBeInTheDocument();
   });
 
   it("does not link rows when the user cannot open reports", () => {
@@ -63,7 +63,7 @@ describe("ReportsTab", () => {
     expect(screen.getByText(/No se pudieron cargar los informes anuales/)).toBeInTheDocument();
     expect(screen.queryByText("Sin informes anuales.")).not.toBeInTheDocument();
     // The other list still renders.
-    expect(screen.getByText("Borrador")).toBeInTheDocument();
+    expect(screen.getByText("En curso")).toBeInTheDocument();
   });
 
   it("shows the empty message when a list is genuinely empty", () => {

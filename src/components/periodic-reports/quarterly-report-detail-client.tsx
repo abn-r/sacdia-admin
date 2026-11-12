@@ -6,17 +6,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { MonthlyBasisNote, ReportMonthlyTextCard } from "@/components/periodic-reports/monthly-data-sections";
 import { PeriodicReportActions } from "@/components/periodic-reports/report-actions";
 import { PeriodicReportStatusBadge } from "@/components/periodic-reports/report-status-badge";
-import { QuarterlyManualDataForm } from "@/components/periodic-reports/quarterly-manual-data-form";
 import {
   ReportFactsCard,
   ReportPeopleCard,
-  ReportTextCard,
 } from "@/components/periodic-reports/report-sections";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  finalizeQuarterlyReport,
   formatReportFinalizerName,
   regenerateQuarterlyReport,
   triggerQuarterlyReportPdfDownload,
@@ -35,18 +33,15 @@ const TIMESTAMP_OPTIONS: Intl.DateTimeFormatOptions = {
 
 interface QuarterlyReportDetailClientProps {
   report: AdminQuarterlyReport;
-  /** reports:update — manual data form and Recalcular. */
-  canUpdate: boolean;
-  /** reports:update — Finalizar. */
-  canFinalize: boolean;
+  /** Global super-admin / admin with reports:update — Recalcular. */
+  canRegenerate: boolean;
   /** reports:download */
   canDownload: boolean;
 }
 
 export function QuarterlyReportDetailClient({
   report: initialReport,
-  canUpdate,
-  canFinalize,
+  canRegenerate,
   canDownload,
 }: QuarterlyReportDetailClientProps) {
   const t = useTranslations("periodicReports");
@@ -56,12 +51,11 @@ export function QuarterlyReportDetailClient({
   const formatNumber = useFormatNumber();
   const formatCurrency = useFormatCurrency();
   const [report, setReport] = useState(initialReport);
-  const [regenerating, setRegenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  const isDraft = report.status === "draft";
+  const isClosed = report.status === "finalized";
   const computed = report.computed_data ?? null;
-  const manual = report.manual_data ?? null;
+  const monthly = computed?.monthly_data ?? null;
   const clubName = report.club?.name ?? t("common.unknownClub");
   const period = t("quarterly.period", { quarter: report.quarter, year: report.year });
   const finalizer = formatReportFinalizerName(report.finalized_by_user);
@@ -69,31 +63,18 @@ export function QuarterlyReportDetailClient({
     .filter(Boolean)
     .join(" · ");
 
-  // PATCH / regenerate / finalize answer the bare row (no club relations): keep what we have.
+  // Regenerate answers the bare row (no club relations): keep what we have.
   function applyUpdate(updated: AdminQuarterlyReport) {
     setReport((previous) => ({ ...previous, ...updated, club: previous.club }));
   }
 
   async function handleRegenerate() {
-    setRegenerating(true);
     try {
       applyUpdate(await regenerateQuarterlyReport(report.quarterly_report_id));
       toast.success(t("common.toasts.regenerated"));
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("common.errors.regenerate"));
-    } finally {
-      setRegenerating(false);
-    }
-  }
-
-  async function handleFinalize() {
-    try {
-      applyUpdate(await finalizeQuarterlyReport(report.quarterly_report_id));
-      toast.success(t("common.toasts.finalized"));
-      router.refresh();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("common.errors.finalize"));
     }
   }
 
@@ -144,7 +125,7 @@ export function QuarterlyReportDetailClient({
                 : t("common.notCalculated")}
             </dd>
           </div>
-          {report.finalized_at ? (
+          {isClosed && report.finalized_at ? (
             <div>
               <dt className="text-xs text-muted-foreground">{t("common.labels.finalized")}</dt>
               <dd className="font-medium">
@@ -160,24 +141,21 @@ export function QuarterlyReportDetailClient({
         </dl>
 
         <PeriodicReportActions
-          status={report.status}
-          canUpdate={canUpdate}
-          canFinalize={canFinalize}
+          canRegenerate={canRegenerate}
           canDownload={canDownload}
-          regenerating={regenerating}
+          isClosed={isClosed}
           downloading={downloading}
           reportLabel={`${clubName} · ${period}`}
           onRegenerate={handleRegenerate}
-          onFinalize={handleFinalize}
           onDownload={handleDownload}
         />
       </div>
 
-      {!isDraft ? (
-        <Alert>
-          <AlertDescription>{t("common.lockedNotice")}</AlertDescription>
-        </Alert>
-      ) : null}
+      <Alert>
+        <AlertDescription>
+          {isClosed ? t("common.closedNotice") : t("common.draftNotice")}
+        </AlertDescription>
+      </Alert>
 
       <section aria-labelledby="quarterly-computed" className="space-y-4">
         <h2 id="quarterly-computed" className="text-lg font-semibold tracking-tight">
@@ -201,6 +179,7 @@ export function QuarterlyReportDetailClient({
                 { label: t("common.computed.income"), value: money(computed.finances?.income) },
                 { label: t("common.computed.expenses"), value: money(computed.finances?.expenses) },
                 { label: t("common.computed.balance"), value: money(computed.finances?.balance) },
+                { label: t("common.computed.totalBalance"), value: money(computed.finances?.total_balance) },
                 { label: t("common.computed.transactions"), value: count(computed.finances?.transactions) },
               ]}
             />
@@ -219,54 +198,44 @@ export function QuarterlyReportDetailClient({
         )}
       </section>
 
-      <section aria-labelledby="quarterly-manual" className="space-y-4">
-        <h2 id="quarterly-manual" className="text-lg font-semibold tracking-tight">
-          {t("common.sections.manual")}
+      <section aria-labelledby="quarterly-monthly" className="space-y-4">
+        <h2 id="quarterly-monthly" className="text-lg font-semibold tracking-tight">
+          {t("common.sections.monthly")}
         </h2>
-        {isDraft && canUpdate ? (
-          <QuarterlyManualDataForm
-            reportId={report.quarterly_report_id}
-            initialData={manual}
-            onSaved={applyUpdate}
-          />
-        ) : (
-          <>
-            <ReportFactsCard
-              title={t("quarterly.manual.sectionMeetings")}
-              facts={[
-                { label: t("quarterly.manual.planningMeetings"), value: count(manual?.planning_meetings) },
-                { label: t("quarterly.manual.parentMeetings"), value: count(manual?.parent_meetings) },
-                { label: t("quarterly.manual.youthCouncilAttendance"), value: count(manual?.youth_council_attendance) },
-                { label: t("quarterly.manual.churchBoardAttendance"), value: count(manual?.church_board_attendance) },
-              ]}
-            />
-            <ReportFactsCard
-              title={t("quarterly.manual.sectionMissionary")}
-              facts={[
-                { label: t("quarterly.manual.soulTarget"), value: count(manual?.soul_target) },
-                { label: t("quarterly.manual.baptizedThisQuarter"), value: count(manual?.baptized_this_quarter) },
-                { label: t("quarterly.manual.camporeesAttended"), value: count(manual?.camporees_attended) },
-                {
-                  label: t("quarterly.manual.certificatesDelivered"),
-                  value:
-                    manual?.certificates_delivered == null
+        <MonthlyBasisNote monthsSubmitted={monthly?.months_submitted} />
+        <ReportFactsCard
+          title={t("quarterly.monthly.sectionMeetings")}
+          facts={[
+            { label: t("quarterly.monthly.planningMeetings"), value: count(monthly?.planning_meetings) },
+            { label: t("quarterly.monthly.parentMeetings"), value: count(monthly?.parent_meetings) },
+            { label: t("quarterly.monthly.youthCouncilAttendance"), value: count(monthly?.youth_council_attendance) },
+            { label: t("quarterly.monthly.churchBoardAttendance"), value: count(monthly?.church_board_attendance) },
+          ]}
+        />
+        <ReportFactsCard
+          title={t("quarterly.monthly.sectionMissionary")}
+          facts={[
+            { label: t("quarterly.monthly.soulTarget"), value: count(monthly?.soul_target) },
+            { label: t("quarterly.monthly.baptizedThisQuarter"), value: count(monthly?.baptized_this_quarter) },
+            { label: t("quarterly.monthly.camporeesAttended"), value: count(monthly?.camporees_attended) },
+            {
+              label: t("quarterly.monthly.certificatesDelivered"),
+              value:
+                    monthly?.certificates_delivered == null
                       ? null
-                      : manual.certificates_delivered
+                      : monthly.certificates_delivered
                         ? t("common.yes")
                         : t("common.no"),
-                },
-              ]}
-            />
-            <ReportTextCard
-              title={t("quarterly.manual.sectionNarrative")}
-              emptyLabel={t("common.manual.noAnswer")}
-              entries={[
-                { label: t("quarterly.manual.clubParticipation"), text: manual?.club_participation_description },
-                { label: t("quarterly.manual.communityService"), text: manual?.community_service_description },
-              ]}
-            />
-          </>
-        )}
+            },
+          ]}
+        />
+        <ReportMonthlyTextCard
+          title={t("quarterly.monthly.sectionNarrative")}
+          entries={[
+            { label: t("quarterly.monthly.clubParticipation"), items: monthly?.club_participation_description },
+            { label: t("quarterly.monthly.communityService"), items: monthly?.community_service_description },
+          ]}
+        />
       </section>
     </div>
   );

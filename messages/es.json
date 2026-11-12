@@ -7772,8 +7772,8 @@
       "jobMembershipExpiry": "Expirar solicitudes de membresía",
       "jobCleanupExpired": "Limpieza de sesiones y tokens vencidos",
       "jobFcmCleanup": "Limpieza de tokens FCM huérfanos",
-      "jobAnnualReports": "Reportes anuales (auto-generar)",
-      "jobQuarterlyReports": "Reportes trimestrales (auto-generar)",
+      "jobAnnualReports": "Informes anuales (congelar tras el periodo)",
+      "jobQuarterlyReports": "Informes trimestrales (congelar tras el periodo)",
       "jobMonthlyReportsReminders": "Recordatorios de reportes mensuales",
       "jobCronAlertCheck": "Verificación de alertas de cron",
       "jobFcmStaleCleanup": "Limpieza de tokens FCM inactivos",
@@ -9835,28 +9835,26 @@
       "unknownClub": "Club sin nombre",
       "notCalculated": "Sin calcular",
       "finalizedBy": "por {name}",
-      "lockedNotice": "Este informe ya no es un borrador. Los datos no se pueden editar ni recalcular.",
       "yes": "Sí",
       "no": "No",
       "status": {
-        "draft": "Borrador",
-        "finalized": "Finalizado",
-        "archived": "Archivado"
+        "draft": "En curso",
+        "finalized": "Cerrado"
       },
       "labels": {
         "club": "Club",
         "period": "Periodo",
         "status": "Estado",
         "calculated": "Calculado",
-        "finalized": "Finalizado el"
+        "finalized": "Cerrado el"
       },
       "sections": {
         "computed": "Datos calculados",
-        "manual": "Datos manuales"
+        "monthly": "Datos de los informes mensuales"
       },
       "computed": {
         "summaryTitle": "Resumen del periodo",
-        "summaryDescription": "Cifras calculadas por el sistema a partir de la actividad del club.",
+        "summaryDescription": "Cifras calculadas por el sistema a partir de los informes mensuales enviados por el club.",
         "members": "Miembros",
         "activities": "Actividades",
         "honorsStarted": "Especialidades iniciadas",
@@ -9864,41 +9862,25 @@
         "financesTitle": "Finanzas",
         "income": "Ingresos",
         "expenses": "Egresos",
-        "balance": "Balance",
+        "balance": "Resultado del periodo",
         "transactions": "Movimientos",
         "directiva": "Directiva",
         "directivaEmpty": "El club no tiene directiva registrada en este periodo.",
-        "empty": "Este informe todavía no tiene datos calculados. Usa Recalcular para generarlos."
+        "empty": "Este informe todavía no tiene datos calculados.",
+        "totalBalance": "Saldo acumulado"
       },
       "actions": {
         "regenerate": "Recalcular",
-        "finalize": "Finalizar",
         "downloadPdf": "Descargar PDF",
         "view": "Ver"
       },
-      "finalizeConfirm": {
-        "title": "¿Finalizar este informe?",
-        "description": "Vas a finalizar el informe de {report}. Esta acción es irreversible: después no podrás editar los datos manuales ni recalcular el informe.",
-        "cancel": "Cancelar",
-        "confirm": "Finalizar informe"
-      },
       "toasts": {
-        "regenerated": "Datos recalculados.",
-        "finalized": "Informe finalizado.",
-        "manualSaved": "Datos manuales guardados."
+        "regenerated": "Datos recalculados."
       },
       "errors": {
         "regenerate": "No se pudo recalcular el informe.",
-        "finalize": "No se pudo finalizar el informe.",
         "download": "No se pudo descargar el PDF.",
-        "saveManual": "No se pudieron guardar los datos manuales.",
         "load": "No se pudieron cargar los informes. Intenta de nuevo."
-      },
-      "manual": {
-        "save": "Guardar datos manuales",
-        "errorWholeNumber": "Escribe un número entero de 0 en adelante.",
-        "errorTextTooLong": "El texto no puede superar los {max} caracteres.",
-        "noAnswer": "Sin respuesta"
       },
       "generate": {
         "trigger": "Generar informe",
@@ -9919,17 +9901,30 @@
         "club": "Club",
         "status": "Estado",
         "calculated": "Calculado",
-        "finalized": "Finalizado"
+        "finalized": "Cerrado"
       },
       "empty": {
         "filteredTitle": "Sin resultados",
         "filteredDescription": "Ningún informe coincide con los filtros. Ajústalos para ver más."
+      },
+      "closedNotice": "Informe cerrado: los datos quedaron congelados y ya no cambian.",
+      "draftNotice": "Informe en curso: los datos se actualizan con los informes mensuales enviados hasta 15 días después de que termine el periodo.",
+      "regenerateConfirm": {
+        "title": "¿Recalcular este informe cerrado?",
+        "description": "Vas a recalcular el informe de {report}. Se reescribirán sus datos con los informes mensuales enviados hoy, aunque el informe esté cerrado. El estado no cambia.",
+        "cancel": "Cancelar",
+        "confirm": "Recalcular informe"
+      },
+      "monthly": {
+        "basedOn": "Basado en {count, plural, one {# mes con informe mensual enviado} other {# meses con informe mensual enviado}}",
+        "noneSubmitted": "El club no envió ningún informe mensual en este periodo, por eso estos datos aparecen vacíos.",
+        "noText": "Sin respuesta"
       }
     },
     "quarterly": {
       "page": {
         "title": "Informes trimestrales",
-        "description": "Genera, revisa, completa y finaliza los informes trimestrales de los clubes."
+        "description": "Consulta los informes trimestrales de los clubes, calculados a partir de sus informes mensuales enviados."
       },
       "detail": {
         "title": "Informe trimestral · {period}",
@@ -9952,19 +9947,16 @@
       },
       "generate": {
         "title": "Generar informe trimestral",
-        "description": "Elige el club y el trimestre. Si el informe ya existe, se abrirá sin cambios cuando esté finalizado.",
+        "description": "Elige el club y el trimestre. Si el informe ya existe, se abrirá sin cambios.",
         "year": "Año",
         "quarter": "Trimestre",
         "success": "Informe trimestral listo.",
         "error": "No se pudo generar el informe trimestral."
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Reuniones y asistencia",
-        "sectionMeetingsDescription": "Reuniones realizadas y asistencia a juntas durante el trimestre.",
         "sectionMissionary": "Misión y eventos",
-        "sectionMissionaryDescription": "Metas y resultados misioneros del trimestre.",
         "sectionNarrative": "Descripciones",
-        "sectionNarrativeDescription": "Participación del club y servicio a la comunidad.",
         "planningMeetings": "Reuniones de planificación",
         "parentMeetings": "Reuniones de padres",
         "youthCouncilAttendance": "Asistencia al consejo de jóvenes",
@@ -9980,7 +9972,7 @@
     "annual": {
       "page": {
         "title": "Informes anuales",
-        "description": "Genera, revisa, completa y finaliza los informes anuales de los clubes por año eclesiástico."
+        "description": "Consulta los informes anuales de los clubes por año eclesiástico, calculados a partir de sus informes mensuales enviados."
       },
       "detail": {
         "title": "Informe anual · {period}",
@@ -10002,7 +9994,7 @@
       },
       "generate": {
         "title": "Generar informe anual",
-        "description": "Elige el club y el año eclesiástico. Si el informe ya existe, se abrirá sin cambios cuando esté finalizado.",
+        "description": "Elige el club y el año eclesiástico. Si el informe ya existe, se abrirá sin cambios.",
         "year": "Año eclesiástico",
         "yearRequired": "Selecciona un año eclesiástico.",
         "success": "Informe anual listo.",
@@ -10010,18 +10002,14 @@
       },
       "computed": {
         "monthsReported": "Meses reportados",
-        "rankingPercentile": "Percentil en el ranking",
         "topAchievers": "Mayores logros",
         "topAchieversEmpty": "Sin miembros destacados en este año.",
         "honorsCount": "{count, plural, one {# especialidad} other {# especialidades}}"
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Reuniones y eventos",
-        "sectionMeetingsDescription": "Reuniones realizadas y campamentos del año.",
         "sectionMissionary": "Misión e investiduras",
-        "sectionMissionaryDescription": "Bautismos del año y estado de las investiduras.",
         "sectionNarrative": "Descripciones",
-        "sectionNarrativeDescription": "Logros del club y servicio a la comunidad.",
         "planningMeetings": "Reuniones de planificación",
         "parentMeetings": "Reuniones de padres",
         "camporeesAttended": "Campamentos asistidos",

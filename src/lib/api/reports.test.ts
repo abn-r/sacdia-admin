@@ -14,14 +14,14 @@ vi.mock("@/lib/api/client", () => ({
 
 import {
   ecclesiasticalYearLabel,
-  finalizeAnnualReport,
   formatReportFinalizerName,
   generateAnnualReport,
   generateQuarterlyReport,
   listAdminAnnualReports,
   listAdminQuarterlyReports,
+  parsePeriodicReportStatus,
+  regenerateAnnualReport,
   regenerateQuarterlyReport,
-  updateAnnualReportManualData,
 } from "./reports";
 
 describe("admin quarterly / annual report client", () => {
@@ -89,23 +89,28 @@ describe("admin quarterly / annual report client", () => {
     });
   });
 
-  it("hits the regenerate, finalize and manual-data endpoints", async () => {
+  it("hits the regenerate endpoints and exposes no manual-data or finalize calls", async () => {
     apiRequestFromClientMock.mockResolvedValue({ status: "success", data: {} });
 
     await regenerateQuarterlyReport(5);
-    await finalizeAnnualReport(6);
-    await updateAnnualReportManualData(6, { planning_meetings: 3 });
+    await regenerateAnnualReport(6);
 
     expect(apiRequestFromClientMock).toHaveBeenNthCalledWith(1, "/admin/quarterly-reports/5/regenerate", {
       method: "POST",
     });
-    expect(apiRequestFromClientMock).toHaveBeenNthCalledWith(2, "/admin/annual-reports/6/finalize", {
+    expect(apiRequestFromClientMock).toHaveBeenNthCalledWith(2, "/admin/annual-reports/6/regenerate", {
       method: "POST",
     });
-    expect(apiRequestFromClientMock).toHaveBeenNthCalledWith(3, "/admin/annual-reports/6", {
-      method: "PATCH",
-      body: { planning_meetings: 3 },
-    });
+    const exported = await import("./reports");
+    expect(Object.keys(exported).filter((key) => /finalize(Quarterly|Annual)|ManualData/.test(key))).toEqual([]);
+  });
+
+  it("only lets draft and finalized through as status filters", () => {
+    expect(parsePeriodicReportStatus("draft")).toBe("draft");
+    expect(parsePeriodicReportStatus("finalized")).toBe("finalized");
+    expect(parsePeriodicReportStatus("archived")).toBeUndefined();
+    expect(parsePeriodicReportStatus("")).toBeUndefined();
+    expect(parsePeriodicReportStatus(undefined)).toBeUndefined();
   });
 
   it("builds readable labels", () => {

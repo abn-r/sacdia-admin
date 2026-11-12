@@ -54,10 +54,19 @@ export default async function ClubDetailPage({
   if (!detail) notFound();
 
   // A failed fetch must not read as "this club has no reports": the tab shows an error instead.
-  const [annualResult, quarterlyResult] = await Promise.allSettled([
-    listClubAnnualReports(detail.clubId),
-    listClubQuarterlyReports(detail.clubId),
-  ]);
+  // Coordinators cannot see quarterly / annual reports (capability reports.view_periodic):
+  // skip the requests (they would answer 403) and hide those sections.
+  const canViewPeriodicReports =
+    canViewScreen(user, "reports-annual") && canViewScreen(user, "reports-quarterly");
+  const [annualResult, quarterlyResult] = canViewPeriodicReports
+    ? await Promise.allSettled([
+        listClubAnnualReports(detail.clubId),
+        listClubQuarterlyReports(detail.clubId),
+      ])
+    : [
+        { status: "fulfilled" as const, value: [] },
+        { status: "fulfilled" as const, value: [] },
+      ];
   if (annualResult.status === "rejected") {
     console.error("[ClubDetailPage] Failed to load annual reports:", annualResult.reason);
   }
@@ -72,9 +81,8 @@ export default async function ClubDetailPage({
       quarterlyReports={quarterlyResult.status === "fulfilled" ? quarterlyResult.value : []}
       annualReportsError={annualResult.status === "rejected"}
       quarterlyReportsError={quarterlyResult.status === "rejected"}
-      canOpenReports={
-        canViewScreen(user, "reports-annual") && canViewScreen(user, "reports-quarterly")
-      }
+      canViewPeriodicReports={canViewPeriodicReports}
+      canOpenReports={canViewPeriodicReports}
       canEdit={canEdit}
       defaultTab={resolveClubDetailTab(tab)}
     />

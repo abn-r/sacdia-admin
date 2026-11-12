@@ -6,18 +6,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { AnnualManualDataForm } from "@/components/periodic-reports/annual-manual-data-form";
+import { MonthlyBasisNote, ReportMonthlyTextCard } from "@/components/periodic-reports/monthly-data-sections";
 import { PeriodicReportActions } from "@/components/periodic-reports/report-actions";
 import { PeriodicReportStatusBadge } from "@/components/periodic-reports/report-status-badge";
 import {
   ReportFactsCard,
   ReportPeopleCard,
-  ReportTextCard,
 } from "@/components/periodic-reports/report-sections";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ecclesiasticalYearLabel,
-  finalizeAnnualReport,
   formatReportFinalizerName,
   regenerateAnnualReport,
   triggerAnnualReportPdfDownload,
@@ -36,18 +34,15 @@ const TIMESTAMP_OPTIONS: Intl.DateTimeFormatOptions = {
 
 interface AnnualReportDetailClientProps {
   report: AdminAnnualReport;
-  /** reports:update — manual data form and Recalcular. */
-  canUpdate: boolean;
-  /** reports:update — Finalizar. */
-  canFinalize: boolean;
+  /** Global super-admin / admin with reports:update — Recalcular. */
+  canRegenerate: boolean;
   /** reports:download */
   canDownload: boolean;
 }
 
 export function AnnualReportDetailClient({
   report: initialReport,
-  canUpdate,
-  canFinalize,
+  canRegenerate,
   canDownload,
 }: AnnualReportDetailClientProps) {
   const t = useTranslations("periodicReports");
@@ -57,12 +52,11 @@ export function AnnualReportDetailClient({
   const formatNumber = useFormatNumber();
   const formatCurrency = useFormatCurrency();
   const [report, setReport] = useState(initialReport);
-  const [regenerating, setRegenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  const isDraft = report.status === "draft";
+  const isClosed = report.status === "finalized";
   const computed = report.computed_data ?? null;
-  const manual = report.manual_data ?? null;
+  const monthly = computed?.monthly_data ?? null;
   const clubName = report.club?.name ?? t("common.unknownClub");
   const period =
     ecclesiasticalYearLabel(report.ecclesiastical_year) ?? computed?.year_label ?? "—";
@@ -71,7 +65,7 @@ export function AnnualReportDetailClient({
     .filter(Boolean)
     .join(" · ");
 
-  // PATCH / regenerate / finalize answer the bare row (no relations): keep what we have.
+  // Regenerate answers the bare row (no relations): keep what we have.
   function applyUpdate(updated: AdminAnnualReport) {
     setReport((previous) => ({
       ...previous,
@@ -82,25 +76,12 @@ export function AnnualReportDetailClient({
   }
 
   async function handleRegenerate() {
-    setRegenerating(true);
     try {
       applyUpdate(await regenerateAnnualReport(report.annual_report_id));
       toast.success(t("common.toasts.regenerated"));
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("common.errors.regenerate"));
-    } finally {
-      setRegenerating(false);
-    }
-  }
-
-  async function handleFinalize() {
-    try {
-      applyUpdate(await finalizeAnnualReport(report.annual_report_id));
-      toast.success(t("common.toasts.finalized"));
-      router.refresh();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("common.errors.finalize"));
     }
   }
 
@@ -151,7 +132,7 @@ export function AnnualReportDetailClient({
                 : t("common.notCalculated")}
             </dd>
           </div>
-          {report.finalized_at ? (
+          {isClosed && report.finalized_at ? (
             <div>
               <dt className="text-xs text-muted-foreground">{t("common.labels.finalized")}</dt>
               <dd className="font-medium">
@@ -167,24 +148,21 @@ export function AnnualReportDetailClient({
         </dl>
 
         <PeriodicReportActions
-          status={report.status}
-          canUpdate={canUpdate}
-          canFinalize={canFinalize}
+          canRegenerate={canRegenerate}
           canDownload={canDownload}
-          regenerating={regenerating}
+          isClosed={isClosed}
           downloading={downloading}
           reportLabel={`${clubName} · ${period}`}
           onRegenerate={handleRegenerate}
-          onFinalize={handleFinalize}
           onDownload={handleDownload}
         />
       </div>
 
-      {!isDraft ? (
-        <Alert>
-          <AlertDescription>{t("common.lockedNotice")}</AlertDescription>
-        </Alert>
-      ) : null}
+      <Alert>
+        <AlertDescription>
+          {isClosed ? t("common.closedNotice") : t("common.draftNotice")}
+        </AlertDescription>
+      </Alert>
 
       <section aria-labelledby="annual-computed" className="space-y-4">
         <h2 id="annual-computed" className="text-lg font-semibold tracking-tight">
@@ -201,13 +179,6 @@ export function AnnualReportDetailClient({
                 { label: t("common.computed.honorsStarted"), value: count(computed.honors?.started) },
                 { label: t("common.computed.honorsCompleted"), value: count(computed.honors?.completed) },
                 { label: t("annual.computed.monthsReported"), value: count(computed.months_reported) },
-                {
-                  label: t("annual.computed.rankingPercentile"),
-                  value:
-                    computed.ranking_percentile == null
-                      ? null
-                      : `${formatNumber(computed.ranking_percentile, { maximumFractionDigits: 1 })}%`,
-                },
               ]}
             />
             <ReportFactsCard
@@ -216,6 +187,7 @@ export function AnnualReportDetailClient({
                 { label: t("common.computed.income"), value: money(computed.finances?.income) },
                 { label: t("common.computed.expenses"), value: money(computed.finances?.expenses) },
                 { label: t("common.computed.balance"), value: money(computed.finances?.balance) },
+                { label: t("common.computed.totalBalance"), value: money(computed.finances?.total_balance) },
                 { label: t("common.computed.transactions"), value: count(computed.finances?.transactions) },
               ]}
             />
@@ -246,52 +218,42 @@ export function AnnualReportDetailClient({
         )}
       </section>
 
-      <section aria-labelledby="annual-manual" className="space-y-4">
-        <h2 id="annual-manual" className="text-lg font-semibold tracking-tight">
-          {t("common.sections.manual")}
+      <section aria-labelledby="annual-monthly" className="space-y-4">
+        <h2 id="annual-monthly" className="text-lg font-semibold tracking-tight">
+          {t("common.sections.monthly")}
         </h2>
-        {isDraft && canUpdate ? (
-          <AnnualManualDataForm
-            reportId={report.annual_report_id}
-            initialData={manual}
-            onSaved={applyUpdate}
-          />
-        ) : (
-          <>
-            <ReportFactsCard
-              title={t("annual.manual.sectionMeetings")}
-              facts={[
-                { label: t("annual.manual.planningMeetings"), value: count(manual?.planning_meetings) },
-                { label: t("annual.manual.parentMeetings"), value: count(manual?.parent_meetings) },
-                { label: t("annual.manual.camporeesAttended"), value: count(manual?.camporees_attended) },
-              ]}
-            />
-            <ReportFactsCard
-              title={t("annual.manual.sectionMissionary")}
-              facts={[
-                { label: t("annual.manual.baptizedThisYear"), value: count(manual?.baptized_this_year) },
-                { label: t("annual.manual.totalBaptized"), value: count(manual?.total_baptized) },
-                {
-                  label: t("annual.manual.allInvestituresCompleted"),
-                  value:
-                    manual?.all_investitures_completed == null
+        <MonthlyBasisNote monthsSubmitted={monthly?.months_submitted} />
+        <ReportFactsCard
+          title={t("annual.monthly.sectionMeetings")}
+          facts={[
+            { label: t("annual.monthly.planningMeetings"), value: count(monthly?.planning_meetings) },
+            { label: t("annual.monthly.parentMeetings"), value: count(monthly?.parent_meetings) },
+            { label: t("annual.monthly.camporeesAttended"), value: count(monthly?.camporees_attended) },
+          ]}
+        />
+        <ReportFactsCard
+          title={t("annual.monthly.sectionMissionary")}
+          facts={[
+            { label: t("annual.monthly.baptizedThisYear"), value: count(monthly?.baptized_this_year) },
+            { label: t("annual.monthly.totalBaptized"), value: count(monthly?.total_baptized) },
+            {
+              label: t("annual.monthly.allInvestituresCompleted"),
+              value:
+                    monthly?.all_investitures_completed == null
                       ? null
-                      : manual.all_investitures_completed
+                      : monthly.all_investitures_completed
                         ? t("common.yes")
                         : t("common.no"),
-                },
-              ]}
-            />
-            <ReportTextCard
-              title={t("annual.manual.sectionNarrative")}
-              emptyLabel={t("common.manual.noAnswer")}
-              entries={[
-                { label: t("annual.manual.achievements"), text: manual?.annual_achievements_description },
-                { label: t("annual.manual.communityService"), text: manual?.community_service_description },
-              ]}
-            />
-          </>
-        )}
+            },
+          ]}
+        />
+        <ReportMonthlyTextCard
+          title={t("annual.monthly.sectionNarrative")}
+          entries={[
+            { label: t("annual.monthly.achievements"), items: monthly?.annual_achievements_description },
+            { label: t("annual.monthly.communityService"), items: monthly?.community_service_description },
+          ]}
+        />
       </section>
     </div>
   );

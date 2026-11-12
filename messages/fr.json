@@ -7772,8 +7772,8 @@
       "jobMembershipExpiry": "Expiration des demandes d'adhésion",
       "jobCleanupExpired": "Nettoyage des sessions/tokens expirés",
       "jobFcmCleanup": "Nettoyage des tokens FCM orphelins",
-      "jobAnnualReports": "Rapports annuels (auto-générer)",
-      "jobQuarterlyReports": "Rapports trimestriels (auto-générer)",
+      "jobAnnualReports": "Rapports annuels (figer après la période)",
+      "jobQuarterlyReports": "Rapports trimestriels (figer après la période)",
       "jobMonthlyReportsReminders": "Rappels de rapports mensuels",
       "jobCronAlertCheck": "Vérification des alertes cron",
       "jobFcmStaleCleanup": "Nettoyage des tokens FCM inactifs",
@@ -9835,28 +9835,26 @@
       "unknownClub": "Club sans nom",
       "notCalculated": "Non calculé",
       "finalizedBy": "par {name}",
-      "lockedNotice": "Ce rapport n’est plus un brouillon. Ses données ne peuvent plus être modifiées ni recalculées.",
       "yes": "Oui",
       "no": "Non",
       "status": {
-        "draft": "Brouillon",
-        "finalized": "Finalisé",
-        "archived": "Archivé"
+        "draft": "En cours",
+        "finalized": "Clôturé"
       },
       "labels": {
         "club": "Club",
         "period": "Période",
         "status": "Statut",
         "calculated": "Calculé",
-        "finalized": "Finalisé le"
+        "finalized": "Clôturé le"
       },
       "sections": {
         "computed": "Données calculées",
-        "manual": "Données saisies"
+        "monthly": "Données des rapports mensuels"
       },
       "computed": {
         "summaryTitle": "Résumé de la période",
-        "summaryDescription": "Chiffres calculés par le système à partir de l’activité du club.",
+        "summaryDescription": "Chiffres calculés par le système à partir des rapports mensuels envoyés par le club.",
         "members": "Membres",
         "activities": "Activités",
         "honorsStarted": "Spécialités commencées",
@@ -9864,41 +9862,25 @@
         "financesTitle": "Finances",
         "income": "Recettes",
         "expenses": "Dépenses",
-        "balance": "Solde",
+        "balance": "Résultat de la période",
         "transactions": "Opérations",
         "directiva": "Direction",
         "directivaEmpty": "Le club n’a pas de direction enregistrée pour cette période.",
-        "empty": "Ce rapport n’a pas encore de données calculées. Utilisez Recalculer pour les générer."
+        "empty": "Ce rapport n’a pas encore de données calculées.",
+        "totalBalance": "Solde cumulé"
       },
       "actions": {
         "regenerate": "Recalculer",
-        "finalize": "Finaliser",
         "downloadPdf": "Télécharger le PDF",
         "view": "Voir"
       },
-      "finalizeConfirm": {
-        "title": "Finaliser ce rapport ?",
-        "description": "Vous allez finaliser le rapport de {report}. Cette action est irréversible : ensuite, vous ne pourrez plus modifier les données saisies ni recalculer le rapport.",
-        "cancel": "Annuler",
-        "confirm": "Finaliser le rapport"
-      },
       "toasts": {
-        "regenerated": "Données recalculées.",
-        "finalized": "Rapport finalisé.",
-        "manualSaved": "Données saisies enregistrées."
+        "regenerated": "Données recalculées."
       },
       "errors": {
         "regenerate": "Impossible de recalculer le rapport.",
-        "finalize": "Impossible de finaliser le rapport.",
         "download": "Impossible de télécharger le PDF.",
-        "saveManual": "Impossible d’enregistrer les données saisies.",
         "load": "Impossible de charger les rapports. Réessayez."
-      },
-      "manual": {
-        "save": "Enregistrer les données saisies",
-        "errorWholeNumber": "Saisissez un nombre entier supérieur ou égal à 0.",
-        "errorTextTooLong": "Le texte ne peut pas dépasser {max} caractères.",
-        "noAnswer": "Sans réponse"
       },
       "generate": {
         "trigger": "Générer un rapport",
@@ -9919,17 +9901,30 @@
         "club": "Club",
         "status": "Statut",
         "calculated": "Calculé",
-        "finalized": "Finalisé"
+        "finalized": "Clôturé"
       },
       "empty": {
         "filteredTitle": "Aucun résultat",
         "filteredDescription": "Aucun rapport ne correspond aux filtres. Modifiez-les pour en voir plus."
+      },
+      "closedNotice": "Rapport clôturé : ses données sont figées et ne changent plus.",
+      "draftNotice": "Rapport en cours : ses données se mettent à jour avec les rapports mensuels envoyés, jusqu’à 15 jours après la fin de la période.",
+      "regenerateConfirm": {
+        "title": "Recalculer ce rapport clôturé ?",
+        "description": "Vous allez recalculer le rapport de {report}. Ses données seront réécrites à partir des rapports mensuels envoyés aujourd’hui, même si le rapport est clôturé. Son statut ne change pas.",
+        "cancel": "Annuler",
+        "confirm": "Recalculer le rapport"
+      },
+      "monthly": {
+        "basedOn": "Basé sur {count, plural, one {# mois avec un rapport mensuel envoyé} other {# mois avec un rapport mensuel envoyé}}",
+        "noneSubmitted": "Le club n’a envoyé aucun rapport mensuel sur cette période : ces données sont donc vides.",
+        "noText": "Sans réponse"
       }
     },
     "quarterly": {
       "page": {
         "title": "Rapports trimestriels",
-        "description": "Générez, vérifiez, complétez et finalisez les rapports trimestriels des clubs."
+        "description": "Consultez les rapports trimestriels des clubs, calculés à partir de leurs rapports mensuels envoyés."
       },
       "detail": {
         "title": "Rapport trimestriel · {period}",
@@ -9952,19 +9947,16 @@
       },
       "generate": {
         "title": "Générer un rapport trimestriel",
-        "description": "Choisissez le club et le trimestre. Si le rapport existe déjà et qu’il est finalisé, il s’ouvre sans changement.",
+        "description": "Choisissez le club et le trimestre. Si le rapport existe déjà, il s’ouvre sans changement.",
         "year": "Année",
         "quarter": "Trimestre",
         "success": "Rapport trimestriel prêt.",
         "error": "Impossible de générer le rapport trimestriel."
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Réunions et présence",
-        "sectionMeetingsDescription": "Réunions tenues et présence aux conseils pendant le trimestre.",
         "sectionMissionary": "Mission et événements",
-        "sectionMissionaryDescription": "Objectifs et résultats missionnaires du trimestre.",
         "sectionNarrative": "Descriptions",
-        "sectionNarrativeDescription": "Participation du club et service à la communauté.",
         "planningMeetings": "Réunions de planification",
         "parentMeetings": "Réunions de parents",
         "youthCouncilAttendance": "Présence au conseil des jeunes",
@@ -9980,7 +9972,7 @@
     "annual": {
       "page": {
         "title": "Rapports annuels",
-        "description": "Générez, vérifiez, complétez et finalisez les rapports annuels des clubs par année ecclésiastique."
+        "description": "Consultez les rapports annuels des clubs par année ecclésiastique, calculés à partir de leurs rapports mensuels envoyés."
       },
       "detail": {
         "title": "Rapport annuel · {period}",
@@ -10002,7 +9994,7 @@
       },
       "generate": {
         "title": "Générer un rapport annuel",
-        "description": "Choisissez le club et l’année ecclésiastique. Si le rapport existe déjà et qu’il est finalisé, il s’ouvre sans changement.",
+        "description": "Choisissez le club et l’année ecclésiastique. Si le rapport existe déjà, il s’ouvre sans changement.",
         "year": "Année ecclésiastique",
         "yearRequired": "Sélectionnez une année ecclésiastique.",
         "success": "Rapport annuel prêt.",
@@ -10010,18 +10002,14 @@
       },
       "computed": {
         "monthsReported": "Mois rapportés",
-        "rankingPercentile": "Percentile au classement",
         "topAchievers": "Meilleurs résultats",
         "topAchieversEmpty": "Aucun membre en vue cette année.",
         "honorsCount": "{count, plural, one {# spécialité} other {# spécialités}}"
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Réunions et événements",
-        "sectionMeetingsDescription": "Réunions tenues et camporées de l’année.",
         "sectionMissionary": "Mission et investitures",
-        "sectionMissionaryDescription": "Baptêmes de l’année et état des investitures.",
         "sectionNarrative": "Descriptions",
-        "sectionNarrativeDescription": "Réalisations du club et service à la communauté.",
         "planningMeetings": "Réunions de planification",
         "parentMeetings": "Réunions de parents",
         "camporeesAttended": "Camporées suivis",

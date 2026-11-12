@@ -51,8 +51,11 @@ export async function listClubQuarterlyReports(clubId: number, year?: number) {
 
 // ─── Admin quarterly / annual reports ─────────────────────────────────────────
 
-/** Backend statuses: draft = Borrador, finalized = Finalizado, archived = Archivado. */
-export type PeriodicReportStatus = "draft" | "finalized" | "archived";
+/**
+ * draft = En curso (period open or within the grace; data is live),
+ * finalized = Cerrado (frozen by the daily cron; never changes).
+ */
+export type PeriodicReportStatus = "draft" | "finalized";
 
 export type PeriodicReportClub = {
   club_id: number;
@@ -73,18 +76,60 @@ export type ReportDirectivaMember = {
   name?: string | null;
 };
 
-/** Frozen figures shared by quarterly and annual `computed_data`. Every key may be missing. */
+export type ReportYearMonth = { year: number; month: number };
+
+/** Free text taken from each submitted monthly report: one entry per month. */
+export type ReportMonthlyText = { year: number; month: number; text: string }[];
+
+/**
+ * Figures shared by quarterly and annual `computed_data`. Computed from the
+ * submitted monthly reports of the period; every key may be missing in old rows.
+ */
 export type PeriodicComputedBase = {
   member_count?: number | null;
   directiva?: ReportDirectivaMember[] | null;
   honors?: { started?: number | null; completed?: number | null } | null;
   activities?: { total?: number | null } | null;
   finances?: {
+    /** Income of the period. */
     income?: number | null;
     expenses?: number | null;
+    /** Net result of the period. */
     balance?: number | null;
+    /** Cumulative balance at the end of the period. */
+    total_balance?: number | null;
     transactions?: number | null;
   } | null;
+};
+
+export type QuarterlyMonthlyData = {
+  months_submitted?: number | null;
+  months_covered?: ReportYearMonth[] | null;
+  planning_meetings?: number | null;
+  parent_meetings?: number | null;
+  youth_council_attendance?: number | null;
+  church_board_attendance?: number | null;
+  soul_target?: number | null;
+  baptized_this_quarter?: number | null;
+  club_participation_description?: ReportMonthlyText | null;
+  community_service_description?: ReportMonthlyText | null;
+  certificates_delivered?: boolean | null;
+  camporees_attended?: number | null;
+};
+
+export type AnnualMonthlyData = {
+  months_submitted?: number | null;
+  months_covered?: ReportYearMonth[] | null;
+  planning_meetings?: number | null;
+  parent_meetings?: number | null;
+  baptized_this_year?: number | null;
+  total_baptized?: number | null;
+  /** Always null for now (no source). */
+  annual_achievements_description?: ReportMonthlyText | null;
+  community_service_description?: ReportMonthlyText | null;
+  /** Always null for now (no source). */
+  all_investitures_completed?: boolean | null;
+  camporees_attended?: number | null;
 };
 
 export type QuarterlyComputedData = PeriodicComputedBase & {
@@ -93,6 +138,8 @@ export type QuarterlyComputedData = PeriodicComputedBase & {
   quarter?: number | null;
   months_in_quarter?: number[] | null;
   missionary?: { baptized_this_quarter?: number | null } | null;
+  /** Old rows may lack it. */
+  monthly_data?: QuarterlyMonthlyData | null;
 };
 
 export type AnnualComputedData = PeriodicComputedBase & {
@@ -100,36 +147,11 @@ export type AnnualComputedData = PeriodicComputedBase & {
   year_label?: string | null;
   months_reported?: number | null;
   missionary?: { baptized_total?: number | null } | null;
-  ranking_percentile?: number | null;
   top_achievers?:
     | { user_id?: string | null; name?: string | null; honors_count?: number | null }[]
     | null;
-};
-
-/** Fields of `UpdateQuarterlyManualDataDto` (sacdia-backend). */
-export type QuarterlyManualData = {
-  planning_meetings?: number | null;
-  parent_meetings?: number | null;
-  youth_council_attendance?: number | null;
-  church_board_attendance?: number | null;
-  soul_target?: number | null;
-  baptized_this_quarter?: number | null;
-  club_participation_description?: string | null;
-  community_service_description?: string | null;
-  camporees_attended?: number | null;
-  certificates_delivered?: boolean | null;
-};
-
-/** Fields of `UpdateAnnualManualDataDto` (sacdia-backend). */
-export type AnnualManualData = {
-  planning_meetings?: number | null;
-  parent_meetings?: number | null;
-  baptized_this_year?: number | null;
-  total_baptized?: number | null;
-  camporees_attended?: number | null;
-  annual_achievements_description?: string | null;
-  community_service_description?: string | null;
-  all_investitures_completed?: boolean | null;
+  /** Old rows may lack it. */
+  monthly_data?: AnnualMonthlyData | null;
 };
 
 type PeriodicReportBase = {
@@ -150,7 +172,6 @@ export type AdminQuarterlyReport = PeriodicReportBase & {
   year: number;
   quarter: number;
   computed_data?: QuarterlyComputedData | null;
-  manual_data?: QuarterlyManualData | null;
 };
 
 export type AdminAnnualReport = PeriodicReportBase & {
@@ -162,7 +183,6 @@ export type AdminAnnualReport = PeriodicReportBase & {
     end_date?: string | null;
   } | null;
   computed_data?: AnnualComputedData | null;
-  manual_data?: AnnualManualData | null;
 };
 
 export type PeriodicReportsPage<T> = {
@@ -192,8 +212,14 @@ export type AdminAnnualReportFilters = {
 export const PERIODIC_REPORT_STATUSES: readonly PeriodicReportStatus[] = [
   "draft",
   "finalized",
-  "archived",
 ];
+
+/** Narrows a free-form `status` query param to a value the backend accepts. */
+export function parsePeriodicReportStatus(
+  value: string | null | undefined,
+): PeriodicReportStatus | undefined {
+  return PERIODIC_REPORT_STATUSES.find((status) => status === value);
+}
 
 export const REPORT_QUARTERS = [1, 2, 3, 4] as const;
 
@@ -258,7 +284,8 @@ export async function getAdminQuarterlyReport(id: number | string): Promise<Admi
 
 /**
  * POST /admin/quarterly-reports/generate. Creates the draft when missing and
- * computes it; an already finalized report comes back unchanged.
+ * computes it (already closed when the period is past its grace);
+ * an existing report comes back unchanged.
  * Client-side only (mutation).
  */
 export async function generateQuarterlyReport(input: {
@@ -273,29 +300,12 @@ export async function generateQuarterlyReport(input: {
   return unwrapApiData<AdminQuarterlyReport>(payload);
 }
 
-/** PATCH /admin/quarterly-reports/:id — draft only. Client-side only (mutation). */
-export async function updateQuarterlyReportManualData(
-  id: number,
-  body: QuarterlyManualData,
-): Promise<AdminQuarterlyReport> {
-  const payload = await apiRequestFromClient<unknown>(`/admin/quarterly-reports/${id}`, {
-    method: "PATCH",
-    body,
-  });
-  return unwrapApiData<AdminQuarterlyReport>(payload);
-}
-
-/** POST /admin/quarterly-reports/:id/regenerate. Client-side only (mutation). */
+/**
+ * POST /admin/quarterly-reports/:id/regenerate — global super-admin / admin
+ * only. Recomputes even a closed report and keeps its status. Client-side only.
+ */
 export async function regenerateQuarterlyReport(id: number): Promise<AdminQuarterlyReport> {
   const payload = await apiRequestFromClient<unknown>(`/admin/quarterly-reports/${id}/regenerate`, {
-    method: "POST",
-  });
-  return unwrapApiData<AdminQuarterlyReport>(payload);
-}
-
-/** POST /admin/quarterly-reports/:id/finalize — irreversible. Client-side only (mutation). */
-export async function finalizeQuarterlyReport(id: number): Promise<AdminQuarterlyReport> {
-  const payload = await apiRequestFromClient<unknown>(`/admin/quarterly-reports/${id}/finalize`, {
     method: "POST",
   });
   return unwrapApiData<AdminQuarterlyReport>(payload);
@@ -327,7 +337,8 @@ export async function getAdminAnnualReport(id: number | string): Promise<AdminAn
 
 /**
  * POST /admin/annual-reports/generate. Creates the draft when missing and
- * computes it; an already finalized report comes back unchanged.
+ * computes it (already closed when the period is past its grace);
+ * an existing report comes back unchanged.
  * Client-side only (mutation).
  */
 export async function generateAnnualReport(input: {
@@ -341,29 +352,12 @@ export async function generateAnnualReport(input: {
   return unwrapApiData<AdminAnnualReport>(payload);
 }
 
-/** PATCH /admin/annual-reports/:id — draft only. Client-side only (mutation). */
-export async function updateAnnualReportManualData(
-  id: number,
-  body: AnnualManualData,
-): Promise<AdminAnnualReport> {
-  const payload = await apiRequestFromClient<unknown>(`/admin/annual-reports/${id}`, {
-    method: "PATCH",
-    body,
-  });
-  return unwrapApiData<AdminAnnualReport>(payload);
-}
-
-/** POST /admin/annual-reports/:id/regenerate. Client-side only (mutation). */
+/**
+ * POST /admin/annual-reports/:id/regenerate — global super-admin / admin
+ * only. Recomputes even a closed report and keeps its status. Client-side only.
+ */
 export async function regenerateAnnualReport(id: number): Promise<AdminAnnualReport> {
   const payload = await apiRequestFromClient<unknown>(`/admin/annual-reports/${id}/regenerate`, {
-    method: "POST",
-  });
-  return unwrapApiData<AdminAnnualReport>(payload);
-}
-
-/** POST /admin/annual-reports/:id/finalize — irreversible. Client-side only (mutation). */
-export async function finalizeAnnualReport(id: number): Promise<AdminAnnualReport> {
-  const payload = await apiRequestFromClient<unknown>(`/admin/annual-reports/${id}/finalize`, {
     method: "POST",
   });
   return unwrapApiData<AdminAnnualReport>(payload);

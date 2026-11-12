@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { AlertTriangle, CheckCircle2, Download, RefreshCw } from "lucide-react";
+import { AlertTriangle, Download, RefreshCw } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,45 +17,42 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface PeriodicReportActionsProps {
-  status: string;
-  /** reports:update — Recalcular. Only drafts can be recalculated. */
-  canUpdate: boolean;
-  /** reports:update — Finalizar. Only drafts can be finalized. */
-  canFinalize: boolean;
+  /**
+   * Recalcular: global super-admin / admin with reports:update. It rewrites a
+   * closed report, so it is only offered on closed ones (open reports are
+   * recomputed by the backend on every read).
+   */
+  canRegenerate: boolean;
   /** reports:download */
   canDownload: boolean;
-  regenerating: boolean;
+  /** The report is closed (status finalized). */
+  isClosed: boolean;
   downloading: boolean;
   /** "Club Águilas · Trimestre 2 de 2026" — named in the confirmation. */
   reportLabel: string;
-  onRegenerate: () => void;
-  onFinalize: () => Promise<void>;
+  onRegenerate: () => Promise<void>;
   onDownload: () => void;
 }
 
 export function PeriodicReportActions({
-  status,
-  canUpdate,
-  canFinalize,
+  canRegenerate,
   canDownload,
-  regenerating,
+  isClosed,
   downloading,
   reportLabel,
   onRegenerate,
-  onFinalize,
   onDownload,
 }: PeriodicReportActionsProps) {
   const t = useTranslations("periodicReports.common");
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [finalizing, setFinalizing] = useState(false);
-  const isDraft = status === "draft";
+  const [regenerating, setRegenerating] = useState(false);
 
   async function handleConfirm() {
-    setFinalizing(true);
+    setRegenerating(true);
     try {
-      await onFinalize();
+      await onRegenerate();
     } finally {
-      setFinalizing(false);
+      setRegenerating(false);
       setConfirmOpen(false);
     }
   }
@@ -63,28 +60,16 @@ export function PeriodicReportActions({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        {isDraft && canUpdate ? (
+        {isClosed && canRegenerate ? (
           <Button
             type="button"
             variant="outline"
             size="sm"
             loading={regenerating}
-            disabled={finalizing}
-            onClick={onRegenerate}
+            onClick={() => setConfirmOpen(true)}
           >
             <RefreshCw className="size-4" />
             {t("actions.regenerate")}
-          </Button>
-        ) : null}
-        {isDraft && canFinalize ? (
-          <Button
-            type="button"
-            size="sm"
-            disabled={regenerating}
-            onClick={() => setConfirmOpen(true)}
-          >
-            <CheckCircle2 className="size-4" />
-            {t("actions.finalize")}
           </Button>
         ) : null}
         {canDownload ? (
@@ -104,7 +89,7 @@ export function PeriodicReportActions({
       <AlertDialog
         open={confirmOpen}
         onOpenChange={(open) => {
-          if (!finalizing) setConfirmOpen(open);
+          if (!regenerating) setConfirmOpen(open);
         }}
       >
         <AlertDialogContent>
@@ -112,22 +97,24 @@ export function PeriodicReportActions({
             <AlertDialogMedia className="bg-warning/10">
               <AlertTriangle className="size-5 text-warning" />
             </AlertDialogMedia>
-            <AlertDialogTitle>{t("finalizeConfirm.title")}</AlertDialogTitle>
+            <AlertDialogTitle>{t("regenerateConfirm.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("finalizeConfirm.description", { report: reportLabel })}
+              {t("regenerateConfirm.description", { report: reportLabel })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={finalizing}>{t("finalizeConfirm.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={regenerating}>
+              {t("regenerateConfirm.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
-              loading={finalizing}
+              loading={regenerating}
               onClick={(event) => {
                 // Keep the dialog open while the request is in flight.
                 event.preventDefault();
                 void handleConfirm();
               }}
             >
-              {t("finalizeConfirm.confirm")}
+              {t("regenerateConfirm.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

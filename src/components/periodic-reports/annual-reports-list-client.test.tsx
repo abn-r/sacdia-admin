@@ -72,8 +72,8 @@ describe("AnnualReportsListClient", () => {
       "/dashboard/reports/annual/31",
     );
     expect(first.getByText("2025-2026")).toBeInTheDocument();
-    expect(first.getByText("Borrador")).toBeInTheDocument();
-    expect(within(rows[2]).getByText("Finalizado")).toBeInTheDocument();
+    expect(first.getByText("En curso")).toBeInTheDocument();
+    expect(within(rows[2]).getByText("Cerrado")).toBeInTheDocument();
   });
 
   it("shows the empty state when there are no reports", () => {
@@ -84,7 +84,7 @@ describe("AnnualReportsListClient", () => {
   });
 
   it("explains an empty result caused by filters", () => {
-    renderList(page([]), { status: "archived" });
+    renderList(page([]), { status: "finalized" });
 
     expect(screen.getByText("Sin resultados")).toBeInTheDocument();
   });

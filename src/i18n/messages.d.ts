@@ -9882,13 +9882,11 @@ export interface IntlMessages {
       unknownClub: string;
       notCalculated: string;
       finalizedBy: string;
-      lockedNotice: string;
       yes: string;
       no: string;
       status: {
         draft: string;
         finalized: string;
-        archived: string;
       };
       labels: {
         club: string;
@@ -9899,7 +9897,7 @@ export interface IntlMessages {
       };
       sections: {
         computed: string;
-        manual: string;
+        monthly: string;
       };
       computed: {
         summaryTitle: string;
@@ -9916,36 +9914,20 @@ export interface IntlMessages {
         directiva: string;
         directivaEmpty: string;
         empty: string;
+        totalBalance: string;
       };
       actions: {
         regenerate: string;
-        finalize: string;
         downloadPdf: string;
         view: string;
       };
-      finalizeConfirm: {
-        title: string;
-        description: string;
-        cancel: string;
-        confirm: string;
-      };
       toasts: {
         regenerated: string;
-        finalized: string;
-        manualSaved: string;
       };
       errors: {
         regenerate: string;
-        finalize: string;
         download: string;
-        saveManual: string;
         load: string;
-      };
-      manual: {
-        save: string;
-        errorWholeNumber: string;
-        errorTextTooLong: string;
-        noAnswer: string;
       };
       generate: {
         trigger: string;
@@ -9971,6 +9953,19 @@ export interface IntlMessages {
       empty: {
         filteredTitle: string;
         filteredDescription: string;
+      };
+      closedNotice: string;
+      draftNotice: string;
+      regenerateConfirm: {
+        title: string;
+        description: string;
+        cancel: string;
+        confirm: string;
+      };
+      monthly: {
+        basedOn: string;
+        noneSubmitted: string;
+        noText: string;
       };
     };
     quarterly: {
@@ -10005,13 +10000,10 @@ export interface IntlMessages {
         success: string;
         error: string;
       };
-      manual: {
+      monthly: {
         sectionMeetings: string;
-        sectionMeetingsDescription: string;
         sectionMissionary: string;
-        sectionMissionaryDescription: string;
         sectionNarrative: string;
-        sectionNarrativeDescription: string;
         planningMeetings: string;
         parentMeetings: string;
         youthCouncilAttendance: string;
@@ -10057,18 +10049,14 @@ export interface IntlMessages {
       };
       computed: {
         monthsReported: string;
-        rankingPercentile: string;
         topAchievers: string;
         topAchieversEmpty: string;
         honorsCount: string;
       };
-      manual: {
+      monthly: {
         sectionMeetings: string;
-        sectionMeetingsDescription: string;
         sectionMissionary: string;
-        sectionMissionaryDescription: string;
         sectionNarrative: string;
-        sectionNarrativeDescription: string;
         planningMeetings: string;
         parentMeetings: string;
         camporeesAttended: string;

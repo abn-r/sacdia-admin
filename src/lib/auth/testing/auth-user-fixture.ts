@@ -155,8 +155,15 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   grant("rbac.manage", superAdmin);
   grant("rbac.mutate_global_roles", superAdmin);
   grant("rbac.view_user_roles", anyOf(g, ["super-admin", "admin"]));
+  grant("reports.regenerate_periodic", anyOf(g, ["super-admin", "admin"]));
   grant("reports.view_all", anyOf(g, ["super-admin", "admin", ...DIVISION]));
   grant("reports.view_local_field", g.has("assistant-admin") || fieldWithScope);
+  // Quarterly / annual reports: everyone who reaches a territory or a club
+  // section; coordinators with no other role are out.
+  grant(
+    "reports.view_periodic",
+    platform || anyOf(g, [...FIELD, ...UNION, ...DIVISION]) || a !== null,
+  );
   grant("reports.view_union", anyOf(g, UNION) && t === "union");
   grant("scoring_categories.manage", anyOf(g, ["super-admin", "admin"]));
   grant("service_credentials.review", platform || anyOf(g, [...FIELD, ...COORDINATORS, "pastor"]));

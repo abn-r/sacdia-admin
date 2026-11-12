@@ -7,6 +7,7 @@ import { GenerateQuarterlyReportButton } from "@/components/periodic-reports/gen
 import { QuarterlyReportsListClient } from "@/components/periodic-reports/quarterly-reports-list-client";
 import { ApiError } from "@/lib/api/client";
 import {
+  parsePeriodicReportStatus,
   listAdminQuarterlyReports,
   type AdminQuarterlyReport,
   type PeriodicReportsPage,
@@ -50,7 +51,7 @@ export default async function QuarterlyReportsPage({ searchParams }: QuarterlyRe
     clubId: parsePositiveInt(params.club_id),
     year: parsePositiveInt(params.year),
     quarter: quarter && quarter <= 4 ? quarter : undefined,
-    status: params.status || undefined,
+    status: parsePeriodicReportStatus(params.status),
     page: parsePositiveInt(params.page) ?? 1,
     limit: parsePositiveInt(params.limit) ?? DEFAULT_LIMIT,
   };

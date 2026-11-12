@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
 import { AnnualReportDetailClient } from "@/components/periodic-reports/annual-report-detail-client";
 import { ApiError } from "@/lib/api/client";
@@ -34,8 +35,12 @@ export default async function AnnualReportDetailPage({
   try {
     report = await getAdminAnnualReport(reportId);
   } catch (error) {
-    // Out-of-scope and missing reports both answer 404; 403 means no access to the module.
-    if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
+    // Out-of-scope and missing reports both answer 404. A 403 (PERIODIC_REPORTS_FORBIDDEN
+    // for coordinators, or a missing permission) means no access to the module.
+    if (error instanceof ApiError && error.status === 403) {
+      return <PageAccessForbidden />;
+    }
+    if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
     throw error;
@@ -56,12 +61,11 @@ export default async function AnnualReportDetailPage({
         ]}
       />
 
-      {/* Remounts with fresh server data after router.refresh() (e.g. the finalizer name). */}
+      {/* Remounts with fresh server data after router.refresh() (e.g. after Recalcular). */}
       <AnnualReportDetailClient
         key={`${report.status}-${report.modified_at ?? ""}`}
         report={report}
-        canUpdate={canCapability(user, SCREEN_ID, "update")}
-        canFinalize={canCapability(user, SCREEN_ID, "finalize")}
+        canRegenerate={canCapability(user, SCREEN_ID, "regenerate")}
         canDownload={canCapability(user, SCREEN_ID, "download")}
       />
     </div>
