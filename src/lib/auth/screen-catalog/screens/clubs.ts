@@ -46,16 +46,24 @@ const ANNUAL_FOLDERS_EVALUATE = "annual_folders:evaluate";
 const ANNUAL_FOLDER_TEMPLATES_READ = "annual_folder_templates:read";
 const ANNUAL_FOLDER_TEMPLATES_DELETE = "annual_folder_templates:delete";
 
+/**
+ * Quarterly / annual reports are computed from the monthly ones: nobody fills
+ * or finalizes them. `reports.view_periodic` is the server capability that
+ * hides them from coordinators (403 PERIODIC_REPORTS_FORBIDDEN).
+ */
 function reportsPeriodicScreen(id: string): ScreenDefinition {
   return {
     id,
     surfaces: ["admin"],
-    viewAny: { permissions: [REPORTS_READ] },
+    viewAny: capabilityAccess("reports.view_periodic", [REPORTS_READ]),
     capabilities: [
       { id: "generate", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
-      // Manual data form and Recalcular.
-      { id: "update", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
-      { id: "finalize", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
+      // POST .../:id/regenerate: @ExactGlobalRoles(super-admin, admin) + reports:update.
+      {
+        id: "regenerate",
+        kind: "button",
+        gate: capabilityAccess("reports.regenerate_periodic", [REPORTS_UPDATE]),
+      },
       { id: "download", kind: "button", gate: { permissions: [REPORTS_DOWNLOAD] } },
     ],
   };

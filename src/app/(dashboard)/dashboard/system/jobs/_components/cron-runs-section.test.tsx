@@ -484,7 +484,7 @@ describe("CronRunsSection - run now", () => {
     it("uses the translated label when a key exists", () => {
       renderSection();
       expect(
-        within(rowOf("annual-reports-auto-generate")).getByText("Reportes anuales (auto-generar)"),
+        within(rowOf("annual-reports-auto-generate")).getByText("Informes anuales (congelar tras el periodo)"),
       ).toBeInTheDocument();
       expect(within(rowOf(JOB)).getByText(JOB_LABEL)).toBeInTheDocument();
     });

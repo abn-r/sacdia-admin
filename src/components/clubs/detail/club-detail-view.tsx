@@ -33,6 +33,11 @@ interface ClubDetailViewProps {
   /** The report list request failed: show an error, not "no reports". */
   annualReportsError?: boolean;
   quarterlyReportsError?: boolean;
+  /**
+   * Capability reports.view_periodic: coordinators cannot see quarterly /
+   * annual reports, so the tab and its counter are hidden for them.
+   */
+  canViewPeriodicReports?: boolean;
   /** reports:read — rows link to the report detail. */
   canOpenReports?: boolean;
   /** clubs:update — shows the "Editar" action in the header. */
@@ -46,6 +51,7 @@ export function ClubDetailView({
   quarterlyReports,
   annualReportsError = false,
   quarterlyReportsError = false,
+  canViewPeriodicReports = true,
   canOpenReports = false,
   canEdit = false,
   defaultTab,
@@ -57,7 +63,11 @@ export function ClubDetailView({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = resolveClubDetailTab(searchParams.get("tab") ?? defaultTab);
+  const visibleTabs = CLUB_DETAIL_TABS.filter(
+    (tab) => tab !== "reports" || canViewPeriodicReports,
+  );
+  const requestedTab = resolveClubDetailTab(searchParams.get("tab") ?? defaultTab);
+  const activeTab = visibleTabs.includes(requestedTab) ? requestedTab : "general";
 
   const clubName = data.club.name ?? t("fallbackTitle");
   const isActive = data.club.active !== false;
@@ -72,7 +82,7 @@ export function ClubDetailView({
   const soulsTotal = kpis.soulsTotal;
   const reportsCount = annualReports.length + quarterlyReports.length;
 
-  const statItems: StatItem[] = [
+  const statItems: (StatItem | false)[] = [
     {
       label: t("stats.membersLabel"),
       value: membersTotal,
@@ -99,7 +109,7 @@ export function ClubDetailView({
       sub: t("stats.soulsSub"),
       accent: tGeneral("labelSoulsTarget"),
     },
-    {
+    canViewPeriodicReports && {
       label: t("stats.reportsLabel"),
       value: reportsCount,
       sub:
@@ -159,11 +169,11 @@ export function ClubDetailView({
         }}
       />
 
-      <UserDetailStats items={statItems} />
+      <UserDetailStats items={statItems.filter((item): item is StatItem => item !== false)} />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
         <TabsList className="h-auto min-h-8 w-full flex-wrap">
-          {CLUB_DETAIL_TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <TabsTrigger key={tab} value={tab}>
               {t(`tabs.${tab}`)}
             </TabsTrigger>
@@ -180,15 +190,17 @@ export function ClubDetailView({
           <TabsContent value="roles" className="mt-0">
             <RolesTab data={data} />
           </TabsContent>
-          <TabsContent value="reports" className="mt-0">
-            <ReportsTab
-              annualReports={annualReports}
-              quarterlyReports={quarterlyReports}
-              annualReportsError={annualReportsError}
-              quarterlyReportsError={quarterlyReportsError}
-              canOpenReports={canOpenReports}
-            />
-          </TabsContent>
+          {canViewPeriodicReports ? (
+            <TabsContent value="reports" className="mt-0">
+              <ReportsTab
+                annualReports={annualReports}
+                quarterlyReports={quarterlyReports}
+                annualReportsError={annualReportsError}
+                quarterlyReportsError={quarterlyReportsError}
+                canOpenReports={canOpenReports}
+              />
+            </TabsContent>
+          ) : null}
           <TabsContent value="history" className="mt-0">
             <HistoryTab clubId={data.clubId} sections={data.sectionMemberGroups} />
           </TabsContent>

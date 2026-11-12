@@ -83,10 +83,10 @@ describe("QuarterlyReportsListClient", () => {
       "/dashboard/reports/quarterly/11",
     );
     expect(first.getByText("Trimestre 2 de 2026")).toBeInTheDocument();
-    expect(first.getByText("Borrador")).toBeInTheDocument();
+    expect(first.getByText("En curso")).toBeInTheDocument();
 
     const second = within(rows[2]);
-    expect(second.getByText("Finalizado")).toBeInTheDocument();
+    expect(second.getByText("Cerrado")).toBeInTheDocument();
     expect(second.getByText("Ana García")).toBeInTheDocument();
   });
 

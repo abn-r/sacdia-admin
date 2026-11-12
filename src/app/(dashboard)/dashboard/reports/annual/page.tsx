@@ -7,6 +7,7 @@ import { AnnualReportsListClient } from "@/components/periodic-reports/annual-re
 import { GenerateAnnualReportButton } from "@/components/periodic-reports/generate-annual-report-dialog";
 import { ApiError } from "@/lib/api/client";
 import {
+  parsePeriodicReportStatus,
   listAdminAnnualReports,
   type AdminAnnualReport,
   type PeriodicReportsPage,
@@ -47,7 +48,7 @@ export default async function AnnualReportsPage({ searchParams }: AnnualReportsP
   const filters = {
     clubId: parsePositiveInt(params.club_id),
     ecclesiasticalYearId: parsePositiveInt(params.ecclesiastical_year_id),
-    status: params.status || undefined,
+    status: parsePeriodicReportStatus(params.status),
     page: parsePositiveInt(params.page) ?? 1,
     limit: parsePositiveInt(params.limit) ?? DEFAULT_LIMIT,
   };

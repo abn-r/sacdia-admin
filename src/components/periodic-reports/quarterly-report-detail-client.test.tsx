@@ -16,8 +16,6 @@ const api = vi.hoisted(() => ({
   toastSuccess: vi.fn(),
   toastError: vi.fn(),
   regenerateQuarterly: vi.fn(),
-  finalizeQuarterly: vi.fn(),
-  updateQuarterlyManual: vi.fn(),
   downloadQuarterly: vi.fn(),
 }));
 
@@ -32,8 +30,6 @@ vi.mock("@/lib/api/reports", async (importOriginal) => {
   return {
     ...actual,
     regenerateQuarterlyReport: api.regenerateQuarterly,
-    finalizeQuarterlyReport: api.finalizeQuarterly,
-    updateQuarterlyReportManualData: api.updateQuarterlyManual,
     triggerQuarterlyReportPdfDownload: api.downloadQuarterly,
   };
 });
@@ -53,10 +49,24 @@ const quarterly: AdminQuarterlyReport = {
     member_count: 18,
     activities: { total: 7 },
     honors: { started: 5, completed: 3 },
-    finances: { income: 1200, expenses: 800, balance: 400, transactions: 9 },
+    finances: { income: 1200, expenses: 800, balance: 400, total_balance: 2500, transactions: 9 },
     directiva: [{ role: "director", user_id: "u1", name: "Ana García" }],
+    monthly_data: {
+      months_submitted: 2,
+      months_covered: [
+        { year: 2026, month: 4 },
+        { year: 2026, month: 5 },
+      ],
+      planning_meetings: 6,
+      parent_meetings: null,
+      certificates_delivered: true,
+      club_participation_description: [
+        { year: 2026, month: 4, text: "Campamento de primavera" },
+        { year: 2026, month: 5, text: "Feria misionera" },
+      ],
+      community_service_description: null,
+    },
   },
-  manual_data: { planning_meetings: 6, certificates_delivered: true },
 };
 
 function wrap(node: React.ReactNode) {
@@ -67,22 +77,68 @@ function wrap(node: React.ReactNode) {
   );
 }
 
-const ALL_ALLOWED = { canUpdate: true, canFinalize: true, canDownload: true };
+const DEFAULTS = { canRegenerate: true, canDownload: true };
+const closed: AdminQuarterlyReport = {
+  ...quarterly,
+  status: "finalized",
+  finalized_at: "2026-07-17T03:00:00.000Z",
+  finalized_by: null,
+};
 
 describe("QuarterlyReportDetailClient", () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(cleanup);
 
-  it("shows the computed data readably and the manual form while the report is a draft", () => {
-    wrap(<QuarterlyReportDetailClient report={quarterly} {...ALL_ALLOWED} />);
+  it("shows an open report as En curso with computed and monthly data, no edit or finalize actions", () => {
+    wrap(<QuarterlyReportDetailClient report={quarterly} {...DEFAULTS} />);
 
     expect(screen.getByText("Trimestre 2 de 2026")).toBeInTheDocument();
-    expect(screen.getByText("Borrador")).toBeInTheDocument();
+    expect(screen.getByText("En curso")).toBeInTheDocument();
     expect(screen.getByText("Ana García")).toBeInTheDocument();
     expect(screen.getByText("Miembros")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardar datos manuales" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Recalcular" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Finalizar" })).toBeInTheDocument();
+    expect(screen.getByText("Resultado del periodo")).toBeInTheDocument();
+    expect(screen.getByText("Saldo acumulado")).toBeInTheDocument();
+    expect(screen.getByText(/Informe en curso/)).toBeInTheDocument();
+    expect(screen.getByText("Basado en 2 meses con informe mensual enviado")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Guardar datos manuales" })).not.toBeInTheDocument();
+    // Recalcular is only offered on closed reports.
+    expect(screen.queryByRole("button", { name: "Recalcular" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeInTheDocument();
+  });
+
+  it("formats monthly values: dashes for null, Sí/No for booleans, month names for texts", () => {
+    wrap(<QuarterlyReportDetailClient report={quarterly} {...DEFAULTS} />);
+
+    expect(screen.getByText("Se entregaron certificados").nextElementSibling).toHaveTextContent("Sí");
+    expect(screen.getByText("Reuniones de padres").nextElementSibling).toHaveTextContent("—");
+    expect(screen.getByText(/Abril de 2026:/)).toBeInTheDocument();
+    expect(screen.getByText("Campamento de primavera")).toBeInTheDocument();
+    expect(screen.getByText(/Mayo de 2026:/)).toBeInTheDocument();
+    expect(screen.getAllByText("Sin respuesta").length).toBeGreaterThan(0);
+  });
+
+  it("does not crash on old rows without monthly_data and hints that nothing was submitted", () => {
+    wrap(
+      <QuarterlyReportDetailClient
+        report={{
+          ...quarterly,
+          computed_data: { member_count: 3, finances: { balance: 10, total_balance: null } },
+        }}
+        {...DEFAULTS}
+      />,
+    );
+
+    expect(screen.getByText(/no envió ningún informe mensual/)).toBeInTheDocument();
+    expect(screen.getByText("Reuniones de planificación").nextElementSibling).toHaveTextContent("—");
+  });
+
+  it("shows a closed report as Cerrado with its closing date and the frozen notice", () => {
+    wrap(<QuarterlyReportDetailClient report={closed} {...DEFAULTS} />);
+
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
+    expect(screen.getByText("Cerrado el")).toBeInTheDocument();
+    expect(screen.getByText(/Informe cerrado/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeInTheDocument();
   });
 
@@ -96,122 +152,59 @@ describe("QuarterlyReportDetailClient", () => {
             directiva: [
               { role: "director", user_id: "u1", name: "Ana" },
               { role: "deputy-director", user_id: "u2", name: "Beto" },
-              { role: "secretary-treasurer", user_id: "u3", name: "Carla" },
-              { role: "treasurer", user_id: "u4", name: "Diego" },
               { role: "custom-role", user_id: "u5", name: "Eva" },
             ],
           },
         }}
-        {...ALL_ALLOWED}
+        {...DEFAULTS}
       />,
     );
 
     expect(screen.getByText("Director")).toBeInTheDocument();
     expect(screen.getByText("Subdirector")).toBeInTheDocument();
-    expect(screen.getByText("Secretario tesorero")).toBeInTheDocument();
-    expect(screen.getByText("Tesorero")).toBeInTheDocument();
     expect(screen.getByText("Custom Role")).toBeInTheDocument();
     expect(screen.queryByText("deputy-director")).not.toBeInTheDocument();
-    expect(screen.queryByText("secretary-treasurer")).not.toBeInTheDocument();
   });
 
-  it("hides the manual form, Recalcular and Finalizar once finalized", () => {
-    wrap(
-      <QuarterlyReportDetailClient
-        report={{
-          ...quarterly,
-          status: "finalized",
-          finalized_at: "2026-07-10T12:00:00.000Z",
-          finalized_by_user: { user_id: "u1", name: "Ana", paternal_last_name: "García" },
-        }}
-        {...ALL_ALLOWED}
-      />,
-    );
+  it("hides Recalcular for users who are not global admins and the PDF without reports:download", () => {
+    wrap(<QuarterlyReportDetailClient report={closed} canRegenerate={false} canDownload={false} />);
 
-    expect(screen.getByText("Finalizado")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Guardar datos manuales" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Recalcular" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
-    // Manual answers stay visible, read-only, and the PDF stays downloadable.
-    expect(screen.getByText("Se entregaron certificados")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeInTheDocument();
-  });
-
-  it("hides the edit actions for users without reports:update", () => {
-    wrap(
-      <QuarterlyReportDetailClient
-        report={quarterly}
-        canUpdate={false}
-        canFinalize={false}
-        canDownload={false}
-      />,
-    );
-
-    expect(screen.queryByRole("button", { name: "Guardar datos manuales" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Recalcular" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Descargar PDF" })).not.toBeInTheDocument();
   });
 
-  it("asks for confirmation before finalizing and only then calls the API", async () => {
-    api.finalizeQuarterly.mockResolvedValue({ ...quarterly, status: "finalized" });
-    wrap(<QuarterlyReportDetailClient report={quarterly} {...ALL_ALLOWED} />);
+  it("asks for confirmation before recalculating a closed report and only then calls the API", async () => {
+    api.regenerateQuarterly.mockResolvedValue({ ...closed });
+    wrap(<QuarterlyReportDetailClient report={closed} {...DEFAULTS} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Recalcular" }));
 
     const dialog = await screen.findByRole("alertdialog");
-    expect(dialog).toHaveTextContent("¿Finalizar este informe?");
-    expect(dialog).toHaveTextContent("irreversible");
-    expect(api.finalizeQuarterly).not.toHaveBeenCalled();
+    expect(dialog).toHaveTextContent("¿Recalcular este informe cerrado?");
+    expect(api.regenerateQuarterly).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalizar informe" }));
+    fireEvent.click(screen.getByRole("button", { name: "Recalcular informe" }));
 
-    await waitFor(() => expect(api.finalizeQuarterly).toHaveBeenCalledWith(11));
-    await waitFor(() => expect(screen.getByText("Finalizado")).toBeInTheDocument());
-    expect(screen.queryByRole("button", { name: "Finalizar" })).not.toBeInTheDocument();
+    await waitFor(() => expect(api.regenerateQuarterly).toHaveBeenCalledWith(11));
+    await waitFor(() => expect(api.toastSuccess).toHaveBeenCalledWith("Datos recalculados."));
+    expect(screen.getByText("Cerrado")).toBeInTheDocument();
   });
 
-  it("does not finalize when the confirmation is cancelled", async () => {
-    wrap(<QuarterlyReportDetailClient report={quarterly} {...ALL_ALLOWED} />);
+  it("does not recalculate when the confirmation is cancelled", async () => {
+    wrap(<QuarterlyReportDetailClient report={closed} {...DEFAULTS} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Recalcular" }));
     fireEvent.click(await screen.findByRole("button", { name: "Cancelar" }));
 
     await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
-    expect(api.finalizeQuarterly).not.toHaveBeenCalled();
+    expect(api.regenerateQuarterly).not.toHaveBeenCalled();
   });
 
-  it("recalculates and downloads", async () => {
-    api.regenerateQuarterly.mockResolvedValue({ ...quarterly });
+  it("downloads the PDF", async () => {
     api.downloadQuarterly.mockResolvedValue(undefined);
-    wrap(<QuarterlyReportDetailClient report={quarterly} {...ALL_ALLOWED} />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Recalcular" }));
-    await waitFor(() => expect(api.regenerateQuarterly).toHaveBeenCalledWith(11));
+    wrap(<QuarterlyReportDetailClient report={quarterly} {...DEFAULTS} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Descargar PDF" }));
     await waitFor(() => expect(api.downloadQuarterly).toHaveBeenCalledWith(11));
-  });
-
-  it("saves manual data as a typed payload and rejects non-numeric input", async () => {
-    api.updateQuarterlyManual.mockResolvedValue({ ...quarterly });
-    wrap(<QuarterlyReportDetailClient report={quarterly} {...ALL_ALLOWED} />);
-
-    const parents = screen.getByLabelText("Reuniones de padres");
-    fireEvent.change(parents, { target: { value: "abc" } });
-    fireEvent.click(screen.getByRole("button", { name: "Guardar datos manuales" }));
-    expect(await screen.findByText("Escribe un número entero de 0 en adelante.")).toBeInTheDocument();
-    expect(api.updateQuarterlyManual).not.toHaveBeenCalled();
-
-    fireEvent.change(parents, { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: "Guardar datos manuales" }));
-
-    await waitFor(() =>
-      expect(api.updateQuarterlyManual).toHaveBeenCalledWith(11, {
-        planning_meetings: 6,
-        parent_meetings: 3,
-        certificates_delivered: true,
-      }),
-    );
   });
 });

@@ -44,35 +44,6 @@ export function ReportFactsCard({
   );
 }
 
-/** Long answers (achievements, service description…). Empty ones show the placeholder. */
-export function ReportTextCard({
-  title,
-  entries,
-  emptyLabel,
-}: {
-  title: string;
-  entries: { label: string; text: string | null | undefined }[];
-  emptyLabel: string;
-}) {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {entries.map(({ label, text }) => (
-          <div key={label}>
-            <h3 className="text-xs text-muted-foreground">{label}</h3>
-            <p className="mt-0.5 whitespace-pre-wrap text-sm">
-              {text?.trim() ? text : <span className="text-muted-foreground">{emptyLabel}</span>}
-            </p>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-}
-
 /** People with a secondary line (directiva role, honors count…). Hidden when empty. */
 export function ReportPeopleCard({
   title,

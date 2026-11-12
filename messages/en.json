@@ -7772,8 +7772,8 @@
       "jobMembershipExpiry": "Expire membership requests",
       "jobCleanupExpired": "Cleanup expired sessions/tokens",
       "jobFcmCleanup": "Cleanup orphaned FCM tokens",
-      "jobAnnualReports": "Annual reports (auto-generate)",
-      "jobQuarterlyReports": "Quarterly reports (auto-generate)",
+      "jobAnnualReports": "Annual reports (freeze after the period)",
+      "jobQuarterlyReports": "Quarterly reports (freeze after the period)",
       "jobMonthlyReportsReminders": "Monthly report reminders",
       "jobCronAlertCheck": "Cron alert check",
       "jobFcmStaleCleanup": "Cleanup stale FCM tokens",
@@ -9835,28 +9835,26 @@
       "unknownClub": "Unnamed club",
       "notCalculated": "Not calculated",
       "finalizedBy": "by {name}",
-      "lockedNotice": "This report is no longer a draft. Its data can no longer be edited or recalculated.",
       "yes": "Yes",
       "no": "No",
       "status": {
-        "draft": "Draft",
-        "finalized": "Finalized",
-        "archived": "Archived"
+        "draft": "In progress",
+        "finalized": "Closed"
       },
       "labels": {
         "club": "Club",
         "period": "Period",
         "status": "Status",
         "calculated": "Calculated",
-        "finalized": "Finalized on"
+        "finalized": "Closed on"
       },
       "sections": {
         "computed": "Calculated data",
-        "manual": "Manual data"
+        "monthly": "Monthly report data"
       },
       "computed": {
         "summaryTitle": "Period summary",
-        "summaryDescription": "Figures the system calculated from the club’s activity.",
+        "summaryDescription": "Figures calculated by the system from the monthly reports the club submitted.",
         "members": "Members",
         "activities": "Activities",
         "honorsStarted": "Honors started",
@@ -9864,41 +9862,25 @@
         "financesTitle": "Finances",
         "income": "Income",
         "expenses": "Expenses",
-        "balance": "Balance",
+        "balance": "Period result",
         "transactions": "Transactions",
         "directiva": "Leadership team",
         "directivaEmpty": "The club has no leadership team registered for this period.",
-        "empty": "This report has no calculated data yet. Use Recalculate to generate it."
+        "empty": "This report has no calculated data yet.",
+        "totalBalance": "Accumulated balance"
       },
       "actions": {
         "regenerate": "Recalculate",
-        "finalize": "Finalize",
         "downloadPdf": "Download PDF",
         "view": "View"
       },
-      "finalizeConfirm": {
-        "title": "Finalize this report?",
-        "description": "You are about to finalize the report for {report}. This cannot be undone: afterwards you will not be able to edit the manual data or recalculate the report.",
-        "cancel": "Cancel",
-        "confirm": "Finalize report"
-      },
       "toasts": {
-        "regenerated": "Data recalculated.",
-        "finalized": "Report finalized.",
-        "manualSaved": "Manual data saved."
+        "regenerated": "Data recalculated."
       },
       "errors": {
         "regenerate": "The report could not be recalculated.",
-        "finalize": "The report could not be finalized.",
         "download": "The PDF could not be downloaded.",
-        "saveManual": "The manual data could not be saved.",
         "load": "The reports could not be loaded. Try again."
-      },
-      "manual": {
-        "save": "Save manual data",
-        "errorWholeNumber": "Enter a whole number, 0 or greater.",
-        "errorTextTooLong": "The text cannot exceed {max} characters.",
-        "noAnswer": "No answer"
       },
       "generate": {
         "trigger": "Generate report",
@@ -9919,17 +9901,30 @@
         "club": "Club",
         "status": "Status",
         "calculated": "Calculated",
-        "finalized": "Finalized"
+        "finalized": "Closed"
       },
       "empty": {
         "filteredTitle": "No results",
         "filteredDescription": "No report matches the filters. Adjust them to see more."
+      },
+      "closedNotice": "Closed report: its data is frozen and no longer changes.",
+      "draftNotice": "Report in progress: its data updates with the submitted monthly reports until 15 days after the period ends.",
+      "regenerateConfirm": {
+        "title": "Recalculate this closed report?",
+        "description": "You are about to recalculate the report for {report}. Its data will be rewritten from the monthly reports submitted today, even though the report is closed. Its status does not change.",
+        "cancel": "Cancel",
+        "confirm": "Recalculate report"
+      },
+      "monthly": {
+        "basedOn": "Based on {count, plural, one {# month with a submitted monthly report} other {# months with a submitted monthly report}}",
+        "noneSubmitted": "The club did not submit any monthly report in this period, so this data is empty.",
+        "noText": "No answer"
       }
     },
     "quarterly": {
       "page": {
         "title": "Quarterly reports",
-        "description": "Generate, review, complete and finalize the clubs’ quarterly reports."
+        "description": "Review the clubs’ quarterly reports, calculated from their submitted monthly reports."
       },
       "detail": {
         "title": "Quarterly report · {period}",
@@ -9952,19 +9947,16 @@
       },
       "generate": {
         "title": "Generate quarterly report",
-        "description": "Choose the club and the quarter. If the report already exists and is finalized, it opens unchanged.",
+        "description": "Choose the club and the quarter. If the report already exists, it opens unchanged.",
         "year": "Year",
         "quarter": "Quarter",
         "success": "Quarterly report ready.",
         "error": "The quarterly report could not be generated."
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Meetings and attendance",
-        "sectionMeetingsDescription": "Meetings held and board attendance during the quarter.",
         "sectionMissionary": "Mission and events",
-        "sectionMissionaryDescription": "Mission goals and results for the quarter.",
         "sectionNarrative": "Descriptions",
-        "sectionNarrativeDescription": "Club participation and community service.",
         "planningMeetings": "Planning meetings",
         "parentMeetings": "Parent meetings",
         "youthCouncilAttendance": "Youth council attendance",
@@ -9980,7 +9972,7 @@
     "annual": {
       "page": {
         "title": "Annual reports",
-        "description": "Generate, review, complete and finalize the clubs’ annual reports by ecclesiastical year."
+        "description": "Review the clubs’ annual reports by ecclesiastical year, calculated from their submitted monthly reports."
       },
       "detail": {
         "title": "Annual report · {period}",
@@ -10002,7 +9994,7 @@
       },
       "generate": {
         "title": "Generate annual report",
-        "description": "Choose the club and the ecclesiastical year. If the report already exists and is finalized, it opens unchanged.",
+        "description": "Choose the club and the ecclesiastical year. If the report already exists, it opens unchanged.",
         "year": "Ecclesiastical year",
         "yearRequired": "Select an ecclesiastical year.",
         "success": "Annual report ready.",
@@ -10010,18 +10002,14 @@
       },
       "computed": {
         "monthsReported": "Months reported",
-        "rankingPercentile": "Ranking percentile",
         "topAchievers": "Top achievers",
         "topAchieversEmpty": "No standout members this year.",
         "honorsCount": "{count, plural, one {# honor} other {# honors}}"
       },
-      "manual": {
+      "monthly": {
         "sectionMeetings": "Meetings and events",
-        "sectionMeetingsDescription": "Meetings held and camporees during the year.",
         "sectionMissionary": "Mission and investitures",
-        "sectionMissionaryDescription": "Baptisms this year and the state of the investitures.",
         "sectionNarrative": "Descriptions",
-        "sectionNarrativeDescription": "Club achievements and community service.",
         "planningMeetings": "Planning meetings",
         "parentMeetings": "Parent meetings",
         "camporeesAttended": "Camporees attended",
