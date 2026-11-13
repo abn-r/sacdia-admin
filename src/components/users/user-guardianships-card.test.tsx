@@ -60,6 +60,16 @@ function row(overrides: Partial<AdminGuardianshipAsDependent> = {}): AdminGuardi
   };
 }
 
+const NO_RELEASE = {
+  majority_notice_sent_at: null,
+  released_at: null,
+  release_deadline_at: null,
+  release_accepted_at: null,
+  release_completed_at: null,
+  release_source: null,
+  frozen_reason: null,
+};
+
 function block(overrides: Partial<AdminGuardianships> = {}): AdminGuardianships {
   return {
     as_dependent: [],
@@ -94,6 +104,7 @@ describe("hasGuardianshipsContent", () => {
             created_by_user_id: "u",
             frozen_at: null,
             purge_after: null,
+            ...NO_RELEASE,
           },
         }),
       ),
@@ -355,6 +366,7 @@ describe("UserGuardianshipsCard", () => {
           created_by_user_id: "creator-uuid",
           frozen_at: "2026-10-12T10:00:00.000Z",
           purge_after: "2027-01-10T10:00:00.000Z",
+          ...NO_RELEASE,
         },
       }),
     );
@@ -380,6 +392,7 @@ describe("UserGuardianshipsCard", () => {
           created_by_user_id: uuid,
           frozen_at: null,
           purge_after: null,
+          ...NO_RELEASE,
         },
       }),
     );
@@ -399,6 +412,7 @@ describe("UserGuardianshipsCard", () => {
           created_by_user_id: null,
           frozen_at: null,
           purge_after: null,
+          ...NO_RELEASE,
         },
       }),
     );
@@ -414,10 +428,86 @@ describe("UserGuardianshipsCard", () => {
           created_by_user_id: "creator-uuid",
           frozen_at: null,
           purge_after: null,
+          ...NO_RELEASE,
         },
       }),
     );
     const profile = screen.getByTestId("guardianship-dependent-profile");
     expect(within(profile).getByText(g.profile.active)).toBeInTheDocument();
+  });
+
+  it("majority release: pending shows badge, deadline and not-accepted", () => {
+    renderCard(
+      block({
+        dependent_profile: {
+          created_at: "2026-10-01T10:00:00.000Z",
+          created_by_user_id: null,
+          frozen_at: null,
+          purge_after: null,
+          ...NO_RELEASE,
+          majority_notice_sent_at: "2026-09-01T10:00:00.000Z",
+          released_at: "2026-10-01T10:00:00.000Z",
+          release_deadline_at: "2026-10-31T10:00:00.000Z",
+        },
+      }),
+    );
+    const m = screen.getByTestId("guardianship-majority-release");
+    expect(within(m).getByText(g.majority.state.pending)).toBeInTheDocument();
+    expect(within(m).getByText(g.majority.notAccepted)).toBeInTheDocument();
+    expect(within(m).getByText(g.majority.deadlineAt)).toBeInTheDocument();
+  });
+
+  it("majority release: frozen shows the frozen badge and never a purge date", () => {
+    renderCard(
+      block({
+        dependent_profile: {
+          created_at: "2026-10-01T10:00:00.000Z",
+          created_by_user_id: null,
+          frozen_at: "2026-11-01T10:00:00.000Z",
+          purge_after: "2027-02-01T10:00:00.000Z",
+          ...NO_RELEASE,
+          released_at: "2026-10-01T10:00:00.000Z",
+          frozen_reason: "majority_release",
+        },
+      }),
+    );
+    const m = screen.getByTestId("guardianship-majority-release");
+    expect(within(m).getByText(g.majority.state.frozen)).toBeInTheDocument();
+    expect(screen.queryByText(g.profile.purgeAfter)).toBeNull();
+  });
+
+  it("majority release: completed and no block for a plain profile", () => {
+    const base = {
+      created_at: "2026-10-01T10:00:00.000Z",
+      created_by_user_id: null,
+      frozen_at: null,
+      purge_after: null,
+      ...NO_RELEASE,
+    };
+    renderCard(
+      block({
+        dependent_profile: {
+          ...base,
+          released_at: "2026-10-01T10:00:00.000Z",
+          release_accepted_at: "2026-10-02T10:00:00.000Z",
+          release_completed_at: "2026-10-02T10:00:00.000Z",
+        },
+      }),
+    );
+    expect(screen.getByText(g.majority.state.completed)).toBeInTheDocument();
+    cleanup();
+    renderCard(block({ dependent_profile: base }));
+    expect(screen.queryByTestId("guardianship-majority-release")).toBeNull();
+  });
+
+  it("a guardianship revoked with reason released reads Liberado", () => {
+    renderCard(
+      block({
+        as_dependent: [
+          row({ consent_status: "revoked", revoked_reason: "released", revoked_at: "2026-10-01T10:00:00.000Z" }),
+        ],
+      }),
+    );
+    expect(screen.getByText(g.revokedReason.released)).toBeInTheDocument();
   });
 });

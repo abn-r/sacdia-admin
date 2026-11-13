@@ -3,8 +3,8 @@ import {
   EMERGENCY_CONTACTS_UPDATE,
   HEALTH_READ,
   HEALTH_UPDATE,
-  LEGAL_REPRESENTATIVE_READ,
-  LEGAL_REPRESENTATIVE_UPDATE,
+  GUARDIANSHIP_READ,
+  GUARDIANSHIP_UPDATE,
   POST_REGISTRATION_READ,
   REGISTRATION_COMPLETE,
   USERS_BULK_CREATE,
@@ -91,15 +91,15 @@ export const usersScreen: ScreenDefinition = {
       gate: { permissions: [EMERGENCY_CONTACTS_UPDATE, USERS_UPDATE_PROFILE] },
     },
     {
-      id: "legal_representative.read",
+      id: "guardianship.read",
       kind: "section",
-      gate: { permissions: [LEGAL_REPRESENTATIVE_READ, USERS_READ_DETAIL] },
+      gate: { permissions: [GUARDIANSHIP_READ, USERS_READ_DETAIL] },
     },
     {
-      id: "legal_representative.update",
+      id: "guardianship.update",
       kind: "section",
       gate: {
-        permissions: [LEGAL_REPRESENTATIVE_UPDATE, USERS_UPDATE_PROFILE],
+        permissions: [GUARDIANSHIP_UPDATE, USERS_UPDATE_PROFILE],
       },
     },
     {

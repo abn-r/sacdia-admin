@@ -106,6 +106,7 @@ const ALL_JOBS = [
   "finance-period-closing",
   "dependent-profiles-purge",
   "family-age-transitions",
+  "family-majority-release",
   "pending-teen-guardian",
   "investiture-achievement-intent",
   "investiture-authorization-reminders",
@@ -126,6 +127,7 @@ const NOTIFY_JOBS = [
   "monthly-reports-reminders",
   "pending-teen-guardian",
   "family-age-transitions",
+  "family-majority-release",
   "investiture-authorization-reminders",
   "ecclesiastical-year-cut",
 ];
@@ -441,12 +443,12 @@ describe("CronRunsSection - run now", () => {
   });
 
   describe("every scheduled job from the catalog", () => {
-    it("renders a row with the run action for all 20 catalog jobs (super-admin)", () => {
+    it("renders a row with the run action for all 21 catalog jobs (super-admin)", () => {
       renderSection();
       for (const job of ALL_JOBS) {
         expect(within(rowOf(job)).getByRole("button", { name: /Ejecutar ahora/i })).toBeInTheDocument();
       }
-      expect(screen.getAllByRole("button", { name: /Ejecutar ahora/i })).toHaveLength(20);
+      expect(screen.getAllByRole("button", { name: /Ejecutar ahora/i })).toHaveLength(21);
     });
 
     it("shows the schedule and time zone per row", () => {
@@ -529,7 +531,7 @@ describe("CronRunsSection - run now", () => {
       renderSection({ catalog: undefined });
       expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
       expect(within(rowOf(JOB)).getByText(JOB_LABEL)).toBeInTheDocument();
-      expect(screen.getAllByRole("row")).toHaveLength(1 + 20);
+      expect(screen.getAllByRole("row")).toHaveLength(1 + 21);
       expect(screen.getByText("annual-reports-auto-generate")).toBeInTheDocument();
     });
 
@@ -537,7 +539,7 @@ describe("CronRunsSection - run now", () => {
       mocks.user = ADMIN;
       renderSection();
       expect(screen.queryByRole("button", { name: /Ejecutar ahora/i })).not.toBeInTheDocument();
-      expect(screen.getAllByRole("row")).toHaveLength(1 + 20);
+      expect(screen.getAllByRole("row")).toHaveLength(1 + 21);
     });
   });
 

@@ -278,36 +278,6 @@ export function extractEmergencyContacts(
     .sort((a, b) => Number(b.primary) - Number(a.primary));
 }
 
-interface RawLegal {
-  name?: string | null;
-  paternal_last_name?: string | null;
-  maternal_last_name?: string | null;
-  phone?: string | null;
-  relationship_type_id?: number | string | null;
-  relationship_type?: { name?: string | null } | null;
-  relationship_types?: { name?: string | null } | null;
-}
-
-export function extractLegalRepresentative(
-  value: Record<string, unknown> | null | undefined,
-): { fullName: string; phone: string; relationship: string } | null {
-  if (!value) return null;
-  const v = value as RawLegal;
-  const fullName = [v.name, v.paternal_last_name, v.maternal_last_name]
-    .filter((p): p is string => typeof p === "string" && p.trim().length > 0)
-    .join(" ");
-  if (!fullName && !v.phone) return null;
-  const relationship =
-    v.relationship_type?.name ??
-    v.relationship_types?.name ??
-    "—";
-  return {
-    fullName: fullName || "—",
-    phone: v.phone ?? "—",
-    relationship,
-  };
-}
-
 export function extractRoleNames(user: AdminUserDetail): string[] {
   const names: string[] = [];
   if (Array.isArray(user.roles)) names.push(...user.roles);

@@ -109,7 +109,7 @@ describe("sensitive user families", () => {
 
     expect(canReadSensitiveUserFamily(user, "health")).toBe(true);
     expect(canReadSensitiveUserFamily(user, "emergency_contacts")).toBe(true);
-    expect(canReadSensitiveUserFamily(user, "legal_representative")).toBe(false);
+    expect(canReadSensitiveUserFamily(user, "guardianship")).toBe(false);
   });
 
   it("keeps the transitional users:read_detail fallback for sensitive family reads", () => {
@@ -121,7 +121,7 @@ describe("sensitive user families", () => {
 
   it("grants sensitive family updates with fine permission or users:update_profile", () => {
     expect(
-      canUpdateSensitiveUserFamily(buildUser(["legal_representative:update"]), "legal_representative"),
+      canUpdateSensitiveUserFamily(buildUser(["guardianship:update"]), "guardianship"),
     ).toBe(true);
     expect(canUpdateSensitiveUserFamily(buildUser(["users:update_profile"]), "health")).toBe(true);
   });

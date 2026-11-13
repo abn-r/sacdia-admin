@@ -2737,12 +2737,12 @@ export interface IntlMessages {
       emergency_contacts: string;
       "field-payment-orders": string;
       finance_categories: string;
+      guardianship: string;
       health: string;
       honor_categories: string;
       honors: string;
       insurance: string;
       inventory_categories: string;
-      legal_representative: string;
       local_fields: string;
       master_honors: string;
       materiales: string;
@@ -2772,8 +2772,8 @@ export interface IntlMessages {
       "health:update": string;
       "emergency_contacts:read": string;
       "emergency_contacts:update": string;
-      "legal_representative:read": string;
-      "legal_representative:update": string;
+      "guardianship:read": string;
+      "guardianship:update": string;
       "post_registration:read": string;
       "registration:complete": string;
       "roles:read": string;
@@ -4618,9 +4618,6 @@ export interface IntlMessages {
           contactsTitle: string;
           contactsEmpty: string;
           contactsMissingPayload: string;
-          legalRepTitle: string;
-          legalRepLegacyTitle: string;
-          legalRepLegacyNote: string;
           pastoralTitle: string;
           pastoralEmpty: string;
           healthTitle: string;
@@ -7572,6 +7569,27 @@ export interface IntlMessages {
       purgeAfter: string;
       active: string;
     };
+    majority: {
+      title: string;
+      state: {
+        notice: string;
+        pending: string;
+        completed: string;
+        frozen: string;
+      };
+      hint: {
+        notice: string;
+        pending: string;
+        completed: string;
+        frozen: string;
+      };
+      noticeSentAt: string;
+      releasedAt: string;
+      deadlineAt: string;
+      acceptedAt: string;
+      notAccepted: string;
+      completedAt: string;
+    };
     fields: {
       guardian: string;
       email: string;
@@ -7811,6 +7829,7 @@ export interface IntlMessages {
       jobFcmStaleCleanup: string;
       jobDependentProfilesPurge: string;
       jobFamilyAgeTransitions: string;
+      jobFamilyMajorityRelease: string;
       jobPendingTeenGuardian: string;
       jobInvestitureAchievementIntent: string;
       jobInvestitureAuthReminders: string;

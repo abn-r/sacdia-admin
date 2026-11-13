@@ -207,7 +207,7 @@ interface UserFamilyAccessCardProps {
   userId: string;
   familyAccess: AdminFamilyAccess;
   /**
-   * `users:update_admin` + the sensitive `legal_representative:update`. The
+   * `users:update_admin` + the sensitive `guardianship:update`. The
    * backend is the authority; without it no action is rendered.
    */
   canManage: boolean;

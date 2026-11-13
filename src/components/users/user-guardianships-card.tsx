@@ -19,6 +19,7 @@ import {
   type AdminGuardianshipAsGuardian,
   type AdminGuardianships,
 } from "@/lib/api/admin-users";
+import { getMajorityReleaseState } from "@/lib/admin-users/guardianships";
 import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -47,6 +48,13 @@ function isOneOf<T extends string>(keys: readonly T[], value: string | null): va
 /** First segment of a UUID, enough to tell users apart at a glance. */
 function shortId(id: string): string {
   return id.slice(0, 8);
+}
+
+function majorityVariant(state: "notice" | "pending" | "completed" | "frozen") {
+  if (state === "completed") return "soft-success" as const;
+  if (state === "frozen") return "soft-destructive" as const;
+  if (state === "pending") return "soft-warning" as const;
+  return "soft-info" as const;
 }
 
 function statusVariant(status: string) {
@@ -298,6 +306,7 @@ export function UserGuardianshipsCard({
   const formatDateTime = useFormatDateTime();
   const dash = "—";
   const { as_dependent, as_guardian, dependent_profile } = guardianships;
+  const majority = getMajorityReleaseState(dependent_profile);
 
   return (
     <DetailSection title={t("title")}>
@@ -343,9 +352,65 @@ export function UserGuardianshipsCard({
                       : t("profile.active")
                   }
                 />
+                {dependent_profile.frozen_reason !== "majority_release" && (
+                  <DetailField
+                    k={t("profile.purgeAfter")}
+                    v={dependent_profile.purge_after ? formatDateTime(dependent_profile.purge_after) : dash}
+                  />
+                )}
+              </div>
+            </DetailCols2>
+          </div>
+        )}
+
+        {dependent_profile && majority !== "none" && (
+          <div className="space-y-1" data-testid="guardianship-majority-release">
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-xs font-semibold text-muted-foreground">
+                {t("majority.title")}
+              </h4>
+              <Badge variant={majorityVariant(majority)}>{t(`majority.state.${majority}`)}</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">{t(`majority.hint.${majority}`)}</p>
+            <DetailCols2>
+              <div>
                 <DetailField
-                  k={t("profile.purgeAfter")}
-                  v={dependent_profile.purge_after ? formatDateTime(dependent_profile.purge_after) : dash}
+                  k={t("majority.noticeSentAt")}
+                  v={
+                    dependent_profile.majority_notice_sent_at
+                      ? formatDateTime(dependent_profile.majority_notice_sent_at)
+                      : dash
+                  }
+                />
+                <DetailField
+                  k={t("majority.releasedAt")}
+                  v={dependent_profile.released_at ? formatDateTime(dependent_profile.released_at) : dash}
+                />
+                <DetailField
+                  k={t("majority.deadlineAt")}
+                  v={
+                    dependent_profile.release_deadline_at
+                      ? formatDateTime(dependent_profile.release_deadline_at)
+                      : dash
+                  }
+                />
+              </div>
+              <div>
+                <DetailField
+                  k={t("majority.acceptedAt")}
+                  v={
+                    dependent_profile.release_accepted_at
+                      ? formatDateTime(dependent_profile.release_accepted_at)
+                      : t("majority.notAccepted")
+                  }
+                />
+                <DetailField
+                  k={t("majority.completedAt")}
+                  v={
+                    dependent_profile.release_completed_at
+                      ? formatDateTime(dependent_profile.release_completed_at)
+                      : dash
+                  }
                 />
               </div>
             </DetailCols2>
