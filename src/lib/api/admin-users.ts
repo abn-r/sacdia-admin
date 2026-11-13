@@ -119,11 +119,23 @@ export type AdminDependentProfile = {
   created_by_user_id: string | null;
   frozen_at: string | null;
   purge_after: string | null;
+  /**
+   * Phase 4 (release at majority). All null for a profile that never reached the
+   * notice window, or when the backend predates the release fields. Read-only.
+   */
+  majority_notice_sent_at: string | null;
+  released_at: string | null;
+  release_deadline_at: string | null;
+  release_accepted_at: string | null;
+  release_completed_at: string | null;
+  release_source: string | null;
+  /** `majority_release` for a release freeze (never auto-purged); legacy freezes are null. */
+  frozen_reason: string | null;
 };
 
 /**
  * Family block of the user detail. The whole object is `null` when the caller
- * lacks `legal_representative:read` (or the transitional `users:read_detail`).
+ * lacks `guardianship:read` (or the transitional `users:read_detail`).
  */
 export type AdminGuardianships = {
   as_dependent: AdminGuardianshipAsDependent[];
@@ -150,7 +162,7 @@ export type AdminSupervisedLoginDisabledReason = "guardian" | "admin" | "unlinke
 export type AdminSupervisedLogin = {
   status: AdminSupervisedLoginStatus;
   method: AdminSupervisedLoginMethod;
-  /** Only returned to admins who hold the sensitive legal_representative permission. */
+  /** Only returned to admins who hold the sensitive guardianship permission. */
   login_handle: string | null;
   origin: AdminSupervisedLoginOrigin;
   enabled_at: string | null;
@@ -178,7 +190,7 @@ export type AdminLinkedDevice = {
 /**
  * "Family access" block of the user detail: own login of a minor and the
  * devices linked by a guardian. The whole object is `null` when the caller
- * lacks the sensitive `legal_representative` permission.
+ * lacks the sensitive `guardianship` permission.
  */
 export type AdminFamilyAccess = {
   supervision: AdminFamilySupervision | null;
@@ -236,7 +248,6 @@ export type AdminUserDetail = AdminUser & {
     medicines?: unknown[];
   } | null;
   emergency_contacts?: unknown[] | null;
-  legal_representative?: Record<string, unknown> | null;
   guardianships?: AdminGuardianships | null;
   family_access?: AdminFamilyAccess | null;
   scope?: ScopeMeta | null;
@@ -793,6 +804,13 @@ function normalizeGuardianships(value: unknown): AdminGuardianships | null {
           created_by_user_id: pickString(profile.created_by_user_id),
           frozen_at: pickString(profile.frozen_at),
           purge_after: pickString(profile.purge_after),
+          majority_notice_sent_at: pickString(profile.majority_notice_sent_at),
+          released_at: pickString(profile.released_at),
+          release_deadline_at: pickString(profile.release_deadline_at),
+          release_accepted_at: pickString(profile.release_accepted_at),
+          release_completed_at: pickString(profile.release_completed_at),
+          release_source: pickString(profile.release_source),
+          frozen_reason: pickString(profile.frozen_reason),
         }
       : null,
   };
@@ -915,7 +933,6 @@ function normalizeDetailPayload(payload: unknown): AdminUserDetail | null {
         : Array.isArray(record.emergency_contacts)
           ? record.emergency_contacts
           : undefined,
-    legal_representative: asRecord(record.legal_representative),
     guardianships: normalizeGuardianships(record.guardianships),
     family_access: normalizeFamilyAccess(record.family_access),
     scope: normalizeScope(record.scope),
@@ -1138,7 +1155,7 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
 /**
  * GET /admin/users/:userId/guardianships/:guardianshipId/consent-evidence
  * Signed URL (TTL 900 s) of the current signed consent form. Client-side only
- * (triggered by a click). Requires `legal_representative:read` (or the
+ * (triggered by a click). Requires `guardianship:read` (or the
  * transitional `users:read_detail`); every read is audited by the backend.
  */
 export async function getAdminGuardianshipConsentEvidenceFromClient(
@@ -1179,7 +1196,7 @@ function unwrapData<T>(payload: unknown): T {
  * POST /admin/users/:userId/supervised-login/disable
  * Turns off the own login of a minor. Irreversible for the admin: there is no
  * admin route to enable, reactivate or reset a password (the guardian does it).
- * Requires `users:update_admin` + the sensitive `legal_representative:update`.
+ * Requires `users:update_admin` + the sensitive `guardianship:update`.
  */
 export async function disableSupervisedLoginFromClient(
   userId: string,

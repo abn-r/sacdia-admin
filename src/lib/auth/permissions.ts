@@ -20,8 +20,8 @@ export const HEALTH_READ = "health:read" satisfies PermissionKey;
 export const HEALTH_UPDATE = "health:update" satisfies PermissionKey;
 export const EMERGENCY_CONTACTS_READ = "emergency_contacts:read" satisfies PermissionKey;
 export const EMERGENCY_CONTACTS_UPDATE = "emergency_contacts:update" satisfies PermissionKey;
-export const LEGAL_REPRESENTATIVE_READ = "legal_representative:read" satisfies PermissionKey;
-export const LEGAL_REPRESENTATIVE_UPDATE = "legal_representative:update" satisfies PermissionKey;
+export const GUARDIANSHIP_READ = "guardianship:read" satisfies PermissionKey;
+export const GUARDIANSHIP_UPDATE = "guardianship:update" satisfies PermissionKey;
 export const POST_REGISTRATION_READ = "post_registration:read" satisfies PermissionKey;
 export const REGISTRATION_COMPLETE = "registration:complete" satisfies PermissionKey;
 

@@ -88,6 +88,9 @@ describe("admin user detail guardianships", () => {
             created_by_user_id: "u-c",
             frozen_at: "2026-10-12T00:00:00.000Z",
             purge_after: "2027-01-10T00:00:00.000Z",
+            released_at: "2026-10-01T00:00:00.000Z",
+            release_deadline_at: "2026-10-31T00:00:00.000Z",
+            frozen_reason: "majority_release",
           },
         },
       },
@@ -113,6 +116,11 @@ describe("admin user detail guardianships", () => {
     expect(gs.dependent_profile).toMatchObject({
       frozen_at: "2026-10-12T00:00:00.000Z",
       purge_after: "2027-01-10T00:00:00.000Z",
+      released_at: "2026-10-01T00:00:00.000Z",
+      release_deadline_at: "2026-10-31T00:00:00.000Z",
+      frozen_reason: "majority_release",
+      release_accepted_at: null,
+      release_completed_at: null,
     });
   });
 

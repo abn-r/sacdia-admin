@@ -17,9 +17,9 @@ const locales = {
 };
 
 describe("cron-jobs", () => {
-  it("knows all 20 scheduled jobs", () => {
-    expect(CRON_JOB_NAMES).toHaveLength(20);
-    expect(new Set(Object.values(CRON_JOB_LABEL_KEYS)).size).toBe(20);
+  it("knows all 21 scheduled jobs", () => {
+    expect(CRON_JOB_NAMES).toHaveLength(21);
+    expect(new Set(Object.values(CRON_JOB_LABEL_KEYS)).size).toBe(21);
   });
 
   it("resolves a label key for known jobs and undefined for unknown ones", () => {

@@ -4,8 +4,8 @@ import {
   EMERGENCY_CONTACTS_UPDATE,
   HEALTH_READ,
   HEALTH_UPDATE,
-  LEGAL_REPRESENTATIVE_READ,
-  LEGAL_REPRESENTATIVE_UPDATE,
+  GUARDIANSHIP_READ,
+  GUARDIANSHIP_UPDATE,
   POST_REGISTRATION_READ,
   REGISTRATION_COMPLETE,
   USERS_READ_DETAIL,
@@ -18,20 +18,20 @@ type UnknownRecord = Record<string, unknown>;
 export type SensitiveUserFamily =
   | "health"
   | "emergency_contacts"
-  | "legal_representative"
+  | "guardianship"
   | "post_registration";
 
 const SENSITIVE_USER_READ_KEYS: Record<SensitiveUserFamily, string[]> = {
   health: [HEALTH_READ, USERS_READ_DETAIL],
   emergency_contacts: [EMERGENCY_CONTACTS_READ, USERS_READ_DETAIL],
-  legal_representative: [LEGAL_REPRESENTATIVE_READ, USERS_READ_DETAIL],
+  guardianship: [GUARDIANSHIP_READ, USERS_READ_DETAIL],
   post_registration: [POST_REGISTRATION_READ, USERS_READ_DETAIL],
 };
 
 const SENSITIVE_USER_UPDATE_KEYS: Record<SensitiveUserFamily, string[]> = {
   health: [HEALTH_UPDATE, USERS_UPDATE_PROFILE],
   emergency_contacts: [EMERGENCY_CONTACTS_UPDATE, USERS_UPDATE_PROFILE],
-  legal_representative: [LEGAL_REPRESENTATIVE_UPDATE, USERS_UPDATE_PROFILE],
+  guardianship: [GUARDIANSHIP_UPDATE, USERS_UPDATE_PROFILE],
   post_registration: [REGISTRATION_COMPLETE, USERS_UPDATE_PROFILE],
 };
 
@@ -194,7 +194,7 @@ export function hasAnyPermission(
 }
 
 export function canReadSensitiveUserData(user: AuthUser | null | undefined) {
-  return ["health", "emergency_contacts", "legal_representative"]
+  return ["health", "emergency_contacts", "guardianship"]
     .some((family) =>
       canReadSensitiveUserFamily(user, family as SensitiveUserFamily),
     );

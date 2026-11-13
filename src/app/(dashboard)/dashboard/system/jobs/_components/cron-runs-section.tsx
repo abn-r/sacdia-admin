@@ -58,6 +58,7 @@ const NOTIFYING_JOBS: ReadonlySet<string> = new Set([
   "member-of-month-auto-evaluate",
   "pending-teen-guardian",
   "family-age-transitions",
+  "family-majority-release",
   "investiture-authorization-reminders",
   "ecclesiastical-year-cut",
 ]);

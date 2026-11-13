@@ -30,7 +30,7 @@ const DESTRUCTIVE_KEYWORDS = ["delete", "destroy", "purge", "remove"];
 const SENSITIVE_PREFIXES = [
   "health:",
   "emergency_contacts:",
-  "legal_representative:",
+  "guardianship:",
   "post_registration:",
 ] as const;
 

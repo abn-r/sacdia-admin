@@ -79,7 +79,7 @@ describe("CronHistoryClient - job labels and filter", () => {
   afterEach(() => cleanup());
 
   it("lists every scheduled job in the job filter", async () => {
-    expect(CRON_JOB_NAMES).toHaveLength(20);
+    expect(CRON_JOB_NAMES).toHaveLength(21);
     const user = userEvent.setup();
     renderHistory();
     const [jobFilter] = screen.getAllByRole("combobox");

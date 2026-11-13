@@ -22,6 +22,7 @@ export const CRON_JOB_LABEL_KEYS = {
   "fcm-tokens-stale-cleanup":            "jobFcmStaleCleanup",
   "dependent-profiles-purge":            "jobDependentProfilesPurge",
   "family-age-transitions":              "jobFamilyAgeTransitions",
+  "family-majority-release":             "jobFamilyMajorityRelease",
   "pending-teen-guardian":               "jobPendingTeenGuardian",
   "investiture-achievement-intent":      "jobInvestitureAchievementIntent",
   "investiture-authorization-reminders": "jobInvestitureAuthReminders",

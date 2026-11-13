@@ -49,7 +49,6 @@ import {
   extractAllAssignments,
   extractEmergencyContacts,
   extractHealthNames,
-  extractLegalRepresentative,
   extractPrimaryAssignment,
   extractRoleNames,
   formatBloodType,
@@ -154,19 +153,14 @@ export default async function UserDetailPage({ params }: { params: Params }) {
     "users",
     "emergency_contacts.read",
   );
-  const canSeeLegalRepresentative = canCapability(
-    currentUser,
-    "users",
-    "legal_representative.read",
-  );
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);
   const canSeeAccessToggles = canManageUserAccessFlags(currentUser);
   // Disable / revoke need `users:update_admin` AND the sensitive
-  // `legal_representative:update` (the backend enforces both).
+  // `guardianship:update` (the backend enforces both).
   const canManageFamilyAccess =
     canSeeAccessToggles &&
-    canCapability(currentUser, "users", "legal_representative.update");
+    canCapability(currentUser, "users", "guardianship.update");
 
   const fullName = getAdminUserDisplayName(user, {
     deletedAccount: t("deletedAccount"),
@@ -178,7 +172,7 @@ export default async function UserDetailPage({ params }: { params: Params }) {
 
   // A dependent profile (minor without login, managed by a guardian) is the
   // only signal the admin detail exposes: `guardianships.dependent_profile`.
-  // It is null when the actor lacks `legal_representative:read`.
+  // It is null when the actor lacks `guardianship:read`.
   const isDependent = user.guardianships?.dependent_profile != null;
 
   const age = calculateAge(user.birthday);
@@ -188,7 +182,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   const assignments = extractAllAssignments(user.club_assignments, translateRole);
   const assignmentLocation = extractAssignmentLocation(user.club_assignments);
   const emergencyContacts = extractEmergencyContacts(user.emergency_contacts ?? undefined);
-  const legalRep = extractLegalRepresentative(user.legal_representative);
   const tenure = computeTenure(user.created_at);
   const classesCount = Array.isArray(user.classes) ? user.classes.length : 0;
   const districtName = assignmentLocation.districtName;
@@ -399,13 +392,6 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                 emptyMessage: t("sections.contactsEmpty"),
                 missingPayloadMessage: t("sections.contactsMissingPayload"),
               }}
-              showLegalRep={canSeeLegalRepresentative}
-              legalRepTitle={t("sections.legalRepLegacyTitle")}
-              legalRepLegacyNote={t("sections.legalRepLegacyNote")}
-              legalRep={legalRep}
-              legalNameLabel={t("fields.fullName")}
-              legalPhoneLabel={t("fields.phone")}
-              legalRelationshipLabel={t("fields.relationship")}
             />
             {hasGuardianshipsContent(user.guardianships) ? (
               <div className="mt-3.5">
