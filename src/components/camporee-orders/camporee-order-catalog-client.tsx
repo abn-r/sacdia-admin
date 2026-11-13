@@ -66,6 +66,7 @@ import {
   toCatalogTerritoryActor,
 } from "@/components/camporee-orders/catalog-territory";
 import { getCamporeeOrderUiErrorMessage } from "@/components/camporee-orders/camporee-order-errors";
+import { CamporeeOrderProductOptionsDialog } from "@/components/camporee-orders/camporee-order-product-options-dialog";
 
 const SIZE_SCHEMES: CamporeeOrderSizeScheme[] = ["LETTER", "NUMERIC", "NONE"];
 const OWNER_SCOPES: CamporeeOrderOwnerScope[] = [
@@ -90,6 +91,7 @@ export function CamporeeOrderCatalogClient() {
     null,
   );
   const [saving, setSaving] = useState(false);
+  const [optionsProductId, setOptionsProductId] = useState<string | null>(null);
   const [deactivateTarget, setDeactivateTarget] =
     useState<CamporeeOrderProduct | null>(null);
 
@@ -120,17 +122,22 @@ export function CamporeeOrderCatalogClient() {
             name: row.name,
           }));
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setProducts(await listCamporeeOrderProducts());
-    } catch (error) {
-      toast.error(getCamporeeOrderUiErrorMessage(error, t, "toasts.loadFailed"));
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const load = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      try {
+        setProducts(await listCamporeeOrderProducts());
+      } catch (error) {
+        toast.error(getCamporeeOrderUiErrorMessage(error, t, "toasts.loadFailed"));
+        if (!silent) setProducts([]);
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [t],
+  );
+  const optionsProduct =
+    products.find((row) => row.camporee_order_product_id === optionsProductId) ?? null;
 
   useEffect(() => {
     void load();
@@ -303,8 +310,22 @@ export function CamporeeOrderCatalogClient() {
                       </div>
                     </td>
                     <td className="px-3 py-2 text-right">
+                      <div className="flex justify-end gap-2">
+                      {product.size_scheme !== "NONE" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          aria-label={`${t("catalog.options.button")}: ${product.title}`}
+                          onClick={() =>
+                            setOptionsProductId(product.camporee_order_product_id)
+                          }
+                        >
+                          {t("catalog.options.button")}
+                        </Button>
+                      ) : null}
                       {editable && canManage ? (
-                        <div className="flex justify-end gap-2">
+                        <>
                           {product.active ? (
                             <>
                               <Button
@@ -336,8 +357,9 @@ export function CamporeeOrderCatalogClient() {
                               {t("catalog.activate")}
                             </Button>
                           )}
-                        </div>
+                        </>
                       ) : null}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -346,6 +368,17 @@ export function CamporeeOrderCatalogClient() {
           </table>
         </div>
       )}
+
+      <CamporeeOrderProductOptionsDialog
+        product={optionsProduct}
+        canEdit={
+          canManage && optionsProduct != null && isExactCatalogOwner(optionsProduct, actor)
+        }
+        onOpenChange={(open) => {
+          if (!open) setOptionsProductId(null);
+        }}
+        onChanged={() => load(true)}
+      />
 
       <AlertDialog
         open={deactivateTarget != null}

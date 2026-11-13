@@ -21,6 +21,7 @@ import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-p
 import { mergeCamporeePaymentLedger } from "@/components/camporees/camporee-payment-balance";
 import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import { CamporeeStaffTab } from "@/components/camporees/camporee-staff-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
@@ -144,6 +145,7 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "merchandise-orders",
   "supplies",
   "events",
+  "staff",
   "judges",
   "scores",
   "ranking",
@@ -200,6 +202,8 @@ export function CamporeeDetailTabs({
   const clubRegistrationClosed = isClubRegistrationClosed(
     camporee?.club_registration_closed_at,
   );
+  const [staffCount, setStaffCount] = useState(0);
+  const handleStaffCountChange = useCallback((count: number) => setStaffCount(count), []);
   const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
     .flat()
     .filter((assignment) => assignment.active).length;
@@ -238,7 +242,7 @@ export function CamporeeDetailTabs({
       onValueChange={revealActiveTab}
       className="w-full min-w-0"
     >
-      {/* 11 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
+      {/* 12 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
       <div
         ref={attachTabsScroller}
         style={tabsFadeStyle}
@@ -300,6 +304,15 @@ export function CamporeeDetailTabs({
           {initialEvents.length > 0 && (
             <Badge variant="secondary" className="ml-1.5">
               {initialEvents.length}
+            </Badge>
+          )}
+        </TabsTrigger>
+
+        <TabsTrigger value="staff">
+          Personal
+          {staffCount > 0 && (
+            <Badge variant="secondary" className="ml-1.5">
+              {staffCount}
             </Badge>
           )}
         </TabsTrigger>
@@ -471,6 +484,16 @@ export function CamporeeDetailTabs({
           camporee={camporee}
           isUnionCamporee={isUnionCamporee}
           canCreate={canCreateEvents}
+        />
+      </TabsContent>
+
+      {/* ── Personal (roster del camporee; los eventos asignan desde aquí) ── */}
+      <TabsContent value="staff" className="mt-4">
+        <CamporeeStaffTab
+          camporeeId={camporeeId}
+          camporeeType={isUnionCamporee ? "union" : "local"}
+          canManage={canEditEvents}
+          onCountChange={handleStaffCountChange}
         />
       </TabsContent>
 

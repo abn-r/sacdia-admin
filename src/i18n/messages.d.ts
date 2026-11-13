@@ -3656,7 +3656,103 @@ export interface IntlMessages {
       labelAgendaVisibleFrom: string;
       helpAgendaVisibleFrom: string;
     };
+    staffTab: {
+      title: string;
+      subtitle: string;
+      addButton: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      emptyDescriptionReadOnly: string;
+      readOnlyHint: string;
+      colName: string;
+      colCategory: string;
+      colRole: string;
+      colNotes: string;
+      colStatus: string;
+      active: string;
+      rowActions: string;
+      edit: string;
+      deactivate: string;
+      noRole: string;
+      categories: {
+        judge: string;
+        administrative: string;
+        kitchen: string;
+        support: string;
+        spiritual: string;
+        leadership: string;
+        other: string;
+      };
+      addTitle: string;
+      addDescription: string;
+      userLabel: string;
+      userPlaceholder: string;
+      userSearchPlaceholder: string;
+      userSearchEmpty: string;
+      noCandidates: string;
+      alreadyStaff: string;
+      categoryLabel: string;
+      roleLabel: string;
+      roleLabelPlaceholder: string;
+      notesLabel: string;
+      notesPlaceholder: string;
+      cancel: string;
+      saveAdd: string;
+      editTitle: string;
+      saveEdit: string;
+      deactivateTitle: string;
+      deactivateDescription: string;
+      deactivateConfirm: string;
+      toasts: {
+        added: string;
+        updated: string;
+        deactivated: string;
+        loadFailed: string;
+        actionFailed: string;
+      };
+      errors: {
+        duplicate: string;
+        memberNotFound: string;
+        scopeMismatch: string;
+        userNotFound: string;
+        forbidden: string;
+      };
+    };
     eventInstanceForm: {
+      staffAssignments: {
+        title: string;
+        description: string;
+        createHint: string;
+        noResponsible: string;
+        hasResponsible: string;
+        rosterEmpty: string;
+        rosterLink: string;
+        loadFailed: string;
+        empty: string;
+        memberLabel: string;
+        memberPlaceholder: string;
+        roleLabel: string;
+        add: string;
+        remove: string;
+        removeAria: string;
+        save: string;
+        saving: string;
+        unsaved: string;
+        saved: string;
+        saveFailed: string;
+        roles: {
+          responsible: string;
+          assistant: string;
+          evaluator: string;
+          support: string;
+        };
+        errors: {
+          responsibleRequired: string;
+          scopeMismatch: string;
+          memberNotFound: string;
+        };
+        publishHint: string;
+      };
       attachments: {
         title: string;
         description: string;
@@ -9283,6 +9379,45 @@ export interface IntlMessages {
       ownerDivision: string;
       ownerUnion: string;
       ownerLocalField: string;
+      options: {
+        button: string;
+        dialogTitle: string;
+        dialogDescriptionLetter: string;
+        dialogDescriptionNumeric: string;
+        noneHint: string;
+        empty: string;
+        readOnly: string;
+        colLabel: string;
+        colOrder: string;
+        colStatus: string;
+        active: string;
+        inactive: string;
+        addLabel: string;
+        addPlaceholderLetter: string;
+        addPlaceholderNumeric: string;
+        orderLabel: string;
+        add: string;
+        addPresets: string;
+        presetsHint: string;
+        invalidNumeric: string;
+        invalidLength: string;
+        duplicateLocal: string;
+        edit: string;
+        save: string;
+        cancel: string;
+        deactivate: string;
+        activate: string;
+        close: string;
+        deactivateTitle: string;
+        deactivateDescription: string;
+        toasts: {
+          added: string;
+          presetsAdded: string;
+          updated: string;
+          deactivated: string;
+          activated: string;
+        };
+      };
       sizeScheme: {
         LETTER: string;
         NUMERIC: string;
@@ -9324,6 +9459,7 @@ export interface IntlMessages {
       ordersNotOpen: string;
       ordersClosed: string;
       productScopeInvalid: string;
+      optionForbidden: string;
     };
   };
   payment_obligations: {

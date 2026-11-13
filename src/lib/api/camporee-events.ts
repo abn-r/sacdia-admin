@@ -9,6 +9,7 @@
  */
 
 import { apiRequest } from "@/lib/api/client";
+import type { CamporeeEventStaffAssignment } from "@/lib/api/camporee-staff";
 import type {
   CamporeeEventRubric,
   CamporeeEventTemplateRubric,
@@ -246,6 +247,7 @@ export type BackendCamporeeEvent = {
   schedule_blocks?: CamporeeEventScheduleBlock[];
   honors?: CamporeeEventHonor[];
   attachments?: CamporeeEventAttachment[];
+  staff_assignments?: CamporeeEventStaffAssignment[];
   // ── Joined relations (present when backend includes them) ──────────────────
   leader?: CamporeeEventLeader | null;
   venue?: CamporeeEventVenueRef | null;

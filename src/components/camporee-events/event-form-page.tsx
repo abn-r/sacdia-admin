@@ -53,6 +53,7 @@ import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
 import { EventAttachmentsSection } from "@/components/camporee-events/event-attachments-section";
 import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
+import { EventStaffAssignmentsSection } from "@/components/camporee-events/event-staff-assignments-section";
 import { useFormSteps } from "@/components/shared/use-form-steps";
 import type {
   CamporeeEventStatus,
@@ -682,8 +683,8 @@ export function EventFormPage({
             <div>
               <h3 className="text-sm font-medium">Responsable</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Nombre visible en la agenda. No alcanza para publicar: eso pide un
-                responsable del roster de personal del camporee.
+                Nombre visible en la agenda. No alcanza para publicar: eso se
+                define en Personal asignado, más abajo.
               </p>
             </div>
 
@@ -767,6 +768,22 @@ export function EventFormPage({
               </div>
             </div>
           </section>
+
+          {isEdit && event ? (
+            <EventStaffAssignmentsSection
+              eventId={event.camporee_event_id}
+              camporeeId={camporeeId}
+              camporeeType={isUnionCamporee ? "union" : "local"}
+              initialAssignments={event.staff_assignments}
+            />
+          ) : (
+            <section className="space-y-2">
+              <h3 className="text-sm font-medium">{t("staffAssignments.title")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t("staffAssignments.createHint")}
+              </p>
+            </section>
+          )}
 
           <section className="space-y-3">
             <div>
@@ -927,15 +944,14 @@ export function EventFormPage({
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Publicar exige un responsable activo del roster de personal.
-                  El líder de esta ficha no cubre ese requisito.
+                  {t("staffAssignments.publishHint")}
                 </p>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
                 El evento se crea como Programado. Las especialidades de
-                preparación se guardan igual. Publicar viene después, con un
-                responsable del roster de personal.
+                preparación se guardan igual. Publicar viene después, cuando el
+                evento tenga un responsable en Personal asignado.
               </p>
             )}
           </section>

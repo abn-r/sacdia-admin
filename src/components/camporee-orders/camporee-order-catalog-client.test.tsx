@@ -34,6 +34,7 @@ const mocks = vi.hoisted(() => ({
   listProducts: vi.fn(),
   createProduct: vi.fn(),
   updateProduct: vi.fn(),
+  addOption: vi.fn(),
   listDivisions: vi.fn(),
   listUnions: vi.fn(),
   listLocalFields: vi.fn(),
@@ -58,6 +59,8 @@ vi.mock("@/lib/api/camporee-orders", async (importOriginal) => {
       mocks.createProduct(...args),
     updateCamporeeOrderProduct: (...args: unknown[]) =>
       mocks.updateProduct(...args),
+    addCamporeeOrderProductOption: (...args: unknown[]) =>
+      mocks.addOption(...args),
   };
 });
 
@@ -113,6 +116,7 @@ describe("CamporeeOrderCatalogClient", () => {
     mocks.listProducts.mockResolvedValue([]);
     mocks.createProduct.mockResolvedValue({ camporee_order_product_id: "p1" });
     mocks.updateProduct.mockResolvedValue({});
+    mocks.addOption.mockResolvedValue({});
     mocks.listDivisions.mockResolvedValue([
       { division_id: 4, name: "Interamericana", active: true },
     ]);
@@ -278,6 +282,40 @@ describe("CamporeeOrderCatalogClient", () => {
       await waitFor(() => {
         expect(mocks.updateProduct).toHaveBeenCalledWith("p1", { active: true });
       });
+    });
+
+    it("manages the sizes of a sized product from the catalog and refreshes the list", async () => {
+      await renderWithProducts([product()]);
+
+      await userEvent.click(screen.getByRole("button", { name: `${catalog.options.button}: Playera evento` }));
+      const dialog = await screen.findByRole("dialog");
+      await userEvent.type(within(dialog).getByLabelText(catalog.options.addLabel), "M");
+      await userEvent.click(within(dialog).getByRole("button", { name: catalog.options.add }));
+
+      await waitFor(() => {
+        expect(mocks.addOption).toHaveBeenCalledWith("p1", { label: "M", sort_order: 0 });
+      });
+      // initial load + silent refresh after the write
+      await waitFor(() => expect(mocks.listProducts).toHaveBeenCalledTimes(2));
+    });
+
+    it("hides the sizes button for products without size scheme", async () => {
+      await renderWithProducts([product({ size_scheme: "NONE" })]);
+
+      expect(
+        screen.queryByRole("button", { name: `${catalog.options.button}: Playera evento` }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows sizes read-only for products the actor does not own", async () => {
+      await renderWithProducts([
+        product({ owner_scope: "UNION", owner_division_id: null, owner_union_id: 8 }),
+      ]);
+
+      await userEvent.click(screen.getByRole("button", { name: `${catalog.options.button}: Playera evento` }));
+      const dialog = await screen.findByRole("dialog");
+      expect(within(dialog).getByText(catalog.options.readOnly)).toBeInTheDocument();
+      expect(within(dialog).queryByRole("button", { name: catalog.options.add })).not.toBeInTheDocument();
     });
 
     it("offers no activate/deactivate actions for products the actor does not own", async () => {
