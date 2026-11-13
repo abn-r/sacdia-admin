@@ -167,7 +167,8 @@ export interface CamporeeOfficialScore {
 }
 
 export interface CamporeeLeaderboardRow {
-  rank: number;
+  /** Position in the full ranking; null when the caller only sees its own sections. */
+  rank: number | null;
   camporee_club_id: number | null;
   club_section_id: number;
   club_name: string | null;
@@ -181,6 +182,11 @@ export interface CamporeeLeaderboardRow {
 
 export interface CamporeeLeaderboard {
   scope: { type: "local" | "union"; camporeeId: number };
+  /**
+   * `full` for administrative roles; `district` = a pastor's districts, ranked
+   * among themselves; `own` = only the caller's sections, no positions.
+   */
+  visibility?: "full" | "district" | "own";
   rows: CamporeeLeaderboardRow[];
 }
 
@@ -337,6 +343,65 @@ export async function getCamporeeEventSectionScore(
     }
     throw error;
   }
+}
+
+export interface CamporeeScoreBreakdownEvent {
+  camporee_event_id: number;
+  title: string;
+  max_points: number;
+  day_number: number | null;
+  starts_at: string | null;
+}
+
+export interface CamporeeScoreBreakdownItem {
+  camporee_event_rubric_id: number;
+  title: string;
+  awarded_points: number;
+  max_points: number;
+  notes: string | null;
+}
+
+export interface CamporeeScoreBreakdownResult {
+  camporee_event_id: number;
+  camporee_event_section_result_id: string;
+  score_status: string;
+  is_no_show: boolean;
+  total_awarded_points: number;
+  total_max_points: number;
+  raw_awarded_points: number;
+  minimum_adjustment_points: number;
+  notes: string | null;
+  submitted_at: string | null;
+  evaluator_name: string | null;
+  items: CamporeeScoreBreakdownItem[];
+}
+
+export interface CamporeeScoreBreakdownSection {
+  rank: number | null;
+  camporee_club_id: number | null;
+  club_section_id: number;
+  club_name: string | null;
+  section_name: string | null;
+  total_awarded_points: number;
+  total_max_points: number;
+  scored_events_count: number;
+  percentage: number;
+  results: CamporeeScoreBreakdownResult[];
+}
+
+export interface CamporeeScoreBreakdown {
+  scope: { type: "local" | "union"; camporeeId: number };
+  visibility?: "full" | "district" | "own";
+  events: CamporeeScoreBreakdownEvent[];
+  sections: CamporeeScoreBreakdownSection[];
+}
+
+export async function getLocalCamporeeScoreBreakdown(camporeeId: number) {
+  return apiRequest<CamporeeScoreBreakdown>(`/local-camporees/${camporeeId}/score-breakdown`);
+}
+
+export async function getUnionCamporeeScoreBreakdown(camporeeId: number) {
+  return apiRequest<CamporeeScoreBreakdown>(`/union-camporees/${camporeeId}/score-breakdown`);
 }
 
 export async function getLocalCamporeeLeaderboard(camporeeId: number) {

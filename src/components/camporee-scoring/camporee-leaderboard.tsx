@@ -88,8 +88,10 @@ export function CamporeeLeaderboard({
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={`${row.club_section_id}-${row.rank}`}>
-                <TableCell className="font-medium tabular-nums">#{row.rank}</TableCell>
+              <TableRow key={row.club_section_id}>
+                <TableCell className="font-medium tabular-nums">
+                  {row.rank === null ? "—" : `#${row.rank}`}
+                </TableCell>
                 <TableCell>{row.club_name ?? "—"}</TableCell>
                 <TableCell>
                   {row.section_name ?? t("sectionFallback", { id: row.club_section_id })}

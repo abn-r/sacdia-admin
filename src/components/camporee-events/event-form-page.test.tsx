@@ -44,6 +44,13 @@ vi.mock("@/components/camporee-events/rubrics-editor", () => ({
   RubricsEditor: () => <div data-testid="rubrics-editor" />,
 }));
 
+vi.mock("@/lib/api/camporee-staff", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/camporee-staff")>()),
+  listCamporeeStaff: vi.fn(async () => []),
+  listCamporeeEventStaffAssignments: vi.fn(async () => []),
+  replaceCamporeeEventStaffAssignments: vi.fn(async () => []),
+}));
+
 vi.mock("@/lib/api/admin-honors-catalog", () => ({
   listAdminHonorsCatalog: vi.fn(async () => []),
 }));

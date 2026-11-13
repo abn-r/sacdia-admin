@@ -27,6 +27,7 @@ import {
 import {
   getCamporeeEventRubrics,
   getUnionCamporeeLeaderboard,
+  getUnionCamporeeScoreBreakdown,
   listCamporeeEventJudgeAssignments,
   listCamporeeEventScoringTargets,
   listUnionCamporeeJudges,
@@ -34,6 +35,7 @@ import {
   type CamporeeEventRubric,
   type CamporeeJudge,
   type CamporeeLeaderboard,
+  type CamporeeScoreBreakdown,
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 import { listUnions } from "@/lib/api/geography";
@@ -137,6 +139,17 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+function extractScoreBreakdown(payload: unknown): CamporeeScoreBreakdown | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (Array.isArray(candidate.events) && Array.isArray(candidate.sections)) {
+    return candidate as unknown as CamporeeScoreBreakdown;
+  }
+  return null;
+}
+
 function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as AnyRecord;
@@ -181,6 +194,7 @@ export default async function UnionCamporeeDetailPage({
   let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
   let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
   let leaderboard: CamporeeLeaderboard | null = null;
+  let scoreBreakdown: CamporeeScoreBreakdown | null = null;
   let unionName: string | null = null;
 
   // Fetch camporee detail
@@ -360,12 +374,18 @@ export default async function UnionCamporeeDetailPage({
   }
 
   // Fetch camporee leaderboard — best effort
-  try {
-    const leaderboardPayload = await getUnionCamporeeLeaderboard(camporeeId);
-    leaderboard = extractLeaderboard(leaderboardPayload);
-  } catch {
-    leaderboard = null;
-  }
+  const [leaderboardResult, breakdownResult] = await Promise.allSettled([
+    getUnionCamporeeLeaderboard(camporeeId),
+    getUnionCamporeeScoreBreakdown(camporeeId),
+  ]);
+  leaderboard =
+    leaderboardResult.status === "fulfilled"
+      ? extractLeaderboard(leaderboardResult.value)
+      : null;
+  scoreBreakdown =
+    breakdownResult.status === "fulfilled"
+      ? extractScoreBreakdown(breakdownResult.value)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -423,6 +443,7 @@ export default async function UnionCamporeeDetailPage({
         initialScoringTargetsByEvent={scoringTargetsByEvent}
         initialRubricsByEvent={rubricsByEvent}
         initialLeaderboard={leaderboard}
+        initialScoreBreakdown={scoreBreakdown}
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}

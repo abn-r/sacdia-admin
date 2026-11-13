@@ -21,9 +21,11 @@ import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-p
 import { mergeCamporeePaymentLedger } from "@/components/camporees/camporee-payment-balance";
 import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
 import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import { CamporeeStaffTab } from "@/components/camporees/camporee-staff-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
+import { CamporeeScoreBreakdown } from "@/components/camporee-scoring/camporee-score-breakdown";
 import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
 import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type {
@@ -31,6 +33,7 @@ import type {
   CamporeeEventRubric,
   CamporeeJudge,
   CamporeeLeaderboard as CamporeeLeaderboardData,
+  CamporeeScoreBreakdown as CamporeeScoreBreakdownData,
   CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 
@@ -123,6 +126,7 @@ interface CamporeeDetailTabsProps {
   initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
   initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
   initialLeaderboard?: CamporeeLeaderboardData | null;
+  initialScoreBreakdown?: CamporeeScoreBreakdownData | null;
   canCreateEvents?: boolean;
   canEditEvents?: boolean;
   canDeleteEvents?: boolean;
@@ -141,6 +145,7 @@ const CAMPOREE_DETAIL_TABS = new Set([
   "merchandise-orders",
   "supplies",
   "events",
+  "staff",
   "judges",
   "scores",
   "ranking",
@@ -175,6 +180,7 @@ export function CamporeeDetailTabs({
   initialScoringTargetsByEvent = {},
   initialRubricsByEvent = {},
   initialLeaderboard = null,
+  initialScoreBreakdown = null,
   canCreateEvents = false,
   canEditEvents = false,
   canDeleteEvents = false,
@@ -196,6 +202,8 @@ export function CamporeeDetailTabs({
   const clubRegistrationClosed = isClubRegistrationClosed(
     camporee?.club_registration_closed_at,
   );
+  const [staffCount, setStaffCount] = useState(0);
+  const handleStaffCountChange = useCallback((count: number) => setStaffCount(count), []);
   const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
     .flat()
     .filter((assignment) => assignment.active).length;
@@ -234,7 +242,7 @@ export function CamporeeDetailTabs({
       onValueChange={revealActiveTab}
       className="w-full min-w-0"
     >
-      {/* 11 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
+      {/* 12 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
       <div
         ref={attachTabsScroller}
         style={tabsFadeStyle}
@@ -296,6 +304,15 @@ export function CamporeeDetailTabs({
           {initialEvents.length > 0 && (
             <Badge variant="secondary" className="ml-1.5">
               {initialEvents.length}
+            </Badge>
+          )}
+        </TabsTrigger>
+
+        <TabsTrigger value="staff">
+          Personal
+          {staffCount > 0 && (
+            <Badge variant="secondary" className="ml-1.5">
+              {staffCount}
             </Badge>
           )}
         </TabsTrigger>
@@ -470,6 +487,16 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
+      {/* ── Personal (roster del camporee; los eventos asignan desde aquí) ── */}
+      <TabsContent value="staff" className="mt-4">
+        <CamporeeStaffTab
+          camporeeId={camporeeId}
+          camporeeType={isUnionCamporee ? "union" : "local"}
+          canManage={canEditEvents}
+          onCountChange={handleStaffCountChange}
+        />
+      </TabsContent>
+
       <TabsContent value="judges" className="mt-4 space-y-4">
         {!clubRegistrationClosed && (
           <Alert>
@@ -513,12 +540,13 @@ export function CamporeeDetailTabs({
         />
       </TabsContent>
 
-      <TabsContent value="ranking" className="mt-4">
+      <TabsContent value="ranking" className="mt-4 space-y-8">
         <CamporeeLeaderboard
           leaderboard={initialLeaderboard}
           events={initialEvents}
           targetsByEvent={initialScoringTargetsByEvent}
         />
+        <CamporeeScoreBreakdown breakdown={initialScoreBreakdown} />
       </TabsContent>
     </Tabs>
   );

@@ -28,6 +28,7 @@ import {
 import {
   getCamporeeEventRubrics,
   getLocalCamporeeLeaderboard,
+  getLocalCamporeeScoreBreakdown,
   listCamporeeEventJudgeAssignments,
   listCamporeeEventScoringTargets,
   listLocalCamporeeJudges,
@@ -35,6 +36,7 @@ import {
   type CamporeeEventRubric,
   type CamporeeJudge,
   type CamporeeLeaderboard,
+  type CamporeeScoreBreakdown,
   type CamporeeScoringTarget,
 } from "@/lib/api/camporee-scoring";
 import { camporeeScreenId, canCapability } from "@/lib/auth/screen-catalog";
@@ -145,6 +147,17 @@ function extractList<T>(payload: unknown): T[] {
   return [];
 }
 
+function extractScoreBreakdown(payload: unknown): CamporeeScoreBreakdown | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const candidate =
+    root.data && typeof root.data === "object" ? (root.data as AnyRecord) : root;
+  if (Array.isArray(candidate.events) && Array.isArray(candidate.sections)) {
+    return candidate as unknown as CamporeeScoreBreakdown;
+  }
+  return null;
+}
+
 function extractLeaderboard(payload: unknown): CamporeeLeaderboard | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as AnyRecord;
@@ -189,6 +202,7 @@ export default async function CamporeeDetailPage({
   let scoringTargetsByEvent: Record<number, CamporeeScoringTarget[]> = {};
   let rubricsByEvent: Record<number, CamporeeEventRubric[]> = {};
   let leaderboard: CamporeeLeaderboard | null = null;
+  let scoreBreakdown: CamporeeScoreBreakdown | null = null;
 
   // Fetch camporee detail
   try {
@@ -368,12 +382,18 @@ export default async function CamporeeDetailPage({
   }
 
   // Fetch camporee leaderboard — best effort
-  try {
-    const leaderboardPayload = await getLocalCamporeeLeaderboard(camporeeId);
-    leaderboard = extractLeaderboard(leaderboardPayload);
-  } catch {
-    leaderboard = null;
-  }
+  const [leaderboardResult, breakdownResult] = await Promise.allSettled([
+    getLocalCamporeeLeaderboard(camporeeId),
+    getLocalCamporeeScoreBreakdown(camporeeId),
+  ]);
+  leaderboard =
+    leaderboardResult.status === "fulfilled"
+      ? extractLeaderboard(leaderboardResult.value)
+      : null;
+  scoreBreakdown =
+    breakdownResult.status === "fulfilled"
+      ? extractScoreBreakdown(breakdownResult.value)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -430,6 +450,7 @@ export default async function CamporeeDetailPage({
         initialScoringTargetsByEvent={scoringTargetsByEvent}
         initialRubricsByEvent={rubricsByEvent}
         initialLeaderboard={leaderboard}
+        initialScoreBreakdown={scoreBreakdown}
         canCreateEvents={canCreateEvents}
         canEditEvents={canEditEvents}
         canDeleteEvents={canDeleteEvents}

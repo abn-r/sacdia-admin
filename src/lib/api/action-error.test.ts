@@ -165,3 +165,17 @@ describe("getActionErrorMessage (401 vs 403)", () => {
     );
   });
 });
+
+describe("getActionErrorMessage (camporee staff)", () => {
+  it("points the publish error to the assignments editor", () => {
+    const error = new ApiError("Bad", 400, { code: "CAMPOREE_EVENT_RESPONSIBLE_REQUIRED" });
+    expect(getActionErrorMessage(error, "fallback")).toContain("Personal asignado");
+  });
+
+  it("maps the staff roster codes", () => {
+    const dup = new ApiError("Conflict", 409, { code: "CAMPOREE_STAFF_DUPLICATE" });
+    expect(getActionErrorMessage(dup, "fallback")).toContain("ya está activa");
+    const scope = new ApiError("Bad", 400, { code: "CAMPOREE_STAFF_SCOPE_MISMATCH" });
+    expect(getActionErrorMessage(scope, "fallback")).toContain("no pertenece");
+  });
+});

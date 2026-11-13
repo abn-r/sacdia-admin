@@ -9,6 +9,7 @@
  */
 
 import { apiRequest } from "@/lib/api/client";
+import type { CamporeeEventStaffAssignment } from "@/lib/api/camporee-staff";
 import type {
   CamporeeEventRubric,
   CamporeeEventTemplateRubric,
@@ -177,6 +178,26 @@ export type CamporeeEventHonor = {
   display_order?: number;
 };
 
+/** File attached to a camporee event (PDF or image). `url` is signed (~15 min). */
+export type CamporeeEventAttachment = {
+  attachment_id: string;
+  file_name: string;
+  mime_type: string;
+  size_bytes: number;
+  url: string;
+  created_at: string;
+};
+
+export const CAMPOREE_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
+export const CAMPOREE_ATTACHMENT_MAX_PER_EVENT = 10;
+export const CAMPOREE_ATTACHMENT_ALLOWED_MIME = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+export const CAMPOREE_ATTACHMENT_ACCEPT = CAMPOREE_ATTACHMENT_ALLOWED_MIME.join(",");
+
 /**
  * Backend response shape for a camporee event instance.
  * Previously exported as `CamporeeEvent` — renamed to avoid collision with
@@ -225,6 +246,8 @@ export type BackendCamporeeEvent = {
   agenda_visible?: boolean;
   schedule_blocks?: CamporeeEventScheduleBlock[];
   honors?: CamporeeEventHonor[];
+  attachments?: CamporeeEventAttachment[];
+  staff_assignments?: CamporeeEventStaffAssignment[];
   // ── Joined relations (present when backend includes them) ──────────────────
   leader?: CamporeeEventLeader | null;
   venue?: CamporeeEventVenueRef | null;
@@ -424,4 +447,35 @@ export async function reorderCamporeeEvent(
     method: "PATCH",
     body: payload,
   });
+}
+
+// ─── Attachments (camporee-events/:id/attachments) ────────────────────────────
+
+type AttachmentEnvelope<T> = { status?: string; data: T };
+
+export async function listCamporeeEventAttachments(eventId: number) {
+  const res = await apiRequest<AttachmentEnvelope<CamporeeEventAttachment[]>>(
+    `/camporee-events/${eventId}/attachments`,
+  );
+  return res.data ?? [];
+}
+
+export async function uploadCamporeeEventAttachment(eventId: number, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  const res = await apiRequest<AttachmentEnvelope<CamporeeEventAttachment>>(
+    `/camporee-events/${eventId}/attachments`,
+    { method: "POST", body },
+  );
+  return res.data;
+}
+
+export async function deleteCamporeeEventAttachment(
+  eventId: number,
+  attachmentId: string,
+) {
+  return apiRequest<{ status: string }>(
+    `/camporee-events/${eventId}/attachments/${attachmentId}`,
+    { method: "DELETE" },
+  );
 }

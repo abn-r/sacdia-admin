@@ -16,7 +16,13 @@ const DOMAIN_ERROR_MESSAGES: Record<string, string> = {
   MR_CONSENT_NOT_VERIFIED:
     "El miembro es menor y el consentimiento de su tutor aún no está verificado. Verifica el consentimiento del tutor antes de activar el rol.",
   CAMPOREE_EVENT_RESPONSIBLE_REQUIRED:
-    "Para publicar hace falta un responsable del roster de personal del camporee. El nombre o usuario de la ficha no alcanza. Guarda el evento como Programado.",
+    "Para publicar hace falta un responsable del roster de personal del camporee. El nombre o usuario de la ficha no alcanza. Asígnalo en Personal asignado (paso Responsable y preparación), guarda las asignaciones y vuelve a publicar.",
+  CAMPOREE_STAFF_DUPLICATE:
+    "Esa persona ya está activa en el roster de personal de este camporee.",
+  CAMPOREE_STAFF_MEMBER_NOT_FOUND:
+    "El miembro del personal ya no existe. Actualiza la lista.",
+  CAMPOREE_STAFF_SCOPE_MISMATCH:
+    "El miembro del personal no pertenece a este camporee.",
   CAMPOREE_EVENT_HONOR_NOT_FOUND:
     "Una de las especialidades seleccionadas no existe o está inactiva.",
   CAMPOREE_EVENT_HONOR_DUPLICATE:
