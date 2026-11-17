@@ -21,7 +21,6 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
   "requests-assignments": "requests_assignments",
   "insurance": "insurance",
   "insurance-by-section": "insurance_by_section",
-  "insurance-expiring": "insurance_expiring",
   "insurance-config": "insurance_config",
   "payment-orders": "payment_orders",
   "investiture-pastors": "investiture_pastors",

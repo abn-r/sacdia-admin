@@ -32,7 +32,6 @@ import {
 } from "@/lib/auth/permissions";
 
 import type { ScreenDefinition } from "../types";
-import { capabilityAccess, viewOnlyScreen } from "./_helpers";
 
 /**
  * Union of tab viewAny keys for `/dashboard/payment-orders`.
@@ -93,10 +92,6 @@ export const operationsScreens: ScreenDefinition[] = [
       { id: "delete", kind: "button", gate: { permissions: [INSURANCE_UPDATE] } },
     ],
   },
-  // GET insurance/expiring — insurance.controller.ts:245-248
-  // @GlobalRoles('admin','coordinator') + @SkipPermissions: the same rule the
-  // backend publishes as `coordination.hub_view`.
-  viewOnlyScreen("insurance-expiring", capabilityAccess("coordination.hub_view")),
   {
     id: "insurance-config",
     surfaces: ["admin"],

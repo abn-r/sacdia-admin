@@ -126,7 +126,6 @@ export interface IntlMessages {
       certifications: string;
       insurance: string;
       insurance_by_section: string;
-      insurance_expiring: string;
       validation: string;
       sla: string;
       year_end: string;
@@ -6013,39 +6012,30 @@ export interface IntlMessages {
     };
   };
   insurance: {
-    toasts: {
-      updated: string;
-      created: string;
-      deactivated: string;
-    };
     errors: {
-      save_failed: string;
-      deactivate_failed: string;
       failed_load_clubs: string;
     };
     table: {
       no_name: string;
       empty_title: string;
       empty_description: string;
-      col_member: string;
-      col_type: string;
-      col_policy: string;
-      col_provider: string;
-      col_validity: string;
-      col_coverage: string;
+      col_person: string;
       col_status: string;
-      status_no_insurance: string;
+      col_origin: string;
+      col_folio: string;
       list_label: string;
-      mobile_ends: string;
-      status_expired: string;
-      status_active: string;
-      status_inactive: string;
-      action_view_evidence: string;
-      action_edit: string;
-      action_register: string;
-      action_deactivate: string;
-      sr_edit: string;
-      sr_deactivate: string;
+      staff: string;
+      unknown: string;
+      status_covered: string;
+      status_in_order: string;
+      status_in_review: string;
+      status_proof_rejected: string;
+      status_uninsured: string;
+      valid_until: string;
+      origin_paid_here: string;
+      origin_paid_elsewhere: string;
+      origin_paid_elsewhere_unknown: string;
+      origin_reassigned: string;
     };
     view: {
       load_error: string;
@@ -6059,73 +6049,27 @@ export interface IntlMessages {
       refresh_tooltip: string;
       prompt_select: string;
       loading: string;
-      insured_count: string;
-      legacy_disabled_title: string;
-      legacy_disabled_description: string;
-      legacy_disabled_link: string;
+      no_year_title: string;
+      no_year_description: string;
+      no_cycle_title: string;
+      no_cycle_description: string;
     };
-    expiring: {
-      filter_label: string;
-      days_option: string;
-      reset: string;
-      no_results: string;
-      results_count: string;
-      kpi_total_title: string;
-      kpi_critical_title: string;
-      kpi_week_title: string;
-      kpi_month_title: string;
-      kpi_total_desc: string;
-      kpi_critical_desc: string;
-      kpi_week_desc: string;
-      kpi_month_desc: string;
-      empty_title: string;
-      empty_description: string;
-      col_member: string;
-      col_club: string;
-      col_type: string;
-      col_policy: string;
-      col_expiry: string;
-      col_days: string;
-      col_status: string;
-      mobile_days_remaining: string;
-      mobile_list_label: string;
-      urgency_critical: string;
-      urgency_warning: string;
-      urgency_active: string;
-      pagination_showing: string;
-      pagination_prev: string;
-      pagination_next: string;
-      back_link: string;
-    };
-    alert: {
-      title: string;
-      subtitle: string;
-      critical_note: string;
-      view_all: string;
-      expires_on: string;
+    summary: {
+      covered: string;
+      covered_of_total: string;
+      in_process: string;
+      uninsured: string;
+      free_coverages: string;
+      free_coverages_hint: string;
+      year: string;
+      unit_cost: string;
+      purchase_deadline: string;
     };
     page: {
       title: string;
       description: string;
-      button_view_expiring: string;
       empty_no_clubs_title: string;
       empty_no_clubs_description: string;
-    };
-    pageExpiring: {
-      title: string;
-      description: string;
-      window_label: string;
-      error_load_failed: string;
-    };
-    validation: {
-      start_date_required: string;
-      end_date_required: string;
-    };
-    placeholders: {
-      selectType: string;
-      policyNumber: string;
-      provider: string;
-      amount: string;
     };
   };
   finances: {
@@ -8926,6 +8870,7 @@ export interface IntlMessages {
       REJECTED: string;
     };
     detail: {
+      staffBadge: string;
       title: string;
       purpose: string;
       status: string;
@@ -8961,6 +8906,10 @@ export interface IntlMessages {
       localField: string;
     };
     reassignments: {
+      all: string;
+      historyNote: string;
+      colDoneBy: string;
+      colDate: string;
       empty: string;
       colFrom: string;
       colTo: string;
@@ -9051,10 +9000,10 @@ export interface IntlMessages {
       edit: string;
       activate: string;
       deactivate: string;
-      scopeMember: string;
-      scopeEventExternal: string;
+      scopeGeneral: string;
+      scopeEvent: string;
       validityFixedMonths: string;
-      validityUntilDate: string;
+      validityEventDates: string;
       durationMonths: string;
       saved: string;
     };

@@ -78,6 +78,7 @@ function identityFromRecord(
 
   const fullName = usableName(
     pickString(rec?.full_name) ??
+      pickString(rec?.beneficiary_name) ??
       pickString(rec?.beneficiary_full_name) ??
       buildFullName([
         pickString(rec?.name),

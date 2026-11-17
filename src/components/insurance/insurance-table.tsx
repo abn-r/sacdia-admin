@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Pencil, Trash2, ExternalLink, ShieldCheck, Shield, ShieldAlert } from "lucide-react";
+import Link from "next/link";
+import { useMemo } from "react";
+import { ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -15,189 +16,126 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DataTableShell } from "@/components/shared/data-table-shell";
-import {
-  SortableHeader,
-  type SortDirection,
-} from "@/components/shared/sortable-header";
-import { INSURANCE_TYPE_LABELS } from "@/lib/api/insurance";
-import type { MemberInsurance, InsuranceType } from "@/lib/api/insurance";
-import { useFormatDate, useFormatCurrency } from "@/lib/format-locale";
-import { useTranslations } from "next-intl";
+import type {
+  InsuranceOverviewPerson,
+  InsurancePersonStatus,
+} from "@/lib/api/insurance";
+import { useFormatDate } from "@/lib/format-locale";
 
-function memberFullName(member: MemberInsurance): string {
-  const parts = [member.name, member.paternal_last_name, member.maternal_last_name].filter(Boolean);
-  return parts.join(" ");
-}
-
-function insuranceTypeBadge(type: InsuranceType | null | undefined) {
-  if (!type) return <span className="text-sm text-muted-foreground">—</span>;
-
-  // The type is a category, not a state: neutral tags, with the risky one
-  // flagged as needing attention.
-  const variants: Record<InsuranceType, "outline" | "soft-warning"> = {
-    GENERAL_ACTIVITIES: "outline",
-    CAMPOREE: "outline",
-    HIGH_RISK: "soft-warning",
-  };
-
-  const icons: Record<InsuranceType, React.ReactNode> = {
-    GENERAL_ACTIVITIES: <Shield className="size-3" />,
-    CAMPOREE: <ShieldCheck className="size-3" />,
-    HIGH_RISK: <ShieldAlert className="size-3" />,
-  };
-
-  return (
-    <Badge variant={variants[type]} className="gap-1">
-      {icons[type]}
-      {INSURANCE_TYPE_LABELS[type]}
-    </Badge>
-  );
-}
-
-function isExpired(endDate: string | null | undefined): boolean {
-  if (!endDate) return false;
-  return new Date(endDate) < new Date();
-}
-
-// ─── Sort types ───────────────────────────────────────────────────────────────
-
-type SortField =
-  | "member_name"
-  | "insurance_type"
-  | "provider"
-  | "end_date"
-  | "coverage_amount"
-  | "active";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+const STATUS_INTENT: Record<InsurancePersonStatus, StatusIntent> = {
+  covered: "success",
+  in_order: "info",
+  in_review: "warning",
+  proof_rejected: "destructive",
+  uninsured: "neutral",
+};
 
 interface InsuranceTableProps {
-  items: MemberInsurance[];
-  onEdit?: (member: MemberInsurance) => void;
-  onDelete?: (member: MemberInsurance) => void;
-  canCreate?: boolean;
-  canUpdate?: boolean;
+  people: InsuranceOverviewPerson[];
+  /** Show the folio as a link to the payment order detail. */
+  canOpenPaymentOrders?: boolean;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function InsuranceTable({
-  items,
-  onEdit,
-  onDelete,
-  canCreate = Boolean(onEdit),
-  canUpdate = Boolean(onEdit),
+  people,
+  canOpenPaymentOrders = false,
 }: InsuranceTableProps) {
   const t = useTranslations("insurance");
   const formatDateLocale = useFormatDate();
-  const formatCurrencyLocale = useFormatCurrency();
-  const [sortField, setSortField] = useState<SortField>("member_name");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  const sorted = useMemo(
+    () =>
+      [...people].sort((a, b) =>
+        (a.name ?? "").localeCompare(b.name ?? ""),
+      ),
+    [people],
+  );
 
   function formatDate(value: string | null | undefined): string {
     if (!value) return "—";
     try {
-      return formatDateLocale(value, { day: "2-digit", month: "2-digit", year: "numeric" });
+      return formatDateLocale(value, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
     } catch {
       return value;
     }
   }
 
-  function formatCurrency(value: number | null | undefined): string {
-    if (value == null) return "—";
-    return formatCurrencyLocale(value);
-  }
-
-  const handleSort = (field: SortField, direction: SortDirection) => {
-    setSortField(field);
-    setSortDirection(direction);
-  };
-
-  const sortedItems = useMemo(() => {
-    return [...items].sort((a, b) => {
-      const dir = sortDirection === "asc" ? 1 : -1;
-      switch (sortField) {
-        case "member_name": {
-          const aName = memberFullName(a);
-          const bName = memberFullName(b);
-          return aName.localeCompare(bName) * dir;
-        }
-        case "insurance_type": {
-          const aType = a.insurance?.insurance_type ?? "";
-          const bType = b.insurance?.insurance_type ?? "";
-          return aType.localeCompare(bType) * dir;
-        }
-        case "provider": {
-          const aProv = a.insurance?.provider ?? "";
-          const bProv = b.insurance?.provider ?? "";
-          return aProv.localeCompare(bProv) * dir;
-        }
-        case "end_date": {
-          const aDate = a.insurance?.end_date ? new Date(a.insurance.end_date).getTime() : 0;
-          const bDate = b.insurance?.end_date ? new Date(b.insurance.end_date).getTime() : 0;
-          return (aDate - bDate) * dir;
-        }
-        case "coverage_amount": {
-          const aCov = a.insurance?.coverage_amount ?? 0;
-          const bCov = b.insurance?.coverage_amount ?? 0;
-          return (aCov - bCov) * dir;
-        }
-        case "active": {
-          const aAct = a.insurance?.active ? 1 : 0;
-          const bAct = b.insurance?.active ? 1 : 0;
-          return (aAct - bAct) * dir;
-        }
-        default:
-          return 0;
-      }
-    });
-  }, [items, sortField, sortDirection]);
-
-  function statusBadge(member: MemberInsurance) {
-    const ins = member.insurance;
-    if (!ins) return <StatusBadge intent="neutral" label={t("table.status_no_insurance")} size="sm" />;
-    if (isExpired(ins.end_date)) {
-      return <StatusBadge intent="destructive" label={t("table.status_expired")} size="sm" />;
+  function origin(person: InsuranceOverviewPerson): string {
+    const coverage = person.coverage;
+    if (!coverage) return "—";
+    if (coverage.source === "reassigned") {
+      return t("table.origin_reassigned", {
+        name: coverage.reassigned_from_name ?? t("table.unknown"),
+      });
     }
-    return ins.active ? (
-      <StatusBadge intent="success" label={t("table.status_active")} size="sm" />
+    const place = [coverage.paid_in_section_name, coverage.paid_in_club_name]
+      .filter(Boolean)
+      .join(" · ");
+    if (coverage.source === "paid_elsewhere") {
+      return place
+        ? t("table.origin_paid_elsewhere", { place })
+        : t("table.origin_paid_elsewhere_unknown");
+    }
+    return t("table.origin_paid_here");
+  }
+
+  function folio(person: InsuranceOverviewPerson) {
+    const order = person.active_order;
+    if (order) {
+      return canOpenPaymentOrders ? (
+        <Link
+          href={`/dashboard/payment-orders?orderId=${order.order_id}`}
+          className="font-medium tabular-nums underline underline-offset-4 transition-colors duration-150 hover:text-primary"
+        >
+          {order.folio}
+        </Link>
+      ) : (
+        <span className="tabular-nums">{order.folio}</span>
+      );
+    }
+    const approved = person.coverage?.order_folio;
+    return approved ? (
+      <span className="tabular-nums text-muted-foreground">{approved}</span>
     ) : (
-      <StatusBadge intent="neutral" label={t("table.status_inactive")} size="sm" />
+      <span className="text-muted-foreground">—</span>
     );
   }
 
-  function rowActions(member: MemberInsurance) {
-    const ins = member.insurance;
+  function personCell(person: InsuranceOverviewPerson) {
     return (
-      <RowActions
-        label={memberFullName(member) || t("table.no_name")}
-        actions={[
-          {
-            label: t("table.action_view_evidence"),
-            icon: ExternalLink,
-            href: ins?.evidence_file_url ?? undefined,
-            external: true,
-            hidden: !ins?.evidence_file_url,
-          },
-          {
-            label: ins ? t("table.action_edit") : t("table.action_register"),
-            icon: Pencil,
-            onSelect: () => onEdit?.(member),
-            hidden: !onEdit || !((ins && canUpdate) || (!ins && canCreate)),
-          },
-          {
-            label: `${t("table.action_deactivate")}…`,
-            icon: Trash2,
-            destructive: true,
-            onSelect: () => onDelete?.(member),
-            hidden: !onDelete || !ins,
-          },
-        ]}
-      />
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-medium">{person.name || t("table.no_name")}</span>
+          {person.is_staff ? (
+            <Badge variant="secondary">{t("table.staff")}</Badge>
+          ) : null}
+        </div>
+        {person.role_label ? (
+          <p className="text-xs text-muted-foreground">{person.role_label}</p>
+        ) : null}
+      </div>
     );
   }
 
-  if (items.length === 0) {
+  function statusBadge(person: InsuranceOverviewPerson) {
+    const label = t(`table.status_${person.status}`);
+    return (
+      <div className="space-y-0.5">
+        <StatusBadge intent={STATUS_INTENT[person.status]} label={label} size="sm" />
+        {person.status === "covered" && person.coverage?.valid_until ? (
+          <p className="text-xs text-muted-foreground tabular-nums">
+            {t("table.valid_until", { date: formatDate(person.coverage.valid_until) })}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (sorted.length === 0) {
     return (
       <EmptyState
         icon={ShieldCheck}
@@ -213,156 +151,58 @@ export function InsuranceTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead
-                className="h-9 px-3"
-                aria-sort={sortField === "member_name" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="member_name" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                  {t("table.col_member")}
-                </SortableHeader>
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                {t("table.col_person")}
               </TableHead>
-              <TableHead
-                className="h-9 px-3"
-                aria-sort={sortField === "insurance_type" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="insurance_type" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                  {t("table.col_type")}
-                </SortableHeader>
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                {t("table.col_status")}
               </TableHead>
-              <TableHead className="hidden xl:table-cell h-9 px-3 text-xs font-medium text-muted-foreground">
-                {t("table.col_policy")}
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                {t("table.col_origin")}
               </TableHead>
-              <TableHead
-                className="hidden xl:table-cell h-9 px-3"
-                aria-sort={sortField === "provider" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="provider" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                  {t("table.col_provider")}
-                </SortableHeader>
+              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                {t("table.col_folio")}
               </TableHead>
-              <TableHead
-                className="h-9 px-3"
-                aria-sort={sortField === "end_date" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="end_date" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                  {t("table.col_validity")}
-                </SortableHeader>
-              </TableHead>
-              <TableHead
-                className="h-9 px-3"
-                aria-sort={sortField === "coverage_amount" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="coverage_amount" activeField={sortField} direction={sortDirection} onSort={handleSort} align="right">
-                  {t("table.col_coverage")}
-                </SortableHeader>
-              </TableHead>
-              <TableHead
-                className="h-9 px-3"
-                aria-sort={sortField === "active" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-              >
-                <SortableHeader field="active" activeField={sortField} direction={sortDirection} onSort={handleSort}>
-                  {t("table.col_status")}
-                </SortableHeader>
-              </TableHead>
-              <RowActionsHead className="h-9 px-3" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedItems.map((member) => {
-              const ins = member.insurance;
-              const expired = isExpired(ins?.end_date);
-
-              return (
-                <TableRow key={member.user_id} className="hover:bg-muted/30">
-                  {/* Member */}
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    <div>
-                      <span className="font-medium">{memberFullName(member) || t("table.no_name")}</span>
-                      {member.current_class?.name && (
-                        <p className="text-xs text-muted-foreground">{member.current_class.name}</p>
-                      )}
-                    </div>
-                  </TableCell>
-
-                  {/* Type */}
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    {insuranceTypeBadge(ins?.insurance_type)}
-                  </TableCell>
-
-                  {/* Policy number */}
-                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle text-sm tabular-nums">
-                    {ins?.policy_number ?? "—"}
-                  </TableCell>
-
-                  {/* Provider */}
-                  <TableCell className="hidden xl:table-cell px-3 py-2.5 align-middle">
-                    <span
-                      className="block max-w-[140px] truncate text-sm text-muted-foreground"
-                      title={ins?.provider ?? undefined}
-                    >
-                      {ins?.provider ?? "—"}
-                    </span>
-                  </TableCell>
-
-                  {/* Dates */}
-                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                    {ins ? (
-                      <span className={expired ? "text-destructive" : undefined}>
-                        {formatDate(ins.start_date)} — {formatDate(ins.end_date)}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-
-                  {/* Coverage */}
-                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
-                    {formatCurrency(ins?.coverage_amount)}
-                  </TableCell>
-
-                  {/* Status */}
-                  <TableCell className="px-3 py-2.5 align-middle">{statusBadge(member)}</TableCell>
-
-                  {/* Actions */}
-                  <TableCell className="px-3 py-2.5 align-middle">{rowActions(member)}</TableCell>
-                </TableRow>
-              );
-            })}
+            {sorted.map((person) => (
+              <TableRow key={person.user_id} className="hover:bg-muted/30">
+                <TableCell className="px-3 py-2.5 align-middle">
+                  {personCell(person)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle">
+                  {statusBadge(person)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground">
+                  {origin(person)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 align-middle text-sm">
+                  {folio(person)}
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </DataTableShell>
 
-      {/* Phones: two lines per member, one status mark, actions at the end. */}
       <DataTableShell className="md:hidden">
         <ul className="divide-y" aria-label={t("table.list_label")}>
-          {sortedItems.map((member) => {
-            const ins = member.insurance;
-            const secondary = [
-              member.current_class?.name,
-              // The end date goes before the type so truncation drops the type first.
-              ins?.end_date ? t("table.mobile_ends", { date: formatDate(ins.end_date) }) : null,
-              ins?.insurance_type ? INSURANCE_TYPE_LABELS[ins.insurance_type] : null,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-
-            return (
-              <li key={member.user_id} className="flex items-start gap-2 px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="min-w-0 truncate text-sm font-medium">
-                      {memberFullName(member) || t("table.no_name")}
-                    </span>
-                    <span className="shrink-0">{statusBadge(member)}</span>
-                  </div>
-                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground tabular-nums">
-                    {secondary || "—"}
-                  </p>
-                </div>
-                {rowActions(member)}
-              </li>
-            );
-          })}
+          {sorted.map((person) => (
+            <li key={person.user_id} className="space-y-1.5 px-4 py-3">
+              <div className="flex items-start justify-between gap-3">
+                {personCell(person)}
+                <span className="shrink-0">{statusBadge(person)}</span>
+              </div>
+              <p className="text-[13px] text-muted-foreground">
+                {origin(person)}
+                {person.active_order || person.coverage?.order_folio ? " · " : ""}
+                {person.active_order || person.coverage?.order_folio
+                  ? folio(person)
+                  : null}
+              </p>
+            </li>
+          ))}
         </ul>
       </DataTableShell>
     </>

@@ -97,7 +97,6 @@
       "certifications": "Certifications",
       "insurance": "Assurances",
       "insurance_by_section": "Par section",
-      "insurance_expiring": "À échéance",
       "validation": "Validation",
       "sla": "SLA",
       "year_end": "Clôture annuelle",
@@ -5981,42 +5980,33 @@
     }
   },
   "insurance": {
-    "toasts": {
-      "updated": "Assurance mise à jour",
-      "created": "Assurance enregistrée",
-      "deactivated": "Assurance désactivée"
-    },
     "errors": {
-      "save_failed": "Erreur lors de l'enregistrement de l'assurance",
-      "deactivate_failed": "Impossible de désactiver l'assurance",
       "failed_load_clubs": "Impossible de charger la liste des clubs."
     },
     "table": {
       "no_name": "Sans nom",
-      "empty_title": "Aucune assurance enregistrée",
-      "empty_description": "Aucun membre avec une assurance trouvé dans cette section.",
-      "col_member": "Membre",
-      "col_type": "Type",
-      "col_policy": "N° Police",
-      "col_provider": "Assureur",
-      "col_validity": "Validité",
-      "col_coverage": "Couverture",
+      "empty_title": "Aucune personne dans cette section",
+      "empty_description": "Aucun membre ni direction à afficher dans cette section.",
+      "col_person": "Personne",
       "col_status": "Statut",
-      "status_no_insurance": "Sans assurance",
-      "list_label": "Membres et leur assurance",
-      "mobile_ends": "Expire le {date}",
-      "status_expired": "Expiré",
-      "status_active": "Actif",
-      "status_inactive": "Inactif",
-      "action_view_evidence": "Voir la preuve",
-      "action_edit": "Modifier l'assurance",
-      "action_register": "Enregistrer l'assurance",
-      "action_deactivate": "Désactiver l'assurance",
-      "sr_edit": "Modifier",
-      "sr_deactivate": "Désactiver"
+      "col_origin": "Où il a été payé",
+      "col_folio": "Folio",
+      "list_label": "Personnes et leur assurance",
+      "staff": "Direction",
+      "unknown": "quelqu'un",
+      "status_covered": "Assuré",
+      "status_in_order": "Dans une commande",
+      "status_in_review": "En révision",
+      "status_proof_rejected": "Justificatif rejeté",
+      "status_uninsured": "Non assuré",
+      "valid_until": "Jusqu'au {date}",
+      "origin_paid_here": "Payé dans cette section",
+      "origin_paid_elsewhere": "Payé dans {place}",
+      "origin_paid_elsewhere_unknown": "Payé dans une autre section",
+      "origin_reassigned": "Réaffecté depuis {name}"
     },
     "view": {
-      "load_error": "Impossible de charger les assurances",
+      "load_error": "Impossible de charger le résumé des assurances",
       "filter_local_field": "Champ local",
       "filter_club": "Club",
       "filter_section": "Section",
@@ -6027,73 +6017,27 @@
       "refresh_tooltip": "Actualiser",
       "prompt_select": "Sélectionnez un club et une section pour voir les assurances.",
       "loading": "Chargement des assurances...",
-      "insured_count": "{insured} sur {total} {total, plural, one {membre} other {membres}} avec assurance enregistrée",
-      "legacy_disabled_title": "L'enregistrement manuel des assurances est désactivé pour ce Champ Local",
-      "legacy_disabled_description": "Ce Champ Local utilise des ordres de paiement : la couverture est créée à l'approbation de l'ordre. Les assurances déjà enregistrées peuvent encore être modifiées.",
-      "legacy_disabled_link": "Aller aux Ordres de paiement"
+      "no_year_title": "Aucune année ecclésiastique active",
+      "no_year_description": "Sans année ecclésiastique, il n'y a aucune assurance à afficher pour cette section.",
+      "no_cycle_title": "Aucun cycle d'assurance pour cette année",
+      "no_cycle_description": "Le Champ Local n'a pas encore configuré le cycle d'assurance de {year}."
     },
-    "expiring": {
-      "filter_label": "Expirent dans",
-      "days_option": "{days} jours",
-      "reset": "Réinitialiser",
-      "no_results": "Aucun résultat",
-      "results_count": "{count, plural, one {{count} assurance trouvée} other {{count} assurances trouvées}}",
-      "kpi_total_title": "Total dans la fenêtre",
-      "kpi_critical_title": "Critiques",
-      "kpi_week_title": "Cette semaine",
-      "kpi_month_title": "Ce mois",
-      "kpi_total_desc": "Expirent dans les {days} prochains jours",
-      "kpi_critical_desc": "Expirent dans 7 jours ou moins",
-      "kpi_week_desc": "Expirent dans les 7 prochains jours",
-      "kpi_month_desc": "Expirent dans les 30 prochains jours",
-      "empty_title": "Aucune assurance à expirer",
-      "empty_description": "Aucune assurance active n'expire dans les {days} prochains jours.",
-      "col_member": "Membre",
-      "col_club": "Club",
-      "col_type": "Type",
-      "col_policy": "N° Police",
-      "col_expiry": "Expiration",
-      "col_days": "Jours",
-      "col_status": "Statut",
-      "mobile_days_remaining": "Jours restants",
-      "mobile_list_label": "Assurances à expirer",
-      "urgency_critical": "Critique",
-      "urgency_warning": "Avertissement",
-      "urgency_active": "Actif",
-      "pagination_showing": "Affichage de {from}–{to} sur {total}",
-      "pagination_prev": "Précédent",
-      "pagination_next": "Suivant",
-      "back_link": "Retour aux assurances"
-    },
-    "alert": {
-      "title": "Assurances proches de l'expiration",
-      "subtitle": "{count, plural, one {{count} assurance expire} other {{count} assurances expirent}} dans les 30 prochains jours",
-      "critical_note": "{count, plural, one {{count} critique ≤ 7 jours} other {{count} critiques ≤ 7 jours}}",
-      "view_all": "Voir tout",
-      "expires_on": "Expire le {date} ({days}j)"
+    "summary": {
+      "covered": "Assurés",
+      "covered_of_total": "{covered} sur {total}",
+      "in_process": "En cours",
+      "uninsured": "Non assurés",
+      "free_coverages": "Couvertures libres",
+      "free_coverages_hint": "Payées et prêtes à être réaffectées",
+      "year": "Année ecclésiastique",
+      "unit_cost": "Coût par personne",
+      "purchase_deadline": "Date limite d'achat"
     },
     "page": {
       "title": "Assurances",
-      "description": "Gestion des assurances des membres par section de club.",
-      "button_view_expiring": "Voir les expirations",
+      "description": "État de l'assurance annuelle de chaque personne par section de club. Lecture seule : l'assurance s'achète via des commandes de paiement.",
       "empty_no_clubs_title": "Aucun club enregistré",
-      "empty_no_clubs_description": "Enregistrez au moins un club pour gérer les assurances de ses membres."
-    },
-    "pageExpiring": {
-      "title": "Assurances expirant bientôt",
-      "description": "Assurances actives proches de l'expiration, triées par urgence.",
-      "window_label": "Fenêtre : {days} jours",
-      "error_load_failed": "Impossible de charger la liste des assurances expirant bientôt."
-    },
-    "validation": {
-      "start_date_required": "La date de début est obligatoire",
-      "end_date_required": "La date de fin est obligatoire"
-    },
-    "placeholders": {
-      "selectType": "Sélectionner le type",
-      "policyNumber": "Ex. POL-2025-001",
-      "provider": "Ex. MAPFRE, San Cristóbal...",
-      "amount": "0.00"
+      "empty_no_clubs_description": "Enregistrez au moins un club pour voir l'assurance de ses membres."
     }
   },
   "finances": {
@@ -8879,6 +8823,7 @@
       "REJECTED": "Rejeté"
     },
     "detail": {
+      "staffBadge": "Direction",
       "title": "Détail de l'ordre",
       "purpose": "Objet",
       "status": "Statut",
@@ -8914,6 +8859,10 @@
       "localField": "Champ local"
     },
     "reassignments": {
+      "all": "Toutes",
+      "historyNote": "Historique des réaffectations. La direction du club les exécute directement depuis l'application, sans approbation du Champ Local.",
+      "colDoneBy": "Effectuée par",
+      "colDate": "Date",
       "empty": "Aucune demande de réaffectation",
       "colFrom": "De",
       "colTo": "Vers",
@@ -9004,10 +8953,10 @@
       "edit": "Modifier",
       "activate": "Activer",
       "deactivate": "Désactiver",
-      "scopeMember": "Membre",
-      "scopeEventExternal": "Externe (événement)",
+      "scopeGeneral": "Général",
+      "scopeEvent": "Événement",
       "validityFixedMonths": "Mois fixes",
-      "validityUntilDate": "Jusqu'à une date",
+      "validityEventDates": "Dates de l'événement",
       "durationMonths": "Durée (mois)",
       "saved": "Produit enregistré"
     },

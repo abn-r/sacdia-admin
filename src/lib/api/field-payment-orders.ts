@@ -52,6 +52,10 @@ export type PaymentOrderLine = {
   purpose_ref_id: number;
   insurance_assignment_id: number | null;
   camporee_member_id: number | null;
+  /** Resolved by the backend on list/detail/review-queue lines. */
+  beneficiary_name?: string | null;
+  /** True when the beneficiary holds a non-member (leadership) role in the order's section. */
+  is_staff?: boolean;
   /** Present after GET detail normalization, or nested Prisma `users.*`. */
   full_name?: string | null;
   beneficiary_full_name?: string | null;
@@ -161,6 +165,10 @@ export type ReassignmentRequest = {
   reject_reason: string | null;
   requested_by_id: string;
   reviewed_by_id: string | null;
+  from_user_name: string | null;
+  to_user_name: string | null;
+  requested_by_name: string | null;
+  reviewed_by_name: string | null;
   created_at: string;
 };
 

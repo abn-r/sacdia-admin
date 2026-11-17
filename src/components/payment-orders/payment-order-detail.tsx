@@ -32,6 +32,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/users/user-avatar";
@@ -326,6 +327,11 @@ export function PaymentOrderDetail({
                                 >
                                   {label}
                                 </span>
+                                {line.is_staff ? (
+                                  <Badge variant="secondary" className="shrink-0">
+                                    {t("detail.staffBadge")}
+                                  </Badge>
+                                ) : null}
                               </div>
                             </td>
                             <td className="px-3 py-1.5">

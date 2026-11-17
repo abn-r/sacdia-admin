@@ -7,8 +7,9 @@
 import { apiRequest } from "@/lib/api/client";
 import { unwrapApiData } from "@/lib/api/unwrap";
 
-export type InsuranceCoverageScope = "MEMBER" | "EVENT_EXTERNAL" | string;
-export type InsuranceValidityMode = "FIXED_MONTHS" | "UNTIL_DATE" | string;
+// Backend accepts only these values (insurance-config.dto.ts).
+export type InsuranceCoverageScope = "GENERAL" | "EVENT";
+export type InsuranceValidityMode = "FIXED_MONTHS" | "EVENT_DATES";
 
 export type InsuranceProduct = {
   insurance_product_id: number;
