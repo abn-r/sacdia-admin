@@ -43,7 +43,7 @@ function formatDate(value: string) {
 
 export function ReassignmentsTray() {
   const t = useTranslations("payment_orders");
-  const [status, setStatus] = useState<ReassignmentStatus>("PENDING");
+  const [status, setStatus] = useState<ReassignmentStatus | "">("");
   const [items, setItems] = useState<ReassignmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
@@ -53,7 +53,7 @@ export function ReassignmentsTray() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setItems(await listReassignments(status));
+      setItems(await listReassignments(status || undefined));
     } catch (error) {
       toast.error(getPaymentOrderErrorMessage(error, t, "toasts.loadFailed"));
       setItems([]);
@@ -97,6 +97,9 @@ export function ReassignmentsTray() {
 
   return (
     <div className="space-y-4">
+      <p className="text-muted-foreground text-sm">
+        {t("reassignments.historyNote")}
+      </p>
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <label
@@ -110,10 +113,11 @@ export function ReassignmentsTray() {
             className="h-9 rounded-md border bg-background px-3 text-sm"
             value={status}
             onChange={(event) =>
-              setStatus(event.target.value as ReassignmentStatus)
+              setStatus(event.target.value as ReassignmentStatus | "")
             }
             aria-label={t("tray.filterStatus")}
           >
+            <option value="">{t("reassignments.all")}</option>
             <option value="PENDING">{t("reassignments.PENDING")}</option>
             <option value="APPROVED">{t("reassignments.APPROVED")}</option>
             <option value="REJECTED">{t("reassignments.REJECTED")}</option>
@@ -151,7 +155,10 @@ export function ReassignmentsTray() {
                 </th>
                 <th className="px-3 py-2 font-medium">{t("tray.colStatus")}</th>
                 <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colRequested")}
+                  {t("reassignments.colDoneBy")}
+                </th>
+                <th className="px-3 py-2 font-medium">
+                  {t("reassignments.colDate")}
                 </th>
                 <th className="px-3 py-2 font-medium" />
               </tr>
@@ -162,11 +169,11 @@ export function ReassignmentsTray() {
                   key={item.insurance_reassignment_request_id}
                   className="border-t"
                 >
-                  <td className="px-3 py-2 font-mono text-xs">
-                    {item.from_user_id}
+                  <td className="px-3 py-2 font-medium">
+                    {item.from_user_name ?? "—"}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs">
-                    {item.to_user_id}
+                  <td className="px-3 py-2 font-medium">
+                    {item.to_user_name ?? "—"}
                   </td>
                   <td className="px-3 py-2">{item.reason ?? "—"}</td>
                   <td className="px-3 py-2">
@@ -175,6 +182,9 @@ export function ReassignmentsTray() {
                       label={t(`reassignments.${item.status}`)}
                       size="sm"
                     />
+                  </td>
+                  <td className="px-3 py-2">
+                    {item.reviewed_by_name ?? item.requested_by_name ?? "—"}
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {formatDate(item.created_at)}

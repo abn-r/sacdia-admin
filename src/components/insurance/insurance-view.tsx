@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { RefreshCw, Info } from "lucide-react";
+import { RefreshCw, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,35 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EmptyState } from "@/components/shared/empty-state";
 import { InsuranceTable } from "@/components/insurance/insurance-table";
-import { apiRequestFromClient, ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/client";
+import {
+  getSectionInsuranceOverviewFromClient,
+  type SectionInsuranceOverview,
+} from "@/lib/api/insurance";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
-import type { MemberInsurance } from "@/lib/api/insurance";
-import { isLegacyInsuranceBlocked } from "@/lib/insurance/payment-orders-flag";
 import type { LocalField } from "@/lib/api/geography";
 import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
-import type { InsuranceFormDialogProps } from "@/components/insurance/insurance-form-dialog";
-import type { DeleteInsuranceDialogProps } from "@/components/insurance/delete-insurance-dialog";
-
-// ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
-
-const InsuranceFormDialog = dynamic<InsuranceFormDialogProps>(
-  () =>
-    import("@/components/insurance/insurance-form-dialog").then((m) => ({
-      default: m.InsuranceFormDialog,
-    })),
-  { ssr: false, loading: () => null },
-);
-
-const DeleteInsuranceDialog = dynamic<DeleteInsuranceDialogProps>(
-  () =>
-    import("@/components/insurance/delete-insurance-dialog").then((m) => ({
-      default: m.DeleteInsuranceDialog,
-    })),
-  { ssr: false, loading: () => null },
-);
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { useFormatCurrency, useFormatDate } from "@/lib/format-locale";
 
 type Club = {
   club_id: number;
@@ -56,104 +36,61 @@ type Section = {
   name: string;
 };
 
-// ─── Normalize helpers ────────────────────────────────────────────────────────
-
-type AnyRecord = Record<string, unknown>;
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
-
-function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
-  const ins = raw.insurance && typeof raw.insurance === "object"
-    ? (raw.insurance as AnyRecord)
-    : null;
-
-  return {
-    user_id: String(raw.user_id ?? ""),
-    name: typeof raw.name === "string" ? raw.name : null,
-    paternal_last_name: typeof raw.paternal_last_name === "string" ? raw.paternal_last_name : null,
-    maternal_last_name: typeof raw.maternal_last_name === "string" ? raw.maternal_last_name : null,
-    user_image: typeof raw.user_image === "string" ? raw.user_image : null,
-    current_class:
-      raw.current_class && typeof raw.current_class === "object"
-        ? { name: String((raw.current_class as AnyRecord).name ?? "") }
-        : null,
-    insurance: ins
-      ? {
-          insurance_id: Number(ins.insurance_id ?? 0),
-          insurance_type: (ins.insurance_type as NonNullable<MemberInsurance["insurance"]>["insurance_type"]) ?? null,
-          policy_number: typeof ins.policy_number === "string" ? ins.policy_number : null,
-          provider: typeof ins.provider === "string" ? ins.provider : null,
-          start_date: typeof ins.start_date === "string" ? ins.start_date : null,
-          end_date: typeof ins.end_date === "string" ? ins.end_date : null,
-          coverage_amount: ins.coverage_amount != null ? Number(ins.coverage_amount) : null,
-          active: typeof ins.active === "boolean" ? ins.active : null,
-          evidence_file_url: typeof ins.evidence_file_url === "string" ? ins.evidence_file_url : null,
-          evidence_file_name: typeof ins.evidence_file_name === "string" ? ins.evidence_file_name : null,
-          created_at: typeof ins.created_at === "string" ? ins.created_at : null,
-          modified_at: typeof ins.modified_at === "string" ? ins.modified_at : null,
-          created_by_name: typeof ins.created_by_name === "string" ? ins.created_by_name : null,
-          modified_by_name: typeof ins.modified_by_name === "string" ? ins.modified_by_name : null,
-        }
-      : null,
-  };
-}
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface InsuranceViewProps {
   clubs: Club[];
   sectionsByClub: Record<number, Section[]>;
   localFields: LocalField[];
   territoryScope: AdminTerritoryScope;
-  initialMembers: MemberInsurance[];
+  initialOverview: SectionInsuranceOverview | null;
   initialClubId: number | null;
   initialSectionId: number | null;
   initialLocalFieldId: number | "all";
-  /** Local Fields with field_payment_orders_v1 on (manual registration disabled). Unknown for non-admin roles. */
-  paymentOrdersLocalFieldIds?: number[];
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function SummaryItem({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
+  return (
+    <div className="rounded-lg border bg-card px-4 py-3">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-lg font-semibold tracking-tight tabular-nums">
+        {value}
+      </dd>
+      {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
+    </div>
+  );
+}
 
 export function InsuranceView({
   clubs,
   sectionsByClub,
   localFields,
   territoryScope,
-  initialMembers,
+  initialOverview,
   initialClubId,
   initialSectionId,
   initialLocalFieldId,
-  paymentOrdersLocalFieldIds = [],
 }: InsuranceViewProps) {
   const t = useTranslations("insurance");
-  const { canCapability, canViewScreen } = useScreenAccess();
-  // Local Fields learned from a 409 FIELD_PAYMENT_ORDER_LEGACY_DISABLED (roles that cannot read the flag).
-  const [learnedBlockedLocalFieldIds, setLearnedBlockedLocalFieldIds] = useState<number[]>([]);
-  const canCreateByRole = canCapability("insurance-by-section", "create");
-  const canUpdate = canCapability("insurance-by-section", "update");
-  const canDelete = canCapability("insurance-by-section", "delete");
+  const { canViewScreen } = useScreenAccess();
+  const formatDateLocale = useFormatDate();
+  const formatCurrency = useFormatCurrency();
+  const canOpenPaymentOrders = canViewScreen("payment-orders");
   const isLocalFieldLocked = territoryScope.level === "local_field";
   const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
     isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
   );
   const [selectedClubId, setSelectedClubId] = useState<number | null>(initialClubId);
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(initialSectionId);
-  const [members, setMembers] = useState<MemberInsurance[]>(initialMembers);
+  const [overview, setOverview] = useState<SectionInsuranceOverview | null>(initialOverview);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<MemberInsurance | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deletingMember, setDeletingMember] = useState<MemberInsurance | null>(null);
 
   const filteredClubs =
     selectedLocalFieldId === "all"
@@ -161,95 +98,54 @@ export function InsuranceView({
       : clubs.filter((club) => club.local_field_id === selectedLocalFieldId);
 
   const sections = selectedClubId ? (sectionsByClub[selectedClubId] ?? []) : [];
-  const selectedClubLocalFieldId = clubs.find(
-    (club) => club.club_id === selectedClubId,
-  )?.local_field_id;
-  const legacyRegistrationBlocked = isLegacyInsuranceBlocked(selectedClubLocalFieldId, [
-    ...paymentOrdersLocalFieldIds,
-    ...learnedBlockedLocalFieldIds,
-  ]);
-  // Editing existing insurance keeps working under payment orders; only creation is blocked.
-  const canCreate = canCreateByRole && !legacyRegistrationBlocked;
-  const canOpenPaymentOrders = canViewScreen("payment-orders");
 
-  function handleLegacyDisabled() {
-    if (selectedClubLocalFieldId === undefined) return;
-    setLearnedBlockedLocalFieldIds((current) =>
-      current.includes(selectedClubLocalFieldId)
-        ? current
-        : [...current, selectedClubLocalFieldId],
-    );
-  }
-
-  const loadInsurances = useCallback(async (clubId: number, sectionId: number) => {
+  const loadOverview = useCallback(async (sectionId: number) => {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const payload = await apiRequestFromClient<unknown>(
-        `/clubs/${clubId}/sections/${sectionId}/members/insurance`,
-      );
-      const raw = extractArray(payload);
-      setMembers(raw.map(normalizeMemberInsurance));
+      setOverview(await getSectionInsuranceOverviewFromClient(sectionId));
     } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : t("view.load_error");
-      setLoadError(message);
-      setMembers([]);
+      setLoadError(err instanceof ApiError ? err.message : t("view.load_error"));
+      setOverview(null);
     } finally {
       setIsLoading(false);
     }
   }, [t]);
 
   function handleLocalFieldChange(value: string) {
-    const nextLocalFieldId = value === "all" ? "all" : Number(value);
-    setSelectedLocalFieldId(nextLocalFieldId);
+    setSelectedLocalFieldId(value === "all" ? "all" : Number(value));
     setSelectedClubId(null);
     setSelectedSectionId(null);
-    setMembers([]);
+    setOverview(null);
     setLoadError(null);
   }
 
   function handleClubChange(value: string) {
-    const clubId = Number(value);
-    setSelectedClubId(clubId);
+    setSelectedClubId(Number(value));
     setSelectedSectionId(null);
-    setMembers([]);
+    setOverview(null);
     setLoadError(null);
   }
 
   function handleSectionChange(value: string) {
     const sectionId = Number(value);
     setSelectedSectionId(sectionId);
-    if (selectedClubId) {
-      loadInsurances(selectedClubId, sectionId);
-    }
+    void loadOverview(sectionId);
   }
 
   function handleRefresh() {
-    if (selectedClubId && selectedSectionId) {
-      loadInsurances(selectedClubId, selectedSectionId);
+    if (selectedSectionId) void loadOverview(selectedSectionId);
+  }
+
+  function formatDate(value: string): string {
+    try {
+      return formatDateLocale(value, { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch {
+      return value;
     }
   }
 
-  function handleEdit(member: MemberInsurance) {
-    setEditingMember(member);
-    setFormOpen(true);
-  }
-
-  function handleDelete(member: MemberInsurance) {
-    setDeletingMember(member);
-    setDeleteOpen(true);
-  }
-
-  function handleSuccess() {
-    if (selectedClubId && selectedSectionId) {
-      loadInsurances(selectedClubId, selectedSectionId);
-    }
-  }
-
-  const insuredCount = members.filter((m) => m.insurance !== null).length;
+  const showContent = Boolean(selectedSectionId) && !loadError && !isLoading && overview;
 
   return (
     <div className="space-y-5">
@@ -356,67 +252,68 @@ export function InsuranceView({
         </div>
       )}
 
-      {/* Count */}
-      {selectedSectionId && !loadError && !isLoading && (
-        <p className="text-sm text-muted-foreground">
-          {t("view.insured_count", { insured: insuredCount, total: members.length })}
-        </p>
-      )}
-
-      {/* Payment orders replace manual registration in this Local Field */}
-      {selectedSectionId && !loadError && legacyRegistrationBlocked && canCreateByRole && (
-        <div
-          role="note"
-          className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm"
-        >
-          <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-          <div className="space-y-1">
-            <p className="font-medium">{t("view.legacy_disabled_title")}</p>
-            <p className="text-muted-foreground">{t("view.legacy_disabled_description")}</p>
-            {canOpenPaymentOrders ? (
-              <Link
-                href="/dashboard/payment-orders"
-                className="inline-block font-medium text-foreground underline underline-offset-4 transition-colors duration-150 hover:text-primary"
-              >
-                {t("view.legacy_disabled_link")}
-              </Link>
-            ) : null}
-          </div>
+      {selectedSectionId && isLoading && (
+        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
+          {t("view.loading")}
         </div>
       )}
 
-      {/* Table */}
-      {selectedSectionId && (
-        isLoading ? (
-          <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-            {t("view.loading")}
-          </div>
-        ) : (
-          <InsuranceTable
-            items={members}
-            onEdit={canCreate || canUpdate ? handleEdit : undefined}
-            onDelete={canDelete ? handleDelete : undefined}
-            canCreate={canCreate}
-            canUpdate={canUpdate}
-          />
-        )
+      {showContent && !overview.year && (
+        <EmptyState
+          icon={ShieldCheck}
+          title={t("view.no_year_title")}
+          description={t("view.no_year_description")}
+        />
       )}
 
-      {/* Dialogs */}
-      <InsuranceFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        member={editingMember}
-        onSuccess={handleSuccess}
-        onLegacyDisabled={handleLegacyDisabled}
-      />
+      {showContent && overview.year && !overview.cycle && (
+        <EmptyState
+          icon={ShieldCheck}
+          title={t("view.no_cycle_title")}
+          description={t("view.no_cycle_description", { year: overview.year.label })}
+        />
+      )}
 
-      <DeleteInsuranceDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        member={deletingMember}
-        onSuccess={handleSuccess}
-      />
+      {showContent && overview.year && overview.cycle && (
+        <>
+          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <SummaryItem
+              label={t("summary.covered")}
+              value={t("summary.covered_of_total", {
+                covered: overview.counts.covered,
+                total: overview.counts.total,
+              })}
+            />
+            <SummaryItem
+              label={t("summary.in_process")}
+              value={String(overview.counts.in_process)}
+            />
+            <SummaryItem
+              label={t("summary.uninsured")}
+              value={String(overview.counts.uninsured)}
+            />
+            <SummaryItem
+              label={t("summary.free_coverages")}
+              value={String(overview.free_coverages_count)}
+              hint={t("summary.free_coverages_hint")}
+            />
+            <SummaryItem label={t("summary.year")} value={overview.year.label} />
+            <SummaryItem
+              label={t("summary.unit_cost")}
+              value={formatCurrency(Number(overview.cycle.unit_cost), overview.cycle.currency)}
+            />
+            <SummaryItem
+              label={t("summary.purchase_deadline")}
+              value={formatDate(overview.cycle.purchase_deadline)}
+            />
+          </dl>
+
+          <InsuranceTable
+            people={overview.people}
+            canOpenPaymentOrders={canOpenPaymentOrders}
+          />
+        </>
+      )}
     </div>
   );
 }

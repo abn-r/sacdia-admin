@@ -97,7 +97,6 @@
       "certifications": "Certifications",
       "insurance": "Insurance",
       "insurance_by_section": "By section",
-      "insurance_expiring": "Expiring",
       "validation": "Validation",
       "sla": "SLA",
       "year_end": "Year-end close",
@@ -5981,119 +5980,64 @@
     }
   },
   "insurance": {
-    "toasts": {
-      "updated": "Insurance updated",
-      "created": "Insurance registered",
-      "deactivated": "Insurance deactivated"
-    },
     "errors": {
-      "save_failed": "Error saving the insurance",
-      "deactivate_failed": "Could not deactivate the insurance",
-      "failed_load_clubs": "Could not load the clubs list."
+      "failed_load_clubs": "Could not load the club list."
     },
     "table": {
       "no_name": "No name",
-      "empty_title": "No insurances registered",
-      "empty_description": "No members with insurance found in this section.",
-      "col_member": "Member",
-      "col_type": "Type",
-      "col_policy": "Policy No.",
-      "col_provider": "Insurer",
-      "col_validity": "Validity",
-      "col_coverage": "Coverage",
+      "empty_title": "No people in this section",
+      "empty_description": "There are no members or leadership to show in this section.",
+      "col_person": "Person",
       "col_status": "Status",
-      "status_no_insurance": "No insurance",
-      "list_label": "Members and their insurance",
-      "mobile_ends": "Ends {date}",
-      "status_expired": "Expired",
-      "status_active": "Active",
-      "status_inactive": "Inactive",
-      "action_view_evidence": "View evidence",
-      "action_edit": "Edit insurance",
-      "action_register": "Register insurance",
-      "action_deactivate": "Deactivate insurance",
-      "sr_edit": "Edit",
-      "sr_deactivate": "Deactivate"
+      "col_origin": "Where it was paid",
+      "col_folio": "Folio",
+      "list_label": "People and their insurance",
+      "staff": "Leadership",
+      "unknown": "someone",
+      "status_covered": "Insured",
+      "status_in_order": "In an order",
+      "status_in_review": "In review",
+      "status_proof_rejected": "Proof rejected",
+      "status_uninsured": "Uninsured",
+      "valid_until": "Until {date}",
+      "origin_paid_here": "Paid in this section",
+      "origin_paid_elsewhere": "Paid in {place}",
+      "origin_paid_elsewhere_unknown": "Paid in another section",
+      "origin_reassigned": "Reassigned from {name}"
     },
     "view": {
-      "load_error": "Could not load insurances",
+      "load_error": "Could not load the insurance overview",
       "filter_local_field": "Local field",
       "filter_club": "Club",
       "filter_section": "Section",
       "select_local_field_placeholder": "Select local field",
-      "local_field_all": "All local fields",
+      "local_field_all": "All fields",
       "select_club_placeholder": "Select club",
       "select_section_placeholder": "Select section",
       "refresh_tooltip": "Refresh",
-      "prompt_select": "Select a club and section to view insurances.",
-      "loading": "Loading insurances...",
-      "insured_count": "{insured} of {total} {total, plural, one {member} other {members}} with registered insurance",
-      "legacy_disabled_title": "Manual insurance registration is disabled for this Local Field",
-      "legacy_disabled_description": "This Local Field uses payment orders: coverage is created when the order is approved. Existing insurance records can still be edited.",
-      "legacy_disabled_link": "Go to Payment orders"
+      "prompt_select": "Select a club and a section to see the insurance.",
+      "loading": "Loading insurance...",
+      "no_year_title": "No active ecclesiastical year",
+      "no_year_description": "Without an ecclesiastical year there is no insurance to show for this section.",
+      "no_cycle_title": "No insurance cycle for this year",
+      "no_cycle_description": "The Local Field has not configured the insurance cycle for {year} yet."
     },
-    "expiring": {
-      "filter_label": "Expiring in",
-      "days_option": "{days} days",
-      "reset": "Reset",
-      "no_results": "No results",
-      "results_count": "{count, plural, one {{count} insurance found} other {{count} insurances found}}",
-      "kpi_total_title": "Total in window",
-      "kpi_critical_title": "Critical",
-      "kpi_week_title": "This week",
-      "kpi_month_title": "This month",
-      "kpi_total_desc": "Expiring in the next {days} days",
-      "kpi_critical_desc": "Expiring in 7 days or less",
-      "kpi_week_desc": "Expiring in the next 7 days",
-      "kpi_month_desc": "Expiring in the next 30 days",
-      "empty_title": "No insurances expiring",
-      "empty_description": "No active insurances expiring in the next {days} days.",
-      "col_member": "Member",
-      "col_club": "Club",
-      "col_type": "Type",
-      "col_policy": "Policy No.",
-      "col_expiry": "Expiry",
-      "col_days": "Days",
-      "col_status": "Status",
-      "mobile_days_remaining": "Days remaining",
-      "mobile_list_label": "Expiring insurances",
-      "urgency_critical": "Critical",
-      "urgency_warning": "Warning",
-      "urgency_active": "Active",
-      "pagination_showing": "Showing {from}–{to} of {total}",
-      "pagination_prev": "Previous",
-      "pagination_next": "Next",
-      "back_link": "Back to Insurances"
-    },
-    "alert": {
-      "title": "Insurances expiring soon",
-      "subtitle": "{count, plural, one {{count} insurance expires} other {{count} insurances expire}} in the next 30 days",
-      "critical_note": "{count, plural, one {{count} critical ≤ 7 days} other {{count} critical ≤ 7 days}}",
-      "view_all": "View all",
-      "expires_on": "Expires {date} ({days}d)"
+    "summary": {
+      "covered": "Insured",
+      "covered_of_total": "{covered} of {total}",
+      "in_process": "In process",
+      "uninsured": "Uninsured",
+      "free_coverages": "Free coverages",
+      "free_coverages_hint": "Paid and ready to reassign",
+      "year": "Ecclesiastical year",
+      "unit_cost": "Cost per person",
+      "purchase_deadline": "Purchase deadline"
     },
     "page": {
       "title": "Insurance",
-      "description": "Manage member insurance by club section.",
-      "button_view_expiring": "View expiring",
+      "description": "Annual insurance status of each person by club section. Read-only: insurance is bought through payment orders.",
       "empty_no_clubs_title": "No clubs registered",
-      "empty_no_clubs_description": "Register at least one club to manage member insurance."
-    },
-    "pageExpiring": {
-      "title": "Expiring Insurance",
-      "description": "Active insurance policies expiring soon, sorted by urgency.",
-      "window_label": "Window: {days} days",
-      "error_load_failed": "Could not load the expiring insurance list."
-    },
-    "validation": {
-      "start_date_required": "Start date is required",
-      "end_date_required": "End date is required"
-    },
-    "placeholders": {
-      "selectType": "Select type",
-      "policyNumber": "E.g. POL-2025-001",
-      "provider": "E.g. MAPFRE, San Cristóbal...",
-      "amount": "0.00"
+      "empty_no_clubs_description": "Register at least one club to see its members' insurance."
     }
   },
   "finances": {
@@ -8879,6 +8823,7 @@
       "REJECTED": "Rejected"
     },
     "detail": {
+      "staffBadge": "Leadership",
       "title": "Order detail",
       "purpose": "Purpose",
       "status": "Status",
@@ -8914,6 +8859,10 @@
       "localField": "Local field"
     },
     "reassignments": {
+      "all": "All",
+      "historyNote": "Reassignment history. Club leadership runs them directly from the app, without Local Field approval.",
+      "colDoneBy": "Done by",
+      "colDate": "Date",
       "empty": "No reassignment requests",
       "colFrom": "From",
       "colTo": "To",
@@ -9004,10 +8953,10 @@
       "edit": "Edit",
       "activate": "Activate",
       "deactivate": "Deactivate",
-      "scopeMember": "Member",
-      "scopeEventExternal": "External (event)",
+      "scopeGeneral": "General",
+      "scopeEvent": "Event",
       "validityFixedMonths": "Fixed months",
-      "validityUntilDate": "Until date",
+      "validityEventDates": "Event dates",
       "durationMonths": "Duration (months)",
       "saved": "Product saved"
     },

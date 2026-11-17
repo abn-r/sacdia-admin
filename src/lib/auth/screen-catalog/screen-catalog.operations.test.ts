@@ -142,45 +142,6 @@ describe("insurance-by-section", () => {
   });
 });
 
-describe("insurance-expiring", () => {
-  it("rejects insurance:read without an allowed global role (old viewAny)", () => {
-    expect(
-      canViewScreen(buildUser(["pastor"], ["insurance:read"]), "insurance-expiring"),
-    ).toBe(false);
-  });
-
-  it("lets director-lf in via coordinator alias without insurance:read", () => {
-    expect(canViewScreen(buildUser(["director-lf"], []), "insurance-expiring")).toBe(
-      true,
-    );
-    expect(
-      canViewScreen(buildUser(["assistant-lf"], []), "insurance-expiring"),
-    ).toBe(true);
-  });
-
-  it("lets admin/coordinator in without insurance:read (SkipPermissions)", () => {
-    expect(canViewScreen(buildUser(["admin"], []), "insurance-expiring")).toBe(true);
-    expect(canViewScreen(buildUser(["coordinator"], []), "insurance-expiring")).toBe(
-      true,
-    );
-  });
-
-  it("expands aliases like GlobalRolesGuard", () => {
-    expect(
-      canViewScreen(buildUser(["assistant-admin"], []), "insurance-expiring"),
-    ).toBe(true);
-    expect(
-      canViewScreen(buildUser(["zone-coordinator"], []), "insurance-expiring"),
-    ).toBe(true);
-    expect(
-      canViewScreen(buildUser(["general-coordinator"], []), "insurance-expiring"),
-    ).toBe(true);
-    expect(
-      canViewScreen(buildUser(["director-union"], []), "insurance-expiring"),
-    ).toBe(false);
-  });
-});
-
 describe("insurance-config", () => {
   it("splits tabs: configure vs payment instructions", () => {
     const products = buildUser(["director-lf"], ["insurance:configure"]);

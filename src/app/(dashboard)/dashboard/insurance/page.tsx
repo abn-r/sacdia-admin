@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ShieldCheck, Clock } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { InsuranceView } from "@/components/insurance/insurance-view";
-import { ExpiringInsuranceAlert } from "@/components/insurance/expiring-insurance-alert";
-import { Button } from "@/components/ui/button";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -17,11 +14,10 @@ import {
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
 import type { LocalField } from "@/lib/api/geography";
-import type { MemberInsurance } from "@/lib/api/insurance";
 import {
-  FIELD_PAYMENT_ORDERS_FLAG_KEY,
-  parsePaymentOrdersLocalFieldIds,
-} from "@/lib/insurance/payment-orders-flag";
+  getSectionInsuranceOverview,
+  type SectionInsuranceOverview,
+} from "@/lib/api/insurance";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -67,64 +63,6 @@ function normalizeSection(raw: AnyRecord): Section {
   };
 }
 
-function normalizeMemberInsurance(raw: AnyRecord): MemberInsurance {
-  const ins =
-    raw.insurance && typeof raw.insurance === "object"
-      ? (raw.insurance as AnyRecord)
-      : null;
-
-  return {
-    user_id: String(raw.user_id ?? ""),
-    name: typeof raw.name === "string" ? raw.name : null,
-    paternal_last_name:
-      typeof raw.paternal_last_name === "string" ? raw.paternal_last_name : null,
-    maternal_last_name:
-      typeof raw.maternal_last_name === "string" ? raw.maternal_last_name : null,
-    user_image: typeof raw.user_image === "string" ? raw.user_image : null,
-    current_class:
-      raw.current_class && typeof raw.current_class === "object"
-        ? { name: String((raw.current_class as AnyRecord).name ?? "") }
-        : null,
-    insurance: ins
-      ? {
-          insurance_id: Number(ins.insurance_id ?? 0),
-          insurance_type:
-            (ins.insurance_type as NonNullable<MemberInsurance["insurance"]>["insurance_type"]) ??
-            null,
-          policy_number:
-            typeof ins.policy_number === "string" ? ins.policy_number : null,
-          provider: typeof ins.provider === "string" ? ins.provider : null,
-          start_date:
-            typeof ins.start_date === "string" ? ins.start_date : null,
-          end_date: typeof ins.end_date === "string" ? ins.end_date : null,
-          coverage_amount:
-            ins.coverage_amount != null ? Number(ins.coverage_amount) : null,
-          active: typeof ins.active === "boolean" ? ins.active : null,
-          evidence_file_url:
-            typeof ins.evidence_file_url === "string"
-              ? ins.evidence_file_url
-              : null,
-          evidence_file_name:
-            typeof ins.evidence_file_name === "string"
-              ? ins.evidence_file_name
-              : null,
-          created_at:
-            typeof ins.created_at === "string" ? ins.created_at : null,
-          modified_at:
-            typeof ins.modified_at === "string" ? ins.modified_at : null,
-          created_by_name:
-            typeof ins.created_by_name === "string"
-              ? ins.created_by_name
-              : null,
-          modified_by_name:
-            typeof ins.modified_by_name === "string"
-              ? ins.modified_by_name
-              : null,
-        }
-      : null,
-  };
-}
-
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -139,33 +77,17 @@ export default async function InsurancePage() {
   }
   const t = await getTranslations("insurance");
   const territoryScope = resolveAdminTerritoryScope(user);
-  const canOpenExpiring = canViewScreen(user, "insurance-expiring");
 
   let clubs: Club[] = [];
   let localFields: LocalField[] = [];
   let sectionsByClub: Record<number, Section[]> = {};
-  let initialMembers: MemberInsurance[] = [];
+  let initialOverview: SectionInsuranceOverview | null = null;
   let initialSectionId: number | null = null;
   let initialLocalFieldId: number | "all" = "all";
   let loadError: string | null = null;
 
   const localFieldsResult = await listLocalFieldsForTerritory(user).catch(() => []);
   localFields = localFieldsResult;
-
-  // Local Fields on payment orders: manual registration answers 409 there. The only
-  // readable source is system-config (admin / super-admin); any other role gets 403 and
-  // the view learns the block from the first 409 instead.
-  let paymentOrdersLocalFieldIds: number[] = [];
-  try {
-    const flag = await apiRequest<unknown>(
-      `/system-config/${FIELD_PAYMENT_ORDERS_FLAG_KEY}`,
-    );
-    const root = (flag && typeof flag === "object" ? flag : {}) as AnyRecord;
-    const row = (root.data && typeof root.data === "object" ? root.data : root) as AnyRecord;
-    paymentOrdersLocalFieldIds = parsePaymentOrdersLocalFieldIds(row.config_value);
-  } catch {
-    paymentOrdersLocalFieldIds = [];
-  }
 
   if (territoryScope.level === "local_field") {
     initialLocalFieldId = territoryScope.localFieldId;
@@ -205,7 +127,7 @@ export default async function InsurancePage() {
       sectionsResults.map(({ clubId, sections }) => [clubId, sections]),
     );
 
-    // 3. Pre-load first section insurances
+    // 3. Pre-load first section overview
     const scopedClubs =
       initialLocalFieldId === "all"
         ? clubs
@@ -220,13 +142,11 @@ export default async function InsurancePage() {
       if (firstSection) {
         initialSectionId = firstSection.club_section_id;
         try {
-          const payload = await apiRequest<unknown>(
-            `/clubs/${firstClub.club_id}/sections/${firstSection.club_section_id}/members/insurance`,
+          initialOverview = await getSectionInsuranceOverview(
+            firstSection.club_section_id,
           );
-          const rawMembers = extractArray(payload);
-          initialMembers = rawMembers.map(normalizeMemberInsurance);
         } catch {
-          initialMembers = [];
+          initialOverview = null;
         }
       }
     }
@@ -237,18 +157,7 @@ export default async function InsurancePage() {
       <PageHeader
         title={t("page.title")}
         description={t("page.description")}
-      >
-        {canOpenExpiring ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/insurance/expiring">
-              <Clock className="mr-1.5 size-4" />
-              {t("page.button_view_expiring")}
-            </Link>
-          </Button>
-        ) : null}
-      </PageHeader>
-
-      {canOpenExpiring ? <ExpiringInsuranceAlert /> : null}
+      />
 
       {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
 
@@ -266,7 +175,7 @@ export default async function InsurancePage() {
           sectionsByClub={sectionsByClub}
           localFields={localFields}
           territoryScope={territoryScope}
-          initialMembers={initialMembers}
+          initialOverview={initialOverview}
           initialClubId={
             (initialLocalFieldId === "all"
               ? clubs[0]
@@ -276,7 +185,6 @@ export default async function InsurancePage() {
           }
           initialSectionId={initialSectionId}
           initialLocalFieldId={initialLocalFieldId}
-          paymentOrdersLocalFieldIds={paymentOrdersLocalFieldIds}
         />
       )}
     </div>

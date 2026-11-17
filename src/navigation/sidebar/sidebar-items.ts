@@ -317,13 +317,6 @@ export const sidebarItems: NavGroup[] = [
             activeMatch: "exact",
           },
           {
-            id: "insurance-expiring",
-            title: "Por vencer",
-            url: "/dashboard/insurance/expiring",
-            icon: Shield,
-            activeMatch: "prefix",
-          },
-          {
             id: "insurance-config",
             title: "Configuración",
             url: "/dashboard/insurance/config",

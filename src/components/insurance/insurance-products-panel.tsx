@@ -21,20 +21,22 @@ import {
   createInsuranceProduct,
   listInsuranceProducts,
   updateInsuranceProduct,
+  type InsuranceCoverageScope,
   type InsuranceProduct,
+  type InsuranceValidityMode,
 } from "@/lib/api/insurance-config";
 import { getPaymentOrderErrorMessage } from "@/components/payment-orders/payment-order-errors";
 
 type ProductForm = {
   name: string;
-  coverage_scope: string;
-  validity_mode: string;
+  coverage_scope: InsuranceCoverageScope;
+  validity_mode: InsuranceValidityMode;
   default_duration_months: string;
 };
 
 const EMPTY_PRODUCT: ProductForm = {
   name: "",
-  coverage_scope: "MEMBER",
+  coverage_scope: "GENERAL",
   validity_mode: "FIXED_MONTHS",
   default_duration_months: "12",
 };
@@ -178,9 +180,15 @@ export function InsuranceProductsPanel({
               {products.map((product) => (
                 <tr key={product.insurance_product_id} className="border-t">
                   <td className="px-3 py-2">{product.name}</td>
-                  <td className="px-3 py-2">{product.coverage_scope}</td>
                   <td className="px-3 py-2">
-                    {product.validity_mode}
+                    {product.coverage_scope === "EVENT"
+                      ? t("products.scopeEvent")
+                      : t("products.scopeGeneral")}
+                  </td>
+                  <td className="px-3 py-2">
+                    {product.validity_mode === "EVENT_DATES"
+                      ? t("products.validityEventDates")
+                      : t("products.validityFixedMonths")}
                     {product.default_duration_months
                       ? ` (${product.default_duration_months}m)`
                       : ""}
@@ -256,14 +264,12 @@ export function InsuranceProductsPanel({
                 onChange={(event) =>
                   setForm((previous) => ({
                     ...previous,
-                    coverage_scope: event.target.value,
+                    coverage_scope: event.target.value as InsuranceCoverageScope,
                   }))
                 }
               >
-                <option value="MEMBER">{t("products.scopeMember")}</option>
-                <option value="EVENT_EXTERNAL">
-                  {t("products.scopeEventExternal")}
-                </option>
+                <option value="GENERAL">{t("products.scopeGeneral")}</option>
+                <option value="EVENT">{t("products.scopeEvent")}</option>
               </select>
             </div>
             <div className="space-y-1.5">
@@ -277,15 +283,15 @@ export function InsuranceProductsPanel({
                 onChange={(event) =>
                   setForm((previous) => ({
                     ...previous,
-                    validity_mode: event.target.value,
+                    validity_mode: event.target.value as InsuranceValidityMode,
                   }))
                 }
               >
                 <option value="FIXED_MONTHS">
                   {t("products.validityFixedMonths")}
                 </option>
-                <option value="UNTIL_DATE">
-                  {t("products.validityUntilDate")}
+                <option value="EVENT_DATES">
+                  {t("products.validityEventDates")}
                 </option>
               </select>
             </div>

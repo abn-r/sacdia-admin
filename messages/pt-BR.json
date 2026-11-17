@@ -97,7 +97,6 @@
       "certifications": "Certificações",
       "insurance": "Seguros",
       "insurance_by_section": "Por seção",
-      "insurance_expiring": "Vencendo",
       "validation": "Validação",
       "sla": "SLA",
       "year_end": "Encerramento do ano",
@@ -5981,42 +5980,33 @@
     }
   },
   "insurance": {
-    "toasts": {
-      "updated": "Seguro atualizado",
-      "created": "Seguro registrado",
-      "deactivated": "Seguro desativado"
-    },
     "errors": {
-      "save_failed": "Erro ao salvar o seguro",
-      "deactivate_failed": "Não foi possível desativar o seguro",
       "failed_load_clubs": "Não foi possível carregar a lista de clubes."
     },
     "table": {
       "no_name": "Sem nome",
-      "empty_title": "Nenhum seguro registrado",
-      "empty_description": "Nenhum membro com seguro encontrado nesta seção.",
-      "col_member": "Membro",
-      "col_type": "Tipo",
-      "col_policy": "N° Apólice",
-      "col_provider": "Seguradora",
-      "col_validity": "Vigência",
-      "col_coverage": "Cobertura",
+      "empty_title": "Nenhuma pessoa nesta seção",
+      "empty_description": "Não há membros nem diretoria para mostrar nesta seção.",
+      "col_person": "Pessoa",
       "col_status": "Status",
-      "status_no_insurance": "Sem seguro",
-      "list_label": "Membros e seus seguros",
-      "mobile_ends": "Vence em {date}",
-      "status_expired": "Vencido",
-      "status_active": "Vigente",
-      "status_inactive": "Inativo",
-      "action_view_evidence": "Ver evidência",
-      "action_edit": "Editar seguro",
-      "action_register": "Registrar seguro",
-      "action_deactivate": "Desativar seguro",
-      "sr_edit": "Editar",
-      "sr_deactivate": "Desativar"
+      "col_origin": "Onde foi pago",
+      "col_folio": "Folio",
+      "list_label": "Pessoas e seu seguro",
+      "staff": "Diretoria",
+      "unknown": "alguém",
+      "status_covered": "Segurado",
+      "status_in_order": "Em um pedido",
+      "status_in_review": "Em revisão",
+      "status_proof_rejected": "Comprovante rejeitado",
+      "status_uninsured": "Sem seguro",
+      "valid_until": "Até {date}",
+      "origin_paid_here": "Pago nesta seção",
+      "origin_paid_elsewhere": "Pago em {place}",
+      "origin_paid_elsewhere_unknown": "Pago em outra seção",
+      "origin_reassigned": "Reatribuído de {name}"
     },
     "view": {
-      "load_error": "Não foi possível carregar os seguros",
+      "load_error": "Não foi possível carregar o resumo de seguros",
       "filter_local_field": "Campo local",
       "filter_club": "Clube",
       "filter_section": "Seção",
@@ -6027,73 +6017,27 @@
       "refresh_tooltip": "Atualizar",
       "prompt_select": "Selecione um clube e uma seção para ver os seguros.",
       "loading": "Carregando seguros...",
-      "insured_count": "{insured} de {total} {total, plural, one {membro} other {membros}} com seguro registrado",
-      "legacy_disabled_title": "O cadastro manual de seguros está desativado neste Campo Local",
-      "legacy_disabled_description": "Este Campo Local usa ordens de pagamento: a cobertura é criada quando a ordem é aprovada. Os seguros já cadastrados ainda podem ser editados.",
-      "legacy_disabled_link": "Ir para Ordens de pagamento"
+      "no_year_title": "Nenhum ano eclesiástico ativo",
+      "no_year_description": "Sem um ano eclesiástico não há seguros para mostrar nesta seção.",
+      "no_cycle_title": "Sem ciclo de seguro para este ano",
+      "no_cycle_description": "O Campo Local ainda não configurou o ciclo de seguro de {year}."
     },
-    "expiring": {
-      "filter_label": "Vencem em",
-      "days_option": "{days} dias",
-      "reset": "Redefinir",
-      "no_results": "Sem resultados",
-      "results_count": "{count, plural, one {{count} seguro encontrado} other {{count} seguros encontrados}}",
-      "kpi_total_title": "Total na janela",
-      "kpi_critical_title": "Críticos",
-      "kpi_week_title": "Esta semana",
-      "kpi_month_title": "Este mês",
-      "kpi_total_desc": "Vencem nos próximos {days} dias",
-      "kpi_critical_desc": "Vencem em 7 dias ou menos",
-      "kpi_week_desc": "Vencem nos próximos 7 dias",
-      "kpi_month_desc": "Vencem nos próximos 30 dias",
-      "empty_title": "Nenhum seguro a vencer",
-      "empty_description": "Nenhum seguro ativo vencendo nos próximos {days} dias.",
-      "col_member": "Membro",
-      "col_club": "Clube",
-      "col_type": "Tipo",
-      "col_policy": "N° Apólice",
-      "col_expiry": "Vencimento",
-      "col_days": "Dias",
-      "col_status": "Status",
-      "mobile_days_remaining": "Dias restantes",
-      "mobile_list_label": "Seguros a vencer",
-      "urgency_critical": "Crítico",
-      "urgency_warning": "Advertência",
-      "urgency_active": "Vigente",
-      "pagination_showing": "Exibindo {from}–{to} de {total}",
-      "pagination_prev": "Anterior",
-      "pagination_next": "Próximo",
-      "back_link": "Voltar para Seguros"
-    },
-    "alert": {
-      "title": "Seguros próximos ao vencimento",
-      "subtitle": "{count, plural, one {{count} seguro vence} other {{count} seguros vencem}} nos próximos 30 dias",
-      "critical_note": "{count, plural, one {{count} crítico ≤ 7 dias} other {{count} críticos ≤ 7 dias}}",
-      "view_all": "Ver todos",
-      "expires_on": "Vence em {date} ({days}d)"
+    "summary": {
+      "covered": "Segurados",
+      "covered_of_total": "{covered} de {total}",
+      "in_process": "Em andamento",
+      "uninsured": "Sem seguro",
+      "free_coverages": "Coberturas livres",
+      "free_coverages_hint": "Pagas e prontas para reatribuir",
+      "year": "Ano eclesiástico",
+      "unit_cost": "Custo por pessoa",
+      "purchase_deadline": "Prazo de compra"
     },
     "page": {
       "title": "Seguros",
-      "description": "Gestão de seguros dos membros por seção do clube.",
-      "button_view_expiring": "Ver a vencer",
-      "empty_no_clubs_title": "Nenhum clube cadastrado",
-      "empty_no_clubs_description": "Cadastre pelo menos um clube para gerenciar os seguros de seus membros."
-    },
-    "pageExpiring": {
-      "title": "Seguros a Vencer",
-      "description": "Seguros ativos prestes a vencer, ordenados por urgência.",
-      "window_label": "Janela: {days} dias",
-      "error_load_failed": "Não foi possível carregar a lista de seguros a vencer."
-    },
-    "validation": {
-      "start_date_required": "A data de início é obrigatória",
-      "end_date_required": "A data de fim é obrigatória"
-    },
-    "placeholders": {
-      "selectType": "Selecionar tipo",
-      "policyNumber": "Ex. POL-2025-001",
-      "provider": "Ex. MAPFRE, San Cristóbal...",
-      "amount": "0,00"
+      "description": "Situação do seguro anual de cada pessoa por seção do clube. Somente leitura: o seguro é comprado por pedidos de pagamento.",
+      "empty_no_clubs_title": "Nenhum clube registrado",
+      "empty_no_clubs_description": "Registre pelo menos um clube para ver o seguro de seus membros."
     }
   },
   "finances": {
@@ -8879,6 +8823,7 @@
       "REJECTED": "Rejeitado"
     },
     "detail": {
+      "staffBadge": "Diretoria",
       "title": "Detalhe da ordem",
       "purpose": "Propósito",
       "status": "Status",
@@ -8914,6 +8859,10 @@
       "localField": "Campo local"
     },
     "reassignments": {
+      "all": "Todas",
+      "historyNote": "Histórico de reatribuições. A diretoria do clube as executa diretamente no app, sem aprovação do Campo Local.",
+      "colDoneBy": "Realizada por",
+      "colDate": "Data",
       "empty": "Nenhuma solicitação de reatribuição",
       "colFrom": "De",
       "colTo": "Para",
@@ -9004,10 +8953,10 @@
       "edit": "Editar",
       "activate": "Ativar",
       "deactivate": "Desativar",
-      "scopeMember": "Membro",
-      "scopeEventExternal": "Externo (evento)",
+      "scopeGeneral": "Geral",
+      "scopeEvent": "Evento",
       "validityFixedMonths": "Meses fixos",
-      "validityUntilDate": "Até a data",
+      "validityEventDates": "Datas do evento",
       "durationMonths": "Duração (meses)",
       "saved": "Produto salvo"
     },
