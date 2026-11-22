@@ -4540,7 +4540,18 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidad",
       "step3_req3": "Consentimiento",
-      "status_completed_at": "Completado el {date}"
+      "status_completed_at": "Completado el {date}",
+      "step_status_not_applicable": "No aplica",
+      "step3_not_applicable_description": "Esta cuenta no elige club durante el registro, así que este paso no aplica.",
+      "panel_only_notice": "Esta cuenta solo usa el panel web: no hace el post-registro en la app y no tiene pasos pendientes.",
+      "account_access_title": "Acceso a la cuenta",
+      "resend_invitation_description": "La persona aún no acepta su invitación. Si no la recibió o venció, reenvíala: la invitación anterior dejará de funcionar.",
+      "resend_invitation": "Reenviar invitación",
+      "resend_invitation_success": "Invitación reenviada.",
+      "resend_invitation_already_accepted": "La persona ya aceptó la invitación. Actualizamos la vista.",
+      "resend_invitation_rate_limited": "Espera un momento antes de reenviar la invitación de nuevo.",
+      "resend_invitation_unavailable": "No se pudo enviar el correo: el servicio de correo no está disponible. Inténtalo más tarde.",
+      "resend_invitation_failed": "No se pudo reenviar la invitación. Inténtalo de nuevo."
     },
     "pages": {
       "list": {

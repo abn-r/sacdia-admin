@@ -4540,7 +4540,18 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidade",
       "step3_req3": "Consentimento",
-      "status_completed_at": "Concluído em {date}"
+      "status_completed_at": "Concluído em {date}",
+      "step_status_not_applicable": "Não se aplica",
+      "step3_not_applicable_description": "Esta conta não escolhe clube durante o cadastro, então esta etapa não se aplica.",
+      "panel_only_notice": "Esta conta usa apenas o painel web: não faz o pós-cadastro no app e não tem etapas pendentes.",
+      "account_access_title": "Acesso à conta",
+      "resend_invitation_description": "A pessoa ainda não aceitou o convite. Se não o recebeu ou ele expirou, reenvie: o convite anterior deixará de funcionar.",
+      "resend_invitation": "Reenviar convite",
+      "resend_invitation_success": "Convite reenviado.",
+      "resend_invitation_already_accepted": "A pessoa já aceitou o convite. Atualizamos a visualização.",
+      "resend_invitation_rate_limited": "Aguarde um momento antes de reenviar o convite novamente.",
+      "resend_invitation_unavailable": "Não foi possível enviar o e-mail: o serviço de e-mail está indisponível. Tente novamente mais tarde.",
+      "resend_invitation_failed": "Não foi possível reenviar o convite. Tente novamente."
     },
     "pages": {
       "list": {

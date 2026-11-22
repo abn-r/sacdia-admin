@@ -250,6 +250,12 @@ export type AdminUserDetail = AdminUser & {
   emergency_contacts?: unknown[] | null;
   guardianships?: AdminGuardianships | null;
   family_access?: AdminFamilyAccess | null;
+  /**
+   * True while the admin invitation has not been accepted (email not verified
+   * and no social sign-in). Absent while the backend is behind → treated as
+   * `false` (no resend action).
+   */
+  invitation_pending?: boolean;
   scope?: ScopeMeta | null;
 };
 
@@ -935,6 +941,7 @@ function normalizeDetailPayload(payload: unknown): AdminUserDetail | null {
           : undefined,
     guardianships: normalizeGuardianships(record.guardianships),
     family_access: normalizeFamilyAccess(record.family_access),
+    invitation_pending: pickBoolean(record.invitation_pending) === true,
     scope: normalizeScope(record.scope),
   };
 }
@@ -1341,6 +1348,21 @@ export async function createAdminUserFromClient(
     body: buildCreateUserBody(payload),
   });
   return unwrapCreateResponse(raw);
+}
+
+/**
+ * POST /admin/users/:userId/invitation
+ * Issues a new 7-day invitation and invalidates the earlier ones. Same
+ * permission as user creation. Failures the UI maps by status: 409 (already
+ * accepted), 429 (cooldown), 503 (email transport unavailable).
+ */
+export async function resendAdminUserInvitationFromClient(
+  userId: string,
+): Promise<void> {
+  await apiRequestFromClient<unknown>(
+    `/admin/users/${encodeURIComponent(userId)}/invitation`,
+    { method: "POST" },
+  );
 }
 
 // ─── Bulk upload ───────────────────────────────────────────────────────────────

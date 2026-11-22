@@ -4540,7 +4540,18 @@
       "step3_req1": "Représentant légal",
       "step3_req2": "Pièce d'identité",
       "step3_req3": "Consentement",
-      "status_completed_at": "Terminé le {date}"
+      "status_completed_at": "Terminé le {date}",
+      "step_status_not_applicable": "Sans objet",
+      "step3_not_applicable_description": "Ce compte ne choisit pas de club lors de l'inscription, donc cette étape est sans objet.",
+      "panel_only_notice": "Ce compte n'utilise que le panneau web : il ne fait pas le post-enregistrement dans l'application et n'a aucune étape en attente.",
+      "account_access_title": "Accès au compte",
+      "resend_invitation_description": "La personne n'a pas encore accepté son invitation. Si elle ne l'a pas reçue ou si elle a expiré, renvoyez-la : l'invitation précédente cessera de fonctionner.",
+      "resend_invitation": "Renvoyer l'invitation",
+      "resend_invitation_success": "Invitation renvoyée.",
+      "resend_invitation_already_accepted": "La personne a déjà accepté l'invitation. Nous avons actualisé la vue.",
+      "resend_invitation_rate_limited": "Patientez un instant avant de renvoyer l'invitation.",
+      "resend_invitation_unavailable": "L'e-mail n'a pas pu être envoyé : le service d'e-mail est indisponible. Réessayez plus tard.",
+      "resend_invitation_failed": "Impossible de renvoyer l'invitation. Réessayez."
     },
     "pages": {
       "list": {

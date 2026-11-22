@@ -4540,7 +4540,18 @@
       "step3_req1": "Legal representative",
       "step3_req2": "Identity document",
       "step3_req3": "Consent",
-      "status_completed_at": "Completed on {date}"
+      "status_completed_at": "Completed on {date}",
+      "step_status_not_applicable": "Not applicable",
+      "step3_not_applicable_description": "This account does not pick a club during registration, so this step does not apply.",
+      "panel_only_notice": "This account only uses the web panel: it does not do post-registration in the app and has no pending steps.",
+      "account_access_title": "Account access",
+      "resend_invitation_description": "The person has not accepted their invitation yet. If they did not receive it or it expired, resend it: the previous invitation stops working.",
+      "resend_invitation": "Resend invitation",
+      "resend_invitation_success": "Invitation resent.",
+      "resend_invitation_already_accepted": "The person already accepted the invitation. We refreshed the view.",
+      "resend_invitation_rate_limited": "Wait a moment before resending the invitation again.",
+      "resend_invitation_unavailable": "The email could not be sent: the email service is unavailable. Try again later.",
+      "resend_invitation_failed": "Could not resend the invitation. Try again."
     },
     "pages": {
       "list": {
