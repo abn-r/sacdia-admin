@@ -53,13 +53,27 @@ const geography = {
   defaultLocalFieldId: 4,
 };
 
-function renderForm() {
+// Same actor, but the local field is still open to pick.
+const openFieldGeography = {
+  ...geography,
+  lockLocalField: false,
+  defaultLocalFieldId: undefined,
+};
+
+function renderForm({
+  localFieldRequiredRoles,
+  geographyOverride = geography,
+}: {
+  localFieldRequiredRoles?: string[];
+  geographyOverride?: typeof geography | typeof openFieldGeography;
+} = {}) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <NewUserForm
-        allowedRoles={["pastor", "user"]}
+        allowedRoles={["pastor", "coordinator", "user"]}
+        localFieldRequiredRoles={localFieldRequiredRoles}
         // The loader types are wider than what the form reads.
-        geography={geography as never}
+        geography={geographyOverride as never}
       />
     </NextIntlClientProvider>,
   );
@@ -126,5 +140,64 @@ describe("NewUserForm", () => {
     expect(screen.getByPlaceholderText("usuario@ejemplo.com")).toHaveValue(
       "qa@sacdia.test",
     );
+  });
+
+  async function fillPersonStep(user: ReturnType<typeof userEvent.setup>) {
+    await user.type(screen.getByPlaceholderText("Ej. María"), "Ana");
+    await user.type(screen.getByPlaceholderText("Ej. González"), "Ruiz");
+    await user.type(
+      screen.getByPlaceholderText("usuario@ejemplo.com"),
+      "qa@sacdia.test",
+    );
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+  }
+
+  it("requires the local field for a role listed by the backend, whatever its name", async () => {
+    const user = userEvent.setup();
+    renderForm({
+      localFieldRequiredRoles: ["coordinator"],
+      geographyOverride: openFieldGeography,
+    });
+
+    await fillPersonStep(user);
+    await user.click(await screen.findByRole("combobox", { name: /Rol/ }));
+    await user.click(await screen.findByRole("option", { name: "Coordinador" }));
+    await user.click(screen.getByRole("button", { name: "Crear usuario" }));
+
+    expect(
+      await screen.findByText("Selecciona un campo local para este rol."),
+    ).toBeInTheDocument();
+    expect(mockCreateUser).not.toHaveBeenCalled();
+  });
+
+  it("does not require the local field for a role the backend did not list", async () => {
+    const user = userEvent.setup();
+    // `pastor` is NOT in the list: the form must not special-case the name.
+    renderForm({
+      localFieldRequiredRoles: ["coordinator"],
+      geographyOverride: openFieldGeography,
+    });
+
+    await fillPersonStep(user);
+    await user.click(await screen.findByRole("combobox", { name: /Rol/ }));
+    await user.click(await screen.findByRole("option", { name: "Pastor" }));
+    await user.click(screen.getByRole("button", { name: "Crear usuario" }));
+
+    await waitFor(() => expect(mockCreateUser).toHaveBeenCalledTimes(1));
+    expect(mockCreateUser).toHaveBeenCalledWith(
+      expect.objectContaining({ role: "pastor", local_field_id: undefined }),
+    );
+  });
+
+  it("treats a missing list as no role requiring a local field", async () => {
+    const user = userEvent.setup();
+    renderForm({ geographyOverride: openFieldGeography });
+
+    await fillPersonStep(user);
+    await user.click(await screen.findByRole("combobox", { name: /Rol/ }));
+    await user.click(await screen.findByRole("option", { name: "Pastor" }));
+    await user.click(screen.getByRole("button", { name: "Crear usuario" }));
+
+    await waitFor(() => expect(mockCreateUser).toHaveBeenCalledTimes(1));
   });
 });

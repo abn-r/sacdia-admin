@@ -4586,6 +4586,7 @@
           "emailExists": "Já existe um usuário com esse e-mail.",
           "forbidden": "Você não tem permissão para criar essa função.",
           "validationFailed": "Revise os campos do formulário.",
+          "localFieldRequired": "Esta função exige um campo local. Selecione um e tente novamente.",
           "generic": "Não foi possível criar o usuário. Tente novamente."
         },
         "validation": {
@@ -4595,7 +4596,8 @@
           "emailInvalid": "Formato de e-mail inválido.",
           "roleRequired": "Selecione uma função.",
           "countryRequired": "Selecione um país.",
-          "unionRequired": "Selecione uma união."
+          "unionRequired": "Selecione uma união.",
+          "localFieldRequired": "Selecione um campo local para esta função."
         }
       },
       "detail": {
@@ -4847,7 +4849,8 @@
           "emailAlreadyInUse": "E-mail já registrado",
           "invalidRole": "Função inválida",
           "forbiddenRoleForActor": "Você não pode criar essa função",
-          "internalError": "Erro interno"
+          "internalError": "Erro interno",
+          "localFieldRequired": "A função exige um campo local"
         },
         "toast": {
           "success": "Todos os usuários foram criados.",

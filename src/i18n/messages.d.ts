@@ -4618,6 +4618,7 @@ export interface IntlMessages {
           emailExists: string;
           forbidden: string;
           validationFailed: string;
+          localFieldRequired: string;
           generic: string;
         };
         validation: {
@@ -4628,6 +4629,7 @@ export interface IntlMessages {
           roleRequired: string;
           countryRequired: string;
           unionRequired: string;
+          localFieldRequired: string;
         };
       };
       detail: {
@@ -4880,6 +4882,7 @@ export interface IntlMessages {
           invalidRole: string;
           forbiddenRoleForActor: string;
           internalError: string;
+          localFieldRequired: string;
         };
         toast: {
           success: string;

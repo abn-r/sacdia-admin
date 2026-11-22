@@ -4586,6 +4586,7 @@
           "emailExists": "Ya existe un usuario con ese correo.",
           "forbidden": "No tienes permisos para crear ese rol.",
           "validationFailed": "Revisa los campos del formulario.",
+          "localFieldRequired": "Este rol requiere un campo local. Selecciónalo e inténtalo de nuevo.",
           "generic": "No se pudo crear el usuario. Intenta de nuevo."
         },
         "validation": {
@@ -4595,7 +4596,8 @@
           "emailInvalid": "Formato de correo inválido.",
           "roleRequired": "Selecciona un rol.",
           "countryRequired": "Selecciona un país.",
-          "unionRequired": "Selecciona una unión."
+          "unionRequired": "Selecciona una unión.",
+          "localFieldRequired": "Selecciona un campo local para este rol."
         }
       },
       "detail": {
@@ -4847,7 +4849,8 @@
           "emailAlreadyInUse": "Email ya registrado",
           "invalidRole": "Rol inválido",
           "forbiddenRoleForActor": "No puedes crear ese rol",
-          "internalError": "Error interno"
+          "internalError": "Error interno",
+          "localFieldRequired": "El rol requiere un campo local"
         },
         "toast": {
           "success": "Todos los usuarios fueron creados.",

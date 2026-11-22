@@ -4586,6 +4586,7 @@
           "emailExists": "A user with that email already exists.",
           "forbidden": "You do not have permission to assign that role.",
           "validationFailed": "Please review the form fields.",
+          "localFieldRequired": "This role requires a local field. Select one and try again.",
           "generic": "Could not create the user. Please try again."
         },
         "validation": {
@@ -4595,7 +4596,8 @@
           "emailInvalid": "Invalid email format.",
           "roleRequired": "Please select a role.",
           "countryRequired": "Please select a country.",
-          "unionRequired": "Please select a union."
+          "unionRequired": "Please select a union.",
+          "localFieldRequired": "Select a local field for this role."
         }
       },
       "detail": {
@@ -4847,7 +4849,8 @@
           "emailAlreadyInUse": "Email already registered",
           "invalidRole": "Invalid role",
           "forbiddenRoleForActor": "You cannot create that role",
-          "internalError": "Internal error"
+          "internalError": "Internal error",
+          "localFieldRequired": "The role requires a local field"
         },
         "toast": {
           "success": "All users were created.",
