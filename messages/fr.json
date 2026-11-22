@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Trop de tentatives. Attendez une minute et réessayez.",
         "password_rejected": "Le serveur a refusé le mot de passe. Vérifiez les exigences et réessayez.",
         "generic": "Impossible d'enregistrer le mot de passe. Réessayez dans quelques minutes."
+      },
+      "invitation": {
+        "title": "Créez votre mot de passe",
+        "description": "Vous avez été invité à SACDIA. Choisissez le mot de passe avec lequel vous vous connecterez à l'application.",
+        "submit_idle": "Activer mon compte",
+        "submit_loading": "Activation…",
+        "success_title": "Compte activé",
+        "success_body": "Votre mot de passe est enregistré et votre e-mail est vérifié. Vous pouvez maintenant vous connecter à l'application SACDIA. Nous avons fermé vos autres sessions par sécurité.",
+        "invalid_title": "Cette invitation n'est plus valide",
+        "invalid_body": "L'invitation a expiré (elle dure 7 jours), a déjà été utilisée ou est incomplète. Demandez à la personne qui vous a invité d'en envoyer une nouvelle."
       }
     },
     "verify_email": {

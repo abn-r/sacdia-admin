@@ -32,10 +32,10 @@ import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 const t = messages.auth.reset_password;
 
-function renderForm(token: string) {
+function renderForm(token: string, variant?: "reset" | "invitation") {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <ResetPasswordForm token={token} />
+      <ResetPasswordForm token={token} variant={variant} />
     </NextIntlClientProvider>,
   );
 }
@@ -95,5 +95,56 @@ describe("ResetPasswordForm", () => {
     renderForm("tok-1");
     await submit();
     await waitFor(() => expect(screen.getByText(t.invalid_title)).toBeTruthy());
+  });
+
+  it("defaults to the reset copy and posts mode=reset", async () => {
+    mockAction.mockResolvedValueOnce({ error: t.errors.mismatch });
+    renderForm("tok-1");
+    expect(screen.getByText(t.title)).toBeTruthy();
+    expect(screen.queryByText(t.invitation.title)).toBeNull();
+    await submit();
+    expect(mockAction.mock.calls[0][1].get("mode")).toBe("reset");
+  });
+
+  describe("invitation variant", () => {
+    it("shows the invitation copy and posts mode=invitation with the token", async () => {
+      mockAction.mockResolvedValueOnce({ success: true });
+      renderForm("tok-inv", "invitation");
+
+      expect(screen.getByText(t.invitation.title)).toBeTruthy();
+      expect(screen.getByText(t.invitation.description)).toBeTruthy();
+      expect(screen.queryByText(t.title)).toBeNull();
+      expect(
+        screen.getByRole("button", { name: t.invitation.submit_idle }),
+      ).toBeTruthy();
+
+      await submit();
+
+      const sent = mockAction.mock.calls[0][1];
+      expect(sent.get("mode")).toBe("invitation");
+      expect(sent.get("token")).toBe("tok-inv");
+      await waitFor(() =>
+        expect(screen.getByText(t.invitation.success_title)).toBeTruthy(),
+      );
+    });
+
+    it("an expired invitation shows the invitation invalid message", async () => {
+      mockAction.mockResolvedValueOnce({
+        error: t.errors.link_invalid,
+        linkInvalid: true,
+      });
+      renderForm("tok-inv", "invitation");
+      await submit();
+      await waitFor(() =>
+        expect(screen.getByText(t.invitation.invalid_title)).toBeTruthy(),
+      );
+      expect(screen.queryByText(t.invalid_title)).toBeNull();
+    });
+
+    it("without a token shows the invitation invalid message and no form", () => {
+      renderForm("", "invitation");
+      expect(screen.getByText(t.invitation.invalid_title)).toBeTruthy();
+      expect(screen.queryByLabelText(t.password_label)).toBeNull();
+    });
   });
 });

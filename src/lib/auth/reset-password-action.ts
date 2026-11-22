@@ -31,11 +31,15 @@ export type ResetPasswordState = {
 const INVALID_LINK_CODES = new Set([
   "AUTH_PASSWORD_RESET_TOKEN_INVALID",
   "AUTH_PASSWORD_RESET_TOKEN_EXPIRED",
+  "AUTH_INVITATION_TOKEN_INVALID",
+  "AUTH_INVITATION_TOKEN_EXPIRED",
 ]);
 
 /**
  * Sets a new password with the token from the reset email
- * (`POST /auth/password/reset`). Public: the person is signed out.
+ * (`POST /auth/password/reset`), or from an admin invitation when the form
+ * posts `mode=invitation` (`POST /auth/invitation/accept`, same body).
+ * Public: the person is signed out.
  */
 export async function resetPasswordAction(
   prev: ResetPasswordState,
@@ -52,6 +56,10 @@ export async function resetPasswordAction(
   const token = String(formData.get("token") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
+  const endpoint =
+    formData.get("mode") === "invitation"
+      ? "/auth/invitation/accept"
+      : "/auth/password/reset";
 
   if (!token) {
     return { error: t("errors.link_invalid"), linkInvalid: true };
@@ -66,7 +74,7 @@ export async function resetPasswordAction(
   }
 
   try {
-    await apiRequest("/auth/password/reset", {
+    await apiRequest(endpoint, {
       method: "POST",
       body: { token, password },
       cache: "no-store",

@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Too many attempts. Wait a minute and try again.",
         "password_rejected": "The server rejected the password. Check the requirements and try again.",
         "generic": "We couldn't save the password. Try again in a few minutes."
+      },
+      "invitation": {
+        "title": "Create your password",
+        "description": "You have been invited to SACDIA. Choose the password you will use to sign in to the app.",
+        "submit_idle": "Activate my account",
+        "submit_loading": "Activating…",
+        "success_title": "Account activated",
+        "success_body": "Your password is saved and your email is verified. You can now sign in to the SACDIA app. We signed out your other sessions for security.",
+        "invalid_title": "This invitation no longer works",
+        "invalid_body": "The invitation expired (it lasts 7 days), was already used or is incomplete. Ask the person who invited you to send a new one."
       }
     },
     "verify_email": {

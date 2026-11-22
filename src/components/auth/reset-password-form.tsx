@@ -17,9 +17,12 @@ import { cn } from "@/lib/utils";
 
 const initialState: ResetPasswordState = {};
 
-function SubmitButton() {
+export type ResetPasswordVariant = "reset" | "invitation";
+
+function SubmitButton({ variant }: { variant: ResetPasswordVariant }) {
   const t = useTranslations("auth.reset_password");
   const { pending } = useFormStatus();
+  const invitation = variant === "invitation";
   return (
     <Button
       type="submit"
@@ -30,8 +33,10 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="size-4 animate-spin" />
-          {t("submit_loading")}
+          {invitation ? t("invitation.submit_loading") : t("submit_loading")}
         </>
+      ) : invitation ? (
+        t("invitation.submit_idle")
       ) : (
         t("submit_idle")
       )}
@@ -81,11 +86,19 @@ function PasswordField({
 
 /**
  * Form behind the link in the password reset email
- * (`{ADMIN_PANEL_URL}/reset-password?token=...`). Anyone with an account
- * lands here, not only administrators.
+ * (`{ADMIN_PANEL_URL}/reset-password?token=...`) and behind the admin
+ * invitation (`variant="invitation"`, `...&mode=invitation`). Anyone with an
+ * account lands here, not only administrators.
  */
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({
+  token,
+  variant = "reset",
+}: {
+  token: string;
+  variant?: ResetPasswordVariant;
+}) {
   const t = useTranslations("auth.reset_password");
+  const invitation = variant === "invitation";
   const [state, formAction] = useActionState(resetPasswordAction, initialState);
 
   let content: React.ReactNode;
@@ -93,30 +106,31 @@ export function ResetPasswordForm({ token }: { token: string }) {
     content = (
       <StatusMessage
         tone="success"
-        title={t("success_title")}
-        body={t("success_body")}
+        title={invitation ? t("invitation.success_title") : t("success_title")}
+        body={invitation ? t("invitation.success_body") : t("success_body")}
       />
     );
   } else if (!token || state.linkInvalid) {
     content = (
       <StatusMessage
         tone="error"
-        title={t("invalid_title")}
-        body={t("invalid_body")}
+        title={invitation ? t("invitation.invalid_title") : t("invalid_title")}
+        body={invitation ? t("invitation.invalid_body") : t("invalid_body")}
       />
     );
   } else {
     content = (
       <>
         <h1 className="mb-2 text-2xl font-semibold tracking-tight text-foreground">
-          {t("title")}
+          {invitation ? t("invitation.title") : t("title")}
         </h1>
         <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
-          {t("description")}
+          {invitation ? t("invitation.description") : t("description")}
         </p>
 
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="token" value={token} />
+          <input type="hidden" name="mode" value={variant} />
 
           {state.error && (
             <div
@@ -133,7 +147,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <PasswordField id="confirm" label={t("confirm_label")} />
 
           <div className="pt-2">
-            <SubmitButton />
+            <SubmitButton variant={variant} />
           </div>
         </form>
       </>

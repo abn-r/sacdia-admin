@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Muitas tentativas. Aguarde um minuto e tente novamente.",
         "password_rejected": "O servidor recusou a senha. Verifique os requisitos e tente novamente.",
         "generic": "Não foi possível salvar a senha. Tente novamente em alguns minutos."
+      },
+      "invitation": {
+        "title": "Crie sua senha",
+        "description": "Você foi convidado para o SACDIA. Escolha a senha com a qual vai entrar no app.",
+        "submit_idle": "Ativar minha conta",
+        "submit_loading": "Ativando…",
+        "success_title": "Conta ativada",
+        "success_body": "Sua senha foi salva e seu e-mail foi verificado. Agora você já pode entrar no app SACDIA. Encerramos suas outras sessões por segurança.",
+        "invalid_title": "Este convite não vale mais",
+        "invalid_body": "O convite expirou (dura 7 dias), já foi usado ou está incompleto. Peça a quem convidou você que envie um novo."
       }
     },
     "verify_email": {

@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
         "password_rejected": "El servidor rechazó la contraseña. Revisa los requisitos e inténtalo de nuevo.",
         "generic": "No pudimos guardar la contraseña. Inténtalo de nuevo en unos minutos."
+      },
+      "invitation": {
+        "title": "Crea tu contraseña",
+        "description": "Te invitaron a SACDIA. Escribe la contraseña con la que vas a iniciar sesión en la app.",
+        "submit_idle": "Activar mi cuenta",
+        "submit_loading": "Activando…",
+        "success_title": "Cuenta activada",
+        "success_body": "Tu contraseña quedó guardada y tu correo verificado. Ya puedes iniciar sesión en la app SACDIA. Cerramos tus otras sesiones por seguridad.",
+        "invalid_title": "Esta invitación ya no sirve",
+        "invalid_body": "La invitación venció (dura 7 días), ya se usó o está incompleta. Pide a quien te invitó que te envíe una nueva."
       }
     },
     "verify_email": {

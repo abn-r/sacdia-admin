@@ -1323,6 +1323,16 @@ export interface IntlMessages {
         password_rejected: string;
         generic: string;
       };
+      invitation: {
+        title: string;
+        description: string;
+        submit_idle: string;
+        submit_loading: string;
+        success_title: string;
+        success_body: string;
+        invalid_title: string;
+        invalid_body: string;
+      };
     };
     verify_email: {
       meta_title: string;
