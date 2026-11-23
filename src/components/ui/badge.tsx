@@ -23,7 +23,7 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         soft:
-          "bg-primary/10 text-[color-mix(in_oklch,var(--primary),black_20%)] dark:text-primary border-primary/20 [a]:hover:bg-primary/15",
+          "bg-primary-soft text-primary-soft-foreground border-primary/20 [a]:hover:bg-primary-track",
         "soft-info":
           "bg-info/10 text-info border-info/20 [a]:hover:bg-info/15",
         "soft-success":

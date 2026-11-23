@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         soft:
-          "bg-primary/10 text-primary hover:bg-primary/15 focus-visible:ring-primary/40",
+          "bg-primary-soft text-primary-soft-foreground hover:bg-primary-track focus-visible:ring-primary/40",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         // Final confirmation of an irreversible action (AlertDialog footer).
