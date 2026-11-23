@@ -1,7 +1,10 @@
 import type { AuthUser } from "@/lib/auth/types";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCreatableRole } from "@/lib/api/admin-users";
-import { resolveCreatableRoles } from "@/lib/users/assignable-roles";
+import {
+  extractLocalFieldRequiredRoles,
+  resolveCreatableRoles,
+} from "@/lib/users/assignable-roles";
 import { listCountries } from "@/lib/api/geography";
 import {
   listLocalFieldsForTerritory,
@@ -14,6 +17,8 @@ import type { NewUserGeography } from "@/components/users/new-user-form";
 
 export type NewUserFormData = {
   allowedRoles: AdminCreatableRole[];
+  /** Roles that need a local field, as published by the backend. */
+  localFieldRequiredRoles: string[];
   geography?: NewUserGeography;
 };
 
@@ -79,5 +84,7 @@ export async function loadNewUserFormData(
     };
   }
 
-  return { allowedRoles, geography };
+  const localFieldRequiredRoles = extractLocalFieldRequiredRoles(currentUser);
+
+  return { allowedRoles, localFieldRequiredRoles, geography };
 }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { BULK_USER_HEADERS, checkBulkUsersMatrix } from "@/lib/users/bulk-upload-file";
+import {
+  BULK_USER_HEADERS,
+  bulkErrorCodeKey,
+  checkBulkUsersMatrix,
+} from "@/lib/users/bulk-upload-file";
 
 const HEADER = [...BULK_USER_HEADERS];
 const ROW = ["ana@example.test", "Ana", "Pérez", "", "member", "", "", "4"];
@@ -49,5 +53,17 @@ describe("checkBulkUsersMatrix", () => {
       reason: "too-many-rows",
       total: 501,
     });
+  });
+});
+
+describe("bulkErrorCodeKey", () => {
+  it("maps the local field row error to its message key", () => {
+    expect(bulkErrorCodeKey("LOCAL_FIELD_REQUIRED")).toBe("localFieldRequired");
+  });
+
+  it("keeps the existing row codes and ignores unknown or inherited ones", () => {
+    expect(bulkErrorCodeKey("EMAIL_ALREADY_IN_USE")).toBe("emailAlreadyInUse");
+    expect(bulkErrorCodeKey("SOMETHING_NEW")).toBeNull();
+    expect(bulkErrorCodeKey("toString")).toBeNull();
   });
 });

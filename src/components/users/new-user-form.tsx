@@ -46,13 +46,15 @@ import {
 import { ASSIGNABLE_GLOBAL_ROLE_ORDER } from "@/lib/auth/roles";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import { ApiError } from "@/lib/api/client";
+import { apiErrorCode } from "@/lib/api/error-code";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
 type NewUserTranslator = ReturnType<typeof useTranslations<"users.pages.new">>;
 
-function buildSchema(t: NewUserTranslator) {
-  return z.object({
+function buildSchema(t: NewUserTranslator, localFieldRequiredRoles: readonly string[]) {
+  return z
+    .object({
     name: z.string().min(1, t("validation.nameRequired")).max(50),
     paternal_last_name: z
       .string()
@@ -72,7 +74,18 @@ function buildSchema(t: NewUserTranslator) {
       .number({ error: t("validation.unionRequired") })
       .min(1, t("validation.unionRequired")),
     local_field_id: z.number().min(1).optional(),
-  });
+  })
+    // Which roles need a local field is decided by the backend list
+    // (`authorization.local_field_required_roles`), never by a role name here.
+    .superRefine((values, ctx) => {
+      if (localFieldRequiredRoles.includes(values.role) && !values.local_field_id) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["local_field_id"],
+          message: t("validation.localFieldRequired"),
+        });
+      }
+    });
 }
 
 type FormValues = {
@@ -102,6 +115,8 @@ export interface NewUserGeography {
 
 export interface NewUserFormProps {
   allowedRoles: AdminCreatableRole[];
+  /** Roles that need a local field (`authorization.local_field_required_roles`). */
+  localFieldRequiredRoles?: string[];
   geography?: NewUserGeography;
 }
 
@@ -116,7 +131,13 @@ const STEP_FIELDS = [
 ] as const satisfies ReadonlyArray<ReadonlyArray<keyof FormValues>>;
 const LAST_STEP = STEP_FIELDS.length - 1;
 
-export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
+const NONE_LISTED: string[] = [];
+
+export function NewUserForm({
+  allowedRoles,
+  localFieldRequiredRoles = NONE_LISTED,
+  geography,
+}: NewUserFormProps) {
   const t = useTranslations("users.pages.new");
   const tModal = useTranslations("shared.formModal");
   const modal = useFormModal(LIST_HREF);
@@ -134,7 +155,10 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
   const [loadingLocalFields, setLoadingLocalFields] = useState(false);
 
   // Schema is stable given t doesn't change after mount
-  const schema = useMemo(() => buildSchema(t), [t]);
+  const schema = useMemo(
+    () => buildSchema(t, localFieldRequiredRoles),
+    [t, localFieldRequiredRoles],
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -166,6 +190,9 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
       .catch(() => toast.error(t("toast.generic")))
       .finally(() => setLoadingCountries(false));
   }, [geography?.countries, isScoped, t]);
+
+  const watchedRole = form.watch("role");
+  const localFieldRequired = localFieldRequiredRoles.includes(watchedRole);
 
   // Watch country_id and load unions when it changes
   const watchedCountryId = form.watch("country_id");
@@ -292,6 +319,11 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
           toast.error(t("toast.emailExists"));
         } else if (error.status === 403) {
           toast.error(t("toast.forbidden"));
+        } else if (
+          error.status === 400 &&
+          apiErrorCode(error) === "ADMIN_USER_LOCAL_FIELD_REQUIRED"
+        ) {
+          toast.error(t("toast.localFieldRequired"));
         } else if (error.status === 400) {
           toast.error(t("toast.validationFailed"));
         } else {
@@ -564,7 +596,17 @@ export function NewUserForm({ allowedRoles, geography }: NewUserFormProps) {
             name="local_field_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("fields.local_field")}</FormLabel>
+                <FormLabel>
+                  {t("fields.local_field")}
+                  {localFieldRequired ? (
+                    <>
+                      {" "}
+                      <span aria-hidden="true" className="text-destructive">
+                        *
+                      </span>
+                    </>
+                  ) : null}
+                </FormLabel>
                 {loadingLocalFields ? (
                   <Skeleton className="h-9 w-full" />
                 ) : (

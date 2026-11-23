@@ -97,7 +97,44 @@ describe("resetPasswordAction", () => {
     expect(apiRequestMock).not.toHaveBeenCalled();
   });
 
-  it.each(["AUTH_PASSWORD_RESET_TOKEN_INVALID", "AUTH_PASSWORD_RESET_TOKEN_EXPIRED"])(
+  it("posts to the invitation endpoint with the same body when mode is invitation", async () => {
+    apiRequestMock.mockResolvedValue({ success: true });
+
+    const state = await resetPasswordAction(
+      {},
+      form({ token: "tok-2", password: VALID, confirm: VALID, mode: "invitation" }),
+    );
+
+    expect(state).toEqual({ success: true });
+    expect(apiRequestMock).toHaveBeenCalledWith(
+      "/auth/invitation/accept",
+      expect.objectContaining({
+        method: "POST",
+        body: { token: "tok-2", password: VALID },
+      }),
+    );
+  });
+
+  it("ignores any other mode value and uses the reset endpoint", async () => {
+    apiRequestMock.mockResolvedValue({ success: true });
+
+    await resetPasswordAction(
+      {},
+      form({ token: "tok-3", password: VALID, confirm: VALID, mode: "other" }),
+    );
+
+    expect(apiRequestMock).toHaveBeenCalledWith(
+      "/auth/password/reset",
+      expect.anything(),
+    );
+  });
+
+  it.each([
+    "AUTH_PASSWORD_RESET_TOKEN_INVALID",
+    "AUTH_PASSWORD_RESET_TOKEN_EXPIRED",
+    "AUTH_INVITATION_TOKEN_INVALID",
+    "AUTH_INVITATION_TOKEN_EXPIRED",
+  ])(
     "%s marks the link as invalid",
     async (code) => {
       apiRequestMock.mockRejectedValueOnce(new ApiError("x", 400, { code }));

@@ -33,6 +33,12 @@ export type AuthorizationSnapshot = {
   territory?: AuthorizationTerritory;
   /** Global roles the actor may assign when creating users (sorted). */
   assignable_global_roles?: string[];
+  /**
+   * Subset of `assignable_global_roles` that the backend requires a local
+   * field for at creation. The only source of truth for the form: clients
+   * never compare role names. Absent while the backend is behind → `[]`.
+   */
+  local_field_required_roles?: string[];
   effective?: {
     permissions?: string[];
     [key: string]: unknown;

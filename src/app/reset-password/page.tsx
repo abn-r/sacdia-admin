@@ -15,21 +15,24 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Target of the password reset email
- * (`{ADMIN_PANEL_URL}/reset-password?token=...`). It sits outside the
+ * (`{ADMIN_PANEL_URL}/reset-password?token=...`) and of the admin invitation
+ * (`...?token=...&mode=invitation`). It sits outside the
  * `(auth)` group on purpose: that layout redirects signed-in admins to the
  * dashboard, and this page must work for anyone, signed in or not.
  */
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string | string[] }>;
+  searchParams: Promise<{ token?: string | string[]; mode?: string | string[] }>;
 }) {
-  const { token } = await searchParams;
+  const { token, mode } = await searchParams;
   const value = typeof token === "string" ? token.trim() : "";
+
+  const variant = mode === "invitation" ? "invitation" : "reset";
 
   return (
     <main className="flex min-h-svh w-full items-center justify-center bg-background px-6 py-12 sm:px-10">
-      <ResetPasswordForm token={value} />
+      <ResetPasswordForm token={value} variant={variant} />
     </main>
   );
 }

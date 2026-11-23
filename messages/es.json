@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
         "password_rejected": "El servidor rechazó la contraseña. Revisa los requisitos e inténtalo de nuevo.",
         "generic": "No pudimos guardar la contraseña. Inténtalo de nuevo en unos minutos."
+      },
+      "invitation": {
+        "title": "Crea tu contraseña",
+        "description": "Te invitaron a SACDIA. Escribe la contraseña con la que vas a iniciar sesión en la app.",
+        "submit_idle": "Activar mi cuenta",
+        "submit_loading": "Activando…",
+        "success_title": "Cuenta activada",
+        "success_body": "Tu contraseña quedó guardada y tu correo verificado. Ya puedes iniciar sesión en la app SACDIA. Cerramos tus otras sesiones por seguridad.",
+        "invalid_title": "Esta invitación ya no sirve",
+        "invalid_body": "La invitación venció (dura 7 días), ya se usó o está incompleta. Pide a quien te invitó que te envíe una nueva."
       }
     },
     "verify_email": {
@@ -4530,7 +4540,18 @@
       "step3_req1": "Representante legal",
       "step3_req2": "Documento de identidad",
       "step3_req3": "Consentimiento",
-      "status_completed_at": "Completado el {date}"
+      "status_completed_at": "Completado el {date}",
+      "step_status_not_applicable": "No aplica",
+      "step3_not_applicable_description": "Esta cuenta no elige club durante el registro, así que este paso no aplica.",
+      "panel_only_notice": "Esta cuenta solo usa el panel web: no hace el post-registro en la app y no tiene pasos pendientes.",
+      "account_access_title": "Acceso a la cuenta",
+      "resend_invitation_description": "La persona aún no acepta su invitación. Si no la recibió o venció, reenvíala: la invitación anterior dejará de funcionar.",
+      "resend_invitation": "Reenviar invitación",
+      "resend_invitation_success": "Invitación reenviada.",
+      "resend_invitation_already_accepted": "La persona ya aceptó la invitación. Actualizamos la vista.",
+      "resend_invitation_rate_limited": "Espera un momento antes de reenviar la invitación de nuevo.",
+      "resend_invitation_unavailable": "No se pudo enviar el correo: el servicio de correo no está disponible. Inténtalo más tarde.",
+      "resend_invitation_failed": "No se pudo reenviar la invitación. Inténtalo de nuevo."
     },
     "pages": {
       "list": {
@@ -4586,6 +4607,7 @@
           "emailExists": "Ya existe un usuario con ese correo.",
           "forbidden": "No tienes permisos para crear ese rol.",
           "validationFailed": "Revisa los campos del formulario.",
+          "localFieldRequired": "Este rol requiere un campo local. Selecciónalo e inténtalo de nuevo.",
           "generic": "No se pudo crear el usuario. Intenta de nuevo."
         },
         "validation": {
@@ -4595,7 +4617,8 @@
           "emailInvalid": "Formato de correo inválido.",
           "roleRequired": "Selecciona un rol.",
           "countryRequired": "Selecciona un país.",
-          "unionRequired": "Selecciona una unión."
+          "unionRequired": "Selecciona una unión.",
+          "localFieldRequired": "Selecciona un campo local para este rol."
         }
       },
       "detail": {
@@ -4847,7 +4870,8 @@
           "emailAlreadyInUse": "Email ya registrado",
           "invalidRole": "Rol inválido",
           "forbiddenRoleForActor": "No puedes crear ese rol",
-          "internalError": "Error interno"
+          "internalError": "Error interno",
+          "localFieldRequired": "El rol requiere un campo local"
         },
         "toast": {
           "success": "Todos los usuarios fueron creados.",

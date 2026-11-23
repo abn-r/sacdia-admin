@@ -26,7 +26,11 @@ export default async function NewUserPage() {
         title={t("title")}
         description={t("description")}
       >
-        <NewUserForm allowedRoles={data.allowedRoles} geography={data.geography} />
+        <NewUserForm
+          allowedRoles={data.allowedRoles}
+          localFieldRequiredRoles={data.localFieldRequiredRoles}
+          geography={data.geography}
+        />
       </RouteFormModal>
     </>
   );

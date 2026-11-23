@@ -62,3 +62,27 @@ export function checkBulkUsersMatrix(matrix: unknown[][]): BulkFileCheck {
 
   return { ok: true, rows, total: rows.length };
 }
+
+/**
+ * Row-level `error_code` of the bulk response → key under
+ * `users.pages.bulk.errorCodes`. `null` for a code the admin does not know
+ * (the row then shows the backend message).
+ */
+const BULK_ERROR_CODE_KEYS = {
+  VALIDATION_FAILED: "validationFailed",
+  DUPLICATE_IN_FILE: "duplicateInFile",
+  EMAIL_ALREADY_IN_USE: "emailAlreadyInUse",
+  INVALID_ROLE: "invalidRole",
+  FORBIDDEN_ROLE_FOR_ACTOR: "forbiddenRoleForActor",
+  LOCAL_FIELD_REQUIRED: "localFieldRequired",
+  INTERNAL_ERROR: "internalError",
+} as const;
+
+export type BulkErrorCodeKey =
+  (typeof BULK_ERROR_CODE_KEYS)[keyof typeof BULK_ERROR_CODE_KEYS];
+
+export function bulkErrorCodeKey(code: string): BulkErrorCodeKey | null {
+  return Object.prototype.hasOwnProperty.call(BULK_ERROR_CODE_KEYS, code)
+    ? BULK_ERROR_CODE_KEYS[code as keyof typeof BULK_ERROR_CODE_KEYS]
+    : null;
+}

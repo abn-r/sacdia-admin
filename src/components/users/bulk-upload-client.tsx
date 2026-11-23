@@ -26,24 +26,23 @@ import {
 } from "@/lib/api/admin-users";
 import {
   BULK_USER_HEADERS,
+  bulkErrorCodeKey,
   checkBulkUsersMatrix,
   type BulkPreviewRow,
 } from "@/lib/users/bulk-upload-file";
 
 // ─── Error code → human label map ─────────────────────────────────────────────
 
-const ERROR_CODE_LABELS: Record<string, string> = {
-  VALIDATION_FAILED: "Datos inválidos",
-  DUPLICATE_IN_FILE: "Email duplicado en el archivo",
-  EMAIL_ALREADY_IN_USE: "Email ya registrado",
-  INVALID_ROLE: "Rol inválido",
-  FORBIDDEN_ROLE_FOR_ACTOR: "No puedes crear ese rol",
-  INTERNAL_ERROR: "Error interno",
-};
+type BulkTranslator = ReturnType<typeof useTranslations<"users.pages.bulk">>;
 
-function resolveErrorLabel(code: string | undefined, message: string | undefined): string {
-  if (code && ERROR_CODE_LABELS[code]) {
-    return ERROR_CODE_LABELS[code];
+function resolveErrorLabel(
+  t: BulkTranslator,
+  code: string | undefined,
+  message: string | undefined,
+): string {
+  const key = code ? bulkErrorCodeKey(code) : null;
+  if (key) {
+    return t(`errorCodes.${key}`);
   }
   return message ?? code ?? "Error desconocido";
 }
@@ -575,7 +574,7 @@ function ResultsView({ data, filter, onFilterChange, onReset, t }: ResultsViewPr
                         ? t("results.inviteSent")
                         : t("results.inviteNotSent")
                     ) : (
-                      resolveErrorLabel(row.error_code, row.error_message)
+                      resolveErrorLabel(t, row.error_code, row.error_message)
                     )}
                   </TableCell>
                 </TableRow>

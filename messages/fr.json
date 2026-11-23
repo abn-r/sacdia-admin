@@ -1293,6 +1293,16 @@
         "too_many_attempts": "Trop de tentatives. Attendez une minute et réessayez.",
         "password_rejected": "Le serveur a refusé le mot de passe. Vérifiez les exigences et réessayez.",
         "generic": "Impossible d'enregistrer le mot de passe. Réessayez dans quelques minutes."
+      },
+      "invitation": {
+        "title": "Créez votre mot de passe",
+        "description": "Vous avez été invité à SACDIA. Choisissez le mot de passe avec lequel vous vous connecterez à l'application.",
+        "submit_idle": "Activer mon compte",
+        "submit_loading": "Activation…",
+        "success_title": "Compte activé",
+        "success_body": "Votre mot de passe est enregistré et votre e-mail est vérifié. Vous pouvez maintenant vous connecter à l'application SACDIA. Nous avons fermé vos autres sessions par sécurité.",
+        "invalid_title": "Cette invitation n'est plus valide",
+        "invalid_body": "L'invitation a expiré (elle dure 7 jours), a déjà été utilisée ou est incomplète. Demandez à la personne qui vous a invité d'en envoyer une nouvelle."
       }
     },
     "verify_email": {
@@ -4530,7 +4540,18 @@
       "step3_req1": "Représentant légal",
       "step3_req2": "Pièce d'identité",
       "step3_req3": "Consentement",
-      "status_completed_at": "Terminé le {date}"
+      "status_completed_at": "Terminé le {date}",
+      "step_status_not_applicable": "Sans objet",
+      "step3_not_applicable_description": "Ce compte ne choisit pas de club lors de l'inscription, donc cette étape est sans objet.",
+      "panel_only_notice": "Ce compte n'utilise que le panneau web : il ne fait pas le post-enregistrement dans l'application et n'a aucune étape en attente.",
+      "account_access_title": "Accès au compte",
+      "resend_invitation_description": "La personne n'a pas encore accepté son invitation. Si elle ne l'a pas reçue ou si elle a expiré, renvoyez-la : l'invitation précédente cessera de fonctionner.",
+      "resend_invitation": "Renvoyer l'invitation",
+      "resend_invitation_success": "Invitation renvoyée.",
+      "resend_invitation_already_accepted": "La personne a déjà accepté l'invitation. Nous avons actualisé la vue.",
+      "resend_invitation_rate_limited": "Patientez un instant avant de renvoyer l'invitation.",
+      "resend_invitation_unavailable": "L'e-mail n'a pas pu être envoyé : le service d'e-mail est indisponible. Réessayez plus tard.",
+      "resend_invitation_failed": "Impossible de renvoyer l'invitation. Réessayez."
     },
     "pages": {
       "list": {
@@ -4586,6 +4607,7 @@
           "emailExists": "Un utilisateur avec cet e-mail existe déjà.",
           "forbidden": "Vous n’avez pas la permission de créer ce rôle.",
           "validationFailed": "Vérifiez les champs du formulaire.",
+          "localFieldRequired": "Ce rôle exige un champ local. Sélectionnez-en un et réessayez.",
           "generic": "Impossible de créer l’utilisateur. Réessayez."
         },
         "validation": {
@@ -4595,7 +4617,8 @@
           "emailInvalid": "Format d’e-mail invalide.",
           "roleRequired": "Sélectionnez un rôle.",
           "countryRequired": "Sélectionnez un pays.",
-          "unionRequired": "Sélectionnez une union."
+          "unionRequired": "Sélectionnez une union.",
+          "localFieldRequired": "Sélectionnez un champ local pour ce rôle."
         }
       },
       "detail": {
@@ -4847,7 +4870,8 @@
           "emailAlreadyInUse": "E-mail déjà enregistré",
           "invalidRole": "Rôle invalide",
           "forbiddenRoleForActor": "Vous ne pouvez pas créer ce rôle",
-          "internalError": "Erreur interne"
+          "internalError": "Erreur interne",
+          "localFieldRequired": "Le rôle exige un champ local"
         },
         "toast": {
           "success": "Tous les utilisateurs ont été créés.",

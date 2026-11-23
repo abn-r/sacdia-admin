@@ -7,7 +7,9 @@ import {
   User,
   Building2,
   ShieldAlert,
+  Mail,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
@@ -23,15 +25,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { ApiError } from "@/lib/api/client";
+import { resendAdminUserInvitationFromClient } from "@/lib/api/admin-users";
 import {
   completeStep1Action,
   completeStep2Action,
   completeStep3Action,
 } from "@/lib/post-registration/actions";
-import type {
-  PostRegistrationStatus,
-  PhotoStatusResponse,
+import {
+  resolveOnboardingMode,
+  type PostRegistrationStatus,
+  type PhotoStatusResponse,
 } from "@/lib/api/post-registration";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -53,6 +59,10 @@ interface PostRegistrationTabProps {
   status: PostRegistrationStatus;
   photoStatus: PhotoStatusResponse;
   canOverride: boolean;
+  /** `AdminUserDetail.invitation_pending`: the invitation was not accepted yet. */
+  invitationPending?: boolean;
+  /** Same permission that gates user creation (`users.create`). */
+  canResendInvitation?: boolean;
 }
 
 // ─── Static step structure (no translatable strings) ─────────────────────────
@@ -167,6 +177,58 @@ function OverrideButton({
   );
 }
 
+// ─── Account access card (resend invitation) ─────────────────────────────────
+
+function AccountAccessCard({ userId }: { userId: string }) {
+  const t = useTranslations("users.postRegistration");
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleResend() {
+    startTransition(async () => {
+      try {
+        await resendAdminUserInvitationFromClient(userId);
+        toast.success(t("resend_invitation_success"));
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 409) {
+          toast.error(t("resend_invitation_already_accepted"));
+          // The invitation is no longer pending: reload so the card goes away.
+          router.refresh();
+        } else if (error instanceof ApiError && error.status === 429) {
+          toast.error(t("resend_invitation_rate_limited"));
+        } else if (error instanceof ApiError && error.status === 503) {
+          toast.error(t("resend_invitation_unavailable"));
+        } else {
+          toast.error(t("resend_invitation_failed"));
+        }
+      }
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-base">{t("account_access_title")}</CardTitle>
+        <p className="text-[13px] text-muted-foreground">
+          {t("resend_invitation_description")}
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          loading={isPending}
+          onClick={handleResend}
+        >
+          <Mail className="size-4" />
+          {t("resend_invitation")}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function PostRegistrationTab({
@@ -174,9 +236,16 @@ export function PostRegistrationTab({
   status,
   photoStatus,
   canOverride,
+  invitationPending = false,
+  canResendInvitation = false,
 }: PostRegistrationTabProps) {
   const t = useTranslations("users");
-  const nextStep = status.nextStep;
+  const onboardingMode = resolveOnboardingMode(status);
+  const panelOnly = onboardingMode === "panel_only";
+  // Outside `club` the account never picks a club here: step 3 does not apply.
+  const clubStepApplies = onboardingMode === "club";
+  // `panel_only` never walks the steps, so nothing is "next" either.
+  const nextStep = panelOnly ? null : status.nextStep;
 
   // Build step config with translated strings inside the component
   const STEPS: StepConfig[] = [
@@ -212,6 +281,18 @@ export function PostRegistrationTab({
 
   return (
     <div className="space-y-6">
+      {/* Account access: resend the invitation while it is pending */}
+      {invitationPending && canResendInvitation ? (
+        <AccountAccessCard userId={userId} />
+      ) : null}
+
+      {/* panel_only: no steps in the app */}
+      {panelOnly ? (
+        <Alert>
+          <AlertDescription>{t("postRegistration.panel_only_notice")}</AlertDescription>
+        </Alert>
+      ) : null}
+
       {/* Overall status */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
@@ -227,10 +308,16 @@ export function PostRegistrationTab({
               </p>
             ) : null}
           </div>
-          <Badge variant={status.complete ? "secondary" : "outline"}>
-            {status.complete
-              ? t("postRegistration.badge_complete")
-              : t("postRegistration.badge_pending")}
+          <Badge
+            variant={
+              panelOnly ? "outline" : status.complete ? "secondary" : "outline"
+            }
+          >
+            {panelOnly
+              ? t("postRegistration.step_status_not_applicable")
+              : status.complete
+                ? t("postRegistration.badge_complete")
+                : t("postRegistration.badge_pending")}
           </Badge>
         </CardHeader>
       </Card>
@@ -244,13 +331,16 @@ export function PostRegistrationTab({
 
               // Step 3 cannot be force-completed from admin (requires DTO data)
               const isOverridable = step.number !== 3;
+              const notApplicable = step.number === 3 && !clubStepApplies;
 
               return (
                 <div
                   key={step.key}
                   className={cn(
                     "rounded-lg border p-4 transition-colors",
-                    completed
+                    notApplicable
+                      ? "border-border bg-muted/30"
+                      : completed
                       ? "border-success/20 bg-success/5"
                       : isNext
                         ? "border-warning/20 bg-warning/5"
@@ -261,7 +351,7 @@ export function PostRegistrationTab({
                     <span
                       className={cn(
                         "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md",
-                        completed
+                        completed && !notApplicable
                           ? "bg-success/10 text-success"
                           : "bg-muted text-muted-foreground",
                       )}
@@ -274,14 +364,18 @@ export function PostRegistrationTab({
                         <span className="text-sm font-medium">{step.label}</span>
                         <Badge
                           variant={
-                            completed
-                              ? "success"
-                              : isNext
-                                ? "warning"
-                                : "outline"
+                            notApplicable
+                              ? "outline"
+                              : completed
+                                ? "success"
+                                : isNext
+                                  ? "warning"
+                                  : "outline"
                           }
                         >
-                          {completed
+                          {notApplicable
+                            ? t("postRegistration.step_status_not_applicable")
+                            : completed
                             ? t("postRegistration.step_status_complete")
                             : isNext
                               ? t("postRegistration.step_status_pending")
@@ -290,10 +384,13 @@ export function PostRegistrationTab({
                       </div>
 
                       <p className="mt-1 text-[13px] text-muted-foreground">
-                        {step.description}
+                        {notApplicable
+                          ? t("postRegistration.step3_not_applicable_description")
+                          : step.description}
                       </p>
 
                       {/* Requirements list */}
+                      {!notApplicable && (
                       <ul className="mt-2 space-y-0.5">
                         {step.requires.map((req) => (
                           <li
@@ -310,9 +407,10 @@ export function PostRegistrationTab({
                           </li>
                         ))}
                       </ul>
+                      )}
 
                       {/* Override action — only shown when step is NOT completed */}
-                      {!completed && canOverride && isOverridable && (
+                      {!completed && !notApplicable && canOverride && isOverridable && (
                         <OverrideButton
                           stepNumber={step.number}
                           stepLabel={step.label}
@@ -321,7 +419,7 @@ export function PostRegistrationTab({
                       )}
 
                       {/* Step 3 note when not completed */}
-                      {!completed && step.number === 3 && (
+                      {!completed && !notApplicable && step.number === 3 && (
                         <p className="mt-3 text-2xs text-muted-foreground italic">
                           {t("postRegistration.step3_note")}
                         </p>

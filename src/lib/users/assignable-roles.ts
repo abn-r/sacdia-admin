@@ -34,3 +34,24 @@ export function resolveCreatableRoles(
   const assignable = new Set(extractAssignableGlobalRoles(user));
   return ASSIGNABLE_GLOBAL_ROLE_ORDER.filter((role) => assignable.has(role));
 }
+
+/**
+ * `authorization.local_field_required_roles` of `/auth/me`: assignable roles
+ * that need a local field when the user is created. Absent → `[]` (no role
+ * requires it).
+ */
+export function extractLocalFieldRequiredRoles(
+  user: AuthUser | null | undefined,
+): string[] {
+  const raw = user?.authorization?.local_field_required_roles;
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  const out = new Set<string>();
+  for (const value of raw) {
+    if (typeof value === "string" && value.trim()) {
+      out.add(value.trim().toLowerCase());
+    }
+  }
+  return [...out].sort();
+}

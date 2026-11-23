@@ -1323,6 +1323,16 @@ export interface IntlMessages {
         password_rejected: string;
         generic: string;
       };
+      invitation: {
+        title: string;
+        description: string;
+        submit_idle: string;
+        submit_loading: string;
+        success_title: string;
+        success_body: string;
+        invalid_title: string;
+        invalid_body: string;
+      };
     };
     verify_email: {
       meta_title: string;
@@ -4560,6 +4570,17 @@ export interface IntlMessages {
       step3_req2: string;
       step3_req3: string;
       status_completed_at: string;
+      step_status_not_applicable: string;
+      step3_not_applicable_description: string;
+      panel_only_notice: string;
+      account_access_title: string;
+      resend_invitation_description: string;
+      resend_invitation: string;
+      resend_invitation_success: string;
+      resend_invitation_already_accepted: string;
+      resend_invitation_rate_limited: string;
+      resend_invitation_unavailable: string;
+      resend_invitation_failed: string;
     };
     pages: {
       list: {
@@ -4618,6 +4639,7 @@ export interface IntlMessages {
           emailExists: string;
           forbidden: string;
           validationFailed: string;
+          localFieldRequired: string;
           generic: string;
         };
         validation: {
@@ -4628,6 +4650,7 @@ export interface IntlMessages {
           roleRequired: string;
           countryRequired: string;
           unionRequired: string;
+          localFieldRequired: string;
         };
       };
       detail: {
@@ -4880,6 +4903,7 @@ export interface IntlMessages {
           invalidRole: string;
           forbiddenRoleForActor: string;
           internalError: string;
+          localFieldRequired: string;
         };
         toast: {
           success: string;

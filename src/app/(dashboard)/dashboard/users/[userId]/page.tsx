@@ -155,6 +155,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
   );
   const canUpdateAdministrativeCompletion =
     canManageAdministrativeCompletion(currentUser);
+  // Resending an invitation takes the same capability as creating the user.
+  const canResendInvitation = canCapability(currentUser, "users", "create");
   const canSeeAccessToggles = canManageUserAccessFlags(currentUser);
   // Disable / revoke need `users:update_admin` AND the sensitive
   // `guardianship:update` (the backend enforces both).
@@ -579,6 +581,8 @@ export default async function UserDetailPage({ params }: { params: Params }) {
                   status={postRegistrationStatus}
                   photoStatus={photoStatus}
                   canOverride={canUpdateAdministrativeCompletion}
+                  invitationPending={user.invitation_pending === true}
+                  canResendInvitation={canResendInvitation}
                 />
               ) : (
                 <Card>
