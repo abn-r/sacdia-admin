@@ -135,6 +135,11 @@ const nextConfig: NextConfig = {
   // straight to the backend (multipart POST /resources). 2mb covers the
   // largest real payloads (long text resources, clubs bulk import rows).
   experimental: {
+    // Next 16 persists Turbopack's dev cache to disk by default. The `dev`
+    // script wipes .next/dev on every start, so that cache is never reused,
+    // yet it grew to ~12 GB within a single session. In-memory caching (HMR)
+    // is unaffected.
+    turbopackFileSystemCacheForDev: false,
     serverActions: {
       bodySizeLimit: "2mb",
     },
