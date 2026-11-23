@@ -23,7 +23,7 @@ Decisiones con razón escrita:
 
 - **Geist** en todo el panel (Geist Mono para código y valores técnicos): sans neutra, pesos reales, legible en pantallas densas.
 - **Hugeicons** como librería de iconos: decisión de identidad. El alias `lucide-react` es solo compatibilidad (§6).
-- **Neutros puros + un acento** (azul del logo `#0073EA`). El color de estado vive en el texto y el ícono, no en rellenos grandes.
+- **Neutros puros + un acento en escalera** (azul del logo `#0073EA`): el azul pleno solo en marcas pequeñas (botón principal, serie de datos, ícono activo) y sus tintes pálidos en las áreas (ítem activo del sidebar, variantes `soft`, pistas). El color de estado vive en el texto y el ícono, no en rellenos grandes.
 - **Elevación por sombra con anillo hairline**, no por bordes (§8).
 - **Radios por rol** (§4.1).
 
@@ -94,7 +94,17 @@ No existen `--disabled-bg` ni `--disabled-foreground`. Disabled es `opacity-50` 
 | `--primary` | `#0073EA` | `#4C9AFF` | **Texto**, enlaces, bordes, foco, tintes `bg-primary/10` |
 | `--primary-solid` | `#0073EA` | `#0073EA` | **Rellenos** bajo `--primary-foreground` (`#FFFFFF`): Button default, Badge default, checkbox/switch marcados, paso activo, barra de Progress |
 
-Relleno sólido = `bg-primary-solid`, nunca `bg-primary`. Límite conocido: `text-primary` sobre su tinte `bg-primary/10` da 3.96:1 en claro; no lo uses para texto pequeño sobre tinte si puedes evitarlo (los variantes `soft` de Button/Badge sí lo hacen; son aceptables por ser etiquetas de acción, no cuerpo de texto).
+Relleno sólido = `bg-primary-solid`, nunca `bg-primary`.
+
+**Escalera del acento** (tintes para áreas, siempre con su tinta oscura encima):
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--primary-soft` | `#EEF6FF` | `#4C9AFF` al 12% | Fondo de Button/Badge `soft`, áreas seleccionadas |
+| `--primary-soft-foreground` | `#00408A` | `#B9D7FF` | Texto e ícono sobre `--primary-soft` o `--sidebar-active` (9.2:1 en claro) |
+| `--primary-track` | `#CFE3FB` | `#4C9AFF` al 30% | Hover de `soft`, segmento claro de barras (lo pendiente junto a lo hecho) |
+
+Texto sobre tinte = `text-primary-soft-foreground`, no `text-primary` (`text-primary` sobre `bg-primary/10` da 3.96:1 en claro).
 
 ### 2.3 Semánticos: split texto / relleno
 
@@ -143,11 +153,12 @@ Reglas:
 | `--sidebar` | `#FAFAFA` | `#0A0A0A` |
 | `--sidebar-foreground` | `#5C5C5C` (6.41:1) | `#A1A1A1` (7.66:1) |
 | `--sidebar-accent` / `-foreground` | `#EDEDED` / `#0A0A0A` | `#1F1F1F` / `#EDEDED` |
+| `--sidebar-active` / `-foreground` | `#E6F0FD` / `#00408A` | `#4C9AFF` al 14% / `#B9D7FF` |
 | `--sidebar-primary` / `-foreground` | `#0073EA` / `#FFFFFF` | igual |
 | `--sidebar-border` | `#EBEBEB` | `#262626` |
 | `--sidebar-ring` | `#0073EA` | `#4C9AFF` |
 
-El ítem activo y el hover son grises (`--sidebar-accent`), nunca azul tenue. La etiqueta de grupo usa `text-sidebar-foreground` sin opacidad (contraste AA).
+El hover es gris (`--sidebar-accent`). **Solo el ítem activo** lleva el tinte azul (`--sidebar-active`, texto `--sidebar-active-foreground`, ícono `text-primary`) y lo conserva al pasar el mouse. Nunca tiñas el hover ni pongas una franja lateral. La etiqueta de grupo usa `text-sidebar-foreground` sin opacidad (contraste AA).
 
 ### 2.7 Reglas de uso
 
@@ -159,7 +170,7 @@ HACER
   bg-x/10 + text-x               tinte de estado (avisos, banners)
   bg-x-solid text-x-foreground   relleno de estado
   bg-primary-solid               relleno de acción
-  bg-primary/10 text-primary     SOLO para "seleccionado / actual" (día de hoy, opción elegida, paso hecho)
+  bg-primary-soft text-primary-soft-foreground   SOLO para "seleccionado / actual" (ítem activo, día de hoy, opción elegida, paso hecho) y variantes soft
 
 EVITAR
   bg-blue-50, text-gray-600, bg-white, border-gray-200   paleta Tailwind o blanco fijo
@@ -261,7 +272,7 @@ Espaciado vertical: `space-y-6` entre bloques de página, `space-y-4` en formula
 | `outline` | Secundaria, filtros, cancelar | `border-input bg-background shadow-2xs`; `dark:bg-input/30` |
 | `secondary` | Alternativa neutra | `bg-secondary text-secondary-foreground` |
 | `ghost` | Íconos, acciones sutiles | hover `bg-muted` |
-| `soft` | CTA con color sin llenar | `bg-primary/10 text-primary` |
+| `soft` | CTA con color sin llenar; acción positiva en filas ("Aprobar") | `bg-primary-soft text-primary-soft-foreground`, hover `bg-primary-track` |
 | `destructive` | Eliminar o desactivar **en línea o en filas** | `bg-destructive/10 text-destructive` (suave) |
 | `destructive-solid` | **Confirmación final** de acción irreversible (footer de AlertDialog) | `bg-destructive-solid text-destructive-foreground` |
 | `link` | Enlaces en texto | `text-primary underline-offset-4` |
@@ -286,7 +297,7 @@ Comportamiento común:
 
 ### 5.2 Badge
 
-`h-5 rounded-full px-2 text-xs font-medium`. Variantes: `default` (`bg-primary-solid`), `secondary`, `destructive` (tinte), `success` (`bg-success-solid text-success-foreground`), `warning` (`bg-warning-solid`), `outline`, `ghost`, `link`, y los tintados `soft`, `soft-info`, `soft-success`, `soft-warning`, `soft-destructive` (`bg-x/10 text-x border-x/20`).
+`h-5 rounded-full px-2 text-xs font-medium`. Variantes: `default` (`bg-primary-solid`), `secondary`, `destructive` (tinte), `success` (`bg-success-solid text-success-foreground`), `warning` (`bg-warning-solid`), `outline`, `ghost`, `link`, y los tintados `soft` (`bg-primary-soft text-primary-soft-foreground border-primary/20`), `soft-info`, `soft-success`, `soft-warning`, `soft-destructive` (`bg-x/10 text-x border-x/20`).
 
 Uso: `Badge` es para etiquetas estáticas (conteos, "Nuevo", "Solo lectura"). **No** uses `Badge default`/`soft` (azul) para estados. Los estados de dominio van por `StatusBadge` (§5.3).
 
@@ -468,7 +479,7 @@ Fuente: `src/lib/animations.ts` + variables de `globals.css`. No copies duracion
 - **Alcance bajo la marca**: el nombre del territorio del actor (`insights.scopeName`) se muestra como segunda línea `text-xs text-muted-foreground` bajo el nombre de la app.
 - **Contadores de colas**: `QueueCount` (`text-xs tabular-nums`, con texto `sr-only` "pendientes") en las colas de acción: `requests-assignments`, `requests-transfers`, `validations-investitures` (validaciones + honores) y `annual-folders-evaluate`. Solo valores > 0. Los datos salen de `loadSidebarInsights()` (`src/lib/dashboard/sidebar-insights.ts`): no se espera en el layout (la promesa se resuelve en el cliente), nunca rechaza (devuelve vacío ante error) y el backend la cachea 60s. El sidebar es decoración: nunca rompe el layout.
 - **Un solo ítem activo**: gana la coincidencia más específica. `getBestMatchLength` calcula la URL más larga que coincide y `isLeafActive` marca solo esa. Los modos de `activeMatch` son `exact` (por defecto), `prefix`, `clubs-list` y `evidence-folders` (`src/navigation/sidebar/nav-match.ts`). Añade `activeMatch` al ítem cuando una ruta hija no deba activar al padre.
-- Etiquetas de grupo `text-xs font-medium text-sidebar-foreground`, sin opacidad. Submenús: `Collapsible` instantáneo con borde `border-l border-border/60`. Activo y hover: `bg-sidebar-accent`.
+- Etiquetas de grupo `text-xs font-medium text-sidebar-foreground`, sin opacidad. Submenús: `Collapsible` instantáneo con borde `border-l border-border/60`. Hover: `bg-sidebar-accent` (gris). Activo: `bg-sidebar-active` con texto `text-sidebar-active-foreground` e ícono `text-primary` (lo aplican `SidebarMenuButton` y `SidebarMenuSubButton` con `isActive`).
 - Filtrado por permisos: `src/navigation/sidebar/filter-sidebar.ts`; items en `sidebar-items.ts`.
 
 ### 9.3 Breadcrumbs y encabezados
@@ -973,4 +984,5 @@ No hay regla automática para: iconos decorativos en caja, `transition-all`, `ba
 - **2026-08-23 / 2026-09-17**: `PageHeader` y motion alineados con `animations.ts`; navegación y tablas sin enter/stagger; `⌘B` instantáneo; Geist único.
 - **2026-10-13 — Alineación antislop**: radios por rol, sentence case, diales (§0), reglas `pill-radius` y `uppercase-tracking`.
 - **2026-10-15 — Crisp**: neutros puros y acento azul; split `--primary` / `--primary-solid`; sombras con anillo hairline; `--radius: 0.5rem`; `destructive-solid`; `RowActions`; `Button loading`; crear/editar en modal de ruta interceptada; toasts neutros; móvil (bottom sheet, 16px, objetivos táctiles).
+- **2026-11-23 — Acento en escalera**: arranca el rediseño del panel con la base actual y el acento de la dirección C. Tokens `--primary-soft`, `--primary-soft-foreground`, `--primary-track`, `--sidebar-active`; el ítem activo del sidebar pasa a tinte azul (el hover sigue gris); Button y Badge `soft` usan la escalera. Referencia visual: `../mockups/rediseno-admin/index.html` (pestaña «A + acento C»).
 - **2026-11-08 — Auditoría de diseño**: split semántico texto/relleno (`--x` / `--x-solid`) con contraste AA y destructive oscuro `#F87171`; `text-2xs` y piso de 11px; `PRESS_SCALE` único (0.97, solo botones) y overlays iguales (`bg-black/40`, sin blur, 200/150ms); `shadow-lg` en flotantes; `KpiStrip` sin tiles; listado unificado (`DataTableShell`, filas móviles, `DataTablePagination` URL/controlada); `error.tsx` y `global-error`, skip link y landmarks; sidebar con alcance, contadores y un solo ítem activo; skeletons `ListPageSkeleton`/`DetailPageSkeleton`; nuevas reglas del audit; reescritura de este documento como fuente única (cuerpo = estado actual, historial al final).

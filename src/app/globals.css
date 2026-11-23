@@ -20,6 +20,9 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-solid: var(--primary-solid);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-primary-track: var(--primary-track);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -52,6 +55,8 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-foreground: var(--sidebar-active-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-card: var(--shadow-card);
@@ -126,6 +131,13 @@
   /* Solid fills under white text (buttons, active steps, checked controls). */
   --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
+  /*
+   * Accent ladder: the full blue only on small marks (primary button, data series, active icon);
+   * its pale tints do the area work. Text on a tint uses the deep ink (#00408a, 9.2:1 on #eef6ff).
+   */
+  --primary-soft: #eef6ff;
+  --primary-soft-foreground: #00408a;
+  --primary-track: #cfe3fb;
   --secondary: #f4f4f4;
   --secondary-foreground: #171717;
   --muted: #f5f5f5;
@@ -162,8 +174,11 @@
   --sidebar-foreground: #5c5c5c;
   --sidebar-primary: #0073ea;
   --sidebar-primary-foreground: #ffffff;
+  /* Hover stays neutral grey; only the active item carries the blue tint. */
   --sidebar-accent: #ededed;
   --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-active: #e6f0fd;
+  --sidebar-active-foreground: #00408a;
   --sidebar-border: #ebebeb;
   --sidebar-ring: #0073ea;
 
@@ -220,6 +235,9 @@
   /* Solid fills under white text (buttons, active steps, checked controls). */
   --primary-solid: #0073ea;
   --primary-foreground: #ffffff;
+  --primary-soft: oklch(0.67 0.16 255 / 0.12);
+  --primary-soft-foreground: #b9d7ff;
+  --primary-track: oklch(0.67 0.16 255 / 0.3);
   --secondary: #1f1f1f;
   --secondary-foreground: #ededed;
   --muted: #232323;
@@ -254,6 +272,8 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #1f1f1f;
   --sidebar-accent-foreground: #ededed;
+  --sidebar-active: oklch(0.67 0.16 255 / 0.14);
+  --sidebar-active-foreground: #b9d7ff;
   --sidebar-border: #262626;
   --sidebar-ring: #4c9aff;
 
