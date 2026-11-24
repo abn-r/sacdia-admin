@@ -10,8 +10,12 @@ import {
 
 export const HONOR_INSTRUCTOR_PROPOSALS_KEY = ["honor-instructor-proposals"] as const;
 
-export function useHonorInstructorProposals(query: HonorInstructorProposalsQuery) {
+export function useHonorInstructorProposals(
+  query: HonorInstructorProposalsQuery,
+  options: { enabled?: boolean } = {},
+) {
   return useQuery({
+    enabled: options.enabled ?? true,
     queryKey: [...HONOR_INSTRUCTOR_PROPOSALS_KEY, query.status ?? "PENDING", query.page ?? 1, query.limit ?? 20],
     queryFn: () => getHonorInstructorProposals(query),
     placeholderData: keepPreviousData,

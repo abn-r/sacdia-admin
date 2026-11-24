@@ -1,26 +1,32 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { ClubsValidationsClient } from "@/components/clubs/validations/clubs-validations-client";
-import { resolveClubsValidationTab } from "@/components/clubs/validations/validation-tabs";
-import type { ClubsValidationTab } from "@/components/clubs/validations/validation-tabs";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { getPendingCertificateBulkImports } from "@/lib/api/certificate-bulk-imports";
+import { ClassesQueueClient } from "@/components/clubs/validations/classes-queue-client";
+import { settle } from "@/components/clubs/validations/loaded";
+import {
+  availableClassesTabs,
+  legacyEvidenceType,
+  resolveClassesTab,
+  resolveEvidenceTypeFilter,
+} from "@/components/clubs/validations/validation-tabs";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { getEvidencePending } from "@/lib/api/evidence-review";
 import { getPendingValidations } from "@/lib/api/validation";
-import { ApiError } from "@/lib/api/client";
+import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function readTab(raw: Record<string, string | string[] | undefined>): ClubsValidationTab {
-  return resolveClubsValidationTab(Array.isArray(raw.tab) ? raw.tab[0] : raw.tab);
+const EVIDENCE_PAGE_LIMIT = 50;
+const BASE_PATH = "/dashboard/clubs/validations";
+
+function first(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("clubs.pages.validations");
+  const t = await getTranslations("queues.classes");
   return { title: t("title") };
 }
 
@@ -29,77 +35,63 @@ export default async function ClubsValidationsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdminUser();
-  const t = await getTranslations("clubs.pages.validations");
+  const user = await requireAdminUser();
   const raw = await searchParams;
-  const defaultTab = readTab(raw);
 
-  let loadError: string | null = null;
-  let honors: Awaited<ReturnType<typeof getPendingValidations>> = [];
-  let honorEvidence: Awaited<ReturnType<typeof getEvidencePending>>["data"] = [];
-  let sectionEvidence: Awaited<ReturnType<typeof getEvidencePending>>["data"] = [];
-  let certificateBatches: Awaited<
-    ReturnType<typeof getPendingCertificateBulkImports>
-  >["items"] = [];
-  let certificateTotal = 0;
+  const access = {
+    validations: canViewScreen(user, "validations-investitures"),
+    proposals: canViewScreen(user, "honor-instructor-proposals"),
+  };
+  const tabs = availableClassesTabs(access);
+  if (tabs.length === 0) return <PageAccessForbidden />;
 
-  try {
-    const [
-      honorsResult,
-      honorEvidenceResult,
-      sectionEvidenceResult,
-      certificatesResult,
-    ] = await Promise.allSettled([
-      getPendingValidations({ entity_type: "honor" }),
-      getEvidencePending("honor", 1, 200),
-      getEvidencePending("class", 1, 200),
-      getPendingCertificateBulkImports({ page: 1, limit: 100 }),
-    ]);
+  const rawTab = first(raw.tab);
+  // Bulk certificate imports left this page; old links go to their own queue.
+  if (rawTab === "certificates") redirect("/dashboard/certificate-bulk-imports");
 
-    if (honorsResult.status === "fulfilled") {
-      honors = honorsResult.value;
-    } else if (!loadError) {
-      loadError =
-        honorsResult.reason instanceof ApiError
-          ? honorsResult.reason.message
-          : t("errors.honors");
-    }
+  const tab = resolveClassesTab(rawTab, tabs);
+  const typeFilter = legacyEvidenceType(rawTab) ?? resolveEvidenceTypeFilter(first(raw.type));
 
-    if (honorEvidenceResult.status === "fulfilled") {
-      honorEvidence = honorEvidenceResult.value.data;
-    }
-
-    if (sectionEvidenceResult.status === "fulfilled") {
-      sectionEvidence = sectionEvidenceResult.value.data;
-    }
-
-    if (certificatesResult.status === "fulfilled") {
-      certificateBatches = certificatesResult.value.items;
-      certificateTotal = certificatesResult.value.total;
-    }
-  } catch (error) {
-    loadError =
-      error instanceof ApiError ? error.message : t("errors.generic");
+  // Keep the URL canonical so the tab bar always has an active tab (legacy ?tab=honors|sections|modules).
+  if (rawTab !== undefined && rawTab !== tab) {
+    const params = new URLSearchParams({ tab });
+    if (tab === "evidence" && typeFilter !== "all") params.set("type", typeFilter);
+    redirect(`${BASE_PATH}?${params.toString()}`);
   }
 
+  const evidenceType = typeFilter === "all" ? undefined : typeFilter;
+
+  const [pending, evidence, evidenceAll] = access.validations
+    ? await Promise.all([
+        settle(getPendingValidations({ entity_type: "honor" })),
+        tab === "evidence"
+          ? settle(getEvidencePending(evidenceType, 1, EVIDENCE_PAGE_LIMIT))
+          : Promise.resolve(null),
+        // The tab counter is the real total of the whole queue, not of the loaded page or filter.
+        tab !== "evidence" || evidenceType !== undefined
+          ? settle(getEvidencePending(undefined, 1, 1))
+          : Promise.resolve(null),
+      ])
+    : [null, null, null];
+
+  const evidenceTotal = !access.validations
+    ? undefined
+    : evidenceAll
+      ? evidenceAll.ok
+        ? evidenceAll.data.total
+        : undefined
+      : evidence?.ok
+        ? evidence.data.total
+        : undefined;
+
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")} />
-
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      {!loadError && (
-        <Suspense fallback={null}>
-          <ClubsValidationsClient
-            initialHonors={honors}
-            initialHonorEvidence={honorEvidence}
-            initialSectionEvidence={sectionEvidence}
-            certificateBatches={certificateBatches}
-            certificateTotal={certificateTotal}
-            defaultTab={defaultTab}
-          />
-        </Suspense>
-      )}
-    </div>
+    <ClassesQueueClient
+      tabs={tabs}
+      canProposals={access.proposals}
+      pending={pending}
+      evidence={evidence}
+      evidenceTotal={evidenceTotal}
+      typeFilter={typeFilter}
+    />
   );
 }
