@@ -7,7 +7,7 @@ import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { AppSidebar } from "@/app/(dashboard)/dashboard/_components/sidebar/app-sidebar";
 import { HeaderUserMenu } from "@/app/(dashboard)/dashboard/_components/sidebar/header-user-menu";
 import { SearchDialog } from "@/app/(dashboard)/dashboard/_components/sidebar/search-dialog";
-import { ThemeSwitcher } from "@/app/(dashboard)/dashboard/_components/sidebar/theme-switcher";
+import { InsightsBoundary } from "@/app/(dashboard)/dashboard/_components/sidebar/insights-boundary";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
@@ -65,6 +65,7 @@ export default async function DashboardLayout({
     <NextIntlClientProvider locale={locale} messages={clientMessages}>
     <AuthProvider initialUser={initialUser}>
       <QueryProvider>
+      <InsightsBoundary insights={sidebarInsights}>
       <SidebarProvider
         defaultOpen={defaultOpen}
         style={
@@ -80,7 +81,7 @@ export default async function DashboardLayout({
           {skipLabel}
         </a>
         {territoryUnconfigured ? null : (
-          <AppSidebar variant={variant} collapsible={collapsible} insights={sidebarInsights} />
+          <AppSidebar variant={variant} collapsible={collapsible} />
         )}
         <SidebarInset
           className={cn(
@@ -95,7 +96,7 @@ export default async function DashboardLayout({
           <header
             className={cn(
               "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] duration-200 ease-[var(--ease-drawer)] motion-reduce:transition-none group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
-              "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background/50 [html[data-navbar-style=sticky]_&]:backdrop-blur-md",
+              "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background",
             )}
           >
             <div className="flex w-full items-center justify-between px-4 lg:px-6">
@@ -108,7 +109,6 @@ export default async function DashboardLayout({
                 <SearchDialog />
               </div>
               <div className="flex items-center gap-2">
-                <ThemeSwitcher />
                 <HeaderUserMenu />
               </div>
             </div>
@@ -129,6 +129,7 @@ export default async function DashboardLayout({
           {territoryUnconfigured || !canOpenPage ? null : modal}
         </SidebarInset>
       </SidebarProvider>
+      </InsightsBoundary>
       </QueryProvider>
     </AuthProvider>
     </NextIntlClientProvider>

@@ -242,6 +242,8 @@ export const clubsScreens: ScreenDefinition[] = [
   {
     id: "annual-folders-evaluate",
     surfaces: ["admin"],
+    // Not a sidebar leaf anymore: the route redirects to the evidence folders queue.
+    path: "/dashboard/annual-folders/evaluate",
     viewAny: { permissions: [ANNUAL_FOLDERS_EVALUATE] },
     capabilities: [
       {
@@ -261,15 +263,20 @@ export const clubsScreens: ScreenDefinition[] = [
     ],
   },
   viewOnlyScreen("annual-folders-rankings", { permissions: [RANKINGS_READ] }, { surfaces: ["admin", "app"] }),
-  viewOnlyScreen("annual-folders-templates", {
-    permissions: [ANNUAL_FOLDER_TEMPLATES_READ],
-  }),
+  // Redirect routes, no longer sidebar leaves.
+  viewOnlyScreen(
+    "annual-folders-templates",
+    { permissions: [ANNUAL_FOLDER_TEMPLATES_READ] },
+    { path: "/dashboard/annual-folders/templates" },
+  ),
   viewOnlyScreen("annual-folders-ranking-config", {
     permissions: [RANKING_WEIGHTS_READ, MEMBER_RANKING_WEIGHTS_READ],
   }),
-  viewOnlyScreen("annual-folders-categories", {
-    permissions: [AWARD_CATEGORIES_READ],
-  }),
+  viewOnlyScreen(
+    "annual-folders-categories",
+    { permissions: [AWARD_CATEGORIES_READ] },
+    { path: "/dashboard/annual-folders/categories" },
+  ),
 
   {
     ...viewOnlyScreen("section-rankings", {

@@ -40,6 +40,7 @@ export const RULES = [
     allow: (file) =>
       file.includes("page-header.tsx") ||
       file.includes("detail-header.tsx") ||
+      file.endsWith("global-error.tsx") ||
       file.endsWith(".test.tsx"),
   },
   {

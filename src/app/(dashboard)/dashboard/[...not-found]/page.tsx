@@ -1,21 +1,34 @@
 "use client";
 
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ErrorState } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
+import { openGlobalSearch } from "@/lib/search/open-search";
 
 export default function DashboardNotFound() {
-  const t = useTranslations("shared.notFound");
+  const t = useTranslations("shared.shell.errors");
   return (
-    <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-2 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="text-sm text-muted-foreground">{t("description")}</p>
-      <Button variant="outline" className="mt-4" asChild>
-        <Link prefetch={false} href="/dashboard">
-          {t("backHome")}
-        </Link>
-      </Button>
-    </div>
+    <ErrorState
+      kind="notFound"
+      title={t("notFoundTitle")}
+      description={t("notFoundDescription")}
+      className="min-h-[60vh] justify-center"
+      actions={
+        <>
+          <Button type="button" onClick={openGlobalSearch}>
+            <Search aria-hidden />
+            {t("search")}
+          </Button>
+          <Button variant="outline" asChild>
+            <Link prefetch={false} href="/dashboard">
+              {t("goHome")}
+            </Link>
+          </Button>
+        </>
+      }
+    />
   );
 }

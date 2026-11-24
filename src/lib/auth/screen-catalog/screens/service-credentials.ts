@@ -32,6 +32,8 @@ export const serviceCredentialsScreens: readonly ScreenDefinition[] = [
     // `AdminRoleRequirementsController` (admin / super-admin only).
     id: "role-requirements",
     surfaces: ["admin"],
+    // Not a sidebar leaf: reached from the Configuración index.
+    path: "/dashboard/role-requirements",
     viewAny: { permissions: [ROLE_REQUIREMENTS_MANAGE] },
     capabilities: [
       // PATCH /admin/role-requirements/:id

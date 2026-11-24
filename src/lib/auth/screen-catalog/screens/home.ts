@@ -9,12 +9,6 @@ export const homeScreens: ScreenDefinition[] = [
     viewAny: { permissions: [DASHBOARD_READ] },
     capabilities: [
       {
-        id: "coming_soon",
-        kind: "route",
-        href: "/dashboard/coming-soon",
-        gate: { permissions: [DASHBOARD_READ] },
-      },
-      {
         id: "v2",
         kind: "route",
         href: "/dashboard/v2",

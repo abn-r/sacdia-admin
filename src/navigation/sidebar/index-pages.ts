@@ -18,6 +18,7 @@ import {
   Key,
   Landmark,
   Layers,
+  ListChecks,
   MapPin,
   Package,
   ScrollText,
@@ -153,6 +154,7 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
     title: "Evaluación",
     links: [
       { id: "admin-settings-scoring-categories", url: "/dashboard/settings/scoring-categories", title: "Categorías scoring", icon: Tags },
+      { id: "role-requirements", url: "/dashboard/role-requirements", title: "Requisitos de cargos", icon: ListChecks },
     ],
   },
   {
@@ -189,10 +191,23 @@ export const ALL_INDEX_LINKS: readonly IndexPageLink[] = [
 ];
 
 /**
+ * Index links that own a sidebar entry (notifications, roles/permissions/matrix,
+ * audit, system jobs): they must not also activate Configuración.
+ */
+const CONFIGURATION_OWN_SIDEBAR_PREFIXES: readonly string[] = [
+  "/dashboard/configuration/notifications",
+  "/dashboard/configuration/roles",
+  "/dashboard/configuration/permissions",
+  "/dashboard/configuration/matrix",
+  "/dashboard/configuration/audit",
+  "/dashboard/system",
+];
+
+/**
  * Page paths outside `/dashboard/catalogs/*` and `/dashboard/configuration/*`
  * whose parent in the sidebar is Catálogos / Configuración. The notifications
  * hub keeps its own sidebar entry, so it is excluded to avoid a tie.
  */
 export const CONFIGURATION_EXTRA_MATCH_PATHS: string[] = flattenIndexLinks(CONFIGURATION_INDEX_SECTIONS)
   .map((link) => link.url)
-  .filter((url) => !url.startsWith("/dashboard/configuration/notifications"));
+  .filter((url) => !CONFIGURATION_OWN_SIDEBAR_PREFIXES.some((prefix) => url.startsWith(prefix)));

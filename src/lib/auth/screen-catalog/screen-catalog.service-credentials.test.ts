@@ -74,6 +74,7 @@ describe("service credentials screens", () => {
         subjectFromUser(buildAuthUser({ roles: ["admin"], permissions: ["role_requirements:manage"] })),
       ),
     );
-    expect(admin).toContain("Requisitos de cargos");
+    // Requisitos de cargos left the sidebar: it lives in the Configuración index (index-pages tests).
+    expect(admin).not.toContain("Requisitos de cargos");
   });
 });

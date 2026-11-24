@@ -56,7 +56,15 @@ describe("index pages: data", () => {
     }
   });
 
-  it("no index link (except the notifications hub) is also a sidebar leaf", () => {
+  it("lists Requisitos de cargos in the Evaluación section of Configuración", () => {
+    const evaluation = CONFIGURATION_INDEX_SECTIONS.find((section) => section.id === "evaluation");
+    expect(evaluation?.links.map((link) => link.id)).toContain("role-requirements");
+    expect(ALL_INDEX_LINKS.find((link) => link.id === "role-requirements")?.url).toBe(
+      "/dashboard/role-requirements",
+    );
+  });
+
+  it("no index link is also a sidebar leaf, except the ones that own a sidebar entry", () => {
     const sidebarIds = new Set<string>();
     for (const group of sidebarItems) {
       for (const item of group.items) {
@@ -65,7 +73,9 @@ describe("index pages: data", () => {
       }
     }
     const dup = ALL_INDEX_LINKS.filter((link) => sidebarIds.has(link.id)).map((link) => link.id);
-    expect(dup).toEqual(["notifications-hub"]);
+    expect(dup.sort()).toEqual(
+      ["admin-system-audit", "admin-system-jobs", "admin-system-roles", "notifications-hub"].sort(),
+    );
   });
 });
 

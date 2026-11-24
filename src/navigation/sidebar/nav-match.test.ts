@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CONFIGURATION_EXTRA_MATCH_PATHS } from "./index-pages";
 import { getBestMatchLength, isLeafActive, isSubItemActiveFor, matchesNavPath } from "./nav-match";
-import type { NavGroup } from "./sidebar-items";
+import { sidebarItems, type NavGroup } from "./sidebar-items";
 
 const groups: NavGroup[] = [
   {
@@ -113,12 +113,10 @@ describe("nav-match with index pages", () => {
     ["/dashboard/catalogs/honors", "admin-catalogs"],
     ["/dashboard/catalogs/honors/12/edit", "admin-catalogs"],
     ["/dashboard/configuration", "admin-settings"],
-    ["/dashboard/configuration/roles", "admin-settings"],
-    ["/dashboard/configuration/permissions/3", "admin-settings"],
     ["/dashboard/investiture-settings", "admin-settings"],
     ["/dashboard/investiture-pastors", "admin-settings"],
     ["/dashboard/clubs/evidence-folders/templates", "admin-settings"],
-    ["/dashboard/system/jobs/history", "admin-settings"],
+    ["/dashboard/role-requirements", "admin-settings"],
     ["/dashboard/settings/scoring-categories", "admin-settings"],
     ["/dashboard/campamentos/configuracion/union", "admin-settings"],
     ["/dashboard/configuration/local-field/delivery", "admin-settings"],
@@ -143,5 +141,55 @@ describe("nav-match with index pages", () => {
 
   it("evidence folders list stays active for the folder pages", () => {
     expect(activeIds("/dashboard/clubs/evidence-folders")).toEqual(["evidence-folders"]);
+  });
+});
+
+describe("nav-match with the real sidebar", () => {
+  const activeIds = (path: string): string[] => {
+    const best = getBestMatchLength(path, sidebarItems);
+    const out: string[] = [];
+    for (const group of sidebarItems) {
+      for (const item of group.items) {
+        if ("subItems" in item && item.subItems) {
+          for (const sub of item.subItems) if (isSubItemActiveFor(path, sub, best)) out.push(sub.id);
+        } else if (isLeafActive(path, item, best)) {
+          out.push(item.id);
+        }
+      }
+    }
+    return out;
+  };
+
+  it.each([
+    ["/dashboard/configuration/roles", "admin-system-roles"],
+    ["/dashboard/configuration/roles/12", "admin-system-roles"],
+    ["/dashboard/configuration/permissions", "admin-system-roles"],
+    ["/dashboard/configuration/permissions/3", "admin-system-roles"],
+    ["/dashboard/configuration/matrix", "admin-system-roles"],
+    ["/dashboard/rbac/user-permissions", "admin-system-roles"],
+    ["/dashboard/configuration/audit", "admin-system-audit"],
+    ["/dashboard/system/jobs", "admin-system-jobs"],
+    ["/dashboard/system/jobs/history", "admin-system-jobs"],
+    ["/dashboard/configuration", "admin-settings"],
+    ["/dashboard/configuration/variables", "admin-settings"],
+    ["/dashboard/configuration/achievements", "admin-settings"],
+    ["/dashboard/role-requirements", "admin-settings"],
+    ["/dashboard/annual-folders/rankings", "annual-folders-rankings"],
+    ["/dashboard/annual-folders/ranking-config", "annual-folders-ranking-config"],
+    ["/dashboard/campamentos", "campamentos-list-local"],
+    ["/dashboard/campamentos/union", "campamentos-list-union"],
+    ["/dashboard/club-enrollments", "club-enrollments-review"],
+    ["/dashboard/certifications", "certifications-list"],
+    ["/dashboard/certifications/reviews", "certifications-reviews"],
+  ])("%s highlights only %s", (path, id) => {
+    expect(activeIds(path)).toEqual([id]);
+  });
+
+  it("Configuración is not extended to roles, permissions, matrix, audit or system pages", () => {
+    for (const url of CONFIGURATION_EXTRA_MATCH_PATHS) {
+      expect(url).not.toMatch(
+        /^\/dashboard\/(configuration\/(roles|permissions|matrix|audit)|system)/,
+      );
+    }
   });
 });
