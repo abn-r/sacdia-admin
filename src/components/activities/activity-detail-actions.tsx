@@ -1,69 +1,52 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { ActivityFormDialog } from "@/components/activities/activity-form-dialog";
+import { RowActions } from "@/components/shared/row-actions";
 import { DeleteActivityDialog } from "@/components/activities/delete-activity-dialog";
 import type { Activity } from "@/lib/api/activities";
-import { ACTIVITIES_BASE_PATH } from "@/lib/activities/helpers";
+import { activityDetailPath } from "@/lib/activities/helpers";
 
 interface ActivityDetailActionsProps {
   activity: Activity;
+  canEdit: boolean;
+  /** The list of the activity's club, where deleting leaves to. */
+  listHref: string;
 }
 
-export function ActivityDetailActions({ activity }: ActivityDetailActionsProps) {
-  const t = useTranslations("activities");
+/** Editar (a route modal over the detail) and Eliminar… in the more menu. */
+export function ActivityDetailActions({ activity, canEdit, listHref }: ActivityDetailActionsProps) {
+  const t = useTranslations("people.activities");
   const router = useRouter();
-  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  function handleEditSuccess() {
-    router.refresh();
-  }
-
-  function handleDeleteSuccess() {
-    router.push(ACTIVITIES_BASE_PATH);
-  }
+  if (!canEdit) return null;
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-        <Pencil className="mr-2 size-3.5" />
-        {t("detailActions.edit")}
+      <Button asChild variant="outline" size="sm">
+        <Link href={`${activityDetailPath(activity.activity_id)}/edit`}>
+          <Pencil aria-hidden />
+          {t("list.edit")}
+        </Link>
       </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setDeleteOpen(true)}
-        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-      >
-        <Trash2 className="mr-2 size-3.5" />
-        {t("detailActions.delete")}
-      </Button>
-
-      <ActivityFormDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        clubId={activity.club_id}
-        sections={[
-          {
-            club_section_id: activity.club_section_id,
-            name: t("detailActions.sectionFallback", { id: activity.club_section_id }),
-            club_type_id: activity.club_type_id,
-          },
-        ]}
-        activity={activity}
-        onSuccess={handleEditSuccess}
+      <RowActions
+        label={activity.name}
+        actions={[{ label: t("list.delete"), icon: Trash2, destructive: true, onSelect: () => setDeleteOpen(true) }]}
       />
-
       <DeleteActivityDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         activity={activity}
-        onSuccess={handleDeleteSuccess}
+        onSuccess={() => {
+          setDeleteOpen(false);
+          router.push(listHref);
+          router.refresh();
+        }}
       />
     </>
   );
