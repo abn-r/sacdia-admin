@@ -21,11 +21,13 @@ export interface ScopePickerProps {
   /** Receives the chosen id, or null for "all". */
   onChange: (id: string | null) => void;
   allLabel?: string;
+  /** Set to false when a scope is always required (no "all" entry). @default true */
+  allowAll?: boolean;
   loading?: boolean;
   className?: string;
 }
 
-export function ScopePicker({ value, options, onChange, allLabel, loading = false, className }: ScopePickerProps) {
+export function ScopePicker({ value, options, onChange, allLabel, allowAll = true, loading = false, className }: ScopePickerProps) {
   const t = useTranslations("shared.kit.scope");
   const [open, setOpen] = useState(false);
   const isAll = !value;
@@ -68,12 +70,14 @@ export function ScopePicker({ value, options, onChange, allLabel, loading = fals
           <CommandInput placeholder={t("search")} />
           <CommandList>
             <CommandEmpty>{t("empty")}</CommandEmpty>
-            <CommandGroup>
-              <CommandItem value={`__all__ ${allText}`} onSelect={() => pick(null)}>
-                <span className="flex-1 truncate">{allText}</span>
-                {isAll && <Check className="size-4" aria-hidden />}
-              </CommandItem>
-            </CommandGroup>
+            {allowAll && (
+              <CommandGroup>
+                <CommandItem value={`__all__ ${allText}`} onSelect={() => pick(null)}>
+                  <span className="flex-1 truncate">{allText}</span>
+                  {isAll && <Check className="size-4" aria-hidden />}
+                </CommandItem>
+              </CommandGroup>
+            )}
             {[...groups.entries()].map(([group, items]) => (
               <CommandGroup key={group || "_"} heading={group || undefined}>
                 {items.map((option) => (

@@ -1,14 +1,9 @@
 "use client";
 
-import { Medal, PieChart } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AnnualBudgetConfigList } from "@/components/annual-rankings/annual-budget-config-list";
 import { RankingTiersPanel } from "@/components/annual-rankings/ranking-tiers-panel";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { UrlTabs, useUrlTab } from "@/components/shared/url-tabs";
 import type { AnnualRankingConfig, RankingTier } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
@@ -32,23 +27,23 @@ export function AnnualRankingConfigClientPage({
   ecclesiasticalYears,
   createBlocked = false,
 }: AnnualRankingConfigClientPageProps) {
-  return (
-    <Tabs defaultValue="budget" className="gap-6">
-      <TabsList
-        variant="line"
-        className="h-auto w-full justify-start gap-1 border-b pb-0"
-      >
-        <TabsTrigger value="budget" className="gap-2 px-4 py-2.5">
-          <PieChart className="size-4" />
-          Presupuesto anual
-        </TabsTrigger>
-        <TabsTrigger value="tiers" className="gap-2 px-4 py-2.5">
-          <Medal className="size-4" />
-          Rangos de reconocimiento
-        </TabsTrigger>
-      </TabsList>
+  const t = useTranslations("evaluation.progress.annual.config");
+  const tab = useUrlTab("tab", "budgets");
 
-      <TabsContent value="budget" className="mt-0">
+  return (
+    <div className="space-y-6">
+      <UrlTabs
+        ariaLabel={t("tabsLabel")}
+        defaultValue="budgets"
+        tabs={[
+          { value: "budgets", label: t("tabs.budgets"), count: initialConfigs.length },
+          { value: "recognitions", label: t("tabs.recognitions") },
+        ]}
+      />
+
+      {tab === "recognitions" ? (
+        <RankingTiersPanel initialTiers={initialTiers} />
+      ) : (
         <AnnualBudgetConfigList
           configs={initialConfigs}
           unions={unions}
@@ -57,11 +52,7 @@ export function AnnualRankingConfigClientPage({
           ecclesiasticalYears={ecclesiasticalYears}
           createBlocked={createBlocked}
         />
-      </TabsContent>
-
-      <TabsContent value="tiers" className="mt-0">
-        <RankingTiersPanel initialTiers={initialTiers} />
-      </TabsContent>
-    </Tabs>
+      )}
+    </div>
   );
 }

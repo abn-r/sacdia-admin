@@ -2,29 +2,36 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AnnualRankingBreakdownView } from "@/components/annual-rankings/annual-ranking-breakdown-view";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { requireAdminUser } from "@/lib/auth/session";
+import { DetailHeader } from "@/components/shared/detail-header";
+import { ErrorState } from "@/components/shared/error-state";
+import { resolveYearLabelById } from "@/lib/annual-folders/ecclesiastical-year-label";
 import {
   getAnnualRankingSectionProgress,
   type AnnualRankingSectionProgress,
 } from "@/lib/api/annual-rankings";
+import { listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
+import { requireAdminUser } from "@/lib/auth/session";
+import { getFormatNumber } from "@/lib/format-locale";
+import { recognitionStatus } from "@/lib/progress/annual";
 
 interface PageProps {
   params: Promise<{ sectionId: string }>;
   searchParams: Promise<{ year_id?: string }>;
 }
 
+const LIST_HREF = "/dashboard/annual-folders/rankings";
+
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("annual_folders");
-  return { title: t("pageRankingsBreakdown.title") };
+  const t = await getTranslations("evaluation.progress.annual");
+  return { title: t("breakdown.title") };
 }
 
 export default async function AnnualRankingBreakdownPage({ params, searchParams }: PageProps) {
   await requireAdminUser();
-  const t = await getTranslations("annual_folders");
-  const tNav = await getTranslations("nav.items");
+  const t = await getTranslations("evaluation.progress.annual");
+  const tCrumbs = await getTranslations("nav.breadcrumbs");
 
   const { sectionId: sectionIdRaw } = await params;
   const { year_id } = await searchParams;
@@ -32,44 +39,65 @@ export default async function AnnualRankingBreakdownPage({ params, searchParams 
   const yearId = Number(year_id);
 
   if (!Number.isInteger(sectionId) || sectionId <= 0) notFound();
+
+  const baseCrumbs = [
+    { label: tCrumbs("home"), href: "/dashboard" },
+    { label: t("title"), href: LIST_HREF },
+  ];
+
   if (!Number.isInteger(yearId) || yearId <= 0) {
     return (
-      <div className="p-6 text-sm text-muted-foreground">
-        {t("pageRankingsBreakdown.paramsRequired")}
+      <div className="space-y-6">
+        <DetailHeader title={t("breakdown.title")} breadcrumbs={[...baseCrumbs, { label: t("breakdown.title") }]} />
+        <ErrorState kind="notFound" description={t("breakdown.paramsRequired")} />
       </div>
     );
   }
 
-  let data: AnnualRankingSectionProgress | null = null;
-  let loadError: string | null = null;
+  let data: AnnualRankingSectionProgress;
   try {
     data = await getAnnualRankingSectionProgress(sectionId, yearId);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
-    loadError =
-      error instanceof ApiError && error.status === 403
-        ? t("pageRankingsBreakdown.forbidden")
-        : t("pageRankingsBreakdown.errorFallback");
+    const failure = errorStateFromError(error);
+    return (
+      <div className="space-y-6">
+        <DetailHeader title={t("breakdown.title")} breadcrumbs={[...baseCrumbs, { label: t("breakdown.title") }]} />
+        <ErrorState kind={failure.kind} detail={failure.detail} retry />
+      </div>
+    );
   }
 
-  const description = data?.club_type.name
-    ? t("pageRankingsBreakdown.description", { clubType: data.club_type.name })
-    : undefined;
+  const years = await listEcclesiasticalYears().catch(() => []);
+  const yearLabel = resolveYearLabelById(years, yearId) ?? String(yearId);
+  const formatNumber = await getFormatNumber();
+
+  const status = recognitionStatus(data);
+  const recognition =
+    status.kind === "reached"
+      ? status.name
+      : status.kind === "missing"
+        ? t("recognition.missing", {
+            points: formatNumber(status.next.pointsToReach),
+            tier: status.next.name,
+          })
+        : null;
+  const summary = t("breakdown.summary", {
+    year: yearLabel,
+    earned: formatNumber(data.current_points),
+    max: formatNumber(data.max_points),
+  });
+
+  const title = data.club_type.name ? `${data.club_name} · ${data.club_type.name}` : data.club_name;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={data?.club_name ?? t("pageRankingsBreakdown.title")}
-        description={description}
-        breadcrumbs={[
-          { label: tNav("annual_folders_rankings"), href: "/dashboard/annual-folders/rankings" },
-          { label: data?.club_name ?? t("pageRankingsBreakdown.title") },
-        ]}
+    <div className="space-y-8">
+      <DetailHeader
+        title={title}
+        subtitle={recognition ? `${summary} · ${recognition}` : summary}
+        breadcrumbs={[...baseCrumbs, { label: data.club_name }]}
       />
-
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      {data && <AnnualRankingBreakdownView data={data} />}
+      <AnnualRankingBreakdownView data={data} />
     </div>
   );
 }

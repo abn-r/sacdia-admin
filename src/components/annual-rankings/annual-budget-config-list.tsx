@@ -1,16 +1,16 @@
 "use client";
 
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AnnualBudgetDeleteDialog } from "@/components/annual-rankings/annual-budget-delete-dialog";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ExceptionStatus } from "@/components/shared/exception-status";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -23,6 +23,7 @@ import { configLabel } from "@/lib/annual-rankings/annual-ranking-config-utils";
 import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
+import { useFormatNumber } from "@/lib/format-locale";
 
 const ROUTE_BASE = "/dashboard/annual-folders/ranking-config";
 
@@ -43,91 +44,59 @@ export function AnnualBudgetConfigList({
   ecclesiasticalYears,
   createBlocked = false,
 }: AnnualBudgetConfigListProps) {
-  const t = useTranslations("annual_folders.budgetConfigList");
+  const t = useTranslations("evaluation.progress.annual.config.budgets");
   const router = useRouter();
-  const [deleteTarget, setDeleteTarget] = useState<AnnualRankingConfig | null>(
-    null,
-  );
+  const formatNumber = useFormatNumber();
+  const [deleteTarget, setDeleteTarget] = useState<AnnualRankingConfig | null>(null);
+
+  const labelOf = (config: AnnualRankingConfig) =>
+    configLabel(config, unions, localFields, clubTypes, ecclesiasticalYears);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 className="text-base font-semibold">Presupuestos configurados</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Cada registro define el puntaje máximo anual y su distribución por
-            secciones para un alcance, año y tipo de club.
-          </p>
-        </div>
-        {createBlocked ? (
-          <Button className="shrink-0" disabled>
-            <Plus className="size-4" />
-            Nueva configuración
-          </Button>
-        ) : (
-          <Button asChild className="shrink-0">
-            <Link href={`${ROUTE_BASE}/new`}>
-              <Plus className="size-4" />
-              Nueva configuración
-            </Link>
-          </Button>
-        )}
-      </div>
-
+    <div className="space-y-4">
       {configs.length === 0 ? (
-        <EmptyState
-          icon={Plus}
-          title={t("emptyTitle")}
-          description={t("emptyDescription")}
-        >
+        <EmptyState icon={Plus} title={t("emptyTitle")} description={t("emptyDescription")}>
           {!createBlocked && (
             <Button asChild size="sm">
-              <Link href={`${ROUTE_BASE}/new`}>Nueva configuración</Link>
+              <Link href={`${ROUTE_BASE}/new`}>{t("new")}</Link>
             </Button>
           )}
         </EmptyState>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
+        <DataTableShell>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Alcance</TableHead>
-                <TableHead>Año</TableHead>
-                <TableHead>Tipo de club</TableHead>
-                <TableHead className="text-right">Puntaje máximo</TableHead>
-                <TableHead>Estado</TableHead>
+                <TableHead>{t("colScope")}</TableHead>
+                <TableHead>{t("colYear")}</TableHead>
+                <TableHead>{t("colClubType")}</TableHead>
+                <TableHead className="text-right">{t("colMax")}</TableHead>
+                <TableHead>{t("colStatus")}</TableHead>
                 <RowActionsHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {configs.map((config) => {
-                const { scopeName, year, clubType } = configLabel(
-                  config,
-                  unions,
-                  localFields,
-                  clubTypes,
-                  ecclesiasticalYears,
-                );
-
+                const { scopeName, year, clubType } = labelOf(config);
                 return (
                   <TableRow key={config.annual_ranking_config_id}>
                     <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <Badge variant="outline" className="w-fit">
-                          {config.union_id != null ? "Unión" : "Campo local"}
-                        </Badge>
-                        <span className="font-medium">{scopeName}</span>
-                      </div>
+                      <span className="font-medium">{scopeName}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {config.union_id != null ? t("scopeUnion") : t("scopeLocalField")}
+                      </span>
                     </TableCell>
                     <TableCell>{year}</TableCell>
                     <TableCell>{clubType}</TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">
-                      {config.max_points.toLocaleString("es-MX")} pts
+                    <TableCell className="text-right tabular-nums">
+                      {t("points", { points: formatNumber(config.max_points) })}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge
-                        intent={config.active ? "success" : "neutral"}
-                        label={config.active ? "Activa" : "Inactiva"}
+                      <ExceptionStatus
+                        value={config.active ? "active" : "inactive"}
+                        normal={["active"]}
+                        labels={{ active: t("active"), inactive: t("inactive") }}
+                        intents={{ inactive: "neutral" }}
                       />
                     </TableCell>
                     <TableCell>
@@ -135,12 +104,12 @@ export function AnnualBudgetConfigList({
                         label={scopeName}
                         actions={[
                           {
-                            label: "Editar",
+                            label: t("edit"),
                             icon: Pencil,
                             href: `${ROUTE_BASE}/${config.annual_ranking_config_id}`,
                           },
                           {
-                            label: "Eliminar…",
+                            label: t("delete"),
                             icon: Trash2,
                             destructive: true,
                             onSelect: () => setDeleteTarget(config),
@@ -153,16 +122,8 @@ export function AnnualBudgetConfigList({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
       )}
-
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <p className="text-sm text-muted-foreground">
-          Mostrando{" "}
-          <span className="font-medium text-foreground">{configs.length}</span>{" "}
-          {configs.length === 1 ? "registro" : "registros"}
-        </p>
-      </div>
 
       <AnnualBudgetDeleteDialog
         config={deleteTarget}
@@ -174,17 +135,7 @@ export function AnnualBudgetConfigList({
           setDeleteTarget(null);
           router.refresh();
         }}
-        scopeLabel={
-          deleteTarget
-            ? configLabel(
-                deleteTarget,
-                unions,
-                localFields,
-                clubTypes,
-                ecclesiasticalYears,
-              ).scopeName
-            : ""
-        }
+        scopeLabel={deleteTarget ? labelOf(deleteTarget).scopeName : ""}
       />
     </div>
   );

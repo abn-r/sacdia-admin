@@ -1,5 +1,5 @@
 import { classifyActionError, toEndpointState } from "@/lib/api/action-error";
-import { apiRequest, ApiError } from "@/lib/api/client";
+import { apiRequest, apiRequestFromClient, ApiError } from "@/lib/api/client";
 import type { MemberRankingItem } from "@/lib/api/member-rankings";
 import { normalizeRankingListMeta } from "@/lib/api/ranking-list-meta";
 
@@ -354,3 +354,21 @@ export async function getSectionMembers(
     .filter((item): item is MemberRankingItem => Boolean(item));
 }
 
+
+/**
+ * Same as `getSectionMembers` for client components (the in-list sheet).
+ * Throws ApiError so the sheet can tell a 403 from a 404.
+ */
+export async function getSectionMembersFromClient(
+  sectionId: number,
+  yearId: number,
+): Promise<MemberRankingItem[]> {
+  const payload = await apiRequestFromClient<unknown>(
+    `/section-rankings/${sectionId}/members`,
+    { params: { year_id: yearId } },
+  );
+
+  return extractFlatArray(payload)
+    .map((item) => normalizeMemberItem(item, yearId))
+    .filter((item): item is MemberRankingItem => Boolean(item));
+}

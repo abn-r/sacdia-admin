@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { Trophy } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
 import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 import { listClubTypes } from "@/lib/api/catalogs";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
 import { listAdminMemberOfMonth } from "@/lib/api/member-of-month";
 import type { AdminMomFilters, AdminMomPage } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
@@ -32,12 +31,13 @@ interface MemberOfMonthPageProps {
     month?: string;
     notified?: string;
     page?: string;
+    limit?: string;
   }>;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("member_of_month");
-  return { title: t("page.title") };
+  const t = await getTranslations("evaluation.progress.memberOfMonth");
+  return { title: t("title") };
 }
 
 export default async function MemberOfMonthSupervisionPage({
@@ -49,7 +49,7 @@ export default async function MemberOfMonthSupervisionPage({
   if (!canAccessDashboardPath(user, "/dashboard/member-of-month")) {
     return <PageAccessForbidden />;
   }
-  const t = await getTranslations("member_of_month");
+  const t = await getTranslations("evaluation.progress.memberOfMonth");
   const territoryScope = resolveAdminTerritoryScope(user);
 
   const rawParams = await searchParams;
@@ -79,13 +79,13 @@ export default async function MemberOfMonthSupervisionPage({
         ? { notified: false }
         : {}),
     page: params.page ? Number(params.page) : 1,
-    limit: 20,
+    limit: Math.min(Math.max(Number(params.limit) || 20, 1), 100),
   };
 
   let clubTypes: ClubType[] = [];
   let localFields: LocalField[] = [];
   let momData: AdminMomPage = { total: 0, page: 1, limit: 20, items: [] };
-  let loadError: string | null = null;
+  let loadError: ErrorStateFromError | null = null;
 
   const [clubTypesResult, localFieldsResult, momResult] =
     await Promise.allSettled([
@@ -98,50 +98,24 @@ export default async function MemberOfMonthSupervisionPage({
     clubTypes = clubTypesResult.value;
   }
 
+  // Without the territory list the picker is empty, but the winners still load.
   if (localFieldsResult.status === "fulfilled") {
     localFields = localFieldsResult.value;
-  } else {
-    console.error(
-      "[MemberOfMonthSupervisionPage] Failed to load scoped local fields:",
-      localFieldsResult.reason,
-    );
-    loadError = loadError ?? t("page.errorFallback");
   }
 
   if (momResult.status === "fulfilled") {
     momData = momResult.value;
   } else {
-    console.error(
-      "[MemberOfMonthSupervisionPage] Failed to load admin MoM list:",
-      momResult.reason,
-    );
-    loadError = t("page.errorFallback");
+    loadError = errorStateFromError(momResult.reason);
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("page.title")}
-        description={t("page.description")}
-        breadcrumbs={[
-          { label: t("page.breadcrumbParent"), href: t("page.breadcrumbParentHref") },
-          { label: t("page.breadcrumbLabel") },
-        ]}
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
-
-      {!loadError && clubTypes.length === 0 && (
-        <EmptyState
-          icon={Trophy}
-          title={t("page.emptyNoTypesTitle")}
-          description={t("page.emptyNoTypesDescription")}
-        />
-      )}
-
-      {!loadError && (
+      {loadError ? (
+        <ErrorState kind={loadError.kind} detail={loadError.detail} retry />
+      ) : (
         <MemberOfMonthSupervisionClient
           initialData={momData}
           clubTypes={clubTypes}

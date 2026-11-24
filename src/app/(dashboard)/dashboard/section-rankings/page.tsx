@@ -1,194 +1,101 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { BarChart3 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { SectionRankingsFilters } from "./_components/section-rankings-filters";
-import { SectionRankingsTable } from "./_components/section-rankings-table";
-import {
-  listSectionRankings,
-  type SectionRankingsQuery,
-} from "@/lib/api/section-rankings";
-import { getActiveEcclesiasticalYearId } from "@/lib/api/catalogs";
+import { ErrorState, type ErrorStateKind } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { resolveYearLabelById } from "@/lib/annual-folders/ecclesiastical-year-label";
+import { getActiveEcclesiasticalYearId, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { getClubById } from "@/lib/api/clubs";
+import { listSectionRankings, type SectionRankingsQuery } from "@/lib/api/section-rankings";
 import { requireAdminUser } from "@/lib/auth/session";
+import { SectionProgressFilters } from "./_components/section-progress-filters";
+import { SectionRankingsTable } from "./_components/section-rankings-table";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+type Query = SectionRankingsQuery & { year_id: number; page: number; limit: number };
 
-function parseSearchParams(
-  raw: Record<string, string | string[] | undefined>,
-  fallbackYearId: number,
-): SectionRankingsQuery & { year_id: number; page: number; limit: number } {
-  const getString = (key: string) => {
-    const v = raw[key];
-    return typeof v === "string" && v.trim().length > 0 ? v.trim() : undefined;
-  };
+function parseSearchParams(raw: Record<string, string | string[] | undefined>, fallbackYearId: number): Query {
   const getNumber = (key: string): number | undefined => {
-    const v = getString(key);
-    if (!v) return undefined;
+    const v = raw[key];
+    if (typeof v !== "string" || !v.trim()) return undefined;
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : undefined;
   };
-
   return {
     year_id: getNumber("year_id") ?? fallbackYearId,
     club_id: getNumber("club_id"),
-    page: getNumber("page") ?? DEFAULT_PAGE,
+    page: getNumber("page") ?? 1,
     limit: getNumber("limit") ?? DEFAULT_LIMIT,
   };
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function SectionRankingsTableSkeleton() {
-  return (
-    <div className="space-y-4">
-      {/* Filter bar skeleton */}
-      <div className="flex gap-3">
-        <Skeleton className="h-9 w-32" />
-        <Skeleton className="h-9 w-32" />
-        <Skeleton className="h-9 w-20" />
-      </div>
-      {/* Table skeleton — 7 columns */}
-      <div className="rounded-xl border">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-4 border-b p-4 last:border-b-0"
-          >
-            {/* rank */}
-            <Skeleton className="h-4 w-8" />
-            {/* section name */}
-            <Skeleton className="h-4 w-36" />
-            {/* composite badge */}
-            <Skeleton className="h-5 w-16" />
-            {/* member count */}
-            <Skeleton className="h-4 w-10" />
-            {/* category */}
-            <Skeleton className="h-4 w-20" />
-            {/* calculated at */}
-            <Skeleton className="h-4 w-32" />
-            {/* action */}
-            <Skeleton className="h-8 w-28 ml-auto" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Content ──────────────────────────────────────────────────────────────────
-
-async function SectionRankingsContent({
-  query,
-}: {
-  query: SectionRankingsQuery & { year_id: number; page: number; limit: number };
-}) {
-  const t = await getTranslations("rankings");
-  const result = await listSectionRankings(query);
-
-  if (!result.endpointAvailable) {
-    return (
-      <div className="space-y-4">
-        <EndpointErrorBanner
-          state={
-            result.endpointState as "forbidden" | "missing" | "rate-limited"
-          }
-          detail={result.endpointDetail ?? t("pageSection.emptyDescription")}
-          showLoginLink={result.endpointState === "forbidden"}
-        />
-        <EmptyState
-          icon={BarChart3}
-          title={t("pageSection.emptyTitle")}
-          description={result.endpointDetail ?? t("pageSection.emptyDescription")}
-        />
-      </div>
-    );
-  }
-
-  const fallbackClubName = query.club_id
-    ? await getClubById(query.club_id)
-        .then((club) => {
-          const name = (club as { data?: { name?: unknown }; name?: unknown } | null);
-          const value = name?.data?.name ?? name?.name;
-          return typeof value === "string" ? value : null;
-        })
-        .catch(() => null)
-    : null;
-
-  return (
-    <SectionRankingsTable
-      fallbackClubName={fallbackClubName}
-      data={result.items}
-      total={result.total}
-      page={result.page}
-      limit={result.limit}
-      totalPages={result.totalPages}
-      yearId={query.year_id}
-    />
-  );
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const ENDPOINT_KIND: Record<string, ErrorStateKind> = {
+  forbidden: "forbidden",
+  "rate-limited": "rateLimited",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("rankings");
-  return { title: t("pageSection.title") };
+  const t = await getTranslations("evaluation.progress.section");
+  return { title: t("title") };
 }
 
-export default async function SectionRankingsPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function SectionProgressPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdminUser();
-  const t = await getTranslations("rankings");
+  const t = await getTranslations("evaluation.progress.section");
   const rawParams = await searchParams;
   const fallbackYearId = await getActiveEcclesiasticalYearId();
 
   if (fallbackYearId === null) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={t("pageSection.title")}
-          description={t("pageSection.description")}
-        />
-        <EmptyState
-          icon={BarChart3}
-          title={t("pageSection.emptyNoYearTitle")}
-          description={t("pageSection.emptyNoYearDescription")}
-        />
+        <PageHeader title={t("title")} description={t("description")} />
+        <EmptyState icon={BarChart3} title={t("noYearTitle")} description={t("noYearDescription")} />
       </div>
     );
   }
 
   const query = parseSearchParams(rawParams, fallbackYearId);
+  const [result, years, clubName] = await Promise.all([
+    listSectionRankings(query),
+    listEcclesiasticalYears().catch(() => []),
+    query.club_id
+      ? getClubById(query.club_id)
+          .then((club) => {
+            const c = club as { data?: { name?: unknown }; name?: unknown } | null;
+            const value = c?.data?.name ?? c?.name;
+            return typeof value === "string" ? value : null;
+          })
+          .catch(() => null)
+      : Promise.resolve(null),
+  ]);
+  const yearLabel = resolveYearLabelById(years, query.year_id) ?? undefined;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("pageSection.title")}
-        description={t("pageSection.description")}
+        title={t("title")}
+        description={yearLabel ? t("descriptionYear", { year: yearLabel }) : t("description")}
       />
+      <SectionProgressFilters yearId={query.year_id} clubId={query.club_id} />
 
-      <SectionRankingsFilters
-        defaultYear={query.year_id}
-        defaultClubId={query.club_id}
-      />
-
-      <Suspense fallback={<SectionRankingsTableSkeleton />}>
-        <SectionRankingsContent query={query} />
-      </Suspense>
+      {!result.endpointAvailable ? (
+        <ErrorState kind={ENDPOINT_KIND[result.endpointState] ?? "error"} retry />
+      ) : (
+        <SectionRankingsTable
+          data={result.items}
+          total={result.total}
+          page={result.page}
+          limit={result.limit}
+          totalPages={result.totalPages}
+          yearId={query.year_id}
+          yearLabel={yearLabel}
+          filtered={query.club_id !== undefined}
+          fallbackClubName={clubName}
+        />
+      )}
     </div>
   );
 }

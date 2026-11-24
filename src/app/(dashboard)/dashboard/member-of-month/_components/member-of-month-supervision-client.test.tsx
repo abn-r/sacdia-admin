@@ -1,36 +1,68 @@
 import React from "react";
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../../../../messages/es.json";
+import type { AdminMomItem } from "@/lib/api/member-of-month";
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 };
+if (!Element.prototype.scrollIntoView) Element.prototype.scrollIntoView = () => {};
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/member-of-month",
+  useSearchParams: () => new URLSearchParams(),
 }));
-vi.mock("@/lib/auth/auth-context", () => ({
-  useAuth: () => ({ user: null }),
-}));
-vi.mock("@/components/member-of-month/evaluate-dialog", () => ({
-  EvaluateMemberOfMonthDialog: () => null,
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+vi.mock("@/lib/auth/auth-context", () => ({ useAuth: () => ({ user: {} }) }));
+vi.mock("@/lib/member-of-month/evaluate-access", () => ({ canEvaluateMemberOfMonth: () => true }));
+
+const mockEvaluate = vi.fn();
+vi.mock("@/lib/api/member-of-month", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/member-of-month")>()),
+  evaluateMemberOfMonth: (...args: unknown[]) => mockEvaluate(...args),
 }));
 
 import { MemberOfMonthSupervisionClient } from "./member-of-month-supervision-client";
 
-function renderClient() {
+const item = (over: Partial<AdminMomItem>): AdminMomItem => ({
+  member_of_month_id: 1,
+  user_id: "u1",
+  user_name: "Camila Ibarra",
+  user_image: null,
+  club_section_id: 10,
+  section_name: "Conquistadores",
+  club_type: "Conquistadores",
+  club_id: 3,
+  club_name: "Club Orión",
+  local_field: null,
+  local_field_id: null,
+  month: 10,
+  year: 2026,
+  total_points: 30,
+  notified: true,
+  created_at: "2026-11-01T00:00:00Z",
+  ...over,
+});
+
+const ITEMS = [
+  item({}),
+  item({ member_of_month_id: 2, user_name: "Iker Montes", club_section_id: 11, section_name: "Aventureros", total_points: 28, notified: false }),
+  item({ member_of_month_id: 3, user_name: "Renata Flores", club_section_id: 11, section_name: "Aventureros", total_points: 28, notified: false }),
+];
+
+function renderClient(items = ITEMS) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <MemberOfMonthSupervisionClient
-        initialData={{ items: [], total: 0, page: 1, limit: 20 } as never}
+        initialData={{ items, total: items.length, page: 1, limit: 20 }}
         clubTypes={[{ club_type_id: 1, name: "Conquistadores" }]}
-        localFields={[
-          { local_field_id: 4, name: "Asociación Centro de Occidente", union_id: 2 },
-        ]}
+        localFields={[{ local_field_id: 4, name: "Asociación Centro", union_id: 2, active: true }]}
         territoryScope={{ level: "all" }}
         searchParams={{}}
       />
@@ -38,24 +70,45 @@ function renderClient() {
   );
 }
 
-describe("MemberOfMonthSupervisionClient filters", () => {
-  afterEach(() => cleanup());
+describe("MemberOfMonthSupervisionClient", () => {
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(cleanup);
 
-  it("labels every filter select visibly", () => {
+  it("labels every filter", () => {
     renderClient();
 
-    for (const name of ["Tipo de club", "Campo local", "Año", "Mes", "Notificado"]) {
-      const select = screen.getByRole("combobox", { name });
-      expect(select).toBeInTheDocument();
-      expect(screen.getByText(name, { selector: "label" })).toBeInTheDocument();
+    for (const name of ["Tipo de club", "Mes", "Año", "Aviso"]) {
+      expect(screen.getByRole("combobox", { name })).toBeInTheDocument();
     }
   });
 
-  it("does not pin the selects to fixed narrow widths that truncate their values", () => {
+  it("shows one row per section and the tie in the same row", () => {
     renderClient();
 
-    for (const name of ["Tipo de club", "Campo local", "Año", "Mes", "Notificado"]) {
-      expect(screen.getByRole("combobox", { name })).toHaveClass("w-full");
-    }
+    expect(screen.getAllByRole("row")).toHaveLength(3); // header + 2 sections
+    expect(screen.getByText(/Iker Montes y Renata Flores/)).toBeInTheDocument();
+    expect(screen.getByText(/empate/)).toBeInTheDocument();
+  });
+
+  it("marks only «Sin avisar» and drops the club type column", () => {
+    renderClient();
+
+    expect(screen.getAllByText("Sin avisar")).toHaveLength(1);
+    expect(screen.queryByText("Avisado")).toBeNull();
+    expect(screen.queryByRole("columnheader", { name: "Tipo de club" })).toBeNull();
+  });
+
+  it("confirms what gets replaced before evaluating again", async () => {
+    mockEvaluate.mockResolvedValue(undefined);
+    renderClient();
+
+    await userEvent.click(screen.getByRole("button", { name: /Acciones de Club Orión · Aventureros/ }));
+    await userEvent.click(await screen.findByRole("menuitem", { name: "Volver a evaluar…" }));
+
+    expect(await screen.findByText(/reemplaza a Iker Montes y Renata Flores/)).toBeInTheDocument();
+    expect(mockEvaluate).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Volver a evaluar" }));
+    await waitFor(() => expect(mockEvaluate).toHaveBeenCalledWith(3, 11, { month: 10, year: 2026 }));
   });
 });
