@@ -573,7 +573,7 @@ export function CamporeePaymentBalance({
           <p className="text-2xs font-medium text-muted-foreground">
             {t("statCollected")}
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-emerald-700 dark:text-emerald-400">
+          <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-success">
             {formatCurrency(balance.collectedApproved)}
           </p>
           {balance.collectedPending > 0 && (

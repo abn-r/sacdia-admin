@@ -384,7 +384,7 @@ export function CamporeeStaffTab({
                       {member.user?.email ? ` · ${member.user.email}` : ""}
                     </p>
                     {member.notes ? (
-                      <p className="mt-0.5 truncate text-[11px] text-muted-foreground/80">
+                      <p className="mt-0.5 truncate text-2xs text-muted-foreground/80">
                         {member.notes}
                       </p>
                     ) : null}

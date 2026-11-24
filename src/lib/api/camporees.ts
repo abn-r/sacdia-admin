@@ -196,7 +196,16 @@ export async function createCamporee(payload: CamporeePayload) {
   });
 }
 
-export async function updateCamporee(camporeeId: number, payload: Partial<CamporeePayload>) {
+/**
+ * Partial update body built from the fields the user changed. A deadline set to
+ * `null` clears it; a field that is absent keeps its stored value.
+ */
+export type CamporeeUpdateBody = Record<string, string | number | boolean | null>;
+
+export async function updateCamporee(
+  camporeeId: number,
+  payload: Partial<CamporeePayload> | CamporeeUpdateBody,
+) {
   return apiRequest(`/camporees/${camporeeId}`, {
     method: "PATCH",
     body: payload,
@@ -443,7 +452,10 @@ export async function createUnionCamporee(payload: UnionCamporeePayload) {
   });
 }
 
-export async function updateUnionCamporee(id: number, payload: Partial<UnionCamporeePayload>) {
+export async function updateUnionCamporee(
+  id: number,
+  payload: Partial<UnionCamporeePayload> | CamporeeUpdateBody,
+) {
   return apiRequest(`/camporees/union/${id}`, {
     method: "PATCH",
     body: payload,

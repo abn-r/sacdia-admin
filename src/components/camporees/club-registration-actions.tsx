@@ -1,21 +1,12 @@
 "use client";
 
-import { useId, useState, type MouseEvent } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, LockOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ApiError } from "@/lib/api/client";
 import {
   closeCamporeeClubRegistration,
@@ -53,9 +44,9 @@ export function ClubRegistrationActions({
   camporeeActive = true,
 }: ClubRegistrationActionsProps) {
   const t = useTranslations("camporees.clubRegistration");
+  const tc = useTranslations("evaluation.camporees.registration");
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const reasonId = useId();
 
   const closed = isClubRegistrationClosed(closedAt);
@@ -65,9 +56,7 @@ export function ClubRegistrationActions({
 
   if (!canManage) return null;
 
-  async function handleConfirm(event: MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
+  async function handleConfirm() {
     try {
       if (closed) {
         await reopenCamporeeClubRegistration(camporeeId, { isUnion });
@@ -76,13 +65,11 @@ export function ClubRegistrationActions({
         await closeCamporeeClubRegistration(camporeeId, { isUnion });
         toast.success(t("closeSuccess"));
       }
-      setConfirmOpen(false);
-      router.refresh();
     } catch (error: unknown) {
-      toast.error(resolveErrorMessage(error, closed, t));
-    } finally {
-      setIsSubmitting(false);
+      // ConfirmDialog keeps itself open and shows this message inline.
+      throw new Error(resolveErrorMessage(error, closed, t));
     }
+    router.refresh();
   }
 
   const disabledReason = closed
@@ -115,7 +102,7 @@ export function ClubRegistrationActions({
           ) : (
             <Lock className="mr-2 size-3.5" />
           )}
-          {closed ? t("reopenButton") : t("closeButton")}
+          {closed ? t("reopenButton") : `${t("closeButton")}…`}
         </Button>
         {disabledReason && (
           <p
@@ -128,35 +115,19 @@ export function ClubRegistrationActions({
         )}
       </div>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {closed ? t("reopenTitle") : t("closeTitle")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {closed ? t("reopenDescription") : t("closeDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>
-              {t("cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirm}
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? closed
-                  ? t("reopening")
-                  : t("closing")
-                : closed
-                  ? t("reopenConfirm")
-                  : t("closeConfirm")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={closed ? t("reopenTitle") : t("closeTitle")}
+        description={
+          closed
+            ? t("reopenDescription")
+            : tc("closeConsequence", { count: enrolledClubCount })
+        }
+        cancelLabel={t("cancel")}
+        confirmLabel={closed ? t("reopenConfirm") : t("closeConfirm")}
+        onConfirm={handleConfirm}
+      />
     </>
   );
 }

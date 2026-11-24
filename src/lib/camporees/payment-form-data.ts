@@ -36,7 +36,7 @@ function extractList<T>(payload: unknown): T[] {
 
 /** Payments tab of the camporee detail (cancel / dismiss / full-page fallback). */
 export function camporeePaymentsListHref(camporeeId: number | string) {
-  return `/dashboard/campamentos/${camporeeId}?tab=payments`;
+  return `/dashboard/campamentos/${camporeeId}?tab=money&view=payments`;
 }
 
 /**

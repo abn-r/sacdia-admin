@@ -2,7 +2,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider, createTranslator } from "next-intl";
 import messages from "../../../messages/es.json";
 import { ClubRegistrationActions } from "@/components/camporees/club-registration-actions";
 
@@ -88,6 +88,34 @@ describe("ClubRegistrationActions", () => {
     });
     expect(mockToastSuccess).toHaveBeenCalledWith(t.closeSuccess);
     expect(mockRefresh).toHaveBeenCalled();
+  });
+
+  it("dice la consecuencia de cerrar con el número de secciones inscritas", async () => {
+    const user = userEvent.setup();
+    renderActions({ enrolledClubCount: 2 });
+
+    await user.click(screen.getByTestId("club-registration-close"));
+
+    const tc = createTranslator({
+      locale: "es",
+      messages,
+      namespace: "evaluation.camporees.registration",
+    });
+    expect(await screen.findByText(tc("closeConsequence", { count: 2 }))).toBeVisible();
+    expect(mockClose).not.toHaveBeenCalled();
+  });
+
+  it("deja el diálogo abierto y explica el error si el cierre falla", async () => {
+    const user = userEvent.setup();
+    mockClose.mockRejectedValue(new Error("boom"));
+    renderActions();
+
+    await user.click(screen.getByTestId("club-registration-close"));
+    await user.click(screen.getByRole("button", { name: t.closeConfirm }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("boom");
+    expect(screen.getByRole("button", { name: t.closeConfirm })).toBeInTheDocument();
+    expect(mockRefresh).not.toHaveBeenCalled();
   });
 
   it("deshabilita cierre sin clubes inscritos", () => {
