@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import messages from "../../../messages/es.json";
+import baseMessages from "../../../messages/es.json";
+import { ApiError } from "@/lib/api/client";
+
+const messages = baseMessages;
 
 const { mockCreateUser } = vi.hoisted(() => ({
   mockCreateUser: vi.fn(),
@@ -199,5 +202,42 @@ describe("NewUserForm", () => {
     await user.click(screen.getByRole("button", { name: "Crear usuario" }));
 
     await waitFor(() => expect(mockCreateUser).toHaveBeenCalledTimes(1));
+  });
+
+  it("shows a taken email next to the email field and returns to step 1", async () => {
+    const user = userEvent.setup();
+    mockCreateUser.mockRejectedValue(new ApiError("conflict", 409, { code: "AUTH_EMAIL_ALREADY_IN_USE" }));
+    renderForm();
+
+    await fillPersonStep(user);
+    await user.click(await screen.findByRole("combobox", { name: /Rol/ }));
+    await user.click(await screen.findByRole("option", { name: "Pastor" }));
+    await user.click(screen.getByRole("button", { name: "Crear usuario" }));
+
+    expect(await screen.findByText("Ya existe una cuenta con este correo.")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("usuario@ejemplo.com")).toHaveAttribute("aria-invalid", "true");
+    expect(vi.mocked((await import("sonner")).toast.error)).not.toHaveBeenCalled();
+  });
+
+  it("keeps a role error on step 2, under the role field", async () => {
+    const user = userEvent.setup();
+    mockCreateUser.mockRejectedValue(new ApiError("forbidden", 403, {}));
+    renderForm();
+
+    await fillPersonStep(user);
+    await user.click(await screen.findByRole("combobox", { name: /Rol/ }));
+    await user.click(await screen.findByRole("option", { name: "Pastor" }));
+    await user.click(screen.getByRole("button", { name: "Crear usuario" }));
+
+    expect(await screen.findByText("No puedes asignar este rol.")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Rol/ })).toBeInTheDocument();
+  });
+
+  it("summarises the person on the second step", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await fillPersonStep(user);
+    expect(await screen.findByText("Ana Ruiz · qa@sacdia.test")).toBeInTheDocument();
   });
 });

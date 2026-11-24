@@ -46,7 +46,12 @@ import {
 import { ASSIGNABLE_GLOBAL_ROLE_ORDER } from "@/lib/auth/roles";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import { ApiError } from "@/lib/api/client";
-import { apiErrorCode } from "@/lib/api/error-code";
+import { useToastError } from "@/lib/feedback/toast-retry";
+import {
+  firstStepWithError,
+  mapCreateUserError,
+  type CreateUserField,
+} from "@/lib/users/list-create-errors";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -140,6 +145,8 @@ export function NewUserForm({
 }: NewUserFormProps) {
   const t = useTranslations("users.pages.new");
   const tModal = useTranslations("shared.formModal");
+  const tServer = useTranslations("people.users.new");
+  const toastError = useToastError();
   const modal = useFormModal(LIST_HREF);
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
@@ -314,23 +321,30 @@ export function NewUserForm({
 
       modal.complete();
     } catch (error) {
-      if (error instanceof ApiError) {
-        if (error.status === 409) {
-          toast.error(t("toast.emailExists"));
-        } else if (error.status === 403) {
-          toast.error(t("toast.forbidden"));
-        } else if (
-          error.status === 400 &&
-          apiErrorCode(error) === "ADMIN_USER_LOCAL_FIELD_REQUIRED"
-        ) {
-          toast.error(t("toast.localFieldRequired"));
-        } else if (error.status === 400) {
-          toast.error(t("toast.validationFailed"));
-        } else {
-          toast.error(t("toast.generic"));
-        }
-      } else {
-        toast.error(t("toast.generic"));
+      const map =
+        error instanceof ApiError
+          ? mapCreateUserError(error)
+          : { fields: {}, general: true };
+
+      // The message goes next to the field that caused it.
+      for (const [field, key] of Object.entries(map.fields) as Array<
+        [CreateUserField, NonNullable<(typeof map.fields)[CreateUserField]>]
+      >) {
+        form.setError(field, { type: "server", message: tServer(`serverErrors.${key}`) });
+      }
+
+      // Take the person to the step that holds the first error.
+      const target = firstStepWithError(map.fields);
+      if (target !== null && target !== step) {
+        setDirection(target < step ? "back" : "forward");
+        setStep(target);
+      }
+
+      if (map.general) {
+        toastError({
+          title: t("toast.generic"),
+          onRetry: () => void form.handleSubmit(onSubmit)(),
+        });
       }
     }
   }
@@ -470,6 +484,14 @@ export function NewUserForm({
         </div>
         ) : (
         <div key="access" className="grid gap-x-4 gap-y-5 md:grid-cols-2">
+          <p className="text-sm text-muted-foreground md:col-span-2">
+            {tServer("personSummary", {
+              name: [form.getValues("name"), form.getValues("paternal_last_name")]
+                .filter(Boolean)
+                .join(" "),
+              email: form.getValues("email"),
+            })}
+          </p>
           {/* Role */}
           <FormField
             control={form.control}

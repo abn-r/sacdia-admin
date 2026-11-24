@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { clearUsersFilterParams } from "@/lib/users/list-filters";
 import type { ScopeMeta } from "@/lib/api/admin-users";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import {
@@ -40,11 +42,13 @@ function sortByTranslatedLabel(
 
 export function UsersFilters({ scope, roles }: UsersFiltersProps) {
   const t = useTranslations("users");
+  const tList = useTranslations("people.users.list");
   const translateRole = useRoleLabel();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
@@ -74,6 +78,14 @@ export function UsersFilters({ scope, roles }: UsersFiltersProps) {
     [updateParam],
   );
 
+  const clearFilters = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (searchInputRef.current) searchInputRef.current.value = "";
+    const params = clearUsersFilterParams(new URLSearchParams(searchParams.toString()));
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  }, [pathname, router, searchParams]);
+
   const currentRole = searchParams.get("role") ?? "all";
   const currentActive = searchParams.get("active") ?? "all";
 
@@ -98,16 +110,22 @@ export function UsersFilters({ scope, roles }: UsersFiltersProps) {
     [roleOptions, translateRole],
   );
 
+  const hasFilters =
+    Boolean(searchParams.get("search")) || currentRole !== "all" || currentActive !== "all";
+
   const isScopeLocked =
     scope?.type === "UNION" || scope?.type === "LOCAL_FIELD" || scope?.type === "DIVISION";
   const scopeTypeKey = usersScopeTypeMessageKey(scope?.type);
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="relative min-w-0 flex-1 basis-56">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          type="search"
+          aria-label={tList("searchLabel")}
           placeholder={t("filters.searchPlaceholder")}
+          ref={searchInputRef}
           defaultValue={searchParams.get("search") ?? ""}
           className="pl-9"
           onChange={(e) => handleSearchChange(e.target.value)}
@@ -153,6 +171,12 @@ export function UsersFilters({ scope, roles }: UsersFiltersProps) {
           <SelectItem value="false">{t("filters.statusInactive")}</SelectItem>
         </SelectContent>
       </Select>
+
+      {hasFilters ? (
+        <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+          {tList("clearFilters")}
+        </Button>
+      ) : null}
 
       {isScopeLocked && scopeTypeKey ? (
         <div className="text-xs text-muted-foreground">

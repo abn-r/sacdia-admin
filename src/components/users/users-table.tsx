@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { Users } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { UserAvatar } from "@/components/users/user-avatar";
+import { UsersListRowActions } from "@/components/users/users-list-row-actions";
 import {
   Table,
   TableBody,
@@ -12,27 +13,202 @@ import {
 } from "@/components/ui/table";
 import type { AdminUser } from "@/lib/api/admin-users";
 import { DataTableShell } from "@/components/shared/data-table-shell";
-import { getTranslations } from "next-intl/server";
-import {
-  buildRoleTranslator,
-  type RoleTranslator,
-} from "@/lib/auth/role-labels";
-import {
-  getAdminUserDisplayName,
-  getAdminUserSecondaryLabel,
-} from "@/lib/admin-users/display";
+import { ErrorStateTableRow, type ErrorStateProps } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { RowActionsHead } from "@/components/shared/row-actions";
+import { buildRoleTranslator, type RoleTranslator } from "@/lib/auth/role-labels";
+import { getAdminUserDisplayName, getAdminUserSecondaryLabel } from "@/lib/admin-users/display";
 import { toUserListRoleBadges } from "@/lib/admin-users/list-role-badges";
+import { getFormatDate } from "@/lib/format-locale";
 
-function getDisplayName(user: AdminUser, t: UsersTranslations): string {
-  return getAdminUserDisplayName(user, {
-    deletedAccount: t("list.deletedAccount"),
-  });
+type UsersTranslations = Awaited<ReturnType<typeof getTranslations<"users">>>;
+type ListTranslations = Awaited<ReturnType<typeof getTranslations<"people.users.list">>>;
+
+export type UsersTableError = Pick<ErrorStateProps, "kind" | "detail">;
+
+interface UsersTableProps {
+  users: AdminUser[];
+  showAdministrativeCompletion?: boolean;
+  /** A failed load replaces the rows, inside the same frame (never an empty table). */
+  error?: UsersTableError | null;
 }
 
-function getSecondaryLabel(user: AdminUser, t: UsersTranslations): string {
-  return getAdminUserSecondaryLabel(user, {
-    anonymized: t("list.anonymizedAccount"),
-  });
+function ActiveMark({ user, t }: { user: AdminUser; t: UsersTranslations }) {
+  const value = user.active !== false ? "active" : "inactive";
+  return (
+    <ExceptionStatus
+      value={value}
+      normal={["active"]}
+      labels={{ active: t("list.status.active"), inactive: t("list.status.inactive") }}
+      intents={{ inactive: "neutral" }}
+    />
+  );
+}
+
+function PostRegistrationMark({ user, t }: { user: AdminUser; t: UsersTranslations }) {
+  const value = user.post_registration?.complete ? "complete" : "pending";
+  return (
+    <ExceptionStatus
+      value={value}
+      normal={["complete"]}
+      labels={{ complete: t("list.postReg.completeDesktop"), pending: t("list.postReg.pending") }}
+      intents={{ pending: "warning" }}
+    />
+  );
+}
+
+export async function UsersTable({
+  users,
+  showAdministrativeCompletion = false,
+  error = null,
+}: UsersTableProps) {
+  const t = await getTranslations("users");
+  const tList = await getTranslations("people.users.list");
+  const tRoles = await getTranslations("roles");
+  const translateRole = buildRoleTranslator(tRoles);
+  const formatDate = await getFormatDate();
+
+  const columnCount = showAdministrativeCompletion ? 6 : 5;
+
+  if (error) {
+    return (
+      <DataTableShell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="pl-6">{t("list.columns.user")}</TableHead>
+              <TableHead className="hidden md:table-cell">{t("list.columns.roles")}</TableHead>
+              <TableHead className="hidden xl:table-cell">{t("list.columns.location")}</TableHead>
+              {showAdministrativeCompletion ? (
+                <TableHead className="hidden xl:table-cell">{t("list.columns.postRegistration")}</TableHead>
+              ) : null}
+              <TableHead className="hidden md:table-cell">{t("list.columns.registrationDate")}</TableHead>
+              <RowActionsHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <ErrorStateTableRow
+              colSpan={columnCount}
+              kind={error.kind}
+              detail={error.detail}
+              icon={Users}
+              retry
+              {...(error.kind === "error"
+                ? { title: tList("error.title"), description: tList("error.description") }
+                : {})}
+            />
+          </TableBody>
+        </Table>
+      </DataTableShell>
+    );
+  }
+
+  return (
+    <>
+      {/* Desktop: table */}
+      <div className="hidden md:block">
+        <DataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="pl-6">{t("list.columns.user")}</TableHead>
+                <TableHead>{t("list.columns.roles")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("list.columns.location")}</TableHead>
+                {showAdministrativeCompletion ? (
+                  <TableHead className="hidden xl:table-cell">{t("list.columns.postRegistration")}</TableHead>
+                ) : null}
+                <TableHead>{t("list.columns.registrationDate")}</TableHead>
+                <RowActionsHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => {
+                const roleBadges = toUserListRoleBadges(user, translateRole);
+                const fullName = getAdminUserDisplayName(user, { deletedAccount: t("list.deletedAccount") });
+                const secondaryLabel = getAdminUserSecondaryLabel(user, { anonymized: t("list.anonymizedAccount") });
+
+                return (
+                  <TableRow key={user.user_id}>
+                    <TableCell className="pl-6">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar src={user.user_image} name={fullName} email={secondaryLabel} size={32} />
+                        <div className="min-w-0 max-w-[240px]">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              prefetch={false}
+                              href={`/dashboard/users/${user.user_id}`}
+                              className="block truncate text-sm font-medium hover:underline"
+                            >
+                              {fullName}
+                            </Link>
+                            <ActiveMark user={user} t={t} />
+                          </div>
+                          <p className="truncate text-xs text-muted-foreground" title={secondaryLabel}>
+                            {secondaryLabel}
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-[280px] whitespace-normal">
+                      <span className="text-sm text-muted-foreground">
+                        {roleBadges.length > 0
+                          ? roleBadges.map((badge) => badge.label).join(", ")
+                          : t("list.noRole")}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden max-w-[200px] xl:table-cell">
+                      <LocationCell user={user} />
+                    </TableCell>
+                    {showAdministrativeCompletion ? (
+                      <TableCell className="hidden xl:table-cell">
+                        <PostRegistrationMark user={user} t={t} />
+                      </TableCell>
+                    ) : null}
+                    <TableCell className="text-xs text-muted-foreground tabular-nums">
+                      {user.created_at ? formatDate(user.created_at) : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <RowMenu user={user} name={fullName} />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </DataTableShell>
+      </div>
+
+      {/* Mobile: two-line rows */}
+      <ul className="md:hidden" aria-label={t("list.ariaLabel")}>
+        {users.map((user) => (
+          <li key={user.user_id}>
+            <MobileRow
+              user={user}
+              showAdministrativeCompletion={showAdministrativeCompletion}
+              t={t}
+              tList={tList}
+              translateRole={translateRole}
+              date={user.created_at ? formatDate(user.created_at) : "—"}
+            />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function RowMenu({ user, name }: { user: AdminUser; name: string }) {
+  return (
+    <UsersListRowActions
+      userId={user.user_id}
+      name={name}
+      active={user.active !== false}
+      isDeleted={user.is_deleted === true}
+      postRegistrationComplete={
+        typeof user.post_registration?.complete === "boolean" ? user.post_registration.complete : null
+      }
+    />
+  );
 }
 
 function LocationCell({ user }: { user: AdminUser }) {
@@ -44,215 +220,52 @@ function LocationCell({ user }: { user: AdminUser }) {
   return (
     <div className="min-w-0">
       <p className="truncate text-xs">{union ?? "—"}</p>
-      {localField && (
-        <p className="truncate text-xs text-muted-foreground">{localField}</p>
-      )}
+      {localField && <p className="truncate text-xs text-muted-foreground">{localField}</p>}
     </div>
   );
 }
 
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
-}
-
-interface UsersTableProps {
-  users: AdminUser[];
-  showAdministrativeCompletion?: boolean;
-}
-
-type UsersTranslations = Awaited<ReturnType<typeof getTranslations<"users">>>;
-
-function UserMobileCard({
+function MobileRow({
   user,
   showAdministrativeCompletion,
   t,
+  tList,
   translateRole,
+  date,
 }: {
   user: AdminUser;
   showAdministrativeCompletion: boolean;
   t: UsersTranslations;
+  tList: ListTranslations;
   translateRole: RoleTranslator;
+  date: string;
 }) {
   const roleBadges = toUserListRoleBadges(user, translateRole);
-  const fullName = getDisplayName(user, t);
-  const secondaryLabel = getSecondaryLabel(user, t);
-  const union = user.union?.name;
-  const localField = user.local_field?.name;
-  const location = [union, localField].filter(Boolean).join(" · ");
+  const fullName = getAdminUserDisplayName(user, { deletedAccount: t("list.deletedAccount") });
+  const role = roleBadges.length > 0 ? roleBadges.map((badge) => badge.label).join(", ") : t("list.noRole");
+  const location = [user.union?.name, user.local_field?.name].filter(Boolean).join(" · ");
 
   return (
-    <Link prefetch={false}
-      href={`/dashboard/users/${user.user_id}`}
-      className="block rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <div className="flex items-center gap-3">
-        <UserAvatar
-          src={user.user_image}
-          name={fullName}
-          email={secondaryLabel}
-          size={40}
-        />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{fullName}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {secondaryLabel}
-          </p>
+    <div className="flex items-center gap-2 border-b py-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <Link
+            prefetch={false}
+            href={`/dashboard/users/${user.user_id}`}
+            className="truncate text-sm font-medium hover:underline"
+          >
+            {fullName}
+          </Link>
+          <ActiveMark user={user} t={t} />
+          {showAdministrativeCompletion ? <PostRegistrationMark user={user} t={t} /> : null}
         </div>
-        <ChevronRight
-          className="size-4 shrink-0 text-muted-foreground"
-          aria-hidden="true"
-        />
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        {user.active !== false ? (
-          <span className="text-xs text-muted-foreground">{t("list.status.active")}</span>
-        ) : (
-          <StatusBadge intent="neutral" label={t("list.status.inactive")} size="sm" />
-        )}
-        {showAdministrativeCompletion && (
-          <span className="text-xs text-muted-foreground">
-            · {user.post_registration?.complete ? t("list.postReg.complete") : t("list.postReg.pending")}
-          </span>
-        )}
-      </div>
-
-      {roleBadges.length > 0 && (
-        <p className="mt-3 text-xs text-muted-foreground">
-          {roleBadges.map((badge) => badge.label).join(", ")}
+        <p className="mt-0.5 flex flex-wrap gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+          <span>{role}</span>
+          {location ? <span>{location}</span> : null}
+          <span aria-label={tList("registeredOn", { date })}>{date}</span>
         </p>
-      )}
-
-      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-        {location && (
-          <div className="col-span-2">
-            <dt className="text-muted-foreground">{t("list.fields.location")}</dt>
-            <dd className="truncate">{location}</dd>
-          </div>
-        )}
-        <div>
-          <dt className="text-muted-foreground">{t("list.fields.registrationDate")}</dt>
-          <dd>{formatDate(user.created_at)}</dd>
-        </div>
-      </dl>
-    </Link>
-  );
-}
-
-export async function UsersTable({
-  users,
-  showAdministrativeCompletion = false,
-}: UsersTableProps) {
-  const t = await getTranslations("users");
-  const tRoles = await getTranslations("roles");
-  const translateRole = buildRoleTranslator(tRoles);
-
-  return (
-    <>
-      {/* Desktop: full table */}
-      <div className="hidden md:block">
-        <DataTableShell>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-6">{t("list.columns.user")}</TableHead>
-                <TableHead className="hidden md:table-cell">{t("list.columns.roles")}</TableHead>
-                <TableHead className="hidden xl:table-cell">{t("list.columns.location")}</TableHead>
-                <TableHead>{t("list.columns.status")}</TableHead>
-                {showAdministrativeCompletion ? (
-                  <TableHead className="hidden xl:table-cell">{t("list.columns.postRegistration")}</TableHead>
-                ) : null}
-                <TableHead className="hidden pr-6 md:table-cell">{t("list.columns.registrationDate")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => {
-                const roleBadges = toUserListRoleBadges(user, translateRole);
-                const fullName = getDisplayName(user, t);
-                const secondaryLabel = getSecondaryLabel(user, t);
-
-                return (
-                  <TableRow key={user.user_id}>
-                    <TableCell className="pl-6">
-                      <div className="flex items-center gap-3">
-                        <UserAvatar
-                          src={user.user_image}
-                          name={fullName}
-                          email={secondaryLabel}
-                          size={32}
-                        />
-                        <div className="min-w-0 max-w-[200px]">
-                          <Link prefetch={false}
-                            href={`/dashboard/users/${user.user_id}`}
-                            className="block truncate text-sm font-medium hover:underline"
-                          >
-                            {fullName}
-                          </Link>
-                          <p className="truncate text-xs text-muted-foreground" title={secondaryLabel}>
-                            {secondaryLabel}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden max-w-[280px] whitespace-normal md:table-cell">
-                      <span className="text-sm text-muted-foreground">
-                        {roleBadges.length > 0
-                          ? roleBadges.map((badge) => badge.label).join(", ")
-                          : t("list.noRole")}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden max-w-[200px] xl:table-cell">
-                      <LocationCell user={user} />
-                    </TableCell>
-                    <TableCell>
-                      {user.active !== false ? (
-                        <span className="text-sm text-muted-foreground">{t("list.status.active")}</span>
-                      ) : (
-                        <StatusBadge intent="neutral" label={t("list.status.inactive")} size="sm" />
-                      )}
-                    </TableCell>
-                    {showAdministrativeCompletion ? (
-                      <TableCell className="hidden xl:table-cell">
-                        <span className="text-sm text-muted-foreground">
-                          {user.post_registration?.complete
-                            ? t("list.postReg.completeDesktop")
-                            : t("list.postReg.pending")}
-                        </span>
-                      </TableCell>
-                    ) : null}
-                    <TableCell className="hidden pr-6 text-xs text-muted-foreground md:table-cell">
-                      {formatDate(user.created_at)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </DataTableShell>
       </div>
-
-      {/* Mobile: descriptive cards */}
-      <ul className="space-y-3 md:hidden" aria-label={t("list.ariaLabel")}>
-        {users.map((user) => (
-          <li key={user.user_id}>
-            <UserMobileCard
-              user={user}
-              showAdministrativeCompletion={showAdministrativeCompletion}
-              t={t}
-              translateRole={translateRole}
-            />
-          </li>
-        ))}
-      </ul>
-    </>
+      <RowMenu user={user} name={fullName} />
+    </div>
   );
 }
