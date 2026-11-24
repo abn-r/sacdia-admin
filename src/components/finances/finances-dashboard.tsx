@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { Plus, RefreshCw, SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Lock, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
 import {
   FinancesSummaryCards,
   FinancesSummaryCardsSkeleton,
@@ -30,22 +35,22 @@ import {
   type FinanceSummary,
   type PaginatedFinances,
 } from "@/lib/api/finances";
-import type { TransactionFormDialogProps, ClubSection } from "@/components/finances/transaction-form-dialog";
 import type { DeleteTransactionDialogProps } from "@/components/finances/delete-transaction-dialog";
 import type { FinanceEvidenceViewerDialogProps } from "@/components/finances/finance-evidence-viewer-dialog";
-import { useTranslations } from "next-intl";
-import { getFinanceSectionLabel } from "@/lib/finances/club-sections";
+import { formatFinanceAmount } from "@/lib/finances/amount";
+import { FINANCES_CHANGED_EVENT } from "@/lib/finances/events";
+import { getFinanceSectionLabel, type FinanceClubSection } from "@/lib/finances/club-sections";
+import {
+  FINANCE_MONTH_KEYS,
+  buildPeriodOptions,
+  formatSignedAmount,
+  periodToValue,
+  valueToPeriod,
+  type FinancePeriod,
+} from "@/lib/finances/period";
+import { useFormatCurrency } from "@/lib/format-locale";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
-
-// ─── Deferred dialogs (dialog-gated — zod bundle only loaded on first open) ───
-
-const TransactionFormDialog = dynamic<TransactionFormDialogProps>(
-  () =>
-    import("@/components/finances/transaction-form-dialog").then((m) => ({
-      default: m.TransactionFormDialog,
-    })),
-  { ssr: false, loading: () => null },
-);
+import { cn } from "@/lib/utils";
 
 const DeleteTransactionDialog = dynamic<DeleteTransactionDialogProps>(
   () =>
@@ -63,88 +68,61 @@ const FinanceEvidenceViewerDialog = dynamic<FinanceEvidenceViewerDialogProps>(
   { ssr: false, loading: () => null },
 );
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MONTH_KEYS = [
-  { value: 1, key: "january" },
-  { value: 2, key: "february" },
-  { value: 3, key: "march" },
-  { value: 4, key: "april" },
-  { value: 5, key: "may" },
-  { value: 6, key: "june" },
-  { value: 7, key: "july" },
-  { value: 8, key: "august" },
-  { value: 9, key: "september" },
-  { value: 10, key: "october" },
-  { value: 11, key: "november" },
-  { value: 12, key: "december" },
-] as const;
-
-const currentYear = new Date().getFullYear();
 const DEFAULT_PAGE_SIZE = 20;
-const YEARS = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface FinancesDashboardProps {
   clubId: number;
   clubName: string;
-  sections: ClubSection[];
+  sections: FinanceClubSection[];
   sectionId: number | "all";
-  renderLayout?: (parts: {
-    toolbar: ReactNode;
-    body: ReactNode;
-  }) => ReactNode;
+  /** «Por club / Consolidado» switcher (territory roles), shown under the title. */
+  switcher?: ReactNode;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function FinancesDashboard({
   clubId,
+  clubName,
   sections,
   sectionId,
-  renderLayout,
+  switcher,
 }: FinancesDashboardProps) {
   const t = useTranslations("finances");
+  const tc = useTranslations("ops.club.finances");
+  const formatCurrency = useFormatCurrency();
   const { canCapability } = useScreenAccess();
   const canCreate = canCapability("finances", "create");
   const canUpdate = canCapability("finances", "update");
   const canDelete = canCapability("finances", "delete");
 
-  // Filters
-  const [year, setYear] = useState<number | undefined>(currentYear);
-  const [month, setMonth] = useState<number | undefined>(undefined);
+  const periodOptions = useMemo(() => buildPeriodOptions(), []);
+  const [period, setPeriod] = useState<FinancePeriod>(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  });
+  const { year, month } = period;
 
-  // Pagination (server-side)
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
-  // Bumped after every refresh so the by-category block reloads too.
   const [reloadToken, setReloadToken] = useState(0);
   const transactionsRequest = useRef(0);
 
-  // Data
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
   const [result, setResult] = useState<PaginatedFinances | null>(null);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [loadingTable, setLoadingTable] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const [tableError, setTableError] = useState(false);
+  const [railOpen, setRailOpen] = useState(false);
 
-  // Dialogs
-  const [formOpen, setFormOpen] = useState(false);
-  const [editFinance, setEditFinance] = useState<Finance | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteFinance, setDeleteFinanceState] = useState<Finance | null>(null);
   const [evidenceFinance, setEvidenceFinance] = useState<Finance | null>(null);
 
-  const formSections =
-    sectionId === "all"
-      ? sections
-      : sections.filter((section) => section.club_section_id === sectionId);
-
   const selectedSectionId = sectionId === "all" ? undefined : sectionId;
+  const key = `${clubId}|${year}|${month ?? "all"}|${selectedSectionId ?? "all"}|${page}|${limit}`;
 
-  // Fetch summary (the backend scopes it to the section when one is selected)
   const fetchSummary = useCallback(async () => {
     setLoadingSummary(true);
     setSummaryError(false);
@@ -158,7 +136,6 @@ export function FinancesDashboard({
     }
   }, [clubId, year, month, selectedSectionId]);
 
-  // Fetch one page of movements; year, month and section are server-side filters.
   const fetchTransactions = useCallback(async () => {
     const requestId = ++transactionsRequest.current;
     setLoadingTable(true);
@@ -171,215 +148,224 @@ export function FinancesDashboard({
         page,
         limit,
       });
-      // A newer request (filter or page change) superseded this one.
       if (requestId !== transactionsRequest.current) return;
       setResult(data);
+      setLoadedKey(key);
+      setLoadedAt(new Date());
     } catch {
       if (requestId !== transactionsRequest.current) return;
-      setResult(null);
       setTableError(true);
     } finally {
       if (requestId === transactionsRequest.current) setLoadingTable(false);
     }
-  }, [clubId, year, month, selectedSectionId, page, limit]);
+  }, [clubId, year, month, selectedSectionId, page, limit, key]);
 
-  // Refresh summary, page and category breakdown (after a mutation or on demand)
   const refresh = useCallback(() => {
-    fetchSummary();
-    fetchTransactions();
+    void fetchSummary();
+    void fetchTransactions();
     setReloadToken((token) => token + 1);
   }, [fetchSummary, fetchTransactions]);
 
-  // Summary reloads only when its own filters change; the table also on paging.
   useEffect(() => {
-    fetchSummary();
+    void fetchSummary();
   }, [fetchSummary]);
 
   useEffect(() => {
-    fetchTransactions();
+    void fetchTransactions();
   }, [fetchTransactions]);
 
-  // Any filter change goes back to the first page.
   useEffect(() => {
     setPage(1);
   }, [clubId, year, month, selectedSectionId]);
 
+  // The route modal announces saved movements; the list loads client-side.
+  useEffect(() => {
+    window.addEventListener(FINANCES_CHANGED_EVENT, refresh);
+    return () => window.removeEventListener(FINANCES_CHANGED_EVENT, refresh);
+  }, [refresh]);
+
   const sectionLabels = useMemo(
     () =>
       Object.fromEntries(
-        sections.map((section) => [
-          section.club_section_id,
-          getFinanceSectionLabel(section),
-        ]),
+        sections.map((section) => [section.club_section_id, getFinanceSectionLabel(section)]),
       ),
     [sections],
   );
 
-  // Handlers
-  function handleEdit(finance: Finance) {
-    setEditFinance(finance);
-    setFormOpen(true);
-  }
+  const periodLabel = (p: FinancePeriod) => {
+    const monthKey = p.month ? FINANCE_MONTH_KEYS[p.month - 1] : undefined;
+    return monthKey ? `${t(`months.${monthKey}`)} ${p.year}` : tc("periodWholeYear", { year: p.year });
+  };
+  const money = (abs: number) => formatFinanceAmount(abs, formatCurrency);
 
-  function handleDelete(finance: Finance) {
-    setDeleteFinanceState(finance);
-    setDeleteOpen(true);
-  }
+  const description = summary
+    ? tc(month ? "description.month" : "description.year", {
+        period: month ? periodLabel(period) : String(year),
+        net: formatSignedAmount(summary.net, money),
+        balance: money(summary.balance),
+      })
+    : tc("description.loading", { club: clubName });
 
-  function handleNewTransaction() {
-    setEditFinance(null);
-    setFormOpen(true);
-  }
+  const newHref = `/dashboard/finances/new?${new URLSearchParams({
+    club: String(clubId),
+    ...(selectedSectionId ? { section: String(selectedSectionId) } : {}),
+  }).toString()}`;
+  const editHref = (finance: Finance) =>
+    `/dashboard/finances/${finance.finance_id}/edit?${new URLSearchParams({
+      club: String(clubId),
+      section: String(finance.club_section_id),
+    }).toString()}`;
 
-  function handleFormClose(open: boolean) {
-    setFormOpen(open);
-    if (!open) setEditFinance(null);
-  }
+  const periodClosed = summary?.period_closed === true;
+  const staleTable = tableError && result !== null && loadedKey === key;
+  const failedTable = tableError && !staleTable;
 
-  const toolbar = (
-    <>
-      <div
-        className="hidden h-9 w-px shrink-0 self-end bg-border sm:block"
-        aria-hidden
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title={t("page.title")}
+        description={description}
+        actions={
+          <>
+            <FinancesExportButton
+              clubId={clubId}
+              year={year}
+              month={month}
+              clubSectionId={selectedSectionId}
+            />
+            {canCreate ? (
+              <Button asChild size="sm" className="h-9">
+                <Link href={newHref}>
+                  <Plus className="size-4" aria-hidden />
+                  {t("dashboard.newTransactionButton")}
+                </Link>
+              </Button>
+            ) : null}
+          </>
+        }
       />
 
-      <div className="flex items-center gap-1.5 self-end pb-2 text-sm text-muted-foreground">
-        <SlidersHorizontal className="size-4" />
-        <span>{t("dashboard.filtersLabel")}</span>
-      </div>
+      {switcher}
 
-      <Select
-        value={year?.toString() ?? "all"}
-        onValueChange={(v) => setYear(v === "all" ? undefined : Number(v))}
-      >
-        <SelectTrigger className="h-9 w-[110px]">
-          <SelectValue placeholder={t("form.yearPlaceholder")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{t("dashboard.allYears")}</SelectItem>
-          {YEARS.map((y) => (
-            <SelectItem key={y} value={y.toString()}>
-              {y}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={month?.toString() ?? "all"}
-        onValueChange={(v) => setMonth(v === "all" ? undefined : Number(v))}
-      >
-        <SelectTrigger className="h-9 w-[140px]">
-          <SelectValue placeholder={t("form.monthPlaceholder")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{t("dashboard.allMonths")}</SelectItem>
-          {MONTH_KEYS.map((m) => (
-            <SelectItem key={m.value} value={m.value.toString()}>
-              {t(`months.${m.key}`)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <div className="ml-auto flex items-center gap-2 self-end">
-        <FinancesExportButton
-          clubId={clubId}
-          year={year}
-          month={month}
-          clubSectionId={selectedSectionId}
-        />
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9"
-          onClick={refresh}
-          disabled={loadingSummary || loadingTable}
+      <div className="flex flex-wrap items-center gap-3">
+        <Select
+          value={periodToValue(period)}
+          onValueChange={(value) => {
+            const next = valueToPeriod(value);
+            if (next) setPeriod(next);
+          }}
         >
-          <RefreshCw
-            className={`size-4 ${loadingSummary || loadingTable ? "animate-spin" : ""}`}
-          />
-          {t("dashboard.refreshButton")}
-        </Button>
-
-        {canCreate ? (
-          <Button size="sm" className="h-9" onClick={handleNewTransaction}>
-            <Plus className="size-4" />
-            {t("dashboard.newTransactionButton")}
-          </Button>
-        ) : null}
+          <SelectTrigger className="h-9 w-[200px]" aria-label={tc("periodLabel")}>
+            <SelectValue placeholder={tc("periodLabel")} />
+          </SelectTrigger>
+          <SelectContent>
+            {periodOptions.map((option) => (
+              <SelectItem key={periodToValue(option)} value={periodToValue(option)}>
+                {periodLabel(option)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-    </>
-  );
 
-  const body = (
-    <>
-      {loadingSummary ? (
+      {periodClosed ? (
+        <div
+          role="status"
+          className="flex items-start gap-2 rounded-lg bg-muted px-3.5 py-3 text-sm text-muted-foreground"
+        >
+          <Lock className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <p>{tc("closedNotice", { period: periodLabel(period) })}</p>
+        </div>
+      ) : null}
+
+      {loadingSummary && !summary ? (
         <FinancesSummaryCardsSkeleton />
       ) : summaryError ? (
-        <EndpointErrorBanner
-          state="missing"
-          detail={t("dashboard.summaryLoadError")}
-          onRetry={fetchSummary}
+        <ErrorState
+          variant="inline"
+          description={t("dashboard.summaryLoadError")}
+          onRetry={() => void fetchSummary()}
         />
       ) : summary ? (
         <FinancesSummaryCards summary={summary} />
       ) : null}
 
-      <FinancesByCategory
-        clubId={clubId}
-        year={year}
-        month={month}
-        clubSectionId={selectedSectionId}
-        reloadToken={reloadToken}
-      />
-
-      <div className="space-y-3">
-        <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
-        {loadingTable ? (
-          <TransactionsTableSkeleton />
-        ) : tableError ? (
-          <EndpointErrorBanner
-            state="missing"
-            detail={t("dashboard.transactionsLoadError")}
-            onRetry={fetchTransactions}
-          />
-        ) : (
-          <>
-            <TransactionsTable
-              items={result?.data ?? []}
-              sectionLabels={sectionLabels}
-              onEdit={canUpdate ? handleEdit : undefined}
-              onDelete={canDelete ? handleDelete : undefined}
-              onViewEvidence={setEvidenceFinance}
-            />
-            {result && result.total > 0 ? (
-              <DataTablePagination
-                page={result.page}
-                totalPages={Math.max(1, Math.ceil(result.total / limit))}
-                total={result.total}
-                limit={limit}
-                onPageChange={setPage}
-                onPageSizeChange={(next) => {
-                  setLimit(next);
-                  setPage(1);
-                }}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-3">
+          <h2 className="text-base font-semibold">{t("dashboard.transactionsTitle")}</h2>
+          {staleTable && loadedAt ? (
+            <StaleDataNotice at={loadedAt} onRetry={() => void fetchTransactions()} />
+          ) : null}
+          {failedTable ? (
+            <DataTableShell>
+              <ErrorState
+                variant="inline"
+                description={t("dashboard.transactionsLoadError")}
+                onRetry={() => void fetchTransactions()}
               />
-            ) : null}
-          </>
-        )}
-      </div>
+            </DataTableShell>
+          ) : loadingTable && !result ? (
+            <TransactionsTableSkeleton />
+          ) : (
+            <div aria-busy={loadingTable} className={cn(loadingTable && "opacity-70")}>
+              <TransactionsTable
+                items={result?.data ?? []}
+                sectionLabels={sectionLabels}
+                editHref={canUpdate ? editHref : undefined}
+                onDelete={
+                  canDelete
+                    ? (finance) => {
+                        setDeleteFinanceState(finance);
+                        setDeleteOpen(true);
+                      }
+                    : undefined
+                }
+                onViewEvidence={setEvidenceFinance}
+                markClosed={!periodClosed}
+                showSection={sections.length > 1 && sectionId === "all"}
+              />
+              {result && result.total > 0 ? (
+                <div className="mt-3">
+                  <DataTablePagination
+                    page={result.page}
+                    totalPages={Math.max(1, Math.ceil(result.total / limit))}
+                    total={result.total}
+                    limit={limit}
+                    onPageChange={setPage}
+                    onPageSizeChange={(next) => {
+                      setLimit(next);
+                      setPage(1);
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
 
-      <TransactionFormDialog
-        open={formOpen}
-        onOpenChange={handleFormClose}
-        clubId={clubId}
-        sections={formSections}
-        finance={editFinance}
-        periodClosedHint={summary?.period_closed === true}
-        onSuccess={refresh}
-      />
+        <aside className="min-w-0 space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full justify-between lg:hidden"
+            aria-expanded={railOpen}
+            onClick={() => setRailOpen((open) => !open)}
+          >
+            {t("byCategory.title")}
+            <ChevronDown className={cn("size-4 transition-transform", railOpen && "rotate-180")} aria-hidden />
+          </Button>
+          <div className={cn(railOpen ? "block" : "hidden", "lg:block")}>
+            <FinancesByCategory
+              clubId={clubId}
+              year={year}
+              month={month}
+              clubSectionId={selectedSectionId}
+              reloadToken={reloadToken}
+            />
+          </div>
+        </aside>
+      </div>
 
       <DeleteTransactionDialog
         open={deleteOpen}
@@ -394,17 +380,6 @@ export function FinancesDashboard({
           if (!open) setEvidenceFinance(null);
         }}
       />
-    </>
-  );
-
-  if (renderLayout) {
-    return renderLayout({ toolbar, body });
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-3">{toolbar}</div>
-      <div className="space-y-6">{body}</div>
     </div>
   );
 }

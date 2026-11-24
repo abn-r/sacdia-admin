@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useTranslations } from "next-intl";
-import { deleteFinance, isFinanceIncome, type Finance } from "@/lib/api/finances";
-import { POST_CLOSING_NOTE_MAX } from "@/lib/api/finances";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ReasonDialog } from "@/components/shared/reason-dialog";
 import {
-  getClosedPeriodErrorKey,
-  normalizePostClosingNote,
-} from "@/lib/finances/errors";
+  POST_CLOSING_NOTE_MAX,
+  POST_CLOSING_NOTE_MIN,
+  deleteFinance,
+  isFinanceIncome,
+  type Finance,
+} from "@/lib/api/finances";
+import { getClosedPeriodErrorKey } from "@/lib/finances/errors";
 import { formatFinanceAmount } from "@/lib/finances/amount";
+import { FINANCE_MONTH_KEYS } from "@/lib/finances/period";
 import { useFormatCurrency } from "@/lib/format-locale";
 
 export interface DeleteTransactionDialogProps {
@@ -31,6 +24,10 @@ export interface DeleteTransactionDialogProps {
   onSuccess: () => void;
 }
 
+/**
+ * Open month: plain confirmation. Closed month: the reason (5-500 characters)
+ * is required and recorded in the audit trail.
+ */
 export function DeleteTransactionDialog({
   open,
   onOpenChange,
@@ -38,116 +35,88 @@ export function DeleteTransactionDialog({
   onSuccess,
 }: DeleteTransactionDialogProps) {
   const t = useTranslations("finances");
+  const tc = useTranslations("ops.club.finances.delete");
   const formatCurrency = useFormatCurrency();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [reason, setReason] = useState("");
-  const [showReasonError, setShowReasonError] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  // A closed month cannot be changed silently: the backend needs a reason.
   const needsReason = finance?.period_closed === true;
-
-  useEffect(() => {
-    if (open) {
-      setReason("");
-      setShowReasonError(false);
-    }
-  }, [open, finance?.finance_id]);
-
-  const formatAmount = (amount: number) =>
-    formatFinanceAmount(amount, formatCurrency);
-
-  async function handleDelete() {
-    if (!finance) return;
-    const note = normalizePostClosingNote(reason);
-    if (needsReason && !note) {
-      setShowReasonError(true);
-      return;
-    }
-    setIsDeleting(true);
-    try {
-      if (needsReason && note) {
-        await deleteFinance(finance.finance_id, note);
-      } else {
-        await deleteFinance(finance.finance_id);
-      }
-      toast.success(t("toasts.transaction_deleted"));
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
-      const closedKey = getClosedPeriodErrorKey(error);
-      if (closedKey === "closed_note_required") setShowReasonError(true);
-      toast.error(
-        closedKey ? t(`errors.${closedKey}`) : t("errors.delete_transaction_failed"),
-      );
-    } finally {
-      setIsDeleting(false);
-    }
-  }
-
   const isIncome = finance ? isFinanceIncome(finance) : false;
 
+  const errorMessage = (error: unknown) => {
+    const closedKey = getClosedPeriodErrorKey(error);
+    return closedKey ? t(`errors.${closedKey}`) : t("errors.delete_transaction_failed");
+  };
+
+  const monthKey = finance ? FINANCE_MONTH_KEYS[finance.month - 1] : undefined;
+  const monthLabel = finance && monthKey ? `${t(`months.${monthKey}`)} ${finance.year}` : "";
+
+  const description = finance ? (
+    <>
+      {t("delete.descriptionPre")}{" "}
+      <strong className={isIncome ? "text-success" : "text-destructive"}>
+        {formatFinanceAmount(Math.abs(finance.amount), formatCurrency)}
+      </strong>
+      {finance.description ? ` — ${finance.description}` : ""}.{" "}
+      {needsReason ? tc("closedNotice", { month: monthLabel }) : null}{" "}
+      {t("delete.cannotUndo")}
+    </>
+  ) : (
+    t("delete.descriptionFallback")
+  );
+
+  async function remove(reason?: string) {
+    if (!finance) return;
+    if (reason) await deleteFinance(finance.finance_id, reason);
+    else await deleteFinance(finance.finance_id);
+    toast.success(t("toasts.transaction_deleted"));
+    onSuccess();
+  }
+
+  if (needsReason) {
+    return (
+      <ReasonDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        title={tc("closedTitle")}
+        description={description}
+        label={t("delete.reasonLabel")}
+        placeholder={t("delete.reasonPlaceholder")}
+        min={POST_CLOSING_NOTE_MIN}
+        max={POST_CLOSING_NOTE_MAX}
+        confirmLabel={t("delete.confirmButton")}
+        pending={pending}
+        onConfirm={async (reason) => {
+          setPending(true);
+          try {
+            await remove(reason);
+            onOpenChange(false);
+          } catch (error) {
+            toast.error(errorMessage(error));
+          } finally {
+            setPending(false);
+          }
+        }}
+      />
+    );
+  }
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {finance ? (
-              <>
-                {t("delete.descriptionPre")}{" "}
-                <strong className={isIncome ? "text-success" : "text-destructive"}>
-                  {formatAmount(Math.abs(finance.amount))}
-                </strong>
-                {finance.description ? ` — ${finance.description}` : ""}.{" "}
-                {t("delete.cannotUndo")}
-              </>
-            ) : (
-              t("delete.descriptionFallback")
-            )}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        {needsReason ? (
-          <div className="space-y-1.5">
-            <Label htmlFor="finance-delete-reason">
-              {t("delete.reasonLabel")}{" "}
-              <span aria-hidden="true" className="text-destructive">*</span>
-            </Label>
-            <Textarea
-              id="finance-delete-reason"
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              maxLength={POST_CLOSING_NOTE_MAX}
-              placeholder={t("delete.reasonPlaceholder")}
-              aria-required="true"
-              aria-invalid={showReasonError}
-              aria-describedby="finance-delete-reason-help"
-              className="min-h-[80px] resize-none"
-            />
-            <p
-              id="finance-delete-reason-help"
-              className={`text-xs ${showReasonError ? "text-destructive" : "text-muted-foreground"}`}
-            >
-              {showReasonError ? t("validation.note_invalid") : t("delete.reasonHelper")}
-            </p>
-          </div>
-        ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>
-            {t("delete.cancelButton")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(event) => {
-              // Radix closes the dialog on action click; keep it open while deleting/invalid.
-              event.preventDefault();
-              void handleDelete();
-            }}
-            loading={isDeleting}
-            variant="destructive-solid"
-          >
-            {t("delete.confirmButton")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("delete.title")}
+      description={description}
+      confirmLabel={t("delete.confirmButton")}
+      cancelLabel={t("delete.cancelButton")}
+      tone="destructive"
+      onConfirm={async () => {
+        try {
+          await remove();
+        } catch (error) {
+          // ConfirmDialog keeps itself open and shows this message.
+          throw new Error(errorMessage(error));
+        }
+      }}
+    />
   );
 }

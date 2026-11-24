@@ -127,8 +127,23 @@ describe("FinancesOverview", () => {
 
     expect(screen.getByText("Campo Norte", { selector: "td" })).toBeInTheDocument();
     expect(screen.getByText("2 meses")).toBeInTheDocument();
-    expect(screen.getByText("Al día")).toBeInTheDocument();
+    // Only the exception is marked: «Al día» is no longer painted on every row.
+    expect(screen.queryByText("Al día")).not.toBeInTheDocument();
+    expect(screen.getByText("1 club al día, 1 con meses sin registrar", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("Sin movimientos", { selector: "td" })).toBeInTheDocument();
+  });
+
+  it("lists clubs without KPIs or month filter in club-list mode and remembers the club on open", async () => {
+    renderOverview({ mode: "clubs", showLocalFieldFilter: false });
+
+    await screen.findByText("Club Aguilas");
+    expect(screen.getByRole("heading", { level: 1, name: "Finanzas" })).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Totales del consolidado" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Mes")).not.toBeInTheDocument();
+    expect(screen.getByText("2 meses")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("finances-overview-row-5"));
+    expect(push).toHaveBeenCalledWith("/dashboard/finances?club=5");
+    expect(decodeURIComponent(document.cookie)).toContain('"club":"5"');
   });
 
   it("hides the local field column at narrow widths like the club-enrollments queue", async () => {

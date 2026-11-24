@@ -104,39 +104,88 @@ function renderDashboard(sectionId: number | "all" = "all") {
   );
 }
 
+const MONTH = new Date().getMonth() + 1;
+
 describe("FinancesDashboard", () => {
-  it("loads the first page server-side and keeps the summary", async () => {
+  it("opens on the current month and loads the first page server-side", async () => {
     renderDashboard();
 
-    await screen.findByText("Mov 1");
+    await screen.findAllByText("Mov 1");
     expect(mockList).toHaveBeenCalledWith(7, {
       year: YEAR,
-      month: undefined,
+      month: MONTH,
       clubSectionId: undefined,
       page: 1,
       limit: 20,
     });
-    expect(mockSummary).toHaveBeenCalledWith(7, YEAR, undefined, undefined);
+    expect(mockSummary).toHaveBeenCalledWith(7, YEAR, MONTH, undefined);
     expect(screen.getByText("Neto del periodo")).toBeInTheDocument();
-    expect(screen.getByText("Mes cerrado")).toBeInTheDocument(); // row 2 is closed
+  });
+
+  it("states the period result in the description", async () => {
+    renderDashboard();
+
+    expect(await screen.findByText(/el resultado es \+\$600\.00; el saldo es \$2,600\.00/)).toBeInTheDocument();
+  });
+
+  it("uses one month selector instead of Año + Mes", async () => {
+    renderDashboard();
+    await screen.findAllByText("Mov 1");
+
+    expect(screen.getByRole("combobox", { name: "Periodo" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: /^(Año|Mes)$/ })).not.toBeInTheDocument();
+  });
+
+  it("marks only the exception: a closed month gets a notice on top, not a mark per row", async () => {
+    mockSummary.mockResolvedValue({ ...SUMMARY, period_closed: true });
+    renderDashboard();
+
+    expect(await screen.findByText(/está cerrado\. Editar o eliminar/)).toBeInTheDocument();
+    await screen.findAllByText("Mov 2");
+    expect(screen.queryByText("Mes cerrado")).not.toBeInTheDocument();
+  });
+
+  it("marks a closed row only when the view mixes open and closed months", async () => {
+    renderDashboard();
+    await screen.findAllByText("Mov 2");
+
+    // The summary says the month is not closed; row 2 is the exception.
+    expect(screen.getAllByText("Mes cerrado").length).toBeGreaterThan(0);
+  });
+
+  it("shows two lines per movement: description and category, with the signed amount", async () => {
+    renderDashboard();
+    await screen.findAllByText("Mov 1");
+
+    // Club with two sections viewed whole: the section rides on the second line.
+    expect(screen.getAllByText("Cuotas · Conquistadores").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("+$100.00").length).toBeGreaterThan(0);
+  });
+
+  it("opens the new movement as a route modal link carrying the club", async () => {
+    renderDashboard(11);
+    await screen.findAllByText("Mov 1");
+
+    const link = screen.getByRole("link", { name: /nuevo movimiento/i });
+    expect(link).toHaveAttribute("href", "/dashboard/finances/new?club=7&section=11");
   });
 
   it("keeps the summary visible and scoped when a section is selected", async () => {
     renderDashboard(11);
 
     await screen.findByText("Neto del periodo");
-    expect(mockSummary).toHaveBeenCalledWith(7, YEAR, undefined, 11);
+    expect(mockSummary).toHaveBeenCalledWith(7, YEAR, MONTH, 11);
     expect(mockList).toHaveBeenCalledWith(
       7,
       expect.objectContaining({ clubSectionId: 11, page: 1 }),
     );
-    expect(mockByCategory).toHaveBeenCalledWith(7, YEAR, undefined, 11);
-    await screen.findByText("Mov 1");
+    expect(mockByCategory).toHaveBeenCalledWith(7, YEAR, MONTH, 11);
+    await screen.findAllByText("Mov 1");
   });
 
   it("requests the next page from the server", async () => {
     renderDashboard();
-    await screen.findByText("Mov 1");
+    await screen.findAllByText("Mov 1");
 
     mockList.mockResolvedValue(page([3], 45, 2));
     fireEvent.click(screen.getByRole("button", { name: /siguiente/i }));
@@ -144,7 +193,7 @@ describe("FinancesDashboard", () => {
     await waitFor(() =>
       expect(mockList).toHaveBeenLastCalledWith(7, expect.objectContaining({ page: 2, limit: 20 })),
     );
-    await screen.findByText("Mov 3");
+    await screen.findAllByText("Mov 3");
   });
 
   it("shows a load error with retry instead of an empty table", async () => {
@@ -155,8 +204,19 @@ describe("FinancesDashboard", () => {
     expect(screen.queryByText("Sin movimientos")).not.toBeInTheDocument();
 
     const retries = screen.getAllByRole("button", { name: /reintentar/i });
-    fireEvent.click(retries[0]);
-    await screen.findByText("Mov 1");
+    fireEvent.click(retries[0]!);
+    await screen.findAllByText("Mov 1");
+  });
+
+  it("keeps the list and says it is stale when a reload fails", async () => {
+    renderDashboard();
+    await screen.findAllByText("Mov 1");
+
+    mockList.mockRejectedValueOnce(new Error("boom"));
+    window.dispatchEvent(new Event("sacdia:finances-changed"));
+
+    await waitFor(() => expect(screen.getByText(/Mostramos los datos de las/)).toBeInTheDocument());
+    expect(screen.getAllByText("Mov 1").length).toBeGreaterThan(0);
   });
 
   it("shows a summary error with retry", async () => {
@@ -168,7 +228,7 @@ describe("FinancesDashboard", () => {
 
   it("offers the export menu", async () => {
     renderDashboard();
-    await screen.findByText("Mov 1");
+    await screen.findAllByText("Mov 1");
 
     expect(screen.getByRole("button", { name: "Exportar" })).toBeEnabled();
   });

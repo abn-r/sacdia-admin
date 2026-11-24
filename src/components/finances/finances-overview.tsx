@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +29,8 @@ import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
+import { PageHeader } from "@/components/shared/page-header";
+import { rememberClubContext } from "@/lib/club-context/use-club-context";
 import {
   getFinanceOverview,
   type FinanceOverviewRow,
@@ -80,6 +82,13 @@ interface FinancesOverviewProps {
   showLocalFieldFilter: boolean;
   years: YearRow[];
   activeYearId: number | null;
+  /**
+   * `clubs`: what territory roles see in Finanzas before choosing a club (one
+   * year filter, no KPIs). `consolidated`: the full /finances/overview view.
+   */
+  mode?: "consolidated" | "clubs";
+  /** «Por club / Consolidado» switcher, shown under the title. */
+  switcher?: ReactNode;
 }
 
 export function FinancesOverview({
@@ -87,8 +96,12 @@ export function FinancesOverview({
   showLocalFieldFilter,
   years,
   activeYearId,
+  mode = "consolidated",
+  switcher,
 }: FinancesOverviewProps) {
   const t = useTranslations("finances");
+  const tc = useTranslations("ops.club.finances");
+  const isClubList = mode === "clubs";
   const router = useRouter();
   const formatCurrency = useFormatCurrency();
   const formatDate = useFormatDate();
@@ -143,12 +156,34 @@ export function FinancesOverview({
   }
 
   function openClub(clubId: number) {
+    rememberClubContext(clubId, null);
     router.push(`/dashboard/finances?club=${clubId}`);
   }
 
+  const missingClubs = data ? data.data.filter((row) => row.months_without_movements > 0).length : 0;
+  const description = data
+    ? isClubList
+      ? tc(missingClubs > 0 ? "clubList.description" : "clubList.descriptionClean", {
+          total: data.meta.total,
+          missing: missingClubs,
+        })
+      : tc("consolidated.description", {
+          year,
+          clean: Math.max(0, data.data.length - missingClubs),
+          missing: missingClubs,
+        })
+    : isClubList
+      ? tc("clubList.loading")
+      : t("overview.description");
+
   return (
     <TooltipProvider>
-      <div className="space-y-4">
+      <div className="space-y-6">
+        <PageHeader
+          title={isClubList ? t("page.title") : t("overview.title")}
+          description={description}
+        />
+        {switcher}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {showLocalFieldFilter ? (
             <FilterSelect
@@ -189,6 +224,7 @@ export function FinancesOverview({
               ))}
             </NativeSelect>
           </div>
+          {isClubList ? null : (
           <FilterSelect
             id="finances-overview-month"
             label={t("overview.filters.month")}
@@ -200,6 +236,7 @@ export function FinancesOverview({
               label: t(`months.${key}`),
             }))}
           />
+          )}
         </div>
 
         {query.isPending ? (
@@ -218,11 +255,12 @@ export function FinancesOverview({
           />
         ) : data ? (
           <>
+            {isClubList ? null : (
             <KpiStrip rowFrom="xl" aria-label={t("overview.totals.label")}>
               <KpiStripItem
                 label={t("overview.totals.income")}
                 value={`+${formatAmount(data.totals.income)}`}
-                valueClassName="text-success"
+                valueClassName={data.totals.income > 0 ? "text-success" : undefined}
               />
               <KpiStripItem
                 label={t("overview.totals.expenses")}
@@ -244,6 +282,7 @@ export function FinancesOverview({
                 value={data.totals.movements}
               />
             </KpiStrip>
+            )}
 
             {data.data.length === 0 ? (
               <EmptyState
@@ -344,7 +383,10 @@ function OverviewRow({
         <Link
           href={`/dashboard/finances?club=${row.club_id}`}
           aria-label={t("table.openClub", { club: row.club_name })}
-          onClick={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            rememberClubContext(row.club_id, null);
+          }}
           className="block max-w-full truncate rounded-sm text-sm font-medium hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
         >
           {row.club_name}
@@ -358,7 +400,7 @@ function OverviewRow({
       >
         {row.local_field?.name ?? "—"}
       </TableCell>
-      <TableCell className={cn(number, "text-success")}>
+      <TableCell className={cn(number, row.income > 0 && "text-success")}>
         {formatAmount(row.income)}
       </TableCell>
       <TableCell className={number}>{formatAmount(row.expenses)}</TableCell>
@@ -381,9 +423,7 @@ function OverviewRow({
               {t("missed.tooltip", { months: missedNames })}
             </TooltipContent>
           </Tooltip>
-        ) : (
-          <Badge variant="soft-success">{t("missed.none")}</Badge>
-        )}
+        ) : null}
       </TableCell>
       <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground tabular-nums">
         {lastMovement}
