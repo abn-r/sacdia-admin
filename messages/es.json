@@ -7048,6 +7048,76 @@
     }
   },
   "shared": {
+    "kit": {
+      "errorState": {
+        "title": "No pudimos cargar esta información",
+        "description": "Revisa tu conexión o vuelve a intentarlo en un momento.",
+        "retry": "Reintentar",
+        "copyDetail": "Copiar detalle",
+        "copied": "Detalle copiado",
+        "detail": "Error {code} · {time}",
+        "forbiddenTitle": "Acceso restringido",
+        "forbiddenDescription": "Tu cuenta no tiene permiso para ver esta sección. Si crees que es un error, pide acceso a quien administra los roles de tu territorio.",
+        "offlineTitle": "Sin conexión",
+        "offlineDescription": "Revisa tu conexión; volveremos a intentarlo cuando regrese.",
+        "rateLimitedTitle": "Hay muchas solicitudes en este momento",
+        "rateLimitedDescription": "Espera unos segundos y vuelve a intentarlo.",
+        "notFoundTitle": "No encontramos lo que buscas",
+        "notFoundDescription": "Pudo haberse eliminado o el enlace está incompleto."
+      },
+      "staleData": {
+        "message": "No pudimos actualizar. Mostramos los datos de las {time}.",
+        "retry": "Reintentar"
+      },
+      "toast": {
+        "retry": "Reintentar"
+      },
+      "confirm": {
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "working": "Procesando…",
+        "typed": "Escribe {text} para confirmar"
+      },
+      "reason": {
+        "label": "Motivo",
+        "placeholder": "Escribe el motivo",
+        "hint": "Entre {min} y {max} caracteres. Queda en la auditoría.",
+        "tooShort": "Escribe al menos {min} caracteres.",
+        "counter": "{count}/{max}"
+      },
+      "steps": {
+        "stepline": "Paso {current} de {total} · {title}",
+        "next": "Siguiente: {title}"
+      },
+      "sectionForm": {
+        "sections": "Secciones",
+        "unsaved": "Cambios sin guardar",
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      },
+      "scope": {
+        "label": "Alcance",
+        "search": "Buscar club",
+        "empty": "Sin resultados",
+        "all": "Todos los clubes",
+        "change": "Cambiar alcance"
+      },
+      "splitInbox": {
+        "saveNext": "Guardar y seguir",
+        "next": "Siguiente: {title}",
+        "position": "{current} de {total}",
+        "empty": "Nada por revisar"
+      },
+      "settings": {
+        "save": "Guardar",
+        "unsaved": "Cambios sin guardar",
+        "cancel": "Cancelar"
+      },
+      "rail": {
+        "navLabel": "Secciones",
+        "select": "Ir a sección"
+      }
+    },
     "pageSkeleton": {
       "loading": "Cargando…"
     },

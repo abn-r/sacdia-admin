@@ -7048,6 +7048,76 @@
     }
   },
   "shared": {
+    "kit": {
+      "errorState": {
+        "title": "Impossible de charger ces informations",
+        "description": "Vérifiez votre connexion ou réessayez dans un instant.",
+        "retry": "Réessayer",
+        "copyDetail": "Copier le détail",
+        "copied": "Détail copié",
+        "detail": "Erreur {code} · {time}",
+        "forbiddenTitle": "Accès restreint",
+        "forbiddenDescription": "Votre compte ne peut pas voir cette section. Si c’est une erreur, demandez l’accès à la personne qui gère les rôles de votre territoire.",
+        "offlineTitle": "Pas de connexion",
+        "offlineDescription": "Vérifiez votre connexion ; nous réessaierons dès son retour.",
+        "rateLimitedTitle": "Trop de demandes en ce moment",
+        "rateLimitedDescription": "Attendez quelques secondes et réessayez.",
+        "notFoundTitle": "Introuvable",
+        "notFoundDescription": "Il a peut-être été supprimé ou le lien est incomplet."
+      },
+      "staleData": {
+        "message": "Mise à jour impossible. Données affichées de {time}.",
+        "retry": "Réessayer"
+      },
+      "toast": {
+        "retry": "Réessayer"
+      },
+      "confirm": {
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "working": "En cours…",
+        "typed": "Saisissez {text} pour confirmer"
+      },
+      "reason": {
+        "label": "Motif",
+        "placeholder": "Écrivez le motif",
+        "hint": "Entre {min} et {max} caractères. Enregistré dans l’audit.",
+        "tooShort": "Écrivez au moins {min} caractères.",
+        "counter": "{count}/{max}"
+      },
+      "steps": {
+        "stepline": "Étape {current} sur {total} · {title}",
+        "next": "Suivant : {title}"
+      },
+      "sectionForm": {
+        "sections": "Sections",
+        "unsaved": "Modifications non enregistrées",
+        "save": "Enregistrer",
+        "cancel": "Annuler"
+      },
+      "scope": {
+        "label": "Périmètre",
+        "search": "Rechercher un club",
+        "empty": "Aucun résultat",
+        "all": "Tous les clubs",
+        "change": "Changer de périmètre"
+      },
+      "splitInbox": {
+        "saveNext": "Enregistrer et continuer",
+        "next": "Suivant : {title}",
+        "position": "{current} sur {total}",
+        "empty": "Rien à examiner"
+      },
+      "settings": {
+        "save": "Enregistrer",
+        "unsaved": "Modifications non enregistrées",
+        "cancel": "Annuler"
+      },
+      "rail": {
+        "navLabel": "Sections",
+        "select": "Aller à la section"
+      }
+    },
     "pageSkeleton": {
       "loading": "Chargement…"
     },

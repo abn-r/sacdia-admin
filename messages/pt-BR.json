@@ -7048,6 +7048,76 @@
     }
   },
   "shared": {
+    "kit": {
+      "errorState": {
+        "title": "Não conseguimos carregar estas informações",
+        "description": "Verifique sua conexão ou tente novamente em instantes.",
+        "retry": "Tentar novamente",
+        "copyDetail": "Copiar detalhe",
+        "copied": "Detalhe copiado",
+        "detail": "Erro {code} · {time}",
+        "forbiddenTitle": "Acesso restrito",
+        "forbiddenDescription": "Sua conta não pode ver esta seção. Se achar que é um erro, peça acesso a quem administra os papéis do seu território.",
+        "offlineTitle": "Sem conexão",
+        "offlineDescription": "Verifique sua conexão; tentaremos de novo quando voltar.",
+        "rateLimitedTitle": "Muitas solicitações neste momento",
+        "rateLimitedDescription": "Aguarde alguns segundos e tente novamente.",
+        "notFoundTitle": "Não encontramos",
+        "notFoundDescription": "Pode ter sido excluído ou o link está incompleto."
+      },
+      "staleData": {
+        "message": "Não conseguimos atualizar. Mostrando dados das {time}.",
+        "retry": "Tentar novamente"
+      },
+      "toast": {
+        "retry": "Tentar novamente"
+      },
+      "confirm": {
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "working": "Processando…",
+        "typed": "Digite {text} para confirmar"
+      },
+      "reason": {
+        "label": "Motivo",
+        "placeholder": "Escreva o motivo",
+        "hint": "Entre {min} e {max} caracteres. Fica registrado na auditoria.",
+        "tooShort": "Escreva pelo menos {min} caracteres.",
+        "counter": "{count}/{max}"
+      },
+      "steps": {
+        "stepline": "Etapa {current} de {total} · {title}",
+        "next": "Próxima: {title}"
+      },
+      "sectionForm": {
+        "sections": "Seções",
+        "unsaved": "Alterações não salvas",
+        "save": "Salvar",
+        "cancel": "Cancelar"
+      },
+      "scope": {
+        "label": "Escopo",
+        "search": "Buscar clube",
+        "empty": "Sem resultados",
+        "all": "Todos os clubes",
+        "change": "Mudar escopo"
+      },
+      "splitInbox": {
+        "saveNext": "Salvar e continuar",
+        "next": "Próximo: {title}",
+        "position": "{current} de {total}",
+        "empty": "Nada para revisar"
+      },
+      "settings": {
+        "save": "Salvar",
+        "unsaved": "Alterações não salvas",
+        "cancel": "Cancelar"
+      },
+      "rail": {
+        "navLabel": "Seções",
+        "select": "Ir para a seção"
+      }
+    },
     "pageSkeleton": {
       "loading": "Carregando…"
     },
