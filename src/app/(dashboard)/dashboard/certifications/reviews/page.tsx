@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { CertificationReviewsClient } from "@/components/certifications/certification-reviews-client";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
 import { PageHeader } from "@/components/shared/page-header";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 
@@ -17,18 +17,7 @@ export default async function CertificationReviewsPage() {
   const t = await getTranslations("certification_reviews");
 
   if (!canViewScreen(user, "certifications-reviews")) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title={t("page.title")}
-          description={t("page.description")}
-        />
-        <Alert variant="destructive">
-          <AlertTitle>{t("gate.forbiddenTitle")}</AlertTitle>
-          <AlertDescription>{t("gate.forbiddenDescription")}</AlertDescription>
-        </Alert>
-      </div>
-    );
+    return <PageAccessForbidden />;
   }
 
   return (

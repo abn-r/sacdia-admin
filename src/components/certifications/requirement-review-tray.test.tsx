@@ -17,6 +17,11 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
+// Radix Select needs these in jsdom.
+Element.prototype.hasPointerCapture ??= () => false;
+Element.prototype.setPointerCapture ??= () => {};
+Element.prototype.releasePointerCapture ??= () => {};
+
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
@@ -58,6 +63,10 @@ vi.mock("@/lib/api/certification-reviews", async (importOriginal) => {
       mockGetRequirementEvidenceDownload(...args),
   };
 });
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+}));
 
 vi.mock("sonner", () => ({
   toast: {
@@ -130,10 +139,8 @@ describe("RequirementReviewTray", () => {
     renderTray();
     await screen.findByText("Ana López");
 
-    await user.selectOptions(
-      screen.getByLabelText("Estado"),
-      "APPROVED",
-    );
+    await user.click(screen.getByRole("combobox", { name: "Estado" }));
+    await user.click(await screen.findByRole("option", { name: "Aprobado" }));
 
     await waitFor(() => {
       expect(mockGetRequirementTray).toHaveBeenCalledWith("APPROVED");
@@ -150,6 +157,19 @@ describe("RequirementReviewTray", () => {
     await waitFor(() => {
       expect(mockGetRequirementDetail).toHaveBeenCalledWith(1000);
     });
-    expect(await screen.findByText("Detalle del requisito")).toBeInTheDocument();
+    expect(await screen.findByRole("dialog")).toHaveTextContent("Sección 1");
+  });
+});
+
+describe("RequirementReviewTray errors", () => {
+  it("shows the failure inside the table (headers kept) and never an empty state", async () => {
+    mockGetRequirementTray.mockReset();
+    mockGetRequirementTray.mockRejectedValue(new Error("boom"));
+    renderTray();
+
+    expect(await screen.findByText("No pudimos cargar esta información")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Participante" })).toBeInTheDocument();
+    expect(screen.queryByText("No hay requisitos pendientes con el filtro actual.")).not.toBeInTheDocument();
+    cleanup();
   });
 });

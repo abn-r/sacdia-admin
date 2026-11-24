@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -22,11 +21,14 @@ import {
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { UrlTabs, useUrlTab } from "@/components/shared/url-tabs";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { ServiceCredentialReviewSheet } from "@/components/service-credentials/service-credential-review-sheet";
 import {
   SERVICE_CREDENTIALS_LIST_KEY,
-  ServiceCredentialStatusBadge,
   useRoleLabel,
 } from "@/components/service-credentials/service-credential-shared";
 import {
@@ -64,7 +66,10 @@ export function ServiceCredentialReviewQueue() {
   const formatDate = useFormatDate();
   const roleLabel = useRoleLabel();
 
-  const [status, setStatus] = useState<ServiceCredentialReviewStatus>("PENDING_REVIEW");
+  // The state lives in the URL (?tab=), so a reload or a shared link keeps it.
+  const rawTab = useUrlTab("tab", "pending");
+  const status: ServiceCredentialReviewStatus =
+    TABS.find((tab) => tab.label === rawTab)?.status ?? "PENDING_REVIEW";
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -104,54 +109,46 @@ export function ServiceCredentialReviewQueue() {
     setPage(totalPages);
   }
 
-  function selectStatus(next: ServiceCredentialReviewStatus) {
-    setStatus(next);
-    setPage(1);
-  }
-
   const isFiltered = search.length > 0;
   const emptyKey = status === "PENDING_REVIEW" ? "pending" : status === "APPROVED" ? "approved" : "rejected";
   const reviewed = status !== "PENDING_REVIEW";
 
   return (
     <div className="space-y-4">
-      <Tabs value={status} onValueChange={(value) => selectStatus(value as ServiceCredentialReviewStatus)}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <TabsList aria-label={t("tabs.label")}>
-            {TABS.map((tab) => (
-              <TabsTrigger key={tab.status} value={tab.status}>
-                {t(`tabs.${tab.label}`)}
-                {counts ? (
-                  <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
-                    {counts[tab.label]}
-                  </span>
-                ) : null}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <div className="flex w-full flex-col gap-1.5 sm:w-64">
-            <Label htmlFor="service-credentials-search" className="text-xs text-muted-foreground">
-              {t("search.label")}
-            </Label>
-            <div className="relative">
-              <Search
-                className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <Input
-                id="service-credentials-search"
-                type="search"
-                value={searchInput}
-                maxLength={100}
-                placeholder={t("search.placeholder")}
-                onChange={(event) => setSearchInput(event.target.value)}
-                className="pl-8"
-              />
-            </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <UrlTabs
+          ariaLabel={t("tabs.label")}
+          defaultValue="pending"
+          className="sm:flex-1"
+          tabs={TABS.map((tab) => ({
+            value: tab.label,
+            label: t(`tabs.${tab.label}`),
+            ...(counts ? { count: counts[tab.label] } : {}),
+          }))}
+        />
+        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+          <Label htmlFor="service-credentials-search" className="text-xs text-muted-foreground">
+            {t("search.label")}
+          </Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="service-credentials-search"
+              type="search"
+              value={searchInput}
+              maxLength={100}
+              placeholder={t("search.placeholder")}
+              onChange={(event) => setSearchInput(event.target.value)}
+              className="pl-8"
+            />
           </div>
         </div>
+      </div>
 
-        <TabsContent value={status} className="mt-4 space-y-4">
+      <div className="space-y-4">
           {query.isPending ? (
             <div className="space-y-3" aria-busy="true" data-testid="service-credentials-loading">
               {Array.from({ length: 5 }).map((_, index) => (
@@ -165,11 +162,10 @@ export function ServiceCredentialReviewQueue() {
               ))}
             </div>
           ) : query.isError && !data ? (
-            <EndpointErrorBanner
-              state="missing"
-              detail={t("toasts.listFailed")}
+            <ErrorState
+              {...errorStateFromError(query.error)}
+              title={t("error.title")}
               onRetry={() => void query.refetch()}
-              retrying={query.isFetching}
             />
           ) : data && data.items.length === 0 ? (
             isFiltered ? (
@@ -201,12 +197,7 @@ export function ServiceCredentialReviewQueue() {
           ) : data ? (
             <>
               {query.isError ? (
-                <EndpointErrorBanner
-                  state="missing"
-                  detail={t("toasts.listFailed")}
-                  onRetry={() => void query.refetch()}
-                  retrying={query.isFetching}
-                />
+                <StaleDataNotice at={query.dataUpdatedAt} onRetry={() => void query.refetch()} />
               ) : null}
               <DataTableShell aria-busy={query.isFetching}>
                 <Table className="max-md:block">
@@ -217,12 +208,9 @@ export function ServiceCredentialReviewQueue() {
                       <TableHead className={HEAD_CLASS}>{t("table.completed")}</TableHead>
                       <TableHead className={HEAD_CLASS}>{t("table.submitted")}</TableHead>
                       {reviewed ? (
-                        <>
-                          <TableHead className={HEAD_CLASS}>{t("table.status")}</TableHead>
-                          <TableHead className={HEAD_CLASS}>{t("table.reviewer")}</TableHead>
-                        </>
+                        <TableHead className={HEAD_CLASS}>{t("table.reviewer")}</TableHead>
                       ) : null}
-                      <TableHead className={`${HEAD_CLASS} text-right`}>{t("table.actions")}</TableHead>
+                      <RowActionsHead className="w-28" />
                     </TableRow>
                   </TableHeader>
                   <TableBody className="max-md:block">
@@ -262,8 +250,7 @@ export function ServiceCredentialReviewQueue() {
               />
             </>
           ) : null}
-        </TabsContent>
-      </Tabs>
+      </div>
 
       <ServiceCredentialReviewSheet
         credentialId={selectedId}
@@ -316,23 +303,24 @@ function CredentialRow({
       <TableCell className={`${muted} max-md:order-5`}>{completed}</TableCell>
       <TableCell className={`${muted} max-md:order-6`}>{submitted}</TableCell>
       {reviewed ? (
-        <>
-          <TableCell className="px-3 py-2.5 align-middle max-md:order-2 max-md:p-0">
-            <ServiceCredentialStatusBadge status={item.status} />
-          </TableCell>
-          <TableCell className={`${muted} max-md:order-7`}>{reviewer}</TableCell>
-        </>
+        <TableCell className={`${muted} max-md:order-7`}>{reviewer}</TableCell>
       ) : null}
-      <TableCell className="px-3 py-2.5 text-right align-middle max-md:order-2 max-md:p-0">
-        <Button
-          type="button"
-          size="sm"
-          variant={reviewed ? "outline" : "soft"}
-          aria-label={`${actionLabel}: ${name}`}
-          onClick={onOpen}
-        >
-          {actionLabel}
-        </Button>
+      <TableCell className="px-3 py-2.5 align-middle max-md:order-2 max-md:p-0">
+        <RowActions
+          label={name}
+          actions={[]}
+          primary={
+            <Button
+              type="button"
+              size="sm"
+              variant={reviewed ? "outline" : "default"}
+              aria-label={`${actionLabel}: ${name}`}
+              onClick={onOpen}
+            >
+              {actionLabel}
+            </Button>
+          }
+        />
       </TableCell>
     </TableRow>
   );

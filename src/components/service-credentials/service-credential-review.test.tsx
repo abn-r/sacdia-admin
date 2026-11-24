@@ -48,6 +48,31 @@ vi.mock("@/components/shared/pdf-inline-viewer", () => ({
   ),
 }));
 
+// Tabs live in the URL: a tiny reactive store stands in for the router.
+const nav = vi.hoisted(() => {
+  let search = "";
+  const subs = new Set<() => void>();
+  return {
+    get: () => search,
+    set(next: string) {
+      search = next;
+      subs.forEach((fn) => fn());
+    },
+    subscribe(fn: () => void) {
+      subs.add(fn);
+      return () => subs.delete(fn);
+    },
+  };
+});
+vi.mock("next/navigation", async () => {
+  const react = await import("react");
+  return {
+    useRouter: () => ({ replace: (url: string) => nav.set(url.split("?")[1] ?? ""), refresh: () => {}, push: () => {} }),
+    usePathname: () => "/dashboard/service-credentials",
+    useSearchParams: () => new URLSearchParams(react.useSyncExternalStore(nav.subscribe, nav.get, nav.get)),
+  };
+});
+
 const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock("sonner", () => ({ toast: toastMock }));
 
@@ -109,6 +134,7 @@ function renderWithProviders(ui: React.ReactElement, client?: QueryClient) {
 }
 
 beforeEach(() => {
+  nav.set("");
   mockList.mockReset();
   mockDetail.mockReset();
   mockApprove.mockReset();
@@ -154,7 +180,6 @@ describe("ServiceCredentialReviewQueue", () => {
 
     expect(await screen.findByText("Marta Ruiz")).toBeInTheDocument();
     expect(mockList).toHaveBeenLastCalledWith(expect.objectContaining({ status: "APPROVED", page: 1 }));
-    expect(screen.getByText(m.status.APPROVED)).toBeInTheDocument();
     expect(screen.getByText(/Director de campo local/)).toBeInTheDocument();
     // Counts stay visible while the other tab loads.
     expect(screen.getByRole("tab", { name: `${m.tabs.pending} 3` })).toBeInTheDocument();
@@ -188,7 +213,7 @@ describe("ServiceCredentialReviewQueue", () => {
     mockList.mockRejectedValueOnce(new Error("boom"));
     renderWithProviders(<ServiceCredentialReviewQueue />);
 
-    expect(await screen.findByText(m.toasts.listFailed)).toBeInTheDocument();
+    expect(await screen.findByText(m.error.title)).toBeInTheDocument();
     expect(screen.queryByText(m.empty.pending.title)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /reintentar/i }));
@@ -279,14 +304,15 @@ describe("ServiceCredentialReviewSheet", () => {
     await waitFor(() => expect(mockApprove).toHaveBeenCalledWith("c1", { expires_at: "2099-12-31" }));
   });
 
-  it("asks for confirmation and a valid reason before rejecting", async () => {
+  it("asks for a valid reason inside the sheet before rejecting", async () => {
     const user = userEvent.setup();
     mockReject.mockResolvedValue(detail({ status: "REJECTED" }));
     const { onOpenChange } = renderSheet();
 
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
-    expect(within(dialog).getByText(m.detail.reject.title)).toBeInTheDocument();
+    // The reason is asked inside the sheet: there is no second dialog.
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
 
     // too short: validation message, no call
     await user.type(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), "mal");
@@ -306,7 +332,7 @@ describe("ServiceCredentialReviewSheet", () => {
     const user = userEvent.setup();
     renderSheet();
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
+    const dialog = await screen.findByRole("dialog");
     fireEvent.change(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), {
       target: { value: "x".repeat(501) },
     });
@@ -351,17 +377,18 @@ describe("ServiceCredentialReviewSheet", () => {
     expect(onOpenChange).not.toHaveBeenCalledWith(false);
   });
 
-  it("keeps the reject dialog open and shows a server error next to the reason", async () => {
+  it("keeps the inline reject form open and shows a server error next to the reason", async () => {
     const user = userEvent.setup();
     mockReject.mockRejectedValue(new ApiError("bad", 400, { code: "SOMETHING_ELSE" }));
     renderSheet();
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
+    const dialog = await screen.findByRole("dialog");
     await user.type(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), "Documento ilegible");
     await user.click(within(dialog).getByRole("button", { name: m.detail.reject.confirm }));
 
     expect(await within(dialog).findByText(m.errors.generic)).toBeInTheDocument();
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
   });
 
   it("hides the decision buttons for an already reviewed credential", async () => {
