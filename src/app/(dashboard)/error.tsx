@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { useTranslations } from "next-intl";
+import { ErrorState } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardError({
@@ -13,22 +14,25 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useTranslations("shared.routeError");
+  const t = useTranslations("shared.shell.errors");
+  // Captured once at mount so the "at" time does not change between renders.
+  const [at] = useState(() => new Date());
 
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
 
   return (
-    <div role="alert" className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
-      <h1 className="text-xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="text-sm text-muted-foreground">{t("description")}</p>
-      <div className="flex items-center gap-2">
-        <Button onClick={reset}>{t("retry")}</Button>
+    <ErrorState
+      title={t("crashTitle")}
+      description={t("crashDescription")}
+      onRetry={reset}
+      detail={{ code: 500, at, ref: error.digest }}
+      actions={
         <Button variant="outline" asChild>
           <Link href="/dashboard">{t("goHome")}</Link>
         </Button>
-      </div>
-    </div>
+      }
+    />
   );
 }

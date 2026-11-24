@@ -3,19 +3,27 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { ErrorState } from "@/components/shared/error-state";
 import { Button } from "@/components/ui/button";
 
+// Rendered by the root layout, outside the dashboard shell: the global search
+// dialog is only mounted inside the shell, so there is no search action here.
 export default function NotFound() {
-  const t = useTranslations("shared.notFound");
+  const t = useTranslations("shared.shell.errors");
   return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-2 px-4 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="text-sm text-muted-foreground">{t("description")}</p>
-      <Button variant="outline" className="mt-4" asChild>
-        <Link prefetch={false} replace href="/dashboard">
-          {t("backHome")}
-        </Link>
-      </Button>
+    <div className="flex h-dvh items-center justify-center px-4">
+      <ErrorState
+        kind="notFound"
+        title={t("notFoundTitle")}
+        description={t("notFoundDescription")}
+        actions={
+          <Button asChild>
+            <Link prefetch={false} replace href="/dashboard">
+              {t("goHome")}
+            </Link>
+          </Button>
+        }
+      />
     </div>
   );
 }
