@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,6 +31,15 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useSidebarInsights } from "./sidebar-insights-context";
+import {
+  defaultGroupOpen,
+  groupsAreToggleable,
+  readGroupOpenStateCookie,
+  serializeGroupOpenStateCookie,
+  sumGroupCounts,
+  sumSubItemCounts,
+  type GroupOpenState,
+} from "@/navigation/sidebar/group-state";
 import { getBestMatchLength, isLeafActive, isSubItemActiveFor } from "@/navigation/sidebar/nav-match";
 import type {
   NavBadge,
@@ -87,14 +96,14 @@ function hasSubItems(item: NavMainItem): item is NavMainParentItem {
   return Boolean(item.subItems?.length);
 }
 
+const subscribeNever = () => () => {};
+
 function useHydrated() {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  return hydrated;
+  return useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
 }
 
 function useHydratedCollapsibleOpen(shouldBeOpen: boolean) {
@@ -110,8 +119,41 @@ function useHydratedCollapsibleOpen(shouldBeOpen: boolean) {
   return [open, setOpen] as const;
 }
 
+// The saved group choice lives in a cookie. useSyncExternalStore serves the
+// server snapshot ("" -> defaults) during hydration and the real cookie right
+// after, so the first client render matches the server markup.
+const cookieListeners = new Set<() => void>();
+
+function subscribeToCookie(listener: () => void) {
+  cookieListeners.add(listener);
+  return () => {
+    cookieListeners.delete(listener);
+  };
+}
+
+function writeGroupCookie(state: GroupOpenState) {
+  document.cookie = serializeGroupOpenStateCookie(state);
+  cookieListeners.forEach((listener) => listener());
+}
+
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
+  const { counts } = useSidebarInsights();
+  const { state, isMobile } = useSidebar();
+  const hydrated = useHydrated();
+  const isCollapsedDesktop = hydrated && state === "collapsed" && !isMobile;
+  const toggleable = groupsAreToggleable(items);
+
+  // Defaults render first (server and first client pass); the saved choice is
+  // read after mount so the markup never mismatches during hydration.
+  const cookieString = useSyncExternalStore(
+    subscribeToCookie,
+    () => document.cookie,
+    () => "",
+  );
+  const stored = useMemo(() => readGroupOpenStateCookie(cookieString), [cookieString]);
+  // Closing the group of the current page is allowed until the next navigation.
+  const [dismissed, setDismissed] = useState<{ path: string; groupId: number } | null>(null);
 
   const bestLength = getBestMatchLength(path, items);
 
@@ -129,31 +171,127 @@ export function NavMain({ items }: NavMainProps) {
     return item.subItems.some((sub) => isSubItemActiveFor(path, sub, bestLength));
   };
 
+  const isGroupOpen = (group: NavGroup, isActiveGroup: boolean) => {
+    // Unlabelled groups (Inicio) have no toggle, so they are always open.
+    if (!toggleable || isCollapsedDesktop || !group.label) return true;
+    const dismissedNow = dismissed?.path === path && dismissed.groupId === group.id;
+    if (isActiveGroup && !dismissedNow) return true;
+    return stored[String(group.id)] ?? defaultGroupOpen(group.id);
+  };
+
+  const toggleGroup = useCallback(
+    (group: NavGroup, nextOpen: boolean, isActiveGroup: boolean) => {
+      const next = { ...stored, [String(group.id)]: nextOpen };
+      writeGroupCookie(next);
+      if (!nextOpen && isActiveGroup) {
+        setDismissed({ path, groupId: group.id });
+      } else {
+        setDismissed(null);
+      }
+    },
+    [stored, path],
+  );
+
   return (
     <>
-      {items.map((group) => (
-        <SidebarGroup key={group.id}>
-          {group.label && (
-            <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none">
-              {group.label}
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {group.items.map((item) => (
-                <NavItem
-                  key={item.id}
-                  item={item}
-                  isItemActive={isItemActive}
-                  isSubItemActive={isSubItemActive}
-                  isSubmenuOpen={isSubmenuOpen}
-                />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      ))}
+      {items.map((group) => {
+        const isActiveGroup = group.items.some(isItemActive);
+        const open = isGroupOpen(group, isActiveGroup);
+
+        return (
+          <NavGroupSection
+            key={group.id}
+            group={group}
+            toggleable={toggleable && !isCollapsedDesktop && Boolean(group.label)}
+            open={open}
+            pendingCount={sumGroupCounts(group, counts)}
+            onToggle={() => toggleGroup(group, !open, isActiveGroup)}
+          >
+            {group.items.map((item) => (
+              <NavItem
+                key={item.id}
+                item={item}
+                isItemActive={isItemActive}
+                isSubItemActive={isSubItemActive}
+                isSubmenuOpen={isSubmenuOpen}
+              />
+            ))}
+          </NavGroupSection>
+        );
+      })}
     </>
+  );
+}
+
+interface NavGroupSectionProps {
+  readonly group: NavGroup;
+  readonly toggleable: boolean;
+  readonly open: boolean;
+  readonly pendingCount: number;
+  readonly onToggle: () => void;
+  readonly children: ReactNode;
+}
+
+function NavGroupSection({
+  group,
+  toggleable,
+  open,
+  pendingCount,
+  onToggle,
+  children,
+}: NavGroupSectionProps) {
+  const t = useTranslations("shared.shell.sidebar");
+  const baseId = useId();
+  const contentId = `${baseId}-content`;
+  const pendingId = `${baseId}-pending`;
+  const showPending = toggleable && !open && pendingCount > 0;
+
+  return (
+    <SidebarGroup>
+      {group.label &&
+        (toggleable ? (
+          <SidebarGroupLabel asChild>
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={contentId}
+              aria-label={t("toggleGroup", { group: group.label })}
+              aria-describedby={showPending ? pendingId : undefined}
+              onClick={onToggle}
+              className="w-full cursor-pointer gap-1 text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            >
+              <ChevronRight
+                aria-hidden="true"
+                className={cn(
+                  "size-3.5 transition-transform duration-100 motion-reduce:transition-none",
+                  open && "rotate-90",
+                )}
+              />
+              <span>{group.label}</span>
+              {showPending && (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-muted px-1.5 text-xs font-medium text-foreground tabular-nums"
+                  >
+                    {pendingCount}
+                  </span>
+                  <span id={pendingId} className="sr-only">
+                    {t("groupPending", { count: pendingCount })}
+                  </span>
+                </>
+              )}
+            </button>
+          </SidebarGroupLabel>
+        ) : (
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none">
+            {group.label}
+          </SidebarGroupLabel>
+        ))}
+      <SidebarGroupContent id={contentId} hidden={!open}>
+        <SidebarMenu>{children}</SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }
 
@@ -386,17 +524,6 @@ function NavSubItemEntry({
   );
 }
 
-function sumSubItemCounts(
-  subItems: readonly NavSubItem[],
-  counts: Readonly<Record<string, number>>,
-): number {
-  return subItems.reduce(
-    (total, sub) =>
-      total + (sub.subItems?.length ? sumSubItemCounts(sub.subItems, counts) : (counts[sub.id] ?? 0)),
-    0,
-  );
-}
-
 /** Pending-work pill for action queues. Neutral: it counts work, it does not judge it. */
 function QueueCount({
   count,
@@ -416,7 +543,7 @@ function QueueCount({
       <span
         aria-hidden="true"
         className={cn(
-          "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-muted px-1.5 text-xs font-medium text-foreground tabular-nums group-data-[collapsible=icon]:hidden",
+          "inline-flex h-5 min-w-5 flex-none! items-center justify-center rounded-full bg-muted px-1.5 text-xs font-medium text-foreground tabular-nums group-data-[collapsible=icon]:hidden",
           className,
           hideClassName,
         )}

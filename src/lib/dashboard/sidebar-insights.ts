@@ -22,7 +22,7 @@ export function sidebarCountsFromQueues(queues: DashboardMetrics["queues"]): Sid
     "requests-transfers": queues.transfers_pending,
     "validations-investitures":
       queues.class_validations_pending + (queues.honors_review_pending ?? 0),
-    "annual-folders-evaluate": queues.annual_folders_pending_union,
+    "clubs-evidence-folders-list": queues.annual_folders_pending_union,
   };
   const counts: Record<string, number> = {};
   for (const [id, value] of Object.entries(raw)) {

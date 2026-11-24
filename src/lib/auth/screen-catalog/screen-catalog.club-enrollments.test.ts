@@ -49,9 +49,9 @@ describe("club enrollments review screen", () => {
       capabilities: ["club_enrollments.validate"],
     });
     const outsider = buildAuthUser({ roles: ["director-lf"], permissions: ["users:read"], capabilities: [] });
-    expect(titles(filterSidebarItems(sidebarItems, subjectFromUser(reviewer)))).toContain("Inscripciones de sección");
+    expect(titles(filterSidebarItems(sidebarItems, subjectFromUser(reviewer)))).toContain("Registros anuales");
     expect(titles(filterSidebarItems(sidebarItems, subjectFromUser(outsider)))).not.toContain(
-      "Inscripciones de sección",
+      "Registros anuales",
     );
   });
 });

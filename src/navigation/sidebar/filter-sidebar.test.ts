@@ -103,7 +103,7 @@ describe("filterSidebarItems", () => {
       ),
     );
 
-    expect(titles).toEqual(["Autorizaciones de investidura"]);
+    expect(titles).toEqual(["Investiduras"]);
   });
 
   it("shows a pastor-only reviewer the credential queue too (D7)", () => {
@@ -118,10 +118,7 @@ describe("filterSidebarItems", () => {
       ),
     );
 
-    expect(titles).toEqual([
-      "Autorizaciones de investidura",
-      "Constancias de consejería",
-    ]);
+    expect(titles).toEqual(["Investiduras", "Constancias de consejería"]);
   });
 
   it("shows a pastor-only validator the section enrollment queue too", () => {
@@ -136,10 +133,7 @@ describe("filterSidebarItems", () => {
       ),
     );
 
-    expect(titles).toEqual([
-      "Autorizaciones de investidura",
-      "Inscripciones de sección",
-    ]);
+    expect(titles).toEqual(["Registros anuales", "Investiduras"]);
   });
 
   it("keeps the approved structure: 6 groups, daily queues first, max 2 levels", () => {
@@ -163,17 +157,80 @@ describe("filterSidebarItems", () => {
     const pending = sidebarItems[1]!.items.map((item) => item.id);
     expect(pending).toEqual([
       "requests",
-      "validations",
+      "classes-honors",
       "investiture-requests",
-      "certifications-reviews",
-      "service-credentials-review",
-      "club-enrollments-review",
+      "certificates",
+      "clubs-evidence-folders-list",
     ]);
   });
 
   it("keeps Clubes and Actividades together in Clubes y miembros", () => {
     const ids = sidebarItems[2]!.items.map((item) => item.id);
-    expect(ids).toEqual(["clubs", "users", "coordination", "activities", "notifications"]);
+    expect(ids).toEqual(["clubs", "activities", "users", "coordination", "notifications"]);
+  });
+
+  it("lists every leaf of the approved structure under its approved parent", () => {
+    const subs = (groupIndex: number, parentId: string) => {
+      const parent = sidebarItems[groupIndex]!.items.find((item) => item.id === parentId);
+      return parent && "subItems" in parent ? parent.subItems?.map((sub) => sub.id) : undefined;
+    };
+
+    expect(subs(1, "requests")).toEqual([
+      "requests-transfers",
+      "requests-assignments",
+      "requests-membership",
+      "club-enrollments-review",
+    ]);
+    expect(subs(1, "classes-honors")).toEqual([
+      "validations-investitures",
+      "honor-instructor-proposals",
+    ]);
+    expect(subs(1, "certificates")).toEqual([
+      "certificate-bulk-imports",
+      "institutional-certificate-requests",
+      "certifications-reviews",
+      "service-credentials-review",
+    ]);
+    expect(subs(4, "annual-folders")).toEqual([
+      "annual-folders-rankings",
+      "annual-folders-ranking-config",
+    ]);
+    expect(subs(4, "campamentos")?.slice(0, 2)).toEqual([
+      "campamentos-list-local",
+      "campamentos-list-union",
+    ]);
+    expect(sidebarItems[3]!.items.map((item) => item.id).slice(0, 3)).toEqual([
+      "finances",
+      "payment-orders",
+      "club-inventory",
+    ]);
+    expect(sidebarItems[5]!.items.map((item) => item.id)).toEqual([
+      "admin-catalogs",
+      "admin-settings",
+      "admin-system-roles",
+      "admin-system-audit",
+      "admin-system-jobs",
+    ]);
+  });
+
+  it("no longer lists Requisitos de cargos or the redirect-only annual folder pages", () => {
+    const all = JSON.stringify(sidebarItems.map((group) => group.items.map((i) => i.id)));
+    expect(all).not.toContain("role-requirements");
+    expect(all).not.toContain("annual-folders-evaluate");
+    expect(all).not.toContain("annual-folders-templates");
+    expect(all).not.toContain("annual-folders-categories");
+  });
+
+  it("shows the roles, audit and system entries to the user who can reach each page", () => {
+    const admin = collectTitles(
+      filterSidebarItems(sidebarItems, checker(["super-admin"])),
+    );
+    expect(admin).toEqual(expect.arrayContaining(["Roles y permisos", "Auditoría", "Sistema"]));
+
+    const none = collectTitles(filterSidebarItems(sidebarItems, checker([], ["users:read"])));
+    expect(none).not.toEqual(expect.arrayContaining(["Roles y permisos"]));
+    expect(none).not.toContain("Auditoría");
+    expect(none).not.toContain("Sistema");
   });
 
   it("hides everything from a user with no permissions or capabilities", () => {

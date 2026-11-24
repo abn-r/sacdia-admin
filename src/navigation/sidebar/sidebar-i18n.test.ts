@@ -8,6 +8,7 @@ import { filterSidebarItems } from "./filter-sidebar";
 import {
   NAV_SECTION_KEY_BY_GROUP_ID,
   localizeSidebarItems,
+  navItemLabelKey,
   sidebarGroupMessageKey,
   sidebarItemMessageKey,
 } from "./sidebar-i18n";
@@ -39,25 +40,25 @@ function makeTranslator(messages: Messages) {
   return t;
 }
 
-function collectIds(groups: NavGroup[]): string[] {
-  const ids: string[] = [];
+function collectLabelKeys(groups: NavGroup[]): string[] {
+  const keys: string[] = [];
   const walkSub = (sub: NavSubItem) => {
-    ids.push(sub.id);
+    keys.push(navItemLabelKey(sub));
     sub.subItems?.forEach(walkSub);
   };
   for (const group of groups) {
     for (const item of group.items) {
-      ids.push(item.id);
+      keys.push(navItemLabelKey(item));
       if ("subItems" in item) item.subItems?.forEach(walkSub);
     }
   }
-  return ids;
+  return keys;
 }
 
 describe("sidebar localisation", () => {
   it.each(locales)("%s defines a message for every sidebar item and label", (_l, messages) => {
     const t = makeTranslator(messages);
-    const missing = collectIds(sidebarItems).filter((id) => !t.has(sidebarItemMessageKey(id)));
+    const missing = collectLabelKeys(sidebarItems).filter((key) => !t.has(key));
     expect(missing).toEqual([]);
 
     const missingSections = sidebarItems
@@ -131,5 +132,38 @@ describe("sidebar localisation", () => {
     const fr = localizeSidebarItems(filtered, makeTranslator(locales[2]![1]));
     expect(fr).toHaveLength(filtered.length);
     expect(fr[0]!.items[0]!.title).toBe("Accueil");
+  });
+
+  it("renders the approved Spanish labels for the redesigned sidebar", () => {
+    const es = localizeSidebarItems(sidebarItems, makeTranslator(locales[0]![1]));
+    const titles = (id: string) => {
+      for (const group of es) {
+        for (const item of group.items) {
+          if (item.id === id) return [item.title, ..."subItems" in item ? (item.subItems ?? []).map((s) => s.title) : []];
+        }
+      }
+      return undefined;
+    };
+
+    expect(titles("requests")).toEqual(["Solicitudes", "Traslados", "Asignaciones", "Membresía", "Registros anuales"]);
+    expect(titles("classes-honors")).toEqual(["Especialidades y clases", "Validaciones de clase", "Propuestas de instructor"]);
+    expect(titles("investiture-requests")).toEqual(["Investiduras"]);
+    expect(titles("certificates")).toEqual([
+      "Certificados",
+      "Cargas por certificado",
+      "Validación GM",
+      "Certificaciones",
+      "Constancias de consejería",
+    ]);
+    expect(titles("clubs-evidence-folders-list")).toEqual(["Carpetas de evidencias"]);
+    expect(titles("finances")).toEqual(["Finanzas"]);
+    expect(titles("club-inventory")).toEqual(["Inventario"]);
+    expect(titles("annual-folders")).toEqual(["Progreso anual", "Clubes", "Configuración"]);
+    expect(titles("section-rankings")).toEqual(["Progreso por sección"]);
+    expect(titles("campamentos")?.slice(0, 3)).toEqual(["Camporees", "Campo local", "Unión"]);
+    expect(titles("certifications-list")).toEqual(["Certificaciones"]);
+    expect(titles("admin-system-roles")).toEqual(["Roles y permisos"]);
+    expect(titles("admin-system-audit")).toEqual(["Auditoría"]);
+    expect(titles("admin-system-jobs")).toEqual(["Sistema"]);
   });
 });

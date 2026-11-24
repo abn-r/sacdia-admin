@@ -28,7 +28,6 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
   "club-enrollments-review": "club_enrollments_review",
   "role-requirements": "role_requirements",
   "honor-instructor-proposals": "honor_instructor_proposals",
-  "institutional-certificate-requests": "institutional_certificate_requests",
   "year-end": "year_end",
   "annual-folders-templates": "annual_folders_templates",
   "member-of-month": "member_of_month",
@@ -90,6 +89,11 @@ export function sidebarItemMessageKey(id: string): string {
   return reused ? `items.${reused}` : `sidebar.${id.replace(/-/g, "_")}`;
 }
 
+/** Title key for a nav entry: its explicit `labelKey`, else the id-derived one. */
+export function navItemLabelKey(item: { id: string; labelKey?: string }): string {
+  return item.labelKey ?? sidebarItemMessageKey(item.id);
+}
+
 /** Message key relative to the `nav` namespace for a sidebar group label. */
 export function sidebarGroupMessageKey(groupId: number): string | null {
   const key = NAV_SECTION_KEY_BY_GROUP_ID[groupId];
@@ -97,7 +101,7 @@ export function sidebarGroupMessageKey(groupId: number): string | null {
 }
 
 function localizeSubItem(sub: NavSubItem, t: NavTranslator): NavSubItem {
-  const key = sidebarItemMessageKey(sub.id);
+  const key = navItemLabelKey(sub);
   return {
     ...sub,
     title: t.has(key) ? t(key) : sub.title,
@@ -108,7 +112,7 @@ function localizeSubItem(sub: NavSubItem, t: NavTranslator): NavSubItem {
 }
 
 function localizeMainItem(item: NavMainItem, t: NavTranslator): NavMainItem {
-  const key = sidebarItemMessageKey(item.id);
+  const key = navItemLabelKey(item);
   const title = t.has(key) ? t(key) : item.title;
   if ("subItems" in item && item.subItems) {
     return {
