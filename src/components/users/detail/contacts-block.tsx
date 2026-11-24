@@ -1,8 +1,7 @@
-import { Mail, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { DetailSection } from "./section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export interface ContactEntry {
   id: string;
@@ -50,56 +49,37 @@ export function ContactsBlock({
       ) : contacts.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       ) : (
-        <div className="grid gap-3">
+        <ul className="divide-y divide-border">
           {contacts.map((c) => (
-            <div
-              key={c.id}
-              className={cn(
-                "flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center",
-                c.primary
-                  ? "border-primary/40 bg-primary/5"
-                  : "border-border bg-card",
-              )}
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3.5">
+            <li key={c.id} className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div
-                  className={cn(
-                    "grid size-12 shrink-0 place-items-center rounded-xl font-semibold text-white",
-                    c.primary ? "bg-primary-solid" : "bg-info",
-                  )}
+                  className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground"
                   aria-hidden
                 >
                   {getInitials(c.name)}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-foreground">{c.name}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-sm font-medium text-foreground">{c.name}</span>
+                    {c.primary ? <Badge variant="secondary">{principalLabel}</Badge> : null}
+                  </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground tabular-nums">
                     {[c.relationship, c.phone].filter(Boolean).join(" · ") || "—"}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                {c.primary ? (
-                  <Badge variant="default" className="text-2xs uppercase">
-                    {principalLabel}
-                  </Badge>
-                ) : null}
-                {c.phone ? (
-                  <Button asChild size="sm" variant={c.primary ? "default" : "outline"}>
-                    <a href={`tel:${c.phone.replace(/\s+/g, "")}`}>
-                      <Phone className="size-3.5" />
-                      {callLabel}
-                    </a>
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" disabled>
-                    <Mail className="size-3.5" />
-                  </Button>
-                )}
-              </div>
-            </div>
+              {c.phone ? (
+                <Button asChild size="sm" variant="outline" className="self-start sm:self-auto">
+                  <a href={`tel:${c.phone.replace(/\s+/g, "")}`}>
+                    <Phone className="size-3.5" aria-hidden />
+                    {callLabel}
+                  </a>
+                </Button>
+              ) : null}
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </DetailSection>
   );

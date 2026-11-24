@@ -1,69 +1,65 @@
 "use client";
 
-import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { ClubSectionRoleRow } from "@/lib/users/role-buckets";
 
 interface UserRolesOverviewProps {
   clubSections: ClubSectionRoleRow[];
 }
 
+/** Clubs and cargos of the person: one row per club section. */
 export function UserRolesOverview({ clubSections }: UserRolesOverviewProps) {
   const t = useTranslations("users.pages.detail.rolesOverview");
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-            <ShieldAlert className="size-4 text-foreground" />
-          </div>
-          <div>
-            <CardTitle className="text-base">{t("clubSectionsTitle")}</CardTitle>
-            <p className="text-xs text-muted-foreground">{t("clubSectionsDescription")}</p>
-          </div>
+    <section className="space-y-3">
+      <div>
+        <h3 className="font-semibold text-base tracking-tight">{t("clubSectionsTitle")}</h3>
+        <p className="text-muted-foreground text-sm">{t("clubSectionsDescription")}</p>
+      </div>
+      {clubSections.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{t("noRoleAssigned")}</p>
+      ) : (
+        <div className="overflow-hidden rounded-xl border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("clubColumn")}</TableHead>
+                <TableHead>{t("sectionColumn")}</TableHead>
+                <TableHead>{t("roleColumn")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {clubSections.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="font-medium">{row.clubName ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {row.sectionName ?? "—"}
+                  </TableCell>
+                  <TableCell>
+                    {row.roleName ? (
+                      <Badge variant="secondary">{row.roleName}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">
+                        {t("noRoleAssigned")}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      </CardHeader>
-      <CardContent>
-        {clubSections.length === 0 ? (
-          <p className="text-sm italic text-muted-foreground/70">{t("noRoleAssigned")}</p>
-        ) : (
-          <div className="overflow-hidden rounded-lg border border-border/70">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-2xs text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 text-left font-semibold">{t("clubColumn")}</th>
-                  <th className="px-3 py-2 text-left font-semibold">{t("sectionColumn")}</th>
-                  <th className="px-3 py-2 text-left font-semibold">{t("roleColumn")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clubSections.map((row) => (
-                  <tr key={row.id} className="border-t border-border/70">
-                    <td className="px-3 py-2.5 font-medium text-foreground">
-                      {row.clubName ?? "—"}
-                    </td>
-                    <td className="px-3 py-2.5 text-muted-foreground">
-                      {row.sectionName ?? "—"}
-                    </td>
-                    <td className="px-3 py-2.5">
-                      {row.roleName ? (
-                        <Badge variant="secondary">{row.roleName}</Badge>
-                      ) : (
-                        <span className="text-sm italic text-muted-foreground/70">
-                          {t("noRoleAssigned")}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </section>
   );
 }
