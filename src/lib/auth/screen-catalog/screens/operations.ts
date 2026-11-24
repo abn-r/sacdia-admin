@@ -1,6 +1,4 @@
 import {
-  CAMPOREE_ORDERS_READ,
-  CAMPOREE_SUPPLIES_READ,
   FIELD_PAYMENT_ORDERS_CONFIGURE,
   FIELD_PAYMENT_ORDERS_READ,
   FIELD_PAYMENT_ORDERS_REVIEW,
@@ -40,9 +38,6 @@ import type { ScreenDefinition } from "../types";
 export const PAYMENT_ORDERS_PAGE_PERMISSIONS = [
   FIELD_PAYMENT_ORDERS_REVIEW,
   FIELD_PAYMENT_ORDERS_READ,
-  CAMPOREE_ORDERS_READ,
-  CAMPOREE_SUPPLIES_READ,
-  MATERIALS_READ,
   INSURANCE_READ,
 ] as const;
 
@@ -118,22 +113,6 @@ export const operationsScreens: ScreenDefinition[] = [
     viewAny: { permissions: [...PAYMENT_ORDERS_PAGE_PERMISSIONS] },
     capabilities: [
       {
-        // Hub: GET /payment-obligations/pending —
-        // payment-obligations.controller.ts:25-34 mode:'any'
-        // (camporee-orders:read | camporee-supplies:read |
-        // field-payment-orders:read | materiales:read).
-        id: "pending",
-        kind: "tab",
-        gate: {
-          permissions: [
-            CAMPOREE_ORDERS_READ,
-            CAMPOREE_SUPPLIES_READ,
-            FIELD_PAYMENT_ORDERS_READ,
-            MATERIALS_READ,
-          ],
-        },
-      },
-      {
         // Hub: GET list (field-payment-orders.controller.ts:135, :read)
         // OR GET review-queue (L149, :review).
         id: "orders",
@@ -193,6 +172,8 @@ export const operationsScreens: ScreenDefinition[] = [
   {
     id: "materials-categories",
     surfaces: ["admin"],
+    // Tab of the materials catalog; the old route redirects there.
+    path: "/dashboard/materials/categories",
     viewAny: { permissions: [MATERIALS_MANAGE_INVENTORY] },
     capabilities: [
       // POST/PATCH/DELETE categories
@@ -206,6 +187,8 @@ export const operationsScreens: ScreenDefinition[] = [
   {
     id: "materials-receipts",
     surfaces: ["admin"],
+    // Tab of the materials queue; the old route redirects there.
+    path: "/dashboard/materials/receipts",
     // Validation queue: the page is unusable without the verb, so the verb is
     // the entry gate (POST receipts/:folio/{approve,reject}).
     viewAny: { permissions: [MATERIALS_VALIDATE_RECEIPT] },
@@ -222,7 +205,7 @@ export const operationsScreens: ScreenDefinition[] = [
     id: "resources-list",
     surfaces: ["admin", "app"],
     // resources.controller.ts — permission-only (no @GlobalRoles).
-    // Territory recorte lives in resource-actions.ts, not this gate.
+    // Territory scope is enforced by the API (resources.service validateScopeAuthorization).
     viewAny: { permissions: [RESOURCES_READ] },
     capabilities: [
       { id: "create", kind: "button", gate: { permissions: [RESOURCES_CREATE] } },
@@ -233,6 +216,8 @@ export const operationsScreens: ScreenDefinition[] = [
   {
     id: "resources-categories",
     surfaces: ["admin"],
+    // Tab of the resources page; the old route redirects there.
+    path: "/dashboard/resources/categories",
     // resource-categories.controller.ts — permission-only, no @GlobalRoles.
     viewAny: { permissions: [RESOURCE_CATEGORIES_READ] },
     capabilities: [

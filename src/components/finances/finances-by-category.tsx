@@ -59,15 +59,15 @@ export function FinancesByCategory({
   }, [load, reloadToken]);
 
   return (
-    <section className="space-y-3" aria-labelledby="finances-by-category-title">
-      <h2 id="finances-by-category-title" className="text-base font-semibold">
+    <section className="space-y-3" aria-labelledby="finances-by-category-title" data-testid="finances-category-rail">
+      <h2 id="finances-by-category-title" className="text-sm font-semibold">
         {t("title")}
       </h2>
 
       {!year ? (
         <EmptyState icon={Layers} title={t("yearRequired")} />
       ) : loading ? (
-        <div className="grid gap-4 md:grid-cols-2" aria-busy="true">
+        <div className="space-y-4" aria-busy="true">
           {[0, 1].map((i) => (
             <div key={i} className="space-y-3 rounded-xl bg-card p-4 shadow-card">
               <Skeleton className="h-4 w-24" />
@@ -84,13 +84,14 @@ export function FinancesByCategory({
           onRetry={() => void load()}
         />
       ) : data ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-4 rounded-xl bg-card p-4 shadow-card">
           <CategoryList
             title={t("incomeTitle")}
             items={data.income}
             total={data.totals.income}
             tone="income"
           />
+          <hr className="border-border" />
           <CategoryList
             title={t("expenseTitle")}
             items={data.expenses}
@@ -120,10 +121,7 @@ function CategoryList({
   const max = items.reduce((acc, item) => Math.max(acc, item.total), 0);
 
   return (
-    <div
-      className="space-y-3 rounded-xl bg-card p-4 shadow-card"
-      data-testid={`by-category-${tone}`}
-    >
+    <div className="space-y-3" data-testid={`by-category-${tone}`}>
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="text-sm font-medium">{title}</h3>
         <p className="text-sm tabular-nums text-muted-foreground">
@@ -131,7 +129,7 @@ function CategoryList({
           <span
             className={cn(
               "font-semibold",
-              tone === "income" ? "text-success" : "text-foreground",
+              tone === "income" && total > 0 ? "text-success" : "text-foreground",
             )}
           >
             {formatAmount(total)}
@@ -158,10 +156,7 @@ function CategoryList({
                   className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
                 >
                   <div
-                    className={cn(
-                      "h-full rounded-full",
-                      tone === "income" ? "bg-success-solid" : "bg-foreground/60",
-                    )}
+                    className="h-full rounded-full bg-foreground/60"
                     style={{ width: `${width}%` }}
                   />
                 </div>

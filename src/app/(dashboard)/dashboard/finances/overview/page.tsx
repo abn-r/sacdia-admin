@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { FinancesOverview } from "@/components/finances/finances-overview";
 import { FinancesViewSwitcher } from "@/components/finances/finances-view-switcher";
 import {
@@ -28,7 +27,6 @@ export default async function FinancesOverviewPage() {
   if (!canViewFinancesOverview(user)) {
     redirect("/dashboard/finances");
   }
-  const t = await getTranslations("finances.overview");
   const territoryScope = resolveAdminTerritoryScope(user);
   const showLocalFieldFilter = canAdminFilterByLocalField(territoryScope);
 
@@ -42,13 +40,12 @@ export default async function FinancesOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")} />
-      <FinancesViewSwitcher active="overview" />
       <FinancesOverview
         localFields={localFields}
         showLocalFieldFilter={showLocalFieldFilter}
         years={years}
         activeYearId={activeYearId}
+        switcher={<FinancesViewSwitcher active="overview" />}
       />
     </div>
   );

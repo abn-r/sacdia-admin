@@ -1,191 +1,115 @@
-import { CheckCircle2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useTranslations } from "next-intl";
 import { MoneyFormat } from "@/components/materials/money-format";
-import { cn } from "@/lib/utils";
-import type { OrdenLine, MaterialEstado } from "@/lib/types/materials";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import type { MaterialEstado, OrdenLine } from "@/lib/types/materials";
 import { LineAvailabilityCell } from "./line-availability-form";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface LinesTableProps {
   folio: string;
   lines: OrdenLine[];
   estado: MaterialEstado;
-  subtotalCentavos: number;
-  envioCentavos: number;
-  totalCentavos: number;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function LineName({ line, untitled }: { line: OrdenLine; untitled: string }) {
+  const t = useTranslations("ops.materials.lines");
+  return (
+    <>
+      <span className="block text-sm font-medium text-foreground">{line.product?.title ?? untitled}</span>
+      <span className="block font-mono text-xs text-muted-foreground">{line.product?.sku ?? line.product_id}</span>
+      {line.variant_option ? (
+        <span className="block text-xs text-muted-foreground">{t("variant", { label: line.variant_option.label })}</span>
+      ) : null}
+    </>
+  );
+}
 
-export function LinesTable({
-  folio,
-  lines,
-  estado,
-  subtotalCentavos,
-  envioCentavos,
-  totalCentavos,
-}: LinesTableProps) {
-  const isEnRevision = estado === "en_revision";
+/** Order lines. In review each line is resolved in its own row. */
+export function LinesTable({ folio, lines, estado }: LinesTableProps) {
+  const t = useTranslations("ops.materials.lines");
+  const isReview = estado === "en_revision";
   const resolved = lines.filter((l) => l.disponibilidad !== "pendiente").length;
-  const total = lines.length;
+
+  const cell = (line: OrdenLine) => (
+    <LineAvailabilityCell
+      folio={folio}
+      lineId={line.id}
+      productTitle={line.product?.title ?? t("untitled")}
+      currentDisponibilidad={line.disponibilidad}
+      currentQtyDisponible={line.qty_disponible}
+      qty={line.qty}
+      editable={isReview}
+    />
+  );
 
   return (
-    <section
-      aria-labelledby="partidas-heading"
-      className="mt-6 overflow-hidden rounded-lg border border-border/60 bg-card"
-    >
-      <header className="flex items-center justify-between border-b border-border/60 p-5">
-        <h2
-          id="partidas-heading"
-          className="text-sm font-semibold"
-        >
-          Partidas
+    <section aria-labelledby="mat-lines-heading" className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 id="mat-lines-heading" className="text-base font-semibold">
+          {t("title")}
         </h2>
-        {isEnRevision && total > 0 && (
-          <div
-            aria-live="polite"
-            className="flex items-center gap-2 text-sm text-muted-foreground"
-          >
-            <span>
-              {resolved} de {total}{" "}
-              {total === 1 ? "partida resuelta" : "partidas resueltas"}
-            </span>
-            {resolved === total && (
-              <CheckCircle2
-                className="size-4 text-success"
-                aria-label="Todas las partidas resueltas"
-              />
-            )}
-          </div>
-        )}
-      </header>
-
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
-                Producto
-              </TableHead>
-              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
-                SKU
-              </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
-                Cant.
-              </TableHead>
-              <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
-                Disponibilidad
-              </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
-                Precio
-              </TableHead>
-              <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
-                Importe
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {lines.map((line) => {
-              const isResolved =
-                line.disponibilidad !== "pendiente" && isEnRevision;
-              return (
-                <TableRow
-                  key={line.id}
-                  className={cn(
-                    "h-14",
-                    isResolved && "bg-muted/20",
-                  )}
-                >
-                  <TableCell className="px-4 align-middle">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-foreground">
-                        {line.product?.title ?? "—"}
-                      </span>
-                      {line.variant_option && (
-                        <span className="text-xs text-muted-foreground">
-                          variante: {line.variant_option.label}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-4 align-middle">
-                    <span className="font-mono text-xs text-muted-foreground">
-                      {line.product?.sku ?? line.product_id}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-4 text-right align-middle font-mono tabular-nums">
-                    {line.qty}
-                  </TableCell>
-                  <TableCell className="px-4 align-middle">
-                    <LineAvailabilityCell
-                      folio={folio}
-                      lineId={line.id}
-                      currentDisponibilidad={line.disponibilidad}
-                      currentQtyDisponible={line.qty_disponible}
-                      qty={line.qty}
-                      editable={isEnRevision}
-                    />
-                  </TableCell>
-                  <TableCell className="px-4 text-right align-middle font-mono tabular-nums">
-                    <MoneyFormat centavos={line.price_centavos} />
-                  </TableCell>
-                  <TableCell className="px-4 text-right align-middle font-mono font-medium tabular-nums">
-                    <MoneyFormat centavos={line.line_total_centavos} />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-
-            {lines.length > 0 && (
-              <>
-                <TableRow className="bg-muted/30 font-medium hover:bg-muted/30">
-                  <TableCell colSpan={5} className="px-4 text-right text-sm">
-                    Subtotal
-                  </TableCell>
-                  <TableCell className="px-4 text-right font-mono tabular-nums">
-                    <MoneyFormat centavos={subtotalCentavos} />
-                  </TableCell>
-                </TableRow>
-                <TableRow className="bg-muted/30 font-medium hover:bg-muted/30">
-                  <TableCell colSpan={5} className="px-4 text-right text-sm">
-                    Envío
-                  </TableCell>
-                  <TableCell className="px-4 text-right font-mono tabular-nums">
-                    <MoneyFormat centavos={envioCentavos} />
-                  </TableCell>
-                </TableRow>
-                <TableRow className="bg-muted/40 text-base font-semibold hover:bg-muted/40">
-                  <TableCell colSpan={5} className="px-4 text-right">
-                    Total
-                  </TableCell>
-                  <TableCell className="px-4 text-right font-mono tabular-nums">
-                    <MoneyFormat centavos={totalCentavos} />
-                  </TableCell>
-                </TableRow>
-              </>
-            )}
-
-            {lines.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="px-4 py-8 text-center text-sm text-muted-foreground"
-                >
-                  No hay partidas en esta solicitud.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        {isReview && lines.length > 0 ? (
+          <span aria-live="polite" className="text-sm text-muted-foreground tabular-nums">
+            {t("progress", { resolved, total: lines.length })}
+          </span>
+        ) : null}
       </div>
+
+      {lines.length === 0 ? (
+        <p className="rounded-xl bg-card px-5 py-8 text-center text-sm text-muted-foreground shadow-card">{t("empty")}</p>
+      ) : (
+        <>
+          <DataTableShell className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-5">{t("product")}</TableHead>
+                  <TableHead className="text-right">{t("qty")}</TableHead>
+                  <TableHead>{t("availability")}</TableHead>
+                  <TableHead className="text-right">{t("price")}</TableHead>
+                  <TableHead className="pr-5 text-right">{t("amount")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lines.map((line) => (
+                  <TableRow key={line.id}>
+                    <TableCell className="pl-5 whitespace-normal">
+                      <LineName line={line} untitled={t("untitled")} />
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{line.qty}</TableCell>
+                    <TableCell className="whitespace-normal">{cell(line)}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      <MoneyFormat centavos={line.price_centavos} />
+                    </TableCell>
+                    <TableCell className="pr-5 text-right font-medium tabular-nums">
+                      <MoneyFormat centavos={line.line_total_centavos} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+
+          <ul className="divide-y rounded-xl bg-card shadow-card md:hidden">
+            {lines.map((line) => (
+              <li key={line.id} className="space-y-2 px-4 py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <LineName line={line} untitled={t("untitled")} />
+                  </div>
+                  <span className="shrink-0 text-sm font-medium tabular-nums">
+                    <MoneyFormat centavos={line.line_total_centavos} />
+                  </span>
+                </div>
+                <p className="text-[13px] text-muted-foreground tabular-nums">
+                  {t("qtyAt", { qty: line.qty })} <MoneyFormat centavos={line.price_centavos} />
+                </p>
+                {cell(line)}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
   );
 }

@@ -1,79 +1,24 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DollarSign } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
+import { ClubContextBar } from "@/components/shared/club-context-bar";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { FinancesDashboard } from "@/components/finances/finances-dashboard";
+import { FinancesOverview } from "@/components/finances/finances-overview";
 import { FinancesViewSwitcher } from "@/components/finances/finances-view-switcher";
-import { canViewFinancesOverview } from "@/lib/finances/overview-access";
-import { FinancesClubSelector } from "@/components/finances/finances-club-selector";
-import { apiRequest, ApiError } from "@/lib/api/client";
-import { listClubTypes } from "@/lib/api/catalogs";
+import { getActiveEcclesiasticalYearId, listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { errorStateFromError } from "@/lib/api/error-state";
+import type { LocalField } from "@/lib/api/geography";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import {
-  canAdminFilterByLocalField,
-  listLocalFieldsForTerritory,
-  resolveAdminTerritoryScope,
-} from "@/lib/auth/territory-scope";
-import {
-  normalizeFinanceClubSections,
-  type FinanceClubSection,
-} from "@/lib/finances/club-sections";
-import type { LocalField } from "@/lib/api/geography";
-import type { ClubType } from "@/lib/api/catalogs";
-
-type AnyRecord = Record<string, unknown>;
-
-type ClubOption = {
-  club_id: number;
-  name: string;
-  sections: FinanceClubSection[];
-  local_field_id?: number;
-};
-
-type FetchClubsError =
-  | { kind: "api"; message: string }
-  | { kind: "unexpected" };
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
-
-async function fetchClubs(
-  clubTypes: ClubType[],
-): Promise<{ clubs: ClubOption[]; fetchError?: FetchClubsError }> {
-  try {
-    const payload = await apiRequest<unknown>("/clubs");
-    const raw = extractArray(payload);
-
-    const clubs: ClubOption[] = raw
-      .filter((club) => club.active !== false)
-      .map((club) => {
-        const localFieldId = Number(club.local_field_id ?? 0);
-        return {
-          club_id: Number(club.club_id ?? club.id),
-          name: String(club.name ?? `Club ${club.club_id ?? club.id}`),
-          sections: normalizeFinanceClubSections(club, clubTypes),
-          local_field_id: localFieldId > 0 ? localFieldId : undefined,
-        };
-      })
-      .filter((club) => club.club_id > 0);
-
-    return { clubs };
-  } catch (error) {
-    if (error instanceof ApiError) {
-      return { clubs: [], fetchError: { kind: "api", message: error.message } };
-    }
-    return { clubs: [], fetchError: { kind: "unexpected" } };
-  }
-}
+import { canAdminFilterByLocalField, listLocalFieldsForTerritory, resolveAdminTerritoryScope } from "@/lib/auth/territory-scope";
+import { loadClubContextClubs } from "@/lib/club-context/load-clubs";
+import { CLUB_CONTEXT_COOKIE, resolveClubContext } from "@/lib/club-context/scope";
+import { canViewFinancesOverview } from "@/lib/finances/overview-access";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("finances");
@@ -83,66 +28,114 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function FinancesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ club?: string | string[] }>;
+  searchParams: Promise<{ club?: string | string[]; section?: string | string[] }>;
 }) {
   const user = await requireAdminUser();
   if (!canViewScreen(user, "finances")) {
     redirect("/dashboard");
   }
   const t = await getTranslations("finances");
-  const clubParam = (await searchParams).club;
-  const initialClubId = Number(Array.isArray(clubParam) ? clubParam[0] : clubParam);
-  const showOverviewLink = canViewFinancesOverview(user);
+  const search = await searchParams;
+  const cookieStore = await cookies();
   const territoryScope = resolveAdminTerritoryScope(user);
+  const isTerritoryRole = canViewFinancesOverview(user);
 
-  const clubTypes = await listClubTypes().catch(() => []);
-  const { clubs, fetchError } = await fetchClubs(clubTypes);
-  let localFields: LocalField[] = [];
+  const [clubTypes, localFields] = await Promise.all([
+    listClubTypes().catch(() => []),
+    canAdminFilterByLocalField(territoryScope)
+      ? listLocalFieldsForTerritory(user).catch((): LocalField[] => [])
+      : Promise.resolve<LocalField[]>([]),
+  ]);
+  const loaded = await loadClubContextClubs(clubTypes, localFields);
 
-  if (canAdminFilterByLocalField(territoryScope)) {
-    localFields = await listLocalFieldsForTerritory(user).catch(() => []);
+  if (!loaded.ok) {
+    const { kind, detail } = errorStateFromError(loaded.error);
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
+        <ErrorState kind={kind} detail={detail} retry />
+      </div>
+    );
   }
 
-  const errorMessage = fetchError
-    ? fetchError.kind === "api"
-      ? fetchError.message
-      : t("page.error_unexpected")
-    : undefined;
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("page.title")}
-        description={t("page.description")}
-      />
-
-      {showOverviewLink ? <FinancesViewSwitcher active="by-club" /> : null}
-
-      {errorMessage && (
-        <EndpointErrorBanner
-          state="missing"
-          detail={errorMessage}
-        />
-      )}
-
-      {!errorMessage && clubs.length === 0 ? (
+  const clubs = loaded.clubs;
+  if (clubs.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
         <EmptyState
           icon={DollarSign}
           title={t("page.empty_no_clubs_title")}
           description={t("page.empty_no_clubs_description")}
         />
-      ) : (
-        <FinancesClubSelector
-          clubs={clubs}
-          localFields={localFields}
-          territoryScope={territoryScope}
-          initialClubId={
-            Number.isInteger(initialClubId) && initialClubId > 0
-              ? initialClubId
-              : undefined
-          }
+      </div>
+    );
+  }
+
+  const { club, section } = resolveClubContext({
+    clubs,
+    searchParams: search,
+    cookie: cookieStore.get(CLUB_CONTEXT_COOKIE)?.value ?? null,
+  });
+  // Club roles have one club: they go straight to it, with nothing to pick.
+  const fixed = !isTerritoryRole && clubs.length === 1 && (club?.sections.length ?? 0) <= 1;
+  const switcher = isTerritoryRole ? <FinancesViewSwitcher active="by-club" /> : undefined;
+
+  const bar = (
+    <ClubContextBar
+      clubs={clubs}
+      clubId={club?.club_id ?? null}
+      sectionId={section?.club_section_id ?? null}
+      fixed={fixed}
+      allowAllSections
+    />
+  );
+
+  if (club) {
+    return (
+      <div className="space-y-6">
+        {bar}
+        <FinancesDashboard
+          key={club.club_id}
+          clubId={club.club_id}
+          clubName={club.name}
+          sections={club.sections}
+          sectionId={section?.club_section_id ?? "all"}
+          switcher={switcher}
         />
-      )}
+      </div>
+    );
+  }
+
+  if (isTerritoryRole) {
+    const [years, activeYearId] = await Promise.all([
+      listEcclesiasticalYears().catch(() => []),
+      getActiveEcclesiasticalYearId().catch(() => null),
+    ]);
+    return (
+      <div className="space-y-6">
+        {bar}
+        <FinancesOverview
+          mode="clubs"
+          localFields={localFields}
+          showLocalFieldFilter={canAdminFilterByLocalField(territoryScope)}
+          years={years}
+          activeYearId={activeYearId}
+          switcher={switcher}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {bar}
+      <PageHeader title={t("page.title")} />
+      <EmptyState
+        icon={DollarSign}
+        title={t("clubSelector.emptyTitle")}
+        description={t("clubSelector.emptyDescription")}
+      />
     </div>
   );
 }

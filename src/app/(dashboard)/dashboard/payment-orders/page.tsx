@@ -27,10 +27,8 @@ export default async function PaymentOrdersPage({
       ? rawOrderId.trim()
       : null;
   const t = await getTranslations("payment_orders");
-  const tPending = await getTranslations("payment_obligations");
 
   const tabs = {
-    pending: canCapability(user, "payment-orders", "pending"),
     orders: canCapability(user, "payment-orders", "orders"),
     reassignments: canCapability(user, "payment-orders", "reassignments"),
   };
@@ -39,8 +37,8 @@ export default async function PaymentOrdersPage({
     return (
       <div className="space-y-6">
         <PageHeader
-          title={tPending("page.title")}
-          description={tPending("page.description")}
+          title={t("page.title")}
+          description={t("page.description")}
         />
         <Alert variant="destructive">
           <AlertTitle>{t("gate.forbiddenTitle")}</AlertTitle>
@@ -51,12 +49,6 @@ export default async function PaymentOrdersPage({
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={tPending("page.title")}
-        description={tPending("page.description")}
-      />
-      <PaymentOrdersClient tabs={tabs} initialOrderId={orderId} />
-    </div>
+    <PaymentOrdersClient tabs={tabs} initialOrderId={orderId} />
   );
 }

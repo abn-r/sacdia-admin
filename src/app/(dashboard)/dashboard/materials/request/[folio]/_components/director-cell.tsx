@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 
 interface DirectorCellProps {
@@ -11,48 +12,30 @@ interface DirectorCellProps {
 }
 
 /**
- * Renders the director identity for an order:
- *  - Full name + club when both are present.
- *  - Just the name (plus em-dash) when club is missing.
- *  - "Director (id: xxxxxxxx…)" with a copy-to-clipboard control when no
- *    director relation exists (only the created_by UUID is known).
+ * Director identity of an order: name + club, or, when only the creator UUID is
+ * known, a short id with a copy control.
  */
 export function DirectorCell({ director, fallbackId }: DirectorCellProps) {
+  const t = useTranslations("ops.materials.detail");
   const userId = director?.user_id ?? fallbackId;
   const nombre = director?.nombre?.trim() || null;
   const club = director?.club?.trim() || null;
-
-  if (nombre && club) {
-    return (
-      <div className="flex flex-col">
-        <span className="text-sm font-medium text-foreground">{nombre}</span>
-        <span className="text-sm text-muted-foreground">{club}</span>
-      </div>
-    );
-  }
 
   if (nombre) {
     return (
       <div className="flex flex-col">
         <span className="text-sm font-medium text-foreground">{nombre}</span>
-        <span className="text-sm text-muted-foreground">—</span>
+        <span className="text-sm text-muted-foreground">{club ?? "—"}</span>
       </div>
     );
   }
 
-  const trimmedId = userId.slice(0, 8);
-
   return (
     <div className="flex flex-col">
-      <span className="text-sm font-medium text-foreground">
-        Director (id: {trimmedId}…)
-      </span>
+      <span className="text-sm font-medium text-foreground">{t("directorUnknown", { id: userId.slice(0, 8) })}</span>
       <div className="flex items-center gap-1 text-sm text-muted-foreground">
         <span className="font-mono text-xs">{userId}</span>
-        <CopyButton
-          text={userId}
-          ariaLabel="Copiar ID del director"
-        />
+        <CopyButton text={userId} ariaLabel={t("copyDirectorId")} />
       </div>
     </div>
   );

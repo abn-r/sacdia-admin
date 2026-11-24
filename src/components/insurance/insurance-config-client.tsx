@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SettingsSection } from "@/components/shared/settings-rows";
 import { InsuranceProductsPanel } from "@/components/insurance/insurance-products-panel";
 import { InsuranceCyclesPanel } from "@/components/insurance/insurance-cycles-panel";
 import { PaymentInstructionsPanel } from "@/components/insurance/payment-instructions-panel";
@@ -33,7 +33,6 @@ export function InsuranceConfigClient({
   canConfigurePaymentInstructions,
 }: InsuranceConfigClientProps) {
   const t = useTranslations("insurance_config");
-  const defaultTab = canConfigureInsurance ? "products" : "payment";
   // Admins without a local field pick one for products and cycles; with a
   // single option it is preselected.
   const [selectedFieldId, setSelectedFieldId] = useState<number | undefined>(
@@ -78,47 +77,43 @@ export function InsuranceConfigClient({
       );
     }
     return panel === "products" ? (
-      <InsuranceProductsPanel key={selectedFieldId} localFieldId={selectedFieldId} />
+      <InsuranceProductsPanel key={`products-${selectedFieldId}`} localFieldId={selectedFieldId} />
     ) : (
-      <InsuranceCyclesPanel key={selectedFieldId} localFieldId={selectedFieldId} />
+      <InsuranceCyclesPanel key={`cycles-${selectedFieldId}`} localFieldId={selectedFieldId} />
     );
   };
 
   return (
-    <Tabs defaultValue={defaultTab} className="space-y-4">
-      <TabsList>
-        {canConfigureInsurance && (
-          <>
-            <TabsTrigger value="products">{t("tabs.products")}</TabsTrigger>
-            <TabsTrigger value="cycles">{t("tabs.cycles")}</TabsTrigger>
-          </>
-        )}
-        {canConfigurePaymentInstructions && (
-          <TabsTrigger value="payment">
-            {t("tabs.paymentInstructions")}
-          </TabsTrigger>
-        )}
-      </TabsList>
+    <div className="space-y-2">
       {canConfigureInsurance && (
         <>
-          <TabsContent value="products" className="space-y-4">
-            {fieldPicker}
-            {insurancePanel("products")}
-          </TabsContent>
-          <TabsContent value="cycles" className="space-y-4">
-            {fieldPicker}
-            {insurancePanel("cycles")}
-          </TabsContent>
+          {fieldPicker}
+          {fieldMissing ? (
+            insurancePanel("products")
+          ) : (
+            <>
+              {insurancePanel("products")}
+              {insurancePanel("cycles")}
+            </>
+          )}
         </>
       )}
       {canConfigurePaymentInstructions && (
-        <TabsContent value="payment">
-          <PaymentInstructionsPanel
-            requiresLocalFieldId={requiresLocalFieldId}
-            localFieldOptions={localFieldOptions}
-          />
-        </TabsContent>
+        <SettingsSection title={t("tabs.paymentInstructions")}>
+          <div className="p-5">
+            {canConfigureInsurance && fieldMissing ? (
+              <p className="text-muted-foreground text-sm">{t("picker.required")}</p>
+            ) : (
+              <PaymentInstructionsPanel
+                requiresLocalFieldId={requiresLocalFieldId}
+                localFieldOptions={localFieldOptions}
+                // The picker above drives every section when it is shown.
+                controlledFieldId={canConfigureInsurance && requiresLocalFieldId ? (selectedFieldId ?? null) : undefined}
+              />
+            )}
+          </div>
+        </SettingsSection>
       )}
-    </Tabs>
+    </div>
   );
 }

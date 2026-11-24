@@ -567,7 +567,7 @@ describe("resolvePathEntry", () => {
   });
 
   it("picks the longest prefix between screen paths and route hrefs", () => {
-    expect(resolvePathEntry("/dashboard/materials/inventory/x")?.screenId).toBe(
+    expect(resolvePathEntry("/dashboard/materials/catalog/x")?.screenId).toBe(
       "materials-inventory",
     );
     expect(resolvePathEntry("/dashboard/materials/request/FOLIO")?.capabilityId).toBe(

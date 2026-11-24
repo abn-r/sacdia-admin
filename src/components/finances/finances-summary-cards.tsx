@@ -1,7 +1,5 @@
 "use client";
 
-import { Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FinanceSummary } from "@/lib/api/finances";
@@ -57,24 +55,11 @@ export function FinancesSummaryCards({ summary }: FinancesSummaryCardsProps) {
 
   return (
     <div className="space-y-2">
-      {summary.period_closed ? (
-        <div
-          role="status"
-          className="flex items-center gap-2 text-sm text-muted-foreground"
-        >
-          <Badge variant="soft-warning">
-            <Lock aria-hidden="true" data-icon="inline-start" />
-            {t("closed.badge")}
-          </Badge>
-          <span>{t("closed.summaryNotice")}</span>
-        </div>
-      ) : null}
-
       <KpiStrip aria-label={t("summary.balance")}>
         <KpiStripItem
           label={t("summary.totalIncome")}
           value={`+${formatAmount(summary.total_income)}`}
-          valueClassName="text-success"
+          valueClassName={summary.total_income > 0 ? "text-success" : undefined}
           subline={incomeSub}
         />
         <KpiStripItem

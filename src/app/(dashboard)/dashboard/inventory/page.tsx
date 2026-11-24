@@ -1,174 +1,169 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Package } from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
+import { ClubContextBar, ClubPickList, SectionPickLinks } from "@/components/shared/club-context-bar";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import { InventoryView } from "@/components/inventory/inventory-view";
-import { apiRequest, ApiError } from "@/lib/api/client";
-import { listInventoryCategories, listClubInventory } from "@/lib/api/inventory";
 import { listClubTypes } from "@/lib/api/catalogs";
-import { canViewScreen } from "@/lib/auth/screen-catalog";
+import { errorStateFromError } from "@/lib/api/error-state";
+import type { LocalField } from "@/lib/api/geography";
+import { listClubInventory, listInventoryCategories } from "@/lib/api/inventory";
+import type { InventoryItem } from "@/lib/api/inventory";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
+  canAdminFilterByLocalField,
   listLocalFieldsForTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
+import { loadClubContextClubs } from "@/lib/club-context/load-clubs";
+import { CLUB_CONTEXT_COOKIE, resolveClubContext } from "@/lib/club-context/scope";
+import { normalizeInventoryCategories } from "@/lib/inventory/categories";
+import { clubTypeIdToInstanceType, extractArray } from "@/lib/inventory/club-sections";
+import { countNeedingAttention } from "@/lib/inventory/filter-items";
 import { normalizeInventoryItem } from "@/lib/inventory/normalize-item";
-import {
-  buildInventorySectionOptions,
-  clubTypeIdToInstanceType,
-  extractArray,
-  filterInventorySections,
-  type InventorySectionOption,
-} from "@/lib/inventory/club-sections";
-import type { ClubType } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
-import type { InventoryItem, InventoryCategory } from "@/lib/api/inventory";
-
-type AnyRecord = Record<string, unknown>;
-
-function normalizeCategory(raw: AnyRecord): InventoryCategory {
-  return {
-    inventory_category_id: Number(raw.inventory_category_id ?? raw.id ?? 0),
-    name: String(raw.name ?? ""),
-    description: typeof raw.description === "string" ? raw.description : null,
-  };
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("inventory");
   return { title: t("page.title") };
 }
 
-export default async function InventoryPage() {
+export default async function InventoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ club?: string | string[]; section?: string | string[] }>;
+}) {
   const user = await requireAdminUser();
   if (!canViewScreen(user, "club-inventory")) {
     redirect("/dashboard");
   }
   const t = await getTranslations("inventory");
+  const tc = await getTranslations("ops.club.inventory");
+  const search = await searchParams;
+  const cookieStore = await cookies();
   const territoryScope = resolveAdminTerritoryScope(user);
 
-  let sections: InventorySectionOption[] = [];
-  let categories: InventoryCategory[] = [];
-  let localFields: LocalField[] = [];
-  let clubTypes: ClubType[] = [];
-  let initialItems: InventoryItem[] = [];
-  let initialLocalFieldId: number | "all" = "all";
-  const initialClubTypeId: number | "all" = "all";
-  let loadError: string | null = null;
+  const [clubTypes, localFields] = await Promise.all([
+    listClubTypes().catch(() => []),
+    canAdminFilterByLocalField(territoryScope)
+      ? listLocalFieldsForTerritory(user).catch((): LocalField[] => [])
+      : Promise.resolve<LocalField[]>([]),
+  ]);
+  const loaded = await loadClubContextClubs(clubTypes, localFields);
 
-  if (territoryScope.level === "local_field") {
-    initialLocalFieldId = territoryScope.localFieldId;
-  }
-
-  const [clubsResult, categoriesResult, localFieldsResult, clubTypesResult] =
-    await Promise.allSettled([
-      apiRequest<unknown>("/clubs"),
-      listInventoryCategories(),
-      listLocalFieldsForTerritory(user),
-      listClubTypes(),
-    ]);
-
-  if (clubTypesResult.status === "fulfilled") {
-    clubTypes = clubTypesResult.value;
-  }
-
-  if (clubsResult.status === "fulfilled") {
-    const rawClubs = extractArray(clubsResult.value);
-    sections = buildInventorySectionOptions(rawClubs, clubTypes);
-  } else {
-    const err = clubsResult.reason;
-    loadError =
-      err instanceof ApiError
-        ? err.message
-        : t("errors.failed_load_clubs");
-  }
-
-  if (categoriesResult.status === "fulfilled") {
-    const rawCategories = extractArray(categoriesResult.value);
-    categories = rawCategories
-      .map(normalizeCategory)
-      .filter((c) => c.inventory_category_id > 0);
-  }
-
-  if (localFieldsResult.status === "fulfilled") {
-    localFields = localFieldsResult.value;
-  }
-
-  if (sections.length > 0 && !loadError) {
-    const scopedSections = filterInventorySections(
-      sections,
-      initialLocalFieldId,
-      initialClubTypeId,
+  if (!loaded.ok) {
+    const { kind, detail } = errorStateFromError(loaded.error);
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
+        <ErrorState kind={kind} detail={detail} retry />
+      </div>
     );
-    const firstSection = scopedSections[0] ?? sections[0];
-
-    if (firstSection) {
-      if (initialLocalFieldId === "all" && firstSection.local_field_id) {
-        initialLocalFieldId = firstSection.local_field_id;
-      }
-    }
-
-    const initialSection =
-      filterInventorySections(
-        sections,
-        initialLocalFieldId,
-        initialClubTypeId,
-      )[0] ?? firstSection;
-
-    if (initialSection) {
-      const instanceType = clubTypeIdToInstanceType(initialSection.club_type_id);
-      try {
-        const payload = await listClubInventory(initialSection.club_section_id, {
-          instanceType,
-        });
-        const rawItems = extractArray(payload);
-        initialItems = rawItems.map(normalizeInventoryItem);
-      } catch (err) {
-        console.warn("Failed to load initial inventory items:", err);
-      }
-    }
   }
 
-  const initialSection =
-    filterInventorySections(sections, initialLocalFieldId, initialClubTypeId)[0] ??
-    sections[0] ??
-    null;
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("page.title")}
-        description={t("page.description")}
-      />
-
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
-
-      {!loadError && sections.length === 0 && (
+  const clubs = loaded.clubs;
+  if (clubs.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
         <EmptyState
           icon={Package}
           title={t("page.empty_no_clubs_title")}
           description={t("page.empty_no_clubs_description")}
         />
-      )}
+      </div>
+    );
+  }
 
-      {!loadError && sections.length > 0 && (
-        <InventoryView
-          sections={sections}
-          categories={categories}
-          localFields={localFields}
-          clubTypes={clubTypes}
-          territoryScope={territoryScope}
-          initialItems={initialItems}
-          initialSectionId={initialSection?.club_section_id ?? null}
-          initialLocalFieldId={initialLocalFieldId}
-          initialClubTypeId={initialClubTypeId}
-        />
-      )}
+  const { club, section } = resolveClubContext({
+    clubs,
+    searchParams: search,
+    cookie: cookieStore.get(CLUB_CONTEXT_COOKIE)?.value ?? null,
+  });
+  // Club roles have one club: they go straight to it, with nothing to pick.
+  const fixed = clubs.length === 1;
+  const bar = (
+    <ClubContextBar
+      clubs={clubs}
+      clubId={club?.club_id ?? null}
+      sectionId={section?.club_section_id ?? null}
+      fixed={fixed && club?.sections.length === 1}
+    />
+  );
+
+  // No section yet: the territory's clubs (or the sections of the chosen club), never an empty page.
+  if (!club || !section) {
+    return (
+      <div className="space-y-6">
+        {bar}
+        <PageHeader title={t("page.title")} description={t("page.description")} />
+        {club ? (
+          <EmptyState
+            icon={Package}
+            title={tc("pickSection.title", { club: club.name })}
+            description={tc("pickSection.description")}
+          >
+            <SectionPickLinks club={club} />
+          </EmptyState>
+        ) : (
+          <ClubPickList clubs={clubs} />
+        )}
+      </div>
+    );
+  }
+
+  const instanceType = clubTypeIdToInstanceType(section.club_type_id);
+  const [itemsResult, categoriesResult] = await Promise.allSettled([
+    listClubInventory(section.club_section_id, { instanceType }),
+    listInventoryCategories(),
+  ]);
+
+  const contextQuery = new URLSearchParams({
+    club: String(club.club_id),
+    section: String(section.club_section_id),
+  }).toString();
+  const canCreate = canCapability(user, "club-inventory", "create");
+
+  if (itemsResult.status === "rejected") {
+    const { kind, detail } = errorStateFromError(itemsResult.reason);
+    return (
+      <div className="space-y-6">
+        {bar}
+        <PageHeader title={t("page.title")} description={t("page.description")} />
+        <ErrorState kind={kind} detail={detail} description={t("errors.load_items_failed")} retry />
+      </div>
+    );
+  }
+
+  const items: InventoryItem[] = extractArray(itemsResult.value).map(normalizeInventoryItem);
+  const categories =
+    categoriesResult.status === "fulfilled" ? normalizeInventoryCategories(categoriesResult.value) : [];
+  const attention = countNeedingAttention(items);
+
+  return (
+    <div className="space-y-6">
+      {bar}
+      <PageHeader
+        title={t("page.title")}
+        description={tc("description", { count: items.length, attention })}
+        actions={
+          canCreate ? (
+            <Button asChild size="sm">
+              <Link href={`/dashboard/inventory/new?${contextQuery}`}>
+                <Plus className="size-4" aria-hidden />
+                {t("view.new_item")}
+              </Link>
+            </Button>
+          ) : null
+        }
+      />
+      <InventoryView key={section.club_section_id} items={items} categories={categories} contextQuery={contextQuery} />
     </div>
   );
 }

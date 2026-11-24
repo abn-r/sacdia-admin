@@ -1,83 +1,49 @@
 import { notFound } from "next/navigation";
-import { MessageSquare } from "lucide-react";
-import { StatusBadge } from "@/components/materials/status-badge";
-import { getOrder, listReceipts, getConfig } from "@/lib/api/materials";
-import { orderLocalFieldId } from "@/lib/materials/order-local-field";
-import { extractComprobantes } from "@/lib/materials/comprobantes";
-import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
-import { requireAdminUser } from "@/lib/auth/session";
-import { canCapability } from "@/lib/auth/screen-catalog";
-import { ApiError } from "@/lib/api/client";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { BankSnapshotCard } from "./_components/bank-snapshot-card";
-import { PageHeader } from "@/components/shared/page-header";
-import { ReceiptsSection } from "./_components/receipts-section";
+import { DirectorCell } from "./_components/director-cell";
 import { LinesTable } from "./_components/lines-table";
-import { OrderMetadataStrip } from "./_components/order-metadata-strip";
-import { OrderStickyBar } from "./_components/order-sticky-bar";
 import { OrderSummaryRail } from "./_components/order-summary-rail";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { ReceiptsSection } from "./_components/receipts-section";
+import { DetailHeader } from "@/components/shared/detail-header";
+import { ErrorState } from "@/components/shared/error-state";
+import { MoneyFormat } from "@/components/materials/money-format";
+import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
+import { getConfig, getOrder, listReceipts } from "@/lib/api/materials";
+import { canCapability } from "@/lib/auth/screen-catalog";
+import { requireAdminUser } from "@/lib/auth/session";
+import { SACDIA_DISPLAY_TIMEZONE } from "@/lib/format-locale";
+import { extractComprobantes } from "@/lib/materials/comprobantes";
+import { orderLocalFieldId } from "@/lib/materials/order-local-field";
+import { buildReceiptPrintContextFromOrder } from "@/lib/materials/receipt-print";
+import type { Orden } from "@/lib/types/materials";
 
 type Params = Promise<{ folio: string }>;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatCreatedLong(iso: string): string {
-  try {
-    const date = new Date(iso);
-    const long = new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }).format(date);
-    const time = new Intl.DateTimeFormat("es-MX", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
-    return `${long} · ${time}`;
-  } catch {
-    return iso;
-  }
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default async function SolicitudDetailPage({
-  params,
-}: {
-  params: Params;
-}) {
+export default async function OrderDetailPage({ params }: { params: Params }) {
   const { folio } = await params;
   const user = await requireAdminUser();
+  const t = await getTranslations("ops.materials");
+  const format = await getFormatter();
 
   const canApprove = canCapability(user, "materials-inbox", "approve");
   const canDeliver = canCapability(user, "materials-inbox", "deliver");
   const canValidateReceipt = canCapability(user, "materials-receipts", "validate");
 
-  let orden;
+  let orden: Orden;
   try {
     orden = await getOrder(folio);
   } catch (err) {
-    if (err instanceof ApiError && err.status === 404) {
-      notFound();
-    }
-    throw err;
+    if (err instanceof ApiError && err.status === 404) notFound();
+    const state = errorStateFromError(err);
+    return <ErrorState kind={state.kind} detail={state.detail} retry />;
   }
 
-  // Derived metrics
   const linesTotal = orden.lines.length;
-  const linesResolved = orden.lines.filter(
-    (l) => l.disponibilidad !== "pendiente",
-  ).length;
+  const linesResolved = orden.lines.filter((l) => l.disponibilidad !== "pendiente").length;
 
-  const showBankSnapshot =
-    orden.estado === "aprobada" ||
-    orden.estado === "pagada" ||
-    orden.estado === "entregada" ||
-    (orden.estado === "cancelada" && orden.refund_pending);
-
-  const showComprobantes =
+  const showPayment =
     orden.estado === "aprobada" ||
     orden.estado === "pagada" ||
     orden.estado === "entregada" ||
@@ -87,92 +53,90 @@ export default async function SolicitudDetailPage({
   if (comprobantes.length === 0) {
     comprobantes = await listReceipts(folio).catch(() => []);
   }
+  const pendingReceipts = comprobantes.filter((c) => c.status === "pendiente").length;
+  const showReceipts = showPayment || comprobantes.length > 0;
 
-  const showComprobantesSection =
-    showComprobantes || comprobantes.length > 0;
-
-  const livePaymentConfig = showBankSnapshot
+  const livePaymentConfig = showPayment
     ? await getConfig({ localFieldId: orderLocalFieldId(orden) }).catch(() => null)
     : null;
 
-  const titulo =
-    orden.folio_referencia ?? `Solicitud ${orden.id.slice(0, 8)}…`;
+  const title = orden.folio_referencia ?? t("detail.untitled", { id: orden.id.slice(0, 8) });
+  const directorName = orden.director?.nombre?.trim() || t("detail.directorFallback");
+  const created = format.dateTime(new Date(orden.created_at), {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: SACDIA_DISPLAY_TIMEZONE,
+  });
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-        {/* ─── Main column ──────────────────────────────────────────────── */}
-        <div className="min-w-0 flex-1">
-          <PageHeader
-            className="mb-6 font-mono"
-            title={titulo}
-            description={`Creada el ${formatCreatedLong(orden.created_at)}`}
-            breadcrumbs={[
-              {
-                label: "Materiales / Solicitudes",
-                href: "/dashboard/materials/inbox",
-              },
-              { label: titulo },
-            ]}
-            actions={<StatusBadge estado={orden.estado} />}
-          />
+    <div className="space-y-6">
+      <DetailHeader
+        breadcrumbs={[
+          { label: t("detail.breadcrumbRoot"), href: "/dashboard/materials/inbox" },
+          { label: title },
+        ]}
+        title={title}
+        subtitle={[orden.director?.nombre, orden.director?.club, t("detail.createdOn", { date: created })]
+          .filter(Boolean)
+          .join(" · ")}
+      />
 
-          {/* Metadata strip */}
-          <OrderMetadataStrip orden={orden} />
-
-          {/* Notas (only when non-empty) */}
-          {orden.notas && orden.notas.trim().length > 0 && (
-            <div className="mt-6 flex items-start gap-3 rounded-lg border border-border/60 bg-muted/40 p-4">
-              <MessageSquare className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="text-sm italic text-foreground/90">
-                {orden.notas}
-              </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-6">
+          <section aria-label={t("detail.delivery")} className="grid gap-5 rounded-xl bg-card p-5 shadow-card sm:grid-cols-2">
+            <div>
+              <h2 className="mb-1 text-xs font-medium text-muted-foreground">{t("detail.director")}</h2>
+              <DirectorCell director={orden.director} fallbackId={orden.created_by} />
             </div>
-          )}
+            <div>
+              <h2 className="mb-1 text-xs font-medium text-muted-foreground">{t("detail.delivery")}</h2>
+              {orden.entrega === "envio" ? (
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{t("detail.deliveryShip")}</span>
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    <MoneyFormat centavos={orden.envio_centavos} />
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{t("detail.deliveryPickup")}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {orden.pickup_address ?? t("detail.noPickupAddress")}
+                  </span>
+                </div>
+              )}
+            </div>
+            {orden.notas && orden.notas.trim().length > 0 ? (
+              <div className="sm:col-span-2">
+                <h2 className="mb-1 text-xs font-medium text-muted-foreground">{t("detail.notes")}</h2>
+                <p className="text-sm">{orden.notas}</p>
+              </div>
+            ) : null}
+          </section>
 
-          {/* Bank snapshot (when applicable) */}
-          {showBankSnapshot && (
-            <BankSnapshotCard orden={orden} liveConfig={livePaymentConfig} />
-          )}
+          <LinesTable folio={orden.id} lines={orden.lines} estado={orden.estado} />
 
-          {/* Partidas */}
-          <LinesTable
-            folio={orden.id}
-            lines={orden.lines}
-            estado={orden.estado}
-            subtotalCentavos={orden.subtotal_centavos}
-            envioCentavos={orden.envio_centavos}
-            totalCentavos={orden.total_centavos}
-          />
+          {showPayment ? <BankSnapshotCard orden={orden} liveConfig={livePaymentConfig} /> : null}
 
-          {/* Comprobantes */}
-          {showComprobantesSection && (
+          {showReceipts ? (
             <ReceiptsSection
               folio={orden.id}
               comprobantes={comprobantes}
               canReview={canValidateReceipt}
               printContext={buildReceiptPrintContextFromOrder(orden)}
             />
-          )}
-
-          {/* Mobile/tablet sticky bottom bar */}
-          <OrderStickyBar
-            orden={orden}
-            canApprove={canApprove}
-            canDeliver={canDeliver}
-            linesResolved={linesResolved}
-            linesTotal={linesTotal}
-          />
+          ) : null}
         </div>
 
-        {/* ─── Right rail (desktop only) ────────────────────────────────── */}
         <OrderSummaryRail
           orden={orden}
+          directorName={directorName}
           canApprove={canApprove}
-          canValidateReceipt={canValidateReceipt}
           canDeliver={canDeliver}
           linesResolved={linesResolved}
           linesTotal={linesTotal}
+          pendingReceipts={pendingReceipts}
         />
       </div>
     </div>

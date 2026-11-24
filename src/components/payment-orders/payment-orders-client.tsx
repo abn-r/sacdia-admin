@@ -3,14 +3,23 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PaymentOrdersTray } from "@/components/payment-orders/payment-orders-tray";
-import { PaymentObligationsClient } from "@/components/payment-orders/payment-obligations-client";
+import { PageHeader } from "@/components/shared/page-header";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { UrlTabs, useUrlTab } from "@/components/shared/url-tabs";
+import { PaymentOrderReviewSheet } from "@/components/payment-orders/payment-order-review-sheet";
+import { PaymentOrdersQueue } from "@/components/payment-orders/payment-orders-tray";
 import { ReassignmentsTray } from "@/components/payment-orders/reassignments-tray";
+import { usePaymentOrdersData } from "@/components/payment-orders/use-payment-orders-data";
+import { errorStateFromError } from "@/lib/api/error-state";
+import { ErrorState } from "@/components/shared/error-state";
 import {
-  type PaymentOrderTabFlags,
+  countOrdersByTab,
+  isPaymentOrderTab,
+  oldestReviewWaitDays,
   visiblePaymentOrderTabs,
-} from "@/components/payment-orders/payment-order-tabs";
+  type PaymentOrderQueueTab,
+  type PaymentOrderTabFlags,
+} from "@/lib/payment-orders/queue";
 
 interface PaymentOrdersClientProps {
   tabs: PaymentOrderTabFlags;
@@ -23,62 +32,124 @@ export function PaymentOrdersClient({
   initialOrderId = null,
 }: PaymentOrdersClientProps) {
   const t = useTranslations("payment_orders");
-  const tObligations = useTranslations("payment_obligations");
+  const tt = useTranslations("ops.paymentOrders");
   const visible = visiblePaymentOrderTabs(tabs);
-  // A deep link to a specific order lands on the orders tab, where its
-  // detail sheet opens.
-  const opensOrder = (orderId: string | null) =>
-    Boolean(orderId) && visible.includes("orders");
-  const defaultTab = opensOrder(initialOrderId) ? "orders" : visible[0];
-  const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab);
-  // The obligations tab links here with a new `?orderId=` while this client
-  // stays mounted, so switch tabs when the deep link changes.
+  const defaultTab = tabs.orders ? "review" : "reassignments";
+  const requested = useUrlTab("tab", defaultTab);
+  const active =
+    isPaymentOrderTab(requested) && visible.includes(requested)
+      ? requested
+      : defaultTab;
+
+  const data = usePaymentOrdersData(tabs.orders);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(
+    initialOrderId,
+  );
+  // The deep link can change while this client stays mounted.
   const [linkedOrderId, setLinkedOrderId] = useState(initialOrderId);
   if (initialOrderId !== linkedOrderId) {
     setLinkedOrderId(initialOrderId);
-    if (opensOrder(initialOrderId)) setActiveTab("orders");
+    if (initialOrderId) setSelectedOrderId(initialOrderId);
   }
 
-  if (!defaultTab) {
-    return null;
-  }
+  if (visible.length === 0) return null;
+
+  const loaded = !data.loading && !data.error;
+  const counts = loaded ? countOrdersByTab(data.orders) : null;
+  const oldest = loaded
+    ? oldestReviewWaitDays(data.orders, data.proofDates)
+    : null;
+  const description =
+    counts && tabs.orders
+      ? tt("page.summary", {
+          count: counts.review,
+          days: oldest ?? 0,
+        })
+      : undefined;
+
+  const labels: Record<string, string> = {
+    review: t("tray.reviewQueue"),
+    waiting: tt("tabs.waiting"),
+    rejected: tt("tabs.rejected"),
+    all: tt("tabs.all"),
+    reassignments: t("tabs.reassignments"),
+  };
+
+  const tabItems = visible.map((id) => ({
+    value: id,
+    label: labels[id] ?? id,
+    ...(counts && (id === "review" || id === "waiting" || id === "rejected")
+      ? { count: counts[id] }
+      : {}),
+  }));
+
+  const renderContent = () => {
+    if (active === "reassignments") return <ReassignmentsTray />;
+    if (data.loading) {
+      return (
+        <p className="text-muted-foreground text-sm" role="status">
+          {t("tray.loading")}
+        </p>
+      );
+    }
+    if (data.error) {
+      const state = errorStateFromError(data.error);
+      return (
+        <ErrorState
+          kind={state.kind}
+          {...(state.detail ? { detail: state.detail } : {})}
+          onRetry={() => void data.reload()}
+        />
+      );
+    }
+    const tab = active as PaymentOrderQueueTab;
+    return (
+      <>
+        {data.stale && data.updatedAt ? (
+          <StaleDataNotice
+            at={data.updatedAt}
+            onRetry={() => void data.reload()}
+          />
+        ) : null}
+        <PaymentOrdersQueue
+          key={tab}
+          orders={data.orders}
+          tab={tab}
+          proofDates={data.proofDates}
+          error={tab === "review" ? undefined : data.listError}
+          onRetry={() => void data.reload()}
+          onOpen={setSelectedOrderId}
+        />
+      </>
+    );
+  };
 
   return (
-    <Tabs
-      value={activeTab ?? defaultTab}
-      onValueChange={setActiveTab}
-      className="space-y-4"
-    >
-      {visible.length > 1 ? (
-        <TabsList>
-          {tabs.pending ? (
-            <TabsTrigger value="pending">{tObligations("tabs.pending")}</TabsTrigger>
-          ) : null}
-          {tabs.orders ? (
-            <TabsTrigger value="orders">{t("tabs.orders")}</TabsTrigger>
-          ) : null}
-          {tabs.reassignments ? (
-            <TabsTrigger value="reassignments">
-              {t("tabs.reassignments")}
-            </TabsTrigger>
-          ) : null}
-        </TabsList>
-      ) : null}
-      {tabs.pending ? (
-        <TabsContent value="pending">
-          <PaymentObligationsClient />
-        </TabsContent>
-      ) : null}
+    <div className="space-y-6">
+      <PageHeader
+        title={t("page.title")}
+        {...(description ? { description } : {})}
+      />
+      <div className="space-y-4">
+        {visible.length > 1 ? (
+          <UrlTabs
+            tabs={tabItems}
+            defaultValue={defaultTab}
+            ariaLabel={t("page.title")}
+          />
+        ) : null}
+        {renderContent()}
+      </div>
       {tabs.orders ? (
-        <TabsContent value="orders">
-          <PaymentOrdersTray initialOrderId={initialOrderId} />
-        </TabsContent>
+        <PaymentOrderReviewSheet
+          orderId={selectedOrderId}
+          open={selectedOrderId != null}
+          onOpenChange={(open) => {
+            if (!open) setSelectedOrderId(null);
+          }}
+          onChanged={() => void data.reload()}
+        />
       ) : null}
-      {tabs.reassignments ? (
-        <TabsContent value="reassignments">
-          <ReassignmentsTray />
-        </TabsContent>
-      ) : null}
-    </Tabs>
+    </div>
   );
 }

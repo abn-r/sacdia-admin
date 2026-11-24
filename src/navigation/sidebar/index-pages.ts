@@ -198,6 +198,7 @@ const CONFIGURATION_OWN_SIDEBAR_PREFIXES: readonly string[] = [
   "/dashboard/configuration/permissions",
   "/dashboard/configuration/matrix",
   "/dashboard/configuration/audit",
+  "/dashboard/configuration/local-field",
   "/dashboard/system",
 ];
 

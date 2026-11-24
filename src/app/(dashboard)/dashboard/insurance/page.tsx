@@ -1,191 +1,144 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
+import { ClubContextBar, ClubPickList, SectionPickLinks } from "@/components/shared/club-context-bar";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { InsuranceView } from "@/components/insurance/insurance-view";
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { listClubTypes } from "@/lib/api/catalogs";
+import { errorStateFromError } from "@/lib/api/error-state";
+import type { LocalField } from "@/lib/api/geography";
+import { getSectionInsuranceOverview } from "@/lib/api/insurance";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
+  canAdminFilterByLocalField,
   listLocalFieldsForTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
-import type { LocalField } from "@/lib/api/geography";
-import {
-  getSectionInsuranceOverview,
-  type SectionInsuranceOverview,
-} from "@/lib/api/insurance";
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
-
-type AnyRecord = Record<string, unknown>;
-
-type Club = {
-  club_id: number;
-  name: string;
-  local_field_id?: number;
-};
-
-type Section = {
-  club_section_id: number;
-  club_type_id: number;
-  name: string;
-};
-
-// ─── Normalizers ───────────────────────────────────────────────────────────────
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
-
-function normalizeClub(raw: AnyRecord): Club {
-  const localFieldId = Number(raw.local_field_id ?? 0);
-  return {
-    club_id: Number(raw.club_id ?? raw.id ?? 0),
-    name: String(raw.name ?? `Club ${raw.club_id ?? "?"}`),
-    local_field_id: localFieldId > 0 ? localFieldId : undefined,
-  };
-}
-
-function normalizeSection(raw: AnyRecord): Section {
-  return {
-    club_section_id: Number(raw.club_section_id ?? raw.id ?? 0),
-    name: String(raw.name ?? `Sección ${raw.club_section_id ?? "?"}`),
-    club_type_id: Number(raw.club_type_id ?? 0),
-  };
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
+import { loadClubContextClubs } from "@/lib/club-context/load-clubs";
+import { CLUB_CONTEXT_COOKIE, resolveClubContext } from "@/lib/club-context/scope";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("insurance");
   return { title: t("page.title") };
 }
 
-export default async function InsurancePage() {
+export default async function InsurancePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ club?: string | string[]; section?: string | string[] }>;
+}) {
   const user = await requireAdminUser();
   if (!canViewScreen(user, "insurance-by-section")) {
     redirect("/dashboard");
   }
   const t = await getTranslations("insurance");
+  const tc = await getTranslations("ops.club.insurance");
+  const search = await searchParams;
+  const cookieStore = await cookies();
   const territoryScope = resolveAdminTerritoryScope(user);
 
-  let clubs: Club[] = [];
-  let localFields: LocalField[] = [];
-  let sectionsByClub: Record<number, Section[]> = {};
-  let initialOverview: SectionInsuranceOverview | null = null;
-  let initialSectionId: number | null = null;
-  let initialLocalFieldId: number | "all" = "all";
-  let loadError: string | null = null;
+  const [clubTypes, localFields] = await Promise.all([
+    listClubTypes().catch(() => []),
+    canAdminFilterByLocalField(territoryScope)
+      ? listLocalFieldsForTerritory(user).catch((): LocalField[] => [])
+      : Promise.resolve<LocalField[]>([]),
+  ]);
+  const loaded = await loadClubContextClubs(clubTypes, localFields);
 
-  const localFieldsResult = await listLocalFieldsForTerritory(user).catch(() => []);
-  localFields = localFieldsResult;
-
-  if (territoryScope.level === "local_field") {
-    initialLocalFieldId = territoryScope.localFieldId;
-  }
-
-  // 1. Load clubs
-  try {
-    const clubsPayload = await apiRequest<unknown>("/clubs");
-    const rawClubs = extractArray(clubsPayload);
-    clubs = rawClubs.map(normalizeClub).filter((c) => c.club_id > 0);
-  } catch (err) {
-    loadError =
-      err instanceof ApiError
-        ? err.message
-        : t("errors.failed_load_clubs");
-  }
-
-  // 2. Load sections for all clubs
-  if (clubs.length > 0 && !loadError) {
-    const sectionPromises = clubs.map(async (club) => {
-      try {
-        const payload = await apiRequest<unknown>(
-          `/clubs/${club.club_id}/sections`,
-        );
-        const rawSections = extractArray(payload);
-        return {
-          clubId: club.club_id,
-          sections: rawSections.map(normalizeSection),
-        };
-      } catch {
-        return { clubId: club.club_id, sections: [] };
-      }
-    });
-
-    const sectionsResults = await Promise.all(sectionPromises);
-    sectionsByClub = Object.fromEntries(
-      sectionsResults.map(({ clubId, sections }) => [clubId, sections]),
+  if (!loaded.ok) {
+    const { kind, detail } = errorStateFromError(loaded.error);
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
+        <ErrorState kind={kind} detail={detail} retry />
+      </div>
     );
-
-    // 3. Pre-load first section overview
-    const scopedClubs =
-      initialLocalFieldId === "all"
-        ? clubs
-        : clubs.filter((club) => club.local_field_id === initialLocalFieldId);
-    const firstClub = scopedClubs[0] ?? clubs[0];
-    if (firstClub) {
-      if (initialLocalFieldId === "all" && firstClub.local_field_id) {
-        initialLocalFieldId = firstClub.local_field_id;
-      }
-      const firstSections = sectionsByClub[firstClub.club_id] ?? [];
-      const firstSection = firstSections[0];
-      if (firstSection) {
-        initialSectionId = firstSection.club_section_id;
-        try {
-          initialOverview = await getSectionInsuranceOverview(
-            firstSection.club_section_id,
-          );
-        } catch {
-          initialOverview = null;
-        }
-      }
-    }
   }
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("page.title")}
-        description={t("page.description")}
-      />
-
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      {!loadError && clubs.length === 0 && (
+  const clubs = loaded.clubs;
+  if (clubs.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} />
         <EmptyState
           icon={ShieldCheck}
           title={t("page.empty_no_clubs_title")}
           description={t("page.empty_no_clubs_description")}
         />
-      )}
+      </div>
+    );
+  }
 
-      {!loadError && clubs.length > 0 && (
-        <InsuranceView
-          clubs={clubs}
-          sectionsByClub={sectionsByClub}
-          localFields={localFields}
-          territoryScope={territoryScope}
-          initialOverview={initialOverview}
-          initialClubId={
-            (initialLocalFieldId === "all"
-              ? clubs[0]
-              : clubs.find((club) => club.local_field_id === initialLocalFieldId))?.club_id ??
-            clubs[0]?.club_id ??
-            null
-          }
-          initialSectionId={initialSectionId}
-          initialLocalFieldId={initialLocalFieldId}
-        />
+  const { club, section } = resolveClubContext({
+    clubs,
+    searchParams: search,
+    cookie: cookieStore.get(CLUB_CONTEXT_COOKIE)?.value ?? null,
+  });
+  const bar = (
+    <ClubContextBar
+      clubs={clubs}
+      clubId={club?.club_id ?? null}
+      sectionId={section?.club_section_id ?? null}
+      fixed={clubs.length === 1 && (club?.sections.length ?? 0) <= 1}
+    />
+  );
+
+  if (!club || !section) {
+    return (
+      <div className="space-y-6">
+        {bar}
+        <PageHeader title={t("page.title")} description={t("page.description")} />
+        {club ? (
+          <EmptyState
+            icon={ShieldCheck}
+            title={tc("pickSection.title", { club: club.name })}
+            description={tc("pickSection.description")}
+          >
+            <SectionPickLinks club={club} />
+          </EmptyState>
+        ) : (
+          <ClubPickList clubs={clubs} />
+        )}
+      </div>
+    );
+  }
+
+  let overview = null;
+  try {
+    overview = await getSectionInsuranceOverview(section.club_section_id);
+  } catch (error) {
+    const { kind, detail } = errorStateFromError(error);
+    return (
+      <div className="space-y-6">
+        {bar}
+        <PageHeader title={t("page.title")} description={t("page.description")} />
+        <ErrorState kind={kind} detail={detail} description={t("view.load_error")} retry />
+      </div>
+    );
+  }
+
+  const description =
+    overview?.year && overview.cycle
+      ? tc("description", {
+          uninsured: overview.counts.uninsured,
+          total: overview.counts.total,
+          covered: overview.counts.covered,
+        })
+      : t("page.description");
+
+  return (
+    <div className="space-y-6">
+      {bar}
+      <PageHeader title={t("page.title")} description={description} />
+      {overview ? (
+        <InsuranceView key={section.club_section_id} overview={overview} />
+      ) : (
+        <EmptyState icon={ShieldCheck} title={t("view.no_year_title")} description={t("view.no_year_description")} />
       )}
     </div>
   );

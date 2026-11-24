@@ -233,9 +233,8 @@ describe("DeleteTransactionDialog", () => {
       fireEvent.click(confirmBtn);
     });
 
-    await waitFor(() => {
-      expect(mockToastError).toHaveBeenCalledWith(t.errors.delete_transaction_failed);
-    });
+    // The open-month confirmation stays open and states the failure inline.
+    expect(await screen.findByRole("alert")).toHaveTextContent(t.errors.delete_transaction_failed);
 
     expect(mockToastSuccess).not.toHaveBeenCalled();
     expect(onSuccess).not.toHaveBeenCalled();
@@ -299,21 +298,19 @@ describe("DeleteTransactionDialog", () => {
       finance: { ...STUB_INCOME_FINANCE, period_closed: true },
     });
 
-    expect(screen.getByText(t.delete.reasonHelper)).toBeInTheDocument();
+    // Closed month: the reason dialog, not the plain confirmation.
+    expect(screen.getByRole("heading", { name: new RegExp(messages.ops.club.finances.delete.closedTitle) })).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
-    });
-    expect(mockDeleteFinance).not.toHaveBeenCalled();
-    expect(screen.getByText(t.validation.note_invalid)).toBeInTheDocument();
+    // The confirm action stays off until the reason has 5-500 characters.
+    expect(screen.getByRole("button", { name: t.delete.confirmButton })).toBeDisabled();
 
     // Too short: still blocked
     await act(async () => {
       fireEvent.change(screen.getByLabelText(new RegExp(t.delete.reasonLabel)), {
         target: { value: "ab" },
       });
-      fireEvent.click(screen.getByRole("button", { name: t.delete.confirmButton }));
     });
+    expect(screen.getByRole("button", { name: t.delete.confirmButton })).toBeDisabled();
     expect(mockDeleteFinance).not.toHaveBeenCalled();
 
     await act(async () => {

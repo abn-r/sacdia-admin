@@ -1,268 +1,194 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { ArrowRightLeft, Loader2, RefreshCw } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import { ArrowRightLeft, Info } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
-import { Textarea } from "@/components/ui/textarea";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { type StatusIntent } from "@/components/ui/status-badge";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { errorStateFromError } from "@/lib/api/error-state";
 import {
-  approveReassignment,
   listReassignments,
-  rejectReassignment,
   type ReassignmentRequest,
   type ReassignmentStatus,
 } from "@/lib/api/field-payment-orders";
-import { getPaymentOrderErrorMessage } from "@/components/payment-orders/payment-order-errors";
+import { SACDIA_DISPLAY_TIMEZONE } from "@/lib/format-locale";
+import { paginate } from "@/lib/payment-orders/queue";
 
-const REASSIGNMENT_INTENT: Record<ReassignmentStatus, StatusIntent> = {
+const REASSIGNMENT_INTENT: Partial<Record<ReassignmentStatus, StatusIntent>> = {
   PENDING: "warning",
-  APPROVED: "success",
   REJECTED: "destructive",
 };
 
-function formatDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-      new Date(value),
-    );
-  } catch {
-    return value;
-  }
-}
+const PAGE_SIZE_OPTIONS = [20, 50, 100];
 
+/**
+ * History only: clubs reassign coverage from the app without the Campo's
+ * approval, so there is nothing to approve or reject here.
+ */
 export function ReassignmentsTray() {
   const t = useTranslations("payment_orders");
-  const [status, setStatus] = useState<ReassignmentStatus | "">("");
+  const format = useFormatter();
   const [items, setItems] = useState<ReassignmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [acting, setActing] = useState(false);
-  const [rejectTarget, setRejectTarget] = useState<number | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const [error, setError] = useState<unknown>(null);
+  const [stale, setStale] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(PAGE_SIZE_OPTIONS[0] ?? 20);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
-      setItems(await listReassignments(status || undefined));
-    } catch (error) {
-      toast.error(getPaymentOrderErrorMessage(error, t, "toasts.loadFailed"));
-      setItems([]);
+      setItems(await listReassignments());
+      setError(null);
+      setStale(false);
+      setUpdatedAt(new Date());
+    } catch (err) {
+      // Keep older rows on screen when a reload fails; otherwise show the error.
+      setItems((current) => {
+        if (current.length > 0) setStale(true);
+        else setError(err);
+        return current;
+      });
     } finally {
       setLoading(false);
     }
-  }, [status, t]);
+  }, []);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const approve = async (requestId: number) => {
-    setActing(true);
-    try {
-      await approveReassignment(requestId);
-      toast.success(t("reassignments.approved"));
-      await load();
-    } catch (error) {
-      toast.error(getPaymentOrderErrorMessage(error, t));
-    } finally {
-      setActing(false);
-    }
-  };
+  const view = paginate(items, page, limit);
+  const labels = {
+    PENDING: t("reassignments.PENDING"),
+    APPROVED: t("reassignments.APPROVED"),
+    REJECTED: t("reassignments.REJECTED"),
+  } satisfies Record<ReassignmentStatus, string>;
+  const date = (value: string) =>
+    format.dateTime(new Date(value), {
+      dateStyle: "medium",
+      timeZone: SACDIA_DISPLAY_TIMEZONE,
+    });
 
-  const reject = async () => {
-    if (rejectTarget == null || !rejectReason.trim()) return;
-    setActing(true);
-    try {
-      await rejectReassignment(rejectTarget, rejectReason.trim());
-      toast.success(t("reassignments.rejected"));
-      setRejectTarget(null);
-      setRejectReason("");
-      await load();
-    } catch (error) {
-      toast.error(getPaymentOrderErrorMessage(error, t));
-    } finally {
-      setActing(false);
-    }
-  };
+  const note = (
+    <p className="flex items-start gap-2 text-muted-foreground text-sm">
+      <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+      {t("reassignments.historyNote")}
+    </p>
+  );
+
+  if (loading) {
+    return (
+      <p className="text-muted-foreground text-sm" role="status">
+        {t("tray.loading")}
+      </p>
+    );
+  }
+
+  if (error) {
+    const state = errorStateFromError(error);
+    return (
+      <div className="space-y-4">
+        {note}
+        <DataTableShell>
+          <Table>
+            <TableBody>
+              <ErrorStateTableRow
+                colSpan={6}
+                kind={state.kind}
+                {...(state.detail ? { detail: state.detail } : {})}
+                onRetry={() => {
+                  setError(null);
+                  setLoading(true);
+                  void load();
+                }}
+              />
+            </TableBody>
+          </Table>
+        </DataTableShell>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground text-sm">
-        {t("reassignments.historyNote")}
-      </p>
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label
-            htmlFor="reassignments-status-filter"
-            className="text-muted-foreground text-sm"
-          >
-            {t("tray.filterStatus")}
-          </label>
-          <select
-            id="reassignments-status-filter"
-            className="h-9 rounded-md border bg-background px-3 text-sm"
-            value={status}
-            onChange={(event) =>
-              setStatus(event.target.value as ReassignmentStatus | "")
-            }
-            aria-label={t("tray.filterStatus")}
-          >
-            <option value="">{t("reassignments.all")}</option>
-            <option value="PENDING">{t("reassignments.PENDING")}</option>
-            <option value="APPROVED">{t("reassignments.APPROVED")}</option>
-            <option value="REJECTED">{t("reassignments.REJECTED")}</option>
-          </select>
-        </div>
-        <Button
-          loading={loading}
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void load()}
-        >
-          <RefreshCw className="size-4" />
-          {t("tray.refresh")}
-        </Button>
-      </div>
-
-      {loading ? (
-        <p className="text-muted-foreground text-sm">{t("tray.loading")}</p>
-      ) : items.length === 0 ? (
+      {note}
+      {stale && updatedAt ? (
+        <StaleDataNotice at={updatedAt} onRetry={() => void load()} />
+      ) : null}
+      {items.length === 0 ? (
         <EmptyState icon={ArrowRightLeft} title={t("reassignments.empty")} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="bg-muted/40 text-left">
-              <tr>
-                <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colFrom")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colTo")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colReason")}
-                </th>
-                <th className="px-3 py-2 font-medium">{t("tray.colStatus")}</th>
-                <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colDoneBy")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("reassignments.colDate")}
-                </th>
-                <th className="px-3 py-2 font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr
-                  key={item.insurance_reassignment_request_id}
-                  className="border-t"
-                >
-                  <td className="px-3 py-2 font-medium">
-                    {item.from_user_name ?? "—"}
-                  </td>
-                  <td className="px-3 py-2 font-medium">
-                    {item.to_user_name ?? "—"}
-                  </td>
-                  <td className="px-3 py-2">{item.reason ?? "—"}</td>
-                  <td className="px-3 py-2">
-                    <StatusBadge
-                      intent={REASSIGNMENT_INTENT[item.status] ?? "neutral"}
-                      label={t(`reassignments.${item.status}`)}
-                      size="sm"
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    {item.reviewed_by_name ?? item.requested_by_name ?? "—"}
-                  </td>
-                  <td className="px-3 py-2 text-muted-foreground">
-                    {formatDate(item.created_at)}
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    {item.status === "PENDING" && (
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={acting}
-                          onClick={() =>
-                            void approve(item.insurance_reassignment_request_id)
-                          }
-                        >
-                          {t("reassignments.approve")}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="destructive"
-                          disabled={acting}
-                          onClick={() =>
-                            setRejectTarget(
-                              item.insurance_reassignment_request_id,
-                            )
-                          }
-                        >
-                          {t("reassignments.reject")}
-                        </Button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <Dialog
-        open={rejectTarget != null}
-        onOpenChange={(open) => {
-          if (!open) setRejectTarget(null);
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("reassignments.rejectTitle")}</DialogTitle>
-          </DialogHeader>
-          <Textarea
-            value={rejectReason}
-            onChange={(event) => setRejectReason(event.target.value)}
-            placeholder={t("detail.rejectPlaceholder")}
-            maxLength={500}
-            aria-label={t("detail.rejectPlaceholder")}
+        <>
+          <DataTableShell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("reassignments.colFrom")}</TableHead>
+                  <TableHead>{t("reassignments.colTo")}</TableHead>
+                  <TableHead>{t("reassignments.colReason")}</TableHead>
+                  <TableHead>{t("reassignments.colDoneBy")}</TableHead>
+                  <TableHead>{t("reassignments.colDate")}</TableHead>
+                  <TableHead>{t("tray.colStatus")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {view.items.map((item) => (
+                  <TableRow key={item.insurance_reassignment_request_id}>
+                    <TableCell>{item.from_user_name ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      {item.to_user_name ?? "—"}
+                    </TableCell>
+                    <TableCell className="whitespace-normal text-muted-foreground">
+                      {item.reason ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {item.reviewed_by_name ?? item.requested_by_name ?? "—"}
+                    </TableCell>
+                    <TableCell className="tabular-nums">
+                      {date(item.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <ExceptionStatus
+                        value={item.status}
+                        normal={["APPROVED"]}
+                        labels={labels}
+                        intents={REASSIGNMENT_INTENT}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+          <DataTablePagination
+            page={view.page}
+            totalPages={view.totalPages}
+            total={view.total}
+            limit={limit}
+            limitOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={setPage}
+            onPageSizeChange={(next) => {
+              setLimit(next);
+              setPage(1);
+            }}
           />
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setRejectTarget(null)}
-              disabled={acting}
-            >
-              {t("detail.cancel")}
-            </Button>
-            <Button
-              loading={acting}
-              type="button"
-              variant="destructive"
-              onClick={() => void reject()}
-              disabled={!rejectReason.trim()}
-            >
-              {t("detail.confirmReject")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </>
+      )}
     </div>
   );
 }

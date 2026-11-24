@@ -81,12 +81,8 @@ describe("FinancesSummaryCards new meanings", () => {
     expect(neg.length).toBe(2);
   });
 
-  it("shows the closed-month indicator only when period_closed is true", () => {
-    const { unmount } = renderCards({ ...base, period_closed: true });
-    expect(screen.getByText("Mes cerrado")).toBeInTheDocument();
-    unmount();
-
-    renderCards({ ...base, period_closed: false });
+  it("leaves the closed-month notice to the page (cards never repeat it)", () => {
+    renderCards({ ...base, period_closed: true });
     expect(screen.queryByText("Mes cerrado")).not.toBeInTheDocument();
   });
 });

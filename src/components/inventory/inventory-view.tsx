@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Label } from "@/components/ui/label";
-import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,398 +12,162 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { EmptyState } from "@/components/shared/empty-state";
 import { InventoryTable } from "@/components/inventory/inventory-table";
-import { InventoryFormDialog } from "@/components/inventory/inventory-form-dialog";
+import { InventorySheet, type InventorySheetTab } from "@/components/inventory/inventory-sheet";
 import { DeleteInventoryDialog } from "@/components/inventory/delete-inventory-dialog";
-import { apiRequestFromClient, ApiError } from "@/lib/api/client";
-import type {
-  InventoryItem,
-  InventoryCategory,
-  InstanceType,
-} from "@/lib/api/inventory";
-import type { ClubType } from "@/lib/api/catalogs";
-import type { LocalField } from "@/lib/api/geography";
-import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
-import { INSTANCE_TYPE_LABELS } from "@/lib/api/inventory";
-import { normalizeInventoryItem } from "@/lib/inventory/normalize-item";
+import type { InventoryCategory, InventoryItem } from "@/lib/api/inventory";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
-import {
-  clubTypeIdToInstanceType,
-  filterInventorySections,
-  type InventorySectionOption,
-} from "@/lib/inventory/club-sections";
+import { filterInventoryItems, type InventoryStatusFilter } from "@/lib/inventory/filter-items";
+import { Package } from "lucide-react";
 
-type AnyRecord = Record<string, unknown>;
-
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
-  }
-  return [];
-}
+const DEFAULT_PAGE_SIZE = 20;
+const ALL = "all";
 
 interface InventoryViewProps {
-  sections: InventorySectionOption[];
+  items: InventoryItem[];
   categories: InventoryCategory[];
-  localFields: LocalField[];
-  clubTypes: ClubType[];
-  territoryScope: AdminTerritoryScope;
-  initialItems: InventoryItem[];
-  initialSectionId: number | null;
-  initialLocalFieldId: number | "all";
-  initialClubTypeId: number | "all";
+  /** `club` and `section` query values the row links carry. */
+  contextQuery: string;
 }
 
-export function InventoryView({
-  sections,
-  categories,
-  localFields,
-  clubTypes,
-  territoryScope,
-  initialItems,
-  initialSectionId,
-  initialLocalFieldId,
-  initialClubTypeId,
-}: InventoryViewProps) {
+/**
+ * Items of the chosen section. The club and section come from the context bar
+ * above the title; here only category and status filter the list.
+ */
+export function InventoryView({ items, categories, contextQuery }: InventoryViewProps) {
   const t = useTranslations("inventory");
+  const tc = useTranslations("ops.club.inventory");
+  const router = useRouter();
   const { canCapability } = useScreenAccess();
-  const canCreate = canCapability("club-inventory", "create");
   const canUpdate = canCapability("club-inventory", "update");
   const canDelete = canCapability("club-inventory", "delete");
-  const isLocalFieldLocked = territoryScope.level === "local_field";
-  const [selectedLocalFieldId, setSelectedLocalFieldId] = useState<number | "all">(
-    isLocalFieldLocked ? territoryScope.localFieldId : initialLocalFieldId,
+
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [status, setStatus] = useState<InventoryStatusFilter>("active");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
+
+  const [openItem, setOpenItem] = useState<InventoryItem | null>(null);
+  const [tab, setTab] = useState<InventorySheetTab>("detail");
+  const [deleteItem, setDeleteItem] = useState<InventoryItem | null>(null);
+
+  const filtered = useMemo(
+    () => filterInventoryItems(items, { categoryId, status }),
+    [items, categoryId, status],
   );
-  const [selectedClubTypeId, setSelectedClubTypeId] = useState<number | "all">(
-    initialClubTypeId,
-  );
-  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
-    initialSectionId,
-  );
-  const [items, setItems] = useState<InventoryItem[]>(initialItems);
-  const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
+  const current = Math.min(page, totalPages);
+  const visible = filtered.slice((current - 1) * limit, current * limit);
+  const isFiltered = categoryId !== null || status !== "active";
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
-
-  const filteredSections = filterInventorySections(
-    sections,
-    selectedLocalFieldId,
-    selectedClubTypeId,
-  );
-
-  const selectedSection =
-    filteredSections.find((section) => section.club_section_id === selectedSectionId) ??
-    sections.find((section) => section.club_section_id === selectedSectionId) ??
-    null;
-
-  const instanceType: InstanceType = selectedSection
-    ? clubTypeIdToInstanceType(selectedSection.club_type_id)
-    : "pathf";
-
-  const loadItems = useCallback(
-    async (clubSectionId: number, categoryId?: number | null) => {
-      const section = sections.find(
-        (entry) => entry.club_section_id === clubSectionId,
-      );
-      const instType = section
-        ? clubTypeIdToInstanceType(section.club_type_id)
-        : "pathf";
-
-      setIsLoading(true);
-      setLoadError(null);
-      try {
-        const params: Record<string, string | number> = {
-          instanceType: instType,
-        };
-        if (categoryId) params.category = categoryId;
-
-        const payload = await apiRequestFromClient<unknown>(
-          `/inventory/clubs/${clubSectionId}/inventory`,
-          { params },
-        );
-        const raw = extractArray(payload);
-        setItems(raw.map(normalizeInventoryItem));
-      } catch (err) {
-        const message =
-          err instanceof ApiError
-            ? err.message
-            : t("errors.load_items_failed");
-        setLoadError(message);
-        setItems([]);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [sections, t],
-  );
-
-  function selectSectionAndLoad(
-    clubSectionId: number,
-    categoryId: number | null = null,
-  ) {
-    setSelectedSectionId(clubSectionId);
-    setFilterCategoryId(categoryId);
-    loadItems(clubSectionId, categoryId);
-  }
-
-  function applySectionFilters(
-    localFieldId: number | "all",
-    clubTypeId: number | "all",
-  ) {
-    const nextSections = filterInventorySections(
-      sections,
-      localFieldId,
-      clubTypeId,
-    );
-
-    if (nextSections.length === 0) {
-      setSelectedSectionId(null);
-      setItems([]);
-      setLoadError(null);
-      return;
-    }
-
-    const currentSectionStillValid = nextSections.some(
-      (section) => section.club_section_id === selectedSectionId,
-    );
-    const nextSectionId = currentSectionStillValid
-      ? (selectedSectionId as number)
-      : nextSections[0].club_section_id;
-    selectSectionAndLoad(nextSectionId, null);
-  }
-
-  function handleLocalFieldChange(value: string) {
-    const nextLocalFieldId = value === "all" ? "all" : Number(value);
-    setSelectedLocalFieldId(nextLocalFieldId);
-    applySectionFilters(nextLocalFieldId, selectedClubTypeId);
-  }
-
-  function handleClubTypeChange(value: string) {
-    const nextClubTypeId = value === "all" ? "all" : Number(value);
-    setSelectedClubTypeId(nextClubTypeId);
-    applySectionFilters(selectedLocalFieldId, nextClubTypeId);
-  }
-
-  function handleSectionChange(value: string) {
-    const clubSectionId = Number(value);
-    selectSectionAndLoad(clubSectionId, null);
-  }
-
-  function handleCategoryFilter(value: string) {
-    const categoryId = value === "all" ? null : Number(value);
-    setFilterCategoryId(categoryId);
-    if (selectedSectionId) {
-      loadItems(selectedSectionId, categoryId);
-    }
-  }
-
-  function handleRefresh() {
-    if (selectedSectionId) {
-      loadItems(selectedSectionId, filterCategoryId);
-    }
-  }
-
-  function handleCreate() {
-    setEditingItem(null);
-    setFormOpen(true);
-  }
-
-  function handleEdit(item: InventoryItem) {
-    setEditingItem(item);
-    setFormOpen(true);
-  }
-
-  function handleDelete(item: InventoryItem) {
-    setDeletingItem(item);
-    setDeleteOpen(true);
-  }
-
-  function handleSuccess() {
-    if (selectedSectionId) {
-      loadItems(selectedSectionId, filterCategoryId);
-    }
+  function clearFilters() {
+    setCategoryId(null);
+    setStatus("active");
+    setPage(1);
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-end gap-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="inv-filter-local-field">{t("view.label_local_field")}</Label>
-            <Select
-              value={
-                selectedLocalFieldId === "all"
-                  ? "all"
-                  : String(selectedLocalFieldId)
-              }
-              onValueChange={handleLocalFieldChange}
-              disabled={isLocalFieldLocked}
-            >
-              <SelectTrigger id="inv-filter-local-field" className="h-9 w-52">
-                <SelectValue placeholder={t("view.select_local_field_placeholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {!isLocalFieldLocked && (
-                  <SelectItem value="all">{t("view.local_field_all")}</SelectItem>
-                )}
-                {localFields.map((lf) => (
-                  <SelectItem
-                    key={lf.local_field_id}
-                    value={String(lf.local_field_id)}
-                  >
-                    {lf.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="inv-filter-club-type">{t("view.label_club_type")}</Label>
-            <Select
-              value={
-                selectedClubTypeId === "all" ? "all" : String(selectedClubTypeId)
-              }
-              onValueChange={handleClubTypeChange}
-            >
-              <SelectTrigger id="inv-filter-club-type" className="h-9 w-48">
-                <SelectValue placeholder={t("view.select_club_type_placeholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("view.club_type_all")}</SelectItem>
-                {clubTypes.map((clubType) => (
-                  <SelectItem
-                    key={clubType.club_type_id}
-                    value={String(clubType.club_type_id)}
-                  >
-                    {clubType.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="inv-filter-club">{t("view.label_club")}</Label>
-            <Select
-              value={selectedSectionId ? String(selectedSectionId) : ""}
-              onValueChange={handleSectionChange}
-              disabled={filteredSections.length === 0}
-            >
-              <SelectTrigger id="inv-filter-club" className="h-9 w-52">
-                <SelectValue placeholder={t("view.select_club_placeholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredSections.map((section) => (
-                  <SelectItem
-                    key={section.club_section_id}
-                    value={String(section.club_section_id)}
-                  >
-                    {section.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="inv-filter-category">{t("view.label_category")}</Label>
-            <Select
-              value={filterCategoryId ? String(filterCategoryId) : "all"}
-              onValueChange={handleCategoryFilter}
-              disabled={!selectedSectionId}
-            >
-              <SelectTrigger id="inv-filter-category" className="h-9 w-48">
-                <SelectValue placeholder={t("view.all_categories")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("view.all_categories")}</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem
-                    key={cat.inventory_category_id}
-                    value={String(cat.inventory_category_id)}
-                  >
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={handleRefresh}
-            disabled={!selectedSectionId || isLoading}
-            title={t("view.refresh_title")}
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5 max-sm:w-full">
+          <Label htmlFor="inv-filter-category">{t("view.label_category")}</Label>
+          <Select
+            value={categoryId ? String(categoryId) : ALL}
+            onValueChange={(value) => {
+              setCategoryId(value === ALL ? null : Number(value));
+              setPage(1);
+            }}
           >
-            <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
-            <span className="sr-only">{t("view.refresh_sr")}</span>
-          </Button>
+            <SelectTrigger id="inv-filter-category" className="h-9 w-52 max-sm:w-full">
+              <SelectValue placeholder={t("view.all_categories")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t("view.all_categories")}</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.inventory_category_id} value={String(category.inventory_category_id)}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="flex items-center gap-2">
-          {selectedSection && (
-            <span className="text-xs text-muted-foreground">
-              {INSTANCE_TYPE_LABELS[instanceType]}
-            </span>
-          )}
-          {canCreate ? (
-            <Button onClick={handleCreate} disabled={!selectedSectionId} size="sm">
-              <Plus className="size-4" />
-              {t("view.new_item")}
-            </Button>
-          ) : null}
+        <div className="space-y-1.5 max-sm:w-full">
+          <Label htmlFor="inv-filter-status">{t("table.col_status")}</Label>
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value as InventoryStatusFilter);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger id="inv-filter-status" className="h-9 w-44 max-sm:w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">{tc("status.active")}</SelectItem>
+              <SelectItem value="inactive">{tc("status.inactive")}</SelectItem>
+              <SelectItem value="all">{tc("status.all")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {loadError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {loadError}
-        </div>
-      )}
+      <InventoryTable
+        items={visible}
+        onOpen={(item, nextTab) => {
+          setTab(nextTab);
+          setOpenItem(item);
+        }}
+        editHref={
+          canUpdate
+            ? (item) => `/dashboard/inventory/${item.inventory_id}/edit?${contextQuery}`
+            : undefined
+        }
+        onDelete={canDelete ? setDeleteItem : undefined}
+        empty={
+          isFiltered ? (
+            <EmptyState variant="no-results" icon={Package} title={tc("noResults.title")} description={tc("noResults.description")}>
+              <Button type="button" variant="outline" size="sm" onClick={clearFilters}>
+                {tc("noResults.clear")}
+              </Button>
+            </EmptyState>
+          ) : undefined
+        }
+      />
 
-      {selectedSectionId && !loadError && (
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{items.length}</span>{" "}
-          {t("view.items_found_label", { count: items.length })}
-        </p>
-      )}
-
-      {isLoading ? (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-          {t("view.loading")}
-        </div>
-      ) : (
-        <InventoryTable
-          items={items}
-          onEdit={canUpdate ? handleEdit : undefined}
-          onDelete={canDelete ? handleDelete : undefined}
+      {filtered.length > 0 ? (
+        <DataTablePagination
+          page={current}
+          totalPages={totalPages}
+          total={filtered.length}
+          limit={limit}
+          onPageChange={setPage}
+          onPageSizeChange={(next) => {
+            setLimit(next);
+            setPage(1);
+          }}
         />
-      )}
+      ) : null}
 
-      <InventoryFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        clubId={selectedSectionId ?? 0}
-        instanceType={instanceType}
-        categories={categories}
-        item={editingItem}
-        onSuccess={handleSuccess}
+      <InventorySheet
+        item={openItem}
+        tab={tab}
+        onTabChange={setTab}
+        onOpenChange={(open) => {
+          if (!open) setOpenItem(null);
+        }}
       />
 
       <DeleteInventoryDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        item={deletingItem}
-        onSuccess={handleSuccess}
+        open={deleteItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteItem(null);
+        }}
+        item={deleteItem}
+        onSuccess={() => router.refresh()}
       />
     </div>
   );

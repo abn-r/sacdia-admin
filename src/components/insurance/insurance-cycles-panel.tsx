@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { CalendarClock, Loader2, Plus, RefreshCw } from "lucide-react";
+import { CalendarClock, Plus, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { SettingsRow, SettingsSection } from "@/components/shared/settings-rows";
 import {
   createInsuranceCycle,
   listInsuranceCycles,
@@ -54,6 +55,7 @@ export function InsuranceCyclesPanel({
   localFieldId,
 }: InsuranceConfigPanelProps) {
   const t = useTranslations("insurance_config");
+  const tc = useTranslations("ops.club.insurance.config");
   const [cycles, setCycles] = useState<InsuranceCycleConfig[]>([]);
   const [products, setProducts] = useState<InsuranceProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,94 +152,58 @@ export function InsuranceCyclesPanel({
       setForm((previous) => ({ ...previous, [key]: event.target.value }));
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
-          {t("cycles.description")}
-        </p>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void load()}
-            disabled={loading}
-          >
+    <>
+      <SettingsSection title={t("tabs.cycles")} description={t("cycles.description")}>
+        {loading ? (
+          <p className="px-5 py-4 text-muted-foreground text-sm">{t("loading")}</p>
+        ) : cycles.length === 0 ? (
+          <div className="p-5">
+            <EmptyState icon={CalendarClock} title={t("cycles.empty")} />
+          </div>
+        ) : (
+          cycles.map((cycle) => (
+            <SettingsRow
+              key={cycle.insurance_cycle_config_id}
+              label={
+                <span className="flex flex-wrap items-center gap-2">
+                  {cycle.product?.name ?? productName(cycle.insurance_product_id)}
+                  <ExceptionStatus<"active" | "inactive">
+                    value={cycle.active ? "active" : "inactive"}
+                    normal={["active"]}
+                    labels={{ active: t("products.active"), inactive: t("products.inactive") }}
+                    intents={{ inactive: "neutral" }}
+                  />
+                </span>
+              }
+              description={
+                <span className="tabular-nums">
+                  {[
+                    t("cycles.colYear") + " " + cycle.ecclesiastical_year_id,
+                    t("cycles.colClubType") + " " + cycle.club_type_id,
+                    "$" + cycle.unit_cost,
+                    t("cycles.colDeadline") + " " + cycle.purchase_deadline.slice(0, 10),
+                  ].join(" · ")}
+                </span>
+              }
+              control={
+                <Button type="button" size="sm" variant="outline" onClick={() => openEdit(cycle)}>
+                  {t("products.edit")}
+                </Button>
+              }
+            />
+          ))
+        )}
+        <div className="flex justify-end gap-2 px-5 py-3">
+          <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
             <RefreshCw className="size-4" />
+            <span className="sr-only">{tc("refresh")}</span>
           </Button>
           <Button type="button" size="sm" onClick={openCreate}>
             <Plus className="size-4" />
             {t("cycles.create")}
           </Button>
         </div>
-      </div>
-
-      {loading ? (
-        <p className="text-muted-foreground text-sm">{t("loading")}</p>
-      ) : cycles.length === 0 ? (
-        <EmptyState icon={CalendarClock} title={t("cycles.empty")} />
-      ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="bg-muted/40 text-left">
-              <tr>
-                <th className="px-3 py-2 font-medium">
-                  {t("cycles.colProduct")}
-                </th>
-                <th className="px-3 py-2 font-medium">{t("cycles.colYear")}</th>
-                <th className="px-3 py-2 font-medium">
-                  {t("cycles.colClubType")}
-                </th>
-                <th className="px-3 py-2 font-medium">{t("cycles.colCost")}</th>
-                <th className="px-3 py-2 font-medium">
-                  {t("cycles.colDeadline")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("cycles.colActive")}
-                </th>
-                <th className="px-3 py-2 font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {cycles.map((cycle) => (
-                <tr key={cycle.insurance_cycle_config_id} className="border-t">
-                  <td className="px-3 py-2">
-                    {cycle.product?.name ??
-                      productName(cycle.insurance_product_id)}
-                  </td>
-                  <td className="px-3 py-2">{cycle.ecclesiastical_year_id}</td>
-                  <td className="px-3 py-2">{cycle.club_type_id}</td>
-                  <td className="px-3 py-2">${cycle.unit_cost}</td>
-                  <td className="px-3 py-2">
-                    {cycle.purchase_deadline.slice(0, 10)}
-                  </td>
-                  <td className="px-3 py-2">
-                    <StatusBadge
-                      intent={cycle.active ? "success" : "neutral"}
-                      label={
-                        cycle.active
-                          ? t("products.active")
-                          : t("products.inactive")
-                      }
-                      size="sm"
-                    />
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => openEdit(cycle)}
-                    >
-                      {t("products.edit")}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      </SettingsSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -349,6 +315,6 @@ export function InsuranceCyclesPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

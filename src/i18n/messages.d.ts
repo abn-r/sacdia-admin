@@ -28,6 +28,634 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  ops: {
+    club: {
+      context: {
+        noClub: string;
+        allSections: string;
+        hintPick: string;
+        current: string;
+        colClub: string;
+        colGroup: string;
+        colSections: string;
+        colOpen: string;
+        noSections: string;
+        listLabel: string;
+      };
+      finances: {
+        description: {
+          month: string;
+          year: string;
+          loading: string;
+        };
+        periodLabel: string;
+        periodWholeYear: string;
+        closedNotice: string;
+        table: {
+          colMovement: string;
+          listLabel: string;
+          receipts: string;
+        };
+        form: {
+          kindLabel: string;
+          income: string;
+          expense: string;
+          categoryHintIncome: string;
+          categoryHintExpense: string;
+          countsIn: string;
+          changeMonth: string;
+        };
+        delete: {
+          closedTitle: string;
+          closedNotice: string;
+        };
+        clubList: {
+          description: string;
+          descriptionClean: string;
+          loading: string;
+        };
+        consolidated: {
+          description: string;
+        };
+      };
+      inventory: {
+        description: string;
+        pickSection: {
+          title: string;
+          description: string;
+        };
+        sheet: {
+          tabsLabel: string;
+          detail: string;
+          history: string;
+          historyTo: string;
+        };
+        status: {
+          active: string;
+          inactive: string;
+          all: string;
+        };
+        noResults: {
+          title: string;
+          description: string;
+          clear: string;
+        };
+        form: {
+          titleNew: string;
+          descriptionNew: string;
+          titleEdit: string;
+          descriptionEdit: string;
+        };
+      };
+      insurance: {
+        description: string;
+        pickSection: {
+          title: string;
+          description: string;
+        };
+        cycleLine: string;
+        summaryLabel: string;
+        tabsLabel: string;
+        colValidity: string;
+        empty: {
+          uninsured: {
+            title: string;
+            description: string;
+          };
+          in_process: {
+            title: string;
+            description: string;
+          };
+          covered: {
+            title: string;
+            description: string;
+          };
+        };
+        config: {
+          refresh: string;
+          products: {
+            deactivateTitle: string;
+            deactivateDescription: string;
+          };
+        };
+      };
+    };
+    paymentOrders: {
+      page: {
+        summary: string;
+      };
+      tabs: {
+        waiting: string;
+        rejected: string;
+        all: string;
+      };
+      queue: {
+        search: string;
+        searchPlaceholder: string;
+        colWait: string;
+        colActions: string;
+        view: string;
+        wait: string;
+        beneficiaries: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        clearFilters: string;
+        empty: {
+          review: {
+            title: string;
+            description: string;
+          };
+          waiting: {
+            title: string;
+            description: string;
+          };
+          rejected: {
+            title: string;
+            description: string;
+          };
+          all: {
+            title: string;
+            description: string;
+          };
+        };
+      };
+      sheet: {
+        totalToConfirm: string;
+        total: string;
+        perBeneficiary: string;
+        issuedExpires: string;
+        noVoucher: string;
+        rejectedReason: string;
+        sameUploader: string;
+        rejectAction: string;
+        approveAction: string;
+        rejectExplain: string;
+        rejectLabel: string;
+        rejectHint: string;
+        rejectTooShort: string;
+        approveTitle: string;
+        approveDescription: string;
+        consequence: {
+          INSURANCE: string;
+          CAMPOREE: string;
+        };
+      };
+    };
+    materials: {
+      queue: {
+        title: string;
+        tabsLabel: string;
+        tabs: {
+          review: string;
+          receipts: string;
+          deliver: string;
+          closed: string;
+        };
+        findingReview: string;
+        findingReceipts: string;
+        colDirector: string;
+        colWait: string;
+        wait: string;
+        action: {
+          review: string;
+          receipts: string;
+          deliver: string;
+          closed: string;
+        };
+        empty: {
+          review: {
+            title: string;
+            description: string;
+          };
+          receipts: {
+            title: string;
+            description: string;
+          };
+          deliver: {
+            title: string;
+            description: string;
+          };
+          closed: {
+            title: string;
+            description: string;
+          };
+        };
+      };
+      closedFilter: {
+        label: string;
+        entregada: string;
+        cancelada: string;
+      };
+      detail: {
+        breadcrumbRoot: string;
+        untitled: string;
+        createdOn: string;
+        director: string;
+        directorFallback: string;
+        directorUnknown: string;
+        copyDirectorId: string;
+        delivery: string;
+        deliveryShip: string;
+        deliveryPickup: string;
+        noPickupAddress: string;
+        notes: string;
+      };
+      lines: {
+        title: string;
+        progress: string;
+        product: string;
+        qty: string;
+        qtyAt: string;
+        availability: string;
+        price: string;
+        amount: string;
+        variant: string;
+        untitled: string;
+        empty: string;
+        subtotal: string;
+        shipping: string;
+        total: string;
+      };
+      availability: {
+        pendiente: string;
+        disponible: string;
+        parcial: string;
+        agotado: string;
+        partial: string;
+        group: string;
+        qtyLabel: string;
+        qtyInvalid: string;
+        save: string;
+        saved: string;
+        saveError: string;
+      };
+      rail: {
+        summary: string;
+        counts: string;
+        state: string;
+        since: {
+          en_revision: string;
+          aprobada: string;
+          pagada: string;
+          entregada: string;
+          cancelada: string;
+        };
+        cancelReason: string;
+        refundPending: string;
+        noApprovePermission: string;
+        noDeliverPermission: string;
+      };
+      next: {
+        noLines: string;
+        resolveLines: string;
+        readyToApprove: string;
+        awaitingReceipt: string;
+        receiptToConfirm: string;
+        readyToDeliver: string;
+        delivered: string;
+        cancelled: string;
+      };
+      actions: {
+        approve: string;
+        approved: string;
+        approveError: string;
+        deliver: string;
+        cancel: string;
+      };
+      deliver: {
+        title: string;
+        description: string;
+        confirm: string;
+        back: string;
+        done: string;
+        error: string;
+      };
+      cancel: {
+        title: string;
+        summary: string;
+        consequence: {
+          close: string;
+          restoreStock: string;
+          refund: string;
+        };
+        reasonLabel: string;
+        reasonPlaceholder: string;
+        confirm: string;
+        done: string;
+        error: string;
+      };
+      bank: {
+        title: string;
+        notConfiguredTitle: string;
+        notConfiguredBody: string;
+        folio: string;
+        total: string;
+        bank: string;
+        clabe: string;
+        holder: string;
+        copyAll: string;
+        copied: string;
+        copyFolio: string;
+        copyTotal: string;
+        copyBank: string;
+        copyClabe: string;
+        copyHolder: string;
+      };
+      print: {
+        sheet: string;
+        receipt: string;
+        blocked: string;
+        blockedHint: string;
+      };
+      receipts: {
+        title: string;
+        empty: string;
+        status: {
+          pendiente: string;
+          aprobado: string;
+          rechazado: string;
+        };
+        uploadedOn: string;
+        amount: string;
+        paidOn: string;
+        reference: string;
+        rejectReason: string;
+        view: string;
+        approve: string;
+        reject: string;
+        approveTitle: string;
+        approveDescription: string;
+        approveConfirm: string;
+        approved: string;
+        approveError: string;
+        rejectTitle: string;
+        rejectDescription: string;
+        rejectReasonLabel: string;
+        rejectConfirm: string;
+        rejected: string;
+        rejectError: string;
+      };
+      catalog: {
+        title: string;
+        tabsLabel: string;
+        finding: string;
+        tabs: {
+          products: string;
+          categories: string;
+        };
+        newProduct: string;
+        newCategory: string;
+        noResultsTitle: string;
+        clearFilters: string;
+        soldOut: string;
+        deactivate: string;
+        colName: string;
+        colOrder: string;
+        colProducts: string;
+        colStatus: string;
+        productCount: string;
+        deactivateProduct: {
+          title: string;
+          description: string;
+          done: string;
+          openOrders: string;
+          error: string;
+        };
+        deactivateCategory: {
+          title: string;
+          description: string;
+          done: string;
+          hasProducts: string;
+          error: string;
+        };
+      };
+      form: {
+        product: {
+          createTitle: string;
+          createDescription: string;
+          editTitle: string;
+          editDescription: string;
+          stepBasics: string;
+          stepSale: string;
+          stepEdit: string;
+          sku: string;
+          skuPlaceholder: string;
+          skuLocked: string;
+          skuRequired: string;
+          skuTaken: string;
+          name: string;
+          namePlaceholder: string;
+          nameRequired: string;
+          description: string;
+          optional: string;
+          localField: string;
+          selectLocalField: string;
+          localFieldRequired: string;
+          program: string;
+          selectProgram: string;
+          programRequired: string;
+          programs: {
+            "1": string;
+            "2": string;
+            "3": string;
+          };
+          category: string;
+          selectCategory: string;
+          categoryRequired: string;
+          price: string;
+          priceMin: string;
+          initialStock: string;
+          active: string;
+          activeHint: string;
+          create: string;
+          save: string;
+          created: string;
+          updated: string;
+          createError: string;
+          updateError: string;
+        };
+        category: {
+          createTitle: string;
+          createDescription: string;
+          editTitle: string;
+          editDescription: string;
+          slug: string;
+          slugPlaceholder: string;
+          slugHint: string;
+          slugLocked: string;
+          slugRequired: string;
+          slugFormat: string;
+          slugTaken: string;
+          name: string;
+          namePlaceholder: string;
+          nameRequired: string;
+          icon: string;
+          iconPlaceholder: string;
+          iconHint: string;
+          optional: string;
+          order: string;
+          active: string;
+          activeHint: string;
+          create: string;
+          save: string;
+          created: string;
+          updated: string;
+          createError: string;
+          updateError: string;
+        };
+      };
+    };
+    resources: {
+      title: string;
+      description: string;
+      summary: string;
+      tabs: {
+        aria: string;
+        library: string;
+        categories: string;
+      };
+      actions: {
+        upload: string;
+        download: string;
+        openLink: string;
+        edit: string;
+        delete: string;
+        cancel: string;
+      };
+      filters: {
+        search: string;
+        type: string;
+        typeAll: string;
+        scope: string;
+        scopeAll: string;
+        category: string;
+        categoryAll: string;
+        clubType: string;
+        clubTypeAll: string;
+        clear: string;
+      };
+      columns: {
+        resource: string;
+        type: string;
+        category: string;
+        scope: string;
+        clubType: string;
+        uploader: string;
+        date: string;
+      };
+      types: {
+        document: string;
+        audio: string;
+        image: string;
+        video_link: string;
+        text: string;
+        unknown: string;
+      };
+      levels: {
+        system: string;
+        division: string;
+        union: string;
+        local_field: string;
+      };
+      scope: {
+        divisionId: string;
+        unionId: string;
+        localFieldId: string;
+      };
+      empty: {
+        title: string;
+        description: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+      };
+      delete: {
+        title: string;
+        description: string;
+        success: string;
+      };
+      edit: {
+        title: string;
+        description: string;
+        typeFixed: string;
+        replaceFile: string;
+        replaceFileHint: string;
+        save: string;
+        success: string;
+        failedTitle: string;
+        titleRequired: string;
+      };
+      categories: {
+        created: string;
+        updated: string;
+        deleted: string;
+        saveFailed: string;
+        nameRequired: string;
+      };
+      upload: {
+        title: string;
+        description: string;
+        steps: {
+          file: string;
+          data: string;
+          scope: string;
+        };
+        type: string;
+        dropzone: {
+          title: string;
+          change: string;
+          hint: {
+            document: string;
+            audio: string;
+            image: string;
+          };
+        };
+        fileTooLarge: string;
+        videoUrl: string;
+        videoUrlHint: string;
+        content: string;
+        fields: {
+          title: string;
+          titlePlaceholder: string;
+          description: string;
+          category: string;
+          noCategory: string;
+          clubType: string;
+          allClubs: string;
+        };
+        categoriesFailed: string;
+        level: string;
+        levelHint: string;
+        levelHintAll: string;
+        levelHintNone: string;
+        territoryLocked: string;
+        selectUnion: string;
+        selectLocalField: string;
+        territoryId: {
+          division: string;
+          union: string;
+          local_field: string;
+        };
+        summary: {
+          label: string;
+          systemAll: string;
+          systemType: string;
+          territoryAll: string;
+          territoryType: string;
+          pending: string;
+          noLevels: string;
+        };
+        publish: string;
+        success: string;
+        failedTitle: string;
+        errors: {
+          fileRequired: string;
+          levelNotAllowed: string;
+          territoryRequired: string;
+          unknown: string;
+        };
+      };
+    };
+  };
   queues: {
     requests: {
       common: {
@@ -841,6 +1469,7 @@ export interface IntlMessages {
       campamentos_list_union: string;
       materials: string;
       materials_inbox: string;
+      materials_catalog: string;
       resources_list: string;
       notifications_hub: string;
       notifications_history: string;
