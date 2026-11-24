@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -182,42 +182,29 @@ export function FormPageFrame({
   );
 }
 
-/** Numbered step strip under the header. Steps are labels only; navigation stays in the footer. */
+/**
+ * Text-only stepline under the header: "Paso 2 de 3 · Título" plus a muted
+ * "· Siguiente: X". `current` is 0-based (index into `steps`). No bar, dots or
+ * timeline; navigation stays in the footer.
+ */
 export function FormModalSteps({ steps, current }: { steps: string[]; current: number }) {
+  const t = useTranslations("shared.kit.steps");
+  const index = Math.min(Math.max(current, 0), Math.max(steps.length - 1, 0));
+  const title = steps[index] ?? "";
+  const next = steps[index + 1];
   return (
-    <ol className="flex items-center gap-3 overflow-x-auto border-y bg-muted/50 px-6 py-3 text-sm">
-      {steps.map((label, index) => {
-        const state = index < current ? "done" : index === current ? "active" : "pending";
-        return (
-          <li key={label} className="flex shrink-0 items-center gap-3">
-            {index > 0 ? <span aria-hidden="true" className="h-px w-6 bg-border" /> : null}
-            <span
-              className="flex items-center gap-2"
-              aria-current={state === "active" ? "step" : undefined}
-            >
-              <span
-                className={cn(
-                  "flex size-5 items-center justify-center rounded-full text-2xs font-medium tabular-nums transition-colors duration-150",
-                  state === "active" && "bg-primary-solid text-primary-foreground",
-                  state === "done" && "bg-primary/10 text-primary",
-                  state === "pending" && "bg-background text-muted-foreground ring-1 ring-border",
-                )}
-              >
-                {state === "done" ? <Check className="size-3" aria-hidden="true" /> : index + 1}
-              </span>
-              <span
-                className={cn(
-                  "font-medium",
-                  state === "pending" ? "text-muted-foreground" : "text-foreground",
-                )}
-              >
-                {label}
-              </span>
-            </span>
-          </li>
-        );
-      })}
-    </ol>
+    <p
+      data-slot="form-modal-steps"
+      aria-live="polite"
+      className="border-y bg-muted/50 px-6 py-3 text-sm"
+    >
+      <span className="font-medium text-foreground">
+        {t("stepline", { current: index + 1, total: steps.length, title })}
+      </span>
+      {next ? (
+        <span className="text-muted-foreground"> · {t("next", { title: next })}</span>
+      ) : null}
+    </p>
   );
 }
 
@@ -255,7 +242,7 @@ export function FormModalBody({
   }, [stepKey, direction]);
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t px-6 py-5 [ol+&]:border-t-0">
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t px-6 py-5 [[data-slot=form-modal-steps]+&]:border-t-0">
       <div
         ref={contentRef}
         className={cn(
