@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const resourceUploadSources = [
   "src/components/resources/resources-crud-page.tsx",
-  "src/lib/resources/resource-actions.ts",
+  "src/components/resources/resource-upload-form.tsx",
   "src/lib/api/resources.ts",
 ].map((path) => join(process.cwd(), path));
 

@@ -1,86 +1,29 @@
-import dynamic from "next/dynamic";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ApiError } from "@/lib/api/client";
-import { Skeleton } from "@/components/ui/skeleton";
-
-const ResourcesCrudPage = dynamic(
-  () =>
-    import("@/components/resources/resources-crud-page").then((m) => ({
-      default: m.ResourcesCrudPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-9 w-48" />
-          <Skeleton className="h-9 w-32" />
-        </div>
-        <div className="rounded-xl border">
-          <div className="border-b p-4">
-            <div className="flex gap-3">
-              <Skeleton className="h-9 w-64" />
-              <Skeleton className="h-9 w-36" />
-              <Skeleton className="h-9 w-36" />
-            </div>
-          </div>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 border-b px-4 py-3 last:border-0">
-              <Skeleton className="size-10 rounded-lg" />
-              <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-3 w-72" />
-              </div>
-              <Skeleton className="h-6 w-20 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-md" />
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-5 w-32" />
-          <div className="flex gap-2">
-            <Skeleton className="h-8 w-8 rounded-md" />
-            <Skeleton className="h-8 w-8 rounded-md" />
-            <Skeleton className="h-8 w-8 rounded-md" />
-          </div>
-        </div>
-      </div>
-    ),
-  },
-);
-import { listResources, listResourceCategories } from "@/lib/api/resources";
-import type { ResourceType, ScopeLevel } from "@/lib/api/resources";
-import { listClubTypes, type ClubType } from "@/lib/api/catalogs";
-import type { Union, LocalField } from "@/lib/api/geography";
+import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { PageHeader } from "@/components/shared/page-header";
+import { UrlTabs, type UrlTabItem } from "@/components/shared/url-tabs";
+import { ResourceCategoriesCrudPage } from "@/components/resources/resource-categories-crud-page";
+import { ResourcesCrudPage } from "@/components/resources/resources-crud-page";
 import {
-  listLocalFieldsForTerritory,
-  listUnionsForTerritory,
-} from "@/lib/auth/territory-scope";
+  extractItems,
+  loadResourceFormData,
+  toLoadFailure,
+  toPositiveNumber,
+} from "@/components/resources/resource-form-data";
+import type { ResourcesLoadFailure } from "@/components/resources/resource-meta";
+import { listResources, type ResourceType, type ScopeLevel } from "@/lib/api/resources";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { resolveResourceScopeOptions } from "@/lib/resources/scope-options";
-import {
-  createResourceAction,
-  deleteResourceAction,
-  updateResourceAction,
-} from "@/lib/resources/resource-actions";
+import { pageResourceCategories, parseCategoryStatus } from "@/lib/resources/category-list";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 type GenericRecord = Record<string, unknown>;
-type CategoryRecord = { resource_category_id: number; name: string };
+type Tab = "library" | "categories";
 
-const DEFAULT_CLUB_TYPES: ClubType[] = [
-  { club_type_id: 1, name: "Aventureros" },
-  { club_type_id: 2, name: "Conquistadores" },
-  { club_type_id: 3, name: "Guías Mayores" },
-];
-
-type PageMeta = {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-};
+type PageMeta = { page: number; limit: number; total: number; totalPages: number };
 
 const VALID_RESOURCE_TYPES: ResourceType[] = ["document", "audio", "image", "video_link", "text"];
 const VALID_SCOPE_LEVELS: ScopeLevel[] = ["system", "division", "union", "local_field"];
@@ -91,7 +34,7 @@ function readParam(
 ): string | undefined {
   const value = raw[key];
   if (typeof value === "string") return value;
-  if (Array.isArray(value)) return value.find((e) => typeof e === "string");
+  if (Array.isArray(value)) return value.find((entry) => typeof entry === "string");
   return undefined;
 }
 
@@ -105,26 +48,9 @@ function readPositiveNumber(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function toPositiveNumber(value: unknown): number | null {
-  const parsed = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed <= 0) return null;
-  return parsed;
-}
-
 function toRecord(value: unknown): GenericRecord | null {
   if (!value || typeof value !== "object") return null;
   return value as GenericRecord;
-}
-
-function extractItems(payload: unknown): GenericRecord[] {
-  if (Array.isArray(payload)) return payload as GenericRecord[];
-  const root = toRecord(payload);
-  if (!root) return [];
-  if (Array.isArray(root.data)) return root.data as GenericRecord[];
-  const nestedData = toRecord(root.data);
-  if (nestedData && Array.isArray(nestedData.data)) return nestedData.data as GenericRecord[];
-  if (nestedData && Array.isArray(nestedData.items)) return nestedData.items as GenericRecord[];
-  return [];
 }
 
 function extractMeta(
@@ -140,9 +66,7 @@ function extractMeta(
   const page = toPositiveNumber(metaRecord?.page) ?? fallbackPage;
   const limit = toPositiveNumber(metaRecord?.limit) ?? fallbackLimit;
   const total =
-    toPositiveNumber(metaRecord?.total) ??
-    toPositiveNumber(metaRecord?.count) ??
-    fallbackTotal;
+    toPositiveNumber(metaRecord?.total) ?? toPositiveNumber(metaRecord?.count) ?? fallbackTotal;
   const totalPages =
     toPositiveNumber(metaRecord?.totalPages) ??
     toPositiveNumber(metaRecord?.total_pages) ??
@@ -151,188 +75,160 @@ function extractMeta(
   return { page, limit, total, totalPages };
 }
 
-function extractCategories(payload: unknown): CategoryRecord[] {
-  const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id = toPositiveNumber(item.resource_category_id ?? item.category_id ?? item.id);
-      const name =
-        typeof item.name === "string" ? item.name.trim() : null;
-      if (!id || !name) return null;
-      return { resource_category_id: id, name } satisfies CategoryRecord;
-    })
-    .filter((c): c is CategoryRecord => c !== null);
-}
-
-function extractClubTypes(payload: unknown): ClubType[] {
-  const items = extractItems(payload);
-  return items
-    .map((item) => {
-      const id = toPositiveNumber(item.club_type_id ?? item.id);
-      const name = typeof item.name === "string" ? item.name.trim() : null;
-      if (!id || !name) return null;
-      return { club_type_id: id, name } satisfies ClubType;
-    })
-    .filter((c): c is ClubType => c !== null);
-}
-
-function extractUnions(payload: unknown): Union[] {
-  const items = extractItems(payload);
-  return items.reduce<Union[]>((acc, item) => {
-    const id = toPositiveNumber(item.union_id ?? item.id);
-    const name = typeof item.name === "string" ? item.name.trim() : null;
-    if (id && name && item.active !== false) {
-      acc.push({ union_id: id, name, country_id: Number(item.country_id ?? 0), active: item.active as boolean | undefined });
-    }
-    return acc;
-  }, []);
-}
-
-function extractLocalFields(payload: unknown): LocalField[] {
-  const items = extractItems(payload);
-  return items.reduce<LocalField[]>((acc, item) => {
-    const id = toPositiveNumber(item.local_field_id ?? item.id);
-    const name = typeof item.name === "string" ? item.name.trim() : null;
-    if (id && name && item.active !== false) {
-      acc.push({ local_field_id: id, name, union_id: Number(item.union_id ?? 0), active: item.active as boolean | undefined });
-    }
-    return acc;
-  }, []);
-}
-
-export default async function ResourcesPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function ResourcesPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireAdminUser();
-  const t = await getTranslations("resources.pages.list");
+  const t = await getTranslations("ops.resources");
+  const tPages = await getTranslations("resources.pages");
 
-  if (!canViewScreen(user, "resources-list")) {
-    return (
-      <EndpointErrorBanner
-        state="forbidden"
-        detail={t("forbiddenDetail")}
-      />
-    );
+  const canLibrary = canViewScreen(user, "resources-list");
+  const canCategories = canViewScreen(user, "resources-categories");
+
+  if (!canLibrary && !canCategories) {
+    return <EndpointErrorBanner state="forbidden" detail={tPages("list.forbiddenDetail")} />;
   }
 
   const raw = await searchParams;
   const page = readPositiveNumber(raw, "page") ?? 1;
   const limit = readPositiveNumber(raw, "limit") ?? 20;
+  const requestedTab = readParam(raw, "tab");
+  const tab: Tab =
+    requestedTab === "categories" && canCategories
+      ? "categories"
+      : canLibrary
+        ? "library"
+        : "categories";
 
   const rawType = readParam(raw, "resource_type");
-  const resourceType = rawType && VALID_RESOURCE_TYPES.includes(rawType as ResourceType)
+  const resourceType = VALID_RESOURCE_TYPES.includes(rawType as ResourceType)
     ? (rawType as ResourceType)
     : undefined;
-
-  const clubTypeId = readPositiveNumber(raw, "club_type_id");
-
-  const rawScopeLevel = readParam(raw, "scope_level");
-  const scopeLevel = rawScopeLevel && VALID_SCOPE_LEVELS.includes(rawScopeLevel as ScopeLevel)
-    ? (rawScopeLevel as ScopeLevel)
+  const rawScope = readParam(raw, "scope_level");
+  const scopeLevel = VALID_SCOPE_LEVELS.includes(rawScope as ScopeLevel)
+    ? (rawScope as ScopeLevel)
     : undefined;
-
+  const clubTypeId = readPositiveNumber(raw, "club_type_id");
   const categoryId = readPositiveNumber(raw, "category_id");
   const search = readParam(raw, "search");
+  const hasLibraryFilters = Boolean(resourceType || scopeLevel || clubTypeId || categoryId || search);
+
+  const formData = await loadResourceFormData(user);
 
   let items: GenericRecord[] = [];
   let meta: PageMeta = { page, limit, total: 0, totalPages: 1 };
-  let loadError: string | null = null;
-  let categories: CategoryRecord[] = [];
-  let clubTypes: ClubType[] = [];
-  let unions: Union[] = [];
-  let localFields: LocalField[] = [];
+  let libraryFailure: ResourcesLoadFailure | null = null;
+  let libraryTotal: number | null = null;
 
-  // Fetch all data in parallel
-  const [resourcesResult, categoriesResult, clubTypesResult, unionsResult, localFieldsResult] =
-    await Promise.allSettled([
-      listResources({ page, limit, resource_type: resourceType, resource_category_id: categoryId, club_type_id: clubTypeId, scope_level: scopeLevel, search }),
-      listResourceCategories(),
-      listClubTypes(),
-      listUnionsForTerritory(user),
-      listLocalFieldsForTerritory(user),
-    ]);
-
-  if (resourcesResult.status === "fulfilled") {
-    items = extractItems(resourcesResult.value);
-    meta = extractMeta(resourcesResult.value, page, limit, items.length);
-  } else {
-    const error = resourcesResult.reason;
-    if (!(error instanceof ApiError && error.status === 429)) {
-      loadError =
-        error instanceof ApiError
-          ? error.message
-          : "No se pudieron cargar los recursos.";
+  if (tab === "library") {
+    try {
+      const payload = await listResources({
+        page,
+        limit,
+        resource_type: resourceType,
+        resource_category_id: categoryId,
+        club_type_id: clubTypeId,
+        scope_level: scopeLevel,
+        search,
+      });
+      items = extractItems(payload);
+      meta = extractMeta(payload, page, limit, items.length);
+      if (!hasLibraryFilters) libraryTotal = meta.total;
+    } catch (error) {
+      libraryFailure = toLoadFailure(error);
     }
   }
 
-  if (categoriesResult.status === "fulfilled") {
-    categories = extractCategories(categoriesResult.value);
+  // The tab count is the unfiltered total of the library: ask for it when this render
+  // is filtered or shows the other tab.
+  if (libraryTotal === null && canLibrary && !libraryFailure) {
+    try {
+      const payload = await listResources({ page: 1, limit: 1 });
+      libraryTotal = extractMeta(payload, 1, 1, extractItems(payload).length).total;
+    } catch {
+      libraryTotal = null;
+    }
   }
 
-  if (clubTypesResult.status === "fulfilled") {
-    clubTypes = extractClubTypes(clubTypesResult.value);
-  }
-  if (clubTypes.length === 0) {
-    clubTypes = DEFAULT_CLUB_TYPES;
-  }
+  const categoryTotal = formData.categoriesFailure ? null : formData.categoryRecords.length;
 
-  if (unionsResult.status === "fulfilled") {
-    unions = Array.isArray(unionsResult.value)
-      ? unionsResult.value
-      : extractUnions(unionsResult.value);
-  }
-
-  if (localFieldsResult.status === "fulfilled") {
-    localFields = Array.isArray(localFieldsResult.value)
-      ? localFieldsResult.value
-      : extractLocalFields(localFieldsResult.value);
+  let categoryItems: GenericRecord[] = [];
+  let categoryMeta: PageMeta = { page, limit, total: 0, totalPages: 1 };
+  if (tab === "categories" && !formData.categoriesFailure) {
+    ({ items: categoryItems, meta: categoryMeta } = pageResourceCategories(
+      formData.categoryRecords,
+      {
+        status: parseCategoryStatus(readParam(raw, "active")),
+        search,
+        page,
+        limit,
+      },
+    ));
   }
 
   const canCreate = canCapability(user, "resources-list", "create");
-  const canEdit = canCapability(user, "resources-list", "update");
-  const canDelete = canCapability(user, "resources-list", "delete");
-
-  // Resolve user's effective global scope to limit available scope levels and
-  // pre-select / lock the scope_id in the create form per RBAC hierarchy.
-  const { allowedScopeLevels, lockedScopeId } = resolveResourceScopeOptions(user);
-  let scopedUnions = unions;
-  let scopedLocalFields = localFields;
-
-  if (allowedScopeLevels.length === 1 && lockedScopeId !== null) {
-    if (allowedScopeLevels[0] === "union") {
-      scopedUnions = unions.filter((u) => u.union_id === lockedScopeId);
-      scopedLocalFields = [];
-    } else if (allowedScopeLevels[0] === "local_field") {
-      scopedUnions = [];
-      scopedLocalFields = localFields.filter((lf) => lf.local_field_id === lockedScopeId);
-    }
-  } else if (allowedScopeLevels.length === 0) {
-    scopedUnions = [];
-    scopedLocalFields = [];
+  const tabs: UrlTabItem[] = [];
+  if (canLibrary) {
+    tabs.push({
+      value: "library",
+      label: t("tabs.library"),
+      ...(libraryTotal !== null ? { count: libraryTotal } : {}),
+      href: "/dashboard/resources",
+    });
   }
+  if (canCategories) {
+    tabs.push({
+      value: "categories",
+      label: t("tabs.categories"),
+      ...(categoryTotal !== null ? { count: categoryTotal } : {}),
+      href: "/dashboard/resources?tab=categories",
+    });
+  }
+
+  const description =
+    libraryTotal !== null && categoryTotal !== null
+      ? t("summary", { resources: libraryTotal, categories: categoryTotal })
+      : t("description");
 
   return (
     <div className="space-y-6">
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
+      <PageHeader title={t("title")} description={description}>
+        {tab === "library" && canCreate && (
+          <Button asChild>
+            <Link href="/dashboard/resources/new">
+              <Upload aria-hidden />
+              {t("actions.upload")}
+            </Link>
+          </Button>
+        )}
+      </PageHeader>
 
-      <ResourcesCrudPage
-        items={items}
-        meta={meta}
-        categories={categories}
-        clubTypes={clubTypes}
-        unions={scopedUnions}
-        localFields={scopedLocalFields}
-        allowedScopeLevels={allowedScopeLevels}
-        lockedScopeId={lockedScopeId}
-        canCreate={canCreate}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        createAction={createResourceAction}
-        updateAction={updateResourceAction}
-        deleteAction={deleteResourceAction}
-      />
+      {tabs.length > 1 && (
+        <UrlTabs tabs={tabs} defaultValue={tabs[0]?.value ?? "library"} ariaLabel={t("tabs.aria")} />
+      )}
+
+      {tab === "library" ? (
+        <ResourcesCrudPage
+          items={items}
+          meta={meta}
+          categories={formData.categories}
+          clubTypes={formData.clubTypes}
+          unions={formData.unions}
+          localFields={formData.localFields}
+          canCreate={canCreate}
+          canEdit={canCapability(user, "resources-list", "update")}
+          canDelete={canCapability(user, "resources-list", "delete")}
+          loadError={libraryFailure}
+          loadedAt={new Date().toISOString()}
+        />
+      ) : (
+        <ResourceCategoriesCrudPage
+          items={categoryItems}
+          meta={categoryMeta}
+          canCreate={canCapability(user, "resources-categories", "create")}
+          canEdit={canCapability(user, "resources-categories", "update")}
+          canDelete={canCapability(user, "resources-categories", "delete")}
+          loadError={formData.categoriesFailure}
+        />
+      )}
     </div>
   );
 }

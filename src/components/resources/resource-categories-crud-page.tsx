@@ -1,22 +1,15 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useFormStatus } from "react-dom";
-import {
-  FolderOpen,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { FolderOpen, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { flagStatusIntent } from "@/lib/status/flag-status";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -33,16 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import {
   Table,
   TableBody,
   TableCell,
@@ -50,18 +33,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTranslations } from "next-intl";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import type { ResourceCategoryActionState } from "@/lib/resources/category-actions";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { ListFilterField } from "@/components/shared/list-filters-shell";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { useToastError } from "@/lib/feedback/toast-retry";
+import {
+  createResourceCategory,
+  deleteResourceCategory,
+  updateResourceCategory,
+} from "@/lib/api/resources";
+import type { ResourcesLoadFailure } from "@/components/resources/resource-meta";
 
 type CategoryRecord = Record<string, unknown>;
-type NavigationMode = "push" | "replace";
-type CategoryFormAction = (
-  prevState: ResourceCategoryActionState,
-  formData: FormData,
-) => Promise<ResourceCategoryActionState>;
+
+const CATEGORIES_PATH = "/dashboard/resources?tab=categories";
+const COLUMN_COUNT = 4;
 
 interface ResourceCategoriesCrudPageProps {
   items: CategoryRecord[];
@@ -69,9 +60,8 @@ interface ResourceCategoriesCrudPageProps {
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
-  createAction: CategoryFormAction;
-  updateAction: CategoryFormAction;
-  deleteAction: CategoryFormAction;
+  /** The categories request failed. Never rendered as an empty list. */
+  loadError?: ResourcesLoadFailure | null;
 }
 
 function toText(value: unknown): string | null {
@@ -94,113 +84,134 @@ function pickName(item: CategoryRecord): string {
   return toText(item.name) ?? toText(item.title) ?? "—";
 }
 
-function pickDescription(item: CategoryRecord): string {
-  return toText(item.description) ?? "—";
-}
+type CategoryFormDialogProps = {
+  /** Category being edited; null creates a new one. */
+  item: CategoryRecord | null;
+  onClose: () => void;
+  onSaved: () => void;
+};
 
-function getDefaultActive(item?: CategoryRecord | null): boolean {
-  if (!item) return true;
-  return item.active !== false;
-}
-
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button loading={pending} type="submit">
-      {label}
-    </Button>
-  );
-}
-
-function DeleteButton() {
-  const { pending } = useFormStatus();
+function CategoryFormDialog({ item, onClose, onSaved }: CategoryFormDialogProps) {
   const t = useTranslations("resources.categoriesCrud");
+  const tOps = useTranslations("ops.resources");
+  const toastError = useToastError();
+  const ids = useId();
+  const [name, setName] = useState(toText(item?.name) ?? "");
+  const [description, setDescription] = useState(toText(item?.description) ?? "");
+  const [active, setActive] = useState(item ? item.active !== false : true);
+  const [saving, setSaving] = useState(false);
+  const itemId = item ? pickId(item) : null;
+
+  async function save() {
+    if (saving) return;
+    const trimmed = name.trim();
+    if (!trimmed) {
+      toastError({ title: tOps("categories.saveFailed"), description: tOps("categories.nameRequired") });
+      return;
+    }
+    setSaving(true);
+    try {
+      if (item && itemId) {
+        await updateResourceCategory(itemId, {
+          name: trimmed,
+          description: description.trim(),
+          active,
+        });
+        toast.success(tOps("categories.updated"));
+      } else {
+        await createResourceCategory({
+          name: trimmed,
+          description: description.trim() || undefined,
+          active,
+        });
+        toast.success(tOps("categories.created"));
+      }
+      onSaved();
+    } catch (error) {
+      toastError({
+        title: tOps("categories.saveFailed"),
+        description: error instanceof Error && error.message ? error.message : undefined,
+        onRetry: save,
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
-    <Button
-      loading={pending}
-      type="submit"
-      variant="destructive-solid"
-    >
-      {t("delete")}
-    </Button>
+    <Dialog open onOpenChange={(open) => (!open && !saving ? onClose() : undefined)}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{item ? t("editDialogTitle") : t("createDialogTitle")}</DialogTitle>
+          {!item && <DialogDescription>{t("createDialogDesc")}</DialogDescription>}
+        </DialogHeader>
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            void save();
+          }}
+          className="space-y-4"
+        >
+          <Field>
+            <FieldLabel htmlFor={`${ids}-name`}>
+              {t("fieldName")} <span className="text-destructive" aria-hidden="true">*</span>
+            </FieldLabel>
+            <Input
+              id={`${ids}-name`}
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t("fieldNamePlaceholder")}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${ids}-description`}>{t("fieldDescription")}</FieldLabel>
+            <Textarea
+              id={`${ids}-description`}
+              rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder={t("fieldDescriptionPlaceholder")}
+            />
+          </Field>
+          <Field orientation="horizontal">
+            <Switch id={`${ids}-active`} checked={active} onCheckedChange={setActive} />
+            <FieldLabel htmlFor={`${ids}-active`}>{t("fieldActive")}</FieldLabel>
+          </Field>
+          <DialogFooter className="gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+              {t("cancel")}
+            </Button>
+            <Button type="submit" loading={saving}>
+              {item ? t("saveChanges") : t("createSubmit")}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function CategoryFormFields({
-  item,
-  activeChecked,
-  onActiveChange,
-}: {
-  item?: CategoryRecord | null;
-  activeChecked: boolean;
-  onActiveChange: (checked: boolean) => void;
-}) {
-  const t = useTranslations("resources.categoriesCrud");
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="rc-name">
-          {t("fieldName")} <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="rc-name"
-          name="name"
-          defaultValue={toText(item?.name) ?? ""}
-          required
-          placeholder={t("fieldNamePlaceholder")}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="rc-description">{t("fieldDescription")}</Label>
-        <Textarea
-          id="rc-description"
-          name="description"
-          rows={3}
-          defaultValue={toText(item?.description) ?? ""}
-          placeholder={t("fieldDescriptionPlaceholder")}
-        />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <input type="hidden" name="active" value={activeChecked ? "on" : ""} />
-        <Checkbox
-          id="rc-active"
-          checked={activeChecked}
-          onCheckedChange={(checked) => onActiveChange(!!checked)}
-        />
-        <Label htmlFor="rc-active">{t("fieldActive")}</Label>
-      </div>
-    </div>
-  );
-}
-
+/** Body of the "Categorías" tab: filters, table, and create/edit/delete. */
 export function ResourceCategoriesCrudPage({
   items,
   meta,
   canCreate,
   canEdit,
   canDelete,
-  createAction,
-  updateAction,
-  deleteAction,
+  loadError = null,
 }: ResourceCategoriesCrudPageProps) {
+  const t = useTranslations("resources.categoriesCrud");
+  const tOps = useTranslations("ops.resources");
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestParamsRef = useRef(searchParamsString);
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editItem, setEditItem] = useState<CategoryRecord | null>(null);
+  const [formItem, setFormItem] = useState<{ item: CategoryRecord | null } | null>(null);
   const [deleteItem, setDeleteItem] = useState<CategoryRecord | null>(null);
-  const [createActiveChecked, setCreateActiveChecked] = useState(true);
-  const [editActiveChecked, setEditActiveChecked] = useState(true);
-
-  const [createState, createFormAction] = useActionState<ResourceCategoryActionState, FormData>(createAction, {});
-  const [updateState, updateFormAction] = useActionState<ResourceCategoryActionState, FormData>(updateAction, {});
-  const [deleteState, deleteFormAction] = useActionState<ResourceCategoryActionState, FormData>(deleteAction, {});
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;
@@ -212,194 +223,169 @@ export function ResourceCategoriesCrudPage({
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
   const updateParam = useCallback(
-    (key: string, value: string, mode: NavigationMode = "push") => {
+    (key: string, value: string, mode: "push" | "replace" = "push") => {
       if (key !== "search" && debounceRef.current) {
         clearTimeout(debounceRef.current);
         debounceRef.current = null;
       }
       const params = new URLSearchParams(latestParamsRef.current);
+      params.set("tab", "categories");
       const normalized = value.trim();
-      if (!normalized || normalized === "all") {
-        params.delete(key);
-      } else {
-        params.set(key, normalized);
-      }
+      if (!normalized || normalized === "all") params.delete(key);
+      else params.set(key, normalized);
       params.set("page", "1");
-      const queryString = params.toString();
-      const nextUrl = queryString ? `${pathname}?${queryString}` : pathname;
-      if (mode === "replace") {
-        router.replace(nextUrl);
-        return;
-      }
-      router.push(nextUrl);
+      const nextUrl = `/dashboard/resources?${params.toString()}`;
+      if (mode === "replace") router.replace(nextUrl);
+      else router.push(nextUrl);
     },
-    [pathname, router],
+    [router],
   );
 
   const currentSearch = searchParams.get("search") ?? "";
-  const currentStatusFilter = searchParams.get("active") ?? "all";
+  const currentStatus = searchParams.get("active") ?? "all";
   const [searchInput, setSearchInput] = useState(currentSearch);
 
   useEffect(() => {
     setSearchInput(currentSearch);
   }, [currentSearch]);
 
-  const handleSearchInputChange = useCallback(
+  const handleSearchChange = useCallback(
     (value: string) => {
       setSearchInput(value);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("search", value, "replace");
-      }, 400);
+      debounceRef.current = setTimeout(() => updateParam("search", value, "replace"), 400);
     },
     [updateParam],
   );
 
-  const t = useTranslations("resources.categoriesCrud");
-  const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
-  const canMutate = canCreate || canEdit || canDelete;
+  const hasActiveFilters = Boolean(currentSearch || currentStatus !== "all");
+  const hasActions = canEdit || canDelete;
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
+  const showEmpty = !loadError && items.length === 0;
+
+  const statusLabels = { active: t("statusActive"), inactive: t("statusInactive") };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("pageTitle")}
-        description={t("pageDescription")}
-      >
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-wrap items-end gap-3">
+          <ListFilterField id="rc-filter-name" label={t("filterName")} className="w-[260px]">
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden
+              />
+              <Input
+                id="rc-filter-name"
+                className="pl-9"
+                placeholder={t("filterNamePlaceholder")}
+                value={searchInput}
+                onChange={(event) => handleSearchChange(event.target.value)}
+              />
+            </div>
+          </ListFilterField>
+          <ListFilterField id="rc-filter-status" label={t("filterStatus")}>
+            <Select value={currentStatus} onValueChange={(value) => updateParam("active", value)}>
+              <SelectTrigger id="rc-filter-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("statusAll")}</SelectItem>
+                <SelectItem value="true">{t("statusActive")}</SelectItem>
+                <SelectItem value="false">{t("statusInactive")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </ListFilterField>
+          {hasActiveFilters && (
+            <Button type="button" variant="ghost" onClick={() => router.push(CATEGORIES_PATH)}>
+              {tOps("filters.clear")}
+            </Button>
+          )}
+        </div>
         {canCreate && (
-          <Button
-            onClick={() => {
-              setCreateOpen(true);
-              setCreateActiveChecked(true);
-            }}
-          >
-            <Plus className="size-4" />
+          <Button type="button" onClick={() => setFormItem({ item: null })}>
+            <Plus aria-hidden />
             {t("createCategory")}
           </Button>
         )}
-      </PageHeader>
+      </div>
 
-      <div className="space-y-4">
-        {/* Filters */}
-        <div className="rounded-xl border bg-muted/20 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
-          </div>
-
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[300px] space-y-1">
-                <Label htmlFor="rc-filter-name">{t("filterName")}</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="rc-filter-name"
-                    placeholder={t("filterNamePlaceholder")}
-                    value={searchInput}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    className="bg-background pl-9"
+      {showEmpty ? (
+        <EmptyState
+          icon={FolderOpen}
+          variant={hasActiveFilters ? "no-results" : "default"}
+          title={hasActiveFilters ? t("noResults") : t("emptyTitle")}
+          description={hasActiveFilters ? t("noResultsDesc") : t("emptyDesc")}
+        >
+          {hasActiveFilters ? (
+            <Button type="button" variant="outline" onClick={() => router.push(CATEGORIES_PATH)}>
+              {tOps("filters.clear")}
+            </Button>
+          ) : canCreate ? (
+            <Button type="button" onClick={() => setFormItem({ item: null })}>
+              <Plus aria-hidden />
+              {t("createCategory")}
+            </Button>
+          ) : null}
+        </EmptyState>
+      ) : (
+        <>
+          <DataTableShell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("colName")}</TableHead>
+                  <TableHead className="max-md:hidden">{t("colDescription")}</TableHead>
+                  <TableHead>{t("colStatus")}</TableHead>
+                  {hasActions ? <RowActionsHead /> : <TableHead className="w-0 p-0" />}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadError ? (
+                  <ErrorStateTableRow
+                    colSpan={COLUMN_COUNT}
+                    kind={loadError.kind}
+                    retry
+                    icon={FolderOpen}
+                    detail={loadError.detail}
                   />
-                </div>
-              </div>
-
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor="rc-filter-status">{t("filterStatus")}</Label>
-                <Select
-                  value={currentStatusFilter}
-                  onValueChange={(value) => updateParam("active", value)}
-                >
-                  <SelectTrigger id="rc-filter-status" className="bg-background">
-                    <SelectValue placeholder={t("filterStatus")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("statusAll")}</SelectItem>
-                    <SelectItem value="true">{t("statusActive")}</SelectItem>
-                    <SelectItem value="false">{t("statusInactive")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Table or Empty */}
-        {items.length === 0 ? (
-          <EmptyState
-            icon={FolderOpen}
-            title={hasActiveFilters ? t("noResults") : t("emptyTitle")}
-            description={
-              hasActiveFilters
-                ? t("noResultsDesc")
-                : t("emptyDesc")
-            }
-          >
-            {canCreate && !hasActiveFilters && (
-              <Button
-                onClick={() => {
-                  setCreateOpen(true);
-                  setCreateActiveChecked(true);
-                }}
-              >
-                <Plus className="size-4" />
-                {t("createCategory")}
-              </Button>
-            )}
-          </EmptyState>
-        ) : (
-          <>
-            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("colName")}</TableHead>
-                    <TableHead>{t("colDescription")}</TableHead>
-                    <TableHead>{t("colStatus")}</TableHead>
-                    {(canEdit || canDelete) && (
-                      <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((item, idx) => {
+                ) : (
+                  items.map((item, index) => {
                     const itemId = pickId(item);
                     const name = pickName(item);
-                    const description = pickDescription(item);
                     const rowKey = itemId
                       ? `rc-${itemId}`
-                      : `rc-row-${(safePage - 1) * safeLimit + idx}`;
-
+                      : `rc-row-${(safePage - 1) * safeLimit + index}`;
                     return (
                       <TableRow key={rowKey}>
                         <TableCell className="font-medium">{name}</TableCell>
-                        <TableCell className="max-w-[400px] text-sm text-muted-foreground">
-                          {description}
+                        <TableCell className="max-w-[400px] whitespace-normal text-muted-foreground max-md:hidden">
+                          {toText(item.description) ?? "—"}
                         </TableCell>
                         <TableCell>
-                          <StatusBadge intent={flagStatusIntent(item.active !== false)} label={item.active !== false ? t("statusActive") : t("statusInactive")} size="sm" />
+                          <ExceptionStatus
+                            value={item.active === false ? "inactive" : "active"}
+                            normal={["active"]}
+                            labels={statusLabels}
+                            intents={{ inactive: "neutral" }}
+                          />
                         </TableCell>
-                        {(canEdit || canDelete) && (
-                          <TableCell className="sticky right-0 z-10 border-l bg-card">
+                        <TableCell>
+                          {hasActions && (
                             <RowActions
                               label={name}
                               actions={[
                                 {
                                   label: t("edit"),
                                   icon: Pencil,
-                                  onSelect: () => {
-                                    setEditItem(item);
-                                    setEditActiveChecked(getDefaultActive(item));
-                                  },
+                                  onSelect: () => setFormItem({ item }),
                                   hidden: !canEdit,
                                   disabled: !itemId,
                                 },
@@ -413,15 +399,17 @@ export function ResourceCategoriesCrudPage({
                                 },
                               ]}
                             />
-                          </TableCell>
-                        )}
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </DataTableShell>
 
+          {!loadError && (
             <DataTablePagination
               page={safePage}
               totalPages={safeTotalPages}
@@ -429,103 +417,38 @@ export function ResourceCategoriesCrudPage({
               limit={safeLimit}
               limitOptions={[10, 20, 50, 100]}
             />
-          </>
-        )}
-      </div>
-
-      {/* Create Dialog */}
-      {canCreate && (
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogContent className="max-w-xl">
-            <DialogHeader>
-              <DialogTitle>{t("createDialogTitle")}</DialogTitle>
-              <DialogDescription>
-                {t("createDialogDesc")}
-              </DialogDescription>
-            </DialogHeader>
-            <form action={createFormAction} className="space-y-4">
-              {createState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {createState.error}
-                </div>
-              )}
-              <CategoryFormFields
-                activeChecked={createActiveChecked}
-                onActiveChange={setCreateActiveChecked}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                  {t("cancel")}
-                </Button>
-                <SubmitButton label={t("createSubmit")} />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+          )}
+        </>
       )}
 
-      {/* Edit Dialog */}
-      {canEdit && editItem && (
-        <Dialog open={!!editItem} onOpenChange={(open) => { if (!open) setEditItem(null); }}>
-          <DialogContent className="max-w-xl">
-            <DialogHeader>
-              <DialogTitle>{t("editDialogTitle")}</DialogTitle>
-            </DialogHeader>
-            <form action={updateFormAction} className="space-y-4">
-              <input type="hidden" name="id" value={String(pickId(editItem) ?? "")} />
-              {updateState.error && (
-                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                  {updateState.error}
-                </div>
-              )}
-              <CategoryFormFields
-                item={editItem}
-                activeChecked={editActiveChecked}
-                onActiveChange={setEditActiveChecked}
-              />
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditItem(null)}>
-                  {t("cancel")}
-                </Button>
-                <SubmitButton label={t("saveChanges")} />
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+      {formItem && (canCreate || canEdit) && (
+        <CategoryFormDialog
+          item={formItem.item}
+          onClose={() => setFormItem(null)}
+          onSaved={() => {
+            setFormItem(null);
+            router.refresh();
+          }}
+        />
       )}
 
-      {/* Delete Alert */}
-      {canDelete && deleteItem && (
-        <AlertDialog
-          open={!!deleteItem}
-          onOpenChange={(open) => { if (!open) setDeleteItem(null); }}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("deleteDialogTitle")}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("deleteDialogDesc", { name: pickName(deleteItem) })}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-              <form action={deleteFormAction}>
-                <input type="hidden" name="id" value={String(pickId(deleteItem) ?? "")} />
-                {deleteState.error && (
-                  <p className="mb-2 text-xs text-destructive">{deleteState.error}</p>
-                )}
-                <DeleteButton />
-              </form>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-
-      {!canMutate && (
-        <div className="rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
-          {t("noPermissions")}
-        </div>
-      )}
+      <ConfirmDialog
+        open={canDelete && deleteItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteItem(null);
+        }}
+        tone="destructive"
+        title={t("deleteDialogTitle")}
+        description={t("deleteDialogDesc", { name: deleteItem ? pickName(deleteItem) : "" })}
+        confirmLabel={t("delete")}
+        onConfirm={async () => {
+          const id = deleteItem ? pickId(deleteItem) : null;
+          if (!id) return;
+          await deleteResourceCategory(id);
+          toast.success(tOps("categories.deleted"));
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
