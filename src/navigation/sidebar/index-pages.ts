@@ -4,7 +4,6 @@ import {
   Award,
   Banknote,
   BookOpen,
-  Bell,
   Building2,
   Calendar,
   CalendarRange,
@@ -164,7 +163,6 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
       { id: "admin-system-jobs-history", url: "/dashboard/system/jobs/history", title: "Historial de ejecuciones", icon: ClipboardList },
       { id: "admin-system-achievements", url: "/dashboard/configuration/achievements", title: "Logros", icon: Trophy },
       { id: "admin-system-audit", url: "/dashboard/configuration/audit", title: "Auditoría", icon: ScrollText },
-      { id: "notifications-hub", url: "/dashboard/configuration/notifications", title: "Notificaciones", icon: Bell },
     ],
   },
   {

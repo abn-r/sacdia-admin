@@ -79,7 +79,6 @@ describe("index pages: data", () => {
         "admin-system-audit",
         "admin-system-jobs",
         "admin-system-roles",
-        "notifications-hub",
       ].sort(),
     );
   });

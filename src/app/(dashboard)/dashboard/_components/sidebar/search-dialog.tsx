@@ -162,13 +162,13 @@ const QUICK_ACTIONS = [
   {
     id: "action-new-notification",
     labelKey: "newNotification",
-    url: "/dashboard/configuration/notifications/send",
+    url: "/dashboard/notifications/new",
     icon: Bell,
   },
   {
     id: "action-new-activity",
     labelKey: "newActivity",
-    url: "/dashboard/clubs/activities",
+    url: "/dashboard/clubs/activities/new",
     icon: CalendarPlus,
   },
 ] as const;

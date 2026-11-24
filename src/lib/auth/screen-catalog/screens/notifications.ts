@@ -17,6 +17,8 @@ export const notificationsScreens: ScreenDefinition[] = [
   {
     id: "notifications-hub",
     surfaces: ["admin"],
+    // Compose is a route of the notifications page.
+    path: "/dashboard/notifications/new",
     // Hub: POST /notifications/{send,broadcast,club} —
     // notifications.controller.ts:118,136,155. Permission-only, no @GlobalRoles.
     viewAny: { permissions: [...NOTIFICATION_SENDER_PERMISSIONS] },
@@ -45,6 +47,8 @@ export const notificationsScreens: ScreenDefinition[] = [
     // Platform configuration (`system.config.read`); PATCH settings share it.
     id: "notifications-categories",
     surfaces: ["admin"],
+    // Tab of the notifications page; the old route redirects there.
+    path: "/dashboard/configuration/notifications/categories",
     viewAny: capabilityAccess("system.config.read"),
     capabilities: [
       { id: "update", kind: "button", gate: capabilityAccess("system.config.read") },
