@@ -28,6 +28,599 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  queues: {
+    requests: {
+      common: {
+        tabs: {
+          pending: string;
+          approved: string;
+          rejected: string;
+          all: string;
+        };
+        tabsLabel: string;
+        waiting: string;
+        longWaitHint: string;
+        search: {
+          label: string;
+        };
+        columns: {
+          wait: string;
+          reviewed: string;
+          status: string;
+          actions: string;
+        };
+        review: string;
+        view: string;
+        rejectAction: string;
+        unexpected: string;
+        empty: {
+          noResultsTitle: string;
+          noResultsDescription: string;
+          clearFilters: string;
+          viewApproved: string;
+        };
+      };
+      sheet: {
+        close: string;
+        back: string;
+        reasonLabel: string;
+        reasonHint: string;
+        reasonTooShort: string;
+        reasonTooLong: string;
+        unexpected: string;
+      };
+      transfers: {
+        title: string;
+        finding: {
+          unknown: string;
+          longWait: string;
+          pending: string;
+          none: string;
+        };
+        search: {
+          placeholder: string;
+        };
+        filters: {
+          destination: string;
+          allDestinations: string;
+        };
+        columns: {
+          person: string;
+          move: string;
+          reason: string;
+        };
+        selectPage: string;
+        selectRow: string;
+        listLabel: string;
+        bulk: {
+          label: string;
+          selected: string;
+          approve: string;
+          clear: string;
+          done: string;
+          failed: string;
+          confirmTitle: string;
+          confirmDescription: string;
+          progress: string;
+        };
+        toasts: {
+          approved: string;
+          rejected: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+        empty: {
+          pending: {
+            title: string;
+            description: string;
+          };
+          approved: {
+            title: string;
+            description: string;
+          };
+          rejected: {
+            title: string;
+            description: string;
+          };
+          all: {
+            title: string;
+            description: string;
+          };
+        };
+        sheet: {
+          title: string;
+          sent: string;
+          sentOnly: string;
+          approve: string;
+          commentLabel: string;
+          commentHint: string;
+          rejectConfirm: string;
+          rejectAudience: string;
+          from: string;
+          to: string;
+          changesTo: string;
+          reason: string;
+          outcome: string;
+          reviewedBy: string;
+          comment: string;
+        };
+      };
+      assignments: {
+        title: string;
+        finding: {
+          unknown: string;
+          longWait: string;
+          pending: string;
+          none: string;
+        };
+        search: {
+          placeholder: string;
+        };
+        filters: {
+          role: string;
+          allRoles: string;
+          section: string;
+          allSections: string;
+        };
+        columns: {
+          person: string;
+          role: string;
+          section: string;
+          requestedBy: string;
+        };
+        listLabel: string;
+        toasts: {
+          approved: string;
+          rejected: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+        empty: {
+          pending: {
+            title: string;
+            description: string;
+          };
+          approved: {
+            title: string;
+            description: string;
+          };
+          rejected: {
+            title: string;
+            description: string;
+          };
+          all: {
+            title: string;
+            description: string;
+          };
+        };
+        sheet: {
+          title: string;
+          sent: string;
+          sentOnly: string;
+          approve: string;
+          commentLabel: string;
+          commentHint: string;
+          rejectConfirm: string;
+          rejectAudience: string;
+          summary: string;
+          person: string;
+          requestedBy: string;
+          comment: string;
+          outcome: string;
+          reviewedBy: string;
+        };
+      };
+      membership: {
+        verifyAction: string;
+        reviewAction: string;
+        consentPending: string;
+        columns: {
+          mark: string;
+        };
+        sheet: {
+          title: string;
+          description: string;
+          approve: string;
+          rejectAction: string;
+          rejectConfirm: string;
+          rejectAudience: string;
+          person: string;
+          role: string;
+          expires: string;
+          guardianForm: string;
+          guardianFormVerified: string;
+        };
+        verify: {
+          title: string;
+          description: string;
+          rejectAction: string;
+          rejectConfirm: string;
+          rejectAudience: string;
+          reviewedHint: string;
+          approveHint: string;
+        };
+        coordinator: {
+          verifyAction: string;
+          allChip: string;
+        };
+      };
+      enrollments: {
+        error: {
+          title: string;
+          description: string;
+        };
+        viewApproved: string;
+        sheet: {
+          rejectAudience: string;
+        };
+      };
+    };
+    classes: {
+      title: string;
+      description: string;
+      tabsLabel: string;
+      summary: {
+        pending: string;
+        evidence: string;
+        instructors: string;
+      };
+      tabs: {
+        pending: string;
+        evidence: string;
+        instructors: string;
+        history: string;
+      };
+      age: string;
+      overdue: string;
+      history: {
+        note: string;
+      };
+      pending: {
+        columns: {
+          member: string;
+          honor: string;
+          submitted: string;
+          wait: string;
+        };
+        review: string;
+        searchLabel: string;
+        searchPlaceholder: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        clearSearch: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        loadErrorTitle: string;
+        sheet: {
+          title: string;
+          submittedOn: string;
+          submittedUnknown: string;
+          loading: string;
+          detailError: string;
+          progress: string;
+          incomplete: string;
+          noRequirements: string;
+          met: string;
+          notMet: string;
+          showHistory: string;
+          hideHistory: string;
+          commentLabel: string;
+          commentPlaceholder: string;
+          commentHint: string;
+          reasonRequired: string;
+          approve: string;
+          reject: string;
+          approvedToast: string;
+          rejectedToast: string;
+          decideError: string;
+        };
+      };
+      evidence: {
+        typeFilterLabel: string;
+        types: {
+          all: string;
+        };
+        refresh: string;
+        loadErrorTitle: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        emptyFilteredTitle: string;
+        emptyFilteredDescription: string;
+        clearFilter: string;
+        pageDoneTitle: string;
+        pageDoneDescription: string;
+        listLabel: string;
+        selectItem: string;
+        fileCount: string;
+        loadMore: string;
+        next: string;
+        reject: string;
+        approve: string;
+        approveNext: string;
+        approvedToast: string;
+        rejectedToast: string;
+        bulkApprovedToast: string;
+        bulkRejectedToast: string;
+        bulkPartial: string;
+        actionError: string;
+        rejectDialog: {
+          title: string;
+          description: string;
+          confirm: string;
+        };
+        bulk: {
+          label: string;
+          selected: string;
+          approve: string;
+          reject: string;
+          clear: string;
+          mixed: string;
+          approveDialog: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          rejectDialog: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+        };
+        preview: {
+          unsupported: string;
+          download: string;
+          submittedOn: string;
+          requirements: string;
+          fileOf: string;
+          loading: string;
+          loadError: string;
+          noFiles: string;
+          files: string;
+          fileN: string;
+        };
+      };
+      instructors: {
+        columns: {
+          result: string;
+        };
+        loadErrorTitle: string;
+        confirm: {
+          title: string;
+          replace: string;
+          assign: string;
+          confirm: string;
+        };
+      };
+    };
+    investitures: {
+      list: {
+        title: string;
+        description: string;
+        finding: string;
+        tabs: {
+          label: string;
+          pending: string;
+          resolved: string;
+        };
+        searchLabel: string;
+        searchPlaceholder: string;
+        columns: {
+          section: string;
+          district: string;
+          toDecide: string;
+          investiture: string;
+          submitted: string;
+          result: string;
+        };
+        undecided: string;
+        result: string;
+        waiting: string;
+        review: string;
+        view: string;
+        empty: {
+          pendingTitle: string;
+          pendingDescription: string;
+          resolvedTitle: string;
+          resolvedDescription: string;
+        };
+        noResults: {
+          title: string;
+          description: string;
+          clear: string;
+        };
+        whoAuthorizes: {
+          title: string;
+          description: string;
+        };
+      };
+      detail: {
+        breadcrumbList: string;
+        facts: {
+          investiture: string;
+          toDecide: string;
+        };
+        people: string;
+        investAll: string;
+        bar: {
+          summary: string;
+          needReason: string;
+          confirm: string;
+        };
+        confirm: {
+          title: string;
+          invest: string;
+          reject: string;
+          undecided: string;
+          irreversible: string;
+          action: string;
+        };
+        result: {
+          title: string;
+          invested: string;
+          rejectedByYou: string;
+          rejectedBySystem: string;
+          retired: string;
+          systemExplain: string;
+          bySystem: string;
+          reason: string;
+        };
+      };
+      settings: {
+        title: string;
+        description: string;
+        breadcrumbGroup: string;
+        selectField: {
+          title: string;
+          description: string;
+        };
+        pastors: {
+          description: string;
+          nobodyAuthorizes: string;
+          nobodyHelp: string;
+          onlyInactiveHelp: string;
+        };
+      };
+    };
+    certificates: {
+      batches: {
+        finding: string;
+        kpiLabel: string;
+        kpiBatches: string;
+        kpiBatchesOldest: string;
+        kpiRows: string;
+        kpiRowsHint: string;
+        kpiPartial: string;
+        kpiPartialHint: string;
+        kpiCorrection: string;
+        kpiCorrectionHint: string;
+        tabsLabel: string;
+        tabs: {
+          pending: string;
+          partial: string;
+          correction: string;
+          all: string;
+        };
+        searchLabel: string;
+        partialLoad: string;
+        clearSearch: string;
+        empty: {
+          pending: {
+            title: string;
+            description: string;
+          };
+          partial: {
+            title: string;
+            description: string;
+          };
+          correction: {
+            title: string;
+            description: string;
+          };
+          all: {
+            title: string;
+            description: string;
+          };
+        };
+        progress: string;
+        progressLabel: string;
+      };
+      batch: {
+        subtitle: string;
+        factStatus: string;
+        factProgress: string;
+        progress: string;
+        tabsLabel: string;
+        tabRows: string;
+        tabAudit: string;
+        listLabel: string;
+        noRows: string;
+        noName: string;
+        rowTitle: string;
+        rowMeta: string;
+        conflictShort: string;
+        investitureDate: string;
+        certificateDate: string;
+        ocr: string;
+        confidence: {
+          high: string;
+          medium: string;
+          low: string;
+        };
+        pageChip: string;
+        gm01Notice: string;
+        blockersTitle: string;
+        blockersNote: string;
+        rejectionReason: string;
+        next: string;
+        previous: string;
+        reject: string;
+        approveNext: string;
+        proof: {
+          uploaded: string;
+          open: string;
+          loading: string;
+          unavailable: string;
+          unavailableHint: string;
+          noPreview: string;
+        };
+        approveDialog: {
+          title: string;
+          blocked: string;
+          commentLabel: string;
+          commentPlaceholder: string;
+          confirm: string;
+        };
+        rejectDialog: {
+          title: string;
+          description: string;
+          label: string;
+          placeholder: string;
+          confirm: string;
+        };
+      };
+      gm: {
+        description: string;
+        finding: string;
+        tabsLabel: string;
+        tabs: {
+          pending: string;
+          approved: string;
+          rejected: string;
+          all: string;
+        };
+        searchLabel: string;
+        partialLoad: string;
+        clearSearch: string;
+        empty: {
+          pending: {
+            title: string;
+            description: string;
+          };
+          approved: {
+            title: string;
+            description: string;
+          };
+          rejected: {
+            title: string;
+            description: string;
+          };
+          all: {
+            title: string;
+            description: string;
+          };
+        };
+        approvalNote: string;
+        detailSubtitle: string;
+        factStatus: string;
+        rejectAction: string;
+        enrollmentNone: string;
+      };
+    };
+  };
   access: {
     page: {
       forbiddenTitle: string;

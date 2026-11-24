@@ -1,4 +1,597 @@
 {
+  "queues": {
+    "requests": {
+      "common": {
+        "tabs": {
+          "pending": "Pendientes",
+          "approved": "Aprobadas",
+          "rejected": "Rechazadas",
+          "all": "Todas"
+        },
+        "tabsLabel": "Estado de las solicitudes",
+        "waiting": "{count, plural, =0 {Hoy} one {# día} other {# días}}",
+        "longWaitHint": "Espera {days} días o más",
+        "search": {
+          "label": "Buscar"
+        },
+        "columns": {
+          "wait": "Espera",
+          "reviewed": "Revisada",
+          "status": "Estado",
+          "actions": "Acciones"
+        },
+        "review": "Revisar",
+        "view": "Ver",
+        "rejectAction": "Rechazar…",
+        "unexpected": "Ocurrió un error inesperado.",
+        "empty": {
+          "noResultsTitle": "Sin resultados",
+          "noResultsDescription": "Ninguna solicitud coincide con los filtros.",
+          "clearFilters": "Limpiar filtros",
+          "viewApproved": "Ver aprobadas"
+        }
+      },
+      "sheet": {
+        "close": "Cerrar",
+        "back": "Volver",
+        "reasonLabel": "Motivo del rechazo",
+        "reasonHint": "Entre {min} y {max} caracteres. Queda en la auditoría.",
+        "reasonTooShort": "Escribe al menos {min} caracteres.",
+        "reasonTooLong": "El motivo no puede pasar de {max} caracteres.",
+        "unexpected": "No se pudo completar la acción. Inténtalo de nuevo."
+      },
+      "transfers": {
+        "title": "Traslados",
+        "finding": {
+          "unknown": "No pudimos cargar los traslados.",
+          "longWait": "{count, plural, one {# traslado lleva} other {# traslados llevan}} más de {days} días esperando.",
+          "pending": "{count, plural, one {# traslado espera} other {# traslados esperan}} tu revisión.",
+          "none": "No hay traslados pendientes."
+        },
+        "search": {
+          "placeholder": "Persona, club o motivo"
+        },
+        "filters": {
+          "destination": "Club destino",
+          "allDestinations": "Todos"
+        },
+        "columns": {
+          "person": "Persona",
+          "move": "De → a",
+          "reason": "Motivo"
+        },
+        "selectPage": "Seleccionar los traslados de esta página",
+        "selectRow": "Seleccionar el traslado de {name}",
+        "listLabel": "Traslados",
+        "bulk": {
+          "label": "Selección de traslados",
+          "selected": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+          "approve": "Aprobar {count}",
+          "clear": "Limpiar selección",
+          "done": "{count, plural, one {# traslado aprobado} other {# traslados aprobados}}",
+          "failed": "{count, plural, one {No se pudo aprobar # traslado} other {No se pudieron aprobar # traslados}}",
+          "confirmTitle": "¿Aprobar {count, plural, one {# traslado} other {# traslados}}?",
+          "confirmDescription": "Cada persona pasará a la sección de destino. Se aprueban una por una; si alguna falla, las demás siguen y te mostramos cuáles quedaron pendientes.",
+          "progress": "Aprobando {done} de {total}…"
+        },
+        "toasts": {
+          "approved": "Traslado aprobado",
+          "rejected": "Traslado rechazado"
+        },
+        "error": {
+          "title": "No pudimos cargar los traslados",
+          "description": "Puede que haya pendientes. Revisa tu conexión y vuelve a intentarlo."
+        },
+        "empty": {
+          "pending": {
+            "title": "Sin traslados pendientes",
+            "description": "Cuando un club pida un traslado aparecerá aquí."
+          },
+          "approved": {
+            "title": "Sin traslados aprobados",
+            "description": "Los traslados que apruebes quedarán en este historial."
+          },
+          "rejected": {
+            "title": "Sin traslados rechazados",
+            "description": "Los traslados que rechaces quedarán en este historial."
+          },
+          "all": {
+            "title": "Sin traslados",
+            "description": "Aún no hay traslados registrados."
+          }
+        },
+        "sheet": {
+          "title": "Traslado de {name}",
+          "sent": "Enviado el {date} · espera {wait}",
+          "sentOnly": "Enviado el {date}",
+          "approve": "Aprobar traslado",
+          "commentLabel": "Comentario",
+          "commentHint": "Opcional. Lo verán la persona y su director.",
+          "rejectConfirm": "Rechazar traslado",
+          "rejectAudience": "La persona y su director verán este motivo.",
+          "from": "Sale de",
+          "to": "Llega a",
+          "changesTo": "Cambia a",
+          "reason": "Motivo",
+          "outcome": "Resultado",
+          "reviewedBy": "Revisó",
+          "comment": "Comentario del revisor"
+        }
+      },
+      "assignments": {
+        "title": "Asignaciones",
+        "finding": {
+          "unknown": "No pudimos cargar las asignaciones.",
+          "longWait": "{count, plural, one {# cargo lleva} other {# cargos llevan}} más de {days} días esperando aprobación.",
+          "pending": "{count, plural, one {# cargo espera} other {# cargos esperan}} aprobación para quedar activos.",
+          "none": "No hay cargos pendientes de aprobación."
+        },
+        "search": {
+          "placeholder": "Nombre de la persona"
+        },
+        "filters": {
+          "role": "Cargo",
+          "allRoles": "Todos",
+          "section": "Sección",
+          "allSections": "Todas"
+        },
+        "columns": {
+          "person": "Persona",
+          "role": "Cargo",
+          "section": "Sección",
+          "requestedBy": "Solicitó"
+        },
+        "listLabel": "Asignaciones",
+        "toasts": {
+          "approved": "Cargo aprobado",
+          "rejected": "Cargo rechazado"
+        },
+        "error": {
+          "title": "No pudimos cargar las asignaciones",
+          "description": "Puede que haya pendientes. Revisa tu conexión y vuelve a intentarlo."
+        },
+        "empty": {
+          "pending": {
+            "title": "Sin asignaciones pendientes",
+            "description": "Cuando se proponga un cargo aparecerá aquí."
+          },
+          "approved": {
+            "title": "Sin asignaciones aprobadas",
+            "description": "Los cargos que apruebes quedarán en este historial."
+          },
+          "rejected": {
+            "title": "Sin asignaciones rechazadas",
+            "description": "Los cargos que rechaces quedarán en este historial."
+          },
+          "all": {
+            "title": "Sin asignaciones",
+            "description": "Aún no hay asignaciones registradas."
+          }
+        },
+        "sheet": {
+          "title": "Cargo para {name}",
+          "sent": "Enviado el {date} · espera {wait}",
+          "sentOnly": "Enviado el {date}",
+          "approve": "Aprobar cargo",
+          "commentLabel": "Comentario",
+          "commentHint": "Opcional al aprobar.",
+          "rejectConfirm": "Rechazar cargo",
+          "rejectAudience": "La persona y quien propuso el cargo verán este motivo.",
+          "summary": "Recibe el cargo <strong>{role}</strong> en {section}.",
+          "person": "Persona",
+          "requestedBy": "Solicitó",
+          "comment": "Comentario",
+          "outcome": "Resultado",
+          "reviewedBy": "Revisó"
+        }
+      },
+      "membership": {
+        "verifyAction": "Verificar ficha",
+        "reviewAction": "Revisar",
+        "consentPending": "Ficha del tutor por verificar",
+        "columns": {
+          "mark": "Marca"
+        },
+        "sheet": {
+          "title": "Membresía de {name}",
+          "description": "Solicitada el {date}",
+          "approve": "Aprobar membresía",
+          "rejectAction": "Rechazar…",
+          "rejectConfirm": "Rechazar solicitud",
+          "rejectAudience": "La persona y quien envió la solicitud verán este motivo.",
+          "person": "Persona",
+          "role": "Rol",
+          "expires": "Expira",
+          "guardianForm": "Ficha del tutor",
+          "guardianFormVerified": "Verificada"
+        },
+        "verify": {
+          "title": "Ficha del tutor de {userName}",
+          "description": "Revisa la ficha firmada y confirma. Mientras esté pendiente, la solicitud no expira.",
+          "rejectAction": "Rechazar…",
+          "rejectConfirm": "Rechazar solicitud",
+          "rejectAudience": "La persona y quien envió la solicitud verán este motivo.",
+          "reviewedHint": "Obligatorio para confirmar. Queda registrado a tu nombre.",
+          "approveHint": "Si no lo marcas, la solicitud queda lista para que un director la apruebe."
+        },
+        "coordinator": {
+          "verifyAction": "Verificar",
+          "allChip": "Todas"
+        }
+      },
+      "enrollments": {
+        "error": {
+          "title": "No pudimos cargar los registros anuales",
+          "description": "Puede que haya pendientes. Revisa tu conexión y vuelve a intentarlo."
+        },
+        "viewApproved": "Ver aprobados",
+        "sheet": {
+          "rejectAudience": "El director del club verá este motivo."
+        }
+      }
+    },
+    "classes": {
+      "title": "Especialidades y clases",
+      "description": "Aprueba especialidades, revisa evidencias y decide propuestas de instructor.",
+      "tabsLabel": "Decisiones de especialidades y clases",
+      "summary": {
+        "pending": "{count, plural, =0 {Sin especialidades por aprobar} one {# especialidad por aprobar} other {# especialidades por aprobar}}",
+        "evidence": "{count, plural, =0 {sin evidencias} one {# evidencia} other {# evidencias}}",
+        "instructors": "{count, plural, =0 {sin propuestas de instructor} one {# propuesta de instructor} other {# propuestas de instructor}}"
+      },
+      "tabs": {
+        "pending": "Por aprobar",
+        "evidence": "Evidencias",
+        "instructors": "Propuestas de instructor",
+        "history": "Historial"
+      },
+      "age": "{days, plural, =0 {Hoy} one {# día} other {# días}}",
+      "overdue": "Atrasada",
+      "history": {
+        "note": "Aquí se consultan las propuestas de instructor ya resueltas. Las decisiones sobre especialidades y evidencias se ven desde cada elemento (historial de validación)."
+      },
+      "pending": {
+        "columns": {
+          "member": "Miembro",
+          "honor": "Especialidad",
+          "submitted": "Enviada",
+          "wait": "Espera"
+        },
+        "review": "Revisar",
+        "searchLabel": "Buscar",
+        "searchPlaceholder": "Buscar miembro o especialidad",
+        "noResultsTitle": "Sin resultados",
+        "noResultsDescription": "Ninguna especialidad por aprobar coincide con la búsqueda.",
+        "clearSearch": "Limpiar búsqueda",
+        "emptyTitle": "Sin especialidades por aprobar",
+        "emptyDescription": "No hay especialidades enviadas esperando tu decisión.",
+        "loadErrorTitle": "No pudimos cargar las especialidades por aprobar",
+        "sheet": {
+          "title": "{honor} · {member}",
+          "submittedOn": "Enviada el {date}",
+          "submittedUnknown": "Fecha de envío desconocida",
+          "loading": "Cargando el progreso de la especialidad",
+          "detailError": "No pudimos cargar el progreso de la especialidad",
+          "progress": "Progreso de la especialidad · {done} de {total}",
+          "incomplete": "{missing, plural, one {Falta # requisito.} other {Faltan # requisitos.}}",
+          "noRequirements": "Esta especialidad no tiene requisitos registrados.",
+          "met": "Cumplido",
+          "notMet": "Sin cumplir",
+          "showHistory": "Ver historial de validación",
+          "hideHistory": "Ocultar historial",
+          "commentLabel": "Comentario",
+          "commentPlaceholder": "Escribe un comentario",
+          "commentHint": "Opcional al aprobar; obligatorio al rechazar.",
+          "reasonRequired": "Escribe el motivo del rechazo (mínimo {min} caracteres).",
+          "approve": "Aprobar especialidad",
+          "reject": "Rechazar",
+          "approvedToast": "{honor} aprobada para {member}",
+          "rejectedToast": "{honor} rechazada",
+          "decideError": "No se pudo registrar la decisión"
+        }
+      },
+      "evidence": {
+        "typeFilterLabel": "Tipo",
+        "types": {
+          "all": "Todas"
+        },
+        "refresh": "Actualizar",
+        "loadErrorTitle": "No pudimos cargar las evidencias",
+        "emptyTitle": "Sin evidencias por revisar",
+        "emptyDescription": "No hay evidencias de especialidades ni de clases esperando revisión.",
+        "emptyFilteredTitle": "Sin evidencias de este tipo",
+        "emptyFilteredDescription": "No hay evidencias por revisar con este filtro.",
+        "clearFilter": "Ver todas",
+        "pageDoneTitle": "Terminaste las evidencias cargadas",
+        "pageDoneDescription": "{total, plural, =0 {No quedan evidencias.} one {Queda # evidencia por cargar.} other {Quedan # evidencias por cargar.}}",
+        "listLabel": "Evidencias por revisar",
+        "selectItem": "Seleccionar la evidencia de {name}",
+        "fileCount": "{count, plural, =0 {Sin archivos} one {# archivo} other {# archivos}}",
+        "loadMore": "Cargar más ({loaded} de {total})",
+        "next": "Siguiente: {title}",
+        "reject": "Rechazar…",
+        "approve": "Aprobar",
+        "approveNext": "Aprobar y seguir",
+        "approvedToast": "Evidencia de {name} aprobada",
+        "rejectedToast": "Evidencia de {name} rechazada",
+        "bulkApprovedToast": "{count, plural, one {# evidencia aprobada} other {# evidencias aprobadas}}",
+        "bulkRejectedToast": "{count, plural, one {# evidencia rechazada} other {# evidencias rechazadas}}",
+        "bulkPartial": "Se procesaron {done}; {failed} no se pudieron procesar",
+        "actionError": "No se pudo completar la acción",
+        "rejectDialog": {
+          "title": "Rechazar evidencia",
+          "description": "Se rechaza la evidencia de {name}. El motivo queda registrado y el miembro lo verá.",
+          "confirm": "Rechazar evidencia"
+        },
+        "bulk": {
+          "label": "Selección en lote",
+          "selected": "{count, plural, one {# seleccionada} other {# seleccionadas}}",
+          "approve": "Aprobar {count}",
+          "reject": "Rechazar {count}…",
+          "clear": "Quitar selección",
+          "mixed": "Para actuar en lote, selecciona solo evidencias del mismo tipo.",
+          "approveDialog": {
+            "title": "{count, plural, one {¿Aprobar # evidencia?} other {¿Aprobar # evidencias?}}",
+            "description": "{count, plural, one {Se aprobará # evidencia} other {Se aprobarán # evidencias}} de tipo {type}. Cada una se registra en la auditoría.",
+            "confirm": "Aprobar {count}"
+          },
+          "rejectDialog": {
+            "title": "{count, plural, one {Rechazar # evidencia} other {Rechazar # evidencias}}",
+            "description": "El mismo motivo se aplica a todas las evidencias seleccionadas ({count}).",
+            "confirm": "Rechazar {count}"
+          }
+        },
+        "preview": {
+          "unsupported": "Este tipo de archivo no tiene vista previa.",
+          "download": "Descargar",
+          "submittedOn": "enviada el {date}",
+          "requirements": "{done} de {total} requisitos",
+          "fileOf": "{current} de {total} archivos",
+          "loading": "Cargando evidencia",
+          "loadError": "No pudimos cargar los archivos",
+          "noFiles": "Esta evidencia no tiene archivos adjuntos.",
+          "files": "Archivos de la evidencia",
+          "fileN": "Archivo {n}"
+        }
+      },
+      "instructors": {
+        "columns": {
+          "result": "Resultado"
+        },
+        "loadErrorTitle": "No pudimos cargar las propuestas de instructor",
+        "confirm": {
+          "title": "¿Aprobar propuesta de instructor?",
+          "replace": "{proposed} reemplaza a {current} como instructor de {honor} de {member}. La especialidad sigue aprobada.",
+          "assign": "{proposed} queda como instructor de {honor} de {member}. La especialidad sigue aprobada.",
+          "confirm": "Aprobar propuesta"
+        }
+      }
+    },
+    "investitures": {
+      "list": {
+        "title": "Investiduras",
+        "description": "Solicitudes de investidura de tu distrito o Campo.",
+        "finding": "{count, plural, =0 {Ninguna sección espera tu autorización} one {# sección espera tu autorización} other {# secciones esperan tu autorización}}",
+        "tabs": {
+          "label": "Estado de las solicitudes",
+          "pending": "Por autorizar",
+          "resolved": "Resueltas"
+        },
+        "searchLabel": "Buscar club",
+        "searchPlaceholder": "Club, sección o distrito",
+        "columns": {
+          "section": "Sección",
+          "district": "Distrito",
+          "toDecide": "Por decidir",
+          "investiture": "Investidura",
+          "submitted": "Presentada",
+          "result": "Resultado"
+        },
+        "undecided": "{pending} de {total}",
+        "result": "{invested, plural, one {# investida} other {# investidas}} · {rejected, plural, one {# rechazada} other {# rechazadas}}",
+        "waiting": "{days, plural, =0 {Hoy} one {Hace # día} other {Hace # días}}",
+        "review": "Revisar",
+        "view": "Ver",
+        "empty": {
+          "pendingTitle": "No hay solicitudes por autorizar",
+          "pendingDescription": "Cuando una directiva presente una sección para investidura, aparecerá aquí.",
+          "resolvedTitle": "Todavía no hay solicitudes resueltas",
+          "resolvedDescription": "Las solicitudes en las que ya decidiste sobre todas las personas se guardan aquí."
+        },
+        "noResults": {
+          "title": "Sin coincidencias",
+          "description": "Ninguna solicitud coincide con tu búsqueda.",
+          "clear": "Limpiar búsqueda"
+        },
+        "whoAuthorizes": {
+          "title": "Esta bandeja es para quien autoriza",
+          "description": "Autorizan las investiduras el pastor de cada distrito y el Campo. Si te corresponde, pide al Campo que te asigne a tu distrito."
+        }
+      },
+      "detail": {
+        "breadcrumbList": "Investiduras",
+        "facts": {
+          "investiture": "Investidura",
+          "toDecide": "Por decidir"
+        },
+        "people": "{count, plural, one {# persona} other {# personas}}",
+        "investAll": "Investir a todas las sin decidir",
+        "bar": {
+          "summary": "{invest} por investir · {reject} por rechazar · {none} sin decidir",
+          "needReason": "Falta el motivo de un rechazo.",
+          "confirm": "{count, plural, =0 {Confirmar decisiones} one {Confirmar # decisión} other {Confirmar # decisiones}}"
+        },
+        "confirm": {
+          "title": "{count, plural, one {¿Confirmar # decisión?} other {¿Confirmar # decisiones?}}",
+          "invest": "{count, plural, one {Se investirá # persona.} other {Se investirán # personas.}}",
+          "reject": "{count, plural, one {Se rechazará # persona.} other {Se rechazarán # personas.}}",
+          "undecided": "{count, plural, one {{names} queda sin decidir.} other {{names} quedan sin decidir.}}",
+          "irreversible": "Las decisiones confirmadas no se pueden deshacer.",
+          "action": "Confirmar"
+        },
+        "result": {
+          "title": "Decisiones aplicadas",
+          "invested": "{count, plural, one {# investida} other {# investidas}}",
+          "rejectedByYou": "{count, plural, one {# rechazada por ti} other {# rechazadas por ti}}",
+          "rejectedBySystem": "{count, plural, one {# rechazada por el sistema} other {# rechazadas por el sistema}}",
+          "retired": "{count, plural, one {# retirada de la solicitud} other {# retiradas de la solicitud}}",
+          "systemExplain": "El sistema rechaza por su cuenta a quien ya no cumple los requisitos al comprobar el avance. El motivo aparece en cada persona.",
+          "bySystem": "Rechazado automáticamente: {reason}",
+          "reason": "Motivo: {reason}"
+        }
+      },
+      "settings": {
+        "title": "Investiduras",
+        "description": "Quién autoriza y cuándo recibe solicitudes el Campo.",
+        "breadcrumbGroup": "Configuración",
+        "selectField": {
+          "title": "Elige un Campo",
+          "description": "Elige un Campo para ver su ventana y los pastores de sus distritos."
+        },
+        "pastors": {
+          "description": "Autorizan las investiduras del distrito y reciben los avisos. Un distrito sin pastor activo queda sin quien autorice.",
+          "nobodyAuthorizes": "Nadie autoriza",
+          "nobodyHelp": "Mientras no haya un pastor asignado, nadie puede autorizar las investiduras de este distrito.",
+          "onlyInactiveHelp": "Los pastores asignados no pueden autorizar ahora, así que nadie autoriza en este distrito."
+        }
+      }
+    },
+    "certificates": {
+      "batches": {
+        "finding": "{batches, plural, one {# lote por revisar} other {# lotes por revisar}} · {rows, plural, one {# fila espera decisión} other {# filas esperan decisión}}.",
+        "kpiLabel": "Resumen de cargas",
+        "kpiBatches": "Lotes por revisar",
+        "kpiBatchesOldest": "el más antiguo del {date}",
+        "kpiRows": "Filas por decidir",
+        "kpiRowsHint": "{count, plural, one {en # lote} other {en # lotes}}",
+        "kpiPartial": "Parciales",
+        "kpiPartialHint": "con filas ya decididas",
+        "kpiCorrection": "Devueltos para corregir",
+        "kpiCorrectionHint": "esperan al miembro",
+        "tabsLabel": "Estado del lote",
+        "tabs": {
+          "pending": "Por revisar",
+          "partial": "Parciales",
+          "correction": "En corrección",
+          "all": "Todos"
+        },
+        "searchLabel": "Buscar miembro o lote",
+        "partialLoad": "Mostrando {loaded} de {total} lotes; la búsqueda y las pestañas solo cubren esos.",
+        "clearSearch": "Limpiar búsqueda",
+        "empty": {
+          "pending": {
+            "title": "Sin lotes por revisar",
+            "description": "Cuando un miembro envíe una carga por certificado, aparecerá aquí."
+          },
+          "partial": {
+            "title": "Sin lotes parciales",
+            "description": "Aquí quedan los lotes con algunas filas ya decididas."
+          },
+          "correction": {
+            "title": "Sin lotes en corrección",
+            "description": "Los lotes devueltos al miembro esperan aquí su reenvío."
+          },
+          "all": {
+            "title": "Sin cargas",
+            "description": "No hay cargas por certificado en la bandeja."
+          }
+        },
+        "progress": "{done} de {total}",
+        "progressLabel": "{done} de {total} filas decididas"
+      },
+      "batch": {
+        "subtitle": "Lote {id} · enviado el {date}",
+        "factStatus": "Estado",
+        "factProgress": "Filas decididas",
+        "progress": "{done} de {total}",
+        "tabsLabel": "Contenido del lote",
+        "tabRows": "Filas",
+        "tabAudit": "Auditoría",
+        "listLabel": "Filas del lote",
+        "noRows": "No hay resultados OCR para revisar.",
+        "noName": "Sin nombre detectado",
+        "rowTitle": "Fila {n} · {name}",
+        "rowMeta": "OCR {ocr} · pág. {page}",
+        "conflictShort": "Conflicto de instructor",
+        "investitureDate": "Fecha de investidura: {date}",
+        "certificateDate": "Fecha del certificado: {date}",
+        "ocr": "OCR {percent} · {level}",
+        "confidence": {
+          "high": "Alta",
+          "medium": "Media",
+          "low": "Baja"
+        },
+        "pageChip": "pág. {page}",
+        "gm01Notice": "Al aprobar GM-01, la inscripción actual queda reemplazada por una sola fila INVESTIDO con la fecha del certificado. No se conservan dos inscripciones.",
+        "blockersTitle": "Bloqueo del sistema",
+        "blockersNote": "No es un error del miembro: no rechaces la fila por esto.",
+        "rejectionReason": "Motivo de rechazo",
+        "next": "Siguiente: {title}",
+        "previous": "Anterior",
+        "reject": "Rechazar fila…",
+        "approveNext": "Aprobar y seguir",
+        "proof": {
+          "uploaded": "Subido {date}",
+          "open": "Abrir",
+          "loading": "Cargando comprobante…",
+          "unavailable": "Comprobante no disponible",
+          "unavailableHint": "No pudimos obtener el enlace firmado del archivo. Intenta de nuevo.",
+          "noPreview": "Vista previa no disponible para este tipo de archivo."
+        },
+        "approveDialog": {
+          "title": "Aprobar fila {n} · {name}",
+          "blocked": "{name} tiene una solicitud de investidura pendiente. Primero se resuelve la autorización; después podrás acreditar esta fila.",
+          "commentLabel": "Comentario",
+          "commentPlaceholder": "Opcional. Queda en la auditoría.",
+          "confirm": "Aprobar fila"
+        },
+        "rejectDialog": {
+          "title": "Rechazar fila {n} · {name}",
+          "description": "Solo esta fila queda marcada para corrección. {name} verá el motivo.",
+          "label": "Motivo de rechazo",
+          "placeholder": "Explica qué debe corregir el miembro",
+          "confirm": "Rechazar fila"
+        }
+      },
+      "gm": {
+        "description": "Valida certificados de Guía Mayor Avanzado e Instructor. Aprobar no inscribe a la clase.",
+        "finding": "{count, plural, =0 {Sin solicitudes por validar.} one {# solicitud por validar.} other {# solicitudes por validar.}} Aprobar no inscribe a la clase.",
+        "tabsLabel": "Estado de la solicitud",
+        "tabs": {
+          "pending": "Pendientes",
+          "approved": "Aprobadas",
+          "rejected": "Rechazadas",
+          "all": "Todas"
+        },
+        "searchLabel": "Buscar solicitante o clase",
+        "partialLoad": "Mostrando {loaded} de {total} solicitudes; la búsqueda y las pestañas solo cubren esas.",
+        "clearSearch": "Limpiar búsqueda",
+        "empty": {
+          "pending": {
+            "title": "Sin solicitudes pendientes",
+            "description": "No hay validaciones institucionales esperando revisión."
+          },
+          "approved": {
+            "title": "Sin solicitudes aprobadas",
+            "description": "Las validaciones que apruebes aparecerán aquí."
+          },
+          "rejected": {
+            "title": "Sin solicitudes rechazadas",
+            "description": "Las solicitudes que rechaces aparecerán aquí."
+          },
+          "all": {
+            "title": "Sin solicitudes",
+            "description": "No hay solicitudes de validación institucional."
+          }
+        },
+        "approvalNote": "Aprobar aquí es validación institucional, no inscripción a la clase.",
+        "detailSubtitle": "{code} · certificado del {date} · revisión {revision}",
+        "factStatus": "Estado",
+        "rejectAction": "Rechazar…",
+        "enrollmentNone": "No se crea: es validación institucional"
+      }
+    }
+  },
   "access": {
     "page": {
       "forbiddenTitle": "Sin acceso a esta sección",
@@ -180,7 +773,7 @@
       "admin_campamentos_config_union": "Unión",
       "admin_system_jobs_history": "Historial de ejecuciones",
       "investiture_requests": "Autorizaciones de investidura",
-      "investiture_settings": "Ventana de investidura",
+      "investiture_settings": "Investiduras",
       "investiture_pastors": "Pastores por distrito"
     },
     "sidebar": {
@@ -196,7 +789,7 @@
       "club_inventory": "Inventario",
       "investiture_authorization": "Autorización de investiduras",
       "investiture_requests": "Investiduras",
-      "investiture_settings": "Ventana de investidura",
+      "investiture_settings": "Investiduras",
       "validations": "Validaciones",
       "validations_investitures": "Validaciones de clase",
       "certificate_bulk_imports": "Cargas por certificado",
