@@ -17,6 +17,7 @@ import {
   childGap,
   clubTypeColor,
   groupClassesByClubType,
+  homeFinding,
   homeSectionOrder,
   hrefPath,
   OPERATIONS_QUEUE_HREFS,
@@ -294,5 +295,30 @@ describe("work queue", () => {
 
   it("sends the class queue to class section evidence", () => {
     expect(OPERATIONS_QUEUE_HREFS.classes).toBe("/dashboard/clubs/validations?tab=sections");
+  });
+});
+
+describe("homeFinding", () => {
+  const items = [
+    { id: "roles" as const, count: 5, href: OPERATIONS_QUEUE_HREFS.roles },
+    { id: "transfers" as const, count: 2, href: OPERATIONS_QUEUE_HREFS.transfers },
+  ];
+  const ranked = rankChildrenByGap(
+    [child(1, "A", { reports: { missing_sections: 2 } }), child(2, "B")],
+    true,
+  );
+
+  it("dispatch leads with the pending work and its longest queue", () => {
+    expect(homeFinding("dispatch", items, ranked)).toEqual({ kind: "queue", total: 7, top: items[0] });
+  });
+
+  it("supervise leads with the territories that have gaps", () => {
+    expect(homeFinding("supervise", items, ranked)).toEqual({ kind: "gaps", count: 1 });
+  });
+
+  it("falls back to the other finding, then to clear", () => {
+    expect(homeFinding("dispatch", [], ranked)).toEqual({ kind: "gaps", count: 1 });
+    expect(homeFinding("supervise", items, [])).toEqual({ kind: "queue", total: 7, top: items[0] });
+    expect(homeFinding("dispatch", [], rankChildrenByGap([child(2, "B")], true))).toEqual({ kind: "clear" });
   });
 });

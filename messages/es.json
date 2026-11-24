@@ -1964,6 +1964,10 @@
       "home": {
         "title": "Inicio",
         "description": "Lo que necesita atención en tu alcance.",
+        "finding": {
+          "queue": "{total, plural, one {# pendiente por revisar} other {# pendientes por revisar}}. La cola más larga: {queue} ({count, number}).",
+          "gaps": "{count, plural, one {# {level, select, division {división tiene} union {unión tiene} local_field {campo local tiene} other {club tiene}}} other {# {level, select, division {divisiones tienen} union {uniones tienen} local_field {campos locales tienen} other {clubes tienen}}}} informes faltantes o clubes sin actividad."
+        },
         "kpis": {
           "label": "Indicadores del alcance",
           "reports": {
@@ -2011,7 +2015,14 @@
         "honorsReview": "Revisiones de especialidades",
         "annualFolders": "Carpetas pendientes de Unión",
         "total": "{count, plural, one {# pendiente} other {# pendientes}}",
-        "empty": "Todo al día"
+        "empty": "Todo al día",
+        "actions": {
+          "roles": "Revisar asignaciones",
+          "transfers": "Revisar traslados",
+          "classes": "Validar clases",
+          "honors": "Revisar especialidades",
+          "folders": "Evaluar carpetas"
+        }
       },
       "formation": {
         "title": "Formación por clase",

@@ -9,6 +9,7 @@ import {
   Trophy,
   UserPlus,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { OperationsQueueId, OperationsWorkItem } from "@/lib/dashboard/operations-home";
 
 const QUEUE_ICONS: Record<OperationsQueueId, typeof Inbox> = {
@@ -52,10 +53,10 @@ export function OperationsWorkQueue({
           {title}
         </h2>
         {items.length > 0 ? (
-          <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-xs tabular-nums">
+          <Badge variant="secondary" className="tabular-nums">
             <span aria-hidden>{total}</span>
             <span className="sr-only">{totalLabel}</span>
-          </span>
+          </Badge>
         ) : null}
       </div>
       {items.length === 0 ? (

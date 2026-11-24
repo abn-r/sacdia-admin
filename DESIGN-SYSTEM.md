@@ -192,7 +192,7 @@ Nada por debajo de **11px**. `text-2xs` (`0.6875rem` / 11px, line-height `1rem`)
 
 | Elemento | Clase |
 |---|---|
-| Título de página (h1) | `text-2xl font-semibold tracking-tight sm:text-3xl` (vía `PageHeader`) |
+| Título de página (h1) | `text-2xl font-semibold tracking-tight` (24px, vía `PageHeader`): pantalla de trabajo, no hero |
 | Título de card / sección | `text-base font-medium` (CardTitle, `font-heading`) o `text-base font-semibold` |
 | Título de diálogo | `text-base font-medium` (Dialog) / `text-lg font-semibold tracking-tight` (`RouteFormModal`) |
 | Texto normal | `text-sm` |
@@ -492,7 +492,7 @@ Fuente: `src/lib/animations.ts` + variables de `globals.css`. No copies duracion
 
 | Componente | Responsabilidad |
 |---|---|
-| `PageHeader` | `title?`, `description?`, `breadcrumbs?`, `actions?` (o `children`). h1 `text-2xl sm:text-3xl font-semibold tracking-tight`, descripción `max-w-prose text-sm text-muted-foreground`. Acciones a la derecha desde `sm`, debajo en móvil |
+| `PageHeader` | `title?`, `description?`, `breadcrumbs?`, `actions?` (o `children`). h1 `text-2xl font-semibold tracking-tight` (24px), descripción `max-w-prose text-sm text-muted-foreground`. En pantallas con datos, la descripción es el **hallazgo** (una frase calculada de los datos, p. ej. "12 pendientes por revisar"), no una explicación de la interfaz. Acciones a la derecha desde `sm`, debajo en móvil |
 | `EmptyState` | `icon`, `title`, `description?`, `children?` (acción), `variant` `default` \| `no-results`. Marco `border-dashed rounded-lg p-8`; círculo `size-12` (`bg-muted` / `bg-muted/40`); título `text-lg font-semibold`; fade 200ms. Es el **único** lugar donde se permite `border-dashed` (`dashed-empty-state`) |
 | `ListPageSkeleton({ rows = 8, filters = 3 })` | Espejo de una página de listado: encabezado, fila de filtros y `DataTableShell` con filas de 48px. Server component async, `aria-busy`, `role="status"` oculto |
 | `DetailPageSkeleton` | Espejo de un detalle: encabezado, barra de pestañas, 3 tarjetas y un bloque |
@@ -984,5 +984,6 @@ No hay regla automática para: iconos decorativos en caja, `transition-all`, `ba
 - **2026-08-23 / 2026-09-17**: `PageHeader` y motion alineados con `animations.ts`; navegación y tablas sin enter/stagger; `⌘B` instantáneo; Geist único.
 - **2026-10-13 — Alineación antislop**: radios por rol, sentence case, diales (§0), reglas `pill-radius` y `uppercase-tracking`.
 - **2026-10-15 — Crisp**: neutros puros y acento azul; split `--primary` / `--primary-solid`; sombras con anillo hairline; `--radius: 0.5rem`; `destructive-solid`; `RowActions`; `Button loading`; crear/editar en modal de ruta interceptada; toasts neutros; móvil (bottom sheet, 16px, objetivos táctiles).
+- **2026-11-23 — Inicio rediseñado**: h1 de `PageHeader` a 24px en todo el panel; Inicio abre con el hallazgo del día (`homeFinding`: la cola más larga al despachar, los territorios con brechas al supervisar) y un único botón principal hacia la cola más larga; `loading.tsx` imita el layout real.
 - **2026-11-23 — Acento en escalera**: arranca el rediseño del panel con la base actual y el acento de la dirección C. Tokens `--primary-soft`, `--primary-soft-foreground`, `--primary-track`, `--sidebar-active`; el ítem activo del sidebar pasa a tinte azul (el hover sigue gris); Button y Badge `soft` usan la escalera. Referencia visual: `../mockups/rediseno-admin/index.html` (pestaña «A + acento C»).
 - **2026-11-08 — Auditoría de diseño**: split semántico texto/relleno (`--x` / `--x-solid`) con contraste AA y destructive oscuro `#F87171`; `text-2xs` y piso de 11px; `PRESS_SCALE` único (0.97, solo botones) y overlays iguales (`bg-black/40`, sin blur, 200/150ms); `shadow-lg` en flotantes; `KpiStrip` sin tiles; listado unificado (`DataTableShell`, filas móviles, `DataTablePagination` URL/controlada); `error.tsx` y `global-error`, skip link y landmarks; sidebar con alcance, contadores y un solo ítem activo; skeletons `ListPageSkeleton`/`DetailPageSkeleton`; nuevas reglas del audit; reescritura de este documento como fuente única (cuerpo = estado actual, historial al final).

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
-import { ArrowLeft, CalendarClock, CalendarRange, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, CalendarRange, Clock, MapPin } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,10 @@ interface OperationsDashboardChromeProps {
   data: OperationsDashboardData;
   query: OperationsDashboardQuery;
   title: string;
+  /** The screen's finding: one sentence built from the data. */
   description: string;
+  /** The one primary action: opens the longest queue. */
+  primaryAction?: { href: string; label: string };
 }
 
 export async function OperationsDashboardChrome({
@@ -26,6 +29,7 @@ export async function OperationsDashboardChrome({
   query,
   title,
   description,
+  primaryAction,
 }: OperationsDashboardChromeProps) {
   const t = await getTranslations("dashboardHub.operations");
   const locale = await getLocale();
@@ -55,13 +59,25 @@ export async function OperationsDashboardChrome({
         title={title}
         description={description}
         actions={
-          hasTerritorialFilter ? (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={resetHref}>
-                <ArrowLeft className="size-4" aria-hidden />
-                {t("backToMyScope")}
-              </Link>
-            </Button>
+          hasTerritorialFilter || primaryAction ? (
+            <>
+              {hasTerritorialFilter ? (
+                <Button variant="outline" asChild>
+                  <Link href={resetHref}>
+                    <ArrowLeft aria-hidden />
+                    {t("backToMyScope")}
+                  </Link>
+                </Button>
+              ) : null}
+              {primaryAction ? (
+                <Button asChild>
+                  <Link href={primaryAction.href}>
+                    {primaryAction.label}
+                    <ArrowRight aria-hidden />
+                  </Link>
+                </Button>
+              ) : null}
+            </>
           ) : null
         }
       />

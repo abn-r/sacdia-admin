@@ -1964,6 +1964,10 @@
       "home": {
         "title": "Home",
         "description": "What needs attention in your scope.",
+        "finding": {
+          "queue": "{total, plural, one {# item to review} other {# items to review}}. Longest queue: {queue} ({count, number}).",
+          "gaps": "{count, plural, one {# {level, select, division {division has} union {union has} local_field {local field has} other {club has}}} other {# {level, select, division {divisions have} union {unions have} local_field {local fields have} other {clubs have}}}} missing reports or inactive clubs."
+        },
         "kpis": {
           "label": "Scope indicators",
           "reports": {
@@ -2011,7 +2015,14 @@
         "honorsReview": "Honor reviews",
         "annualFolders": "Union pending folders",
         "total": "{count, plural, one {# pending} other {# pending}}",
-        "empty": "All caught up"
+        "empty": "All caught up",
+        "actions": {
+          "roles": "Review assignments",
+          "transfers": "Review transfers",
+          "classes": "Validate classes",
+          "honors": "Review honors",
+          "folders": "Evaluate folders"
+        }
       },
       "formation": {
         "title": "Training by class",

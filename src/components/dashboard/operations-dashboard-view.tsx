@@ -17,6 +17,7 @@ import {
   attentionTotal,
   firstAccessibleHref,
   groupClassesByClubType,
+  homeFinding,
   rankChildrenByGap,
   resolveHomeMode,
   visibleWorkQueue,
@@ -62,6 +63,30 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
 
   const queueItems = visibleWorkQueue(summary, user);
   const pendingTotal = attentionTotal(queueItems);
+  const rankedChildren = rankChildrenByGap(children, hasReportingMonth);
+
+  const queueLabels = {
+    roles: t("attention.roleAssignments"),
+    transfers: t("attention.transfers"),
+    classes: t("attention.classValidations"),
+    honors: t("attention.honorsReview"),
+    folders: t("attention.annualFolders"),
+  };
+  const finding = homeFinding(mode, queueItems, rankedChildren);
+  const description =
+    finding.kind === "queue"
+      ? tHome("finding.queue", {
+          total: finding.total,
+          queue: queueLabels[finding.top.id],
+          count: finding.top.count,
+        })
+      : finding.kind === "gaps"
+        ? tHome("finding.gaps", { count: finding.count, level: childLevel })
+        : tHome("description");
+  const topQueue = mode === "dispatch" ? queueItems[0] : undefined;
+  const primaryAction = topQueue
+    ? { href: topQueue.href, label: t(`attention.actions.${topQueue.id}`) }
+    : undefined;
 
   const honorsAvailable = honors.attribution !== "unavailable";
   const honorsHref = firstAccessibleHref(user, ["/dashboard/clubs/validations?tab=honors"]);
@@ -93,7 +118,8 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
         data={data}
         query={query}
         title={tHome("title")}
-        description={tHome("description")}
+        description={description}
+        primaryAction={primaryAction}
       />
 
       <OperationsHomeLayout
@@ -149,7 +175,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
           emptyLabel: tHome("gapTable.emptyTitle", { level: childLevel }),
           showAllLabel: tHome("gapTable.showAll", { count: children.length }),
           showLessLabel: tHome("gapTable.showLess"),
-          rows: rankChildrenByGap(children, hasReportingMonth).map(
+          rows: rankedChildren.map(
             ({ child }): OperationsGapRow => {
               const childReportsPct = hasReportingMonth ? child.monthly_reports.coverage_pct : null;
               const childTotal =
@@ -170,13 +196,7 @@ export async function OperationsDashboardView({ data, query, user }: OperationsD
         attention={{
           headingId: "operations-attention",
           title: t("attention.title"),
-          labels: {
-            roles: t("attention.roleAssignments"),
-            transfers: t("attention.transfers"),
-            classes: t("attention.classValidations"),
-            honors: t("attention.honorsReview"),
-            folders: t("attention.annualFolders"),
-          },
+          labels: queueLabels,
           items: queueItems,
           total: fmt(pendingTotal),
           totalLabel: t("attention.total", { count: pendingTotal }),

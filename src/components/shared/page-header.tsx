@@ -58,7 +58,7 @@ export function PageHeader({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           {title ? (
             <div className="min-w-0 space-y-1">
-              <h1 className="font-semibold text-2xl text-foreground tracking-tight sm:text-3xl">{title}</h1>
+              <h1 className="font-semibold text-2xl text-foreground tracking-tight">{title}</h1>
               {description && <p className="max-w-prose text-muted-foreground text-sm">{description}</p>}
             </div>
           ) : null}
