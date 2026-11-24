@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { FormPageFrame } from "@/components/shared/form-modal";
-import { EventFormPage } from "@/components/camporee-events/event-form-page";
+import { EventFormPageFrame } from "@/components/camporee-events/event-form-page-frame";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
   loadEditCamporeeEventFormData,
-  camporeeEventsListHref,
   resolveEventFormData,
 } from "@/lib/camporee-events/event-form-data";
 
@@ -19,17 +16,6 @@ export default async function UnionCamporeeEventEditPage({ params }: { params: P
   const user = await requireAdminUser();
   const { id, eventId } = await params;
   const props = resolveEventFormData(await loadEditCamporeeEventFormData(user, "union", id, eventId));
-  const t = await getTranslations("camporees.eventInstanceForm");
 
-  // Direct load / refresh: the form renders as its own page.
-  return (
-    <FormPageFrame
-      title={t("titleEdit")}
-      description={t("descriptionEdit")}
-      backHref={camporeeEventsListHref("union", id)}
-      backLabel={t("backToEvents")}
-    >
-      <EventFormPage {...props} />
-    </FormPageFrame>
-  );
+  return <EventFormPageFrame scope="union" props={props} />;
 }

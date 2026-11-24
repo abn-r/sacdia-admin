@@ -1,50 +1,18 @@
 "use client";
 
-
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  Clock,
-  Pin,
-  Copy,
-  Edit,
-  MoreHorizontal,
-  Trophy,
-  XCircle,
-  Trash2,
-} from "lucide-react";
+import { Pencil, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { RowActions } from "@/components/shared/row-actions";
 import { cn } from "@/lib/utils";
-
-import {
-  EVENT_CATEGORY_MAP,
-  EVENT_STATUS_LABEL,
-  EVENT_STATUS_VARIANT,
-  SECTION_COLOR,
-} from "@/lib/camporee-timeline/event-categories";
-import type { CamporeeEvent, Venue } from "@/lib/camporee-timeline/types";
-import { durMin, initials } from "@/lib/camporee-timeline/helpers";
+import type { CamporeeEvent, EventStatus, Venue } from "@/lib/camporee-timeline/types";
+import { PROGRAM_NORMAL_STATUSES } from "@/lib/camporee-events/program-groups";
 import { cancelCamporeeEventAction, softDeleteCamporeeEventAction } from "@/lib/camporee-events/actions";
 
 interface Props {
@@ -54,10 +22,17 @@ interface Props {
   isUnionCamporee?: boolean;
   onEdit?: () => void;
   readonly?: boolean;
+  /** `table` renders a `<tr>` (md+); `list` renders the 2-line `<li>` for small screens. */
+  layout?: "table" | "list";
 }
 
 type DialogType = "cancel" | "delete" | null;
 
+/**
+ * One event of the program. The title is the primary action (opens the edit
+ * page); everything else lives in the "⋯" menu. Only the exception is marked:
+ * "Sin publicar", "Cancelado" and "Sin responsable".
+ */
 export function EventRow({
   event,
   venue,
@@ -65,330 +40,175 @@ export function EventRow({
   isUnionCamporee = false,
   onEdit,
   readonly = false,
+  layout = "table",
 }: Props) {
-  
-  const t = useTranslations("camporeeEvents.timeline");
+  const t = useTranslations("evaluation.camporeeEvents.program");
   const router = useRouter();
-  const cat = EVENT_CATEGORY_MAP[event.category];
-  const status = event.status;
-  const capPct = event.capacity > 0 ? (event.registered / event.capacity) * 100 : 0;
-  const hasCapacity = event.registered > 0;
-
   const [dialogOpen, setDialogOpen] = React.useState<DialogType>(null);
-  const [isPending, startTransition] = React.useTransition();
 
+  const status = event.status;
   const isCancelled = status === "cancelado";
   const isTerminal = status === "realizado" || status === "cancelado";
+  const hasLeader = event.leaderName !== "—" && event.leaderName.trim() !== "";
+  const editPath = isUnionCamporee
+    ? `/dashboard/campamentos/union/${camporeeId}/events/${event.id}/edit`
+    : `/dashboard/campamentos/${camporeeId}/events/${event.id}/edit`;
 
   function handleEdit() {
-    if (onEdit) {
-      onEdit();
-    } else {
-      const editPath = isUnionCamporee
-        ? `/dashboard/campamentos/union/${camporeeId}/events/${event.id}/edit`
-        : `/dashboard/campamentos/${camporeeId}/events/${event.id}/edit`;
-      router.push(editPath);
+    if (onEdit) onEdit();
+    else router.push(editPath);
+  }
+
+  async function runAction(
+    action: typeof cancelCamporeeEventAction,
+    successKey: "cancelledToast" | "deletedToast",
+  ) {
+    const formData = new FormData();
+    formData.set("id", event.id);
+    formData.set("camporee_id", camporeeId);
+    formData.set("is_union", String(isUnionCamporee));
+    const result = await action({}, formData);
+    if (result?.error) {
+      // Rejecting keeps the dialog open with the message inline.
+      throw new Error(result.error);
     }
+    toast.success(t(successKey, { title: event.title }));
+    router.refresh();
   }
 
-  function handleConfirmCancel() {
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.set("id", event.id);
-      formData.set("camporee_id", camporeeId);
-      formData.set("is_union", String(isUnionCamporee));
+  const statusLabels: Record<EventStatus, string> = {
+    programado: t("statusUnpublished"),
+    publicado: t("statuses.publicado"),
+    en_curso: t("statuses.en_curso"),
+    realizado: t("statuses.realizado"),
+    cancelado: t("statuses.cancelado"),
+  };
 
-      const result = await cancelCamporeeEventAction({}, formData);
+  const statusMark = (
+    <ExceptionStatus
+      value={status}
+      normal={PROGRAM_NORMAL_STATUSES}
+      labels={statusLabels}
+      intents={{ programado: "neutral", cancelado: "destructive" }}
+    />
+  );
 
-      if (result?.error) {
-        toast.error(result.error);
-        setDialogOpen(null);
-        return;
-      }
+  const actions = readonly ? null : (
+    <RowActions
+      label={event.title}
+      actions={[
+        { label: t("actions.edit"), icon: Pencil, onSelect: handleEdit },
+        {
+          label: t("actions.cancel"),
+          icon: XCircle,
+          hidden: isTerminal,
+          onSelect: () => setDialogOpen("cancel"),
+        },
+        {
+          label: t("actions.delete"),
+          icon: Trash2,
+          destructive: true,
+          onSelect: () => setDialogOpen("delete"),
+        },
+      ]}
+    />
+  );
 
-      toast.success(`Evento "${event.title}" cancelado.`);
-      setDialogOpen(null);
-      // The server action redirects; router.refresh() is a safety net
-      router.refresh();
-    });
-  }
+  const venueName = venue.name && venue.name !== "—" ? venue.name : null;
+  const timeRange = `${event.startsAt}–${event.endsAt}`;
+  const categoryLabel = t(`categories.${event.category}`);
+  const titleNode = readonly ? (
+    <span className={cn("font-medium", isCancelled && "text-muted-foreground line-through")}>
+      {event.title}
+    </span>
+  ) : (
+    <button
+      type="button"
+      onClick={handleEdit}
+      className={cn(
+        "rounded-sm text-left font-medium hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+        isCancelled && "text-muted-foreground line-through",
+      )}
+    >
+      {event.title}
+    </button>
+  );
 
-  function handleConfirmDelete() {
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.set("id", event.id);
-      formData.set("camporee_id", camporeeId);
-      formData.set("is_union", String(isUnionCamporee));
+  const dialogs = (
+    <>
+      <ConfirmDialog
+        open={dialogOpen === "cancel"}
+        onOpenChange={(open) => !open && setDialogOpen(null)}
+        title={t("cancelDialog.title", { title: event.title })}
+        description={t("cancelDialog.description")}
+        confirmLabel={t("cancelDialog.confirm")}
+        cancelLabel={t("cancelDialog.back")}
+        onConfirm={() => runAction(cancelCamporeeEventAction, "cancelledToast")}
+      />
+      <ConfirmDialog
+        open={dialogOpen === "delete"}
+        onOpenChange={(open) => !open && setDialogOpen(null)}
+        tone="destructive"
+        title={t("deleteDialog.title", { title: event.title })}
+        description={t("deleteDialog.description")}
+        confirmLabel={t("deleteDialog.confirm")}
+        cancelLabel={t("cancelDialog.back")}
+        onConfirm={() => runAction(softDeleteCamporeeEventAction, "deletedToast")}
+      />
+    </>
+  );
 
-      const result = await softDeleteCamporeeEventAction({}, formData);
-
-      if (result?.error) {
-        toast.error(result.error);
-        setDialogOpen(null);
-        return;
-      }
-
-      toast.success(`Evento "${event.title}" eliminado.`);
-      setDialogOpen(null);
-      router.refresh();
-    });
+  if (layout === "list") {
+    return (
+      <li className="flex items-start gap-3 border-b py-3 last:border-b-0">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 truncate">{titleNode}</div>
+            {statusMark}
+          </div>
+          <p className="flex flex-wrap gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+            <span>{timeRange}</span>
+            {venueName ? <span>{venueName}</span> : null}
+            <span className={cn(!hasLeader && "text-foreground")}>
+              {hasLeader ? event.leaderName : t("noLeader")}
+            </span>
+            {event.points > 0 ? <span>{t("points", { points: event.points })}</span> : null}
+          </p>
+        </div>
+        {actions}
+        {dialogs}
+      </li>
+    );
   }
 
   return (
     <>
-      <div
-        className={cn(
-          "group grid items-center gap-3.5 px-4 py-3 border-b border-border/60 last:border-b-0",
-          "grid-cols-1 md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]",
-          "transition-colors hover:bg-muted/50 relative",
-          isCancelled && "opacity-60",
-        )}
-      >
-        {/* Time */}
-        <div className="tabular-nums">
-          <div className={cn(
-            "text-sm font-bold tracking-tight leading-tight",
-            isCancelled && "line-through",
-          )}>
-            {event.startsAt}
-          </div>
-          <div className="text-2xs text-muted-foreground leading-tight">a {event.endsAt}</div>
-          <div className="text-2xs text-muted-foreground/70 mt-0.5 flex items-center gap-1">
-            <Clock className="size-2.5" />
-            {durMin(event.startsAt, event.endsAt)} min
-          </div>
-        </div>
-
-        {/* Title + category */}
-        <div className="min-w-0">
-          <div className={cn(
-            "text-[13.5px] font-semibold tracking-tight leading-snug flex items-center gap-1.5 flex-wrap",
-            isCancelled && "line-through text-muted-foreground",
-          )}>
-            {event.title}
-            {event.fromCatalog && (
-              <span
-                className="inline-flex items-center gap-1 text-2xs font-medium text-muted-foreground/80 bg-muted px-1.5 py-0.5 rounded"
-                title={t("catalogImportTitle")}
-              >
-                <Copy className="size-2.5" />
-                Catálogo
-              </span>
-            )}
-          </div>
-          <div className="text-[11.5px] text-muted-foreground leading-snug mt-0.5 line-clamp-1">
-            {event.description}
-          </div>
-          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-2xs font-bold",
-                cat.tint,
-              )}
-            >
-              <span className={cn("size-1.5 rounded-full", cat.dot)} />
-              {cat.label}
-            </span>
-            {event.sections.map((s) => {
-              const sc = SECTION_COLOR[s];
-              return (
-                <span
-                  key={s}
-                  className={cn(
-                    "inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold",
-                    sc?.tint,
-                  )}
-                >
-                  {s.slice(0, 4)}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Venue */}
-        <div className="flex items-start gap-1.5 text-xs">
-          <Pin className="size-3 text-muted-foreground flex-shrink-0 mt-0.5" />
-          <div className="min-w-0">
-            <div className="truncate font-medium">{venue.name}</div>
-            <div className="text-2xs text-muted-foreground">cap. {venue.capacity}</div>
-          </div>
-        </div>
-
-        {/* Leader */}
-        <div className="flex items-center gap-2 min-w-0">
-          <Avatar className="size-7">
-            <AvatarFallback className="text-2xs bg-primary-solid text-primary-foreground font-bold">
-              {initials(event.leaderName)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <div className="text-xs font-medium truncate">{event.leaderName}</div>
-            <div className="text-2xs text-muted-foreground truncate">
-              {event.leaderRole ?? "responsable"}
-            </div>
-          </div>
-        </div>
-
-        {/* Capacity */}
-        <div className="text-right tabular-nums">
-          {hasCapacity ? (
-            <>
-              <div className="text-[13px] font-bold leading-tight">
-                {event.registered}
-                <span className="text-muted-foreground/70 font-medium"> / {event.capacity}</span>
-              </div>
-              <Progress
-                value={capPct}
-                className={cn("h-1 mt-1", capPct > 90 && "[&>div]:bg-warning")}
-              />
-              <div className="text-2xs text-muted-foreground mt-0.5">
-                {Math.round(capPct)}% del cupo
-              </div>
-            </>
+      <TableRow className={cn(isCancelled && "text-muted-foreground")}>
+        <TableCell className="whitespace-nowrap tabular-nums">
+          <span className={cn(isCancelled && "line-through")}>{event.startsAt}</span>
+          <span className="block text-[13px] text-muted-foreground">
+            {t("until", { time: event.endsAt })}
+          </span>
+        </TableCell>
+        <TableCell>
+          {titleNode}
+          <span className="block text-[13px] text-muted-foreground">{categoryLabel}</span>
+        </TableCell>
+        <TableCell>{venueName ?? <span className="text-muted-foreground">—</span>}</TableCell>
+        <TableCell>
+          {hasLeader ? (
+            event.leaderName
           ) : (
-            <div className="text-2xs text-muted-foreground/70">
-              {event.points > 0 ? "—" : "asistencia abierta"}
-            </div>
+            <StatusBadge intent="warning" size="xs" label={t("noLeader")} />
           )}
-        </div>
-
-        {/* Points */}
-        <div className="text-center">
-          {event.points > 0 ? (
-            <span className="inline-flex items-center gap-1 text-2xs font-bold text-warning-soft-foreground bg-warning-soft px-2 py-0.5 rounded">
-              <Trophy className="size-2.5" />
-              {event.points} pts
-            </span>
-          ) : (
-            <span className="text-2xs text-muted-foreground/60">—</span>
-          )}
-        </div>
-
-        {/* Status badge */}
-        <div>
-          <Badge variant={EVENT_STATUS_VARIANT[status] as never}>
-            {EVENT_STATUS_LABEL[status]}
-          </Badge>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-1 justify-end">
-          {!readonly && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEdit();
-                }}
-              >
-                <Edit className="size-3.5" />
-                <span className="sr-only">Editar</span>
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="size-3.5" />
-                    <span className="sr-only">Más opciones</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleEdit()}
-                  >
-                    <Edit className="size-3.5 mr-2" />
-                    Editar evento
-                  </DropdownMenuItem>
-
-                  {!isTerminal && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setDialogOpen("cancel")}
-                        className="text-warning"
-                      >
-                        <XCircle className="size-3.5 mr-2" />
-                        Cancelar evento
-                      </DropdownMenuItem>
-                    </>
-                  )}
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setDialogOpen("delete")}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="size-3.5 mr-2" />
-                    Eliminar evento
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── Cancel AlertDialog ── */}
-      <AlertDialog open={dialogOpen === "cancel"} onOpenChange={(v) => !v && setDialogOpen(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Cancelar este evento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              El evento{" "}
-              <span className="font-medium text-foreground">&ldquo;{event.title}&rdquo;</span>{" "}
-              quedará marcado como <b>cancelado</b> y seguirá visible en la agenda con ese estado.
-              Esta acción puede revertirse editando el estado manualmente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
-            <Button
-              loading={isPending}
-              variant="outline"
-              onClick={handleConfirmCancel}
-              className="border-warning text-warning hover:bg-warning/10"
-            >
-              <XCircle className="size-4" />
-              Confirmar cancelación
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* ── Delete AlertDialog ── */}
-      <AlertDialog open={dialogOpen === "delete"} onOpenChange={(v) => !v && setDialogOpen(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este evento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              El evento{" "}
-              <span className="font-medium text-foreground">&ldquo;{event.title}&rdquo;</span>{" "}
-              será eliminado de la agenda del camporee. El registro se conserva en la base de datos
-              (borrado lógico) pero no será visible para nadie.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
-            <Button
-              loading={isPending}
-              variant="destructive"
-              onClick={handleConfirmDelete}
-            >
-              <Trash2 className="size-4" />
-              Eliminar
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </TableCell>
+        <TableCell className="text-right tabular-nums">
+          {event.points > 0 ? event.points : <span className="text-muted-foreground">—</span>}
+        </TableCell>
+        <TableCell>{statusMark}</TableCell>
+        <TableCell>{actions}</TableCell>
+      </TableRow>
+      {dialogs}
     </>
   );
 }

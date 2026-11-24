@@ -41,7 +41,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
 import {
   assignCamporeeEventJudgeAction,
   deleteCamporeeEventJudgeAssignmentAction,
@@ -160,7 +163,7 @@ function JudgeSlot({
       className={cn(
         "flex min-w-[140px] flex-1 items-center gap-2 rounded-xl px-3 py-2 ring-1",
         empty
-          ? "border-dashed bg-muted/20 ring-border/60"
+          ? "bg-muted/20 ring-border/60"
           : "bg-card ring-foreground/10",
       )}
     >
@@ -253,7 +256,9 @@ export function EventJudgeAssignmentsPanel({
   canEdit = false,
 }: EventJudgeAssignmentsPanelProps) {
   const t = useTranslations("camporees.judgeAssignments");
+  const tJudges = useTranslations("evaluation.camporeeEvents.judges");
   const router = useRouter();
+  const [removing, setRemoving] = useState<CamporeeEventJudgeAssignment | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [localAssignments, setLocalAssignments] = useState(assignmentsByEvent);
@@ -448,7 +453,7 @@ export function EventJudgeAssignmentsPanel({
     formData.set("camporee_id", String(camporeeId));
     formData.set("is_union", isUnionCamporee ? "true" : "false");
 
-    void runMutation(
+    return runMutation(
       deleteCamporeeEventJudgeAssignmentAction,
       formData,
       t("toastRemoved"),
@@ -532,7 +537,7 @@ export function EventJudgeAssignmentsPanel({
           {manageJudgesButton}
         </header>
 
-        <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+        <DataTableShell>
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -621,7 +626,7 @@ export function EventJudgeAssignmentsPanel({
               })}
             </TableBody>
           </Table>
-        </div>
+        </DataTableShell>
       </div>
     );
   }
@@ -651,38 +656,16 @@ export function EventJudgeAssignmentsPanel({
         </div>
       </header>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          {
-            label: t("statSections"),
-            value: targets.length,
-            hint: selectedEvent?.title ?? "",
-          },
-          {
-            label: t("statCovered"),
-            value: sectionsWithPrimary,
-            hint: t("statCoveredHint"),
-          },
-          {
-            label: t("statPending"),
-            value: pendingSections,
-            hint: t("statPendingHint"),
-          },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
-          >
-            <p className="text-2xs font-medium text-muted-foreground">
-              {stat.label}
-            </p>
-            <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight">
-              {stat.value}
-            </p>
-            <p className="mt-1 truncate text-xs text-muted-foreground">{stat.hint}</p>
-          </div>
-        ))}
-      </div>
+      <KpiStrip aria-label={t("statSections")}>
+        <KpiStripItem label={t("statSections")} value={targets.length} />
+        <KpiStripItem label={t("statCovered")} value={sectionsWithPrimary} subline={t("statCoveredHint")} />
+        <KpiStripItem
+          label={t("statPending")}
+          value={pendingSections}
+          subline={t("statPendingHint")}
+          emphasis={pendingSections > 0}
+        />
+      </KpiStrip>
 
       {actionError && (
         <p className="text-sm text-destructive" role="alert">
@@ -690,8 +673,8 @@ export function EventJudgeAssignmentsPanel({
         </p>
       )}
 
-      <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
-        <div className="grid gap-3 border-b border-border/60 bg-muted/20 px-4 py-3 text-2xs font-medium text-muted-foreground md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+      <DataTableShell>
+        <div className="grid gap-3 border-b px-4 py-3 text-xs font-medium text-muted-foreground md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
           <span>{t("matrixSectionColumn")}</span>
           <span>{t("matrixJudgesColumn")}</span>
         </div>
@@ -766,7 +749,7 @@ export function EventJudgeAssignmentsPanel({
                           ? (judgeId) => handleReplace(primary, judgeId, target)
                           : undefined
                       }
-                      onRemove={primary ? () => handleRemove(primary) : undefined}
+                      onRemove={primary ? () => setRemoving(primary) : undefined}
                     />
                     {assistants.length > 0 ? (
                       assistants.map((assistant) => (
@@ -782,7 +765,7 @@ export function EventJudgeAssignmentsPanel({
                           onReplace={(judgeId) =>
                             handleReplace(assistant, judgeId, target)
                           }
-                          onRemove={() => handleRemove(assistant)}
+                          onRemove={() => setRemoving(assistant)}
                         />
                       ))
                     ) : (
@@ -804,11 +787,11 @@ export function EventJudgeAssignmentsPanel({
             })}
           </div>
         )}
-      </div>
+      </DataTableShell>
 
       {canEdit && (
-        <div className="rounded-2xl bg-muted/20 p-1 ring-1 ring-foreground/10">
-          <div className="rounded-[calc(1rem-0.25rem)] bg-card p-5">
+        <div>
+          <div className="rounded-xl bg-card p-5 shadow-card">
             <div className="mb-4 space-y-1">
               <p className="text-sm font-medium">{t("assignFormTitle")}</p>
               <p className="text-sm text-muted-foreground">{t("assignFormDescription")}</p>
@@ -912,6 +895,31 @@ export function EventJudgeAssignmentsPanel({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={removing !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoving(null);
+        }}
+        tone="destructive"
+        title={tJudges("removeTitle", {
+          name: removing ? getJudgeName(judges, removing.camporee_judge_id) : "",
+        })}
+        description={tJudges("removeDescription", {
+          section: removing
+            ? (targets.find((target) => target.club_section_id === removing.club_section_id)
+                ?.section_name ?? t("sectionFallback", { id: removing.club_section_id }))
+            : "",
+          event: selectedEvent?.title ?? "",
+          role: (removing?.judge_role === "primary" ? t("rolePrimary") : t("roleAssistant")).toLocaleLowerCase(),
+        })}
+        confirmLabel={tJudges("removeConfirm")}
+        pending={isPending}
+        onConfirm={async () => {
+          if (removing) await handleRemove(removing);
+          setRemoving(null);
+        }}
+      />
     </div>
   );
 }

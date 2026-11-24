@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
 import { listUnionCamporees, type Camporee } from "@/lib/api/camporees";
 import {
   listLocalCamporeeJudgeCandidates,
@@ -12,6 +12,7 @@ import {
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
 import {
   CampamentosJudgesClient,
   type CamporeeJudgeScope,
@@ -68,8 +69,8 @@ export default async function CampamentosJudgesPage({
   let unionCamporees: Camporee[] = [];
   let judges: CamporeeJudge[] = [];
   let judgeCandidates: CamporeeJudgeCandidate[] = [];
-  let judgeCandidatesError: string | null = null;
-  let loadError: string | null = null;
+  const judgeCandidatesError: string | null = null;
+  let loadFailure: ErrorStateFromError | null = null;
 
   try {
     const [localPayload, unionPayload] = await Promise.all([
@@ -79,10 +80,10 @@ export default async function CampamentosJudgesPage({
     localCamporees = extractCamporees(localPayload);
     unionCamporees = extractCamporees(unionPayload);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("loadFailed");
+    loadFailure = errorStateFromError(error);
   }
 
-  if (!loadError && camporeeId) {
+  if (!loadFailure && camporeeId) {
     try {
       if (scope === "union") {
         judges = await listUnionCamporeeJudges(camporeeId);
@@ -96,7 +97,7 @@ export default async function CampamentosJudgesPage({
         }
       }
     } catch (error) {
-      loadError = error instanceof ApiError ? error.message : t("loadFailed");
+      loadFailure = errorStateFromError(error);
     }
   }
 
@@ -104,7 +105,6 @@ export default async function CampamentosJudgesPage({
 
   return (
     <div className="space-y-6">
-      {loadError ? <EndpointErrorBanner state="missing" detail={loadError} /> : null}
       <CampamentosJudgesClient
         scope={scope}
         camporeeId={camporeeId}
@@ -114,6 +114,7 @@ export default async function CampamentosJudgesPage({
         judgeCandidates={judgeCandidates}
         judgeCandidatesError={judgeCandidatesError}
         canEdit={canEdit}
+        loadFailure={loadFailure}
       />
     </div>
   );

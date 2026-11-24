@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
@@ -54,17 +54,19 @@ function renderLeaderboard(
 }
 
 describe("CamporeeLeaderboard", () => {
-  it("shows ranking rows with club, section, points and percentage", () => {
+  it("shows each section with club, points of the maximum and percentage, without positions", () => {
     renderLeaderboard(leaderboard);
 
-    expect(screen.getByText("Clasificación del camporee")).toBeInTheDocument();
-    expect(screen.getByText("#1")).toBeInTheDocument();
-    expect(screen.getByText("Halcones")).toBeInTheDocument();
-    expect(screen.getByText("Conquistadores")).toBeInTheDocument();
-    expect(screen.getByText("170")).toBeInTheDocument();
-    expect(screen.getByText("200")).toBeInTheDocument();
-    expect(screen.getByText("85%")).toBeInTheDocument();
-    expect(screen.getByText("75.5%")).toBeInTheDocument();
+    const table = screen.getByRole("table");
+    expect(within(table).getByText("Halcones")).toBeInTheDocument();
+    expect(within(table).getByText("Conquistadores")).toBeInTheDocument();
+    expect(within(table).getByText("170 de 200")).toBeInTheDocument();
+    expect(within(table).getByText("85%")).toBeInTheDocument();
+    expect(within(table).getByText("75.5%")).toBeInTheDocument();
+    // No rank badges and no ranking/classification wording.
+    expect(screen.queryByText("#1")).toBeNull();
+    expect(screen.queryByText(/clasificaci[oó]n|ranking/i)).toBeNull();
+    expect(within(table).queryByRole("columnheader", { name: /pos/i })).toBeNull();
   });
 
   it("shows empty state without official results", () => {
@@ -75,14 +77,10 @@ describe("CamporeeLeaderboard", () => {
     ).toBeInTheDocument();
   });
 
-  it("describes the ordering by percentage, matching the backend ranking", () => {
+  it("explains how the order is built", () => {
     renderLeaderboard(leaderboard);
 
-    expect(
-      screen.getByText(
-        "Posiciones según el porcentaje de puntos obtenidos sobre los eventos calificados.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Ordenado por el porcentaje de puntos/)).toBeInTheDocument();
   });
 
   describe("coverage", () => {
@@ -105,9 +103,18 @@ describe("CamporeeLeaderboard", () => {
     it("shows how many scorable events each section has been scored on", () => {
       renderLeaderboard(leaderboard, { events, targetsByEvent });
 
-      expect(screen.getByRole("columnheader", { name: "Cobertura" })).toBeInTheDocument();
-      expect(screen.getByText("2 de 3 eventos calificados")).toBeInTheDocument();
-      expect(screen.getByText("1 de 2 eventos calificados")).toBeInTheDocument();
+      const table = screen.getByRole("table");
+      expect(within(table).getByRole("columnheader", { name: "Eventos calificados" })).toBeInTheDocument();
+      expect(within(table).getByText("2 de 3 eventos calificados")).toBeInTheDocument();
+      expect(within(table).getByText("1 de 2 eventos calificados")).toBeInTheDocument();
+    });
+
+    it("marks only the sections that still miss scorable events", () => {
+      renderLeaderboard(leaderboard, { events, targetsByEvent });
+
+      const table = screen.getByRole("table");
+      // Both sections are one event short (2 of 3 and 1 of 2).
+      expect(within(table).getAllByText("Falta 1 evento")).toHaveLength(2);
     });
 
     it("uses the backend count even when event max points differ", () => {
@@ -117,13 +124,15 @@ describe("CamporeeLeaderboard", () => {
       };
       renderLeaderboard(uneven, { events, targetsByEvent });
 
-      expect(screen.getByText("3 de 3 eventos calificados")).toBeInTheDocument();
+      const table = screen.getByRole("table");
+      expect(within(table).getByText("3 de 3 eventos calificados")).toBeInTheDocument();
+      expect(within(table).queryByText(/Falta/)).toBeNull();
     });
 
     it("hides the coverage column without event context", () => {
       renderLeaderboard(leaderboard);
 
-      expect(screen.queryByRole("columnheader", { name: "Cobertura" })).toBeNull();
+      expect(screen.queryByRole("columnheader", { name: "Eventos calificados" })).toBeNull();
     });
   });
 });

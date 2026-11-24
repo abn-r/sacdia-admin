@@ -1,33 +1,22 @@
 "use client";
 
-
 /**
  * EventFormPage — shared client component for create/edit camporee event instances.
  *
- * DS rule §6.1: rendered as an intercepted-route modal over the agenda, with a
- * full-page fallback. Four steps; all stay mounted so the server action gets
- * every field.
- *
- * PR6a: core fields — title, description, day_number, starts_at, ends_at,
- *       display_category (button grid), status (Select).
- * PR6b: venue Select + VenueCreateDialog inline.
- * PR6c: leader picker (user FK or external override) + sections multi-toggle.
- *       Additional numeric fields: capacity, registered_count, max_points.
+ * Long form pattern B: a page with an index of sections and a sticky save bar
+ * (`SectionFormPage`). Local and union camporees share it; every section stays
+ * mounted so the server action receives every field.
  */
 
-import { useActionState, useEffect, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Check, UserRound } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  FormModalBody,
-  FormModalFooter,
-  FormModalSteps,
-  useFormModal,
-} from "@/components/shared/form-modal";
+import { FormSection, SectionFormPage } from "@/components/shared/section-form-page";
+import { Segmented } from "@/components/shared/segmented";
+import { useFormModal } from "@/components/shared/form-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,21 +29,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { formatCalendarDate } from "@/lib/format-locale";
 import { resolveSectionLogoSrc } from "@/lib/camporees/section-logo";
 import { deriveDaysFromRange } from "@/lib/camporee-timeline/mapper";
-import {
-  EVENT_CATEGORIES,
-} from "@/lib/camporee-timeline/event-categories";
-import {
-  VenueCreateDialog,
-} from "@/components/camporee-events/venue-create-dialog";
-import { RubricsEditor } from "@/components/camporee-events/rubrics-editor";
+import { EVENT_CATEGORIES } from "@/lib/camporee-timeline/event-categories";
+import { VenueCreateDialog } from "@/components/camporee-events/venue-create-dialog";
+import { RubricsEditor, areRubricsValid } from "@/components/camporee-events/rubrics-editor";
 import { PenaltiesEditor } from "@/components/camporee-events/penalties-editor";
 import { ScheduleBlocksEditor } from "@/components/camporee-events/schedule-blocks-editor";
 import { EventAttachmentsSection } from "@/components/camporee-events/event-attachments-section";
 import { EventHonorsPicker } from "@/components/camporee-events/event-honors-picker";
 import { EventStaffAssignmentsSection } from "@/components/camporee-events/event-staff-assignments-section";
-import { useFormSteps } from "@/components/shared/use-form-steps";
 import type {
   CamporeeEventStatus,
   CamporeeEventDisplayCategory,
@@ -73,6 +58,13 @@ import type { CamporeeVenue } from "@/lib/api/camporee-venues";
 import type { Camporee, CamporeeClub } from "@/lib/api/camporees";
 import type { CamporeeEventActionState } from "@/lib/camporee-events/actions";
 import { RUBRICS_INITIALLY_CONFIGURED_FIELD } from "@/lib/camporee-events/rubric-sync";
+import {
+  EVENT_SECTION_IDS,
+  firstEventDraftIssue,
+  validateTimes,
+  type EventDraftField,
+  type TimeIssue,
+} from "@/lib/camporee-events/event-draft";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,19 +95,13 @@ export interface EventFormPageProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STATUS_OPTIONS: { value: CamporeeEventStatus; label: string }[] = [
-  { value: "programado", label: "Programado" },
-  { value: "publicado", label: "Publicado" },
-  { value: "en_curso", label: "En curso" },
-  { value: "realizado", label: "Realizado" },
-  { value: "cancelado", label: "Cancelado" },
+const STATUS_VALUES: CamporeeEventStatus[] = [
+  "programado",
+  "publicado",
+  "en_curso",
+  "realizado",
+  "cancelado",
 ];
-
-const SECTION_LABELS: Record<CamporeeEventSection, string> = {
-  adventurers: "Aventureros",
-  pathfinders: "Conquistadores",
-  master_guides: "Guías Mayores",
-};
 
 const SECTION_TINT: Record<CamporeeEventSection, string> = {
   adventurers: "bg-section-aventureros/15 text-section-aventureros border-section-aventureros",
@@ -123,30 +109,31 @@ const SECTION_TINT: Record<CamporeeEventSection, string> = {
   master_guides: "bg-section-guias/15 text-section-guias border-section-guias",
 };
 
-const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const NO_VENUE_VALUE = "__no_venue__";
 const CREATE_VENUE_VALUE = "__create_venue__";
 const NO_LEADER_VALUE = "__no_leader__";
 
-// ─── SubmitButton ─────────────────────────────────────────────────────────────
+/** Server-validated fields whose input is not a form control → the field to reveal. */
+const FIELD_ANCHOR: Record<string, string> = {
+  starts_at: EVENT_SECTION_IDS.schedule,
+  ends_at: EVENT_SECTION_IDS.schedule,
+  schedule_blocks: EVENT_SECTION_IDS.schedule,
+  rubrics: EVENT_SECTION_IDS.points,
+  scoring_enabled: EVENT_SECTION_IDS.points,
+  penalties: EVENT_SECTION_IDS.points,
+  sections: EVENT_SECTION_IDS.data,
+};
 
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button loading={pending} type="submit">
-      <Check className="size-4" />
-      {label}
-    </Button>
-  );
+function scrollToSection(id: string, focusSelector?: string) {
+  const el = document.getElementById(id);
+  el?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  if (focusSelector) {
+    const target = el?.querySelector<HTMLElement>(focusSelector);
+    target?.focus({ preventScroll: true });
+  }
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-
-/** Server-validated fields whose input is not inside a step container → step index. */
-const EVENT_FIELD_STEP: Record<string, number> = {
-  starts_at: 1,
-  ends_at: 1,
-};
 
 export function EventFormPage({
   mode,
@@ -161,13 +148,17 @@ export function EventFormPage({
   rubrics: initialRubrics = [],
   action,
 }: EventFormPageProps) {
-  const t = useTranslations("camporees.eventInstanceForm");
+  const t = useTranslations("evaluation.camporeeEvents.form");
+  const tProg = useTranslations("evaluation.camporeeEvents.program");
+  const tOld = useTranslations("camporees.eventInstanceForm");
+  const locale = useLocale();
   const isEdit = mode === "edit";
   const backHref = isUnionCamporee
     ? `/dashboard/campamentos/union/${camporeeId}?tab=events`
     : `/dashboard/campamentos/${camporeeId}?tab=events`;
 
-  const [actionState, formAction] = useActionState<CamporeeEventActionState, FormData>(
+  const formRef = useRef<HTMLFormElement>(null);
+  const [actionState, formAction, isPending] = useActionState<CamporeeEventActionState, FormData>(
     action,
     {},
   );
@@ -176,36 +167,31 @@ export function EventFormPage({
   const [category, setCategory] = useState<CamporeeEventDisplayCategory>(
     event?.display_category ?? "logistico",
   );
-  const [status, setStatus] = useState<CamporeeEventStatus>(
-    event?.status ?? "programado",
-  );
+  const [status, setStatus] = useState<CamporeeEventStatus>(event?.status ?? "programado");
+  const [titleError, setTitleError] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-  // Day selector — derive range from camporee start/end dates
-  const days = deriveDays(camporee.start_date, camporee.end_date);
+  const days = useMemo(
+    () =>
+      deriveDaysFromRange(camporee.start_date, camporee.end_date).map((day) => ({
+        number: day.numero,
+        label: t("dayLabel", {
+          number: day.numero,
+          date: formatCalendarDate(day.fecha, locale, "short"),
+        }),
+      })),
+    [camporee.start_date, camporee.end_date, locale, t],
+  );
   const [dayNumber, setDayNumber] = useState<number>(event?.day_number ?? 1);
 
   // ── Time validation state ────────────────────────────────────────────────────
   const [startsAt, setStartsAt] = useState<string>(event?.starts_at ?? "");
   const [endsAt, setEndsAt] = useState<string>(event?.ends_at ?? "");
-  const [timeError, setTimeError] = useState<string | null>(null);
+  const [timeIssue, setTimeIssue] = useState<TimeIssue>(null);
+  const timeError =
+    timeIssue === "format" ? t("timeFormat") : timeIssue === "order" ? t("timeOrder") : null;
 
-  function validateTimes(start: string, end: string) {
-    if (start && !TIME_REGEX.test(start)) {
-      setTimeError("Formato de hora inválido (HH:MM)");
-      return;
-    }
-    if (end && !TIME_REGEX.test(end)) {
-      setTimeError("Formato de hora inválido (HH:MM)");
-      return;
-    }
-    if (start && end && start >= end) {
-      setTimeError("La hora de fin debe ser posterior a la hora de inicio");
-      return;
-    }
-    setTimeError(null);
-  }
-
-  // ── PR6b: Venue state ────────────────────────────────────────────────────────
+  // ── Venue state ──────────────────────────────────────────────────────────────
   const [venues, setVenues] = useState<CamporeeVenue[]>(initialVenues);
   const [selectedVenueId, setSelectedVenueId] = useState<string>(
     event?.venue_id ? String(event.venue_id) : NO_VENUE_VALUE,
@@ -218,7 +204,7 @@ export function EventFormPage({
     setVenueDialogOpen(false);
   }
 
-  // ── PR6c: Leader state ───────────────────────────────────────────────────────
+  // ── Leader state ─────────────────────────────────────────────────────────────
   const [leaderMode, setLeaderMode] = useState<"user" | "external">(
     event?.leader_user_id ? "user" : event?.leader_name_override ? "external" : "user",
   );
@@ -226,7 +212,7 @@ export function EventFormPage({
     event?.leader_user_id ?? NO_LEADER_VALUE,
   );
 
-  // ── PR6c: Sections state ─────────────────────────────────────────────────────
+  // ── Sections state ───────────────────────────────────────────────────────────
   const enabledSections: CamporeeEventSection[] = [];
   if (camporee.includes_adventurers) enabledSections.push("adventurers");
   if (camporee.includes_pathfinders) enabledSections.push("pathfinders");
@@ -242,18 +228,14 @@ export function EventFormPage({
 
   const [maxPoints, setMaxPoints] = useState<number>(event?.max_points ?? 0);
   const [minPoints, setMinPoints] = useState<number>(event?.min_points ?? 0);
-  const [minPointsDraft, setMinPointsDraft] = useState<string>(
-    String(event?.min_points ?? 0),
-  );
+  const [minPointsDraft, setMinPointsDraft] = useState<string>(String(event?.min_points ?? 0));
   const [penaltiesEnabled, setPenaltiesEnabled] = useState<boolean>(
     (event?.penalties?.length ?? 0) > 0 || (event?.min_points ?? 0) > 0,
   );
   const [penalties, setPenalties] = useState<PenaltyRule[]>(
     Array.isArray(event?.penalties) ? event.penalties : [],
   );
-  const [scoringEnabled, setScoringEnabled] = useState<boolean>(
-    event?.scoring_enabled ?? false,
-  );
+  const [scoringEnabled, setScoringEnabled] = useState<boolean>(event?.scoring_enabled ?? false);
   const [rubrics, setRubrics] = useState<CamporeeTemplateRubricInput[]>(
     initialRubrics.map((rubric) => ({
       title: rubric.title,
@@ -269,42 +251,38 @@ export function EventFormPage({
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<string>(
     defaultEventTypeId ? String(defaultEventTypeId) : "",
   );
-  const [selectedHonors, setSelectedHonors] = useState<CamporeeEventHonor[]>(
-    event?.honors ?? [],
-  );
-  const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(
-    () => {
-      const existing = event?.schedule_blocks ?? [];
-      if (existing.length > 0) {
-        return existing.map((block, index) => ({
-          title: block.title ?? "",
-          description: block.description ?? null,
-          day_number: block.day_number ?? event?.day_number ?? 1,
-          starts_at: block.starts_at ?? null,
-          ends_at: block.ends_at ?? null,
-          venue_id: block.venue_id ?? null,
-          display_order: block.display_order ?? index,
-          capacity: block.capacity ?? null,
-          notes: block.notes ?? null,
-          assignments: (block.assignments ?? []).map((assignment) => ({
-            camporee_club_id: assignment.camporee_club_id ?? undefined,
-            club_section_id: assignment.club_section_id,
-          })),
-        }));
-      }
-      return [
-        {
-          title: "",
-          day_number: event?.day_number ?? 1,
-          starts_at: event?.starts_at ?? null,
-          ends_at: event?.ends_at ?? null,
-          venue_id: null,
-          display_order: 0,
-          assignments: [],
-        },
-      ];
-    },
-  );
+  const [selectedHonors, setSelectedHonors] = useState<CamporeeEventHonor[]>(event?.honors ?? []);
+  const [scheduleBlocks, setScheduleBlocks] = useState<CamporeeEventScheduleBlock[]>(() => {
+    const existing = event?.schedule_blocks ?? [];
+    if (existing.length > 0) {
+      return existing.map((block, index) => ({
+        title: block.title ?? "",
+        description: block.description ?? null,
+        day_number: block.day_number ?? event?.day_number ?? 1,
+        starts_at: block.starts_at ?? null,
+        ends_at: block.ends_at ?? null,
+        venue_id: block.venue_id ?? null,
+        display_order: block.display_order ?? index,
+        capacity: block.capacity ?? null,
+        notes: block.notes ?? null,
+        assignments: (block.assignments ?? []).map((assignment) => ({
+          camporee_club_id: assignment.camporee_club_id ?? undefined,
+          club_section_id: assignment.club_section_id,
+        })),
+      }));
+    }
+    return [
+      {
+        title: "",
+        day_number: event?.day_number ?? 1,
+        starts_at: event?.starts_at ?? null,
+        ends_at: event?.ends_at ?? null,
+        venue_id: null,
+        display_order: 0,
+        assignments: [],
+      },
+    ];
+  });
 
   function handleScheduleBlocksChange(next: CamporeeEventScheduleBlock[]) {
     setScheduleBlocks(next);
@@ -313,17 +291,13 @@ export function EventFormPage({
     setDayNumber(primary.day_number);
     setStartsAt(primary.starts_at ?? "");
     setEndsAt(primary.ends_at ?? "");
-    validateTimes(primary.starts_at ?? "", primary.ends_at ?? "");
+    setTimeIssue(validateTimes(primary.starts_at ?? "", primary.ends_at ?? ""));
   }
 
   function handleEventTypeChange(value: string) {
     setSelectedEventTypeId(value);
-    const selectedType = eventTypes.find(
-      (type) => String(type.event_type_id) === value,
-    );
-    if (selectedType?.code === "scoring") {
-      setScoringEnabled(true);
-    }
+    const selectedType = eventTypes.find((type) => String(type.event_type_id) === value);
+    if (selectedType?.code === "scoring") setScoringEnabled(true);
   }
 
   function toggleSection(s: CamporeeEventSection) {
@@ -335,67 +309,103 @@ export function EventFormPage({
     });
   }
 
-  const tModal = useTranslations("shared.formModal");
   const modal = useFormModal(backHref);
-  const steps = [t("steps.general"), t("steps.schedule"), t("steps.leader"), t("steps.scoring")];
-  const {
-    step,
-    direction,
-    lastStep,
-    stepIncomplete,
-    goTo,
-    goNext,
-    goToField,
-    handleSubmit,
-    handleKeyDown,
-    stepRef,
-  } = useFormSteps(steps.length);
 
-  // The event was saved but its rubrics were not: close the form (never leave
-  // a saved event open for a retry that would duplicate it) and say why.
+  // Anything the user changed since the page opened (native inputs set `touched`;
+  // controlled state is compared against its first value).
+  const initialSignature = useRef<string | null>(null);
+  const signature = JSON.stringify([
+    category,
+    status,
+    selectedVenueId,
+    leaderMode,
+    leaderUserId,
+    Array.from(selectedSections),
+    maxPoints,
+    minPoints,
+    penaltiesEnabled,
+    penalties,
+    scoringEnabled,
+    rubrics,
+    selectedEventTypeId,
+    selectedHonors,
+    scheduleBlocks,
+  ]);
+  if (initialSignature.current === null) initialSignature.current = signature;
+  const dirty = touched || signature !== initialSignature.current;
+
+  const sectionList = useMemo(
+    () => [
+      { id: EVENT_SECTION_IDS.data, title: t("sections.data") },
+      { id: EVENT_SECTION_IDS.schedule, title: t("sections.schedule") },
+      { id: EVENT_SECTION_IDS.leader, title: t("sections.leader") },
+      { id: EVENT_SECTION_IDS.points, title: t("sections.points") },
+      { id: EVENT_SECTION_IDS.attachments, title: t("sections.attachments") },
+    ],
+    [t],
+  );
+
+  // The event was saved but its rubrics were not: leave the form (never keep a
+  // saved event open for a retry that would duplicate it) and say why.
   useEffect(() => {
     if (!actionState.warning) return;
-    toast.warning(t("rubricsWarningTitle"), {
-      description: t("rubricsWarningDescription", { detail: actionState.warning }),
+    toast.warning(tOld("rubricsWarningTitle"), {
+      description: tOld("rubricsWarningDescription", { detail: actionState.warning }),
     });
     modal.complete();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
   }, [actionState]);
 
-  // Clean save: confirm, then close the form and refresh the list behind it.
   useEffect(() => {
     if (!actionState.saved) return;
-    toast.success(
-      actionState.saved === "created" ? t("createdToast") : t("updatedToast"),
-    );
+    toast.success(actionState.saved === "created" ? tOld("createdToast") : tOld("updatedToast"));
     modal.complete();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
   }, [actionState]);
 
+  // Server-side field errors: reveal the field (or the section that owns it).
   useEffect(() => {
-    if (!actionState.field) return;
-    // Hidden/aggregate fields that live outside a step container map to their step.
-    if (!goToField(actionState.field)) {
-      const fallback = EVENT_FIELD_STEP[actionState.field];
-      if (fallback !== undefined) goTo(fallback);
+    const field = actionState.field;
+    if (!field) return;
+    const control = formRef.current?.querySelector<HTMLElement>(`[name="${field}"]:not([type="hidden"])`);
+    if (control) {
+      control.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      control.focus({ preventScroll: true });
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to each new action result only
+    const anchor = FIELD_ANCHOR[field];
+    if (anchor) scrollToSection(anchor);
   }, [actionState]);
+
+  const rubricsValid = areRubricsValid(scoringEnabled, rubrics, maxPoints);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const title = String(new FormData(e.currentTarget).get("title") ?? "");
+    const issue = firstEventDraftIssue({ title, timeIssue, scoringEnabled, rubricsValid });
+    setTitleError(issue?.field === "title");
+    if (!issue) return;
+    e.preventDefault();
+    const focus: Record<EventDraftField, string | undefined> = {
+      title: "#title",
+      times: undefined,
+      rubrics: "#max_points",
+    };
+    scrollToSection(EVENT_SECTION_IDS[issue.section], focus[issue.field]);
+  }
 
   return (
     <form
+      ref={formRef}
       action={formAction}
       onSubmit={handleSubmit}
-      onKeyDown={handleKeyDown}
+      onInput={() => setTouched(true)}
       noValidate
       className="flex min-h-0 flex-1 flex-col"
     >
       {/* Hidden fields for IDs and controlled state */}
       <input type="hidden" name="camporee_id" value={String(camporeeId)} />
       <input type="hidden" name="is_union" value={String(isUnionCamporee)} />
-      {isEdit && event && (
-        <input type="hidden" name="id" value={String(event.camporee_event_id)} />
-      )}
+      {isEdit && event && <input type="hidden" name="id" value={String(event.camporee_event_id)} />}
       <input
         type="hidden"
         name={RUBRICS_INITIALLY_CONFIGURED_FIELD}
@@ -409,11 +419,7 @@ export function EventFormPage({
       {selectedEventTypeId && (
         <input type="hidden" name="event_type_id" value={selectedEventTypeId} />
       )}
-      <input
-        type="hidden"
-        name="schedule_blocks"
-        value={JSON.stringify(scheduleBlocks)}
-      />
+      <input type="hidden" name="schedule_blocks" value={JSON.stringify(scheduleBlocks)} />
       <input
         type="hidden"
         name="venue_id"
@@ -430,15 +436,17 @@ export function EventFormPage({
           value={leaderUserId === NO_LEADER_VALUE ? "" : leaderUserId}
         />
       )}
-      <input
-        type="hidden"
-        name="sections"
-        value={JSON.stringify(Array.from(selectedSections))}
-      />
+      <input type="hidden" name="sections" value={JSON.stringify(Array.from(selectedSections))} />
 
-      <FormModalSteps steps={steps} current={step} />
-      <FormModalBody stepKey={step} direction={direction} className="space-y-5">
-        {/* Error banner */}
+      <SectionFormPage
+        sections={sectionList}
+        dirty={dirty}
+        pending={isPending}
+        onSave={() => formRef.current?.requestSubmit()}
+        onCancel={() => modal.close()}
+        saveLabel={isEdit ? t("saveEdit") : t("saveCreate")}
+        footerNote={!dirty && !isEdit ? t("createNote") : undefined}
+      >
         {actionState.error && (
           <div
             role="alert"
@@ -449,21 +457,12 @@ export function EventFormPage({
           </div>
         )}
 
-        {stepIncomplete && (
-          <p role="alert" className="text-sm text-destructive">
-            {t("stepIncomplete")}
-          </p>
-        )}
-
-        {/* Steps stay mounted (hidden) so the server action receives every field. */}
-
-        {/* ══ Step 1: Identidad + secciones ══ */}
-        <div ref={stepRef(0)} hidden={step !== 0} className="space-y-5">
+        {/* ══ Datos ══ */}
+        <FormSection id={EVENT_SECTION_IDS.data} title={t("sections.data")}>
           <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-            {/* Title */}
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="title">
-                Título <span className="text-destructive">*</span>
+                {t("fields.title")} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
@@ -471,58 +470,56 @@ export function EventFormPage({
                 required
                 maxLength={150}
                 defaultValue={event?.title ?? ""}
-                placeholder="Ej. Competencia de nudos"
+                placeholder={t("fields.titlePlaceholder")}
+                aria-invalid={titleError || undefined}
+                aria-describedby={titleError ? "title-error" : undefined}
               />
+              {titleError && (
+                <p id="title-error" role="alert" className="text-xs text-destructive">
+                  {t("errors.title")}
+                </p>
+              )}
             </div>
 
-            {/* Description */}
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="description">
-                Descripción <span className="text-muted-foreground font-normal">(opcional)</span>
+                {t("fields.description")}{" "}
+                <span className="font-normal text-muted-foreground">({t("optional")})</span>
               </Label>
               <Textarea
                 id="description"
                 name="description"
                 rows={3}
                 defaultValue={event?.description ?? ""}
-                placeholder={t("descriptionPlaceholder")}
+                placeholder={tOld("descriptionPlaceholder")}
               />
             </div>
 
-            {/* Category — button grid */}
-            <div className="space-y-2 sm:col-span-2">
-              <Label>
-                Categoría <span className="text-destructive">*</span>
-              </Label>
-              <div className="flex flex-wrap gap-1.5">
-                {EVENT_CATEGORIES.map((c) => {
-                  const active = c.id === category;
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setCategory(c.id as CamporeeEventDisplayCategory)}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[12px] border transition-colors",
-                        active
-                          ? cn("font-semibold", c.tint, c.border)
-                          : "border-border/60 text-foreground hover:bg-muted",
-                      )}
-                    >
-                      <span className={cn("size-2 rounded-full", c.dot)} />
-                      {c.label}
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="display_category_select">{t("fields.category")}</Label>
+              <Select
+                value={category}
+                onValueChange={(v) => setCategory(v as CamporeeEventDisplayCategory)}
+              >
+                <SelectTrigger id="display_category_select" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {EVENT_CATEGORIES.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {tProg(`categories.${c.id}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {eventTypes.length > 0 && (
-              <div className="space-y-2 sm:col-span-2">
-                <Label>Tipo de evento</Label>
+              <div className="space-y-2">
+                <Label htmlFor="event_type_id">{t("fields.eventType")}</Label>
                 <Select value={selectedEventTypeId} onValueChange={handleEventTypeChange}>
                   <SelectTrigger id="event_type_id" className="w-full">
-                    <SelectValue placeholder="Selecciona el tipo" />
+                    <SelectValue placeholder={t("fields.eventTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {eventTypes.map((type) => (
@@ -532,24 +529,38 @@ export function EventFormPage({
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">{t("fields.eventTypeHint")}</p>
+              </div>
+            )}
+
+            {isEdit && (
+              <div className="space-y-2">
+                <Label htmlFor="event_status">{t("fields.status")}</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
+                  <SelectTrigger id="event_status" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_VALUES.map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {tProg(`statuses.${value}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  El tipo clasifica la agenda; los puntos oficiales dependen de rúbricas activas.
+                  {tOld("staffAssignments.publishHint")}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Secciones participantes — before Horario: filters its club list */}
           {enabledSections.length > 0 && (
-            <section className="space-y-3">
+            <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-medium">Secciones participantes</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Deja vacío para que aplique a todas las secciones del camporee.
-                  Define qué clubes/secciones aparecen en Horario.
-                </p>
+                <p className="text-sm font-medium">{t("fields.participants")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t("fields.participantsHint")}</p>
               </div>
-
               <div className="flex flex-wrap gap-2">
                 {enabledSections.map((s) => {
                   const active = selectedSections.has(s);
@@ -557,12 +568,13 @@ export function EventFormPage({
                     <button
                       key={s}
                       type="button"
+                      aria-pressed={active}
                       onClick={() => toggleSection(s)}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[12px] transition-[transform,background-color,border-color,color] duration-150 ease-out active:scale-[0.98]",
+                        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
                         active
                           ? cn("font-semibold", SECTION_TINT[s])
-                          : "border-border/60 text-foreground hover:bg-muted",
+                          : "border-border text-foreground hover:bg-muted",
                       )}
                     >
                       <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-background ring-1 ring-foreground/10">
@@ -574,25 +586,18 @@ export function EventFormPage({
                           className="object-contain p-0.5"
                         />
                       </span>
-                      {SECTION_LABELS[s]}
+                      {tProg(`sections.${s}`)}
                       {active && <Check className="size-3.5 shrink-0" aria-hidden />}
                     </button>
                   );
                 })}
               </div>
-            </section>
+            </div>
           )}
+        </FormSection>
 
-          {isEdit && event && (
-            <EventAttachmentsSection
-              eventId={event.camporee_event_id}
-              initialAttachments={event.attachments}
-            />
-          )}
-        </div>
-
-        {/* ══ Step 2: Horario (multi-slot via schedule_blocks) + Sede ══ */}
-        <div ref={stepRef(1)} hidden={step !== 1} className="space-y-6">
+        {/* ══ Horario y sede ══ */}
+        <FormSection id={EVENT_SECTION_IDS.schedule} title={t("sections.schedule")}>
           <ScheduleBlocksEditor
             value={scheduleBlocks}
             onChange={handleScheduleBlocksChange}
@@ -600,174 +605,143 @@ export function EventFormPage({
             venues={venues}
             camporeeClubs={camporeeClubs}
             allowedSectionKinds={
-              selectedSections.size > 0
-                ? Array.from(selectedSections)
-                : enabledSections
+              selectedSections.size > 0 ? Array.from(selectedSections) : enabledSections
             }
             timeError={timeError}
           />
 
-          <section className="space-y-3">
-            <h3 className="text-sm font-medium">Sede</h3>
-
-            <div className="max-w-md space-y-2">
-              {venues.length === 0 ? (
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    No hay sedes configuradas para este camporee.
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-fit"
-                    onClick={() => setVenueDialogOpen(true)}
-                  >
-                    + Crear primera sede
-                  </Button>
-                </div>
-              ) : (
-                <Select value={selectedVenueId} onValueChange={setSelectedVenueId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Sin sede asignada" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_VENUE_VALUE}>Sin sede</SelectItem>
-                    {venues.map((v) => (
-                      <SelectItem key={v.camporee_venue_id} value={String(v.camporee_venue_id)}>
-                        {v.name}
-                        {v.capacity != null && (
-                          <span className="text-muted-foreground ml-1.5 text-[11px]">
-                            (cap. {v.capacity})
-                          </span>
-                        )}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value={CREATE_VENUE_VALUE}>
-                      <span className="text-primary font-medium">+ Crear nueva sede</span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-
-              {/* Trigger inline dialog when "Crear nueva sede" is picked */}
-              {selectedVenueId === CREATE_VENUE_VALUE && !venueDialogOpen && (
+          <div className="max-w-md space-y-2">
+            <Label htmlFor="venue_select">{t("fields.venue")}</Label>
+            {venues.length === 0 ? (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground">{t("fields.venueEmpty")}</p>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="w-fit"
-                  onClick={() => {
-                    setSelectedVenueId(NO_VENUE_VALUE);
-                    setVenueDialogOpen(true);
-                  }}
+                  onClick={() => setVenueDialogOpen(true)}
                 >
-                  Abrir formulario de sede
+                  {t("fields.venueCreateFirst")}
                 </Button>
-              )}
-            </div>
+              </div>
+            ) : (
+              <Select value={selectedVenueId} onValueChange={setSelectedVenueId}>
+                <SelectTrigger id="venue_select" className="w-full">
+                  <SelectValue placeholder={t("fields.venueNone")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_VENUE_VALUE}>{t("fields.venueNone")}</SelectItem>
+                  {venues.map((v) => (
+                    <SelectItem key={v.camporee_venue_id} value={String(v.camporee_venue_id)}>
+                      {v.name}
+                      {v.capacity != null && (
+                        <span className="ml-1.5 text-xs text-muted-foreground">
+                          ({t("fields.venueCapacity", { capacity: v.capacity })})
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value={CREATE_VENUE_VALUE}>
+                    <span className="font-medium text-primary">{t("fields.venueCreateNew")}</span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
 
-            <VenueCreateDialog
-              open={venueDialogOpen}
-              onOpenChange={setVenueDialogOpen}
-              camporeeId={camporeeId}
-              isUnionCamporee={isUnionCamporee}
-              onCreated={handleVenueCreated}
-            />
-          </section>
-        </div>
-
-        {/* ══ Step 3: Responsable + especialidades de preparación ══ */}
-        <div ref={stepRef(2)} hidden={step !== 2} className="space-y-6">
-          <section className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium">Responsable</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Nombre visible en la agenda. No alcanza para publicar: eso se
-                define en Personal asignado, más abajo.
-              </p>
-            </div>
-
-            {/* Leader mode toggle */}
-            <div className="flex gap-2">
-              <button
+            {selectedVenueId === CREATE_VENUE_VALUE && !venueDialogOpen && (
+              <Button
                 type="button"
-                onClick={() => setLeaderMode("user")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] border transition-colors",
-                  leaderMode === "user"
-                    ? "font-semibold bg-primary/10 text-primary border-primary"
-                    : "border-border/60 text-foreground hover:bg-muted",
-                )}
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => {
+                  setSelectedVenueId(NO_VENUE_VALUE);
+                  setVenueDialogOpen(true);
+                }}
               >
-                <UserRound className="size-3.5" />
-                Usuario del sistema
-              </button>
-              <button
-                type="button"
-                onClick={() => setLeaderMode("external")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] border transition-colors",
-                  leaderMode === "external"
-                    ? "font-semibold bg-primary/10 text-primary border-primary"
-                    : "border-border/60 text-foreground hover:bg-muted",
-                )}
-              >
-                Líder externo
-              </button>
-            </div>
+                {t("fields.venueOpenForm")}
+              </Button>
+            )}
+          </div>
 
-            <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-              {leaderMode === "user" ? (
-                <div className="space-y-2">
-                  <Label>Usuario responsable</Label>
-                  <Select value={leaderUserId} onValueChange={setLeaderUserId}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecciona un usuario" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NO_LEADER_VALUE}>Sin responsable</SelectItem>
-                      {users.map((u) => (
-                        <SelectItem key={u.value} value={u.value}>
-                          {u.label}
-                          {u.email && (
-                            <span className="text-muted-foreground ml-1.5 text-[11px]">
-                              {u.email}
-                            </span>
-                          )}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="leader_name_override">Nombre del líder externo</Label>
-                  <Input
-                    id="leader_name_override"
-                    name="leader_name_override"
-                    maxLength={100}
-                    defaultValue={event?.leader_name_override ?? ""}
-                    placeholder="Ej. Dr. Roberto Gimenez"
-                  />
-                </div>
-              )}
+          <VenueCreateDialog
+            open={venueDialogOpen}
+            onOpenChange={setVenueDialogOpen}
+            camporeeId={camporeeId}
+            isUnionCamporee={isUnionCamporee}
+            onCreated={handleVenueCreated}
+          />
+        </FormSection>
 
-              {/* Leader role (always shown) */}
+        {/* ══ Responsable ══ */}
+        <FormSection
+          id={EVENT_SECTION_IDS.leader}
+          title={t("sections.leader")}
+          description={t("fields.leaderHint")}
+        >
+          <Segmented
+            label={t("fields.leaderMode")}
+            value={leaderMode}
+            onChange={setLeaderMode}
+            size="sm"
+            options={[
+              { value: "user", label: t("fields.leaderUser") },
+              { value: "external", label: t("fields.leaderExternal") },
+            ]}
+          />
+
+          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+            {leaderMode === "user" ? (
               <div className="space-y-2">
-                <Label htmlFor="leader_role">
-                  Rol / cargo <span className="text-muted-foreground font-normal">(opcional)</span>
+                <Label htmlFor="leader_user_select">
+                  <UserRound className="size-3.5" aria-hidden />
+                  {t("fields.leaderUserLabel")}
                 </Label>
+                <Select value={leaderUserId} onValueChange={setLeaderUserId}>
+                  <SelectTrigger id="leader_user_select" className="w-full">
+                    <SelectValue placeholder={t("fields.leaderUserPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_LEADER_VALUE}>{t("fields.leaderNone")}</SelectItem>
+                    {users.map((u) => (
+                      <SelectItem key={u.value} value={u.value}>
+                        {u.label}
+                        {u.email && (
+                          <span className="ml-1.5 text-xs text-muted-foreground">{u.email}</span>
+                        )}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="leader_name_override">{t("fields.leaderExternalName")}</Label>
                 <Input
-                  id="leader_role"
-                  name="leader_role"
+                  id="leader_name_override"
+                  name="leader_name_override"
                   maxLength={100}
-                  defaultValue={event?.leader_role ?? ""}
-                  placeholder="Ej. Director de Juegos"
+                  defaultValue={event?.leader_name_override ?? ""}
+                  placeholder={t("fields.leaderExternalPlaceholder")}
                 />
               </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="leader_role">
+                {t("fields.leaderRole")}{" "}
+                <span className="font-normal text-muted-foreground">({t("optional")})</span>
+              </Label>
+              <Input
+                id="leader_role"
+                name="leader_role"
+                maxLength={100}
+                defaultValue={event?.leader_role ?? ""}
+                placeholder={t("fields.leaderRolePlaceholder")}
+              />
             </div>
-          </section>
+          </div>
 
           {isEdit && event ? (
             <EventStaffAssignmentsSection
@@ -777,145 +751,87 @@ export function EventFormPage({
               initialAssignments={event.staff_assignments}
             />
           ) : (
-            <section className="space-y-2">
-              <h3 className="text-sm font-medium">{t("staffAssignments.title")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("staffAssignments.createHint")}
-              </p>
-            </section>
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{tOld("staffAssignments.title")}</p>
+              <p className="text-sm text-muted-foreground">{tOld("staffAssignments.createHint")}</p>
+            </div>
           )}
 
-          <section className="space-y-3">
+          <div className="space-y-3">
             <div>
-              <h3 className="text-sm font-medium">Especialidades de preparación</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Relaciona especialidades del catálogo para que los participantes
-                consulten el material PDF antes del evento.
-              </p>
+              <p className="text-sm font-medium">{t("fields.honors")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("fields.honorsHint")}</p>
             </div>
             <EventHonorsPicker value={selectedHonors} onChange={setSelectedHonors} />
-          </section>
-        </div>
+          </div>
+        </FormSection>
 
-        {/* ══ Step 4: Puntos + rúbricas + estado ══ */}
-        <div ref={stepRef(3)} hidden={step !== 3} className="space-y-6">
-          <section className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium">Puntos</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Máximo del evento, piso mínimo si hay penalizaciones, y reglas de
-                descuento.
-              </p>
-            </div>
-
-            <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="max_points">
-                  Puntos máximos <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="max_points"
-                  name="max_points"
-                  type="number"
-                  min={0}
-                  required
-                  value={maxPoints}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    const next = raw === "" ? 0 : Number(raw);
-                    if (!Number.isFinite(next) || next < 0) return;
-                    const floored = Math.floor(next);
-                    setMaxPoints(floored);
-                    if (minPoints > floored) {
-                      setMinPoints(floored);
-                      setMinPointsDraft(String(floored));
-                    }
-                  }}
-                  placeholder="100"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="min_points">
-                  Puntos mínimos
-                  {!penaltiesEnabled && (
-                    <span className="text-muted-foreground font-normal">
-                      {" "}
-                      (solo con penalización)
-                    </span>
-                  )}
-                </Label>
-                <Input
-                  id="min_points"
-                  name="min_points"
-                  type="number"
-                  min={0}
-                  max={maxPoints}
-                  disabled={!penaltiesEnabled}
-                  value={penaltiesEnabled ? minPointsDraft : "0"}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    // Allow empty while editing so "0" can be typed / kept.
-                    if (raw !== "" && !/^\d+$/.test(raw)) return;
-                    setMinPointsDraft(raw);
-                    if (raw === "") {
-                      setMinPoints(0);
-                      return;
-                    }
-                    const next = Math.min(Number(raw), maxPoints);
-                    setMinPoints(next);
-                  }}
-                  onBlur={() => {
-                    setMinPointsDraft(String(minPoints));
-                  }}
-                  placeholder="0"
-                />
-                {penaltiesEnabled && (
-                  <p className="text-xs text-muted-foreground">
-                    Piso al aplicar penalizaciones: el puntaje no baja de este
-                    valor (0 permitido; debe ser ≤ máximos).
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
-              <div className="space-y-0.5">
-                <Label htmlFor="penalties_enabled" className="text-sm font-medium">
-                  Aplica penalización
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Activa descuentos y permite definir puntos mínimos.
-                </p>
-              </div>
-              <Switch
-                id="penalties_enabled"
-                checked={penaltiesEnabled}
-                onCheckedChange={(checked) => {
-                  setPenaltiesEnabled(checked);
-                  if (!checked) {
-                    setMinPoints(0);
-                    setMinPointsDraft("0");
-                    setPenalties([]);
+        {/* ══ Puntos y rúbricas ══ */}
+        <FormSection id={EVENT_SECTION_IDS.points} title={t("sections.points")}>
+          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="max_points">
+                {t("fields.maxPoints")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="max_points"
+                name="max_points"
+                type="number"
+                min={0}
+                required
+                value={maxPoints}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  const next = raw === "" ? 0 : Number(raw);
+                  if (!Number.isFinite(next) || next < 0) return;
+                  const floored = Math.floor(next);
+                  setMaxPoints(floored);
+                  if (minPoints > floored) {
+                    setMinPoints(floored);
+                    setMinPointsDraft(String(floored));
                   }
                 }}
+                placeholder="100"
               />
             </div>
 
-            {penaltiesEnabled && (
-              <div className="space-y-2">
-                <Label>Penalizaciones</Label>
-                <PenaltiesEditor value={penalties} onChange={setPenalties} />
-              </div>
-            )}
-
-            {!penaltiesEnabled && (
-              <>
-                <input type="hidden" name="min_points" value="0" />
-                <input type="hidden" name="penalties" value="[]" />
-              </>
-            )}
-          </section>
+            <div className="space-y-2">
+              <Label htmlFor="min_points">
+                {t("fields.minPoints")}
+                {!penaltiesEnabled && (
+                  <span className="font-normal text-muted-foreground">
+                    {" "}
+                    ({t("fields.minPointsOnlyPenalty")})
+                  </span>
+                )}
+              </Label>
+              <Input
+                id="min_points"
+                name="min_points"
+                type="number"
+                min={0}
+                max={maxPoints}
+                disabled={!penaltiesEnabled}
+                value={penaltiesEnabled ? minPointsDraft : "0"}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  // Allow empty while editing so "0" can be typed / kept.
+                  if (raw !== "" && !/^\d+$/.test(raw)) return;
+                  setMinPointsDraft(raw);
+                  if (raw === "") {
+                    setMinPoints(0);
+                    return;
+                  }
+                  setMinPoints(Math.min(Number(raw), maxPoints));
+                }}
+                onBlur={() => setMinPointsDraft(String(minPoints))}
+                placeholder="0"
+              />
+              {penaltiesEnabled && (
+                <p className="text-xs text-muted-foreground">{t("fields.minPointsHint")}</p>
+              )}
+            </div>
+          </div>
 
           <RubricsEditor
             enabled={scoringEnabled}
@@ -925,78 +841,54 @@ export function EventFormPage({
             maxPoints={maxPoints}
           />
 
-          <section className="space-y-3">
-            <h3 className="text-sm font-medium">Estado</h3>
+          <div className="flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
+            <div className="space-y-0.5">
+              <Label htmlFor="penalties_enabled" className="text-sm font-medium">
+                {t("fields.penaltiesToggle")}
+              </Label>
+              <p className="text-xs text-muted-foreground">{t("fields.penaltiesToggleHint")}</p>
+            </div>
+            <Switch
+              id="penalties_enabled"
+              checked={penaltiesEnabled}
+              onCheckedChange={(checked) => {
+                setPenaltiesEnabled(checked);
+                if (!checked) {
+                  setMinPoints(0);
+                  setMinPointsDraft("0");
+                  setPenalties([]);
+                }
+              }}
+            />
+          </div>
 
-            {isEdit ? (
-              <div className="space-y-2 max-w-xs">
-                <Label>Estado del evento</Label>
-                <Select value={status} onValueChange={(v) => setStatus(v as CamporeeEventStatus)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  {t("staffAssignments.publishHint")}
-                </p>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                El evento se crea como Programado. Las especialidades de
-                preparación se guardan igual. Publicar viene después, cuando el
-                evento tenga un responsable en Personal asignado.
-              </p>
-            )}
-          </section>
-        </div>
-      </FormModalBody>
+          {penaltiesEnabled && (
+            <div className="space-y-2">
+              <Label>{t("fields.penalties")}</Label>
+              <PenaltiesEditor value={penalties} onChange={setPenalties} />
+            </div>
+          )}
 
-      <FormModalFooter step={step} total={steps.length}>
-        {step === 0 ? (
-          <Button type="button" variant="outline" onClick={modal.close}>
-            Cancelar
-          </Button>
-        ) : (
-          <Button type="button" variant="outline" onClick={() => goTo(step - 1)}>
-            {tModal("back")}
-          </Button>
-        )}
-        {step < lastStep ? (
-          <Button type="button" onClick={goNext}>
-            {tModal("continue")}
-          </Button>
-        ) : (
-          <SubmitButton label={isEdit ? "Guardar cambios" : "Crear evento"} />
-        )}
-      </FormModalFooter>
+          {!penaltiesEnabled && (
+            <>
+              <input type="hidden" name="min_points" value="0" />
+              <input type="hidden" name="penalties" value="[]" />
+            </>
+          )}
+        </FormSection>
+
+        {/* ══ Adjuntos ══ */}
+        <FormSection id={EVENT_SECTION_IDS.attachments} title={t("sections.attachments")}>
+          {isEdit && event ? (
+            <EventAttachmentsSection
+              eventId={event.camporee_event_id}
+              initialAttachments={event.attachments}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("attachmentsCreateHint")}</p>
+          )}
+        </FormSection>
+      </SectionFormPage>
     </form>
   );
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function deriveDays(
-  startDateStr: string,
-  endDateStr: string,
-): { number: number; label: string }[] {
-  const days = deriveDaysFromRange(startDateStr, endDateStr);
-  if (days.length === 0) return fallbackDays();
-  return days.map((day) => ({
-    number: day.numero,
-    label: `Día ${day.numero} · ${day.fechaFmt}`,
-  }));
-}
-
-function fallbackDays(): { number: number; label: string }[] {
-  return Array.from({ length: 5 }, (_, i) => ({
-    number: i + 1,
-    label: `Día ${i + 1}`,
-  }));
 }

@@ -1,13 +1,22 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { RowActions } from "@/components/shared/row-actions";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { formatTabularNumber } from "@/lib/format-locale";
+import { rubricBalance } from "@/lib/camporee-events/rubric-balance";
 import type { CamporeeTemplateRubricInput } from "@/lib/api/camporee-scoring";
 
 export interface RubricsEditorProps {
@@ -49,7 +58,8 @@ export function RubricsEditor({
   rubricsFieldName = "rubrics",
 }: RubricsEditorProps) {
   const tEd = useTranslations("camporeeEvents.editors");
-  const total = calculateRubricsTotal(value);
+  const t = useTranslations("evaluation.camporeeEvents.rubrics");
+  const balance = rubricBalance(value, maxPoints);
   const isValid = areRubricsValid(enabled, value, maxPoints);
 
   function updateRubric(index: number, patch: Partial<CamporeeTemplateRubricInput>) {
@@ -71,8 +81,14 @@ export function RubricsEditor({
     );
   }
 
+  const figures = {
+    total: formatTabularNumber(balance.total),
+    max: formatTabularNumber(balance.max),
+    diff: formatTabularNumber(Math.abs(balance.diff)),
+  };
+
   return (
-    <section className="space-y-4">
+    <div className="space-y-4">
       <input type="hidden" name={enabledFieldName} value={enabled ? "on" : ""} />
       <input type="hidden" name={rubricsFieldName} value={JSON.stringify(value)} />
       {enabled && !isValid && (
@@ -87,95 +103,121 @@ export function RubricsEditor({
         />
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <h3 className="text-sm font-medium">Puntaje por rúbricas</h3>
-          <p className="text-sm text-muted-foreground">
-            Activa esta opción cuando el evento aporte puntos reales al camporee.
-          </p>
+          <p className="text-sm font-medium">{t("scoringTitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("scoringHint")}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <Switch
             aria-label={tEd("rubricsEnableAria")}
             checked={enabled}
             onCheckedChange={onEnabledChange}
           />
           <span className="text-sm text-muted-foreground">
-            {enabled ? "Puntuable" : "No puntuable"}
+            {enabled ? t("scoringOn") : t("scoringOff")}
           </span>
         </div>
       </div>
 
       {enabled && (
         <div className="space-y-4">
-          <div
-            className={cn(
-              "rounded-lg border px-3 py-2 text-sm",
-              isValid
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : "border-destructive/30 bg-destructive/10 text-destructive",
-            )}
-            role="status"
-          >
-            Rúbricas: {total} / {maxPoints} puntos
-          </div>
+          {/* Live sum: quiet when it matches, a warning only when it does not. */}
+          {isValid ? (
+            <p role="status" className="text-sm text-muted-foreground tabular-nums">
+              {t("sumMatch", figures)}
+            </p>
+          ) : (
+            <div
+              role="status"
+              className="flex items-start gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span className="tabular-nums">
+                {value.length === 0
+                  ? t("sumNone", figures)
+                  : balance.state === "over"
+                    ? t("sumOver", figures)
+                    : t("sumUnder", figures)}
+              </span>
+            </div>
+          )}
 
-          <div className="space-y-3">
-            {value.map((rubric, index) => (
-              <div key={index} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[1fr_8rem_auto]">
-                <div className="space-y-2">
-                  <Label htmlFor={`rubric-title-${index}`}>Criterio</Label>
-                  <Input
-                    id={`rubric-title-${index}`}
-                    value={rubric.title}
-                    maxLength={120}
-                    onChange={(event) => updateRubric(index, { title: event.target.value })}
-                    placeholder={tEd("rubricTitlePlaceholder")}
-                  />
-                  <Textarea
-                    aria-label={tEd("rubricDescriptionAria", { index: index + 1 })}
-                    value={rubric.description ?? ""}
-                    rows={2}
-                    onChange={(event) =>
-                      updateRubric(index, { description: event.target.value || null })
-                    }
-                    placeholder={tEd("rubricDescriptionPlaceholder")}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`rubric-points-${index}`}>Puntos</Label>
-                  <Input
-                    id={`rubric-points-${index}`}
-                    aria-label={tEd("rubricPointsAria", { index: index + 1 })}
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={rubric.max_points}
-                    onChange={(event) =>
-                      updateRubric(index, { max_points: normalizeNumber(event.target.value) })
-                    }
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="self-start md:mt-7"
-                  onClick={() => removeRubric(index)}
-                  aria-label={tEd("rubricDeleteAria", { index: index + 1 })}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
+          {value.length > 0 ? (
+            <DataTableShell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("colCriterion")}</TableHead>
+                    <TableHead className="w-28 text-right">{t("colPoints")}</TableHead>
+                    <TableHead className="w-12">
+                      <span className="sr-only">{t("colActions")}</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {value.map((rubric, index) => (
+                    <TableRow key={index} className="align-top">
+                      <TableCell className="space-y-2">
+                        <Input
+                          id={`rubric-title-${index}`}
+                          aria-label={t("criterionAria", { index: index + 1 })}
+                          value={rubric.title}
+                          maxLength={120}
+                          onChange={(event) => updateRubric(index, { title: event.target.value })}
+                          placeholder={tEd("rubricTitlePlaceholder")}
+                        />
+                        <Input
+                          aria-label={tEd("rubricDescriptionAria", { index: index + 1 })}
+                          value={rubric.description ?? ""}
+                          onChange={(event) =>
+                            updateRubric(index, { description: event.target.value || null })
+                          }
+                          placeholder={tEd("rubricDescriptionPlaceholder")}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          id={`rubric-points-${index}`}
+                          aria-label={tEd("rubricPointsAria", { index: index + 1 })}
+                          className="text-right tabular-nums"
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={rubric.max_points}
+                          onChange={(event) =>
+                            updateRubric(index, { max_points: normalizeNumber(event.target.value) })
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <RowActions
+                          label={rubric.title || t("criterionAria", { index: index + 1 })}
+                          actions={[
+                            {
+                              label: tEd("rubricDeleteAria", { index: index + 1 }),
+                              icon: Trash2,
+                              destructive: true,
+                              onSelect: () => removeRubric(index),
+                            },
+                          ]}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </DataTableShell>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("empty")}</p>
+          )}
 
           <Button type="button" variant="outline" size="sm" onClick={addRubric}>
-            <Plus className="size-4" />
-            Agregar criterio
+            <Plus />
+            {t("addCriterion")}
           </Button>
         </div>
       )}
-    </section>
+    </div>
   );
 }

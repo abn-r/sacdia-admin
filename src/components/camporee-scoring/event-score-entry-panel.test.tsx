@@ -166,7 +166,7 @@ describe("EventScoreEntryPanel", () => {
       target: { value: "40" },
     });
 
-    expect(screen.getByText("Total calculado: 70 / 100 puntos")).toBeInTheDocument();
+    expect(screen.getByTestId("score-entry-total")).toHaveTextContent("70 de 100");
     expect(container.querySelector('input[name="total_awarded_points"]')).toBeNull();
 
     const itemsField = container.querySelector<HTMLInputElement>('input[name="items"]');
@@ -205,20 +205,28 @@ describe("EventScoreEntryPanel", () => {
   it("renders manual score form only for scoring events with rubrics and edit permission", () => {
     renderPanel();
 
-    expect(screen.getByRole("heading", { name: "Registrar puntaje" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Evento")).toBeInTheDocument();
     expect(screen.getByLabelText("Sección")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardar puntaje oficial" })).toBeEnabled();
+    expect(screen.getByText("Úsalo cuando el juez no pueda calificar desde la app.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Guardar puntaje" })).toBeEnabled();
   });
 
-  it("pluralizes the criteria and sections counts on the event selector", () => {
-    renderPanel({ rubricsByEvent: { 10: [rubrics[0]!] } });
-    expect(screen.getByText("1 criterio · 1 sección")).toBeInTheDocument();
-    cleanup();
+  it("picks the event from a select that shows its maximum points", () => {
+    renderPanel();
 
-    renderPanel({
-      targetsByEvent: { 10: [targets[0]!, { ...targets[0]!, club_section_id: 100 }] },
-    });
-    expect(screen.getByText("2 criterios · 2 secciones")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Evento" })).toHaveTextContent("Nudos · 100 pts");
+  });
+
+  it("blocks saving while a criterion is over its maximum", () => {
+    renderPanel();
+
+    fireEvent.change(screen.getByLabelText("Puntos otorgados Técnica"), { target: { value: "41" } });
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Un criterio supera su máximo");
+    expect(screen.getByRole("button", { name: "Guardar puntaje" })).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText("Puntos otorgados Técnica"), { target: { value: "40" } });
+    expect(screen.getByRole("button", { name: "Guardar puntaje" })).toBeEnabled();
   });
 
   it("toasts when an official score is saved", async () => {
@@ -246,7 +254,7 @@ describe("EventScoreEntryPanel", () => {
     });
 
     expect(screen.getByRole("button", { name: "Guardar corrección" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Guardar puntaje oficial" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Guardar puntaje" })).toBeNull();
 
     await act(async () => {
       fireEvent.submit(container.querySelector("form")!);
@@ -279,7 +287,7 @@ describe("EventScoreEntryPanel", () => {
       );
       expect(screen.getByLabelText("Puntos otorgados Trabajo en equipo")).toHaveValue(55);
       expect(mocks.getScore).toHaveBeenCalledWith(10, 99);
-      expect(screen.getByText("Total calculado: 90 / 100 puntos")).toBeInTheDocument();
+      expect(screen.getByTestId("score-entry-total")).toHaveTextContent("90 de 100");
       expect(itemsOf(container)).toEqual([
         { camporee_event_rubric_id: 101, awarded_points: 35 },
         { camporee_event_rubric_id: 102, awarded_points: 55 },
@@ -377,7 +385,7 @@ describe("EventScoreEntryPanel", () => {
 
       expect(mocks.getScore).not.toHaveBeenCalled();
       expect(screen.getByLabelText("Puntos otorgados Técnica")).toHaveValue(0);
-      expect(screen.getByRole("button", { name: "Guardar puntaje oficial" })).toBeEnabled();
+      expect(screen.getByRole("button", { name: "Guardar puntaje" })).toBeEnabled();
       expect(itemsOf(container)).toEqual([
         { camporee_event_rubric_id: 101, awarded_points: 0 },
         { camporee_event_rubric_id: 102, awarded_points: 0 },

@@ -50,6 +50,7 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { UserAvatar } from "@/components/users/user-avatar";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   addCamporeeJudgeAction,
@@ -482,7 +483,7 @@ export function CamporeeJudgesPanel({
 
       {rowError && <p className="text-sm text-destructive">{rowError}</p>}
 
-      <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+      <DataTableShell>
         {judgeList.length === 0 ? (
           <div className="p-8">
             <EmptyState
@@ -520,20 +521,19 @@ export function CamporeeJudgesPanel({
                       {email || "—"}
                     </p>
                     {judge.notes ? (
-                      <p className="mt-0.5 truncate text-[11px] text-muted-foreground/80">
+                      <p className="mt-0.5 truncate text-2xs text-muted-foreground/80">
                         {judge.notes}
                       </p>
                     ) : null}
                   </div>
-                  <StatusBadge
-                    intent={isActive ? "success" : "neutral"}
-                    size="xs"
-                    label={
-                      isActive
-                        ? t("statusActive")
-                        : judge.status || t("statusInactive")
-                    }
-                  />
+                  {/* Only the exception is marked: an active judge needs no badge. */}
+                  {!isActive && (
+                    <StatusBadge
+                      intent="neutral"
+                      size="xs"
+                      label={judge.status || t("statusInactive")}
+                    />
+                  )}
                   {canEdit && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -569,7 +569,7 @@ export function CamporeeJudgesPanel({
             })}
           </ul>
         )}
-      </div>
+      </DataTableShell>
 
       {/* Add judge modal — closes on success with toast feedback */}
       <Dialog open={addOpen} onOpenChange={handleAddOpenChange}>

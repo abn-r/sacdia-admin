@@ -3,14 +3,7 @@
 import { useMemo, useState } from "react";
 import { Trophy } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatDate, formatTabularNumber } from "@/lib/format-locale";
 import type {
@@ -72,14 +66,14 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
     s.section_name ?? t("sectionFallback", { id: s.club_section_id });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold tracking-tight">
+    <section className="space-y-3" aria-labelledby="score-breakdown-title">
+      <div className="space-y-1">
+        <h2 id="score-breakdown-title" className="text-base font-semibold tracking-tight">
           {t("title")}
-        </CardTitle>
-        {!isEmpty && <CardDescription>{t("description")}</CardDescription>}
-      </CardHeader>
-      <CardContent>
+        </h2>
+        {!isEmpty && <p className="text-sm text-muted-foreground">{t("description")}</p>}
+      </div>
+      <div>
         {isEmpty ? (
           <EmptyState
             icon={Trophy}
@@ -87,10 +81,10 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
             description={t("emptyDescription")}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10">
+          <DataTableShell>
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/20 hover:bg-muted/20">
+                <TableRow>
                   <TableHead className={`${STICKY_CELL} min-w-48`}>
                     {t("colSection")}
                   </TableHead>
@@ -116,17 +110,8 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
                 {sections.map((section) => (
                   <TableRow key={section.club_section_id}>
                     <TableCell className={STICKY_CELL}>
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-medium tabular-nums text-muted-foreground">
-                          {section.rank === null ? "—" : `#${section.rank}`}
-                        </span>
-                        <div>
-                          <div className="font-medium">{section.club_name ?? "—"}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {sectionLabel(section)}
-                          </div>
-                        </div>
-                      </div>
+                      <div className="font-medium">{section.club_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">{sectionLabel(section)}</div>
                     </TableCell>
                     {events.map((event) => {
                       const result = resultsBySection
@@ -154,9 +139,7 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
                             className="inline-flex min-h-8 items-center justify-end rounded-md px-2 py-1 text-right tabular-nums outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
                           >
                             {result.is_no_show ? (
-                              <Badge variant="outline" className="text-muted-foreground">
-                                {t("noShow")}
-                              </Badge>
+                              <StatusBadge intent="neutral" size="xs" label={t("noShow")} />
                             ) : (
                               <span>
                                 {formatTabularNumber(result.total_awarded_points)} /{" "}
@@ -175,9 +158,9 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </DataTableShell>
         )}
-      </CardContent>
+      </div>
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="sm:max-w-lg">
@@ -193,9 +176,7 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm text-muted-foreground">{t("dialogTotal")}</span>
                 {selected.result.is_no_show ? (
-                  <Badge variant="outline" className="text-muted-foreground">
-                    {t("noShow")}
-                  </Badge>
+                  <StatusBadge intent="neutral" size="xs" label={t("noShow")} />
                 ) : (
                   <span className="text-lg font-semibold tabular-nums">
                     {formatTabularNumber(selected.result.total_awarded_points)} /{" "}
@@ -205,10 +186,10 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
               </div>
 
               {selected.result.items.length > 0 && (
-                <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+                <DataTableShell>
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-muted/20 hover:bg-muted/20">
+                      <TableRow>
                         <TableHead>{t("colRubric")}</TableHead>
                         <TableHead className="text-right">{t("colPoints")}</TableHead>
                       </TableRow>
@@ -232,7 +213,7 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
                       ))}
                     </TableBody>
                   </Table>
-                </div>
+                </DataTableShell>
               )}
 
               {selected.result.minimum_adjustment_points > 0 && (
@@ -271,6 +252,6 @@ export function CamporeeScoreBreakdown({ breakdown }: CamporeeScoreBreakdownProp
           )}
         </DialogContent>
       </Dialog>
-    </Card>
+    </section>
   );
 }
