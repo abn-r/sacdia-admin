@@ -2,230 +2,261 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { EmptyState } from "@/components/shared/empty-state";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { StatusBadge } from "@/components/materials/status-badge";
-import { MoneyFormat } from "@/components/materials/money-format";
-import { FolioPill } from "@/components/materials/folio-pill";
-import { InboxFilters } from "./_components/inbox-filters";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState, ErrorStateTableRow } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { PageHeader } from "@/components/shared/page-header";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { UrlTabs } from "@/components/shared/url-tabs";
+import { FolioPill } from "@/components/materials/folio-pill";
+import { MoneyFormat } from "@/components/materials/money-format";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { listOrders } from "@/lib/api/materials";
-import { ApiError } from "@/lib/api/client";
-import { requireAdminUser } from "@/lib/auth/session";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
-import type { MaterialEstado } from "@/lib/types/materials";
-import type { OrdenSummary } from "@/lib/types/materials";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { requireAdminUser } from "@/lib/auth/session";
+import { SACDIA_DISPLAY_TIMEZONE } from "@/lib/format-locale";
+import {
+  INBOX_TAB_ORDER,
+  daysSince,
+  estadoForTab,
+  resolveClosedFilter,
+  resolveInboxTab,
+  type InboxTab,
+} from "@/lib/materials/order-state";
+import type { MaterialEstado, OrdenSummary } from "@/lib/types/materials";
+import { InboxFilters } from "./_components/inbox-filters";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const PAGE_SIZE = 20;
+const LIMIT_OPTIONS = [20, 50, 100];
 
-const VALID_ESTADOS: Array<MaterialEstado | "all"> = [
-  "all",
-  "en_revision",
-  "aprobada",
-  "pagada",
-  "entregada",
-  "cancelada",
-];
-
-function resolveEstado(raw: unknown): MaterialEstado | "all" {
-  if (typeof raw === "string" && VALID_ESTADOS.includes(raw as MaterialEstado)) {
-    return raw as MaterialEstado | "all";
-  }
-  return "en_revision";
-}
-
-function resolveQ(raw: unknown): string {
-  return typeof raw === "string" ? raw.trim() : "";
+function first(raw: string | string[] | undefined): string | undefined {
+  return Array.isArray(raw) ? raw[0] : raw;
 }
 
 function resolvePage(raw: unknown): number {
-  const n = typeof raw === "string" ? parseInt(raw, 10) : NaN;
+  const n = typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN;
   return Number.isFinite(n) && n >= 1 ? n : 1;
 }
 
-/**
- * Builds the href for the row detail link.
- * Uses folio_referencia when available (approved+), falls back to UUID.
- */
-function resolveDetailHref(orden: OrdenSummary): string {
-  const slug = orden.folio_referencia ?? orden.id;
-  return `/dashboard/materials/request/${slug}`;
+function resolveLimit(raw: unknown): number {
+  const n = typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN;
+  return LIMIT_OPTIONS.includes(n) ? n : LIMIT_OPTIONS[0]!;
 }
 
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("es-MX", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+function detailHref(orden: OrdenSummary): string {
+  return `/dashboard/materials/request/${orden.folio_referencia ?? orden.id}`;
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("materials.pages.inbox");
+  const t = await getTranslations("ops.materials.queue");
   return { title: t("title") };
 }
 
-export default async function InboxPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function InboxPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await requireAdminUser();
-  if (!canViewScreen(user, "materials-inbox")) {
-    redirect("/dashboard");
-  }
+  const canInbox = canViewScreen(user, "materials-inbox");
+  // The receipts tab keeps the old gate: the permission to validate receipts.
+  const canReceipts = canViewScreen(user, "materials-receipts");
+  if (!canInbox && !canReceipts) redirect("/dashboard");
 
-  const t = await getTranslations("materials.pages.inbox");
+  const t = await getTranslations("ops.materials");
+  const tInbox = await getTranslations("materials.pages.inbox");
+  const format = await getFormatter();
   const raw = await searchParams;
 
-  const estado = resolveEstado(raw["estado"]);
-  const q = resolveQ(raw["q"]);
-  const page = resolvePage(raw["page"]);
+  const available = INBOX_TAB_ORDER.filter((tab) => (tab === "receipts" ? canReceipts : canInbox));
+  const tab = resolveInboxTab(first(raw["tab"]), available) as InboxTab;
+  const closed = resolveClosedFilter(first(raw["closed"]));
+  const q = (first(raw["q"]) ?? "").trim();
+  const page = resolvePage(first(raw["page"]));
+  const limit = resolveLimit(first(raw["limit"]));
+  const estado = estadoForTab(tab, closed);
 
-  let ordenes: OrdenSummary[] = [];
-  let total = 0;
-  let loadError: string | null = null;
-  let loadErrorStatus: number | null = null;
+  // Counts of the three working tabs + the list of the active one, in parallel.
+  const countTabs = available.filter((x): x is Exclude<InboxTab, "closed"> => x !== "closed");
+  const [countResults, listResult] = await Promise.all([
+    Promise.allSettled(
+      countTabs.map((x) => listOrders({ estado: estadoForTab(x, closed), page: 1, pageSize: 1 })),
+    ),
+    listOrders({ estado, q: q || undefined, page, pageSize: limit }).then(
+      (result) => ({ ok: true as const, result }),
+      (error: unknown) => ({ ok: false as const, error }),
+    ),
+  ]);
 
-  try {
-    const result = await listOrders({
-      estado,
-      q: q || undefined,
-      page,
-      pageSize: PAGE_SIZE,
-    });
-    ordenes = result.data;
-    total = result.total;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      loadError = error.message;
-      loadErrorStatus = error.status;
-    } else {
-      loadError = t("loadError");
-    }
-  }
+  const counts: Partial<Record<InboxTab, number>> = {};
+  countTabs.forEach((x, i) => {
+    const r = countResults[i];
+    if (r && r.status === "fulfilled") counts[x] = r.value.total;
+  });
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const hasActiveFilters = Boolean(q || (estado !== "all" && estado !== "en_revision"));
+  const loadFailure: ErrorStateFromError | null = listResult.ok ? null : errorStateFromError(listResult.error);
+  const ordenes = listResult.ok ? listResult.result.data : [];
+  const total = listResult.ok ? listResult.result.total : 0;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  // The description is the finding, only when the numbers are real.
+  const findingParts: string[] = [];
+  if (counts.review !== undefined && canInbox) findingParts.push(t("queue.findingReview", { count: counts.review }));
+  if (counts.receipts !== undefined && canReceipts) findingParts.push(t("queue.findingReceipts", { count: counts.receipts }));
+  const description = findingParts.length > 0 ? findingParts.join(" · ") : undefined;
+
+  const isClosed = tab === "closed";
+  const colCount = isClosed ? 7 : 6;
+  const estadoLabels = {
+    en_revision: tInbox("statusOptions.en_revision"),
+    aprobada: tInbox("statusOptions.aprobada"),
+    pagada: tInbox("statusOptions.pagada"),
+    entregada: tInbox("statusOptions.entregada"),
+    cancelada: tInbox("statusOptions.cancelada"),
+  } satisfies Record<MaterialEstado, string>;
+  const actionLabel = t(`queue.action.${tab}`);
+
+  const waitOrDate = (orden: OrdenSummary) =>
+    isClosed
+      ? format.dateTime(new Date(orden.created_at), { day: "numeric", month: "short", timeZone: SACDIA_DISPLAY_TIMEZONE })
+      : t("queue.wait", { days: daysSince(orden.created_at) });
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")} />
+      <PageHeader title={t("queue.title")} description={description} />
 
       <div className="space-y-4">
-        <InboxFilters currentEstado={estado} currentQ={q} />
+        <UrlTabs
+          ariaLabel={t("queue.tabsLabel")}
+          defaultValue={available[0] ?? "review"}
+          tabs={available.map((x) => ({
+            value: x,
+            label: t(`queue.tabs.${x}`),
+            ...(counts[x] !== undefined ? { count: counts[x] } : {}),
+          }))}
+        />
 
-        {loadError && (
-          <EndpointErrorBanner
-            state={loadErrorStatus === 403 ? "forbidden" : "missing"}
-            detail={loadError}
-          />
-        )}
+        <InboxFilters currentQ={q} {...(isClosed ? { closedFilter: closed } : {})} />
 
-        {!loadError && ordenes.length === 0 && (
+        {!loadFailure && ordenes.length === 0 ? (
           <EmptyState
             icon={<Inbox className="size-6 text-muted-foreground" aria-hidden="true" />}
-            title={hasActiveFilters ? t("emptyFilteredTitle") : t("emptyTitle")}
-            description={
-              hasActiveFilters
-                ? t("emptyFilteredDescription")
-                : estado === "all" || estado === "en_revision"
-                  ? t("emptyDescriptionPending")
-                  : t("emptyDescriptionFiltered")
-            }
-            variant={hasActiveFilters || q ? "no-results" : "default"}
+            title={q ? tInbox("emptyFilteredTitle") : t(`queue.empty.${tab}.title`)}
+            description={q ? tInbox("emptyFilteredDescription") : t(`queue.empty.${tab}.description`)}
+            variant={q ? "no-results" : "default"}
           />
-        )}
-
-        {!loadError && ordenes.length > 0 && (
+        ) : (
           <>
-            <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
+            <DataTableShell className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="pl-5">{t("colFolio")}</TableHead>
-                    <TableHead>{t("colDirector")}</TableHead>
-                    <TableHead>{t("colStatus")}</TableHead>
-                    <TableHead className="text-right">{t("colTotal")}</TableHead>
-                    <TableHead>{t("colDate")}</TableHead>
-                    <RowActionsHead className="sticky right-0 z-20 border-l bg-card" />
+                    <TableHead className="pl-5">{tInbox("colFolio")}</TableHead>
+                    <TableHead>{t("queue.colDirector")}</TableHead>
+                    {isClosed ? <TableHead>{tInbox("colStatus")}</TableHead> : null}
+                    <TableHead className="text-right">{tInbox("colTotal")}</TableHead>
+                    <TableHead className="text-right">{isClosed ? tInbox("colDate") : t("queue.colWait")}</TableHead>
+                    <RowActionsHead className="w-44" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ordenes.map((orden) => (
-                    <TableRow key={orden.id}>
-                      <TableCell className="pl-5 font-medium">
-                        <Link
-                          href={resolveDetailHref(orden)}
-                          prefetch={false}
-                          className="hover:text-primary hover:underline underline-offset-4"
-                        >
-                          <FolioPill folio={orden.folio_referencia} />
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">{orden.director.nombre}</p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {orden.director.club}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge estado={orden.estado} />
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        <MoneyFormat centavos={orden.total_centavos} />
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(orden.created_at)}
-                      </TableCell>
-                      <TableCell className="sticky right-0 z-10 border-l bg-card">
-                        <RowActions
-                          label={orden.folio_referencia ?? orden.director.nombre}
-                          actions={[
-                            {
-                              label: t("viewDetail"),
-                              href: resolveDetailHref(orden),
-                            },
-                          ]}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {loadFailure ? (
+                    <ErrorStateTableRow colSpan={colCount} kind={loadFailure.kind} detail={loadFailure.detail} retry />
+                  ) : (
+                    ordenes.map((orden) => (
+                      <TableRow key={orden.id}>
+                        <TableCell className="pl-5 font-medium">
+                          <Link
+                            href={detailHref(orden)}
+                            prefetch={false}
+                            className="underline-offset-4 hover:text-primary hover:underline"
+                          >
+                            <FolioPill folio={orden.folio_referencia} />
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium">{orden.director.nombre}</p>
+                            <p className="truncate text-xs text-muted-foreground">{orden.director.club}</p>
+                          </div>
+                        </TableCell>
+                        {isClosed ? (
+                          <TableCell>
+                            <ExceptionStatus
+                              value={orden.estado}
+                              normal={["entregada"]}
+                              labels={estadoLabels}
+                              intents={{ cancelada: "neutral" }}
+                            />
+                          </TableCell>
+                        ) : null}
+                        <TableCell className="text-right tabular-nums">
+                          <MoneyFormat centavos={orden.total_centavos} />
+                        </TableCell>
+                        <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                          {waitOrDate(orden)}
+                        </TableCell>
+                        <TableCell>
+                          <RowActions
+                            label={orden.folio_referencia ?? orden.director.nombre}
+                            actions={[]}
+                            primary={
+                              <Button asChild variant={isClosed ? "ghost" : "outline"} size="sm">
+                                <Link href={detailHref(orden)} prefetch={false}>
+                                  {actionLabel}
+                                </Link>
+                              </Button>
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
-            </div>
+            </DataTableShell>
 
-            {totalPages > 1 && (
-              <DataTablePagination
-                page={page}
-                totalPages={totalPages}
-                total={total}
-                limit={PAGE_SIZE}
-              />
+            {/* <md: two-line rows instead of a sideways-scrolling table */}
+            {loadFailure ? (
+              <div className="md:hidden">
+                <ErrorState kind={loadFailure.kind} detail={loadFailure.detail} retry />
+              </div>
+            ) : (
+              <ul className="divide-y rounded-xl bg-card shadow-card md:hidden">
+                {ordenes.map((orden) => (
+                  <li key={orden.id}>
+                    <Link href={detailHref(orden)} prefetch={false} className="block space-y-1 px-4 py-3">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <FolioPill folio={orden.folio_referencia} />
+                        <span className="text-sm font-medium tabular-nums">
+                          <MoneyFormat centavos={orden.total_centavos} />
+                        </span>
+                      </div>
+                      <p className="flex flex-wrap items-center gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+                        <span className="truncate">
+                          {orden.director.nombre} · {orden.director.club}
+                        </span>
+                        <span>{waitOrDate(orden)}</span>
+                        {isClosed ? (
+                          <ExceptionStatus
+                            value={orden.estado}
+                            normal={["entregada"]}
+                            labels={estadoLabels}
+                            intents={{ cancelada: "neutral" }}
+                          />
+                        ) : null}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             )}
+
+            {!loadFailure && total > 0 ? (
+              <DataTablePagination page={page} totalPages={totalPages} total={total} limit={limit} />
+            ) : null}
           </>
         )}
       </div>

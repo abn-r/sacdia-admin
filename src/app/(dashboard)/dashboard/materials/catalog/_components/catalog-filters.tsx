@@ -5,34 +5,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ListFilterField,
-  ListFiltersShell,
-} from "@/components/shared/list-filters-shell";
-import type { MaterialCategory, LocalFieldOption } from "@/lib/types/materials";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ListFilterField } from "@/components/shared/list-filters-shell";
+import type { LocalFieldOption, MaterialCategoryAdmin } from "@/lib/types/materials";
 
-interface InventoryFiltersProps {
+interface CatalogFiltersProps {
   currentQ: string;
   currentCat: string;
-  categories: MaterialCategory[];
+  categories: MaterialCategoryAdmin[];
   currentLocalFieldId: number | null;
   localFields: LocalFieldOption[];
 }
 
-export function InventoryFilters({
+export function CatalogFilters({
   currentQ,
   currentCat,
   categories,
   currentLocalFieldId,
   localFields,
-}: InventoryFiltersProps) {
+}: CatalogFiltersProps) {
   const t = useTranslations("materials.pages.inventory");
   const router = useRouter();
   const pathname = usePathname();
@@ -68,19 +59,13 @@ export function InventoryFilters({
       }
       const params = new URLSearchParams(latestParamsRef.current);
       const normalized = value.trim();
-      if (!normalized || normalized === "all") {
-        params.delete(key);
-      } else {
-        params.set(key, normalized);
-      }
+      if (!normalized || normalized === "all") params.delete(key);
+      else params.set(key, normalized);
       params.delete("page");
       const qs = params.toString();
       const nextUrl = qs ? `${pathname}?${qs}` : pathname;
-      if (mode === "replace") {
-        router.replace(nextUrl);
-      } else {
-        router.push(nextUrl);
-      }
+      if (mode === "replace") router.replace(nextUrl);
+      else router.push(nextUrl);
     },
     [pathname, router],
   );
@@ -89,34 +74,29 @@ export function InventoryFilters({
     (value: string) => {
       setSearchInput(value);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("q", value, "replace");
-      }, 400);
+      debounceRef.current = setTimeout(() => updateParam("q", value, "replace"), 400);
     },
     [updateParam],
   );
 
   return (
-    <ListFiltersShell title={t("filtersTitle")} hint={t("filtersHint")}>
-      <ListFilterField id="materials-inventory-search" label={t("filterSearch")} className="w-[300px]">
+    <div className="flex flex-wrap items-end gap-4">
+      <ListFilterField id="materials-catalog-search" label={t("filterSearch")} className="w-[300px]">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input
-            id="materials-inventory-search"
+            id="materials-catalog-search"
             placeholder={t("searchPlaceholder")}
             value={searchInput}
             onChange={(event) => handleSearchInputChange(event.target.value)}
-            className="bg-background pl-9"
+            className="pl-9"
           />
         </div>
       </ListFilterField>
 
-      <ListFilterField id="materials-inventory-category" label={t("filterCategory")} className="w-[220px]">
-        <Select
-          value={currentCat || "all"}
-          onValueChange={(value) => updateParam("cat", value)}
-        >
-          <SelectTrigger id="materials-inventory-category" className="bg-background">
+      <ListFilterField id="materials-catalog-category" label={t("filterCategory")} className="w-[220px]">
+        <Select value={currentCat || "all"} onValueChange={(value) => updateParam("cat", value)}>
+          <SelectTrigger id="materials-catalog-category">
             <SelectValue placeholder={t("filterCategory")} />
           </SelectTrigger>
           <SelectContent>
@@ -131,12 +111,12 @@ export function InventoryFilters({
       </ListFilterField>
 
       {localFields.length > 0 ? (
-        <ListFilterField id="materials-inventory-lf" label={t("filterLocalField")} className="w-[240px]">
+        <ListFilterField id="materials-catalog-lf" label={t("filterLocalField")} className="w-[240px]">
           <Select
             value={currentLocalFieldId != null ? String(currentLocalFieldId) : "all"}
             onValueChange={(value) => updateParam("local_field_id", value)}
           >
-            <SelectTrigger id="materials-inventory-lf" className="bg-background">
+            <SelectTrigger id="materials-catalog-lf">
               <SelectValue placeholder={t("filterLocalField")} />
             </SelectTrigger>
             <SelectContent>
@@ -150,6 +130,6 @@ export function InventoryFilters({
           </Select>
         </ListFilterField>
       ) : null}
-    </ListFiltersShell>
+    </div>
   );
 }

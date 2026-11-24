@@ -69,6 +69,7 @@ interface CopyAllButtonProps {
 }
 
 function CopyAllButton({ text }: CopyAllButtonProps) {
+  const t = useTranslations("ops.materials.bank");
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -84,7 +85,7 @@ function CopyAllButton({ text }: CopyAllButtonProps) {
   return (
     <Button type="button" variant="ghost" size="sm" onClick={copy}>
       {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-      {copied ? "Copiado" : "Copiar todo"}
+      {copied ? t("copied") : t("copyAll")}
     </Button>
   );
 }
@@ -98,6 +99,7 @@ interface BankSnapshotCardProps {
 
 export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
   const t = useTranslations("materials.components.bankSnapshotCard");
+  const tb = useTranslations("ops.materials.bank");
   const display = resolveBankDisplay(orden, liveConfig);
   const clabe = display.bank_account_clabe;
   const hasBank = display.source !== "missing" && Boolean(clabe);
@@ -106,26 +108,25 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
     return (
       <section
         aria-labelledby="bank-snapshot-heading"
-        className="mt-6 rounded-lg border border-warning/30 bg-warning/10 p-5"
+        className="rounded-xl bg-warning/10 p-5"
       >
         <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning-foreground" />
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
           <div className="space-y-1">
-            <h2
-              id="bank-snapshot-heading"
-              className="text-sm font-semibold text-warning-foreground"
-            >
-              Datos bancarios no configurados
+            <h2 id="bank-snapshot-heading" className="text-sm font-semibold text-warning-foreground">
+              {tb("notConfiguredTitle")}
             </h2>
             <p className="text-sm text-warning-foreground/80">
-              Configura la cuenta bancaria en{" "}
-              <Link
-                href="/dashboard/configuration/local-field/payment-methods"
-                className="font-medium text-warning-foreground underline underline-offset-4"
-              >
-                Configuración → Configuraciones campo local → Métodos de pago
-              </Link>{" "}
-              antes de compartir esta solicitud con el director.
+              {tb.rich("notConfiguredBody", {
+                link: (chunks) => (
+                  <Link
+                    href="/dashboard/configuration/local-field/payment-methods"
+                    className="font-medium text-warning-foreground underline underline-offset-4"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
           </div>
         </div>
@@ -138,33 +139,33 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
   const displayOrden = ordenWithBankDisplay(orden, display);
 
   const copyAllLines: string[] = [];
-  if (orden.folio_referencia) copyAllLines.push(`Folio: ${orden.folio_referencia}`);
-  copyAllLines.push(`Total: ${totalString}`);
-  if (display.bank_name) copyAllLines.push(`Banco: ${display.bank_name}`);
-  copyAllLines.push(`CLABE: ${clabe}`);
-  if (display.account_holder) copyAllLines.push(`Titular: ${display.account_holder}`);
+  if (orden.folio_referencia) copyAllLines.push(`${tb("folio")}: ${orden.folio_referencia}`);
+  copyAllLines.push(`${tb("total")}: ${totalString}`);
+  if (display.bank_name) copyAllLines.push(`${tb("bank")}: ${display.bank_name}`);
+  copyAllLines.push(`${tb("clabe")}: ${clabe}`);
+  if (display.account_holder) copyAllLines.push(`${tb("holder")}: ${display.account_holder}`);
   if (orden.entrega === "recoger" && display.pickup_address) {
-    copyAllLines.push(`Recoger en: ${display.pickup_address}`);
+    copyAllLines.push(`${t("labelPickupAddress")}: ${display.pickup_address}`);
   }
 
   return (
     <section
       aria-labelledby="bank-snapshot-heading"
-      className="mt-6 rounded-lg border border-border/60 bg-card p-5"
+      className="rounded-xl bg-card p-5 shadow-card"
     >
       {display.source === "live" && (
-        <div className="mb-4 rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+        <div className="mb-4 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
           {t("liveConfigNotice")}
         </div>
       )}
 
       <div className="mb-5 flex items-center gap-2">
-        <Landmark className="size-5 text-muted-foreground" />
+        <Landmark className="size-5 text-muted-foreground" aria-hidden />
         <h2
           id="bank-snapshot-heading"
           className="text-sm font-semibold"
         >
-          Datos de pago
+          {tb("title")}
         </h2>
         <div className="ml-auto flex items-center gap-2">
           <PaymentSheetPrintButton orden={displayOrden} />
@@ -175,8 +176,8 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
       <div className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
         {orden.folio_referencia && (
           <FieldRow
-            label="Folio"
-            copyAriaLabel="Copiar folio"
+            label={tb("folio")}
+            copyAriaLabel={tb("copyFolio")}
             copyText={orden.folio_referencia}
           >
             <FolioPill folio={orden.folio_referencia} />
@@ -184,8 +185,8 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
         )}
 
         <FieldRow
-          label="Total"
-          copyAriaLabel="Copiar total"
+          label={tb("total")}
+          copyAriaLabel={tb("copyTotal")}
           copyText={totalString}
         >
           <span className="text-base font-semibold tabular-nums">
@@ -195,8 +196,8 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
 
         {display.bank_name && (
           <FieldRow
-            label="Banco"
-            copyAriaLabel="Copiar banco"
+            label={tb("bank")}
+            copyAriaLabel={tb("copyBank")}
             copyText={display.bank_name}
           >
             {display.bank_name}
@@ -204,8 +205,8 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
         )}
 
         <FieldRow
-          label="CLABE"
-          copyAriaLabel="Copiar CLABE"
+          label={tb("clabe")}
+          copyAriaLabel={tb("copyClabe")}
           copyText={clabe}
         >
           <span className="font-mono tracking-tight">{formattedClabe}</span>
@@ -213,8 +214,8 @@ export function BankSnapshotCard({ orden, liveConfig }: BankSnapshotCardProps) {
 
         {display.account_holder && (
           <FieldRow
-            label="Titular"
-            copyAriaLabel="Copiar titular"
+            label={tb("holder")}
+            copyAriaLabel={tb("copyHolder")}
             copyText={display.account_holder}
           >
             {display.account_holder}

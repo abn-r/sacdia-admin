@@ -1,7 +1,9 @@
 "use client";
 
 import { Printer } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { toastError } from "@/lib/feedback/toast-retry";
 import {
   buildPaymentSheetPrintDocument,
   openReceiptPrintWindow,
@@ -13,19 +15,19 @@ interface PaymentSheetPrintButtonProps {
 }
 
 export function PaymentSheetPrintButton({ orden }: PaymentSheetPrintButtonProps) {
+  const t = useTranslations("ops.materials.print");
+
   const handlePrint = () => {
     const opened = openReceiptPrintWindow(buildPaymentSheetPrintDocument(orden));
     if (!opened) {
-      window.alert(
-        "No se pudo abrir la vista de impresión. Revisa que el navegador permita ventanas emergentes.",
-      );
+      toastError({ title: t("blocked"), description: t("blockedHint") });
     }
   };
 
   return (
     <Button type="button" variant="outline" size="sm" onClick={handlePrint}>
       <Printer data-icon="inline-start" />
-      Imprimir ficha
+      {t("sheet")}
     </Button>
   );
 }

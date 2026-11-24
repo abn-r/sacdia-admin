@@ -1,180 +1,87 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ReasonDialog } from "@/components/shared/reason-dialog";
 import { approveReceipt, rejectReceipt } from "@/lib/api/materials";
 import { ApiError } from "@/lib/api/client";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+import { useToastError } from "@/lib/feedback/toast-retry";
 
 interface ReceiptReviewActionsProps {
   folio: string;
   comprobanteId: string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-export function ReceiptReviewActions({
-  folio,
-  comprobanteId,
-}: ReceiptReviewActionsProps) {
+/** Decision buttons of a pending receipt (queue pattern B: negative outline, positive default). */
+export function ReceiptReviewActions({ folio, comprobanteId }: ReceiptReviewActionsProps) {
+  const t = useTranslations("ops.materials.receipts");
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  // Approve dialog state
+  const showError = useToastError();
   const [approveOpen, setApproveOpen] = useState(false);
-
-  // Reject dialog state
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
+  const [rejecting, setRejecting] = useState(false);
 
-  // ─── Approve ────────────────────────────────────────────────────────────────
-
-  // Pending from the click until the refreshed page arrives (see ApproveButton).
-  function handleApprove() {
-    startTransition(async () => {
-      try {
-        await approveReceipt(folio, comprobanteId);
-        toast.success("Comprobante aprobado. Solicitud marcada como pagada.");
-        startTransition(() => {
-          setApproveOpen(false);
-          router.refresh();
-        });
-      } catch (err) {
-        const message =
-          err instanceof ApiError ? err.message : "Error al aprobar el comprobante.";
-        toast.error(message);
-      }
-    });
+  async function confirmApprove() {
+    try {
+      await approveReceipt(folio, comprobanteId);
+    } catch (err) {
+      throw new Error(err instanceof ApiError && err.message ? err.message : t("approveError"));
+    }
+    toast.success(t("approved"));
+    router.refresh();
   }
 
-  // ─── Reject ─────────────────────────────────────────────────────────────────
-
-  function handleReject() {
-    const trimmed = rejectReason.trim();
-    if (!trimmed) {
-      toast.error("El motivo de rechazo es obligatorio.");
-      return;
+  async function confirmReject(reason: string) {
+    setRejecting(true);
+    try {
+      await rejectReceipt(folio, comprobanteId, reason);
+      toast.success(t("rejected"));
+      setRejectOpen(false);
+      router.refresh();
+    } catch (err) {
+      showError({
+        title: t("rejectError"),
+        ...(err instanceof ApiError && err.message ? { description: err.message } : {}),
+      });
+    } finally {
+      setRejecting(false);
     }
-    startTransition(async () => {
-      try {
-        await rejectReceipt(folio, comprobanteId, trimmed);
-        toast.success("Comprobante rechazado.");
-        startTransition(() => {
-          setRejectOpen(false);
-          setRejectReason("");
-          router.refresh();
-        });
-      } catch (err) {
-        const message =
-          err instanceof ApiError ? err.message : "Error al rechazar el comprobante.";
-        toast.error(message);
-      }
-    });
   }
 
   return (
     <>
       <div className="flex items-center gap-2">
-        <Button
-          variant="default"
-          size="xs"
-          disabled={isPending}
-          onClick={() => setApproveOpen(true)}
-        >
-          <CheckCircle className="mr-1 size-3.5" />
-          Aprobar
+        <Button variant="outline" size="sm" onClick={() => setRejectOpen(true)}>
+          {t("reject")}
         </Button>
-        <Button
-          variant="destructive"
-          size="xs"
-          disabled={isPending}
-          onClick={() => setRejectOpen(true)}
-        >
-          <XCircle className="mr-1 size-3.5" />
-          Rechazar
+        <Button size="sm" onClick={() => setApproveOpen(true)}>
+          {t("approve")}
         </Button>
       </div>
 
-      {/* Approve confirmation */}
-      <AlertDialog open={approveOpen} onOpenChange={setApproveOpen}>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Aprobar comprobante?</AlertDialogTitle>
-            <AlertDialogDescription>
-              La solicitud pasará al estado <strong>Pagada</strong>. Esta
-              acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <Button loading={isPending} variant="default" onClick={handleApprove}>
-              {isPending ? (
-                <>
-                  Aprobando...
-                </>
-              ) : (
-                "Confirmar"
-              )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={approveOpen}
+        onOpenChange={setApproveOpen}
+        title={t("approveTitle")}
+        description={t("approveDescription")}
+        confirmLabel={t("approveConfirm")}
+        onConfirm={confirmApprove}
+      />
 
-      {/* Reject dialog with reason */}
-      <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Rechazar comprobante</AlertDialogTitle>
-            <AlertDialogDescription>
-              El director podrá subir un nuevo comprobante. Ingresa el motivo
-              de rechazo.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <Textarea
-            placeholder="Motivo de rechazo (obligatorio)"
-            rows={3}
-            value={rejectReason}
-            onChange={(e) => setRejectReason(e.target.value)}
-            disabled={isPending}
-            className="resize-none"
-          />
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>
-              Volver
-            </AlertDialogCancel>
-            <Button
-              loading={isPending}
-              variant="destructive"
-              onClick={handleReject}
-              disabled={rejectReason.trim().length === 0}
-            >
-              {isPending ? (
-                <>
-                  Rechazando...
-                </>
-              ) : (
-                "Confirmar rechazo"
-              )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ReasonDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        title={t("rejectTitle")}
+        description={t("rejectDescription")}
+        label={t("rejectReasonLabel")}
+        confirmLabel={t("rejectConfirm")}
+        pending={rejecting}
+        onConfirm={confirmReject}
+      />
     </>
   );
 }

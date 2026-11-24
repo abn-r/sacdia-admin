@@ -3,6 +3,7 @@ import { badgeVariants } from "@/components/ui/badge";
 
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
+/** Soft semantic tones (tokens only, so dark mode follows the theme). */
 export function toneBadgeProps(
   tone: "success" | "warning" | "neutral" | "danger",
 ): { variant: BadgeVariant; className?: string } {
@@ -10,14 +11,12 @@ export function toneBadgeProps(
     case "success":
       return {
         variant: "outline",
-        className:
-          "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
+        className: "border-success/25 bg-success/10 text-success-foreground",
       };
     case "warning":
       return {
         variant: "outline",
-        className:
-          "border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-300",
+        className: "border-warning/25 bg-warning/10 text-warning-foreground",
       };
     case "danger":
       return { variant: "destructive" };
