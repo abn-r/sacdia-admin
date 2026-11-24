@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,7 +8,6 @@ import { useShallow } from "zustand/react/shallow";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -19,39 +17,14 @@ import { APP_CONFIG } from "@/config/app-config";
 import { useSidebarItems } from "@/navigation/sidebar/use-sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
-import { EMPTY_SIDEBAR_INSIGHTS, type SidebarInsights } from "@/lib/dashboard/sidebar-insights";
-
 import { NavMain } from "./nav-main";
-import { NavUser } from "./nav-user";
-import { SidebarInsightsProvider } from "./sidebar-insights-context";
+import { useSidebarInsights } from "./sidebar-insights-context";
 
-type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  /** Scope name + queue counts. Resolved on the server without blocking render. */
-  readonly insights?: Promise<SidebarInsights>;
-};
+type AppSidebarProps = React.ComponentProps<typeof Sidebar>;
 
-function useResolvedInsights(promise: Promise<SidebarInsights> | undefined): SidebarInsights {
-  const [insights, setInsights] = useState<SidebarInsights>(EMPTY_SIDEBAR_INSIGHTS);
-
-  useEffect(() => {
-    if (!promise) return;
-    let cancelled = false;
-    promise.then(
-      (value) => {
-        if (!cancelled) setInsights(value);
-      },
-      () => {},
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [promise]);
-
-  return insights;
-}
-
-export function AppSidebar({ insights: insightsPromise, ...props }: AppSidebarProps) {
-  const insights = useResolvedInsights(insightsPromise);
+export function AppSidebar(props: AppSidebarProps) {
+  // Scope name + queue counts come from <InsightsBoundary> in the dashboard layout.
+  const insights = useSidebarInsights();
   const sidebarItems = useSidebarItems();
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
@@ -65,7 +38,6 @@ export function AppSidebar({ insights: insightsPromise, ...props }: AppSidebarPr
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
 
   return (
-    <SidebarInsightsProvider value={insights}>
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
       <SidebarHeader>
         <SidebarMenu>
@@ -104,10 +76,6 @@ export function AppSidebar({ insights: insightsPromise, ...props }: AppSidebarPr
       <SidebarContent>
         <NavMain items={sidebarItems} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
     </Sidebar>
-    </SidebarInsightsProvider>
   );
 }
