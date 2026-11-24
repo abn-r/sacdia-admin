@@ -1,5 +1,5 @@
 /**
- * Integration tests for InventoryFormDialog.
+ * Integration tests for InventoryItemForm.
  *
  * Architecture notes:
  * ------------------------------------------------------------------
@@ -59,6 +59,12 @@ vi.mock("@/lib/api/inventory", async (importOriginal) => {
   };
 });
 
+const push = vi.fn();
+const refresh = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push, refresh, replace: vi.fn(), back: vi.fn() }),
+}));
+
 const mockToastError = vi.fn();
 const mockToastSuccess = vi.fn();
 vi.mock("sonner", () => ({
@@ -68,7 +74,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-import { InventoryFormDialog } from "@/components/inventory/inventory-form-dialog";
+import { InventoryItemForm } from "@/components/inventory/inventory-item-form";
 import type { InventoryItem, InventoryCategory } from "@/lib/api/inventory";
 
 // ---------------------------------------------------------------------------
@@ -120,24 +126,20 @@ function renderDialog({
   categories = STUB_CATEGORIES,
   clubId = 1,
 }: RenderInventoryDialogOptions = {}) {
-  const onOpenChange = vi.fn();
-  const onSuccess = vi.fn();
 
   const utils = render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <InventoryFormDialog
-        open={true}
-        onOpenChange={onOpenChange}
+      <InventoryItemForm
         clubId={clubId}
         instanceType="pathf"
         categories={categories}
         item={item}
-        onSuccess={onSuccess}
+        listHref="/dashboard/inventory"
       />
     </NextIntlClientProvider>,
   );
 
-  return { onOpenChange, onSuccess, ...utils };
+  return { ...utils };
 }
 
 async function fillInput(element: HTMLElement, value: string) {
@@ -162,7 +164,7 @@ async function submitForm() {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe("InventoryFormDialog", () => {
+describe("InventoryItemForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCreateInventoryItem.mockResolvedValue({ ...STUB_ITEM });
@@ -177,10 +179,6 @@ describe("InventoryFormDialog", () => {
 
   it("renders dialog title, all fields and submit button", () => {
     renderDialog();
-
-    expect(
-      screen.getByRole("heading", { name: "Nuevo ítem de inventario" }),
-    ).toBeInTheDocument();
 
     // Name field
     expect(
@@ -202,10 +200,6 @@ describe("InventoryFormDialog", () => {
 
   it("renders edit title and populate fields when item prop is provided", () => {
     renderDialog({ item: STUB_ITEM });
-
-    expect(
-      screen.getByRole("heading", { name: "Editar ítem" }),
-    ).toBeInTheDocument();
 
     const nameInput = screen.getByPlaceholderText(inventoryMessages.placeholders.name);
     expect(nameInput).toHaveValue(STUB_ITEM.name);
@@ -301,7 +295,7 @@ describe("InventoryFormDialog", () => {
   // ── 4. Successful create ───────────────────────────────────────────────────
 
   it("calls createInventoryItem with correct payload and closes on success", async () => {
-    const { onOpenChange, onSuccess } = renderDialog();
+    renderDialog();
 
     const nameInput = screen.getByPlaceholderText(inventoryMessages.placeholders.name);
     await act(async () => {
@@ -328,15 +322,15 @@ describe("InventoryFormDialog", () => {
     expect(calledPayload.amount).toBe(10);
     expect(calledPayload.instanceType).toBe("pathf");
 
-    expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(onSuccess).toHaveBeenCalledOnce();
+    expect(push).toHaveBeenCalledWith("/dashboard/inventory");
+    expect(refresh).toHaveBeenCalled();
     expect(mockToastSuccess).toHaveBeenCalledWith(inventoryMessages.toasts.item_created);
   });
 
   // ── 5. Successful edit ─────────────────────────────────────────────────────
 
   it("calls updateInventoryItem with correct id and payload on save", async () => {
-    const { onOpenChange, onSuccess } = renderDialog({ item: STUB_ITEM });
+    renderDialog({ item: STUB_ITEM });
 
     const amountInput = screen.getByPlaceholderText(inventoryMessages.placeholders.quantity);
     await act(async () => {
@@ -356,8 +350,8 @@ describe("InventoryFormDialog", () => {
     expect(calledId).toBe(STUB_ITEM.inventory_id);
     expect(calledPayload.amount).toBe(8);
 
-    expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(onSuccess).toHaveBeenCalledOnce();
+    expect(push).toHaveBeenCalledWith("/dashboard/inventory");
+    expect(refresh).toHaveBeenCalled();
     expect(mockToastSuccess).toHaveBeenCalledWith(inventoryMessages.toasts.item_updated);
   });
 
@@ -427,16 +421,16 @@ describe("InventoryFormDialog", () => {
 
   it("calls onOpenChange(false) when cancel is clicked without calling createInventoryItem", async () => {
     const user = userEvent.setup();
-    const { onOpenChange } = renderDialog();
+    renderDialog();
 
     await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(push).toHaveBeenCalledWith("/dashboard/inventory");
     expect(mockCreateInventoryItem).not.toHaveBeenCalled();
   });
 });
 
-describe("InventoryFormDialog — condition and extended fields", () => {
+describe("InventoryItemForm — condition and extended fields", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCreateInventoryItem.mockResolvedValue({ ...STUB_ITEM });

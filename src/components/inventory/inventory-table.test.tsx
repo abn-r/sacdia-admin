@@ -1,5 +1,5 @@
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
@@ -17,26 +17,20 @@ const BASE: InventoryItem = {
   active: true,
 };
 
-function renderTable(items: InventoryItem[]) {
-  return render(
+function renderTable(items: InventoryItem[], props: Partial<React.ComponentProps<typeof InventoryTable>> = {}) {
+  const onOpen = vi.fn();
+  const utils = render(
     <NextIntlClientProvider locale="es" messages={messages}>
-      <InventoryTable items={items} />
+      <InventoryTable items={items} onOpen={onOpen} {...props} />
     </NextIntlClientProvider>,
   );
+  return { onOpen, ...utils };
 }
 
-// "Ver detalles" lives in the row-actions menu.
-async function openDetail(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: "Acciones de Carpa" }));
-  await user.click(
-    await screen.findByRole("menuitem", { name: messages.inventory.actions.view_details }),
-  );
-}
-
-describe("InventoryTable condition and detail", () => {
+describe("InventoryTable", () => {
   afterEach(() => cleanup());
 
-  it("renders a condition badge per row with the matching variant", () => {
+  it("marks a row only when the condition is Regular or Malo", () => {
     renderTable([
       { ...BASE, inventory_id: 1, name: "A", condition: "bueno" },
       { ...BASE, inventory_id: 2, name: "B", condition: "regular" },
@@ -44,55 +38,59 @@ describe("InventoryTable condition and detail", () => {
       { ...BASE, inventory_id: 4, name: "D" },
     ]);
 
-    expect(
-      screen.getByRole("columnheader", { name: messages.inventory.table.col_condition }),
-    ).toBeInTheDocument();
-
     const rows = screen.getAllByRole("row").slice(1);
-    const badge = (row: HTMLElement, text: string) => within(row).getByText(text);
-
-    expect(badge(rows[0]!, "Bueno")).toHaveAttribute("data-variant", "success");
-    expect(badge(rows[1]!, "Regular")).toHaveAttribute("data-variant", "warning");
-    expect(badge(rows[2]!, "Malo")).toHaveAttribute("data-variant", "destructive");
-    // Items without a condition fall back to the default.
-    expect(badge(rows[3]!, "Bueno")).toHaveAttribute("data-variant", "success");
+    expect(within(rows[0]!).queryByText("Bueno")).not.toBeInTheDocument();
+    expect(within(rows[1]!).getByText("Regular")).toBeInTheDocument();
+    expect(within(rows[2]!).getByText("Malo")).toBeInTheDocument();
+    expect(within(rows[3]!).queryByText("Bueno")).not.toBeInTheDocument();
   });
 
-  it("opens a read-only detail dialog with the extended fields", async () => {
-    const user = userEvent.setup();
-    renderTable([
-      {
-        ...BASE,
-        condition: "regular",
-        serial_number: "SN-001",
-        purchase_date: "2024-03-15",
-        estimated_value: 1250.5,
-        location: "Bodega del club",
-        assigned_to: "Juan Pérez",
-        notes: "Revisar costuras",
-      },
-    ]);
+  it("never marks «Activo» on the row (it is a filter now)", () => {
+    renderTable([{ ...BASE }, { ...BASE, inventory_id: 2, name: "Inactiva", active: false }]);
 
-    await openDetail(user);
-
-    const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("SN-001")).toBeInTheDocument();
-    expect(within(dialog).getByText("Bodega del club")).toBeInTheDocument();
-    expect(within(dialog).getByText("Juan Pérez")).toBeInTheDocument();
-    expect(within(dialog).getByText("Revisar costuras")).toBeInTheDocument();
-    expect(within(dialog).getByText(/1,?250\.50/)).toBeInTheDocument();
-    expect(within(dialog).getByText(/2024/)).toBeInTheDocument();
+    expect(screen.queryByText(messages.inventory.status.active)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.inventory.status.inactive)).not.toBeInTheDocument();
   });
 
-  it("shows a placeholder for empty extended fields", async () => {
+  it("right-aligns the quantity", () => {
+    renderTable([{ ...BASE, amount: 12 }]);
+
+    const cell = screen.getByRole("cell", { name: "12" });
+    expect(cell.className).toContain("text-right");
+    expect(cell.className).toContain("tabular-nums");
+    expect(screen.getByRole("columnheader", { name: messages.inventory.table.col_amount }).className).toContain(
+      "text-right",
+    );
+  });
+
+  it("opens the sheet on the detail tab from the name and on the history tab from the menu", async () => {
     const user = userEvent.setup();
-    renderTable([{ ...BASE }]);
+    const { onOpen } = renderTable([{ ...BASE }]);
 
-    await openDetail(user);
+    await user.click(screen.getAllByRole("button", { name: "Carpa" })[0]!);
+    expect(onOpen).toHaveBeenLastCalledWith(expect.objectContaining({ inventory_id: 1 }), "detail");
 
-    const dialog = await screen.findByRole("dialog");
-    expect(
-      within(dialog).getAllByText(messages.inventory.detail.no_value).length,
-    ).toBeGreaterThanOrEqual(6);
+    await user.click(screen.getAllByRole("button", { name: "Acciones de Carpa" })[0]!);
+    await user.click(await screen.findByRole("menuitem", { name: messages.inventory.actions.view_history }));
+    expect(onOpen).toHaveBeenLastCalledWith(expect.objectContaining({ inventory_id: 1 }), "history");
+  });
+
+  it("keeps a two-line list for phones next to the table", () => {
+    renderTable([{ ...BASE, condition: "regular" }]);
+
+    const list = screen.getByRole("list", { name: messages.inventory.table.col_name });
+    expect(within(list).getByText("Equipamiento")).toBeInTheDocument();
+    expect(within(list).getByText("Regular")).toBeInTheDocument();
+  });
+
+  it("links edit to the route modal", async () => {
+    const user = userEvent.setup();
+    renderTable([{ ...BASE }], { editHref: (item) => `/dashboard/inventory/${item.inventory_id}/edit?club=1&section=2` });
+
+    await user.click(screen.getAllByRole("button", { name: "Acciones de Carpa" })[0]!);
+    expect(await screen.findByRole("menuitem", { name: messages.inventory.actions.edit_item })).toHaveAttribute(
+      "href",
+      "/dashboard/inventory/1/edit?club=1&section=2",
+    );
   });
 });

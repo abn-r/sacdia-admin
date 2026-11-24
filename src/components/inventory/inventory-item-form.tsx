@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  FormModalBody,
+  FormModalFooter,
+  FormModalSteps,
+  useFormModal,
+} from "@/components/shared/form-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -128,8 +126,6 @@ const DETAIL_FIELDS = [
   "assigned_to",
   "notes",
 ] as const satisfies readonly (keyof FormValues)[];
-
-const TOTAL_STEPS = 2;
 
 function emptyValues(categoryId: number): FormValues {
   return {
@@ -264,28 +260,27 @@ function DetailTextField({
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface InventoryFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export interface InventoryItemFormProps {
+  /** Club section id: the inventory API calls it `clubId`. */
   clubId: number;
   instanceType: InstanceType;
   categories: InventoryCategory[];
   item?: InventoryItem | null;
-  onSuccess: () => void;
+  /** Where Cancel / save return to when the form is not inside the route modal. */
+  listHref: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function InventoryFormDialog({
-  open,
-  onOpenChange,
+export function InventoryItemForm({
   clubId,
   instanceType,
   categories,
   item,
-  onSuccess,
-}: InventoryFormDialogProps) {
+  listHref,
+}: InventoryItemFormProps) {
   const isEdit = !!item;
+  const { close, complete } = useFormModal(listHref);
   const t = useTranslations("inventory");
   const tVal = useTranslations("inventory.validation");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -294,20 +289,10 @@ export function InventoryFormDialog({
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema as z.ZodType<FormValues, FormValues>),
-    defaultValues: emptyValues(categories[0]?.inventory_category_id ?? 0),
+    defaultValues: item
+      ? valuesFromItem(item)
+      : emptyValues(categories[0]?.inventory_category_id ?? 0),
   });
-
-  // Populate form when editing or reset when creating
-  useEffect(() => {
-    if (open) {
-      setStep("main");
-      form.reset(
-        item
-          ? valuesFromItem(item)
-          : emptyValues(categories[0]?.inventory_category_id ?? 0),
-      );
-    }
-  }, [open, item, categories, form]);
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setIsSubmitting(true);
@@ -332,8 +317,7 @@ export function InventoryFormDialog({
         });
         toast.success(t("toasts.item_created"));
       }
-      onSuccess();
-      onOpenChange(false);
+      complete();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : t("errors.save_item_failed");
@@ -365,39 +349,17 @@ export function InventoryFormDialog({
       : "Crear ítem";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Editar ítem" : "Nuevo ítem de inventario"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? "Modifica los datos del ítem de inventario."
-              : "Completa el formulario para agregar un nuevo ítem al inventario del club."}
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit, onInvalid)}
-            className="space-y-4"
-            noValidate
-          >
-            <p
-              className="text-xs font-medium text-muted-foreground"
-              aria-live="polite"
-            >
-              {t("form.step_indicator", {
-                current: step === "main" ? 1 : 2,
-                total: TOTAL_STEPS,
-              })}
-              {" · "}
-              <span className="text-foreground">
-                {step === "main" ? t("form.step_main") : t("form.step_details")}
-              </span>
-            </p>
-
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+        className="flex min-h-0 flex-1 flex-col"
+        noValidate
+      >
+        <FormModalSteps
+          steps={[t("form.step_main"), t("form.step_details")]}
+          current={step === "main" ? 0 : 1}
+        />
+        <FormModalBody stepKey={step} direction={step === "main" ? "back" : "forward"} className="space-y-4">
             {/* Paso 1: datos del ítem (los pasos inactivos permanecen montados para conservar el estado) */}
             <div className="space-y-4" hidden={step !== "main"}>
               {/* Nombre */}
@@ -601,13 +563,14 @@ export function InventoryFormDialog({
               />
             </div>
 
-            <DialogFooter className="pt-2">
+        </FormModalBody>
+        <FormModalFooter>
               {step === "main" ? (
                 <>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => onOpenChange(false)}
+                    onClick={close}
                     disabled={isSubmitting}
                   >
                     Cancelar
@@ -636,10 +599,8 @@ export function InventoryFormDialog({
               <Button type="submit" disabled={isSubmitting}>
                 {submitLabel}
               </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+            </FormModalFooter>
+      </form>
+    </Form>
   );
 }
