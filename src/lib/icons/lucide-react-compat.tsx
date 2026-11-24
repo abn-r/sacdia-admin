@@ -31,7 +31,6 @@ import {
   CalendarDaysIcon as __Huge_CalendarDaysIcon,
   CalendarIcon as __Huge_CalendarIcon,
   CalendarOffIcon as __Huge_CalendarOffIcon,
-  CalendarPlusIcon as __Huge_CalendarPlusIcon,
   CalendarRangeIcon as __Huge_CalendarRangeIcon,
   CancelCircleIcon as __Huge_CancelCircleIcon,
   CheckListIcon as __Huge_CheckListIcon,
@@ -135,7 +134,7 @@ import {
   UserSettings01Icon as __Huge_UserSettings01Icon,
   ViewIcon as __Huge_ViewIcon,
   ViewOffIcon as __Huge_ViewOffIcon,
-  Wifi01Icon as __Huge_Wifi01Icon,
+  WifiOff01Icon as __Huge_WifiOff01Icon,
   ZapIcon as __Huge_ZapIcon,
   ZoomInAreaIcon as __Huge_ZoomInAreaIcon,
   ZoomOutAreaIcon as __Huge_ZoomOutAreaIcon,
@@ -227,7 +226,6 @@ const ICONS = {
   CalendarDaysIcon: __Huge_CalendarDaysIcon,
   CalendarIcon: __Huge_CalendarIcon,
   CalendarOffIcon: __Huge_CalendarOffIcon,
-  CalendarPlusIcon: __Huge_CalendarPlusIcon,
   CalendarRangeIcon: __Huge_CalendarRangeIcon,
   CancelCircleIcon: __Huge_CancelCircleIcon,
   CheckListIcon: __Huge_CheckListIcon,
@@ -331,7 +329,7 @@ const ICONS = {
   UserSettings01Icon: __Huge_UserSettings01Icon,
   ViewIcon: __Huge_ViewIcon,
   ViewOffIcon: __Huge_ViewOffIcon,
-  Wifi01Icon: __Huge_Wifi01Icon,
+  WifiOff01Icon: __Huge_WifiOff01Icon,
   ZapIcon: __Huge_ZapIcon,
   ZoomInAreaIcon: __Huge_ZoomInAreaIcon,
   ZoomOutAreaIcon: __Huge_ZoomOutAreaIcon,
@@ -357,7 +355,6 @@ export const Calendar = createLucideIcon(ICONS.CalendarIcon, "Calendar");
 export const CalendarClock = createLucideIcon(ICONS.CalendarClockIcon, "CalendarClock");
 export const CalendarDays = createLucideIcon(ICONS.CalendarDaysIcon, "CalendarDays");
 export const CalendarOff = createLucideIcon(ICONS.CalendarOffIcon, "CalendarOff");
-export const CalendarPlus = createLucideIcon(ICONS.CalendarPlusIcon, "CalendarPlus");
 export const CalendarRange = createLucideIcon(ICONS.CalendarRangeIcon, "CalendarRange");
 export const Check = createLucideIcon(ICONS.Tick02Icon, "Check");
 export const CheckCircle = createLucideIcon(ICONS.CheckmarkCircle02Icon, "CheckCircle");
@@ -402,7 +399,6 @@ export const ImageIcon = createLucideIcon(ICONS.Image02Icon, "ImageIcon");
 export const Inbox = createLucideIcon(ICONS.InboxIcon, "Inbox");
 export const Info = createLucideIcon(ICONS.InformationCircleIcon, "Info");
 export const Key = createLucideIcon(ICONS.Key01Icon, "Key");
-export const KeyRound = createLucideIcon(ICONS.Key01Icon, "KeyRound");
 export const Landmark = createLucideIcon(ICONS.BankIcon, "Landmark");
 export const Layers = createLucideIcon(ICONS.LayersIcon, "Layers");
 export const LayoutDashboard = createLucideIcon(ICONS.DashboardSquare01Icon, "LayoutDashboard");
@@ -477,7 +473,7 @@ export const UserPlus = createLucideIcon(ICONS.UserAdd01Icon, "UserPlus");
 export const UserRound = createLucideIcon(ICONS.UserIcon, "UserRound");
 export const UserX = createLucideIcon(ICONS.UserRemove01Icon, "UserX");
 export const Users = createLucideIcon(ICONS.UserGroupIcon, "Users");
-export const Wifi = createLucideIcon(ICONS.Wifi01Icon, "Wifi");
+export const WifiOff = createLucideIcon(ICONS.WifiOff01Icon, "WifiOff");
 export const X = createLucideIcon(ICONS.MultiplicationSignIcon, "X");
 export const XCircle = createLucideIcon(ICONS.CancelCircleIcon, "XCircle");
 export const Zap = createLucideIcon(ICONS.ZapIcon, "Zap");

@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mocks.push, replace: vi.fn(), back: vi.fn(), refresh: mocks.refresh }),
 }));
 
-import { FormPageFrame, useFormModal } from "@/components/shared/form-modal";
+import { FormModalSteps, FormPageFrame, useFormModal } from "@/components/shared/form-modal";
 
 function FormProbe() {
   const modal = useFormModal("/fallback");
@@ -75,5 +75,28 @@ describe("FormPageFrame", () => {
 
     expect(mocks.push).toHaveBeenCalledWith("/dashboard/campamentos/union/138?tab=events");
     expect(mocks.refresh).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("FormModalSteps", () => {
+  it("renders only a text stepline with the next step", () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <FormModalSteps steps={["Datos", "Fecha", "Público"]} current={1} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText("Paso 2 de 3 · Fecha")).toBeInTheDocument();
+    expect(screen.getByText(/Siguiente: Público/)).toBeInTheDocument();
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
+  it("omits the next step on the last one", () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <FormModalSteps steps={["Datos", "Fecha"]} current={1} />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.getByText("Paso 2 de 2 · Fecha")).toBeInTheDocument();
+    expect(screen.queryByText(/Siguiente/)).toBeNull();
   });
 });

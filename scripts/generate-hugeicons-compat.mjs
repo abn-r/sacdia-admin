@@ -23,6 +23,7 @@ function isValidIconKey(key) {
 /** @type {Record<string, string>} */
 const MANUAL = {
   Loader2: "Loading03Icon",
+  WifiOff: "WifiOff01Icon",
   Loader2Icon: "Loading03Icon",
   Loader: "Loading03Icon",
   UploadCloud: "CloudUploadIcon",

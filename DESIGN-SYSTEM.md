@@ -509,8 +509,21 @@ Fuente: `src/lib/animations.ts` + variables de `globals.css`. No copies duracion
 | `FormSubmitButton` | Submit con `useFormStatus` |
 | `PageAccessForbidden`, `TerritoryUnconfigured`, `PrerequisiteNotice` | Estados de acceso y prerequisitos |
 | `CatalogThumbnail`, `LocationPicker`, `PdfInlineViewer`, `selectors/*` | Utilidades de dominio compartidas |
+| `ErrorState` / `ErrorStateTableRow` | Estado de error con la anatomía de la app (`SacErrorState`): ícono del tema, título «No pudimos cargar…», una frase de qué hacer y acciones. `kind` `error` \| `forbidden` \| `offline` \| `rateLimited` \| `notFound`; `variant` `page` \| `inline`; `retry` (`router.refresh()`) u `onRetry`; `detail` añade el código y «Copiar detalle». En listas va **dentro** del marco de la tabla (`ErrorStateTableRow`, conserva encabezados); en páginas sin tabla, centrado. `errorStateFromError()` traduce un `ApiError` a `kind` |
+| `StaleDataNotice` | Aviso de que se muestran datos anteriores con su hora y «Reintentar». No se vacía la lista al fallar una recarga |
+| `useToastError` / `toastError` | Toast de error con acción «Reintentar» |
+| `ExceptionStatus` | `StatusBadge` solo para la excepción: no pinta nada cuando el valor es el normal («Activo» no se marca) |
+| `UrlTabs` / `useUrlTab` | Pestañas en la URL (`?tab=`) con conteo; base de la cola A y del detalle A |
+| `DetailHeader`, `DetailAsideLayout` | Encabezado de detalle (medio, título, subtítulo, línea de datos clave, acciones) y detalle B (columna fija de 300px) |
+| `SplitInbox`, `SplitInboxItemContent`, `SplitInboxFooter` | Bandeja dividida (lista + revisión) con «Guardar y seguir»; ↑/↓ mueve la selección |
+| `RailLayout` | Lista lateral agrupada con conteos + contenido (Catálogos, Configuración); `Select` en móvil |
+| `SettingsSection`, `SettingsRow`, `SettingsSaveBar` | Ajustes: etiqueta + panel y un solo «Guardar» |
+| `ScopePicker` + `useRememberedScope` | Selector de club o alcance sobre el título; se recuerda en `?club=` y en la cookie `sacdia_admin_scope` |
+| `ConfirmDialog` | Confirmación con el impacto en palabras; `tone="destructive"`; `typedConfirmation` exige escribir un texto (p. ej. el año) |
+| `ReasonDialog` | Acción de riesgo con motivo obligatorio (5–500 caracteres, queda en la auditoría) |
+| `SectionFormPage`, `FormSection` | Formulario largo como página: índice lateral, secciones y barra de guardar fija |
 
-`LoadingSkeleton`, `ConfirmDialog`, `DataTable` genérico y `ModuleListPage` **no existen**. Las confirmaciones usan `AlertDialog` directo (§14.2).
+`LoadingSkeleton`, `DataTable` genérico y `ModuleListPage` **no existen**. Las confirmaciones nuevas usan `ConfirmDialog` o `ReasonDialog`; `FormModalSteps` muestra solo el paso actual en texto («Paso 2 de 3 · Fecha y lugar · Siguiente: Público»), sin barra.
 
 `Toaster` está montado en `src/app/layout.tsx`: `<Toaster position="top-center" closeButton />`.
 
@@ -986,4 +999,5 @@ No hay regla automática para: iconos decorativos en caja, `transition-all`, `ba
 - **2026-10-15 — Crisp**: neutros puros y acento azul; split `--primary` / `--primary-solid`; sombras con anillo hairline; `--radius: 0.5rem`; `destructive-solid`; `RowActions`; `Button loading`; crear/editar en modal de ruta interceptada; toasts neutros; móvil (bottom sheet, 16px, objetivos táctiles).
 - **2026-11-23 — Inicio rediseñado**: h1 de `PageHeader` a 24px en todo el panel; Inicio abre con el hallazgo del día (`homeFinding`: la cola más larga al despachar, los territorios con brechas al supervisar) y un único botón principal hacia la cola más larga; `loading.tsx` imita el layout real.
 - **2026-11-23 — Acento en escalera**: arranca el rediseño del panel con la base actual y el acento de la dirección C. Tokens `--primary-soft`, `--primary-soft-foreground`, `--primary-track`, `--sidebar-active`; el ítem activo del sidebar pasa a tinte azul (el hover sigue gris); Button y Badge `soft` usan la escalera. Referencia visual: `../mockups/rediseno-admin/index.html` (pestaña «A + acento C»).
+- **2026-11-24 — Piezas del rediseño (etapa 1)**: `ErrorState` (anatomía de la app, dentro de la tabla en listas), `StaleDataNotice`, `useToastError`, `ExceptionStatus`, `UrlTabs`, `DetailHeader`, `DetailAsideLayout`, `SplitInbox`, `RailLayout`, `SettingsSection`, `ScopePicker`, `ConfirmDialog`, `ReasonDialog`, `SectionFormPage`; `FormModalSteps` pasa a texto; los 22 catálogos muestran el 429 en lugar de una lista vacía. Maquetas aprobadas: `../mockups/rediseno-admin/plan/`.
 - **2026-11-08 — Auditoría de diseño**: split semántico texto/relleno (`--x` / `--x-solid`) con contraste AA y destructive oscuro `#F87171`; `text-2xs` y piso de 11px; `PRESS_SCALE` único (0.97, solo botones) y overlays iguales (`bg-black/40`, sin blur, 200/150ms); `shadow-lg` en flotantes; `KpiStrip` sin tiles; listado unificado (`DataTableShell`, filas móviles, `DataTablePagination` URL/controlada); `error.tsx` y `global-error`, skip link y landmarks; sidebar con alcance, contadores y un solo ítem activo; skeletons `ListPageSkeleton`/`DetailPageSkeleton`; nuevas reglas del audit; reescritura de este documento como fuente única (cuerpo = estado actual, historial al final).

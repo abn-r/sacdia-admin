@@ -8,6 +8,7 @@ import { listAdminHonorCategories } from "@/lib/api/admin-honor-categories";
 import { listAdminHonorsCatalog } from "@/lib/api/admin-honors-catalog";
 import { ApiError } from "@/lib/api/client";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminClubType } from "@/lib/api/admin-club-types";
@@ -46,6 +47,7 @@ export default async function HonorsPage() {
   let categories: AdminHonorCategoryRow[] = [];
   let clubTypes: AdminClubType[] = [];
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     const [honorRows, categoryResult, clubTypeRows] = await Promise.all([
@@ -66,7 +68,9 @@ export default async function HonorsPage() {
 
     honors = enrichHonors(honorRows, categoryMap, clubTypeMap);
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
@@ -74,6 +78,10 @@ export default async function HonorsPage() {
   const canCreate = canCapability(user, "catalogs-honors", "create");
   const canEdit = canCapability(user, "catalogs-honors", "update");
   const canDelete = canCapability(user, "catalogs-honors", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("entities.honors.title")} description={t("entities.honors.description")} breadcrumbs={[{ label: t("entities.honors.title") }]} />;
+  }
 
   return (
     <>

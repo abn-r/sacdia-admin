@@ -39,6 +39,7 @@ export const RULES = [
     test: (line) => /<h1\b[^>]*\bfont-semibold\b/i.test(line),
     allow: (file) =>
       file.includes("page-header.tsx") ||
+      file.includes("detail-header.tsx") ||
       file.endsWith(".test.tsx"),
   },
   {

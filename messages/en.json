@@ -7059,6 +7059,76 @@
     }
   },
   "shared": {
+    "kit": {
+      "errorState": {
+        "title": "We couldn’t load this information",
+        "description": "Check your connection or try again in a moment.",
+        "retry": "Retry",
+        "copyDetail": "Copy details",
+        "copied": "Details copied",
+        "detail": "Error {code} · {time}",
+        "forbiddenTitle": "Access restricted",
+        "forbiddenDescription": "Your account can’t view this section. If you think this is a mistake, ask whoever manages roles in your territory.",
+        "offlineTitle": "No connection",
+        "offlineDescription": "Check your connection; we’ll try again when it’s back.",
+        "rateLimitedTitle": "Too many requests right now",
+        "rateLimitedDescription": "Wait a few seconds and try again.",
+        "notFoundTitle": "We couldn’t find it",
+        "notFoundDescription": "It may have been deleted or the link is incomplete."
+      },
+      "staleData": {
+        "message": "We couldn’t refresh. Showing data from {time}.",
+        "retry": "Retry"
+      },
+      "toast": {
+        "retry": "Retry"
+      },
+      "confirm": {
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "working": "Working…",
+        "typed": "Type {text} to confirm"
+      },
+      "reason": {
+        "label": "Reason",
+        "placeholder": "Write the reason",
+        "hint": "Between {min} and {max} characters. Saved in the audit log.",
+        "tooShort": "Write at least {min} characters.",
+        "counter": "{count}/{max}"
+      },
+      "steps": {
+        "stepline": "Step {current} of {total} · {title}",
+        "next": "Next: {title}"
+      },
+      "sectionForm": {
+        "sections": "Sections",
+        "unsaved": "Unsaved changes",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "scope": {
+        "label": "Scope",
+        "search": "Search club",
+        "empty": "No results",
+        "all": "All clubs",
+        "change": "Change scope"
+      },
+      "splitInbox": {
+        "saveNext": "Save and continue",
+        "next": "Next: {title}",
+        "position": "{current} of {total}",
+        "empty": "Nothing to review"
+      },
+      "settings": {
+        "save": "Save",
+        "unsaved": "Unsaved changes",
+        "cancel": "Cancel"
+      },
+      "rail": {
+        "navLabel": "Sections",
+        "select": "Go to section"
+      }
+    },
     "pageSkeleton": {
       "loading": "Loading…"
     },

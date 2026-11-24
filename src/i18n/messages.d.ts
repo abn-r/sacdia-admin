@@ -7091,6 +7091,76 @@ export interface IntlMessages {
     };
   };
   shared: {
+    kit: {
+      errorState: {
+        title: string;
+        description: string;
+        retry: string;
+        copyDetail: string;
+        copied: string;
+        detail: string;
+        forbiddenTitle: string;
+        forbiddenDescription: string;
+        offlineTitle: string;
+        offlineDescription: string;
+        rateLimitedTitle: string;
+        rateLimitedDescription: string;
+        notFoundTitle: string;
+        notFoundDescription: string;
+      };
+      staleData: {
+        message: string;
+        retry: string;
+      };
+      toast: {
+        retry: string;
+      };
+      confirm: {
+        cancel: string;
+        confirm: string;
+        working: string;
+        typed: string;
+      };
+      reason: {
+        label: string;
+        placeholder: string;
+        hint: string;
+        tooShort: string;
+        counter: string;
+      };
+      steps: {
+        stepline: string;
+        next: string;
+      };
+      sectionForm: {
+        sections: string;
+        unsaved: string;
+        save: string;
+        cancel: string;
+      };
+      scope: {
+        label: string;
+        search: string;
+        empty: string;
+        all: string;
+        change: string;
+      };
+      splitInbox: {
+        saveNext: string;
+        next: string;
+        position: string;
+        empty: string;
+      };
+      settings: {
+        save: string;
+        unsaved: string;
+        cancel: string;
+      };
+      rail: {
+        navLabel: string;
+        select: string;
+      };
+    };
     pageSkeleton: {
       loading: string;
     };

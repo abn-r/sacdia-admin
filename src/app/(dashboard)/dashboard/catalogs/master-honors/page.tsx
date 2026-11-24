@@ -33,6 +33,7 @@ import { ApiError } from "@/lib/api/client";
 import { listAdminMasterHonors } from "@/lib/api/phase-e-catalogs";
 import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import {
@@ -66,6 +67,7 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let rateLimited = false;
   let honors: MasterHonorAuxHonor[] = [];
   let honorCategories: MasterHonorAuxCategory[] = [];
   let divisions: MasterHonorAuxDivision[] = [];
@@ -104,7 +106,9 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
       name: division.name,
     }));
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
@@ -112,6 +116,10 @@ export default async function AdminMasterHonorsPage({ searchParams }: { searchPa
   const canCreate = canCapability(user, "catalogs-master-honors", "create");
   const canEdit = canCapability(user, "catalogs-master-honors", "update");
   const canDelete = canCapability(user, "catalogs-master-honors", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("title")} description={t("description")} />;
+  }
 
   return (
     <div className="space-y-6">

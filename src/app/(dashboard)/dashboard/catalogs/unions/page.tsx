@@ -8,6 +8,7 @@ import { listAdminDivisions } from "@/lib/api/admin-divisions";
 import { listAdminUnions } from "@/lib/api/admin-unions";
 import { ApiError } from "@/lib/api/client";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCountry } from "@/lib/catalogs/countries/types";
@@ -48,6 +49,7 @@ export default async function UnionsPage() {
   let countries: AdminCountry[] = [];
   let divisions: AdminDivision[] = [];
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     const [unionRows, countryRows, divisionRows] = await Promise.all([
@@ -59,7 +61,9 @@ export default async function UnionsPage() {
     divisions = divisionRows;
     unions = enrichUnions(unionRows, countries, divisions);
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
@@ -67,6 +71,10 @@ export default async function UnionsPage() {
   const canCreate = canCapability(user, "catalogs-unions", "create");
   const canEdit = canCapability(user, "catalogs-unions", "update");
   const canDelete = canCapability(user, "catalogs-unions", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("entities.unions.title")} description={t("entities.unions.description")} breadcrumbs={[{ label: t("entities.unions.title") }]} />;
+  }
 
   return (
     <>
