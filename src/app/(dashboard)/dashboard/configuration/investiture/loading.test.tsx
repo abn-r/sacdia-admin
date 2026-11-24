@@ -5,15 +5,10 @@ import Loading from "./loading";
 describe("InvestitureSettingsLoading", () => {
   afterEach(() => cleanup());
 
-  it("renders skeleton placeholders without crashing", () => {
+  it("renders skeleton placeholders and announces itself as busy", () => {
     const { container } = render(<Loading />);
 
-    expect(container.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(3);
-  });
-
-  it("announces itself as busy to assistive technology", () => {
-    const { container } = render(<Loading />);
-
+    expect(container.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(5);
     expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
   });
 });

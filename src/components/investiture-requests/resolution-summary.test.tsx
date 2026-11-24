@@ -59,35 +59,44 @@ function renderSummary() {
 describe("ResolutionSummary", () => {
   afterEach(() => cleanup());
 
-  it("groups invested, rejected by the authorizer and rejected by the system", () => {
+  it("counts what was invested, rejected by the authorizer and rejected by the system", () => {
     renderSummary();
-    const summary = screen.getByRole("region", { name: "Resultado de la resolución" });
+    const summary = screen.getByRole("status");
 
-    expect(within(summary).getByText("Investidos")).toBeInTheDocument();
-    expect(within(summary).getByText("Ana Solís")).toBeInTheDocument();
-    expect(within(summary).getByText("Rechazados por quien autoriza")).toBeInTheDocument();
-    expect(within(summary).getByText("Luis Peña")).toBeInTheDocument();
-    expect(within(summary).getByText("Rechazados por el sistema")).toBeInTheDocument();
-    expect(within(summary).getByText("Texto largo del sistema")).toBeInTheDocument();
+    expect(within(summary).getByText("Decisiones aplicadas")).toBeInTheDocument();
+    expect(
+      within(summary).getByText("1 investida · 1 rechazada por ti · 1 rechazada por el sistema"),
+    ).toBeInTheDocument();
+  });
+
+  it("explains that the system may reject on its own, only when it did", () => {
+    renderSummary();
+    expect(screen.getByText(/El sistema rechaza por su cuenta/)).toBeInTheDocument();
+    cleanup();
+
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <ResolutionSummary
+          resolution={{ ...resolution, rejected_by_system: [], blocked: [], already_resolved: [] }}
+          people={knownPeople}
+        />
+      </NextIntlClientProvider>,
+    );
+    expect(screen.queryByText(/El sistema rechaza por su cuenta/)).not.toBeInTheDocument();
   });
 
   it("lists what was not applied: blocked with its mapped message and already resolved", () => {
     renderSummary();
-    const summary = screen.getByRole("region", { name: "Resultado de la resolución" });
+    const summary = screen.getByRole("status");
 
     expect(within(summary).getByText("Sin aplicar")).toBeInTheDocument();
     expect(within(summary).getByText("Marta Ruiz")).toBeInTheDocument();
     expect(
       within(summary).getByText(
-        messages.investiture_requests.errors.date_outside_window,
+        new RegExp(messages.investiture_requests.errors.date_outside_window),
       ),
     ).toBeInTheDocument();
     expect(within(summary).getByText("Sara Lima")).toBeInTheDocument();
     expect(within(summary).getByText("Ya había sido resuelto")).toBeInTheDocument();
-  });
-
-  it("hides groups that came back empty", () => {
-    renderSummary();
-    expect(screen.queryByText("Retirados de la solicitud")).not.toBeInTheDocument();
   });
 });

@@ -77,7 +77,7 @@ describe("InvestitureRequestDetailRoute", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders a forbidden banner for a 403", async () => {
+  it("renders the forbidden state (not the red banner) for a 403", async () => {
     getRequestMock.mockRejectedValue(new ApiError("Forbidden", 403, {}));
 
     const element = (await InvestitureRequestDetailRoute({
@@ -85,7 +85,6 @@ describe("InvestitureRequestDetailRoute", () => {
     })) as unknown as { props: { children: Array<{ props: Record<string, unknown> }> } };
 
     const banner = element.props.children[1];
-    expect(banner.props.state).toBe("forbidden");
-    expect(banner.props.detail).toBe(messages.investiture_requests.errors.forbidden);
+    expect(banner.props.kind).toBe("forbidden");
   });
 });

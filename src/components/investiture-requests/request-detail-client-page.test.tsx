@@ -8,6 +8,7 @@ import { ApiError } from "@/lib/api/client";
 import type {
   InvestitureRequest,
   InvestitureRequestPerson,
+  InvestitureResolution,
 } from "@/lib/api/investiture-requests";
 
 const mockResolve = vi.hoisted(() => vi.fn());
@@ -65,47 +66,42 @@ function person(overrides: Partial<InvestitureRequestPerson>): InvestitureReques
 }
 
 const HUMAN_REASON = "MOTIVO-HUMANO-SECRETO";
-
-const SYSTEM_TEXT =
-  "Al comprobar el avance, esta persona no cubría los requisitos mínimos. Revisar sus evidencias de avance.";
+const SYSTEM_TEXT = "Ya tenía la clase aprobada en otra sección.";
 
 const baseRequest: InvestitureRequest = {
   request_id: "req-1",
   club_section_id: 3,
   ecclesiastical_year_id: 7,
-  club_id: 11,
-  club_name: "Club Águilas",
+  club_name: "Club Cedros",
   section_name: "Conquistadores",
-  district_name: "Distrito Norte",
-  pending_count: 2,
-  earliest_investiture_date: "2026-11-20",
+  district_name: "Distrito Sur",
   created_at: "2026-10-01T15:00:00.000Z",
   people: [
-    person({ person_id: "p1", user_name: "Ana Solís", class_name: "Amigo" }),
-    person({ person_id: "p2", user_name: "Luis Peña", class_name: "Compañero" }),
+    person({ person_id: "p1", user_name: "Sofía Mendoza", class_name: "Compañero" }),
+    person({ person_id: "p2", user_name: "Diego Ramírez", class_name: "Compañero" }),
+    person({ person_id: "p3", user_name: "Camila Rojas", class_name: "Explorador" }),
+    person({ person_id: "p4", user_name: "Tomás Aguilar", class_name: "Amigo" }),
     person({
-      person_id: "p3",
-      user_name: "Marta Ruiz",
-      status: "INVESTED",
-      can_authorize: false,
-      authorization_comment: "Muy bien",
-      resolved_by_name: "Pastor Gómez",
-    }),
-    person({
-      person_id: "p4",
-      user_name: "Pedro Díaz",
+      person_id: "p5",
+      user_name: "Emiliano Torres",
       status: "REJECTED_BY_SYSTEM",
       can_authorize: false,
       system_reason: SYSTEM_TEXT,
-      resolved_by_name: null,
     }),
     person({
-      person_id: "p5",
-      user_name: "Sara Lima",
+      person_id: "p6",
+      user_name: "Valeria Cruz",
+      status: "INVESTED",
+      can_authorize: false,
+      resolved_by_name: "Mateo Herrera",
+    }),
+    person({
+      person_id: "p7",
+      user_name: "Lucía Paz",
       status: "REJECTED_BY_PERSON",
       can_authorize: false,
       rejection_reason: HUMAN_REASON,
-      resolved_by_name: "Pastor Gómez",
+      resolved_by_name: "Mateo Herrera",
     }),
   ],
 };
@@ -118,188 +114,184 @@ function renderPage(request: InvestitureRequest = baseRequest) {
   );
 }
 
-function rowOf(name: string) {
-  return screen.getByText(name).closest("tr") as HTMLElement;
-}
+const rowOf = (name: string) => screen.getByText(name).closest("li") as HTMLElement;
 
 async function choose(user: ReturnType<typeof userEvent.setup>, name: string, label: string) {
   await user.click(within(rowOf(name)).getByRole("radio", { name: label }));
 }
 
-const emptyResolution = {
-  request_id: "req-1",
-  invested: [],
-  rejected_by_person: [],
-  rejected_by_system: [],
-  retired: [],
-  blocked: [],
-  already_resolved: [],
-};
-
 describe("RequestDetailClientPage", () => {
   beforeEach(() => {
-    mockResolve.mockResolvedValue(emptyResolution);
+    mockResolve.mockReset();
+    mockRefresh.mockReset();
+    toastMock.success.mockReset();
   });
+  afterEach(() => cleanup());
 
-  afterEach(() => {
-    cleanup();
-    vi.clearAllMocks();
-  });
-
-  it("shows the request header with club, section, district and year", () => {
+  it("names the section in the header and the breadcrumb says Investiduras", () => {
     renderPage();
 
-    expect(screen.getByRole("heading", { name: "Club Águilas" })).toBeInTheDocument();
-    expect(screen.getByText(/Conquistadores · Distrito Norte · 2026/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Club Cedros" })).toBeInTheDocument();
+    expect(screen.getByText("Conquistadores · Distrito Sur · 2026")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Investiduras" })).toHaveAttribute(
+      "href",
+      "/dashboard/investiture-requests",
+    );
+    expect(screen.queryByText("Autorizaciones de investidura")).not.toBeInTheDocument();
   });
 
-  it("sends the chosen decisions only after the irreversible confirmation", async () => {
+  it("offers a segmented decision only to people still pending that the viewer can authorize", () => {
+    renderPage();
+
+    expect(within(rowOf("Sofía Mendoza")).getAllByRole("radio")).toHaveLength(3);
+    expect(within(rowOf("Valeria Cruz")).queryAllByRole("radio")).toHaveLength(0);
+    expect(within(rowOf("Emiliano Torres")).queryAllByRole("radio")).toHaveLength(0);
+  });
+
+  it("opens the reason field under the person who gets rejected, and only there", async () => {
     const user = userEvent.setup();
     renderPage();
 
-    await choose(user, "Ana Solís", "Investir");
-    await user.type(within(rowOf("Ana Solís")).getByLabelText("Comentario (opcional)"), "¡Bien!");
-    await choose(user, "Luis Peña", "Rechazar");
-    await user.type(
-      within(rowOf("Luis Peña")).getByLabelText("Motivo del rechazo"),
-      "Faltan evidencias",
-    );
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    await choose(user, "Camila Rojas", "Rechazar");
 
-    await user.click(screen.getByRole("button", { name: "Confirmar decisiones (2)" }));
+    expect(within(rowOf("Camila Rojas")).getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getAllByRole("textbox")).toHaveLength(1);
+  });
+
+  it("invests every undecided person with the shortcut and keeps explicit rejections", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await choose(user, "Camila Rojas", "Rechazar");
+
+    await user.click(screen.getByRole("button", { name: "Investir a todas las sin decidir" }));
+
+    expect(within(rowOf("Sofía Mendoza")).getByRole("radio", { name: "Investir" })).toBeChecked();
+    expect(within(rowOf("Tomás Aguilar")).getByRole("radio", { name: "Investir" })).toBeChecked();
+    expect(within(rowOf("Camila Rojas")).getByRole("radio", { name: "Rechazar" })).toBeChecked();
+    expect(screen.getByRole("status")).toHaveTextContent("3 por investir · 1 por rechazar · 0 sin decidir");
+    expect(screen.getByRole("button", { name: "Investir a todas las sin decidir" })).toBeDisabled();
+  });
+
+  it("summarizes in the bottom bar and blocks confirming while a rejection has no reason", async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    expect(screen.getByRole("button", { name: "Confirmar decisiones" })).toBeDisabled();
+
+    await choose(user, "Sofía Mendoza", "Investir");
+    await choose(user, "Camila Rojas", "Rechazar");
+
+    expect(screen.getByRole("status")).toHaveTextContent("1 por investir · 1 por rechazar · 2 sin decidir");
+    expect(screen.getByRole("status")).toHaveTextContent("Falta el motivo de un rechazo.");
+    expect(screen.getByRole("button", { name: "Confirmar 2 decisiones" })).toBeDisabled();
+
+    await user.type(within(rowOf("Camila Rojas")).getByRole("textbox"), "No completó la especialidad");
+    expect(screen.getByRole("button", { name: "Confirmar 2 decisiones" })).toBeEnabled();
+  });
+
+  it("the confirmation says how many are invested, how many rejected and who stays undecided", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await choose(user, "Sofía Mendoza", "Investir");
+    await choose(user, "Diego Ramírez", "Investir");
+    await choose(user, "Camila Rojas", "Rechazar");
+    await user.type(within(rowOf("Camila Rojas")).getByRole("textbox"), "Falta una especialidad");
+
+    await user.click(screen.getByRole("button", { name: "Confirmar 3 decisiones" }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText("¿Confirmar 3 decisiones?")).toBeInTheDocument();
+    expect(dialog).toHaveTextContent(
+      "Se investirán 2 personas. Se rechazará 1 persona. Tomás Aguilar queda sin decidir.",
+    );
+    expect(dialog).toHaveTextContent("Las decisiones confirmadas no se pueden deshacer.");
     expect(mockResolve).not.toHaveBeenCalled();
-
-    const dialog = await screen.findByRole("alertdialog");
-    expect(within(dialog).getByText(/no se pueden deshacer/i)).toBeInTheDocument();
-    await user.click(within(dialog).getByRole("button", { name: "Confirmar" }));
-
-    await waitFor(() => {
-      expect(mockResolve).toHaveBeenCalledWith("req-1", {
-        invest: [{ person_id: "p1", comment: "¡Bien!" }],
-        reject: [{ person_id: "p2", reason: "Faltan evidencias" }],
-      });
-    });
-    await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
-    expect(toastMock.success).toHaveBeenCalled();
   });
 
-  it("omits the comment when an investiture has none", async () => {
+  it("sends the decisions, then shows the result per person including the system rejection", async () => {
     const user = userEvent.setup();
+    const resolution: InvestitureResolution = {
+      request_id: "req-1",
+      invested: [person({ person_id: "p1", user_name: "Sofía Mendoza", status: "INVESTED", can_authorize: false, resolved_by_name: "Mateo Herrera" })],
+      rejected_by_person: [person({ person_id: "p3", user_name: "Camila Rojas", status: "REJECTED_BY_PERSON", can_authorize: false, resolved_by_name: "Mateo Herrera" })],
+      rejected_by_system: [person({ person_id: "p2", user_name: "Diego Ramírez", status: "REJECTED_BY_SYSTEM", can_authorize: false, system_reason: SYSTEM_TEXT })],
+      retired: [],
+      blocked: [],
+      already_resolved: [],
+    };
+    mockResolve.mockResolvedValue(resolution);
     renderPage();
 
-    await choose(user, "Ana Solís", "Investir");
-    await user.click(screen.getByRole("button", { name: "Confirmar decisiones (1)" }));
+    await choose(user, "Sofía Mendoza", "Investir");
+    await choose(user, "Diego Ramírez", "Investir");
+    await choose(user, "Camila Rojas", "Rechazar");
+    await user.type(within(rowOf("Camila Rojas")).getByRole("textbox"), "Falta una especialidad");
+    await user.click(screen.getByRole("button", { name: "Confirmar 3 decisiones" }));
     const dialog = await screen.findByRole("alertdialog");
     await user.click(within(dialog).getByRole("button", { name: "Confirmar" }));
 
-    await waitFor(() => {
-      expect(mockResolve).toHaveBeenCalledWith("req-1", {
-        invest: [{ person_id: "p1" }],
-        reject: [],
-      });
-    });
-  });
-
-  it("disables the confirm button with no decisions or with a rejection missing its reason", async () => {
-    const user = userEvent.setup();
-    renderPage();
-
-    const button = screen.getByRole("button", { name: "Confirmar decisiones (0)" });
-    expect(button).toBeDisabled();
-
-    await choose(user, "Luis Peña", "Rechazar");
-    expect(screen.getByRole("button", { name: "Confirmar decisiones (1)" })).toBeDisabled();
-
-    await user.type(within(rowOf("Luis Peña")).getByLabelText("Motivo del rechazo"), "Sin evidencias");
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Confirmar decisiones (1)" })).toBeEnabled(),
+      expect(mockResolve).toHaveBeenCalledWith("req-1", {
+        invest: [{ person_id: "p1" }, { person_id: "p2" }],
+        reject: [{ person_id: "p3", reason: "Falta una especialidad" }],
+      }),
     );
-  });
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    expect(mockRefresh).toHaveBeenCalled();
+    expect(toastMock.success).toHaveBeenCalled();
 
-  it("keeps people undecided by default", () => {
-    renderPage();
+    const summary = screen.getByText("Decisiones aplicadas").closest("div") as HTMLElement;
+    expect(summary).toHaveTextContent("1 investida · 1 rechazada por ti · 1 rechazada por el sistema");
 
+    expect(within(rowOf("Sofía Mendoza")).queryAllByRole("radio")).toHaveLength(0);
+    expect(within(rowOf("Sofía Mendoza")).getByText("Investido")).toBeInTheDocument();
+    expect(within(rowOf("Camila Rojas")).getByText("Motivo: Falta una especialidad")).toBeInTheDocument();
     expect(
-      within(rowOf("Ana Solís")).getByRole("radio", { name: "Sin decidir" }),
-    ).toBeChecked();
+      within(rowOf("Diego Ramírez")).getByText(`Rechazado automáticamente: ${SYSTEM_TEXT}`),
+    ).toBeInTheDocument();
+    // The person left undecided keeps its control.
+    expect(within(rowOf("Tomás Aguilar")).getAllByRole("radio")).toHaveLength(3);
   });
 
-  it("shows Sistema and the long system text for system rejections, and never a human reason", () => {
-    renderPage();
-
-    const systemRow = rowOf("Pedro Díaz");
-    expect(within(systemRow).getByText(/Sistema/)).toBeInTheDocument();
-    expect(within(systemRow).getByText(SYSTEM_TEXT)).toBeInTheDocument();
-
-    const personRow = rowOf("Sara Lima");
-    expect(within(personRow).getByText(/Pastor Gómez/)).toBeInTheDocument();
-    expect(within(personRow).queryByText(/motivo/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(HUMAN_REASON)).not.toBeInTheDocument();
-    expect(document.body.textContent).not.toContain(HUMAN_REASON);
-
-    const investedRow = rowOf("Marta Ruiz");
-    expect(within(investedRow).getByText(/Pastor Gómez/)).toBeInTheDocument();
-    expect(within(investedRow).getByText(/Muy bien/)).toBeInTheDocument();
-  });
-
-  it("does not render controls when nobody can be authorized and explains why", () => {
-    renderPage({
-      ...baseRequest,
-      people: baseRequest.people.map((p) => ({ ...p, can_authorize: false })),
-    });
-
-    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Confirmar decisiones/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/no tienes permiso para autorizar/i)).toBeInTheDocument();
-  });
-
-  it("shows a persistent banner when the window is closed", async () => {
+  it("keeps the dialog open with the mapped message when the window closed", async () => {
+    const user = userEvent.setup();
     mockResolve.mockRejectedValue(
       new ApiError("closed", 409, { code: "INVESTITURE_REQUEST_WINDOW_CLOSED" }),
     );
-    const user = userEvent.setup();
     renderPage();
-
-    await choose(user, "Ana Solís", "Investir");
-    await user.click(screen.getByRole("button", { name: "Confirmar decisiones (1)" }));
+    await choose(user, "Sofía Mendoza", "Investir");
+    await user.click(screen.getByRole("button", { name: "Confirmar 1 decisión" }));
     const dialog = await screen.findByRole("alertdialog");
     await user.click(within(dialog).getByRole("button", { name: "Confirmar" }));
 
-    expect(
-      await screen.findByText(
-        "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
-      ),
-    ).toBeInTheDocument();
-    expect(toastMock.error).toHaveBeenCalledWith(
-      "La ventana del Campo está cerrada. Pide al Campo que la amplíe para poder autorizar.",
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      messages.investiture_requests.errors.window_closed_authorize,
     );
-    expect(mockRefresh).not.toHaveBeenCalled();
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getAllByText(messages.investiture_requests.detail.windowClosedBanner).length).toBeGreaterThan(0);
   });
 
-  it("shows the resolution summary with partial results after confirming", async () => {
-    mockResolve.mockResolvedValue({
-      ...emptyResolution,
-      invested: [person({ person_id: "p1", user_name: "Ana Solís", status: "INVESTED" })],
-      rejected_by_system: [
-        person({
-          person_id: "p2",
-          user_name: "Luis Peña",
-          status: "REJECTED_BY_SYSTEM",
-          system_reason: SYSTEM_TEXT,
-        }),
-      ],
-    });
-    const user = userEvent.setup();
+  it("shows resolved people as results, never the stored human reason of another authorizer", () => {
     renderPage();
 
-    await choose(user, "Ana Solís", "Investir");
-    await choose(user, "Luis Peña", "Investir");
-    await user.click(screen.getByRole("button", { name: "Confirmar decisiones (2)" }));
-    const dialog = await screen.findByRole("alertdialog");
-    await user.click(within(dialog).getByRole("button", { name: "Confirmar" }));
+    expect(within(rowOf("Valeria Cruz")).getByText("Investido")).toBeInTheDocument();
+    expect(within(rowOf("Valeria Cruz")).getByText("Resuelto por Mateo Herrera")).toBeInTheDocument();
+    expect(within(rowOf("Lucía Paz")).getByText("Rechazado")).toBeInTheDocument();
+    expect(screen.queryByText(HUMAN_REASON)).not.toBeInTheDocument();
+    expect(
+      within(rowOf("Emiliano Torres")).getByText(`Rechazado automáticamente: ${SYSTEM_TEXT}`),
+    ).toBeInTheDocument();
+  });
 
-    const summary = await screen.findByRole("region", { name: "Resultado de la resolución" });
-    expect(within(summary).getByText("Investidos")).toBeInTheDocument();
-    expect(within(summary).getByText("Rechazados por el sistema")).toBeInTheDocument();
-    expect(within(summary).getByText(SYSTEM_TEXT)).toBeInTheDocument();
+  it("is read-only with a notice when nobody in the list can be authorized by the viewer", () => {
+    renderPage({
+      ...baseRequest,
+      people: baseRequest.people.map((p) => (p.status === "PENDING" ? { ...p, can_authorize: false } : p)),
+    });
+
+    expect(screen.getByText(messages.investiture_requests.detail.readOnlyNotice)).toBeInTheDocument();
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: /Confirmar/ })).not.toBeInTheDocument();
   });
 });

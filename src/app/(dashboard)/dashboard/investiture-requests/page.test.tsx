@@ -51,7 +51,7 @@ describe("InvestitureRequestsPage", () => {
       searchParams: Promise.resolve({}),
     })) as unknown as ElementProps;
 
-    expect(listRequestsMock).toHaveBeenCalledWith(7);
+    expect(listRequestsMock).toHaveBeenCalledWith(7, { includeResolved: true });
     expect(element.props.yearId).toBe(7);
     expect(element.props.requests).toHaveLength(1);
     expect(element.props.loadError).toBeNull();
@@ -60,7 +60,7 @@ describe("InvestitureRequestsPage", () => {
   it("honours ?year= over the active year", async () => {
     await InvestitureRequestsPage({ searchParams: Promise.resolve({ year: "3" }) });
 
-    expect(listRequestsMock).toHaveBeenCalledWith(3);
+    expect(listRequestsMock).toHaveBeenCalledWith(3, { includeResolved: true });
     expect(getActiveYearMock).not.toHaveBeenCalled();
   });
 

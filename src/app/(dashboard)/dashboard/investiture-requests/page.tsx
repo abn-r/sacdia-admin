@@ -53,7 +53,7 @@ export default async function InvestitureRequestsPage({
 
   if (yearId !== null) {
     try {
-      requests = await listInvestitureRequestsForAuthorizer(yearId);
+      requests = await listInvestitureRequestsForAuthorizer(yearId, { includeResolved: true });
     } catch (error) {
       loadError = {
         status: error instanceof ApiError ? error.status : null,
@@ -69,6 +69,7 @@ export default async function InvestitureRequestsPage({
       yearId={yearId}
       years={years}
       loadError={loadError}
+      nowIso={new Date().toISOString()}
       isPastorOnly={isPastorOnlyUser(user)}
     />
   );

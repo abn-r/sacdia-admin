@@ -7,9 +7,13 @@ import messages from "../../../messages/es.json";
 import type { InvestitureRequest } from "@/lib/api/investiture-requests";
 
 const mockPush = vi.hoisted(() => vi.fn());
+const mockReplace = vi.hoisted(() => vi.fn());
+const mockSearch = vi.hoisted(() => ({ value: "" }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace, refresh: vi.fn() }),
+  usePathname: () => "/dashboard/investiture-requests",
+  useSearchParams: () => new URLSearchParams(mockSearch.value),
 }));
 
 global.ResizeObserver = class ResizeObserver {
@@ -24,48 +28,54 @@ if (!Element.prototype.scrollIntoView) {
 
 import { RequestsListClientPage } from "./requests-list-client-page";
 
-const later: InvestitureRequest = {
+const NOW = "2026-11-24T12:00:00.000Z";
+
+const base: InvestitureRequest = {
   request_id: "req-later",
   club_section_id: 2,
   ecclesiastical_year_id: 7,
-  club_id: 11,
-  club_name: "Club Águilas",
+  club_name: "Club Cedros",
   section_name: "Conquistadores",
-  district_name: "Distrito Norte",
-  pending_count: 4,
-  earliest_investiture_date: "2026-11-20",
-  created_at: "2026-10-01T15:00:00.000Z",
+  district_name: "Distrito Sur",
+  pending_count: 5,
+  earliest_investiture_date: "2026-12-06",
+  created_at: "2026-11-15T15:00:00.000Z",
   people: [],
 };
 
 const sooner: InvestitureRequest = {
-  ...later,
+  ...base,
   request_id: "req-sooner",
-  club_name: "Club Halcones",
+  club_name: "Club Orión",
   section_name: "Aventureros",
-  district_name: "Distrito Sur",
+  district_name: "Distrito Norte",
   pending_count: 2,
-  earliest_investiture_date: "2026-11-05",
+  earliest_investiture_date: "2026-11-30",
+  created_at: "2026-11-23T15:00:00.000Z",
+};
+
+const resolved: InvestitureRequest = {
+  ...base,
+  request_id: "req-done",
+  club_name: "Club Faro",
+  pending_count: 0,
+  invested_count: 6,
+  rejected_count: 1,
 };
 
 const years = [
-  {
-    ecclesiastical_year_id: 7,
-    name: "2026",
-    start_date: "2026-01-01",
-    end_date: "2026-12-31",
-    active: true,
-  },
+  { ecclesiastical_year_id: 7, name: "2026", start_date: "2026-01-01", end_date: "2026-12-31", active: true },
 ];
 
 function renderPage(props: Partial<React.ComponentProps<typeof RequestsListClientPage>> = {}) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <RequestsListClientPage
-        requests={[later, sooner]}
+        requests={[base, sooner, resolved]}
         yearId={7}
-        years={years as never}
+        years={years}
         loadError={null}
+        nowIso={NOW}
         {...props}
       />
     </NextIntlClientProvider>,
@@ -75,112 +85,96 @@ function renderPage(props: Partial<React.ComponentProps<typeof RequestsListClien
 describe("RequestsListClientPage", () => {
   afterEach(() => {
     cleanup();
-    vi.clearAllMocks();
+    mockSearch.value = "";
+    mockPush.mockReset();
   });
 
-  it("renders the header and one row per request, soonest date first, linking to the detail", () => {
+  it("states the finding in the header and splits Por autorizar from Resueltas with counts", () => {
     renderPage();
 
-    expect(
-      screen.getByRole("heading", { name: "Autorizaciones de investidura" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Solicitudes pendientes de tu distrito o Campo."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("2 secciones esperan tu autorización")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Por autorizar/ })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: /Por autorizar/ })).toHaveTextContent("2");
+    expect(screen.getByRole("tab", { name: /Resueltas/ })).toHaveTextContent("1");
+  });
 
-    const rows = screen.getAllByRole("row").slice(1);
+  it("lists pending sections soonest first, with how many people are still undecided and the waiting time", () => {
+    renderPage({
+      requests: [
+        { ...base, people: new Array(5).fill(null).map((_, i) => ({ person_id: `p${i}` })) as never },
+        sooner,
+        resolved,
+      ],
+    });
+    const table = screen.getAllByRole("table")[0] as HTMLElement;
+    const rows = within(table).getAllByRole("row").slice(1);
+
     expect(rows).toHaveLength(2);
-    expect(within(rows[0]).getByText("Club Halcones")).toBeInTheDocument();
-    expect(within(rows[0]).getByText("Aventureros")).toBeInTheDocument();
-    expect(within(rows[0]).getByText("Distrito Sur")).toBeInTheDocument();
-    expect(within(rows[0]).getByText("2")).toBeInTheDocument();
-    expect(within(rows[1]).getByText("Club Águilas")).toBeInTheDocument();
-    expect(within(rows[1]).getByText("4")).toBeInTheDocument();
-
-    expect(screen.getByRole("link", { name: "Club Halcones" })).toHaveAttribute(
-      "href",
-      "/dashboard/investiture-requests/req-sooner",
-    );
-    expect(screen.getByRole("link", { name: "Club Águilas" })).toHaveAttribute(
+    expect(within(rows[0] as HTMLElement).getByText("Club Orión")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).getByText("5 de 5")).toBeInTheDocument();
+    // Cedros was submitted 8 days ago, Orión 21 hours ago.
+    expect(within(rows[1] as HTMLElement).getByText("Hace 8 días")).toBeInTheDocument();
+    expect(within(rows[0] as HTMLElement).getByText("Hoy")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).getByRole("link", { name: "Revisar" })).toHaveAttribute(
       "href",
       "/dashboard/investiture-requests/req-later",
     );
   });
 
-  it("opens the detail when the whole row is clicked", async () => {
+  it("shows the resolved ones under the Resueltas tab with their result", () => {
+    mockSearch.value = "tab=resolved";
+    renderPage();
+    const table = screen.getAllByRole("table")[0] as HTMLElement;
+
+    expect(within(table).getByText("Club Faro")).toBeInTheDocument();
+    expect(within(table).getByText("6 investidas · 1 rechazada")).toBeInTheDocument();
+    expect(within(table).queryByText("Club Orión")).not.toBeInTheDocument();
+  });
+
+  it("filters by search and offers to clear it when nothing matches", async () => {
     const user = userEvent.setup();
     renderPage();
 
-    const row = screen.getAllByRole("row")[1];
-    await user.click(within(row).getByText("Aventureros"));
+    await user.type(screen.getByLabelText("Buscar club"), "zzz");
 
-    expect(mockPush).toHaveBeenCalledWith("/dashboard/investiture-requests/req-sooner");
+    expect(screen.getByText("Sin coincidencias")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Limpiar búsqueda" }));
+    expect(screen.getAllByText("Club Orión").length).toBeGreaterThan(0);
   });
 
-  it("shows the empty state when there are no requests", () => {
-    renderPage({ requests: [] });
+  it("uses an empty state when nothing is pending", () => {
+    renderPage({ requests: [resolved] });
 
-    expect(screen.getByText("No hay solicitudes pendientes")).toBeInTheDocument();
-    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText("No hay solicitudes por autorizar")).toBeInTheDocument();
   });
 
-  it("shows the forbidden banner instead of the table when the list is refused", () => {
+  it("explains who authorizes on a 403 instead of an access-denied banner", () => {
+    renderPage({ loadError: { status: 403, message: "No tienes permiso" } });
+
+    expect(screen.getByText("Esta bandeja es para quien autoriza")).toBeInTheDocument();
+    expect(screen.queryByText(/Acceso denegado/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+  });
+
+  it("keeps the pastor-without-districts copy for a pastor-only viewer", () => {
     renderPage({
-      requests: [],
-      loadError: { status: 403, message: "Tu rol no puede ver esta lista." },
-    });
-
-    expect(screen.getByText("Tu rol no puede ver esta lista.")).toBeInTheDocument();
-    expect(screen.getByText("Acceso denegado")).toBeInTheDocument();
-    expect(screen.queryByText("No hay solicitudes pendientes")).not.toBeInTheDocument();
-  });
-
-  it("shows a no-districts empty state instead of the banner for a pastor without districts", () => {
-    renderPage({
-      requests: [],
       isPastorOnly: true,
-      loadError: {
-        status: 403,
-        code: "INVESTITURE_REQUEST_FORBIDDEN",
-        message: "Tu rol no puede ver esta lista.",
-      },
+      loadError: { status: 403, code: "INVESTITURE_REQUEST_FORBIDDEN", message: "x" },
     });
 
-    expect(screen.getByText("Todavía no tienes distritos asignados")).toBeInTheDocument();
-    expect(screen.getByText("Pide al Campo que te asigne.")).toBeInTheDocument();
-    expect(screen.queryByText("Acceso denegado")).not.toBeInTheDocument();
-    expect(screen.queryByText("Tu rol no puede ver esta lista.")).not.toBeInTheDocument();
+    expect(screen.getByText(messages.investiture_requests.list.noDistrictsTitle)).toBeInTheDocument();
   });
 
-  it("keeps the forbidden banner for non-pastor roles", () => {
-    renderPage({
-      requests: [],
-      isPastorOnly: false,
-      loadError: {
-        status: 403,
-        code: "INVESTITURE_REQUEST_FORBIDDEN",
-        message: "Tu rol no puede ver esta lista.",
-      },
-    });
+  it("never passes a failed load off as an empty list", () => {
+    renderPage({ requests: [], loadError: { status: 500, message: "Falló el servidor" } });
 
-    expect(screen.getByText("Acceso denegado")).toBeInTheDocument();
-    expect(screen.queryByText("Todavía no tienes distritos asignados")).not.toBeInTheDocument();
+    expect(screen.getByText("Falló el servidor")).toBeInTheDocument();
+    expect(screen.queryByText("No hay solicitudes por autorizar")).not.toBeInTheDocument();
   });
 
-  it("keeps the banner for a pastor when the failure is not a 403", () => {
-    renderPage({
-      requests: [],
-      isPastorOnly: true,
-      loadError: { status: 500, message: "Falló" },
-    });
+  it("asks for a year when the catalog has none", () => {
+    renderPage({ yearId: null, requests: [] });
 
-    expect(screen.getByText("Falló")).toBeInTheDocument();
-    expect(screen.queryByText("Todavía no tienes distritos asignados")).not.toBeInTheDocument();
-  });
-
-  it("explains that there is no active year when yearId is null", () => {
-    renderPage({ requests: [], yearId: null });
-
-    expect(screen.getByText("No hay un año eclesiástico activo")).toBeInTheDocument();
+    expect(screen.getByText(messages.investiture_requests.list.noYearTitle)).toBeInTheDocument();
   });
 });
