@@ -1,30 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/shared/page-header";
-import { ClubDetailHero } from "@/components/clubs/detail/hero";
+import { DetailHeader, type DetailHeaderFact } from "@/components/shared/detail-header";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { UrlTabs, useUrlTab } from "@/components/shared/url-tabs";
+import { clubLocationName } from "@/components/clubs/detail/location";
 import { GeneralTab } from "@/components/clubs/detail/general-tab";
 import { HistoryTab } from "@/components/clubs/detail/history-tab";
-import { clubLocationName } from "@/components/clubs/detail/location";
+import { MembersTab } from "@/components/clubs/detail/members-tab";
 import { ReportsTab } from "@/components/clubs/detail/reports-tab";
-import { RolesTab } from "@/components/clubs/detail/roles-tab";
 import { SectionsTab } from "@/components/clubs/detail/sections-tab";
-import {
-  CLUB_DETAIL_TABS,
-  resolveClubDetailTab,
-} from "@/components/clubs/detail/tab-utils";
-import { UserDetailStats, type StatItem } from "@/components/users/detail/stats";
 import type { AnnualReport, QuarterlyReport } from "@/lib/api/reports";
+import { summarizeClubFacts } from "@/lib/clubs/detail-members";
 import {
-  summarizeClubSectionKpis,
-  type ClubDetailPayload,
-  type ClubDetailTab,
-} from "@/lib/clubs/types";
+  resolveClubDetailTab,
+  visibleClubDetailTabs,
+  type ClubDetailTabKey,
+} from "@/lib/clubs/detail-tabs";
+import type { ClubDetailPayload } from "@/lib/clubs/types";
+
+export interface ClubDetailYearLabels {
+  /** "2026": the ecclesiastical year in force; null when it cannot be resolved. */
+  current: string | null;
+  /** "2027": the year the director designation and annual enrollment target. */
+  next: string | null;
+}
 
 interface ClubDetailViewProps {
   data: ClubDetailPayload;
@@ -35,14 +38,26 @@ interface ClubDetailViewProps {
   quarterlyReportsError?: boolean;
   /**
    * Capability reports.view_periodic: coordinators cannot see quarterly /
-   * annual reports, so the tab and its counter are hidden for them.
+   * annual reports, so the tab is hidden for them.
    */
   canViewPeriodicReports?: boolean;
-  /** reports:read — rows link to the report detail. */
+  /** reports:read: rows link to the report detail. */
   canOpenReports?: boolean;
-  /** clubs:update — shows the "Editar" action in the header. */
+  /** clubs:update: shows the "Editar" action in the header. */
   canEdit?: boolean;
-  defaultTab: ClubDetailTab;
+  /** clubs:revoke_roles: shows "Quitar cargo" in the sections tab. */
+  canRevokeRoles?: boolean;
+  yearLabels?: ClubDetailYearLabels;
+  defaultTab?: ClubDetailTabKey;
+}
+
+function clubInitials(name: string): string {
+  const letters = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase());
+  return letters.join("") || "?";
 }
 
 export function ClubDetailView({
@@ -54,90 +69,82 @@ export function ClubDetailView({
   canViewPeriodicReports = true,
   canOpenReports = false,
   canEdit = false,
-  defaultTab,
+  canRevokeRoles,
+  yearLabels = { current: null, next: null },
+  defaultTab = "general",
 }: ClubDetailViewProps) {
-  const t = useTranslations("clubs.detail");
-  const tGeneral = useTranslations("clubs.detail.general");
+  const t = useTranslations("people.clubDetail");
+  const tDetail = useTranslations("clubs.detail");
   const tList = useTranslations("clubs.pages.list");
   const tActions = useTranslations("clubs.pages.v2");
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const visibleTabs = CLUB_DETAIL_TABS.filter(
-    (tab) => tab !== "reports" || canViewPeriodicReports,
-  );
-  const requestedTab = resolveClubDetailTab(searchParams.get("tab") ?? defaultTab);
-  const activeTab = visibleTabs.includes(requestedTab) ? requestedTab : "general";
 
-  const clubName = data.club.name ?? t("fallbackTitle");
+  const requested = resolveClubDetailTab(useUrlTab("tab", defaultTab));
+  const visibleTabs = visibleClubDetailTabs(canViewPeriodicReports);
+  const activeTab = visibleTabs.includes(requested) ? requested : "general";
+
+  const clubName = data.club.name ?? tDetail("fallbackTitle");
   const isActive = data.club.active !== false;
-  const localField = clubLocationName(data.club.local_field, data.club.local_fields);
-  const district = clubLocationName(data.club.district, data.club.districts);
-  const church = clubLocationName(data.club.church, data.club.churches);
-  const address = data.club.address?.trim() || undefined;
-  const kpis = summarizeClubSectionKpis(data.sectionMemberGroups);
-  const sectionNames = kpis.sectionNames;
-  const membersTotal = kpis.membersTotal;
-  const sectionsCount = kpis.sectionsActive;
-  const soulsTotal = kpis.soulsTotal;
-  const reportsCount = annualReports.length + quarterlyReports.length;
+  const place = [
+    clubLocationName(data.club.local_field, data.club.local_fields),
+    clubLocationName(data.club.district, data.club.districts),
+    clubLocationName(data.club.church, data.club.churches),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-  const statItems: (StatItem | false)[] = [
+  const summary = summarizeClubFacts(data.sectionMemberGroups);
+  const facts: DetailHeaderFact[] = [
+    { label: t("facts.members"), value: summary.members },
     {
-      label: t("stats.membersLabel"),
-      value: membersTotal,
-      sub: t("stats.membersSub", { count: membersTotal }),
-      accent: tGeneral("membersCount", { count: membersTotal }),
+      label: t("facts.sections"),
+      value: t("facts.sectionsOf", {
+        active: summary.sectionsActive,
+        total: data.clubTypes.length || summary.sectionsRegistered,
+      }),
     },
-    {
-      label: t("stats.sectionsLabel"),
-      value: sectionsCount,
-      sub:
-        kpis.sectionsRegistered === 0
-          ? t("stats.sectionsEmpty")
-          : kpis.sectionsRegistered > kpis.sectionsActive
-            ? t("stats.sectionsActiveOfRegistered", {
-                active: kpis.sectionsActive,
-                total: kpis.sectionsRegistered,
-              })
-            : t("stats.sectionsActive", { count: kpis.sectionsActive }),
-      accent: localField ?? t("sidebar.dash"),
-    },
-    {
-      label: t("stats.soulsLabel"),
-      value: soulsTotal ?? t("sidebar.dash"),
-      sub: t("stats.soulsSub"),
-      accent: tGeneral("labelSoulsTarget"),
-    },
-    canViewPeriodicReports && {
-      label: t("stats.reportsLabel"),
-      value: reportsCount,
-      sub:
-        reportsCount === 0
-          ? t("stats.reportsEmpty")
-          : t("stats.reportsSub", { count: reportsCount }),
-      accent: t("tabs.reports"),
-    },
+    ...(summary.souls != null ? [{ label: t("facts.souls"), value: summary.souls }] : []),
   ];
 
-  function handleTabChange(nextTab: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextTab === "general") {
-      params.delete("tab");
-    } else {
-      params.set("tab", nextTab);
-    }
-    const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
-  }
+  const tabLabels: Record<ClubDetailTabKey, string> = {
+    general: t("tabs.general"),
+    sections: t("tabs.sections"),
+    members: t("tabs.members"),
+    reports: t("tabs.reports"),
+    history: t("tabs.history"),
+  };
+
+  const counts: Partial<Record<ClubDetailTabKey, number>> = {
+    sections: summary.sectionsRegistered,
+    members: summary.members,
+  };
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        breadcrumbs={[
-          { label: tList("title"), href: "/dashboard/clubs" },
-          { label: clubName },
-        ]}
+      <DetailHeader
+        breadcrumbs={[{ label: tList("title"), href: "/dashboard/clubs" }, { label: clubName }]}
+        media={
+          <span
+            aria-hidden="true"
+            className="grid size-14 place-items-center bg-primary-soft font-semibold text-lg text-primary-soft-foreground"
+          >
+            {clubInitials(clubName)}
+          </span>
+        }
+        title={clubName}
+        subtitle={
+          place || !isActive ? (
+            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+              {place ? <span>{place}</span> : null}
+              <ExceptionStatus<"active" | "inactive">
+                value={isActive ? "active" : "inactive"}
+                normal={["active"]}
+                labels={{ active: t("status.active"), inactive: t("status.inactive") }}
+                intents={{ inactive: "neutral" }}
+              />
+            </span>
+          ) : undefined
+        }
+        facts={facts}
         actions={
           canEdit ? (
             <Button asChild variant="outline" size="sm">
@@ -150,62 +157,35 @@ export function ClubDetailView({
         }
       />
 
-      <ClubDetailHero
-        name={clubName}
-        isActive={isActive}
-        localField={localField}
-        district={district}
-        church={church}
-        address={address}
-        sectionNames={sectionNames}
-        statusActiveLabel={tGeneral("statusActive")}
-        statusInactiveLabel={tGeneral("statusInactive")}
-        metaLabels={{
-          status: tGeneral("labelStatus"),
-          localField: tGeneral("labelLocalField"),
-          district: tGeneral("labelDistrict"),
-          church: tGeneral("labelChurch"),
-          section: t("roles.sectionLabel"),
-        }}
+      <UrlTabs
+        ariaLabel={t("tabsLabel")}
+        defaultValue="general"
+        tabs={visibleTabs.map((tab) => ({
+          value: tab,
+          label: tabLabels[tab],
+          ...(counts[tab] !== undefined ? { count: counts[tab] } : {}),
+        }))}
       />
 
-      <UserDetailStats items={statItems.filter((item): item is StatItem => item !== false)} />
-
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
-        <TabsList className="h-auto min-h-8 w-full flex-wrap">
-          {visibleTabs.map((tab) => (
-            <TabsTrigger key={tab} value={tab}>
-              {t(`tabs.${tab}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <div className="mt-4 min-w-0">
-          <TabsContent value="general" className="mt-0">
-            <GeneralTab data={data} />
-          </TabsContent>
-          <TabsContent value="sections" className="mt-0">
-            <SectionsTab data={data} />
-          </TabsContent>
-          <TabsContent value="roles" className="mt-0">
-            <RolesTab data={data} />
-          </TabsContent>
-          {canViewPeriodicReports ? (
-            <TabsContent value="reports" className="mt-0">
-              <ReportsTab
-                annualReports={annualReports}
-                quarterlyReports={quarterlyReports}
-                annualReportsError={annualReportsError}
-                quarterlyReportsError={quarterlyReportsError}
-                canOpenReports={canOpenReports}
-              />
-            </TabsContent>
-          ) : null}
-          <TabsContent value="history" className="mt-0">
-            <HistoryTab clubId={data.clubId} sections={data.sectionMemberGroups} />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="min-w-0">
+        {activeTab === "general" ? <GeneralTab data={data} /> : null}
+        {activeTab === "sections" ? <SectionsTab data={data} yearLabels={yearLabels} canRevokeRoles={canRevokeRoles} /> : null}
+        {activeTab === "members" ? (
+          <MembersTab data={data} classYearLabel={yearLabels.current} />
+        ) : null}
+        {activeTab === "reports" && canViewPeriodicReports ? (
+          <ReportsTab
+            annualReports={annualReports}
+            quarterlyReports={quarterlyReports}
+            annualReportsError={annualReportsError}
+            quarterlyReportsError={quarterlyReportsError}
+            canOpenReports={canOpenReports}
+          />
+        ) : null}
+        {activeTab === "history" ? (
+          <HistoryTab clubId={data.clubId} sections={data.sectionMemberGroups} />
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,11 @@
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 import messages from "../../../../messages/es.json";
 import type { AnnualReport, QuarterlyReport } from "@/lib/api/reports";
 import { ReportsTab } from "./reports-tab";
@@ -38,11 +42,11 @@ describe("ReportsTab", () => {
   it("links each row to the report detail and shows the localized status", () => {
     renderTab({ canOpenReports: true });
 
-    expect(screen.getByRole("link", { name: "2025-2026" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Anual 2025-2026" })).toHaveAttribute(
       "href",
       "/dashboard/reports/annual/31",
     );
-    expect(screen.getByRole("link", { name: "2026" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Trimestral · T2 2026" })).toHaveAttribute(
       "href",
       "/dashboard/reports/quarterly/11",
     );
@@ -50,25 +54,46 @@ describe("ReportsTab", () => {
     expect(screen.getByText("En curso")).toBeInTheDocument();
   });
 
+  it("lists annual and quarterly reports in a single table", () => {
+    renderTab();
+
+    expect(screen.getAllByRole("table")).toHaveLength(1);
+    expect(screen.getAllByRole("row")).toHaveLength(3); // header + 2 reports
+  });
+
   it("does not link rows when the user cannot open reports", () => {
     renderTab({ canOpenReports: false });
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
-    expect(screen.getByText("2025-2026")).toBeInTheDocument();
+    expect(screen.getByText("Anual 2025-2026")).toBeInTheDocument();
   });
 
-  it("shows an error instead of the empty message when a list failed to load", () => {
+  it("shows an error, not an empty table, when a list failed to load", () => {
     renderTab({ annualReports: [], annualReportsError: true });
 
     expect(screen.getByText(/No se pudieron cargar los informes anuales/)).toBeInTheDocument();
-    expect(screen.queryByText("Sin informes anuales.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sin informes")).not.toBeInTheDocument();
     // The other list still renders.
     expect(screen.getByText("En curso")).toBeInTheDocument();
   });
 
-  it("shows the empty message when a list is genuinely empty", () => {
-    renderTab({ quarterlyReports: [] });
+  it("keeps the table headers and shows the error inside when both lists failed", () => {
+    renderTab({
+      annualReports: [],
+      quarterlyReports: [],
+      annualReportsError: true,
+      quarterlyReportsError: true,
+    });
 
-    expect(screen.getByText("Sin informes trimestrales.")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Informe" })).toBeInTheDocument();
+    expect(screen.getByText("No pudimos cargar los informes del club.")).toBeInTheDocument();
+    expect(screen.queryByText("Sin informes")).not.toBeInTheDocument();
+  });
+
+  it("shows an empty state outside the table when there are genuinely no reports", () => {
+    renderTab({ annualReports: [], quarterlyReports: [] });
+
+    expect(screen.getByText("Sin informes")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });
