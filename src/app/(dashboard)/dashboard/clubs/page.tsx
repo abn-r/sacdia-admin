@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { ClubsListClient } from "@/components/clubs/clubs-list-client";
-import { RefreshButton } from "@/components/shared/refresh-button";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
-import { fetchClubsList } from "@/lib/clubs/fetch-list";
+import { loadClubsList } from "@/lib/clubs/list-load";
 import {
   canAdminFilterByLocalField,
   listLocalFieldsForTerritory,
@@ -30,7 +28,6 @@ export default async function ClubsPage({
   searchParams: SearchParams;
 }) {
   const user = await requireAdminUser();
-  const t = await getTranslations("clubs.pages.list");
   const raw = await searchParams;
 
   const page = readPositiveNumberParam(raw, "page") ?? 1;
@@ -58,7 +55,7 @@ export default async function ClubsPage({
       ? requestedLocalFieldId
       : undefined;
 
-  const result = await fetchClubsList({
+  const result = await loadClubsList({
     page,
     limit,
     active,
@@ -71,31 +68,19 @@ export default async function ClubsPage({
     value: localField.local_field_id,
   }));
   const canEdit = canCapability(user, "clubs", "update");
+  const canCreate = canCapability(user, "clubs", "create");
   const canBulkImport = canCapability(user, "clubs", "bulk_create");
 
-  if (!result.available) {
-    return (
-      <div className="space-y-6">
-        <EndpointErrorBanner
-          state="missing"
-          detail={
-            result.error === "UNEXPECTED"
-              ? t("unexpectedError")
-              : (result.error ?? t("endpointError"))
-          }
-        />
-        <RefreshButton className="mt-0" />
-      </div>
-    );
-  }
-
+  // A failed load keeps the header and filters; only the content changes.
   return (
     <ClubsListClient
-      items={result.items}
-      meta={result.meta}
+      items={result.ok ? result.items : []}
+      meta={result.ok ? result.meta : { page, limit, total: 0, totalPages: 1 }}
       localFieldOptions={localFieldOptions}
       canEdit={canEdit}
+      canCreate={canCreate}
       canBulkImport={canBulkImport}
+      loadError={result.ok ? undefined : result.error}
     />
   );
 }

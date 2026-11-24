@@ -1,597 +1,571 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
-import { LayoutGrid, AlertTriangle } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { formatDate } from "@/lib/format-locale";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { flagStatusIntent } from "@/lib/status/flag-status";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { LayoutGrid } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { Segmented } from "@/components/shared/segmented";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { UserAvatar } from "@/components/users/user-avatar";
-import {
-  DetailSection,
-  DetailField,
-  DetailCols2,
-} from "@/components/users/detail/section";
+import { AssignPositionDialog } from "@/components/clubs/detail/assign-position-dialog";
+import type { ClubDetailYearLabels } from "@/components/clubs/detail/club-detail-view";
+import { ContinuationsSheet } from "@/components/clubs/detail/continuations-sheet";
+import { DesignateDirectorDialog } from "@/components/clubs/detail/designate-director-dialog";
+import { SectionBlock } from "@/components/clubs/detail/section-block";
+import { SectionPositions } from "@/components/clubs/detail/section-positions";
+import { SucceedDirectorDialog } from "@/components/clubs/detail/succeed-director-dialog";
+import { useContinuations } from "@/components/clubs/detail/use-continuations";
+import { useDetailAction } from "@/components/clubs/detail/use-detail-action";
+import { useToastError } from "@/lib/feedback/toast-retry";
+import { listClasses } from "@/lib/api/classes";
+import { listClassCounselorAssignments, type ClassCounselorAssignment } from "@/lib/api/clubs";
 import { useRoleLabel } from "@/lib/auth/role-labels";
+import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
 import {
   createClubSectionAction,
+  revokeClassCounselorAction,
+  revokeClubRoleAction,
   toggleClubSectionActiveAction,
-  type DetailActionState,
 } from "@/lib/clubs/detail-actions";
+import { uniqueMemberCount, uniqueMembers } from "@/lib/clubs/detail-members";
 import {
-  designateClubSectionDirectorAction,
-  type ClubActionState,
-} from "@/lib/clubs/actions";
+  buildPositionRows,
+  counselorHolders,
+  findRoleForPosition,
+  isKnownDesignationBlockCode,
+  pickInitialSectionId,
+  POSITION_KEYS,
+  type PositionHolder,
+  type PositionKey,
+} from "@/lib/clubs/detail-positions";
 import {
   findSectionDirectorMember,
-  getSectionOfficers,
   isClubSectionActive,
-  clubSectionTypeName,
-  resolveClubTypeSlots,
   type ClubDetailPayload,
-  type ClubSectionRaw,
-  type SectionOfficerPerson,
-  type SectionOfficerRole,
-  type SectionOfficers,
+  type SectionMembersGroup,
 } from "@/lib/clubs/types";
-import { isMasterGuidesClubType } from "@/lib/clubs/club-type";
-import type { ClubSectionMember } from "@/lib/api/clubs";
-import { AnnualContinuationsBlock } from "@/components/clubs/detail/annual-continuations-block";
-import { SuccessionBlock } from "@/components/clubs/detail/succession-block";
+import { formatDateTime } from "@/lib/format-locale";
 
 interface SectionsTabProps {
   data: ClubDetailPayload;
+  yearLabels: ClubDetailYearLabels;
+  /** clubs:revoke_roles. Defaults to the manage_roles capability. */
+  canRevokeRoles?: boolean;
 }
 
-function findSectionForType(
-  sections: ClubSectionRaw[],
-  clubTypeId: number,
-): ClubSectionRaw | undefined {
-  return sections.find(
-    (section) =>
-      section.club_type_id === clubTypeId ||
-      section.club_types?.club_type_id === clubTypeId,
-  );
+type ClassOption = { class_id: number; name: string };
+
+function formData(entries: Record<string, string>): FormData {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(entries)) form.set(key, value);
+  return form;
 }
 
-function EnableMissingButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button loading={pending} type="submit" className="w-full">
-      {label}
-    </Button>
-  );
-}
-
-function EnableMissingSectionSlot({
-  clubId,
-  clubTypeId,
-  typeName,
-  canManage,
-}: {
-  clubId: number;
-  clubTypeId: number;
-  typeName: string;
-  canManage: boolean;
-}) {
-  const t = useTranslations("clubs.detail.sections");
+export function SectionsTab({ data, yearLabels, canRevokeRoles }: SectionsTabProps) {
+  const t = useTranslations("people.clubDetail.sections");
+  const tSections = useTranslations("clubs.detail.sections");
   const router = useRouter();
-  const boundAction = createClubSectionAction.bind(null, clubId);
-  const [state, action] = useActionState(boundAction, {} as DetailActionState);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const run = useDetailAction();
+  const toastError = useToastError();
 
-  useEffect(() => {
-    if (state.ok) {
-      router.refresh();
-    }
-  }, [state.ok, router]);
-
-  return (
-    <Card className="gap-4 border-dashed bg-muted/10 py-5">
-      <CardContent className="space-y-4">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="grid size-12 place-items-center rounded-xl border border-dashed bg-muted/30 text-muted-foreground">
-            <LayoutGrid className="size-5" />
-          </span>
-          <div>
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              {typeName}
-            </h3>
-            <p className="mt-1 text-xs text-muted-foreground">{t("notCreated")}</p>
-          </div>
-        </div>
-
-        {canManage ? (
-          <form action={action} className="space-y-3 border-t pt-4">
-            <input type="hidden" name="club_type_id" value={clubTypeId} />
-            {state.error ? (
-              <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                {state.error}
-              </p>
-            ) : null}
-            {state.success ? (
-              <p className="rounded-md bg-primary/10 px-3 py-2 text-xs text-primary">
-                {state.success}
-              </p>
-            ) : null}
-            <EnableMissingButton label={t("enableMissing")} />
-          </form>
-        ) : (
-          <p className="border-t pt-4 text-center text-xs text-muted-foreground">
-            {t("noPermission")}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function SectionActiveToggle({
-  clubId,
-  sectionId,
-  active,
-  disabled,
-  locked,
-}: {
-  clubId: number;
-  sectionId: number;
-  active: boolean;
-  disabled: boolean;
-  locked?: boolean;
-}) {
-  const t = useTranslations("clubs.detail.sections");
-  const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
-  const boundAction = toggleClubSectionActiveAction.bind(null, clubId, sectionId);
-  const [state, action, pending] = useActionState(
-    boundAction,
-    {} as DetailActionState,
+  const groups = data.sectionMemberGroups;
+  const selectedId = pickInitialSectionId(groups, searchParams.get("section"));
+  const group = groups.find((row) => row.sectionId === selectedId) ?? null;
+  const missingTypes = data.clubTypes.filter(
+    (type) => !groups.some((row) => row.clubTypeId === type.club_type_id),
   );
 
-  useEffect(() => {
-    if (state.ok) {
-      router.refresh();
-    }
-  }, [state.ok, router]);
+  function select(sectionId: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", "sections");
+    params.set("section", String(sectionId));
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
-  if (locked) {
-    return (
-      <div className="space-y-1">
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-xs text-muted-foreground">
-            {t("masterGuidesLockedHint")}
-          </span>
-          <Switch
-            type="button"
-            checked={active}
-            disabled
-            aria-label={t("masterGuidesLockedHint")}
-          />
-        </div>
-      </div>
-    );
+  async function enableMissing(clubTypeId: number) {
+    try {
+      await run(() => createClubSectionAction(data.clubId, {}, formData({ club_type_id: String(clubTypeId) })));
+    } catch (error) {
+      toastError({
+        title: t("enableFailed"),
+        description: error instanceof Error ? error.message : undefined,
+        onRetry: () => void enableMissing(clubTypeId),
+      });
+    }
+  }
+
+  if (groups.length === 0 && missingTypes.length === 0) {
+    return <EmptyState icon={LayoutGrid} title={t("empty")} />;
   }
 
   return (
-    <form ref={formRef} action={action} className="space-y-2">
-      <input type="hidden" name="active" value={active ? "false" : "true"} />
-      <div className="flex items-center justify-end gap-2">
-        <span className="text-xs text-muted-foreground">
-          {active ? t("disableLabel") : t("enableLabel")}
-        </span>
-        <Switch
-          type="button"
-          checked={active}
-          disabled={disabled || pending}
-          onCheckedChange={() => formRef.current?.requestSubmit()}
-          aria-label={active ? t("disableLabel") : t("enableLabel")}
+    <div className="space-y-6">
+      {groups.length > 0 ? (
+        <Segmented<number>
+          label={t("pickerLabel")}
+          options={groups.map((row) => ({ value: row.sectionId, label: row.sectionName }))}
+          value={selectedId ?? groups[0]!.sectionId}
+          onChange={select}
+          className="flex-wrap"
         />
-      </div>
-      {state.error ? (
-        <p role="alert" className="text-xs text-destructive">
-          {state.error}
-        </p>
       ) : null}
-    </form>
-  );
-}
 
-function OfficerPersonRow({
-  person,
-  roleLabel,
-}: {
-  person: SectionOfficerPerson;
-  roleLabel: string;
-}) {
-  return (
-    <div className="flex items-center gap-3.5 rounded-xl border border-border bg-card p-3">
-      <UserAvatar src={person.image} name={person.name} size={40} className="rounded-xl" />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-foreground">{person.name}</p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{roleLabel}</p>
-      </div>
+      {group ? (
+        <SectionPanel
+          key={group.sectionId}
+          data={data}
+          group={group}
+          yearLabels={yearLabels}
+          canRevokeRoles={canRevokeRoles ?? data.canManageRoles}
+        />
+      ) : null}
+
+      {missingTypes.length > 0 ? (
+        <SectionBlock title={t("missingHeading")}>
+          <ul className="divide-y rounded-xl bg-card shadow-card">
+            {missingTypes.map((type) => (
+              <li key={type.club_type_id} className="flex items-center gap-4 px-4 py-3">
+                <span className="flex-1">
+                  <span className="font-medium">{type.name}</span>
+                  <span className="text-muted-foreground text-sm"> · {tSections("notCreated")}</span>
+                </span>
+                {data.canCreateSections ? (
+                  <Button variant="outline" size="sm" onClick={() => void enableMissing(type.club_type_id)}>
+                    {tSections("enableMissing")}
+                  </Button>
+                ) : (
+                  <span className="text-muted-foreground text-xs">{tSections("noPermission")}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </SectionBlock>
+      ) : null}
     </div>
   );
 }
 
-function OfficerRoleBlock({
-  heading,
-  people,
-  roleLabel,
-  emptyLabel,
-  compactList = false,
+function SectionPanel({
+  data,
+  group,
+  yearLabels,
+  canRevokeRoles,
 }: {
-  heading: string;
-  people: SectionOfficerPerson[];
-  roleLabel: string;
-  emptyLabel: string;
-  compactList?: boolean;
+  data: ClubDetailPayload;
+  group: SectionMembersGroup;
+  yearLabels: ClubDetailYearLabels;
+  canRevokeRoles: boolean;
 }) {
-  return (
-    <div className="space-y-1.5">
-      <p className="text-2xs font-semibold text-muted-foreground">
-        {heading}
-      </p>
-      {people.length > 0 ? (
-        <div
-          className={
-            compactList
-              ? "max-h-36 space-y-1.5 overflow-y-auto pr-0.5"
-              : "space-y-1.5"
-          }
-        >
-          {people.map((person) => (
-            <OfficerPersonRow
-              key={person.userId}
-              person={person}
-              roleLabel={roleLabel}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">{emptyLabel}</p>
-      )}
-    </div>
-  );
-}
-
-const OFFICER_BLOCK_ORDER: Array<{
-  role: SectionOfficerRole;
-  headingKey?: "directorLabel" | "counselorsLabel";
-  omitWhenEmpty?: boolean;
-  compactList?: boolean;
-}> = [
-  { role: "director", headingKey: "directorLabel" },
-  { role: "deputy-director" },
-  { role: "secretary" },
-  { role: "secretary-treasurer", omitWhenEmpty: true },
-  { role: "treasurer" },
-  { role: "counselor", headingKey: "counselorsLabel", compactList: true },
-];
-
-function DesignationSubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button loading={pending} type="submit" size="sm" variant="outline" className="w-full">
-      {label}
-    </Button>
-  );
-}
-
-export function DesignationBlock({
-  clubId,
-  sectionId,
-  nextYearId,
-  existingUserId,
-  successionId,
-  version,
-  members,
-  blockCode = null,
-  lastAttemptAt = null,
-}: {
-  clubId: number;
-  sectionId: number;
-  nextYearId: number;
-  existingUserId: string | null;
-  successionId: string | null;
-  version: number | null;
-  members: ClubSectionMember[];
-  blockCode?: string | null;
-  lastAttemptAt?: string | null;
-}) {
-  const t = useTranslations("clubs.detail.sections");
+  const t = useTranslations("people.clubDetail.sections");
+  const tSections = useTranslations("clubs.detail.sections");
+  const tPositions = useTranslations("people.clubDetail.positions");
   const locale = useLocale();
-  const router = useRouter();
-  const boundAction = designateClubSectionDirectorAction.bind(null, clubId, sectionId);
-  const [state, action] = useActionState(boundAction, {} as ClubActionState);
+  const format = useFormatter();
+  const run = useDetailAction();
+  const toastError = useToastError();
+  const translateRole = useRoleLabel();
+
+  const sectionId = group.sectionId;
+  const sectionRaw = data.sections.find((row) => row.club_section_id === sectionId);
+  const active = isClubSectionActive(group);
+  const lockedActive =
+    active &&
+    isMasterGuidesClubType({
+      name: group.clubTypeName,
+      slug: sectionRaw?.club_type?.slug,
+    });
+  const people = useMemo(() => uniqueMembers(group.members), [group.members]);
+  const director = findSectionDirectorMember(group.members);
+  const designation = data.designationsBySectionId[sectionId] ?? null;
+  const canDesignate = data.canDesignateNextDirector && data.nextYearId != null;
+  const canSucceed =
+    data.canSucceedDirector && data.currentYearId != null && Boolean(director?.assignment_id);
+  const nextYear = yearLabels.next;
+
+  const [assignKey, setAssignKey] = useState<PositionKey | null>(null);
+  const [revoke, setRevoke] = useState<{ key: PositionKey; holder: PositionHolder } | null>(null);
+  const [designateOpen, setDesignateOpen] = useState(false);
+  const [succeedOpen, setSucceedOpen] = useState(false);
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const [counselors, setCounselors] = useState<{
+    loading: boolean;
+    failed: boolean;
+    items: ClassCounselorAssignment[];
+  }>({ loading: true, failed: false, items: [] });
+  const [classes, setClasses] = useState<ClassOption[]>([]);
+
+  const requestCounselors = useCallback(async () => {
+    const payload = await listClassCounselorAssignments(data.clubId, sectionId, { active: true });
+    return Array.isArray(payload)
+      ? payload
+      : Array.isArray((payload as { data?: unknown }).data)
+        ? (payload as unknown as { data: ClassCounselorAssignment[] }).data
+        : [];
+  }, [data.clubId, sectionId]);
+
+  /** Retry / reload after a change: shows the loading row first. */
+  const loadCounselors = useCallback(() => {
+    setCounselors((current) => ({ ...current, loading: true, failed: false }));
+    requestCounselors()
+      .then((items) => setCounselors({ loading: false, failed: false, items }))
+      .catch(() => setCounselors((current) => ({ ...current, loading: false, failed: true })));
+  }, [requestCounselors]);
 
   useEffect(() => {
-    if (state.success) {
-      router.refresh();
-    }
-  }, [state.success, router]);
+    // The first load starts from the initial `loading: true` state.
+    let cancelled = false;
+    requestCounselors()
+      .then((items) => {
+        if (!cancelled) setCounselors({ loading: false, failed: false, items });
+      })
+      .catch(() => {
+        if (!cancelled) setCounselors((current) => ({ ...current, loading: false, failed: true }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [requestCounselors]);
 
-  const existingMember = existingUserId
-    ? members.find((m) => m.user_id === existingUserId)
-    : null;
+  useEffect(() => {
+    let cancelled = false;
+    listClasses({ clubTypeId: group.clubTypeId, limit: 100 })
+      .then((payload) => {
+        const rows = Array.isArray(payload)
+          ? payload
+          : ((payload as { data?: ClassOption[] }).data ?? []);
+        if (!cancelled) {
+          setClasses(rows.map((row) => ({ class_id: row.class_id, name: row.name })));
+        }
+      })
+      .catch(() => {
+        // Without names the sheet says "class pending"; the counselor dialog lists none.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [group.clubTypeId]);
 
-  const existingName =
-    existingMember?.name ?? (existingUserId ? existingUserId : null);
+  const continuations = useContinuations(sectionId, data.canEnrollAnnualContinuations);
 
-  return (
-    <div className="mt-4 space-y-2 rounded-xl border border-dashed border-border/70 bg-muted/10 p-4">
-      <p className="text-2xs font-semibold text-muted-foreground">
-        {t("designatedHeading", { year: nextYearId })}
-      </p>
+  const rows = useMemo(() => {
+    const base = buildPositionRows(group.members, data.leadership, group.sectionName);
+    return base.map((row) =>
+      row.key === "counselor" ? { ...row, holders: counselorHolders(counselors.items) } : row,
+    );
+  }, [group.members, group.sectionName, data.leadership, counselors.items]);
 
-      {existingName ? (
-        <p className="truncate text-sm font-bold text-foreground">{existingName}</p>
-      ) : (
-        <p className="text-sm text-muted-foreground">{t("noDesignation")}</p>
-      )}
-
-      <p className="text-2xs text-muted-foreground">{t("designateHint")}</p>
-      <p className="text-2xs text-muted-foreground">{t("designateWindowHint")}</p>
-
-      {blockCode ? (
-        <div
-          role="status"
-          className="flex items-start gap-2 text-xs text-warning"
-        >
-          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <div className="space-y-0.5">
-            <p className="font-medium">
-              {t.has(`designationBlock.${blockCode}` as never)
-                ? t(`designationBlock.${blockCode}` as never)
-                : blockCode}
-            </p>
-            {lastAttemptAt ? (
-              <p>
-                {t("lastAttempt", {
-                  date: formatDate(lastAttemptAt, locale, {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
-                })}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      <form action={action} className="space-y-2 border-t pt-3">
-        <input type="hidden" name="ecclesiastical_year_id" value={nextYearId} />
-        {existingUserId ? (
-          <>
-            <input type="hidden" name="replace" value="true" />
-            {successionId ? (
-              <input type="hidden" name="succession_id" value={successionId} />
-            ) : null}
-            {version != null ? (
-              <input type="hidden" name="version" value={String(version)} />
-            ) : null}
-          </>
-        ) : null}
-
-        <select
-          name="user_id"
-          required
-          className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          defaultValue=""
-        >
-          <option value="" disabled>
-            {t("designateNextYear")}
-          </option>
-          {members.map((m) => (
-            <option key={m.user_id} value={m.user_id}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-
-        {state.error ? (
-          <p role="alert" className="text-xs text-destructive">
-            {state.error}
-          </p>
-        ) : null}
-        {state.success ? (
-          <p className="text-xs text-primary">{state.success}</p>
-        ) : null}
-
-        <DesignationSubmitButton
-          label={existingUserId ? t("replaceDesignation") : t("designateNextYear")}
-        />
-      </form>
-    </div>
+  const assignable = useMemo(
+    () =>
+      Object.fromEntries(
+        POSITION_KEYS.map((key) => [
+          key,
+          key === "counselor" || findRoleForPosition(data.clubRoles, key) != null,
+        ]),
+      ) as Record<PositionKey, boolean>,
+    [data.clubRoles],
   );
-}
 
-function SectionCard({
-  clubId,
-  section,
-  typeName,
-  officers,
-  canManage,
-  canDesignate,
-  canSucceed,
-  canEnrollContinuations,
-  currentYearId,
-  nextYearId,
-  designation,
-  members,
-  index,
-}: {
-  clubId: number;
-  section: ClubSectionRaw;
-  typeName: string;
-  officers: SectionOfficers;
-  canManage: boolean;
-  canDesignate: boolean;
-  canSucceed: boolean;
-  canEnrollContinuations: boolean;
-  currentYearId: number | null;
-  nextYearId: number | null;
-  designation: import("@/lib/api/clubs").ClubDirectorDesignation;
-  members: ClubSectionMember[];
-  index: number;
-}) {
-  const t = useTranslations("clubs.detail.sections");
-  const translateRole = useRoleLabel();
-  const isActive = isClubSectionActive(section);
-  const director = findSectionDirectorMember(members);
-  const lockInactive =
-    isActive &&
-    isMasterGuidesClubType({
-      name: typeName || clubSectionTypeName(section),
-      slug: section.club_type?.slug,
+  function positionLabel(key: PositionKey) {
+    return key === "counselor" ? tSections("counselorsLabel") : translateRole(key);
+  }
+
+  const canAssign = data.canManageRoles && data.currentYearId != null;
+  const sectionYear = yearLabels.current;
+  const yearFallback = t("yearFallback");
+
+  async function setActive(next: boolean) {
+    await run(() =>
+      toggleClubSectionActiveAction(data.clubId, sectionId, {}, formData({ active: String(next) })),
+    );
+  }
+
+  async function enableSection() {
+    try {
+      await setActive(true);
+    } catch (error) {
+      toastError({
+        title: t("enableFailed"),
+        description: error instanceof Error ? error.message : undefined,
+        onRetry: () => void enableSection(),
+      });
+    }
+  }
+
+  async function confirmRevoke() {
+    if (!revoke || !revoke.holder.assignmentId) return;
+    const { key, holder } = revoke;
+    const assignmentId = holder.assignmentId as string;
+    await run(() => {
+      const form = formData({ club_id: String(data.clubId), assignment_id: assignmentId });
+      return key === "counselor" ? revokeClassCounselorAction({}, form) : revokeClubRoleAction({}, form);
     });
+    if (key === "counselor") loadCounselors();
+  }
+
+  const designatedMember = designation
+    ? people.find((member) => member.user_id === designation.user_id)
+    : null;
+  const blockCode = designation?.block_code ?? null;
+  const assignRole = assignKey && assignKey !== "counselor" ? findRoleForPosition(data.clubRoles, assignKey) : null;
 
   return (
-    <DetailSection
-      num={String(index + 1).padStart(2, "0")}
-      title={typeName}
-      action={
-        <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("active") : t("inactive")} />
-      }
-    >
-      <p className="mb-3 text-2xs font-semibold text-muted-foreground">
-        {t("typeEyebrow")}
-      </p>
-
-      {canManage && section.club_section_id ? (
-        <div className="mb-3">
-          <SectionActiveToggle
-            clubId={clubId}
-            sectionId={section.club_section_id}
-            active={isActive}
-            disabled={!canManage}
-            locked={lockInactive}
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold text-xl tracking-tight">{group.sectionName}</h2>
+          <ExceptionStatus<"active" | "inactive">
+            value={active ? "active" : "inactive"}
+            normal={["active"]}
+            labels={{ active: tSections("active"), inactive: tSections("inactive") }}
+            intents={{ inactive: "neutral" }}
           />
         </div>
-      ) : null}
-
-      <DetailCols2>
-        <DetailField k={t("labelSoulsTarget")} v={section.souls_target} />
-        <DetailField k={t("labelFee")} v={section.fee} />
-      </DetailCols2>
-
-      <div className="mt-4 space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4">
-        {OFFICER_BLOCK_ORDER.map((block) => {
-          const people = officers[block.role];
-          if (block.omitWhenEmpty && people.length === 0) return null;
-
-          const heading =
-            block.headingKey === "directorLabel"
-              ? t("directorLabel")
-              : block.headingKey === "counselorsLabel"
-                ? t("counselorsLabel")
-                : translateRole(block.role);
-
-          return (
-            <OfficerRoleBlock
-              key={block.role}
-              heading={heading}
-              people={people}
-              roleLabel={translateRole(block.role)}
-              emptyLabel={t("unassigned")}
-              compactList={block.compactList}
-            />
-          );
-        })}
+        {data.canCreateSections && sectionRaw?.club_section_id ? (
+          lockedActive ? (
+            <span className="text-muted-foreground text-sm">{tSections("masterGuidesLockedHint")}</span>
+          ) : active ? (
+            <Button variant="ghost" size="sm" onClick={() => setDisableOpen(true)}>
+              {t("disable")}
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => void enableSection()}>
+              {t("enable")}
+            </Button>
+          )
+        ) : null}
       </div>
 
-      {canDesignate && nextYearId != null && section.club_section_id ? (
-        <DesignationBlock
-          clubId={clubId}
-          sectionId={section.club_section_id}
-          nextYearId={nextYearId}
-          existingUserId={designation?.user_id ?? null}
-          successionId={designation?.succession_id ?? null}
-          version={designation?.version ?? null}
-          members={members}
-          blockCode={designation?.block_code ?? null}
-          lastAttemptAt={designation?.last_attempt_at ?? null}
-        />
-      ) : null}
-
-      {canSucceed &&
-      currentYearId != null &&
-      section.club_section_id &&
-      director?.assignment_id ? (
-        <SuccessionBlock
-          clubId={clubId}
-          sectionId={section.club_section_id}
-          currentYearId={currentYearId}
-          currentAssignmentId={director.assignment_id}
-          members={members.filter((member) => member.user_id !== director.user_id)}
-        />
-      ) : null}
-
-      {canEnrollContinuations && section.club_section_id ? (
-        <AnnualContinuationsBlock sectionId={section.club_section_id} />
-      ) : null}
-    </DetailSection>
-  );
-}
-
-export function SectionsTab({ data }: SectionsTabProps) {
-  const slotTypes = resolveClubTypeSlots(data.clubTypes, data.sections);
-
-  return (
-    <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
-      {slotTypes.map((clubType, index) => {
-        const section = findSectionForType(data.sections, clubType.club_type_id);
-        if (!section?.club_section_id) {
-          return (
-            <EnableMissingSectionSlot
-              key={clubType.club_type_id}
-              clubId={data.clubId}
-              clubTypeId={clubType.club_type_id}
-              typeName={clubType.name}
-              canManage={data.canCreateSections}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem]">
+        <div className="space-y-6">
+          <SectionBlock title={sectionYear ? t("positionsHeading", { year: sectionYear }) : t("positionsHeadingNoYear")}>
+            <SectionPositions
+              rows={rows}
+              canAssign={canAssign}
+              canRevoke={canRevokeRoles}
+              counselorsLoading={counselors.loading}
+              counselorsFailed={counselors.failed}
+              onRetryCounselors={() => loadCounselors()}
+              assignable={assignable}
+              onAssign={setAssignKey}
+              onRevoke={(key, holder) => setRevoke({ key, holder })}
             />
-          );
+          </SectionBlock>
+
+          {canDesignate ? (
+            <SectionBlock
+              title={nextYear ? t("designationHeading", { year: nextYear }) : t("designationHeadingNoYear")}
+              action={
+                <Button variant="outline" size="sm" onClick={() => setDesignateOpen(true)}>
+                  {designation ? t("designationChange") : t("designationDesignate")}
+                </Button>
+              }
+            >
+              <div className="space-y-2 text-sm">
+                {designation ? (
+                  <p>
+                    <span className="font-medium">{designatedMember?.name ?? t("unknownPerson")}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {nextYear ? t("designationWillBe", { year: nextYear }) : t("designationWillBeNoYear")}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground">{tSections("noDesignation")}</p>
+                )}
+                <p className="text-muted-foreground">
+                  {tSections("designateWindowHint")} {tSections("designateHint")}
+                </p>
+                {blockCode ? (
+                  <p role="status" className="font-medium text-warning-foreground dark:text-warning">
+                    {isKnownDesignationBlockCode(blockCode)
+                      ? tSections(`designationBlock.${blockCode}`)
+                      : blockCode}
+                    {designation?.last_attempt_at ? (
+                      <span className="font-normal text-muted-foreground">
+                        {" "}
+                        {tSections("lastAttempt", {
+                          date: formatDateTime(designation.last_attempt_at, locale),
+                        })}
+                      </span>
+                    ) : null}
+                  </p>
+                ) : null}
+              </div>
+            </SectionBlock>
+          ) : null}
+        </div>
+
+        <aside className="h-fit space-y-5 rounded-xl bg-card p-5 shadow-card">
+          <dl className="space-y-3 text-sm">
+            <div className="flex items-baseline justify-between gap-3">
+              <dt className="text-muted-foreground">{tSections("labelSoulsTarget")}</dt>
+              <dd className="font-medium tabular-nums">{group.soulsTarget ?? "—"}</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-3">
+              <dt className="text-muted-foreground">{t("members")}</dt>
+              <dd className="font-medium tabular-nums">{uniqueMemberCount(group.members)}</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-3">
+              <dt className="text-muted-foreground">{tSections("labelFee")}</dt>
+              <dd className="font-medium tabular-nums">
+                {group.fee != null ? format.number(group.fee) : "—"}
+              </dd>
+            </div>
+            {data.canEnrollAnnualContinuations ? (
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="text-muted-foreground">
+                  {nextYear ? t("toEnroll", { year: nextYear }) : t("toEnrollNoYear")}
+                </dt>
+                <dd className="font-medium tabular-nums">
+                  {continuations.loading || continuations.failed ? "—" : continuations.items.length}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+          {data.canEnrollAnnualContinuations || canSucceed ? (
+            <div className="flex flex-col gap-2">
+              {data.canEnrollAnnualContinuations ? (
+                <Button variant="outline" onClick={() => setSheetOpen(true)}>
+                  {t("annualEnrollment")}
+                </Button>
+              ) : null}
+              {canSucceed ? (
+                <Button variant="ghost" onClick={() => setSucceedOpen(true)}>
+                  {t("succeedNow")}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+        </aside>
+      </div>
+
+      {assignKey && data.currentYearId != null ? (
+        <AssignPositionDialog
+          open
+          onOpenChange={(open) => {
+            if (open) return;
+            if (assignKey === "counselor") loadCounselors();
+            setAssignKey(null);
+          }}
+          clubId={data.clubId}
+          sectionId={sectionId}
+          sectionName={group.sectionName}
+          positionKey={assignKey}
+          positionLabel={positionLabel(assignKey)}
+          roleId={assignRole?.role_id ?? null}
+          yearId={data.currentYearId}
+          yearLabel={sectionYear}
+          members={people}
+          excludeUserIds={
+            assignKey === "counselor"
+              ? []
+              : (rows.find((row) => row.key === assignKey)?.holders ?? []).map((holder) => holder.userId)
+          }
+          classes={classes}
+        />
+      ) : null}
+
+      <ConfirmDialog
+        open={revoke != null}
+        onOpenChange={(open) => {
+          if (!open) setRevoke(null);
+        }}
+        tone="destructive"
+        title={
+          revoke
+            ? tPositions("revokeTitle", {
+                name: revoke.holder.name,
+                position: positionLabel(revoke.key).toLowerCase(),
+              })
+            : ""
         }
+        description={
+          revoke
+            ? sectionYear
+              ? tPositions("revokeDescription", {
+                  position: positionLabel(revoke.key).toLowerCase(),
+                  section: group.sectionName,
+                  year: sectionYear,
+                })
+              : tPositions("revokeDescriptionNoYear", {
+                  position: positionLabel(revoke.key).toLowerCase(),
+                  section: group.sectionName,
+                })
+            : ""
+        }
+        confirmLabel={tPositions("revokeConfirm")}
+        onConfirm={confirmRevoke}
+      />
 
-        const memberGroup = data.sectionMemberGroups.find(
-          (group) => group.sectionId === section.club_section_id,
-        );
+      <ConfirmDialog
+        open={disableOpen}
+        onOpenChange={setDisableOpen}
+        tone="destructive"
+        title={t("disableTitle", { section: group.sectionName })}
+        description={t("disableDescription", {
+          count: uniqueMemberCount(group.members),
+          year: nextYear ?? yearFallback,
+        })}
+        confirmLabel={t("disableConfirm")}
+        onConfirm={() => setActive(false)}
+      />
 
-        const designation =
-          section.club_section_id != null
-            ? (data.designationsBySectionId[section.club_section_id] ?? null)
-            : null;
+      {canDesignate && data.nextYearId != null ? (
+        <DesignateDirectorDialog
+          key={designateOpen ? "designate-open" : "designate-closed"}
+          open={designateOpen}
+          onOpenChange={setDesignateOpen}
+          clubId={data.clubId}
+          sectionId={sectionId}
+          sectionName={group.sectionName}
+          nextYearId={data.nextYearId}
+          nextYearLabel={nextYear}
+          currentDirectorName={director?.name ?? null}
+          members={people}
+          existing={
+            designation
+              ? {
+                  userId: designation.user_id,
+                  successionId: designation.succession_id ?? null,
+                  version: designation.version ?? null,
+                }
+              : null
+          }
+        />
+      ) : null}
 
-        return (
-          <SectionCard
-            key={clubType.club_type_id}
-            clubId={data.clubId}
-            section={section}
-            typeName={clubType.name}
-            canManage={data.canCreateSections}
-            canDesignate={data.canDesignateNextDirector}
-            canSucceed={data.canSucceedDirector}
-            canEnrollContinuations={data.canEnrollAnnualContinuations}
-            currentYearId={data.currentYearId}
-            nextYearId={data.nextYearId}
-            designation={designation}
-            members={memberGroup?.members ?? []}
-            index={index}
-            officers={getSectionOfficers(
-              memberGroup?.members ?? [],
-              data.leadership,
-              clubType.name,
-            )}
-          />
-        );
-      })}
+      {canSucceed && director?.assignment_id && data.currentYearId != null ? (
+        <SucceedDirectorDialog
+          key={succeedOpen ? "succeed-open" : "succeed-closed"}
+          open={succeedOpen}
+          onOpenChange={setSucceedOpen}
+          clubId={data.clubId}
+          sectionId={sectionId}
+          currentYearId={data.currentYearId}
+          currentYearLabel={sectionYear}
+          currentAssignmentId={director.assignment_id}
+          currentDirectorName={director.name}
+          members={people.filter((member) => member.user_id !== director.user_id)}
+        />
+      ) : null}
+
+      {data.canEnrollAnnualContinuations ? (
+        <ContinuationsSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          sectionId={sectionId}
+          sectionName={group.sectionName}
+          yearLabel={nextYear}
+          continuations={continuations}
+          classes={classes}
+        />
+      ) : null}
     </div>
   );
 }

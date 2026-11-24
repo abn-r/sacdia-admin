@@ -1,57 +1,63 @@
-import { getTranslations } from "next-intl/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { NotificationStatsResponse } from "@/lib/api/notifications";
+import { getFormatter, getTranslations } from "next-intl/server";
+import { Bell } from "lucide-react";
+import { ErrorState } from "@/components/shared/error-state";
+import { KpiStrip, KpiStripItem } from "@/components/shared/kpi-strip";
+import { getNotificationStats } from "@/lib/api/notifications";
+import { errorStateFromError } from "@/lib/api/error-state";
+import { summarizeStats } from "@/lib/notifications/stats";
 
-interface NotificationStatsCardsProps {
-  stats: NotificationStatsResponse;
-}
+const WINDOW_DAYS = 30;
 
-function formatRate(rate: number | null): string {
-  if (rate == null) return "—";
-  return `${Math.round(rate * 1000) / 10}%`;
-}
+/**
+ * Figures of the last 30 days above the sent history. `/admin/notifications/stats`
+ * only admits admin and super-admin: for anyone else (403) the strip is simply
+ * not shown; any other failure is said, never rendered as zeros.
+ */
+export async function NotificationStatsCards() {
+  const t = await getTranslations("people.community.notifications.kpis");
 
-export async function NotificationStatsCards({
-  stats,
-}: NotificationStatsCardsProps) {
-  const t = await getTranslations("configuration.notifications.stats");
+  let stats: Awaited<ReturnType<typeof getNotificationStats>>;
+  try {
+    stats = await getNotificationStats(WINDOW_DAYS);
+  } catch (error) {
+    const failure = errorStateFromError(error);
+    if (failure.kind === "forbidden") return null;
+    return (
+      <ErrorState
+        variant="inline"
+        kind={failure.kind}
+        icon={Bell}
+        title={t("loadError")}
+        retry
+      />
+    );
+  }
 
-  const recentSent = stats.dailyDeliveryRate.reduce(
-    (acc, row) => acc + row.tokens_sent,
-    0,
-  );
-  const recentFailed = stats.dailyDeliveryRate.reduce(
-    (acc, row) => acc + row.tokens_failed,
-    0,
-  );
-  const recentTotal = recentSent + recentFailed;
-  const recentRate =
-    recentTotal === 0 ? null : recentSent / recentTotal;
-
-  const cards = [
-    { label: t("activeTokens"), value: stats.activeTokens.toLocaleString("es-MX") },
-    {
-      label: t("inactiveTokens"),
-      value: stats.inactiveTokens30d.toLocaleString("es-MX"),
-    },
-    { label: t("sent30d"), value: recentSent.toLocaleString("es-MX") },
-    { label: t("successRate30d"), value: formatRate(recentRate) },
-  ];
+  const format = await getFormatter();
+  const summary = summarizeStats(stats);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => (
-        <Card key={card.label} className="gap-2 py-4">
-          <CardHeader className="pb-0">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              {card.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-semibold tabular-nums">{card.value}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <KpiStrip aria-label={t("label")}>
+      <KpiStripItem
+        label={t("activeDevices")}
+        value={format.number(summary.activeDevices)}
+        subline={t("activeDevicesHint")}
+      />
+      <KpiStripItem
+        label={t("idleDevices")}
+        value={format.number(summary.idleDevices)}
+        subline={t("windowHint", { days: WINDOW_DAYS })}
+      />
+      <KpiStripItem
+        label={t("sent")}
+        value={format.number(summary.sent)}
+        subline={t("windowHint", { days: WINDOW_DAYS })}
+      />
+      <KpiStripItem
+        label={t("delivered")}
+        value={summary.deliveryRate === null ? "—" : format.number(summary.deliveryRate, { style: "percent", maximumFractionDigits: 1 })}
+        subline={t("windowHint", { days: WINDOW_DAYS })}
+      />
+    </KpiStrip>
   );
 }

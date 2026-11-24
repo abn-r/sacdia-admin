@@ -1,5 +1,4 @@
 import type { AdminUserDetail } from "@/lib/api/admin-users";
-import type { ClubAssignmentSummary } from "./hero";
 import type { ContactEntry } from "./contacts-block";
 
 const BLOOD_LABELS: Record<string, string> = {
@@ -142,6 +141,12 @@ function pickPresentString(...values: Array<string | null | undefined>): string 
     }
   }
   return null;
+}
+
+export interface ClubAssignmentSummary {
+  clubName: string | null;
+  sectionName: string | null;
+  roleName: string | null;
 }
 
 export function extractPrimaryAssignment(

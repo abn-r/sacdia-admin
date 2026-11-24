@@ -1,14 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { ClubDetailView } from "@/components/clubs/detail/club-detail-view";
-import { resolveClubDetailTab } from "@/components/clubs/detail/tab-utils";
 import {
   listClubAnnualReports,
   listClubQuarterlyReports,
 } from "@/lib/api/reports";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
+import { listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { resolveYearLabel } from "@/lib/clubs/detail-year";
+import { resolveClubDetailTab } from "@/lib/clubs/detail-tabs";
 import { loadClubDetail } from "@/lib/clubs/fetch-detail";
 
 type Params = Promise<{ id: string }>;
@@ -33,12 +35,15 @@ export default async function ClubDetailPage({
   const user = await requireAdminUser();
   const { id } = await params;
   const { tab } = await searchParams;
+  // The old "Roles y clases" tab became positions inside each section.
+  if (tab === "roles") redirect(`/dashboard/clubs/${id}?tab=sections`);
 
   const canManageRoles = canCapability(user, "clubs", "manage_roles");
   const canCreateSections = canCapability(user, "clubs", "sections.create");
   const canDesignate = canCapability(user, "clubs", "designate_director");
   const canSucceedDirector = canCapability(user, "clubs", "succeed_director");
   const canEdit = canCapability(user, "clubs", "update");
+  const canRevokeRoles = canCapability(user, "clubs", "revoke_roles");
   const canEnrollAnnualContinuations = canCapability(
     user,
     "annual_continuations",
@@ -74,6 +79,17 @@ export default async function ClubDetailPage({
     console.error("[ClubDetailPage] Failed to load quarterly reports:", quarterlyResult.reason);
   }
 
+  // People read years ("2027"), never ids: the director designation and the
+  // annual enrollment target the next year, positions the one in force.
+  const years = await listEcclesiasticalYears().catch((error) => {
+    console.error("[ClubDetailPage] Failed to load ecclesiastical years:", error);
+    return [];
+  });
+  const yearLabels = {
+    current: resolveYearLabel(years, detail.currentYearId),
+    next: resolveYearLabel(years, detail.nextYearId),
+  };
+
   return (
     <ClubDetailView
       data={detail}
@@ -84,6 +100,8 @@ export default async function ClubDetailPage({
       canViewPeriodicReports={canViewPeriodicReports}
       canOpenReports={canViewPeriodicReports}
       canEdit={canEdit}
+      canRevokeRoles={canRevokeRoles}
+      yearLabels={yearLabels}
       defaultTab={resolveClubDetailTab(tab)}
     />
   );

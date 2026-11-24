@@ -29,7 +29,6 @@ import {
   Receipt,
   ShoppingBag,
   Signpost,
-  Tags,
   Tent,
   Trophy,
   CalendarRange,
@@ -174,14 +173,14 @@ export const sidebarItems: NavGroup[] = [
       { id: "users", title: "Usuarios", url: "/dashboard/users", icon: User, activeMatch: "prefix" },
       { id: "coordination", title: "Coordinación", url: "/dashboard/coordination", icon: Signpost, activeMatch: "prefix" },
       {
-        id: "notifications",
+        // Sent history, compose and categories are one page with tabs.
+        id: "notifications-history",
         title: "Notificaciones",
+        labelKey: "items.notifications",
+        url: "/dashboard/notifications",
         icon: Bell,
-        subItems: [
-          { id: "notifications-hub", title: "Resumen", url: "/dashboard/configuration/notifications", icon: Bell, activeMatch: "exact" },
-          { id: "notifications-history", title: "Gestión", url: "/dashboard/configuration/notifications/history", icon: Bell, activeMatch: "prefix" },
-          { id: "notifications-categories", title: "Categorías", url: "/dashboard/configuration/notifications/categories", icon: Tags, activeMatch: "prefix" },
-        ],
+        activeMatch: "prefix",
+        matchPaths: ["/dashboard/configuration/notifications"],
       },
     ],
   },

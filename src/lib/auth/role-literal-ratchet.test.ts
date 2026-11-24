@@ -19,7 +19,9 @@ const SCAN_DIRS = ["components", "lib"].map((dir) => join(ROOT, dir));
 
 /** Files allowed to carry role names as data (relative to `src/`). */
 const ALLOWLIST: Record<string, string> = {
-  "components/clubs/detail/sections-tab.tsx": "officer rows rendered per club role (display order)",
+  "lib/clubs/detail-positions.ts": "officer positions rendered per section (display order)",
+  "lib/clubs/detail-members.ts": "member / no-position filter of the club members tab",
+  "components/clubs/detail/detail-test-data.ts": "club role rows of the club detail test fixtures",
   "components/rbac/user-roles-panel.tsx":
     "badge variant per role row and PLATFORM_ADMIN_ROLES (rows only super-admin may mutate)",
   "components/coordination/coordination-assignments-panel.tsx":

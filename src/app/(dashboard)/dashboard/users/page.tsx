@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { UsersFilters } from "@/components/users/users-filters";
@@ -18,6 +19,9 @@ import {
   toUsersRoleFilterOptions,
 } from "@/lib/admin-users/role-filter-options";
 import { requireAdminUser } from "@/lib/auth/session";
+import { canCapability } from "@/lib/auth/screen-catalog";
+import { hasActiveUsersFilters } from "@/lib/users/list-filters";
+import { usersListErrorState } from "@/lib/users/list-error";
 import { canViewAdministrativeCompletion } from "@/lib/auth/permission-utils";
 import { readAuthorizationTerritory } from "@/lib/auth/territory-scope";
 import { extractAssignableGlobalRoles } from "@/lib/users/assignable-roles";
@@ -53,7 +57,7 @@ async function UsersContent({
   query: AdminUsersQuery;
   currentUser: AuthUser;
 }) {
-  const t = await getTranslations("users.pages.list");
+  const t = await getTranslations("people.users.list");
   const [result, catalogRoles] = await Promise.all([
     listAdminUsers(query),
     listCatalogRoles().catch(() => []),
@@ -69,33 +73,45 @@ async function UsersContent({
   );
   const showAdministrativeCompletion = canViewAdministrativeCompletion(currentUser);
 
+  // A failed load is an error inside the table frame, never an empty list.
   if (!result.endpointAvailable) {
     return (
       <div className="space-y-4">
         <UsersFilters scope={scope} roles={roleOptions} />
-        <EndpointErrorBanner
-          state={result.endpointState as "forbidden" | "missing" | "rate-limited"}
-          detail={result.endpointDetail}
-          showLoginLink={result.endpointState === "forbidden"}
-        />
-        <EmptyState
-          icon={Users}
-          title={t("cannotShow")}
-          description={result.endpointDetail}
+        <UsersTable
+          users={[]}
+          showAdministrativeCompletion={showAdministrativeCompletion}
+          error={usersListErrorState(result)}
         />
       </div>
     );
   }
 
   if (result.items.length === 0) {
+    const filtered = hasActiveUsersFilters(query);
     return (
       <div className="space-y-4">
         <UsersFilters scope={scope} roles={roleOptions} />
-        <EmptyState
-          icon={Users}
-          title={t("emptyTitle")}
-          description={t("emptyDescription")}
-        />
+        {filtered ? (
+          <EmptyState
+            variant="no-results"
+            icon={Users}
+            title={t("noResults.title")}
+            description={t("noResults.description")}
+          >
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href="/dashboard/users">{t("clearFilters")}</Link>
+            </Button>
+          </EmptyState>
+        ) : (
+          <EmptyState icon={Users} title={t("empty.title")} description={t("empty.description")}>
+            {canCapability(currentUser, "users", "create") ? (
+              <Button asChild size="sm" className="mt-4">
+                <Link href="/dashboard/users/new">{t("empty.action")}</Link>
+              </Button>
+            ) : null}
+          </EmptyState>
+        )}
       </div>
     );
   }

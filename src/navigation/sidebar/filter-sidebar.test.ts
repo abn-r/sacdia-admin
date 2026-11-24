@@ -166,7 +166,7 @@ describe("filterSidebarItems", () => {
 
   it("keeps Clubes and Actividades together in Clubes y miembros", () => {
     const ids = sidebarItems[2]!.items.map((item) => item.id);
-    expect(ids).toEqual(["clubs", "activities", "users", "coordination", "notifications"]);
+    expect(ids).toEqual(["clubs", "activities", "users", "coordination", "notifications-history"]);
   });
 
   it("lists every leaf of the approved structure under its approved parent", () => {

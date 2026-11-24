@@ -1,99 +1,57 @@
 "use client";
 
-import { EmptyState } from "@/components/shared/empty-state";
 import Link from "next/link";
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
-import { CalendarOff, Repeat } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Repeat } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import type { Activity } from "@/lib/api/activities";
-import { ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
-import {
-  getMonthGridDays,
-  getWeekDays,
-  toDateKey,
-} from "@/lib/activities/helpers";
-import type { CalendarViewMode } from "@/components/activities/activities-calendar-client";
+import { getMonthGridDays, getWeekDays, toDateKey } from "@/lib/activities/helpers";
+import { activityPhase, formatDayLabel, formatWeekdayShort, weekdayLabels } from "@/lib/activities/view";
+import { cn } from "@/lib/utils";
 
 interface ActivitiesCalendarGridProps {
-  view: CalendarViewMode;
+  view: "month" | "week";
   anchor: Date;
   activitiesByDate: Map<string, Activity[]>;
+  /** Today in the panel zone (`YYYY-MM-DD`), computed on the server. */
+  today: string;
+  /** Opens the week of that day. */
   onSelectDate: (date: Date) => void;
   detailPath: (activityId: number) => string;
 }
 
+const MONTH_CHIPS = 3;
+const WEEK_CHIPS = 6;
+
+/** One activity in a day cell. Past ones are muted; today's day number carries the accent. */
 function ActivityChip({
   activity,
   href,
-  compact = false,
+  today,
 }: {
   activity: Activity;
   href: string;
-  compact?: boolean;
+  today: string;
 }) {
-  const typeLabel =
-    activity.activity_type?.name ??
-    ACTIVITY_TYPE_LABELS[activity.activity_type_id] ??
-    "";
-
+  const past = activityPhase(activity, today) === "past";
   return (
     <Link
       href={href}
+      data-phase={past ? "past" : "current"}
       className={cn(
-        "block rounded-md border border-border/60 bg-background px-2 py-1 text-left transition-colors hover:bg-muted/50",
-        compact ? "truncate text-2xs" : "text-sm",
+        "flex min-w-0 items-baseline gap-1.5 rounded-md px-1.5 py-1 text-left text-xs outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        past
+          ? "bg-muted/40 text-muted-foreground hover:bg-muted/70"
+          : "bg-primary/10 text-foreground hover:bg-primary/15",
       )}
     >
-      <div className="truncate font-medium">
-        {activity.activity_series_id ? (
-          <Repeat className="mr-1 inline size-3 text-success" aria-hidden />
-        ) : null}
-        {activity.name}
-      </div>
-      {!compact ? (
-        <div className="mt-0.5 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-          {activity.activity_time ? <span>{activity.activity_time}</span> : null}
-          {activity.club_name ? <span>· {activity.club_name}</span> : null}
-          {typeLabel ? (
-            <Badge variant="secondary" className="text-2xs">
-              {typeLabel}
-            </Badge>
-          ) : null}
-        </div>
+      {activity.activity_time ? (
+        <small className="shrink-0 text-2xs tabular-nums text-muted-foreground">{activity.activity_time}</small>
       ) : null}
+      <span className="truncate font-medium">{activity.name}</span>
+      {activity.activity_series_id ? <Repeat className="size-3 shrink-0 self-center" aria-hidden /> : null}
     </Link>
-  );
-}
-
-function DayActivitiesList({
-  dateKey,
-  activities,
-  detailPath,
-}: {
-  dateKey: string;
-  activities: Activity[];
-  detailPath: (activityId: number) => string;
-}) {
-  const t = useTranslations("activities.calendar");
-
-  if (activities.length === 0) {
-    return (
-      <EmptyState icon={CalendarOff} title={t("emptyDay")} />
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      {activities.map((activity) => (
-        <ActivityChip
-          key={`${dateKey}-${activity.activity_id}`}
-          activity={activity}
-          href={detailPath(activity.activity_id)}
-        />
-      ))}
-    </div>
   );
 }
 
@@ -101,80 +59,58 @@ export function ActivitiesCalendarGrid({
   view,
   anchor,
   activitiesByDate,
+  today,
   onSelectDate,
   detailPath,
 }: ActivitiesCalendarGridProps) {
   const t = useTranslations("activities.calendar");
-  const weekDayLabels = useMemo(
-    () =>
-      getWeekDays(new Date()).map((date) =>
-        date.toLocaleDateString("es-MX", { weekday: "short" }),
-      ),
-    [],
-  );
-
-  if (view === "day") {
-    const dateKey = toDateKey(anchor);
-    const dayActivities = activitiesByDate.get(dateKey) ?? [];
-    return (
-      <div className="rounded-xl border bg-card p-4 shadow-xs">
-        <DayActivitiesList
-          dateKey={dateKey}
-          activities={dayActivities}
-          detailPath={detailPath}
-        />
-      </div>
-    );
-  }
+  const locale = useLocale();
+  const weekdays = useMemo(() => weekdayLabels(locale), [locale]);
 
   if (view === "week") {
     const days = getWeekDays(anchor);
     return (
-      <div className="overflow-x-auto rounded-xl border bg-card shadow-xs">
-        <div className="grid min-w-[960px] grid-cols-7 divide-x">
+      <DataTableShell>
+        <div className="grid grid-cols-1 divide-y md:grid-cols-7 md:divide-x md:divide-y-0">
           {days.map((date) => {
-            const dateKey = toDateKey(date);
-            const dayActivities = activitiesByDate.get(dateKey) ?? [];
-            const isToday = dateKey === toDateKey(new Date());
+            const key = toDateKey(date);
+            const dayActivities = activitiesByDate.get(key) ?? [];
+            const isToday = key === today;
             return (
-              <div key={dateKey} className="min-h-[320px] p-2">
+              <div key={key} className="min-h-24 p-2 md:min-h-[320px]">
                 <button
                   type="button"
                   onClick={() => onSelectDate(date)}
+                  aria-label={formatDayLabel(key, locale)}
+                  aria-current={isToday ? "date" : undefined}
                   className={cn(
-                    "mb-2 flex w-full flex-col items-start rounded-md px-2 py-1 text-left hover:bg-muted/40",
+                    "mb-2 flex w-full items-baseline gap-2 rounded-md px-2 py-1 text-left outline-none hover:bg-muted/50 focus-visible:ring-[3px] focus-visible:ring-ring/50 md:flex-col md:gap-0",
                     isToday && "bg-primary/10",
                   )}
                 >
-                  <span className="text-2xs uppercase text-muted-foreground">
-                    {date.toLocaleDateString("es-MX", { weekday: "short" })}
-                  </span>
+                  <span className="text-2xs capitalize text-muted-foreground">{formatWeekdayShort(date, locale)}</span>
                   <span className="text-lg font-semibold tabular-nums">{date.getDate()}</span>
                 </button>
-                <div className="space-y-1.5">
-                  {dayActivities.slice(0, 6).map((activity) => (
+                <div className="space-y-1">
+                  {dayActivities.slice(0, WEEK_CHIPS).map((activity) => (
                     <ActivityChip
                       key={activity.activity_id}
                       activity={activity}
                       href={detailPath(activity.activity_id)}
-                      compact
+                      today={today}
                     />
                   ))}
-                  {dayActivities.length > 6 ? (
-                    <button
-                      type="button"
-                      onClick={() => onSelectDate(date)}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      {t("moreCount", { count: dayActivities.length - 6 })}
-                    </button>
+                  {dayActivities.length > WEEK_CHIPS ? (
+                    <p className="px-1.5 text-xs text-muted-foreground">
+                      {t("moreCount", { count: dayActivities.length - WEEK_CHIPS })}
+                    </p>
                   ) : null}
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
+      </DataTableShell>
     );
   }
 
@@ -182,57 +118,53 @@ export function ActivitiesCalendarGrid({
   const monthIndex = anchor.getMonth();
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
-      <div className="grid grid-cols-7 border-b bg-muted/20">
-        {weekDayLabels.map((label) => (
-          <div
-            key={label}
-            className="px-2 py-2 text-center text-xs font-medium text-muted-foreground capitalize"
-          >
+    <DataTableShell>
+      <div className="grid grid-cols-7 border-b">
+        {weekdays.map((label) => (
+          <div key={label} className="px-2 py-2 text-center text-xs font-medium capitalize text-muted-foreground">
             {label}
           </div>
         ))}
       </div>
       <div className="grid grid-cols-7 divide-x divide-y">
         {monthDays.map((date) => {
-          const dateKey = toDateKey(date);
-          const dayActivities = activitiesByDate.get(dateKey) ?? [];
+          const key = toDateKey(date);
+          const dayActivities = activitiesByDate.get(key) ?? [];
           const inMonth = date.getMonth() === monthIndex;
-          const isToday = dateKey === toDateKey(new Date());
+          const isToday = key === today;
           return (
             <div
-              key={dateKey}
-              className={cn(
-                "min-h-[120px] bg-background p-2",
-                !inMonth && "bg-muted/10 text-muted-foreground",
-              )}
+              key={key}
+              className={cn("min-h-20 min-w-0 p-1 sm:min-h-[120px] sm:p-2", !inMonth && "bg-muted/20 text-muted-foreground")}
             >
               <button
                 type="button"
                 onClick={() => onSelectDate(date)}
+                aria-label={formatDayLabel(key, locale)}
+                aria-current={isToday ? "date" : undefined}
                 className={cn(
-                  "mb-2 inline-flex size-7 items-center justify-center rounded-full text-sm font-medium hover:bg-muted/50",
+                  "mb-1 inline-flex size-7 items-center justify-center rounded-full text-sm font-medium tabular-nums outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:mb-2",
                   isToday && "bg-primary-solid text-primary-foreground hover:bg-primary/90",
                 )}
               >
                 {date.getDate()}
               </button>
               <div className="space-y-1">
-                {dayActivities.slice(0, 3).map((activity) => (
+                {dayActivities.slice(0, MONTH_CHIPS).map((activity) => (
                   <ActivityChip
                     key={activity.activity_id}
                     activity={activity}
                     href={detailPath(activity.activity_id)}
-                    compact
+                    today={today}
                   />
                 ))}
-                {dayActivities.length > 3 ? (
+                {dayActivities.length > MONTH_CHIPS ? (
                   <button
                     type="button"
                     onClick={() => onSelectDate(date)}
-                    className="text-2xs text-primary hover:underline"
+                    className="px-1.5 text-2xs text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    {t("moreCount", { count: dayActivities.length - 3 })}
+                    {t("moreCount", { count: dayActivities.length - MONTH_CHIPS })}
                   </button>
                 ) : null}
               </div>
@@ -240,6 +172,6 @@ export function ActivitiesCalendarGrid({
           );
         })}
       </div>
-    </div>
+    </DataTableShell>
   );
 }

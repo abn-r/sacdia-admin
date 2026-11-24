@@ -1,16 +1,15 @@
 /**
- * PostRegistrationTab: onboarding mode (step 3 "No aplica", panel_only notice
- * and badge) and the "Acceso a la cuenta" card that resends the invitation
- * (shown only while pending AND with the user-creation permission; toasts for
- * 409 / 429 / 503).
+ * PostRegistrationTab: only the current state and what is missing (no step
+ * bar), onboarding modes, forcing a step behind a confirmation, and the
+ * invitation block that resends while the invitation is pending.
  */
 
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
+import { renderWithIntl, ud } from "@/components/users/detail/test-utils";
 import type { PostRegistrationStatus } from "@/lib/api/post-registration";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -21,10 +20,11 @@ vi.mock("@/lib/api/admin-users", () => ({
   resendAdminUserInvitationFromClient: (...args: unknown[]) => mockResend(...args),
 }));
 
+const mockStep1 = vi.fn();
+const mockStep2 = vi.fn();
 vi.mock("@/lib/post-registration/actions", () => ({
-  completeStep1Action: vi.fn(),
-  completeStep2Action: vi.fn(),
-  completeStep3Action: vi.fn(),
+  completeStep1Action: (...args: unknown[]) => mockStep1(...args),
+  completeStep2Action: (...args: unknown[]) => mockStep2(...args),
 }));
 
 const mockRefresh = vi.fn();
@@ -56,101 +56,136 @@ function status(overrides: Partial<PostRegistrationStatus> = {}): PostRegistrati
   };
 }
 
-function renderTab(
-  props: Partial<React.ComponentProps<typeof PostRegistrationTab>> = {},
-) {
-  return render(
-    <NextIntlClientProvider locale="es" messages={messages}>
-      <PostRegistrationTab
-        userId="user-1"
-        status={status()}
-        photoStatus={{ has_photo: false }}
-        canOverride
-        {...props}
-      />
-    </NextIntlClientProvider>,
+function renderTab(props: Partial<React.ComponentProps<typeof PostRegistrationTab>> = {}) {
+  return renderWithIntl(
+    <PostRegistrationTab
+      userId="user-1"
+      status={status()}
+      photoStatus={{ has_photo: false }}
+      canOverride
+      {...props}
+    />,
   );
 }
 
-describe("PostRegistrationTab onboarding mode", () => {
-  beforeEach(() => {
-    mockResend.mockReset();
-    mockToastSuccess.mockReset();
-    mockToastError.mockReset();
-    mockRefresh.mockReset();
-  });
+function resetMocks() {
+  mockResend.mockReset();
+  mockStep1.mockReset();
+  mockStep2.mockReset();
+  mockToastSuccess.mockReset();
+  mockToastError.mockReset();
+  mockRefresh.mockReset();
+}
+
+describe("PostRegistrationTab state", () => {
+  beforeEach(resetMocks);
   afterEach(cleanup);
 
-  it("treats a missing onboarding_mode as club: step 3 applies and can show its note", () => {
+  it("shows the in-progress state and how many steps are missing", () => {
     renderTab();
-    expect(screen.queryByText(p.step_status_not_applicable)).toBeNull();
-    expect(screen.getByText(p.step3_note)).toBeTruthy();
-    // Steps 1 and 2 are overridable, step 3 never is.
-    expect(screen.getAllByRole("button", { name: p.force_complete_button })).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: ud("post.stateInProgress") })).toBeInTheDocument();
+    // The count (3 steps) reaches the sentence, whatever the locale copy.
+    expect(document.body.textContent).toMatch(/3/);
+    // One row per step, no progress bar.
+    expect(document.querySelectorAll("[data-step]")).toHaveLength(3);
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
-  it("club_exempt: step 3 reads No aplica, has no note and no override; steps 1-2 stay overridable", () => {
-    renderTab({ status: status({ onboarding_mode: "club_exempt" }) });
-
-    expect(screen.getAllByText(p.step_status_not_applicable)).toHaveLength(1);
-    expect(screen.getByText(p.step3_not_applicable_description)).toBeTruthy();
-    expect(screen.queryByText(p.step3_note)).toBeNull();
-    expect(screen.queryByText(p.step3_req1)).toBeNull();
-    expect(screen.getAllByRole("button", { name: p.force_complete_button })).toHaveLength(2);
-    // The overall badge keeps reporting the real state (same copy as the
-    // pending badge of the next step, hence two matches).
-    expect(screen.getAllByText(p.badge_pending)).toHaveLength(2);
-    expect(screen.queryByText(p.panel_only_notice)).toBeNull();
-  });
-
-  it("club_exempt after self-completion: overall badge is complete", () => {
+  it("complete: says so and lists no pending step", () => {
     renderTab({
       status: status({
-        onboarding_mode: "club_exempt",
         complete: true,
-        steps: { profilePicture: true, personalInfo: true, clubSelection: false },
+        steps: { profilePicture: true, personalInfo: true, clubSelection: true },
         nextStep: null,
       }),
     });
-    expect(screen.getByText(p.badge_complete)).toBeTruthy();
-    expect(screen.getAllByText(p.step_status_not_applicable)).toHaveLength(1);
+    expect(screen.getByRole("heading", { name: ud("post.stateComplete") })).toBeInTheDocument();
+    expect(screen.queryByText(p.step_status_pending)).toBeNull();
+    expect(screen.queryByRole("button", { name: ud("post.forceStep") })).toBeNull();
   });
 
-  it("panel_only: shows the notice and No aplica as the overall badge and on step 3", () => {
-    renderTab({ status: status({ onboarding_mode: "panel_only", nextStep: null }) });
-
-    expect(screen.getByText(p.panel_only_notice)).toBeTruthy();
-    // overall badge + step 3
-    expect(screen.getAllByText(p.step_status_not_applicable)).toHaveLength(2);
-    expect(screen.queryByText(p.badge_pending)).toBeNull();
-    expect(screen.queryByText(p.step3_note)).toBeNull();
+  it("club_exempt: the club step is not listed", () => {
+    renderTab({ status: status({ onboarding_mode: "club_exempt" }) });
+    expect(document.querySelectorAll("[data-step]")).toHaveLength(2);
+    expect(document.querySelector('[data-step="clubSelection"]')).toBeNull();
   });
 
-  it("unknown mode value falls back to club", () => {
-    renderTab({
-      status: status({ onboarding_mode: "something_else" as never }),
-    });
-    expect(screen.queryByText(p.step_status_not_applicable)).toBeNull();
+  it("panel_only: shows the notice and no steps", () => {
+    renderTab({ status: status({ onboarding_mode: "panel_only" }) });
+    expect(screen.getByText(p.panel_only_notice)).toBeInTheDocument();
+    expect(document.querySelectorAll("[data-step]")).toHaveLength(0);
+  });
+
+  it("unknown mode value falls back to club (three steps)", () => {
+    renderTab({ status: status({ onboarding_mode: "weird" as never }) });
+    expect(document.querySelectorAll("[data-step]")).toHaveLength(3);
+  });
+
+  it("the club step cannot be forced and says only the person can", () => {
+    renderTab();
+    const clubRow = document.querySelector('[data-step="clubSelection"]') as HTMLElement;
+    expect(within(clubRow).queryByRole("button")).toBeNull();
+    expect(within(clubRow).getByText(ud("post.onlyThePerson"))).toBeInTheDocument();
+  });
+
+  it("without override permission: no force buttons and a notice", () => {
+    renderTab({ canOverride: false });
+    expect(screen.queryByRole("button", { name: ud("post.forceStep") })).toBeNull();
+    expect(screen.getByText(ud("post.readonlyNotice"))).toBeInTheDocument();
+  });
+
+  it("does not claim a photo state when the photo check failed", () => {
+    renderTab({ photoStatus: null });
+    expect(screen.queryByText(p.photo_none_label)).toBeNull();
+    expect(screen.queryByText(p.photo_has_label)).toBeNull();
   });
 });
 
-describe("PostRegistrationTab resend invitation card", () => {
-  beforeEach(() => {
-    mockResend.mockReset();
-    mockToastSuccess.mockReset();
-    mockToastError.mockReset();
-    mockRefresh.mockReset();
+describe("PostRegistrationTab force complete", () => {
+  beforeEach(resetMocks);
+  afterEach(cleanup);
+
+  it("asks for confirmation and only then calls the step action", async () => {
+    mockStep1.mockResolvedValueOnce({ ok: true, message: "listo" });
+    const user = userEvent.setup();
+    renderTab();
+
+    const row = document.querySelector('[data-step="profilePicture"]') as HTMLElement;
+    await user.click(within(row).getByRole("button", { name: ud("post.forceStep") }));
+    expect(mockStep1).not.toHaveBeenCalled();
+
+    await user.click(await screen.findByRole("button", { name: ud("post.forceConfirm") }));
+    await waitFor(() => expect(mockStep1).toHaveBeenCalledWith("user-1"));
+    await waitFor(() => expect(mockToastSuccess).toHaveBeenCalledWith("listo"));
   });
+
+  it("step 2 uses its own action; a failure stays inline and does not toast success", async () => {
+    mockStep2.mockResolvedValueOnce({ ok: false, error: "faltan datos" });
+    const user = userEvent.setup();
+    renderTab();
+
+    const row = document.querySelector('[data-step="personalInfo"]') as HTMLElement;
+    await user.click(within(row).getByRole("button", { name: ud("post.forceStep") }));
+    await user.click(await screen.findByRole("button", { name: ud("post.forceConfirm") }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("faltan datos");
+    expect(mockStep1).not.toHaveBeenCalled();
+    expect(mockToastSuccess).not.toHaveBeenCalled();
+  });
+});
+
+describe("PostRegistrationTab invitation", () => {
+  beforeEach(resetMocks);
   afterEach(cleanup);
 
   it("is hidden by default (invitation_pending missing)", () => {
     renderTab({ canResendInvitation: true });
-    expect(screen.queryByText(p.account_access_title)).toBeNull();
+    expect(screen.queryByRole("button", { name: p.resend_invitation })).toBeNull();
   });
 
   it("is hidden when pending but the actor cannot create users", () => {
     renderTab({ invitationPending: true, canResendInvitation: false });
-    expect(screen.queryByText(p.account_access_title)).toBeNull();
+    expect(screen.queryByRole("button", { name: p.resend_invitation })).toBeNull();
   });
 
   it("is hidden when the invitation was accepted", () => {
@@ -163,7 +198,6 @@ describe("PostRegistrationTab resend invitation card", () => {
     const user = userEvent.setup();
     renderTab({ invitationPending: true, canResendInvitation: true });
 
-    expect(screen.getByText(p.account_access_title)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: p.resend_invitation }));
 
     await waitFor(() => expect(mockResend).toHaveBeenCalledWith("user-1"));
@@ -183,7 +217,7 @@ describe("PostRegistrationTab resend invitation card", () => {
     await user.click(screen.getByRole("button", { name: p.resend_invitation }));
 
     await waitFor(() => expect(mockToastError).toHaveBeenCalledWith(p[key]));
-    // Only an already-accepted invitation reloads the page (the card goes away).
+    // Only an already-accepted invitation reloads the page (the action goes away).
     expect(mockRefresh).toHaveBeenCalledTimes(statusCode === 409 ? 1 : 0);
   });
 });

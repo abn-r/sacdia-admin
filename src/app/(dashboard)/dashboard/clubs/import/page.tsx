@@ -1,14 +1,5 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { getTranslations as getTranslationsStrict } from "next-intl/server";
 
-type LooseTranslator = (key: string) => string;
-const getTranslations = getTranslationsStrict as unknown as (
-  namespace?: string,
-) => Promise<LooseTranslator>;
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/page-header";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
@@ -46,26 +37,15 @@ export default async function ImportClubsPage() {
     redirect("/dashboard/clubs");
   }
 
-  const t = await getTranslations("clubs.pages.import");
   const { localFields, districts, churches } = await loadClubGeographyForTerritory(user);
 
+  // The wizard renders its own header (breadcrumbs + the current step).
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")}>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/clubs">
-            <ArrowLeft className="size-4" />
-            {t("back")}
-          </Link>
-        </Button>
-      </PageHeader>
-
-      <ClubsBulkImport
-        localFields={toCatalogOptions(localFields, "local_field_id")}
-        districts={toCatalogOptions(districts, "district_id", "local_field_id")}
-        churches={toCatalogOptions(churches, "church_id", "district_id")}
-        submitAction={bulkCreateClubsAction}
-      />
-    </div>
+    <ClubsBulkImport
+      localFields={toCatalogOptions(localFields, "local_field_id")}
+      districts={toCatalogOptions(districts, "district_id", "local_field_id")}
+      churches={toCatalogOptions(churches, "church_id", "district_id")}
+      submitAction={bulkCreateClubsAction}
+    />
   );
 }

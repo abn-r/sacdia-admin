@@ -48,6 +48,7 @@ export function EditClubForm({
   formAction,
 }: EditClubFormProps) {
   const t = useTranslations("clubs");
+  const tc = useTranslations("people.clubs");
   const [state, action] = useActionState(formAction, initialState);
   const modal = useFormModal(LIST_HREF);
   const [active, setActive] = useState(initialActive);
@@ -80,16 +81,20 @@ export function EditClubForm({
             </Alert>
           ) : null}
 
-          {context.length > 0 ? (
-            <dl className="grid gap-x-4 gap-y-2 rounded-md bg-muted/40 px-3 py-2.5 text-sm sm:grid-cols-3">
-              {context.map((item) => (
-                <div key={item.label} className="min-w-0">
-                  <dt className="text-xs text-muted-foreground">{item.label}</dt>
-                  <dd className="truncate font-medium">{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
+          {/* Not editable through PATCH /clubs/:id: shown as text, with the reason. */}
+          <div className="space-y-2">
+            {context.length > 0 ? (
+              <dl className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+                {context.map((item) => (
+                  <div key={item.label} className="contents">
+                    <dt className="text-muted-foreground">{item.label}</dt>
+                    <dd className="min-w-0 truncate font-medium">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+            <p className="text-xs text-muted-foreground">{tc("edit.lockedHint")}</p>
+          </div>
 
           <Field data-invalid={fieldErrors.name ? true : undefined}>
             <FieldLabel htmlFor="name">
@@ -137,7 +142,10 @@ export function EditClubForm({
             {/* The unchecked Radix switch posts nothing; the hidden input always carries the value. */}
             <input type="hidden" name="active" value={active ? "true" : "false"} />
             <Switch id="active" checked={active} onCheckedChange={setActive} />
-            <FieldLabel htmlFor="active">{t("edit.labelActive")}</FieldLabel>
+            <div className="space-y-0.5">
+              <FieldLabel htmlFor="active">{t("edit.labelActive")}</FieldLabel>
+              <FieldDescription>{tc("edit.activeHint")}</FieldDescription>
+            </div>
           </Field>
 
           <Field data-invalid={fieldErrors.coordinates ? true : undefined}>

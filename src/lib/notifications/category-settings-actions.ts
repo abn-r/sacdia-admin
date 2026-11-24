@@ -24,7 +24,7 @@ export async function updateNotificationCategorySettingAction(
 
   try {
     await patchNotificationCategorySetting(payload);
-    revalidatePath("/dashboard/configuration/notifications/categories");
+    revalidatePath("/dashboard/notifications");
     return { success: t("saveSuccess") };
   } catch (error) {
     return { error: getActionErrorMessage(error, t("saveError")) };

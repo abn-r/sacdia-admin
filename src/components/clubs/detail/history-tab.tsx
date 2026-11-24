@@ -1,12 +1,13 @@
 "use client";
 
-import { EmptyState } from "@/components/shared/empty-state";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { History, Loader2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
+import { History } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -14,12 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DetailSection } from "@/components/users/detail/section";
-import {
-  getClubHistoryFromClient,
-  type ClubHistoryItem,
-} from "@/lib/api/club-detail";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getClubHistoryFromClient, type ClubHistoryItem } from "@/lib/api/club-detail";
 import { formatAuditActorName } from "@/lib/api/audit-logs";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
+import { filterHistoryItems, historyEventKey } from "@/lib/clubs/detail-history";
+import { useFormatDateTime } from "@/lib/format-locale";
 import type { SectionMembersGroup } from "@/lib/clubs/types";
 
 interface HistoryTabProps {
@@ -27,170 +28,153 @@ interface HistoryTabProps {
   sections: SectionMembersGroup[];
 }
 
+const PAGE_SIZE = 25;
 const KNOWN_ACTIONS = new Set(["CREATED", "UPDATED", "DELETED"]);
 
-function actionVariant(
-  action: string,
-): "soft-success" | "soft-info" | "soft-destructive" | "outline" {
-  if (action === "CREATED") return "soft-success";
-  if (action === "UPDATED") return "soft-info";
-  if (action === "DELETED") return "soft-destructive";
-  return "outline";
-}
-
-function entityLabel(
-  entityType: string,
-  t: ReturnType<typeof useTranslations<"clubs.detail.history">>,
-) {
-  if (entityType === "club" || entityType === "clubs") return t("entity.club");
-  if (entityType === "club_section") return t("entity.club_section");
-  if (entityType === "class_counselor_assignment") {
-    return t("entity.class_counselor_assignment");
-  }
-  if (entityType === "role_assignment") return t("entity.role_assignment");
-  return entityType;
-}
-
 export function HistoryTab({ clubId, sections }: HistoryTabProps) {
-  const t = useTranslations("clubs.detail.history");
-  const locale = useLocale();
+  const t = useTranslations("people.clubDetail.history");
+  const tOld = useTranslations("clubs.detail.history");
+  const formatDateTime = useFormatDateTime();
   const [items, setItems] = useState<ClubHistoryItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ErrorStateFromError | null>(null);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [sectionFilter, setSectionFilter] = useState("all");
 
   const loadPage = useCallback(
-    async (pageCursor: string | null, append: boolean) => {
-      append ? setLoadingMore(true) : setLoading(true);
-      setError(null);
+    async (cursor: string | null, append: boolean) => {
+      if (append) setLoadingMore(true);
+      else setLoading(true);
+      setFailure(null);
       try {
-        const page = await getClubHistoryFromClient(clubId, {
-          limit: 25,
-          cursor: pageCursor,
-        });
+        const page = await getClubHistoryFromClient(clubId, { limit: PAGE_SIZE, cursor });
         setItems((current) => (append ? [...current, ...page.items] : page.items));
         setNextCursor(page.next_cursor);
-      } catch {
-        setError(t("loadError"));
+        setLoadedAt(new Date());
+      } catch (error) {
+        setFailure(errorStateFromError(error));
       } finally {
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [clubId, t],
+    [clubId],
   );
 
   useEffect(() => {
     void loadPage(null, false);
   }, [loadPage]);
 
-  const filteredItems = useMemo(() => {
-    if (sectionFilter === "all") return items;
-    return items.filter(
-      (item) =>
-        item.entity_type === "club_section" && item.entity_id === sectionFilter,
+  const visible = useMemo(() => filterHistoryItems(items, sectionFilter), [items, sectionFilter]);
+  const filtering = sectionFilter !== "all";
+
+  function eventText(item: ClubHistoryItem) {
+    if (item.summary) return item.summary;
+    const action = KNOWN_ACTIONS.has(item.action)
+      ? tOld(`action.${item.action}` as "action.CREATED")
+      : item.action;
+    return `${action} · ${item.entity_type}`;
+  }
+
+  // A first-page failure is an error, never an empty history.
+  if (!loading && failure && items.length === 0) {
+    return (
+      <ErrorState
+        kind={failure.kind}
+        {...(failure.detail ? { detail: failure.detail } : {})}
+        onRetry={() => void loadPage(null, false)}
+        icon={History}
+      />
     );
-  }, [items, sectionFilter]);
+  }
 
   return (
-    <div className="space-y-3.5">
-      <DetailSection
-        num="01"
-        title={t("title")}
-        action={
-          <div className="w-[220px]">
-            <Select value={sectionFilter} onValueChange={setSectionFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("filterSection")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("allEvents")}</SelectItem>
-                {sections.map((section) => (
-                  <SelectItem key={section.sectionId} value={String(section.sectionId)}>
-                    {section.sectionName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        }
-      >
-        <p className="mb-4 text-sm text-muted-foreground">{t("description")}</p>
-
-      {loading ? (
-        <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          {t("loading")}
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex w-full flex-col gap-1.5 sm:w-[220px]">
+          <Label htmlFor="club-history-section" className="text-muted-foreground text-xs">
+            {tOld("filterSection")}
+          </Label>
+          <Select value={sectionFilter} onValueChange={setSectionFilter}>
+            <SelectTrigger id="club-history-section" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{tOld("allSections")}</SelectItem>
+              {sections.map((section) => (
+                <SelectItem key={section.sectionId} value={String(section.sectionId)}>
+                  {section.sectionName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      ) : null}
-
-      {error ? (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      ) : null}
-
-      {!loading && !error && filteredItems.length === 0 ? (
-        <EmptyState icon={History} title={t("emptyTitle")} description={t("emptyDescription")} />
-      ) : null}
-
-      <div className="space-y-2.5">
-        {filteredItems.map((item) => {
-          const created = new Date(item.created_at);
-          const actorName = formatAuditActorName(item.actor);
-          return (
-            <Card key={item.audit_log_id} className="gap-2 px-4 py-3.5">
-              <CardContent className="px-0 py-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-mono text-2xs text-muted-foreground">
-                    {created.toLocaleDateString(locale, {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}{" "}
-                    ·{" "}
-                    {created.toLocaleTimeString(locale, {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <Badge variant={actionVariant(item.action)}>
-                    {KNOWN_ACTIONS.has(item.action)
-                      ? t(`action.${item.action}` as "action.CREATED")
-                      : item.action}
-                  </Badge>
-                  <Badge variant="outline">{entityLabel(item.entity_type, t)}</Badge>
-                </div>
-                <h5 className="mt-2 text-sm font-semibold">
-                  {item.summary ??
-                    `${item.entity_type} ${item.action.toLowerCase()}`}
-                </h5>
-                {actorName ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("byActor", { name: actorName })}
-                  </p>
-                ) : null}
-              </CardContent>
-            </Card>
-          );
-        })}
       </div>
 
-      {nextCursor ? (
-        <div className="flex justify-center pt-2">
+      {filtering ? (
+        <p role="note" className="text-muted-foreground text-sm">
+          {t("filteringLoaded")}
+        </p>
+      ) : null}
+
+      {failure && items.length > 0 && loadedAt ? (
+        <StaleDataNotice at={loadedAt} onRetry={() => void loadPage(nextCursor, true)} />
+      ) : null}
+
+      {loading ? (
+        <div role="status" aria-busy="true" className="space-y-2 rounded-xl bg-card p-4 shadow-card">
+          {Array.from({ length: 5 }, (_, index) => (
+            <Skeleton key={index} className="h-6 w-full" />
+          ))}
+        </div>
+      ) : visible.length === 0 ? (
+        <EmptyState
+          variant={filtering && items.length > 0 ? "no-results" : "default"}
+          icon={History}
+          title={filtering && items.length > 0 ? t("noResultsTitle") : tOld("emptyTitle")}
+          description={
+            filtering && items.length > 0 ? t("noResultsDescription") : tOld("emptyDescription")
+          }
+        />
+      ) : (
+        <ul className="divide-y rounded-xl bg-card px-4 shadow-card">
+          {visible.map((item) => {
+            const actor = formatAuditActorName(item.actor);
+            return (
+              <li
+                key={historyEventKey(item)}
+                className="grid gap-x-4 gap-y-0.5 py-3 text-sm sm:grid-cols-[11rem_1fr_auto]"
+              >
+                <time
+                  dateTime={item.created_at}
+                  className="text-muted-foreground tabular-nums sm:text-[13px]"
+                >
+                  {formatDateTime(item.created_at)}
+                </time>
+                <span>{eventText(item)}</span>
+                <span className="text-muted-foreground sm:text-right">
+                  {actor ?? t("system")}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {nextCursor && !loading ? (
+        <div className="flex justify-center">
           <Button
             loading={loadingMore}
             variant="outline"
             size="sm"
             onClick={() => void loadPage(nextCursor, true)}
           >
-            {t("loadMore")}
+            {tOld("loadMore")}
           </Button>
         </div>
       ) : null}
-      </DetailSection>
     </div>
   );
 }

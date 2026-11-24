@@ -6,7 +6,9 @@ import { ClubsBulkImport } from "@/components/clubs/clubs-bulk-import";
 import messages from "../../../messages/es.json";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/dashboard/clubs/import",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 afterEach(() => {
@@ -49,28 +51,70 @@ function upload(container: HTMLElement, csv: string) {
 
 const header = "name,local_field,district,church";
 
+function uploadSized(container: HTMLElement, name: string, size: number) {
+  const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+  const file = new File(["x"], name, { type: "text/csv" });
+  Object.defineProperty(file, "size", { value: size });
+  fireEvent.change(input, { target: { files: [file] } });
+}
+
 describe("ClubsBulkImport", () => {
+  it("starts at step 1 with breadcrumbs and the limits, no Volver button", () => {
+    renderImport();
+
+    expect(screen.getByText("Paso 1 de 3 · Archivo")).toBeInTheDocument();
+    expect(screen.getByText("Hasta 500 filas y 5 MB", { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Clubes" })).toHaveAttribute("href", "/dashboard/clubs");
+    expect(screen.queryByText("Volver")).toBeNull();
+  });
+
+  it("rejects a file over 5 MB with a message that stays on screen", async () => {
+    const { container } = renderImport();
+    uploadSized(container, "clubes.csv", 6 * 1024 * 1024);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("más de 5 MB");
+    expect(screen.getByText("Paso 1 de 3 · Archivo")).toBeInTheDocument();
+  });
+
+  it("rejects a file with more than 500 rows", async () => {
+    const { container } = renderImport();
+    const body = Array.from({ length: 501 }, (_, i) => `Club ${i},ACV,Boca del Río,ACV`).join("\n");
+    upload(container, `${header}\n${body}`);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("501 filas");
+  });
+
   it("reads accents from a UTF-8 CSV without BOM and ignores case and accents", async () => {
     const { container } = renderImport();
     upload(container, `${header}\nClub Uno,asociacion centro de veracruz,BOCA DEL RIO,acv`);
 
-    expect(await screen.findByText("Válida")).toBeInTheDocument();
-    expect(screen.getByText("1 válida · 0 con errores")).toBeInTheDocument();
+    expect((await screen.findAllByText("Lista")).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Paso 2 de 3 · Revisar · clubs\.csv/)).toBeInTheDocument();
+    expect(screen.getByText(/1 fila · 1 lista · 0 con errores/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Importar 1 club" })).toBeEnabled();
   });
 
-  it("rejects a district from another local field", async () => {
+  it("says in words what fails, tints the row and defaults to the errors tab", async () => {
     const { container } = renderImport();
-    upload(container, `${header}\nClub Dos,Asociación Centro de Veracruz,Catemaco,ACV`);
+    upload(
+      container,
+      `${header}\nClub Dos,Asociación Centro de Veracruz,Catemaco,ACV\nClub Tres,asociacion centro de veracruz,Boca del Río,ACV`,
+    );
 
-    expect(
-      await screen.findByText(
-        /El distrito Catemaco no pertenece al campo local Asociación Centro de Veracruz/,
-      ),
-    ).toBeInTheDocument();
+    // Table and mobile list both render; the table row is the one inside <tr>.
+    const messages = await screen.findAllByText(
+      /El distrito Catemaco no pertenece al campo local Asociación Centro de Veracruz/,
+    );
+    const row = messages.map((node) => node.closest("tr")).find(Boolean);
+    expect(row).toHaveAttribute("data-state", "selected");
+    expect(row?.className).not.toMatch(/destructive|red-/);
+    // Errors tab only: the ready row is not listed until «Todas».
+    expect(screen.queryByText("Club Tres")).toBeNull();
+    expect(screen.getByRole("tab", { name: /Con errores/ })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("button", { name: "Importar 1 club" })).toBeEnabled();
   });
 
-  it("clears the preview after importing so rows are not sent twice", async () => {
+  it("clears the preview after importing so rows are not sent twice, and shows the result step", async () => {
     const submitAction = vi.fn().mockResolvedValue({
       created: 1,
       failed: 0,
@@ -87,6 +131,9 @@ describe("ClubsBulkImport", () => {
       "href",
       "/dashboard/clubs/18",
     );
-    expect(screen.queryByRole("button", { name: /Importar/ })).toBeNull();
+    expect(screen.getByText("Paso 3 de 3 · Resultado")).toBeInTheDocument();
+    expect(screen.getByText("1 club creado")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Importar 1/ })).toBeNull();
+    expect(screen.getByRole("link", { name: "Ir a clubes" })).toHaveAttribute("href", "/dashboard/clubs");
   });
 });

@@ -1,32 +1,27 @@
 "use client";
 
-import { EmptyState } from "@/components/shared/empty-state";
+import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { flagStatusIntent } from "@/lib/status/flag-status";
-import { MemberRow } from "@/components/clubs/detail/member-row";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
 import { clubLocationName } from "@/components/clubs/detail/location";
-import {
-  DetailSection,
-  DetailField,
-  DetailCols2,
-} from "@/components/users/detail/section";
-import {
-  isClubSectionActive,
-  type ClubDetailPayload,
-} from "@/lib/clubs/types";
+import { FactList, SectionBlock } from "@/components/clubs/detail/section-block";
+import { findSectionDirectorMember } from "@/lib/clubs/types";
+import { uniqueMemberCount } from "@/lib/clubs/detail-members";
+import { isClubSectionActive, type ClubDetailPayload } from "@/lib/clubs/types";
 
 interface GeneralTabProps {
   data: ClubDetailPayload;
 }
 
-function padNum(n: number) {
-  return String(n).padStart(2, "0");
-}
-
+/**
+ * Club data plus one row per section. Members have their own tab: this tab no
+ * longer lists them section by section.
+ */
 export function GeneralTab({ data }: GeneralTabProps) {
   const t = useTranslations("clubs.detail.general");
+  const tNew = useTranslations("people.clubDetail");
   const { club, sectionMemberGroups } = data;
   const groups = [...sectionMemberGroups].sort(
     (left, right) => Number(isClubSectionActive(right)) - Number(isClubSectionActive(left)),
@@ -38,71 +33,85 @@ export function GeneralTab({ data }: GeneralTabProps) {
   const description = club.description?.trim() || undefined;
 
   return (
-    <div className="space-y-3.5">
-      <DetailSection num="01" title={t("clubInfoTitle")}>
-        <DetailCols2>
-          <div>
-            <DetailField k={t("labelName")} v={club.name} />
-            <DetailField
-              k={t("labelStatus")}
-              v={
-                <StatusBadge intent={flagStatusIntent(club.active !== false)} label={club.active !== false ? t("statusActive") : t("statusInactive")} />
-              }
-            />
-            <DetailField k={t("labelAddress")} v={address} muted={!address} />
-          </div>
-          <div>
-            <DetailField k={t("labelLocalField")} v={localField} muted={!localField} />
-            <DetailField k={t("labelDistrict")} v={district} muted={!district} />
-            <DetailField k={t("labelChurch")} v={church} muted={!church} />
-          </div>
-        </DetailCols2>
-        <DetailField
-          k={t("labelDescription")}
-          v={description ? <span className="whitespace-pre-line font-normal">{description}</span> : undefined}
-          muted={!description}
-        />
-      </DetailSection>
+    <div className="space-y-6">
+      <SectionBlock title={t("clubInfoTitle")}>
+        <div className="rounded-xl bg-card p-5 shadow-card">
+          <FactList
+            items={[
+              { label: t("labelName"), value: club.name ?? "—" },
+              { label: t("labelLocalField"), value: localField ?? "—", muted: !localField },
+              { label: t("labelAddress"), value: address ?? "—", muted: !address },
+              { label: t("labelDistrict"), value: district ?? "—", muted: !district },
+              { label: t("labelDescription"), value: description ?? "—", muted: !description },
+              { label: t("labelChurch"), value: church ?? "—", muted: !church },
+            ]}
+          />
+        </div>
+      </SectionBlock>
 
-      {groups.length === 0 ? (
-        <EmptyState icon={LayoutGrid} title={t("noSections")} />
-      ) : (
-        groups.map((group, index) => {
-          const sectionActive = isClubSectionActive(group);
-          return (
-            <DetailSection
-              key={group.sectionId}
-              num={padNum(index + 2)}
-              title={group.sectionName}
-              action={
-                <StatusBadge intent={flagStatusIntent(sectionActive)} label={sectionActive ? t("statusActive") : t("statusInactive")} />
-              }
-            >
-              <DetailCols2 className="sm:grid-cols-3">
-                <DetailField k={t("labelSoulsTarget")} v={group.soulsTarget} />
-                <DetailField k={t("labelFee")} v={group.fee} />
-                <DetailField
-                  k={t("labelMembers")}
-                  v={group.members.length}
-                />
-              </DetailCols2>
-
-              <div className="mt-4 grid gap-2.5">
-                {group.members.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{t("noMembers")}</p>
-                ) : (
-                  group.members.map((member) => (
-                    <MemberRow
-                      key={`${group.sectionId}-${member.user_id}-${member.assignment_id ?? member.role ?? "member"}`}
-                      member={member}
+      <SectionBlock title={tNew("general.sectionsHeading")}>
+        {groups.length === 0 ? (
+          <EmptyState icon={LayoutGrid} title={t("noSections")} />
+        ) : (
+          <ul className="divide-y rounded-xl bg-card shadow-card">
+            {groups.map((group) => {
+              const active = isClubSectionActive(group);
+              const director = findSectionDirectorMember(group.members);
+              return (
+                <li
+                  key={group.sectionId}
+                  className="flex flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3"
+                >
+                  <span className="flex min-w-40 items-center gap-2 font-medium">
+                    {group.sectionName}
+                    <ExceptionStatus<"active" | "inactive">
+                      value={active ? "active" : "inactive"}
+                      normal={["active"]}
+                      labels={{
+                        active: tNew("general.sectionActive"),
+                        inactive: tNew("general.sectionInactive"),
+                      }}
+                      intents={{ inactive: "neutral" }}
                     />
-                  ))
-                )}
-              </div>
-            </DetailSection>
-          );
-        })
-      )}
+                  </span>
+                  <dl className="flex flex-1 flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                    <div className="flex gap-1.5">
+                      <dt>{tNew("general.director")}</dt>
+                      <dd className="font-medium text-foreground">
+                        {director?.name ?? tNew("general.noDirector")}
+                      </dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt>{t("labelMembers")}</dt>
+                      <dd className="font-medium text-foreground tabular-nums">
+                        {uniqueMemberCount(group.members)}
+                      </dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt>{t("labelFee")}</dt>
+                      <dd className="font-medium text-foreground tabular-nums">
+                        {group.fee ?? "—"}
+                      </dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt>{t("labelSoulsTarget")}</dt>
+                      <dd className="font-medium text-foreground tabular-nums">
+                        {group.soulsTarget ?? "—"}
+                      </dd>
+                    </div>
+                  </dl>
+                  <Link
+                    href={`/dashboard/clubs/${data.clubId}?tab=sections&section=${group.sectionId}`}
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    {tNew("general.viewSection")}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SectionBlock>
     </div>
   );
 }

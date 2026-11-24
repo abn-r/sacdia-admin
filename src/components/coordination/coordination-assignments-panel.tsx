@@ -1,28 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Power, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -31,21 +13,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import { listAdminUsers, type AdminUser } from "@/lib/api/admin-users";
-import { listClubSections, type ClubSection } from "@/lib/api/clubs";
-import { extractItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import {
-  buildCoordinatorAssignmentPayload,
-  createCoordinatorAssignment,
   extractCoordinationConflictReason,
   updateCoordinatorAssignment,
   type CoordinationZone,
   type CoordinatorAssignment,
-  type CoordinatorAssignmentType,
 } from "@/lib/api/coordination";
 import type { AdminClubType } from "@/lib/catalogs/club-types/types";
+import {
+  CoordinationAssignmentDialog,
+  type CoordinatorCandidatesState,
+} from "@/components/coordination/coordination-assignment-dialog";
 import {
   coordinationErrorMessage,
   formatAssignmentScope,
@@ -58,6 +43,17 @@ const COORDINATOR_ROLES = [
   "general-coordinator",
 ] as const;
 
+async function fetchCoordinatorCandidates(): Promise<AdminUser[]> {
+  const results = await Promise.all(
+    COORDINATOR_ROLES.map((role) => listAdminUsers({ role, active: true, limit: 100, page: 1 })),
+  );
+  const merged = new Map<string, AdminUser>();
+  for (const result of results) {
+    for (const user of result.items) merged.set(user.user_id, user);
+  }
+  return [...merged.values()];
+}
+
 type ClubOption = {
   club_id: number;
   name: string;
@@ -65,431 +61,226 @@ type ClubOption = {
 
 type CoordinationAssignmentsPanelProps = {
   localFieldId: number;
+  localFieldName: string;
   zones: CoordinationZone[];
   clubTypes: AdminClubType[];
   clubs: ClubOption[];
   assignments: CoordinatorAssignment[];
   canManage: boolean;
+  /** Controlled by the page header ("Nueva asignación"). */
+  dialogOpen: boolean;
+  onDialogOpenChange: (open: boolean) => void;
   onChanged: () => Promise<void>;
 };
 
 export function CoordinationAssignmentsPanel({
   localFieldId,
+  localFieldName,
   zones,
   clubTypes,
   clubs,
   assignments,
   canManage,
+  dialogOpen,
+  onDialogOpenChange,
   onChanged,
 }: CoordinationAssignmentsPanelProps) {
   const t = useTranslations("coordinationAdmin");
-  const [coordinators, setCoordinators] = useState<AdminUser[]>([]);
-  const [userId, setUserId] = useState<string>("");
-  const [assignmentType, setAssignmentType] =
-    useState<CoordinatorAssignmentType>("GENERAL");
-  const [zoneId, setZoneId] = useState<string>("");
-  const [clubTypeId, setClubTypeId] = useState<string>("");
-  const [clubId, setClubId] = useState<string>("");
-  const [clubSectionId, setClubSectionId] = useState<string>("");
-  const [sections, setSections] = useState<ClubSection[]>([]);
-  const [creating, setCreating] = useState(false);
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  const [loadingUsers, setLoadingUsers] = useState(false);
-
-  const activeZones = zones.filter((zone) => zone.active);
-  const activeClubTypes = clubTypes.filter((clubType) => clubType.active);
-
-  // `t` can change identity between renders; read it through a ref so the
-  // coordinator lookup (3 requests, one per role) runs once per mount.
-  const tRef = useRef(t);
-  useEffect(() => {
-    tRef.current = t;
+  const tc = useTranslations("people.community.coordination");
+  const [toggling, setToggling] = useState<CoordinatorAssignment | null>(null);
+  const [candidates, setCandidates] = useState<CoordinatorCandidatesState>({
+    status: "idle",
+    users: [],
   });
+  const [attempt, setAttempt] = useState(0);
+  const loadedAttempt = useRef<number | null>(null);
 
+  // Coordinator candidates are only needed to create an assignment, so the
+  // three role lookups run the first time the dialog opens (and on retry).
   useEffect(() => {
-    let cancelled = false;
-    setLoadingUsers(true);
+    if (!dialogOpen || !canManage || loadedAttempt.current === attempt) return;
+    loadedAttempt.current = attempt;
+    fetchCoordinatorCandidates()
+      .then((users) => setCandidates({ status: "ready", users }))
+      .catch(() => setCandidates({ status: "error", users: [] }));
+  }, [dialogOpen, canManage, attempt]);
 
-    Promise.all(
-      COORDINATOR_ROLES.map((role) =>
-        listAdminUsers({ role, active: true, limit: 100, page: 1 }),
-      ),
-    )
-      .then((results) => {
-        if (cancelled) return;
-        const merged = new Map<string, AdminUser>();
-        for (const result of results) {
-          for (const user of result.items) {
-            merged.set(user.user_id, user);
-          }
-        }
-        setCoordinators([...merged.values()]);
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          toast.error(getActionErrorMessage(error, tRef.current("errors.generic")));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingUsers(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!clubId) {
-      setSections([]);
-      setClubSectionId("");
-      return;
+  async function confirmToggle() {
+    if (!toggling) return;
+    const next = !toggling.active;
+    try {
+      await updateCoordinatorAssignment(toggling.assignment_id, { active: next });
+    } catch (error) {
+      throw new Error(
+        coordinationErrorMessage(
+          extractCoordinationConflictReason(error),
+          getActionErrorMessage(error, t("errors.generic")),
+          t as unknown as (key: string) => string,
+        ),
+      );
     }
+    toast.success(
+      next ? t("success.assignmentActivated") : t("success.assignmentDeactivated"),
+    );
+    await onChanged();
+  }
 
-    let cancelled = false;
-    const parsedClubId = Number(clubId);
-    listClubSections(parsedClubId)
-      .then((payload) => {
-        if (cancelled) return;
-        const rows = extractItems(payload) as ClubSection[];
-        setSections(rows.filter((row) => row.active !== false));
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          toast.error(getActionErrorMessage(error, t("errors.generic")));
-          setSections([]);
-        }
-      });
+  const scopeLabel = (assignment: CoordinatorAssignment) =>
+    formatAssignmentScope(
+      assignment,
+      t as unknown as (key: string, values?: Record<string, string | number>) => string,
+    );
+  const nameOf = (assignment: CoordinatorAssignment) =>
+    formatCoordinatorName(assignment.users) || assignment.user_id;
+  const typeLabel = (assignment: CoordinatorAssignment) =>
+    assignment.assignment_type === "GENERAL"
+      ? tc("assignments.types.general")
+      : assignment.assignment_type === "ZONE"
+        ? tc("assignments.types.zone")
+        : tc("assignments.types.section");
+  const statusLabels = { active: t("status.active"), inactive: t("status.inactive") };
 
-    return () => {
-      cancelled = true;
-    };
-  }, [clubId, t]);
-
-  function toastFromError(error: unknown) {
-    toast.error(
-      coordinationErrorMessage(
-        extractCoordinationConflictReason(error),
-        getActionErrorMessage(error, t("errors.generic")),
-        t as unknown as (key: string) => string,
-      ),
+  function rowActions(assignment: CoordinatorAssignment) {
+    if (!canManage) return null;
+    return (
+      <RowActions
+        label={nameOf(assignment)}
+        actions={[
+          {
+            label: assignment.active
+              ? tc("actions.deactivateAssignment")
+              : tc("actions.activateAssignment"),
+            icon: Power,
+            destructive: assignment.active,
+            onSelect: () => setToggling(assignment),
+          },
+        ]}
+      />
     );
   }
 
-  async function handleCreate() {
-    if (!userId) {
-      toast.error(t("errors.coordinatorRequired"));
-      return;
-    }
-
-    if (assignmentType === "ZONE" && (!zoneId || !clubTypeId)) {
-      toast.error(t("errors.assignmentScopeRequired"));
-      return;
-    }
-
-    if (assignmentType === "SECTION" && !clubSectionId) {
-      toast.error(t("errors.assignmentScopeRequired"));
-      return;
-    }
-
-    setCreating(true);
-    try {
-      await createCoordinatorAssignment(
-        localFieldId,
-        buildCoordinatorAssignmentPayload({
-          userId,
-          assignmentType,
-          zoneId: zoneId ? Number(zoneId) : undefined,
-          clubTypeId: clubTypeId ? Number(clubTypeId) : undefined,
-          clubSectionId: clubSectionId ? Number(clubSectionId) : undefined,
-        }),
-      );
-      setUserId("");
-      setZoneId("");
-      setClubTypeId("");
-      setClubId("");
-      setClubSectionId("");
-      toast.success(t("success.assignmentCreated"));
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  async function handleToggle(assignment: CoordinatorAssignment) {
-    setPendingId(assignment.assignment_id);
-    try {
-      await updateCoordinatorAssignment(assignment.assignment_id, {
-        active: !assignment.active,
-      });
-      toast.success(
-        assignment.active
-          ? t("success.assignmentDeactivated")
-          : t("success.assignmentActivated"),
-      );
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setPendingId(null);
-    }
-  }
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("assignments.title")}</CardTitle>
-        <CardDescription>{t("assignments.description")}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {canManage ? (
-          <div className="space-y-4 rounded-xl border border-border p-4">
-            <div>
-              <p className="font-medium text-foreground">
-                {t("assignments.newTitle")}
-              </p>
-              <p className="text-muted-foreground text-sm">
-                {t("assignments.newDescription")}
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>{t("fields.coordinator")}</Label>
-                <Select
-                  value={userId || undefined}
-                  onValueChange={setUserId}
-                  disabled={loadingUsers}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("fields.selectUser")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {coordinators.map((user) => (
-                      <SelectItem key={user.user_id} value={user.user_id}>
-                        {formatCoordinatorName(user)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {coordinators.length === 0 && !loadingUsers ? (
-                  <p className="text-muted-foreground text-xs">
-                    {t("assignments.usersEmpty")}{" "}
-                    <Link
-                      href="/dashboard/users/new"
-                      className="text-primary underline-offset-4 hover:underline"
-                    >
-                      {t("assignments.usersEmptyLink")}
-                    </Link>
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("fields.type")}</Label>
-                <Select
-                  value={assignmentType}
-                  onValueChange={(value) => {
-                    setAssignmentType(value as CoordinatorAssignmentType);
-                    setZoneId("");
-                    setClubTypeId("");
-                    setClubId("");
-                    setClubSectionId("");
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GENERAL">
-                      {t("assignmentTypes.general")}
-                    </SelectItem>
-                    <SelectItem value="ZONE">{t("assignmentTypes.zone")}</SelectItem>
-                    <SelectItem value="SECTION">
-                      {t("assignmentTypes.section")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {assignmentType === "ZONE" ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>{t("fields.zone")}</Label>
-                  <Select value={zoneId || undefined} onValueChange={setZoneId}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("fields.selectZone")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activeZones.map((zone) => (
-                        <SelectItem key={zone.zone_id} value={String(zone.zone_id)}>
-                          {zone.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("fields.clubType")}</Label>
-                  <Select
-                    value={clubTypeId || undefined}
-                    onValueChange={setClubTypeId}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("fields.selectClubType")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activeClubTypes.map((clubType) => (
-                        <SelectItem
-                          key={clubType.club_type_id}
-                          value={String(clubType.club_type_id)}
-                        >
-                          {clubType.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ) : null}
-
-            {assignmentType === "SECTION" ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>{t("fields.club")}</Label>
-                  <Select
-                    value={clubId || undefined}
-                    onValueChange={(value) => {
-                      setClubId(value);
-                      setClubSectionId("");
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("fields.selectClub")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clubs.map((club) => (
-                        <SelectItem key={club.club_id} value={String(club.club_id)}>
-                          {club.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("fields.section")}</Label>
-                  <Select
-                    value={clubSectionId || undefined}
-                    onValueChange={setClubSectionId}
-                    disabled={!clubId}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t("fields.selectSection")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections.map((section) => (
-                        <SelectItem
-                          key={section.club_section_id}
-                          value={String(section.club_section_id)}
-                        >
-                          {section.club_type?.name ?? section.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ) : null}
-
-            <p className="text-muted-foreground text-xs">
-              {t("assignments.directorConflictRule")}
-            </p>
-
-            <Button onClick={handleCreate} disabled={creating}>
-              {t("actions.createAssignment")}
+    <>
+      {assignments.length === 0 ? (
+        <EmptyState
+          icon={UserPlus}
+          title={t("assignments.empty")}
+          description={tc("assignments.emptyDescription")}
+        >
+          {canManage ? (
+            <Button type="button" onClick={() => onDialogOpenChange(true)}>
+              {tc("actions.newAssignment")}
             </Button>
-          </div>
-        ) : null}
-
-        {assignments.length === 0 ? (
-          <EmptyState
-            icon={UserPlus}
-            title={t("assignments.empty")}
-            description={t("assignments.newDescription")}
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("fields.coordinator")}</TableHead>
-                <TableHead>{t("fields.type")}</TableHead>
-                <TableHead>{t("fields.scope")}</TableHead>
-                <TableHead>{t("fields.status")}</TableHead>
-                {canManage ? <RowActionsHead /> : null}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {assignments.map((assignment) => (
-                <TableRow key={assignment.assignment_id}>
-                  <TableCell>
-                    {formatCoordinatorName(assignment.users) ||
-                      assignment.user_id}
-                  </TableCell>
-                  <TableCell>
-                    {assignment.assignment_type === "GENERAL"
-                      ? t("assignmentTypes.general")
-                      : assignment.assignment_type === "ZONE"
-                        ? t("assignmentTypes.zone")
-                        : t("assignmentTypes.section")}
-                  </TableCell>
-                  <TableCell>
-                    {formatAssignmentScope(
-                      assignment,
-                      t as unknown as (
-                        key: string,
-                        values?: Record<string, string | number>,
-                      ) => string,
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge
-                      intent={assignment.active ? "success" : "neutral"}
-                      label={
-                        assignment.active
-                          ? t("status.active")
-                          : t("status.inactive")
-                      }
-                    />
-                  </TableCell>
-                  {canManage ? (
-                    <TableCell className="text-right">
-                      <RowActions
-                        label={
-                          formatCoordinatorName(assignment.users) ||
-                          String(assignment.user_id)
-                        }
-                        actions={[
-                          {
-                            label: assignment.active
-                              ? t("actions.deactivate")
-                              : t("actions.activate"),
-                            icon: Power,
-                            onSelect: () => handleToggle(assignment),
-                            disabled: pendingId === assignment.assignment_id,
-                          },
-                        ]}
+          ) : null}
+        </EmptyState>
+      ) : (
+        <>
+          <DataTableShell className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("fields.coordinator")}</TableHead>
+                  <TableHead>{t("fields.scope")}</TableHead>
+                  <TableHead>{t("fields.type")}</TableHead>
+                  <TableHead>{t("fields.status")}</TableHead>
+                  {canManage ? <RowActionsHead /> : null}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assignments.map((assignment) => (
+                  <TableRow key={assignment.assignment_id}>
+                    <TableCell className="font-medium">{nameOf(assignment)}</TableCell>
+                    <TableCell>{scopeLabel(assignment)}</TableCell>
+                    <TableCell>{typeLabel(assignment)}</TableCell>
+                    <TableCell>
+                      <ExceptionStatus
+                        value={assignment.active ? "active" : "inactive"}
+                        normal={["active"]}
+                        labels={statusLabels}
+                        intents={{ inactive: "neutral" }}
                       />
                     </TableCell>
-                  ) : null}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-    </Card>
+                    {canManage ? (
+                      <TableCell className="text-right">{rowActions(assignment)}</TableCell>
+                    ) : null}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+
+          <ul className="divide-y rounded-xl bg-card shadow-card md:hidden">
+            {assignments.map((assignment) => (
+              <li key={assignment.assignment_id} className="flex items-start gap-2 px-4 py-3">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="min-w-0 truncate font-medium">{nameOf(assignment)}</span>
+                    <ExceptionStatus
+                      value={assignment.active ? "active" : "inactive"}
+                      normal={["active"]}
+                      labels={statusLabels}
+                      intents={{ inactive: "neutral" }}
+                    />
+                  </div>
+                  <p className="flex flex-wrap gap-x-3 text-[13px] text-muted-foreground">
+                    <span>{scopeLabel(assignment)}</span>
+                    <span>{typeLabel(assignment)}</span>
+                  </p>
+                </div>
+                {rowActions(assignment)}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {canManage ? (
+        <CoordinationAssignmentDialog
+          open={dialogOpen}
+          onOpenChange={onDialogOpenChange}
+          localFieldId={localFieldId}
+          localFieldName={localFieldName}
+          zones={zones}
+          clubTypes={clubTypes}
+          clubs={clubs}
+          candidates={candidates}
+          onRetryCandidates={() => {
+            setCandidates({ status: "loading", users: [] });
+            setAttempt((current) => current + 1);
+          }}
+          onCreated={onChanged}
+        />
+      ) : null}
+
+      <ConfirmDialog
+        open={toggling !== null}
+        onOpenChange={(next) => (next ? undefined : setToggling(null))}
+        tone={toggling?.active ? "destructive" : "default"}
+        title={
+          toggling
+            ? tc(
+                toggling.active
+                  ? "assignments.deactivate.title"
+                  : "assignments.activate.title",
+                { name: nameOf(toggling) },
+              )
+            : ""
+        }
+        description={
+          toggling
+            ? tc(
+                toggling.active
+                  ? "assignments.deactivate.description"
+                  : "assignments.activate.description",
+                { name: nameOf(toggling), scope: scopeLabel(toggling) },
+              )
+            : ""
+        }
+        confirmLabel={
+          toggling?.active ? tc("actions.deactivateConfirm") : tc("actions.activateConfirm")
+        }
+        onConfirm={confirmToggle}
+      />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Users } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -10,26 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { SACDIA_DISPLAY_TIMEZONE } from "@/lib/format-locale";
 import type { AttendanceRecord } from "@/lib/api/activities";
 
 interface AttendancePanelProps {
   records: AttendanceRecord[];
-}
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "—";
-  }
 }
 
 function getUserDisplayName(
@@ -45,6 +32,21 @@ function getUserDisplayName(
 
 export function AttendancePanel({ records }: AttendancePanelProps) {
   const t = useTranslations("activities");
+  const format = useFormatter();
+
+  function formatDate(value?: string | null): string {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return format.dateTime(date, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: SACDIA_DISPLAY_TIMEZONE,
+    });
+  }
 
   if (records.length === 0) {
     return (
@@ -57,7 +59,7 @@ export function AttendancePanel({ records }: AttendancePanelProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
+    <DataTableShell>
       <Table>
         <TableHeader>
           <TableRow>
@@ -97,6 +99,6 @@ export function AttendancePanel({ records }: AttendancePanelProps) {
           })}
         </TableBody>
       </Table>
-    </div>
+    </DataTableShell>
   );
 }

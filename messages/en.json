@@ -1,4 +1,736 @@
 {
+  "people": {
+    "clubs": {
+      "list": {
+        "districtLine": "District {name}",
+        "createButton": "New club",
+        "importButton": "Import",
+        "errorTitle": "We couldn't load the clubs",
+        "errorDescription": "Check your connection or try again in a moment. Your filters are kept."
+      },
+      "form": {
+        "stepData": "Details",
+        "stepSections": "Sections",
+        "stepLocation": "Location"
+      },
+      "edit": {
+        "lockedHint": "Local field, district and church can't be changed here. Sections are enabled from the club detail.",
+        "activeHint": "An inactive club stops appearing in the app and in filters."
+      },
+      "import": {
+        "crumb": "Import",
+        "heading": "Import clubs",
+        "stepFile": "File",
+        "stepReview": "Review",
+        "stepResult": "Result",
+        "fileHeading": "Upload the file with the clubs",
+        "limits": ".xlsx and .csv formats. Up to 500 rows and 5 MB.",
+        "errors": {
+          "fileTooLarge": "The file is larger than 5 MB. Split it into smaller parts.",
+          "fileType": "Use an .xlsx or .csv file.",
+          "tooManyRows": "The file has {total} rows and the maximum is 500. Split it into several files."
+        },
+        "reviewSummary": "{total, plural, one {# row} other {# rows}} · {ready} ready · {invalid, plural, one {# with an error} other {# with errors}}",
+        "reviewHint": "Only the ready rows are imported. Fix the others in the file and upload it again.",
+        "reviewAllReady": "Every row is ready to import.",
+        "reviewTabs": "File rows",
+        "tabErrors": "With errors",
+        "tabAll": "All",
+        "colReview": "Review",
+        "rowReady": "Ready",
+        "chooseAnother": "Choose another file",
+        "backToReview": "Back to review",
+        "importAnother": "Import another file",
+        "goToClubs": "Go to clubs",
+        "resultCreated": "{count, plural, =0 {No clubs created} one {# club created} other {# clubs created}}",
+        "resultFailed": "{count, plural, one {# row could not be created.} other {# rows could not be created.}}",
+        "resultSkipped": "{count, plural, one {# row was not imported because it had errors in the file.} other {# rows were not imported because they had errors in the file.}}",
+        "colResult": "Result",
+        "colOpen": "Open club"
+      }
+    },
+    "clubDetail": {
+      "tabsLabel": "Club detail sections",
+      "tabs": {
+        "general": "General",
+        "sections": "Sections",
+        "members": "Members",
+        "reports": "Reports",
+        "history": "History"
+      },
+      "facts": {
+        "members": "Members",
+        "sections": "Sections",
+        "sectionsOf": "{active} of {total}",
+        "souls": "Souls target"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "general": {
+        "sectionsHeading": "Sections",
+        "sectionActive": "Enabled",
+        "sectionInactive": "Disabled",
+        "director": "Director",
+        "noDirector": "No director",
+        "viewSection": "View section"
+      },
+      "members": {
+        "plainMember": "Member",
+        "emptyTitle": "No members",
+        "emptyDescription": "This club has no members in its sections yet.",
+        "search": "Search member",
+        "searchPlaceholder": "Name",
+        "section": "Section",
+        "allSections": "All sections",
+        "role": "Position",
+        "allRoles": "All positions",
+        "onlyMembers": "Members only",
+        "allClasses": "All classes",
+        "classYear": "Class {year}",
+        "classColumn": "Class",
+        "noResultsTitle": "No results",
+        "noResultsDescription": "No member matches the filters.",
+        "clearFilters": "Clear filters",
+        "person": "Person",
+        "viewProfile": "View profile"
+      },
+      "reports": {
+        "annualName": "Annual {year}",
+        "quarterlyName": "Quarterly · Q{quarter} {year}",
+        "emptyTitle": "No reports",
+        "emptyDescription": "This club has no annual or quarterly reports yet.",
+        "report": "Report",
+        "status": "Status",
+        "created": "Created",
+        "open": "Open",
+        "openReport": "Open {name}",
+        "loadError": "We could not load the club's reports."
+      },
+      "history": {
+        "filteringLoaded": "Filtering only the events already loaded. Load more to see earlier ones.",
+        "noResultsTitle": "No changes for this section",
+        "noResultsDescription": "None of the loaded events is about this section. Load more to search earlier ones.",
+        "system": "System"
+      },
+      "assign": {
+        "title": "Assign {position}",
+        "context": "{section} · {year}",
+        "person": "Person",
+        "searchPlaceholder": "Search among {count} members",
+        "noCandidates": "This section has no members to assign.",
+        "checking": "Checking…",
+        "classPlaceholder": "Choose a class",
+        "failed": "The position could not be assigned.",
+        "cancel": "Cancel",
+        "submit": "Assign"
+      },
+      "designate": {
+        "title": "Director {year}",
+        "nextYearFallback": "next year",
+        "person": "Person",
+        "personPlaceholder": "Choose a member",
+        "infoChosen": "{name} will be director when {year} starts. Until then {current} stays in charge.",
+        "infoChosenNoCurrent": "{name} will be director when {year} starts.",
+        "infoGeneric": "The person you choose will be director when {year} starts. Until then the current director stays in charge.",
+        "reasonsIntro": "The plan will not activate if:",
+        "reasonActive": "the current director is still active when the year changes,",
+        "reasonGuideMajor": "the person is not a Master Guide, or",
+        "reasonConsent": "they are a minor and the guardian's consent is not verified.",
+        "failed": "The director could not be designated.",
+        "cancel": "Cancel",
+        "replace": "Replace designee",
+        "submit": "Designate"
+      },
+      "succeed": {
+        "title": "Change director now",
+        "description": "Ends {name}'s term and names the new director for {year}. This is not the next-year designation.",
+        "descriptionNoYear": "Ends {name}'s term and names the new director for the current year. This is not the next-year designation.",
+        "person": "New director",
+        "personPlaceholder": "Choose a member",
+        "historyNote": "The change is recorded in the club history, with who made it.",
+        "failed": "The director could not be changed.",
+        "cancel": "Cancel",
+        "submit": "Change director"
+      },
+      "continuations": {
+        "title": "Annual enrollment {year}",
+        "titleNoYear": "Annual enrollment",
+        "description": "{section} · {count, plural, one {# to enroll} other {# to enroll}}",
+        "suggestedClass": "Suggested class: {name}",
+        "classPending": "Class to be defined",
+        "close": "Close",
+        "submit": "{count, plural, =0 {Enroll} other {Enroll #}}",
+        "retry": "Retry"
+      },
+      "positions": {
+        "counselorsLoadError": "We could not load the counselors.",
+        "revoke": "Remove position…",
+        "assign": "Assign",
+        "assignFor": "Assign {position}",
+        "revokeTitle": "Remove {name} as {position}?",
+        "revokeDescription": "They leave the {position} position in {section} for {year}. They remain a member of the section. It is recorded in the history.",
+        "revokeDescriptionNoYear": "They leave the {position} position in {section}. They remain a member of the section. It is recorded in the history.",
+        "revokeConfirm": "Remove position"
+      },
+      "sections": {
+        "enableFailed": "The section could not be enabled.",
+        "empty": "This club has no sections yet.",
+        "pickerLabel": "Section",
+        "missingHeading": "Sections not enabled",
+        "disable": "Disable section…",
+        "enable": "Enable section",
+        "positionsHeading": "Positions {year}",
+        "positionsHeadingNoYear": "Positions",
+        "designationHeading": "Director {year}",
+        "designationHeadingNoYear": "Next year's director",
+        "designationChange": "Change designee…",
+        "designationDesignate": "Designate…",
+        "unknownPerson": "Designated person",
+        "designationWillBe": "will be director when {year} starts",
+        "designationWillBeNoYear": "will be director when next year starts",
+        "members": "Members",
+        "toEnroll": "To enroll {year}",
+        "toEnrollNoYear": "To enroll",
+        "annualEnrollment": "Annual enrollment",
+        "succeedNow": "Change director now…",
+        "disableTitle": "Disable {section}?",
+        "disableDescription": "The {count, plural, one {# member stops} other {# members stop}} seeing the section's activities and cannot enroll in {year}. Their records are kept and you can enable it again.",
+        "disableConfirm": "Disable",
+        "yearFallback": "next year"
+      }
+    },
+    "activities": {
+      "page": {
+        "pickClub": "Choose a club to see its calendar. It is remembered in Finances, Inventory and Insurance.",
+        "errorLoad": "There may be activities in this period. Check your connection and try again.",
+        "findingNone": "No upcoming activities",
+        "finding": "{count, plural, one {# upcoming activity} other {# upcoming activities}}",
+        "new": "New activity"
+      },
+      "view": {
+        "label": "Calendar view",
+        "list": "List"
+      },
+      "modalities": {
+        "inPerson": "In person",
+        "virtual": "Virtual",
+        "hybrid": "Hybrid"
+      },
+      "list": {
+        "emptyTitle": "No activities in this period",
+        "emptyDescription": "Change the month or create a new activity.",
+        "repeats": "repeats",
+        "edit": "Edit",
+        "delete": "Delete…",
+        "colDate": "Date",
+        "colActivity": "Activity",
+        "colSection": "Section",
+        "colPlace": "Place",
+        "label": "Activities of the period"
+      },
+      "delete": {
+        "title": "Delete “{name}”?",
+        "titleSession": "Delete the session of {date}?",
+        "body": "It stops showing in the app. The activity is deactivated; it cannot be undone from here.",
+        "bodySeries": "It stops showing in the app. Only this session is deleted; the others in the series do not change. To cancel the upcoming ones, use “View series”.",
+        "confirm": "Delete",
+        "confirmSession": "Delete session"
+      },
+      "detail": {
+        "data": "Details",
+        "registered": "Registered",
+        "errorLoad": "We could not load the activity. Check your connection and try again."
+      },
+      "series": {
+        "ruleWeekly": "Every {weekday}",
+        "ruleInterval": "{days, plural, one {Every day} other {Every # days}}",
+        "summary": "{rule} until {date} · {count, plural, one {# session} other {# sessions}}",
+        "sessionsError": "We could not load the sessions of the series.",
+        "sessions": "Sessions of the series",
+        "thisSession": "This session",
+        "cancelFutureBody": "{count, plural, one {# upcoming session will be canceled.} other {# upcoming sessions will be canceled.}} Past ones stay."
+      },
+      "form": {
+        "titleNew": "New activity",
+        "titleEdit": "Edit activity",
+        "steps": {
+          "what": "What and for whom",
+          "when": "Date and place"
+        },
+        "name": "Name",
+        "description": "Description",
+        "section": "Section",
+        "type": "Type",
+        "classesLoading": "Loading classes…",
+        "image": "Image (URL, optional)",
+        "time": "Time",
+        "seriesTooMany": "The series exceeds the maximum of {max} sessions. Shorten the end date.",
+        "seriesNone": "These dates give no sessions. Check the day and the end date.",
+        "seriesDates": "{count, plural, one {# session} other {# sessions}}: {dates}.",
+        "modality": "Mode",
+        "link": "Meeting link",
+        "linkOptional": "Meeting link (optional)",
+        "place": "Place",
+        "placeHint": "Search the place on the map to set the location; you can then adjust the name.",
+        "placeHintPinned": "Location set. You can adjust the name of the place.",
+        "cancel": "Cancel"
+      },
+      "validation": {
+        "nameRequired": "The name is required",
+        "nameTooShort": "The name needs at least 3 characters",
+        "typeRequired": "Select a type",
+        "sectionRequired": "Select the section",
+        "classesRequired": "Select at least one class",
+        "imageInvalid": "Enter a valid URL starting with http:// or https://",
+        "dateRequired": "Choose the date of the activity",
+        "endBeforeStart": "The end date cannot be before the start",
+        "untilRequired": "Choose until when it repeats",
+        "untilBeforeStart": "The end date cannot be before the first session",
+        "linkRequired": "Paste the meeting link",
+        "linkInvalid": "Enter a valid link starting with http:// or https://",
+        "placeRequired": "Enter the place",
+        "pinRequired": "Search the place on the map to set the location"
+      }
+    },
+    "users": {
+      "list": {
+        "searchLabel": "Search users",
+        "clearFilters": "Clear filters",
+        "registeredOn": "Joined {date}",
+        "empty": {
+          "title": "No users yet",
+          "description": "Accounts in your scope will show up here once you add them.",
+          "action": "Add user"
+        },
+        "noResults": {
+          "title": "No user matches",
+          "description": "Try another name or email, or remove the filters."
+        },
+        "error": {
+          "title": "We couldn't load the users",
+          "description": "Check your connection or try again in a moment. Your filters are kept."
+        },
+        "rowActions": {
+          "view": "View details",
+          "resend": "Resend invitation",
+          "deactivate": "Deactivate account…",
+          "resendSuccess": "Invitation resent to {name}.",
+          "resendFailure": {
+            "alreadyAccepted": "This person already accepted their invitation.",
+            "cooldown": "Wait a minute before resending again, or the hourly limit was reached.",
+            "unavailable": "Email sending is unavailable right now.",
+            "forbidden": "You don't have permission to resend this invitation.",
+            "notFound": "We couldn't find this user. Refresh the list.",
+            "generic": "We couldn't resend the invitation."
+          },
+          "deactivateTitle": "Deactivate {name}'s account?",
+          "deactivateDescription": "They won't be able to sign in to the app or the panel. Their roles and records are kept, and you can reactivate the account from their detail page.",
+          "deactivateConfirm": "Deactivate account",
+          "deactivateSuccess": "{name}'s account was deactivated.",
+          "deactivateFailed": "We couldn't deactivate {name}'s account. Try again."
+        }
+      },
+      "new": {
+        "personSummary": "{name} · {email}",
+        "serverErrors": {
+          "emailTaken": "An account with this email already exists.",
+          "emailInvalid": "The email isn't valid.",
+          "roleForbidden": "You can't assign this role.",
+          "localFieldRequired": "This role needs a local field.",
+          "invalidField": "Check this field."
+        }
+      },
+      "bulk": {
+        "description": "Create several accounts at once from a file. It is fully reviewed on your device before it is sent.",
+        "stepLine": "Step {current} of 3 · {name}",
+        "steps": {
+          "file": "File",
+          "review": "Review",
+          "result": "Result"
+        },
+        "file": {
+          "dropTitle": "Drag your file here or choose it",
+          "dropHint": "Excel (.xlsx) or CSV. Up to {max} rows and 5 MB.",
+          "choose": "Choose file",
+          "reading": "Checking the file…",
+          "templateHint": "The template asks for union and local field names, not catalog numbers. Columns: {columns}."
+        },
+        "fileErrors": {
+          "type": "Use an .xlsx or .csv file.",
+          "size": "The file is larger than 5 MB.",
+          "empty": "The file has no rows with data.",
+          "tooMany": "The file has {total} rows; the maximum is {max}.",
+          "headers": "Missing columns: {missing}. Download the template to see the format.",
+          "read": "We couldn't read the file. Check that it isn't damaged."
+        },
+        "template": {
+          "roleSlug": "role",
+          "roleLabel": "name",
+          "needsLocalField": "needs_local_field",
+          "yes": "yes",
+          "country": "Country",
+          "union": "Union",
+          "localField": "Local field",
+          "sheetUsers": "Users",
+          "sheetRoles": "Allowed roles",
+          "sheetLocations": "Locations",
+          "failed": "We couldn't generate the template."
+        },
+        "review": {
+          "tabsLabel": "File rows",
+          "tabErrors": "With errors",
+          "tabAll": "All",
+          "noErrorsTitle": "No row has errors",
+          "noErrorsDescription": "Everything is ready to create the accounts.",
+          "colRow": "Row",
+          "colPerson": "Person",
+          "colRole": "Role",
+          "colReview": "Review",
+          "ready": "Ready",
+          "summary": "{total, plural, one {# row} other {# rows}} · {ready} ready · {errors, plural, one {# with errors} other {# with errors}}",
+          "note": "Reviewed on your device before sending. Up to {max} rows and 5 MB.",
+          "skipNote": "{count, plural, one {The row with errors is not sent.} other {The # rows with errors are not sent.}} Fix them in the file and upload it again whenever you like.",
+          "chooseAnother": "Choose another file",
+          "submit": "{count, plural, one {Create # user} other {Create # users}}",
+          "sending": "Creating users…"
+        },
+        "result": {
+          "tabsLabel": "Result by row",
+          "tabFailed": "Failed",
+          "noFailedTitle": "Everything was created",
+          "noFailedDescription": "No row failed.",
+          "summary": "{succeeded} created · {failed} failed",
+          "skipped": "{count, plural, one {1 row with review errors was not sent.} other {# rows with review errors were not sent.}}",
+          "backToUsers": "Go to users"
+        },
+        "sendErrors": {
+          "forbidden": "You don't have permission to create users in bulk.",
+          "generic": "We couldn't send the file. Check your connection and try again."
+        },
+        "issues": {
+          "missingRequired": "Missing: {fields}.",
+          "emailInvalid": "The email isn't valid: {value}.",
+          "duplicateEmail": "Repeated email: it is also in row {row}.",
+          "roleUnknown": "We don't know the role “{value}”.",
+          "roleNotAllowed": "You can't assign the role “{value}”.",
+          "localFieldRequired": "This role needs a local field.",
+          "countryUnknown": "We couldn't find the country “{value}”.",
+          "unionUnknown": "We couldn't find the union “{value}”.",
+          "localFieldUnknown": "We couldn't find the local field “{value}”.",
+          "unionOutsideCountry": "The union “{value}” doesn't belong to “{parent}”.",
+          "localFieldOutsideUnion": "The local field “{value}” doesn't belong to “{parent}”.",
+          "ambiguous": "“{value}” matches more than one option; also give its union.",
+          "tooLong": "{field}: exceeds {max} characters."
+        },
+        "fields": {
+          "email": "email",
+          "name": "name",
+          "paternal_last_name": "paternal last name",
+          "maternal_last_name": "maternal last name",
+          "role": "role"
+        },
+        "catalogsError": {
+          "title": "We couldn't load the catalogs",
+          "description": "They are needed to check the unions and local fields in the file. Try again."
+        }
+      }
+    },
+    "userDetail": {
+      "tabsLabel": "User sections",
+      "aside": {
+        "moreClubs": "+{count} more",
+        "withAccess": "Has access",
+        "noAccess": "No access",
+        "postUnavailable": "Unavailable",
+        "postComplete": "Complete",
+        "postNotApplicable": "Not applicable",
+        "postPending": "{count, plural, one {# step missing} other {# steps missing}}"
+      },
+      "actions": {
+        "assignRole": "Assign system role",
+        "deactivate": "Deactivate account…",
+        "reactivate": "Reactivate account…"
+      },
+      "deactivate": {
+        "title": "Deactivate {name}'s account",
+        "description": "They will not be able to sign in to the app or the panel. Their roles and records are kept.",
+        "confirm": "Deactivate account"
+      },
+      "reactivate": {
+        "title": "Reactivate {name}'s account",
+        "description": "They will be able to sign in again, according to the access they have turned on.",
+        "confirm": "Reactivate account"
+      },
+      "access": {
+        "sectionTitle": "Access",
+        "sectionDescription": "Every change asks for confirmation.",
+        "appLabel": "Mobile app",
+        "appDescription": "Can sign in to the app.",
+        "panelLabel": "Admin panel",
+        "panelDescription": "Can enter this panel.",
+        "activeLabel": "Active account",
+        "activeDescription": "If you turn it off, they cannot sign in to the app or the panel.",
+        "confirm": {
+          "appOn": {
+            "title": "Give app access",
+            "description": "This person will be able to sign in to the mobile app.",
+            "confirm": "Give access"
+          },
+          "appOff": {
+            "title": "Remove app access",
+            "description": "This person will no longer be able to sign in to the mobile app.",
+            "confirm": "Remove access"
+          },
+          "panelOn": {
+            "title": "Give panel access",
+            "description": "This person will be able to enter the admin panel according to their permissions.",
+            "confirm": "Give access"
+          },
+          "panelOff": {
+            "title": "Remove panel access",
+            "description": "This person will no longer be able to enter the admin panel.",
+            "confirm": "Remove access"
+          },
+          "activeOn": {
+            "title": "Reactivate the account",
+            "description": "This person will be able to sign in again, according to the access they have turned on.",
+            "confirm": "Reactivate account"
+          },
+          "activeOff": {
+            "title": "Deactivate the account",
+            "description": "They will not be able to sign in to the app or the panel. Their roles and records are kept.",
+            "confirm": "Deactivate account"
+          }
+        }
+      },
+      "errors": {
+        "rolesTitle": "We could not load the roles",
+        "rolesDescription": "We are not showing \"no roles\" because we do not know whether they have any. Try again.",
+        "postRegistrationTitle": "We could not load post-registration",
+        "postRegistrationDescription": "We do not know which step this account is on. Try again."
+      },
+      "post": {
+        "stateComplete": "Complete",
+        "stateInProgress": "In progress",
+        "allDone": "They completed every step.",
+        "missing": "{count, plural, one {# step missing. The person completes it in the app.} other {# steps missing. The person completes them in the app.}}",
+        "stepProfilePicture": "Profile photo",
+        "stepPersonalInfo": "Personal details",
+        "stepClubSelection": "Club and section",
+        "stepDone": "Complete",
+        "onlyThePerson": "Only the person can complete this step, in the app.",
+        "forceStep": "Force complete…",
+        "forceTitle": "Force the \"{step}\" step",
+        "forceDescription": "It will be marked complete even if requirements are missing. The person will get in without having done it.",
+        "forceConfirm": "Force complete",
+        "readonlyNotice": "You do not have permission to force post-registration steps.",
+        "invitationTitle": "Invitation"
+      }
+    },
+    "community": {
+      "coordination": {
+        "page": {
+          "description": "Zones and coordinators of the local field."
+        },
+        "scope": {
+          "fallback": "Local field"
+        },
+        "tabs": {
+          "label": "Coordination sections",
+          "zones": "Zones",
+          "assignments": "Assignments"
+        },
+        "loadError": {
+          "title": "We couldn't load coordination",
+          "fieldsTitle": "We couldn't load the local fields"
+        },
+        "actions": {
+          "newZone": "New zone",
+          "newAssignment": "New assignment",
+          "migrate": "Migrate coordinators…",
+          "viewDetail": "View details",
+          "activateZone": "Activate zone…",
+          "deactivateZone": "Deactivate zone…",
+          "activateAssignment": "Activate assignment…",
+          "deactivateAssignment": "Deactivate assignment…",
+          "activateConfirm": "Activate",
+          "deactivateConfirm": "Deactivate",
+          "remove": "Remove",
+          "add": "Add",
+          "close": "Close",
+          "cancel": "Cancel"
+        },
+        "zones": {
+          "colZone": "Zone",
+          "colCoordinators": "Coordinators",
+          "more": "+{count}",
+          "districtCount": "{count, plural, one {# district} other {# districts}}",
+          "coordinatorCount": "{count, plural, one {# coordinator} other {# coordinators}}",
+          "emptyTitle": "No zones yet",
+          "emptyDescription": "Create a zone to group districts and assign coordinators to it."
+        },
+        "zoneSheet": {
+          "summary": "{districts, plural, one {# district} other {# districts}} · {coordinators, plural, one {# coordinator} other {# coordinators}}",
+          "addDistrict": "Add district",
+          "addHint": "A district can only be in one active zone.",
+          "noAvailableDistricts": "No free districts are left in this local field.",
+          "coordinators": "Coordinators",
+          "noCoordinators": "Nobody coordinates this zone yet.",
+          "removeAria": "Remove {district} from {zone}"
+        },
+        "removeDistrict": {
+          "title": "Remove the {district} district from {zone}?",
+          "withCoordinators": "{count, plural, one {The person who coordinates this zone stops seeing} other {The people who coordinate this zone stop seeing}} the sections of the {district} district: {names}.",
+          "withoutCoordinators": "Nobody coordinates this zone, so nobody loses access. The district becomes free for another zone.",
+          "confirm": "Remove district"
+        },
+        "zoneToggle": {
+          "deactivateTitle": "Deactivate {zone}?",
+          "activateTitle": "Activate {zone}?",
+          "deactivateDescription": "Its districts become free for another zone. {count, plural, =0 {No active assignments use it.} one {The active assignment that uses it stops giving access to its sections.} other {The # active assignments that use it stop giving access to its sections.}} Nothing is deleted: you can activate it again.",
+          "activateDescription": "The zone counts again for assignments and reserves its districts."
+        },
+        "zoneDialog": {
+          "title": "New zone",
+          "submit": "Create zone"
+        },
+        "assignments": {
+          "types": {
+            "general": "Whole field",
+            "zone": "Zone",
+            "section": "Club and section"
+          },
+          "emptyDescription": "Assign a person with the coordinator role to the whole field, a zone or a section.",
+          "deactivate": {
+            "title": "Deactivate {name}'s assignment?",
+            "description": "{name} stops coordinating {scope}. The assignment is kept and you can activate it again."
+          },
+          "activate": {
+            "title": "Activate {name}'s assignment?",
+            "description": "{name} coordinates {scope} again."
+          }
+        },
+        "assignmentDialog": {
+          "title": "New assignment",
+          "scopeGeneral": "Whole field",
+          "scopeZone": "Zone",
+          "scopeSection": "Club and section",
+          "candidatesError": "We couldn't load the coordinators",
+          "sectionsError": "We couldn't load this club's sections."
+        },
+        "backfill": {
+          "title": "Migrate coordinators",
+          "willCreate": "{count, plural, one {# general assignment will be created} other {# general assignments will be created}}",
+          "skippedHeading": "Not migrated ({count})",
+          "loadError": "We couldn't calculate the migration"
+        }
+      },
+      "notifications": {
+        "page": {
+          "description": "Push notifications sent to the app."
+        },
+        "tabs": {
+          "label": "Notification sections",
+          "sent": "Sent",
+          "categories": "Categories"
+        },
+        "actions": {
+          "new": "New notification"
+        },
+        "kpis": {
+          "label": "Summary of the last 30 days",
+          "activeDevices": "Active devices",
+          "activeDevicesHint": "with the app installed",
+          "idleDevices": "Inactive",
+          "windowHint": "in {days} days",
+          "sent": "Sent",
+          "delivered": "Delivered",
+          "loadError": "We couldn't load the delivery figures"
+        },
+        "history": {
+          "colNotification": "Notification",
+          "colFor": "To",
+          "colDelivered": "Delivered",
+          "deliveredOf": "{delivered} of {total}",
+          "noDevices": "No devices",
+          "loadError": "We couldn't load the history",
+          "noResultsTitle": "No matches",
+          "noResultsDescription": "None of the last {count} notifications match the filters.",
+          "clearFilters": "Clear filters",
+          "filteredNote": "Filtering among the last {count} notifications sent.",
+          "filters": {
+            "searchLabel": "Search by title",
+            "searchPlaceholder": "Search by title",
+            "audienceLabel": "To",
+            "audienceAll": "All recipients",
+            "audience": {
+              "person": "One person",
+              "club": "Club or section",
+              "everyone": "Everyone",
+              "role": "By role"
+            },
+            "rangeLabel": "Date",
+            "range": {
+              "7": "Last 7 days",
+              "30": "Last 30 days",
+              "90": "Last 90 days",
+              "all": "Any date"
+            }
+          }
+        },
+        "compose": {
+          "title": "New notification",
+          "description": "It is sent right away.",
+          "audienceLabel": "To",
+          "audience": {
+            "person": "One person",
+            "club": "Club or section",
+            "everyone": "Everyone"
+          },
+          "clubLabel": "Club or section",
+          "everyoneWarning": "{count, plural, one {Reaches the one device with the app installed.} other {Reaches all # devices with the app installed.}}",
+          "everyoneWarningNoCount": "Reaches every device with the app installed.",
+          "previewHeading": "Preview",
+          "previewTitlePlaceholder": "Notification title",
+          "previewBodyPlaceholder": "Message",
+          "cancel": "Cancel",
+          "submit": "Send",
+          "submitEveryone": "Send to everyone…",
+          "validationFailed": "Check the highlighted fields before sending.",
+          "confirmEveryone": {
+            "title": "Send to everyone?",
+            "description": "“{title}” will reach {count, plural, one {# device} other {# devices}}. This can't be undone.",
+            "descriptionNoCount": "“{title}” will reach every registered device. This can't be undone.",
+            "confirm": "{count, plural, one {Send to # device} other {Send to # devices}}",
+            "confirmNoCount": "Send to everyone"
+          }
+        },
+        "categories": {
+          "colCategory": "Category",
+          "colMobile": "Reaches the app",
+          "colDefault": "On for new accounts",
+          "colUserCanDisable": "People can turn it off",
+          "loadErrorTitle": "We couldn't load the categories",
+          "loadErrorDescription": "We don't show default values so we don't overwrite the real configuration.",
+          "readOnly": "Only people who manage system settings can change categories.",
+          "hint": "Turning off “Reaches the app” blocks the push and the inbox for that category for everyone. Administrative notices always arrive.",
+          "names": {
+            "activities": "Activities",
+            "achievements": "Achievements",
+            "approvals": "Approvals",
+            "invitations": "Invitations",
+            "reminders": "Reminders",
+            "investiture": "Investitures",
+            "validation": "Validations",
+            "requests": "Requests",
+            "camporees": "Camporees"
+          }
+        }
+      }
+    }
+  },
   "ops": {
     "club": {
       "context": {

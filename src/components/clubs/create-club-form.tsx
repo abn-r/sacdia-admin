@@ -113,6 +113,7 @@ export function CreateClubForm({
 }: CreateClubFormProps) {
   const [state, action] = useActionState(formAction, initialState);
   const t = useTranslations("clubs");
+  const tc = useTranslations("people.clubs");
   const tPrereq = useTranslations("clubs.create.prerequisites");
   const { subject } = useScreenAccess();
   const [localFieldValue, setLocalFieldValue] = useState(initialLocalFieldId);
@@ -224,7 +225,7 @@ export function CreateClubForm({
   return (
     <form action={action} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
       <FormModalSteps
-        steps={[t("create.cardTitle"), t("create.sectionsTitle"), t("form.coordinatesTitle")]}
+        steps={[tc("form.stepData"), tc("form.stepSections"), tc("form.stepLocation")]}
         current={step}
       />
       <FormModalBody stepKey={step} direction={direction} className="space-y-5">
@@ -472,34 +473,32 @@ export function CreateClubForm({
           stepRefs.current[1] = element;
         }}
         hidden={step !== 1}
-        className="grid gap-3 sm:grid-cols-2"
+        className="space-y-3"
       >
-          <p className="text-sm text-muted-foreground sm:col-span-2">
+          <p className="text-sm text-muted-foreground">
             {t("create.sectionsDescription")}
           </p>
           {fieldErrors.sections && (
             <p
               role="alert"
-              className="text-xs text-destructive sm:col-span-2"
+              className="text-xs text-destructive"
             >
               {fieldErrors.sections}
             </p>
           )}
           {clubTypes.length === 0 ? (
-            <p className="text-sm text-muted-foreground sm:col-span-2">
+            <p className="text-sm text-muted-foreground">
               {tPrereq("club-types")}
             </p>
           ) : (
-            clubTypes.map((clubType, index) => {
+            <ul className="divide-y rounded-lg border">
+            {clubTypes.map((clubType, index) => {
               const checkboxId = `section_club_type_id_${index}`;
               const isMasterGuides = isMasterGuidesClubType({
                 name: clubType.label,
               });
               return (
-                <div
-                  key={clubType.value}
-                  className="space-y-3 rounded-md border border-border/60 p-4"
-                >
+                <li key={clubType.value} className="px-4 py-3">
                   <div className="flex items-start gap-3">
                     {isMasterGuides ? (
                       <input type="hidden" name={checkboxId} value={clubType.value} />
@@ -528,9 +527,10 @@ export function CreateClubForm({
                       </p>
                     </div>
                   </div>
-                </div>
+                </li>
               );
-            })
+            })}
+            </ul>
           )}
       </div>
 

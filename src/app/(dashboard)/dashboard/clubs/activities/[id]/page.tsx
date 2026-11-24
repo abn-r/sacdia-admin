@@ -1,40 +1,36 @@
-import { notFound } from "next/navigation";
-import { Calendar, MapPin, Clock, Monitor, Link2, Users } from "lucide-react";
+import type { ReactNode } from "react";
+import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { ActivityDetailActions } from "@/components/activities/activity-detail-actions";
-import { AttendancePanel } from "@/components/activities/attendance-panel";
-import { ActivityImageCard } from "@/components/activities/activity-image-card";
 import { ActivityAudienceValue } from "@/components/activities/activity-audience-label";
-import { ApiError } from "@/lib/api/client";
-import { getActivity, getAttendance, PLATFORM_LABELS, ACTIVITY_TYPE_LABELS } from "@/lib/api/activities";
-import { normalizeActivity as normalizeActivityRecord } from "@/lib/activities/helpers";
+import { ActivityDetailActions } from "@/components/activities/activity-detail-actions";
+import { ActivityImageCard } from "@/components/activities/activity-image-card";
+import { ActivitySeriesPanel } from "@/components/activities/activity-series-panel";
+import { AttendancePanel } from "@/components/activities/attendance-panel";
+import { DetailHeader } from "@/components/shared/detail-header";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { ApiError, apiRequest } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
+import { getActivity, getAttendance, listActivities } from "@/lib/api/activities";
+import type { Activity, ActivitySeriesSummary, AttendanceRecord } from "@/lib/api/activities";
+import { listClubTypes } from "@/lib/api/catalogs";
+import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
+import { loadClubContextClubs } from "@/lib/club-context/load-clubs";
+import { getFinanceSectionLabel } from "@/lib/finances/club-sections";
 import { formatCalendarDate } from "@/lib/format-locale";
-import { cn } from "@/lib/utils";
-import type { Activity, AttendanceRecord } from "@/lib/api/activities";
+import { PLATFORM_HYBRID, PLATFORM_IN_PERSON, PLATFORM_VIRTUAL, hasRealCoordinates } from "@/lib/activities/form";
+import { ACTIVITIES_BASE_PATH, extractArray, normalizeActivities, normalizeActivity } from "@/lib/activities/helpers";
+import { todayKey } from "@/lib/activities/view";
 
 type Params = Promise<{ id: string }>;
 type AnyRecord = Record<string, unknown>;
-
-// ─── Normalizers ───────────────────────────────────────────────────────────────
 
 function toPositiveNumber(value: unknown): number | null {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(parsed) || parsed <= 0) return null;
   return parsed;
-}
-
-function toText(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
 }
 
 function extractActivity(payload: unknown): AnyRecord | null {
@@ -49,54 +45,34 @@ function extractActivity(payload: unknown): AnyRecord | null {
   return null;
 }
 
-function normalizeActivity(raw: AnyRecord): Activity {
-  return normalizeActivityRecord(raw);
-}
-
 function extractAttendance(payload: unknown): AttendanceRecord[] {
   if (Array.isArray(payload)) return payload as AttendanceRecord[];
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AttendanceRecord[];
-    const nested = root.data as AnyRecord | null;
-    if (nested && typeof nested === "object" && Array.isArray(nested.data)) {
-      return nested.data as AttendanceRecord[];
-    }
-  }
-  return [];
+  return extractArray(payload) as unknown as AttendanceRecord[];
 }
 
-// ─── InfoRow ──────────────────────────────────────────────────────────────────
+function unwrapSeries(payload: unknown): ActivitySeriesSummary | null {
+  if (!payload || typeof payload !== "object") return null;
+  const root = payload as AnyRecord;
+  const data = root.data && typeof root.data === "object" && !Array.isArray(root.data) ? (root.data as AnyRecord) : root;
+  return data.activity_series_id != null ? (data as unknown as ActivitySeriesSummary) : null;
+}
 
-function InfoRow({
-  label,
-  value,
-  icon: Icon,
-  className,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ElementType;
-  className?: string;
-}) {
+function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
-        {Icon && <Icon className="size-3 shrink-0" />}
-        {label}
-      </span>
-      <div className="text-sm leading-snug">
-        {value ?? <span className="text-muted-foreground">—</span>}
-      </div>
+    <div className="flex flex-col gap-1">
+      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+      <dd className="text-sm leading-snug">{children}</dd>
     </div>
   );
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────────
+const linkClass = "text-primary underline-offset-4 hover:underline";
 
 export default async function ActivityDetailPage({ params }: { params: Params }) {
-  await requireAdminUser();
-  const t = await getTranslations("activities");
+  const user = await requireAdminUser();
+  if (!canViewScreen(user, "activities")) redirect("/dashboard");
+  const t = await getTranslations("people.activities");
+  const tOld = await getTranslations("activities");
   const locale = await getLocale();
 
   const { id } = await params;
@@ -104,229 +80,189 @@ export default async function ActivityDetailPage({ params }: { params: Params })
   if (!activityId) notFound();
 
   let activity: Activity;
-  let attendance: AttendanceRecord[] = [];
-  let attendanceError: string | null = null;
-
-  // Fetch activity detail
   try {
-    const payload = await getActivity(activityId);
-    const raw = extractActivity(payload);
+    const raw = extractActivity(await getActivity(activityId));
     if (!raw) notFound();
     activity = normalizeActivity(raw);
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 404 || error.status === 403)) {
-      notFound();
-    }
-    throw error;
+    if (error instanceof ApiError && (error.status === 404 || error.status === 403)) notFound();
+    // notFound() above throws a control-flow error that must keep going.
+    if (!(error instanceof ApiError) && !(error instanceof TypeError)) throw error;
+    const { kind, detail } = errorStateFromError(error);
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          breadcrumbs={[{ label: tOld("page.title"), href: ACTIVITIES_BASE_PATH }]}
+          title={tOld("page.title")}
+        />
+        <ErrorState kind={kind} detail={detail} description={t("detail.errorLoad")} retry />
+      </div>
+    );
   }
 
-  // Fetch attendance — best effort
-  try {
-    const attendancePayload = await getAttendance(activityId);
-    attendance = extractAttendance(attendancePayload);
-  } catch (err) {
-    attendanceError =
-      err instanceof ApiError
-        ? err.message
-        : t("pageDetail.error_attendance_load");
+  const today = todayKey();
+  const canEdit = canCapability(user, "activities", "update");
+
+  // The rest of the page is best effort: each block says on its own if it failed.
+  const [attendanceResult, clubsResult, seriesResult] = await Promise.all([
+    getAttendance(activityId).then(extractAttendance, (error: unknown) => error),
+    listClubTypes()
+      .catch(() => [])
+      .then((clubTypes) => loadClubContextClubs(clubTypes)),
+    activity.activity_series_id
+      ? apiRequest<unknown>(`/activity-series/${activity.activity_series_id}`).then(unwrapSeries, () => null)
+      : Promise.resolve(null),
+  ]);
+  const attendance = Array.isArray(attendanceResult) ? attendanceResult : null;
+  const attendanceError = attendance === null ? errorStateFromError(attendanceResult) : null;
+
+  const club = clubsResult.ok ? clubsResult.clubs.find((candidate) => candidate.club_id === activity.club_id) : undefined;
+  const section = club?.sections.find((candidate) => candidate.club_section_id === activity.club_section_id);
+  const clubName = club?.name ?? activity.club_name ?? null;
+  const sectionName = section ? getFinanceSectionLabel(section) : null;
+
+  let sessions: Activity[] = [];
+  let sessionsFailed = false;
+  if (seriesResult) {
+    try {
+      sessions = normalizeActivities(
+        await listActivities(activity.club_id, { seriesId: seriesResult.activity_series_id, active: true, limit: 100 }),
+      ).sort((a, b) => (a.activity_date ?? "").localeCompare(b.activity_date ?? ""));
+    } catch {
+      sessionsFailed = true;
+    }
   }
 
   const typeLabel =
-    activity.activity_type?.name ??
-    ACTIVITY_TYPE_LABELS[activity.activity_type_id] ??
-    `Tipo ${activity.activity_type_id}`;
+    activity.activity_type_id === 1
+      ? tOld("view.types.regular")
+      : activity.activity_type_id === 2
+        ? tOld("view.types.especial")
+        : activity.activity_type_id === 3
+          ? tOld("view.types.camporee")
+          : (activity.activity_type?.name ?? null);
 
+  const platform = activity.platform ?? PLATFORM_IN_PERSON;
   const platformLabel =
-    activity.platform != null
-      ? (PLATFORM_LABELS[activity.platform] ?? "—")
-      : t("pageDetail.badge_in_person");
+    platform === PLATFORM_VIRTUAL
+      ? t("modalities.virtual")
+      : platform === PLATFORM_HYBRID
+        ? t("modalities.hybrid")
+        : t("modalities.inPerson");
+  const isVirtual = platform === PLATFORM_VIRTUAL;
 
-  const mapsUrl =
-    activity.lat !== 0 && activity.long !== 0
-      ? `https://maps.google.com/?q=${activity.lat},${activity.long}`
+  const placeText = activity.activity_place.trim();
+  const mapsUrl = hasRealCoordinates(activity.lat, activity.long)
+    ? `https://maps.google.com/?q=${activity.lat},${activity.long}`
+    : placeText
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeText)}`
       : null;
 
-  const placeMapsUrl =
-    mapsUrl ??
-    (activity.activity_place?.trim()
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.activity_place.trim())}`
-      : null);
+  const hasEnd =
+    activity.activity_end_date &&
+    activity.activity_end_date.slice(0, 10) !== (activity.activity_date ?? "").slice(0, 10);
+  const listHref = `${ACTIVITIES_BASE_PATH}?club=${activity.club_id}`;
+  const subtitle = [clubName, sectionName, typeLabel].filter(Boolean).join(" · ");
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={activity.name}
-        description={t("pageDetail.description")}
+    <div className="space-y-8">
+      <DetailHeader
         breadcrumbs={[
-          { label: t("page.title"), href: "/dashboard/clubs/activities" },
+          { label: tOld("page.title"), href: listHref },
           { label: activity.name },
         ]}
-        actions={
-          <ActivityDetailActions activity={activity} />
+        title={activity.name}
+        subtitle={
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            {subtitle ? <span>{subtitle}</span> : null}
+            {activity.active ? null : <StatusBadge intent="neutral" label={tOld("pageDetail.badge_inactive")} />}
+          </span>
         }
+        actions={<ActivityDetailActions activity={activity} canEdit={canEdit} listHref={listHref} />}
       />
 
-      {/* Summary card */}
-      <Card>
-        <CardContent className="flex flex-wrap items-center gap-6">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
-            <Calendar className="size-6 text-foreground" />
-          </div>
-          <div className="min-w-0 flex-1">
-            {activity.description && (
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {activity.description}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {activity.activity_series_id ? (
-              <Badge variant="soft-success">{t("series.badge")}</Badge>
-            ) : null}
-            <Badge variant="secondary">{typeLabel}</Badge>
-            <StatusBadge intent={flagStatusIntent(activity.active)} label={activity.active ? t("pageDetail.badge_active") : t("pageDetail.badge_inactive")} />
-          </div>
-        </CardContent>
-      </Card>
+      {activity.description ? <p className="max-w-prose text-sm text-muted-foreground">{activity.description}</p> : null}
 
-      {/* Info card */}
-      <Card className="gap-2 py-3 [--card-spacing:--spacing(3)]">
-        <CardHeader className="pb-0">
-          <CardTitle className="text-base">{t("pageDetail.card_info_title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-3">
-          <InfoRow
-            label={t("pageDetail.info_date")}
-            value={formatCalendarDate(activity.activity_date, locale, "long")}
-            icon={Calendar}
-          />
-          {activity.activity_end_date &&
-          activity.activity_end_date.slice(0, 10) !==
-            (activity.activity_date ?? "").slice(0, 10) ? (
-            <InfoRow
-              label={t("pageDetail.info_end_date")}
-              value={formatCalendarDate(activity.activity_end_date, locale, "long")}
-              icon={Calendar}
+      <section aria-labelledby="activity-data" className="space-y-3">
+        <h2 id="activity-data" className="text-base font-semibold tracking-tight">
+          {t("detail.data")}
+        </h2>
+        <dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+          <Fact label={tOld("pageDetail.info_date")}>
+            {formatCalendarDate(activity.activity_date, locale, "long")}
+            {hasEnd ? ` – ${formatCalendarDate(activity.activity_end_date, locale, "long")}` : null}
+          </Fact>
+          <Fact label={tOld("pageDetail.info_time")}>{activity.activity_time ?? "—"}</Fact>
+          <Fact label={tOld("pageDetail.info_audience")}>
+            <ActivityAudienceValue
+              activity={activity}
+              withLogos
+              labels={{
+                all: tOld("audience.all"),
+                board: tOld("audience.board"),
+                classes: tOld("audience.classes"),
+              }}
             />
-          ) : null}
-          <InfoRow
-            label={t("pageDetail.info_time")}
-            value={activity.activity_time ?? "—"}
-            icon={Clock}
-          />
-          <InfoRow
-            label={t("pageDetail.info_mode")}
-            value={platformLabel}
-            icon={Monitor}
-          />
-          {mapsUrl && (
-            <InfoRow
-              label={t("pageDetail.info_coordinates")}
-              value={
-                <a
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {activity.lat}, {activity.long}
-                </a>
-              }
-              icon={MapPin}
-            />
-          )}
-          <InfoRow
-            label={t("pageDetail.info_place")}
-            className="sm:col-span-2"
-            value={
-              placeMapsUrl ? (
-                <a
-                  href={placeMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {activity.activity_place}
+          </Fact>
+          <Fact label={tOld("pageDetail.info_mode")}>{platformLabel}</Fact>
+          {!isVirtual && placeText ? (
+            <Fact label={tOld("pageDetail.info_place")}>
+              {mapsUrl ? (
+                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  {placeText}
                 </a>
               ) : (
-                activity.activity_place || "—"
-              )
-            }
-            icon={MapPin}
-          />
-          <InfoRow
-            label={t("pageDetail.info_audience")}
-            className="sm:col-span-2"
-            icon={Users}
-            value={
-              <ActivityAudienceValue
-                activity={activity}
-                withLogos
-                labels={{
-                  all: t("audience.all"),
-                  board: t("audience.board"),
-                  classes: t("audience.classes"),
-                }}
-              />
-            }
-          />
-          {activity.link_meet && (
-            <InfoRow
-              label={t("pageDetail.info_meet_link")}
-              className="sm:col-span-2"
-              value={
-                <a
-                  href={activity.link_meet}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {activity.link_meet}
-                </a>
-              }
-              icon={Link2}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Image preview (hidden when the image cannot be loaded) */}
-      {activity.image && (
-        <ActivityImageCard
-          title={t("pageDetail.card_image_title")}
-          src={activity.image}
-          alt={activity.name}
-        />
-      )}
-
-      {/* Tabs: Attendance */}
-      <Tabs defaultValue="attendance">
-        <TabsList>
-          <TabsTrigger value="attendance">
-            {t("pageDetail.tab_attendance")}
-            {attendance.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {attendance.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="attendance" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("pageDetail.card_attendance_title")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {attendanceError ? (
-                <EndpointErrorBanner state="missing" detail={attendanceError} />
-              ) : (
-                <AttendancePanel records={attendance} />
+                placeText
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </Fact>
+          ) : null}
+          {activity.link_meet ? (
+            <Fact label={tOld("pageDetail.info_meet_link")}>
+              <a href={activity.link_meet} target="_blank" rel="noopener noreferrer" className={`${linkClass} break-all`}>
+                {activity.link_meet}
+              </a>
+            </Fact>
+          ) : null}
+          {seriesResult ? (
+            <Fact label={tOld("series.badge")}>
+              <ActivitySeriesPanel
+                series={seriesResult}
+                sessions={sessions}
+                sessionsFailed={sessionsFailed}
+                currentActivityId={activity.activity_id}
+                today={today}
+                canEdit={canEdit}
+              />
+            </Fact>
+          ) : null}
+        </dl>
+      </section>
+
+      {activity.image ? (
+        <ActivityImageCard title={tOld("pageDetail.card_image_title")} src={activity.image} alt={activity.name} />
+      ) : null}
+
+      <section aria-labelledby="activity-registered" className="space-y-3">
+        <h2 id="activity-registered" className="flex items-center gap-2 text-base font-semibold tracking-tight">
+          {t("detail.registered")}
+          {attendance && attendance.length > 0 ? (
+            <span className="rounded-full bg-muted px-2 text-xs font-medium tabular-nums leading-5 text-muted-foreground">
+              {attendance.length}
+            </span>
+          ) : null}
+        </h2>
+        {attendanceError ? (
+          <ErrorState
+            variant="inline"
+            kind={attendanceError.kind}
+            detail={attendanceError.detail}
+            description={tOld("pageDetail.error_attendance_load")}
+            retry
+          />
+        ) : (
+          <AttendancePanel records={attendance ?? []} />
+        )}
+      </section>
     </div>
   );
 }

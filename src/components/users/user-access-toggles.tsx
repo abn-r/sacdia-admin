@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { SettingsRow, SettingsSection } from "@/components/shared/settings-rows";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { apiRequestFromClient } from "@/lib/api/client";
-import type { UpdateAdminUserPayload } from "@/lib/api/admin-users";
+import { patchUserAccessFlag } from "@/lib/users/detail-access";
+import {
+  accessChangeId,
+  isRiskyAccessChange,
+  type AccessField,
+} from "@/lib/users/detail-model";
 
 interface UserAccessTogglesProps {
   userId: string;
@@ -17,13 +21,6 @@ interface UserAccessTogglesProps {
   initialActive: boolean | undefined;
   /** Accesos is admin/super-admin only; hide (do not disable) otherwise. */
   canManage: boolean;
-}
-
-async function patchUser(userId: string, payload: UpdateAdminUserPayload): Promise<void> {
-  await apiRequestFromClient<unknown>(`/admin/users/${encodeURIComponent(userId)}`, {
-    method: "PATCH",
-    body: payload,
-  });
 }
 
 export function UserAccessToggles(props: UserAccessTogglesProps) {
@@ -39,113 +36,94 @@ function UserAccessTogglesForm({
   initialAccessApp,
   initialAccessPanel,
   initialActive,
-  canManage,
 }: UserAccessTogglesProps) {
-  const t = useTranslations("users");
-  const [accessApp, setAccessApp] = useState(initialAccessApp ?? false);
-  const [accessPanel, setAccessPanel] = useState(initialAccessPanel ?? false);
-  const [active, setActive] = useState(initialActive ?? true);
+  const t = useTranslations("people.userDetail.access");
+  const tToasts = useTranslations("users.toasts");
+  const router = useRouter();
+  const [values, setValues] = useState<Record<AccessField, boolean>>({
+    access_app: initialAccessApp ?? false,
+    access_panel: initialAccessPanel ?? false,
+    active: initialActive ?? true,
+  });
+  const [proposal, setProposal] = useState<{ field: AccessField; next: boolean } | null>(
+    null,
+  );
+  const [pending, setPending] = useState(false);
 
-  const [pendingField, setPendingField] = useState<
-    "access_app" | "access_panel" | "active" | null
-  >(null);
-  const [isPending, startTransition] = useTransition();
-
-  function handleToggle(
-    field: "access_app" | "access_panel" | "active",
-    currentValue: boolean,
-    setter: (v: boolean) => void,
-  ) {
-    if (!canManage) {
-      return;
+  async function apply(field: AccessField, next: boolean) {
+    setPending(true);
+    try {
+      await patchUserAccessFlag(userId, { [field]: next });
+      setValues((prev) => ({ ...prev, [field]: next }));
+      toast.success(tToasts("access_updated"));
+      // The aside shows the same flags: re-render the server tree.
+      router.refresh();
+    } catch {
+      // ConfirmDialog keeps itself open and shows this message inline.
+      throw new Error(tToasts("access_update_failed"));
+    } finally {
+      setPending(false);
     }
-
-    const nextValue = !currentValue;
-    setter(nextValue);
-    setPendingField(field);
-
-    const patch: UpdateAdminUserPayload = {};
-    patch[field] = nextValue;
-
-    startTransition(async () => {
-      try {
-        await patchUser(userId, patch);
-        toast.success(t("toasts.access_updated"));
-      } catch {
-        setter(currentValue);
-        toast.error(t("toasts.access_update_failed"));
-      } finally {
-        setPendingField(null);
-      }
-    });
   }
 
+  const rows: Array<{ field: AccessField; id: string; label: string; description: string }> = [
+    {
+      field: "access_app",
+      id: "toggle-access-app",
+      label: t("appLabel"),
+      description: t("appDescription"),
+    },
+    {
+      field: "access_panel",
+      id: "toggle-access-panel",
+      label: t("panelLabel"),
+      description: t("panelDescription"),
+    },
+    {
+      field: "active",
+      id: "toggle-active",
+      label: t("activeLabel"),
+      description: t("activeDescription"),
+    },
+  ];
+
+  const changeId = proposal ? accessChangeId(proposal.field, proposal.next) : null;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("access.card_title")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="toggle-access-app" className="text-sm text-muted-foreground">
-            {t("access.access_app_label")}
-          </Label>
-          <div className="flex items-center gap-2">
-            {isPending && pendingField === "access_app" && (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-            )}
-            <Switch
-              id="toggle-access-app"
-              aria-label={t("access.access_app_label")}
-              checked={accessApp}
-              disabled={isPending}
-              onCheckedChange={() =>
-                handleToggle("access_app", accessApp, setAccessApp)
-              }
-            />
-          </div>
-        </div>
+    <>
+      <SettingsSection title={t("sectionTitle")} description={t("sectionDescription")}>
+        {rows.map((row) => (
+          <SettingsRow
+            key={row.field}
+            label={<label htmlFor={row.id}>{row.label}</label>}
+            description={row.description}
+            control={
+              <Switch
+                id={row.id}
+                aria-label={row.label}
+                checked={values[row.field]}
+                disabled={pending}
+                onCheckedChange={(next) => setProposal({ field: row.field, next })}
+              />
+            }
+          />
+        ))}
+      </SettingsSection>
 
-        <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="toggle-access-panel" className="text-sm text-muted-foreground">
-            {t("access.access_panel_label")}
-          </Label>
-          <div className="flex items-center gap-2">
-            {isPending && pendingField === "access_panel" && (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-            )}
-            <Switch
-              id="toggle-access-panel"
-              aria-label={t("access.access_panel_label")}
-              checked={accessPanel}
-              disabled={isPending}
-              onCheckedChange={() =>
-                handleToggle("access_panel", accessPanel, setAccessPanel)
-              }
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="toggle-active" className="text-sm text-muted-foreground">
-            {t("access.active_label")}
-          </Label>
-          <div className="flex items-center gap-2">
-            {isPending && pendingField === "active" && (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-            )}
-            <Switch
-              id="toggle-active"
-              aria-label={t("access.active_label")}
-              checked={active}
-              disabled={isPending}
-              onCheckedChange={() =>
-                handleToggle("active", active, setActive)
-              }
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      {proposal && changeId ? (
+        <ConfirmDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setProposal(null);
+          }}
+          title={t(`confirm.${changeId}.title`)}
+          description={t(`confirm.${changeId}.description`)}
+          confirmLabel={t(`confirm.${changeId}.confirm`)}
+          tone={isRiskyAccessChange(proposal.next) ? "destructive" : "default"}
+          pending={pending}
+          onConfirm={() => apply(proposal.field, proposal.next)}
+        />
+      ) : null}
+    </>
   );
 }

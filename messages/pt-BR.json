@@ -1,4 +1,736 @@
 {
+  "people": {
+    "clubs": {
+      "list": {
+        "districtLine": "Distrito {name}",
+        "createButton": "Novo clube",
+        "importButton": "Importar",
+        "errorTitle": "Não foi possível carregar os clubes",
+        "errorDescription": "Verifique sua conexão ou tente novamente em instantes. Seus filtros foram mantidos."
+      },
+      "form": {
+        "stepData": "Dados",
+        "stepSections": "Seções",
+        "stepLocation": "Localização"
+      },
+      "edit": {
+        "lockedHint": "Campo local, distrito e igreja não são alterados aqui. As seções são habilitadas no detalhe do clube.",
+        "activeHint": "Um clube inativo deixa de aparecer no app e nos filtros."
+      },
+      "import": {
+        "crumb": "Importar",
+        "heading": "Importar clubes",
+        "stepFile": "Arquivo",
+        "stepReview": "Revisar",
+        "stepResult": "Resultado",
+        "fileHeading": "Envie o arquivo com os clubes",
+        "limits": "Formatos .xlsx e .csv. Até 500 linhas e 5 MB.",
+        "errors": {
+          "fileTooLarge": "O arquivo tem mais de 5 MB. Divida-o em partes menores.",
+          "fileType": "Use um arquivo .xlsx ou .csv.",
+          "tooManyRows": "O arquivo tem {total} linhas e o máximo é 500. Divida-o em vários arquivos."
+        },
+        "reviewSummary": "{total, plural, one {# linha} other {# linhas}} · {ready, plural, one {# pronta} other {# prontas}} · {invalid, plural, one {# com erro} other {# com erros}}",
+        "reviewHint": "Somente as linhas prontas são importadas. Corrija as demais no arquivo e envie novamente.",
+        "reviewAllReady": "Todas as linhas estão prontas para importar.",
+        "reviewTabs": "Linhas do arquivo",
+        "tabErrors": "Com erros",
+        "tabAll": "Todas",
+        "colReview": "Revisão",
+        "rowReady": "Pronta",
+        "chooseAnother": "Escolher outro arquivo",
+        "backToReview": "Voltar à revisão",
+        "importAnother": "Importar outro arquivo",
+        "goToClubs": "Ir para clubes",
+        "resultCreated": "{count, plural, =0 {Nenhum clube criado} one {# clube criado} other {# clubes criados}}",
+        "resultFailed": "{count, plural, one {# linha não pôde ser criada.} other {# linhas não puderam ser criadas.}}",
+        "resultSkipped": "{count, plural, one {# linha não foi importada porque tinha erros no arquivo.} other {# linhas não foram importadas porque tinham erros no arquivo.}}",
+        "colResult": "Resultado",
+        "colOpen": "Abrir clube"
+      }
+    },
+    "clubDetail": {
+      "tabsLabel": "Seções do detalhe do clube",
+      "tabs": {
+        "general": "Geral",
+        "sections": "Seções",
+        "members": "Membros",
+        "reports": "Relatórios",
+        "history": "Histórico"
+      },
+      "facts": {
+        "members": "Membros",
+        "sections": "Seções",
+        "sectionsOf": "{active} de {total}",
+        "souls": "Meta de almas"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "general": {
+        "sectionsHeading": "Seções",
+        "sectionActive": "Habilitada",
+        "sectionInactive": "Desabilitada",
+        "director": "Diretor",
+        "noDirector": "Sem diretor",
+        "viewSection": "Ver seção"
+      },
+      "members": {
+        "plainMember": "Membro",
+        "emptyTitle": "Sem membros",
+        "emptyDescription": "Este clube ainda não tem membros em suas seções.",
+        "search": "Buscar membro",
+        "searchPlaceholder": "Nome",
+        "section": "Seção",
+        "allSections": "Todas as seções",
+        "role": "Cargo",
+        "allRoles": "Todos os cargos",
+        "onlyMembers": "Somente membros",
+        "allClasses": "Todas as classes",
+        "classYear": "Classe {year}",
+        "classColumn": "Classe",
+        "noResultsTitle": "Sem resultados",
+        "noResultsDescription": "Nenhum membro corresponde aos filtros.",
+        "clearFilters": "Limpar filtros",
+        "person": "Pessoa",
+        "viewProfile": "Ver perfil"
+      },
+      "reports": {
+        "annualName": "Anual {year}",
+        "quarterlyName": "Trimestral · T{quarter} {year}",
+        "emptyTitle": "Sem relatórios",
+        "emptyDescription": "Este clube ainda não tem relatórios anuais nem trimestrais.",
+        "report": "Relatório",
+        "status": "Status",
+        "created": "Criado",
+        "open": "Abrir",
+        "openReport": "Abrir {name}",
+        "loadError": "Não conseguimos carregar os relatórios do clube."
+      },
+      "history": {
+        "filteringLoaded": "Filtrando apenas os eventos já carregados. Carregue mais para ver os anteriores.",
+        "noResultsTitle": "Sem mudanças nesta seção",
+        "noResultsDescription": "Entre os eventos carregados não há mudanças desta seção. Carregue mais para procurar nos anteriores.",
+        "system": "Sistema"
+      },
+      "assign": {
+        "title": "Atribuir {position}",
+        "context": "{section} · {year}",
+        "person": "Pessoa",
+        "searchPlaceholder": "Buscar entre {count} membros",
+        "noCandidates": "Esta seção não tem membros para atribuir.",
+        "checking": "Verificando…",
+        "classPlaceholder": "Escolha uma classe",
+        "failed": "Não foi possível atribuir o cargo.",
+        "cancel": "Cancelar",
+        "submit": "Atribuir"
+      },
+      "designate": {
+        "title": "Diretor {year}",
+        "nextYearFallback": "o próximo ano",
+        "person": "Pessoa",
+        "personPlaceholder": "Escolha um membro",
+        "infoChosen": "{name} será diretor quando {year} começar. Até lá, {current} continua à frente.",
+        "infoChosenNoCurrent": "{name} será diretor quando {year} começar.",
+        "infoGeneric": "A pessoa escolhida será diretor quando {year} começar. Até lá, o diretor atual continua à frente.",
+        "reasonsIntro": "O plano não é ativado se:",
+        "reasonActive": "o diretor atual continuar ativo na virada do ano,",
+        "reasonGuideMajor": "a pessoa não for Guia Maior, ou",
+        "reasonConsent": "for menor e o consentimento do responsável não estiver verificado.",
+        "failed": "Não foi possível designar o diretor.",
+        "cancel": "Cancelar",
+        "replace": "Substituir designado",
+        "submit": "Designar"
+      },
+      "succeed": {
+        "title": "Trocar o diretor agora",
+        "description": "Encerra o cargo de {name} e nomeia o novo diretor de {year}. Não é a designação do próximo ano.",
+        "descriptionNoYear": "Encerra o cargo de {name} e nomeia o novo diretor do ano em curso. Não é a designação do próximo ano.",
+        "person": "Novo diretor",
+        "personPlaceholder": "Escolha um membro",
+        "historyNote": "A troca fica no histórico do clube, com quem a fez.",
+        "failed": "Não foi possível trocar o diretor.",
+        "cancel": "Cancelar",
+        "submit": "Trocar diretor"
+      },
+      "continuations": {
+        "title": "Inscrição anual {year}",
+        "titleNoYear": "Inscrição anual",
+        "description": "{section} · {count, plural, one {# a inscrever} other {# a inscrever}}",
+        "suggestedClass": "Classe sugerida: {name}",
+        "classPending": "Classe a definir",
+        "close": "Fechar",
+        "submit": "{count, plural, =0 {Inscrever} other {Inscrever #}}",
+        "retry": "Tentar novamente"
+      },
+      "positions": {
+        "counselorsLoadError": "Não conseguimos carregar os conselheiros.",
+        "revoke": "Remover cargo…",
+        "assign": "Atribuir",
+        "assignFor": "Atribuir {position}",
+        "revokeTitle": "Remover {name} como {position}?",
+        "revokeDescription": "Deixa o cargo de {position} em {section} para {year}. Continua sendo membro da seção. Fica registrado no histórico.",
+        "revokeDescriptionNoYear": "Deixa o cargo de {position} em {section}. Continua sendo membro da seção. Fica registrado no histórico.",
+        "revokeConfirm": "Remover cargo"
+      },
+      "sections": {
+        "enableFailed": "Não foi possível habilitar a seção.",
+        "empty": "Este clube ainda não tem seções.",
+        "pickerLabel": "Seção",
+        "missingHeading": "Seções não habilitadas",
+        "disable": "Desabilitar seção…",
+        "enable": "Habilitar seção",
+        "positionsHeading": "Cargos {year}",
+        "positionsHeadingNoYear": "Cargos",
+        "designationHeading": "Diretor {year}",
+        "designationHeadingNoYear": "Diretor do próximo ano",
+        "designationChange": "Trocar designado…",
+        "designationDesignate": "Designar…",
+        "unknownPerson": "Pessoa designada",
+        "designationWillBe": "será diretor quando {year} começar",
+        "designationWillBeNoYear": "será diretor quando o próximo ano começar",
+        "members": "Membros",
+        "toEnroll": "A inscrever {year}",
+        "toEnrollNoYear": "A inscrever",
+        "annualEnrollment": "Inscrição anual",
+        "succeedNow": "Trocar diretor agora…",
+        "disableTitle": "Desabilitar {section}?",
+        "disableDescription": "{count, plural, one {O # membro deixa} other {Os # membros deixam}} de ver as atividades da seção e não podem se inscrever em {year}. Os registros são mantidos e você pode habilitá-la novamente.",
+        "disableConfirm": "Desabilitar",
+        "yearFallback": "o próximo ano"
+      }
+    },
+    "activities": {
+      "page": {
+        "pickClub": "Escolha um clube para ver o calendário. A escolha é lembrada em Finanças, Inventário e Seguros.",
+        "errorLoad": "Pode haver atividades neste período. Verifique sua conexão e tente novamente.",
+        "findingNone": "Nenhuma atividade próxima",
+        "finding": "{count, plural, one {# atividade próxima} other {# atividades próximas}}",
+        "new": "Nova atividade"
+      },
+      "view": {
+        "label": "Visualização do calendário",
+        "list": "Lista"
+      },
+      "modalities": {
+        "inPerson": "Presencial",
+        "virtual": "Virtual",
+        "hybrid": "Híbrido"
+      },
+      "list": {
+        "emptyTitle": "Nenhuma atividade neste período",
+        "emptyDescription": "Mude de mês ou crie uma nova atividade.",
+        "repeats": "se repete",
+        "edit": "Editar",
+        "delete": "Excluir…",
+        "colDate": "Data",
+        "colActivity": "Atividade",
+        "colSection": "Seção",
+        "colPlace": "Local",
+        "label": "Atividades do período"
+      },
+      "delete": {
+        "title": "Excluir “{name}”?",
+        "titleSession": "Excluir a sessão de {date}?",
+        "body": "Deixa de aparecer no app. A atividade é desativada; não dá para desfazer por aqui.",
+        "bodySeries": "Deixa de aparecer no app. Só esta sessão é excluída; as outras da série não mudam. Para cancelar as próximas, use “Ver série”.",
+        "confirm": "Excluir",
+        "confirmSession": "Excluir sessão"
+      },
+      "detail": {
+        "data": "Dados",
+        "registered": "Inscritos",
+        "errorLoad": "Não foi possível carregar a atividade. Verifique sua conexão e tente novamente."
+      },
+      "series": {
+        "ruleWeekly": "Toda {weekday}",
+        "ruleInterval": "{days, plural, one {Todo dia} other {A cada # dias}}",
+        "summary": "{rule} até {date} · {count, plural, one {# sessão} other {# sessões}}",
+        "sessionsError": "Não foi possível carregar as sessões da série.",
+        "sessions": "Sessões da série",
+        "thisSession": "Esta sessão",
+        "cancelFutureBody": "{count, plural, one {# sessão próxima será cancelada.} other {# sessões próximas serão canceladas.}} As que já aconteceram ficam."
+      },
+      "form": {
+        "titleNew": "Nova atividade",
+        "titleEdit": "Editar atividade",
+        "steps": {
+          "what": "O quê e para quem",
+          "when": "Data e local"
+        },
+        "name": "Nome",
+        "description": "Descrição",
+        "section": "Seção",
+        "type": "Tipo",
+        "classesLoading": "Carregando classes…",
+        "image": "Imagem (URL, opcional)",
+        "time": "Hora",
+        "seriesTooMany": "A série passa do máximo de {max} sessões. Encurte a data final.",
+        "seriesNone": "Com essas datas não há sessões. Verifique o dia e a data final.",
+        "seriesDates": "{count, plural, one {# sessão} other {# sessões}}: {dates}.",
+        "modality": "Modalidade",
+        "link": "Link da reunião",
+        "linkOptional": "Link da reunião (opcional)",
+        "place": "Local",
+        "placeHint": "Busque o local no mapa para fixar a localização; depois você pode ajustar o nome.",
+        "placeHintPinned": "Localização fixada. Você pode ajustar o nome do local.",
+        "cancel": "Cancelar"
+      },
+      "validation": {
+        "nameRequired": "O nome é obrigatório",
+        "nameTooShort": "O nome precisa de pelo menos 3 caracteres",
+        "typeRequired": "Selecione um tipo",
+        "sectionRequired": "Selecione a seção",
+        "classesRequired": "Selecione pelo menos uma classe",
+        "imageInvalid": "Informe uma URL válida que comece com http:// ou https://",
+        "dateRequired": "Escolha a data da atividade",
+        "endBeforeStart": "A data de término não pode ser anterior ao início",
+        "untilRequired": "Escolha até quando se repete",
+        "untilBeforeStart": "A data final não pode ser anterior à primeira sessão",
+        "linkRequired": "Cole o link da reunião",
+        "linkInvalid": "Informe um link válido que comece com http:// ou https://",
+        "placeRequired": "Informe o local",
+        "pinRequired": "Busque o local no mapa para fixar a localização"
+      }
+    },
+    "users": {
+      "list": {
+        "searchLabel": "Buscar usuários",
+        "clearFilters": "Limpar filtros",
+        "registeredOn": "Cadastro em {date}",
+        "empty": {
+          "title": "Ainda não há usuários",
+          "description": "As contas do seu escopo aparecerão aqui quando você as adicionar.",
+          "action": "Adicionar usuário"
+        },
+        "noResults": {
+          "title": "Nenhum usuário corresponde",
+          "description": "Tente outro nome ou e-mail, ou remova os filtros."
+        },
+        "error": {
+          "title": "Não foi possível carregar os usuários",
+          "description": "Verifique sua conexão ou tente novamente em instantes. Seus filtros são mantidos."
+        },
+        "rowActions": {
+          "view": "Ver detalhes",
+          "resend": "Reenviar convite",
+          "deactivate": "Desativar conta…",
+          "resendSuccess": "Convite reenviado para {name}.",
+          "resendFailure": {
+            "alreadyAccepted": "Esta pessoa já aceitou o convite.",
+            "cooldown": "Aguarde um minuto antes de reenviar, ou o limite por hora foi atingido.",
+            "unavailable": "O envio de e-mails está indisponível no momento.",
+            "forbidden": "Você não tem permissão para reenviar este convite.",
+            "notFound": "Não encontramos este usuário. Atualize a lista.",
+            "generic": "Não foi possível reenviar o convite."
+          },
+          "deactivateTitle": "Desativar a conta de {name}?",
+          "deactivateDescription": "A pessoa não poderá entrar no app nem no painel. Os cargos e registros são mantidos, e você pode reativar a conta pelos detalhes dela.",
+          "deactivateConfirm": "Desativar conta",
+          "deactivateSuccess": "Conta de {name} desativada.",
+          "deactivateFailed": "Não foi possível desativar a conta de {name}. Tente novamente."
+        }
+      },
+      "new": {
+        "personSummary": "{name} · {email}",
+        "serverErrors": {
+          "emailTaken": "Já existe uma conta com este e-mail.",
+          "emailInvalid": "O e-mail não é válido.",
+          "roleForbidden": "Você não pode atribuir este papel.",
+          "localFieldRequired": "Este papel precisa de um campo local.",
+          "invalidField": "Revise este campo."
+        }
+      },
+      "bulk": {
+        "description": "Crie várias contas de uma vez a partir de um arquivo. Ele é revisado por completo no seu equipamento antes de ser enviado.",
+        "stepLine": "Etapa {current} de 3 · {name}",
+        "steps": {
+          "file": "Arquivo",
+          "review": "Revisar",
+          "result": "Resultado"
+        },
+        "file": {
+          "dropTitle": "Arraste seu arquivo aqui ou escolha-o",
+          "dropHint": "Excel (.xlsx) ou CSV. Até {max} linhas e 5 MB.",
+          "choose": "Escolher arquivo",
+          "reading": "Verificando o arquivo…",
+          "templateHint": "O modelo pede os nomes da união e do campo local, não números de catálogo. Colunas: {columns}."
+        },
+        "fileErrors": {
+          "type": "Use um arquivo .xlsx ou .csv.",
+          "size": "O arquivo tem mais de 5 MB.",
+          "empty": "O arquivo não tem linhas com dados.",
+          "tooMany": "O arquivo tem {total} linhas; o máximo é {max}.",
+          "headers": "Faltam colunas: {missing}. Baixe o modelo para ver o formato.",
+          "read": "Não foi possível ler o arquivo. Verifique se não está danificado."
+        },
+        "template": {
+          "roleSlug": "papel",
+          "roleLabel": "nome",
+          "needsLocalField": "exige_campo_local",
+          "yes": "sim",
+          "country": "País",
+          "union": "União",
+          "localField": "Campo local",
+          "sheetUsers": "Usuários",
+          "sheetRoles": "Papéis permitidos",
+          "sheetLocations": "Locais",
+          "failed": "Não foi possível gerar o modelo."
+        },
+        "review": {
+          "tabsLabel": "Linhas do arquivo",
+          "tabErrors": "Com erros",
+          "tabAll": "Todas",
+          "noErrorsTitle": "Nenhuma linha tem erros",
+          "noErrorsDescription": "Tudo pronto para criar as contas.",
+          "colRow": "Linha",
+          "colPerson": "Pessoa",
+          "colRole": "Papel",
+          "colReview": "Revisão",
+          "ready": "Pronta",
+          "summary": "{total, plural, one {# linha} other {# linhas}} · {ready, plural, one {# pronta} other {# prontas}} · {errors, plural, one {# com erros} other {# com erros}}",
+          "note": "Revisado no seu equipamento antes de enviar. Até {max} linhas e 5 MB.",
+          "skipNote": "{count, plural, one {A linha com erros não é enviada.} other {As # linhas com erros não são enviadas.}} Corrija-as no arquivo e envie de novo quando quiser.",
+          "chooseAnother": "Escolher outro arquivo",
+          "submit": "{count, plural, one {Criar # usuário} other {Criar # usuários}}",
+          "sending": "Criando usuários…"
+        },
+        "result": {
+          "tabsLabel": "Resultado por linha",
+          "tabFailed": "Com falha",
+          "noFailedTitle": "Tudo foi criado",
+          "noFailedDescription": "Nenhuma linha falhou.",
+          "summary": "{succeeded, plural, one {# criado} other {# criados}} · {failed, plural, one {# com falha} other {# com falha}}",
+          "skipped": "{count, plural, one {1 linha com erros de revisão não foi enviada.} other {# linhas com erros de revisão não foram enviadas.}}",
+          "backToUsers": "Ir para usuários"
+        },
+        "sendErrors": {
+          "forbidden": "Você não tem permissão para criar usuários em lote.",
+          "generic": "Não foi possível enviar o arquivo. Verifique sua conexão e tente novamente."
+        },
+        "issues": {
+          "missingRequired": "Falta: {fields}.",
+          "emailInvalid": "O e-mail não é válido: {value}.",
+          "duplicateEmail": "E-mail repetido: também está na linha {row}.",
+          "roleUnknown": "Não conhecemos o papel «{value}».",
+          "roleNotAllowed": "Você não pode atribuir o papel «{value}».",
+          "localFieldRequired": "Este papel precisa de um campo local.",
+          "countryUnknown": "Não encontramos o país «{value}».",
+          "unionUnknown": "Não encontramos a união «{value}».",
+          "localFieldUnknown": "Não encontramos o campo local «{value}».",
+          "unionOutsideCountry": "A união «{value}» não pertence a «{parent}».",
+          "localFieldOutsideUnion": "O campo local «{value}» não pertence a «{parent}».",
+          "ambiguous": "«{value}» corresponde a mais de uma opção; informe também a união.",
+          "tooLong": "{field}: passa de {max} caracteres."
+        },
+        "fields": {
+          "email": "e-mail",
+          "name": "nome",
+          "paternal_last_name": "sobrenome paterno",
+          "maternal_last_name": "sobrenome materno",
+          "role": "papel"
+        },
+        "catalogsError": {
+          "title": "Não foi possível carregar os catálogos",
+          "description": "Eles são necessários para verificar as uniões e campos locais do arquivo. Tente novamente."
+        }
+      }
+    },
+    "userDetail": {
+      "tabsLabel": "Seções do usuário",
+      "aside": {
+        "moreClubs": "+{count} mais",
+        "withAccess": "Com acesso",
+        "noAccess": "Sem acesso",
+        "postUnavailable": "Indisponível",
+        "postComplete": "Completo",
+        "postNotApplicable": "Não se aplica",
+        "postPending": "{count, plural, one {Falta # etapa} other {Faltam # etapas}}"
+      },
+      "actions": {
+        "assignRole": "Atribuir função de sistema",
+        "deactivate": "Desativar conta…",
+        "reactivate": "Reativar conta…"
+      },
+      "deactivate": {
+        "title": "Desativar a conta de {name}",
+        "description": "A pessoa não poderá entrar no app nem no painel. Seus cargos e registros são mantidos.",
+        "confirm": "Desativar conta"
+      },
+      "reactivate": {
+        "title": "Reativar a conta de {name}",
+        "description": "A pessoa poderá entrar de novo, conforme os acessos que tiver ativos.",
+        "confirm": "Reativar conta"
+      },
+      "access": {
+        "sectionTitle": "Acessos",
+        "sectionDescription": "Cada alteração pede confirmação.",
+        "appLabel": "App móvel",
+        "appDescription": "Pode entrar no app.",
+        "panelLabel": "Painel administrativo",
+        "panelDescription": "Pode entrar neste painel.",
+        "activeLabel": "Conta ativa",
+        "activeDescription": "Se você desligar, a pessoa não poderá entrar no app nem no painel.",
+        "confirm": {
+          "appOn": {
+            "title": "Dar acesso ao app",
+            "description": "A pessoa poderá entrar no app móvel.",
+            "confirm": "Dar acesso"
+          },
+          "appOff": {
+            "title": "Remover acesso ao app",
+            "description": "A pessoa deixará de poder entrar no app móvel.",
+            "confirm": "Remover acesso"
+          },
+          "panelOn": {
+            "title": "Dar acesso ao painel",
+            "description": "A pessoa poderá entrar no painel administrativo conforme suas permissões.",
+            "confirm": "Dar acesso"
+          },
+          "panelOff": {
+            "title": "Remover acesso ao painel",
+            "description": "A pessoa deixará de poder entrar no painel administrativo.",
+            "confirm": "Remover acesso"
+          },
+          "activeOn": {
+            "title": "Reativar a conta",
+            "description": "A pessoa poderá entrar de novo, conforme os acessos que tiver ativos.",
+            "confirm": "Reativar conta"
+          },
+          "activeOff": {
+            "title": "Desativar a conta",
+            "description": "A pessoa não poderá entrar no app nem no painel. Seus cargos e registros são mantidos.",
+            "confirm": "Desativar conta"
+          }
+        }
+      },
+      "errors": {
+        "rolesTitle": "Não foi possível carregar as funções",
+        "rolesDescription": "Não mostramos \"sem funções\" porque não sabemos se a pessoa tem alguma. Tente de novo.",
+        "postRegistrationTitle": "Não foi possível carregar o pós-cadastro",
+        "postRegistrationDescription": "Não sabemos em que etapa esta conta está. Tente de novo."
+      },
+      "post": {
+        "stateComplete": "Completo",
+        "stateInProgress": "Em andamento",
+        "allDone": "A pessoa concluiu todas as etapas.",
+        "missing": "{count, plural, one {Falta # etapa. A pessoa a conclui no app.} other {Faltam # etapas. A pessoa as conclui no app.}}",
+        "stepProfilePicture": "Foto de perfil",
+        "stepPersonalInfo": "Dados pessoais",
+        "stepClubSelection": "Clube e seção",
+        "stepDone": "Completo",
+        "onlyThePerson": "Só a pessoa pode concluir esta etapa, no app.",
+        "forceStep": "Forçar conclusão…",
+        "forceTitle": "Forçar a etapa \"{step}\"",
+        "forceDescription": "Ela será marcada como concluída mesmo faltando requisitos. A pessoa entrará sem tê-la feito.",
+        "forceConfirm": "Forçar conclusão",
+        "readonlyNotice": "Você não tem permissão para forçar etapas do pós-cadastro.",
+        "invitationTitle": "Convite"
+      }
+    },
+    "community": {
+      "coordination": {
+        "page": {
+          "description": "Zonas e coordenadores do campo local."
+        },
+        "scope": {
+          "fallback": "Campo local"
+        },
+        "tabs": {
+          "label": "Seções da coordenação",
+          "zones": "Zonas",
+          "assignments": "Atribuições"
+        },
+        "loadError": {
+          "title": "Não foi possível carregar a coordenação",
+          "fieldsTitle": "Não foi possível carregar os campos locais"
+        },
+        "actions": {
+          "newZone": "Nova zona",
+          "newAssignment": "Nova atribuição",
+          "migrate": "Migrar coordenadores…",
+          "viewDetail": "Ver detalhes",
+          "activateZone": "Ativar zona…",
+          "deactivateZone": "Desativar zona…",
+          "activateAssignment": "Ativar atribuição…",
+          "deactivateAssignment": "Desativar atribuição…",
+          "activateConfirm": "Ativar",
+          "deactivateConfirm": "Desativar",
+          "remove": "Remover",
+          "add": "Adicionar",
+          "close": "Fechar",
+          "cancel": "Cancelar"
+        },
+        "zones": {
+          "colZone": "Zona",
+          "colCoordinators": "Coordenadores",
+          "more": "+{count}",
+          "districtCount": "{count, plural, one {# distrito} other {# distritos}}",
+          "coordinatorCount": "{count, plural, one {# coordenador} other {# coordenadores}}",
+          "emptyTitle": "Ainda não há zonas",
+          "emptyDescription": "Crie uma zona para agrupar distritos e atribuir coordenadores a ela."
+        },
+        "zoneSheet": {
+          "summary": "{districts, plural, one {# distrito} other {# distritos}} · {coordinators, plural, one {# coordenador} other {# coordenadores}}",
+          "addDistrict": "Adicionar distrito",
+          "addHint": "Um distrito só pode estar em uma zona ativa.",
+          "noAvailableDistricts": "Não restam distritos livres neste campo local.",
+          "coordinators": "Coordenadores",
+          "noCoordinators": "Ninguém coordena esta zona ainda.",
+          "removeAria": "Remover {district} de {zone}"
+        },
+        "removeDistrict": {
+          "title": "Remover o distrito {district} de {zone}?",
+          "withCoordinators": "{count, plural, one {Quem coordena esta zona deixa de ver} other {Quem coordena esta zona deixa de ver}} as seções do distrito {district}: {names}.",
+          "withoutCoordinators": "Ninguém coordena esta zona, então ninguém perde acesso. O distrito fica livre para outra zona.",
+          "confirm": "Remover distrito"
+        },
+        "zoneToggle": {
+          "deactivateTitle": "Desativar {zone}?",
+          "activateTitle": "Ativar {zone}?",
+          "deactivateDescription": "Seus distritos ficam livres para outra zona. {count, plural, =0 {Nenhuma atribuição ativa a utiliza.} one {A atribuição ativa que a utiliza deixa de dar acesso às suas seções.} other {As # atribuições ativas que a utilizam deixam de dar acesso às suas seções.}} Nada é apagado: você pode ativá-la de novo.",
+          "activateDescription": "A zona volta a valer para as atribuições e reserva seus distritos."
+        },
+        "zoneDialog": {
+          "title": "Nova zona",
+          "submit": "Criar zona"
+        },
+        "assignments": {
+          "types": {
+            "general": "Todo o campo",
+            "zone": "Zona",
+            "section": "Clube e seção"
+          },
+          "emptyDescription": "Atribua uma pessoa com o papel de coordenador a todo o campo, a uma zona ou a uma seção.",
+          "deactivate": {
+            "title": "Desativar a atribuição de {name}?",
+            "description": "{name} deixa de coordenar {scope}. A atribuição é mantida e você pode ativá-la de novo."
+          },
+          "activate": {
+            "title": "Ativar a atribuição de {name}?",
+            "description": "{name} volta a coordenar {scope}."
+          }
+        },
+        "assignmentDialog": {
+          "title": "Nova atribuição",
+          "scopeGeneral": "Todo o campo",
+          "scopeZone": "Zona",
+          "scopeSection": "Clube e seção",
+          "candidatesError": "Não foi possível carregar os coordenadores",
+          "sectionsError": "Não foi possível carregar as seções deste clube."
+        },
+        "backfill": {
+          "title": "Migrar coordenadores",
+          "willCreate": "{count, plural, one {# atribuição geral será criada} other {# atribuições gerais serão criadas}}",
+          "skippedHeading": "Não migrados ({count})",
+          "loadError": "Não foi possível calcular a migração"
+        }
+      },
+      "notifications": {
+        "page": {
+          "description": "Push enviados ao app."
+        },
+        "tabs": {
+          "label": "Seções de notificações",
+          "sent": "Enviadas",
+          "categories": "Categorias"
+        },
+        "actions": {
+          "new": "Nova notificação"
+        },
+        "kpis": {
+          "label": "Resumo dos últimos 30 dias",
+          "activeDevices": "Dispositivos ativos",
+          "activeDevicesHint": "com o app instalado",
+          "idleDevices": "Sem atividade",
+          "windowHint": "em {days} dias",
+          "sent": "Enviadas",
+          "delivered": "Entregues",
+          "loadError": "Não foi possível carregar os números de envio"
+        },
+        "history": {
+          "colNotification": "Notificação",
+          "colFor": "Para",
+          "colDelivered": "Entregues",
+          "deliveredOf": "{delivered} de {total}",
+          "noDevices": "Sem dispositivos",
+          "loadError": "Não foi possível carregar o histórico",
+          "noResultsTitle": "Sem resultados",
+          "noResultsDescription": "Nenhuma das últimas {count} notificações corresponde aos filtros.",
+          "clearFilters": "Limpar filtros",
+          "filteredNote": "Filtrando entre as últimas {count} notificações enviadas.",
+          "filters": {
+            "searchLabel": "Buscar por título",
+            "searchPlaceholder": "Buscar por título",
+            "audienceLabel": "Para",
+            "audienceAll": "Todos os destinos",
+            "audience": {
+              "person": "Uma pessoa",
+              "club": "Clube ou seção",
+              "everyone": "Todos",
+              "role": "Por papel"
+            },
+            "rangeLabel": "Data",
+            "range": {
+              "7": "Últimos 7 dias",
+              "30": "Últimos 30 dias",
+              "90": "Últimos 90 dias",
+              "all": "Qualquer data"
+            }
+          }
+        },
+        "compose": {
+          "title": "Nova notificação",
+          "description": "É enviada imediatamente.",
+          "audienceLabel": "Para",
+          "audience": {
+            "person": "Uma pessoa",
+            "club": "Clube ou seção",
+            "everyone": "Todos"
+          },
+          "clubLabel": "Clube ou seção",
+          "everyoneWarning": "{count, plural, one {Chega ao único dispositivo com o app instalado.} other {Chega aos # dispositivos com o app instalado.}}",
+          "everyoneWarningNoCount": "Chega a todos os dispositivos com o app instalado.",
+          "previewHeading": "Como vai aparecer",
+          "previewTitlePlaceholder": "Título da notificação",
+          "previewBodyPlaceholder": "Mensagem",
+          "cancel": "Cancelar",
+          "submit": "Enviar",
+          "submitEveryone": "Enviar para todos…",
+          "validationFailed": "Revise os campos marcados antes de enviar.",
+          "confirmEveryone": {
+            "title": "Enviar para todos?",
+            "description": "“{title}” chegará a {count, plural, one {# dispositivo} other {# dispositivos}}. Não é possível desfazer.",
+            "descriptionNoCount": "“{title}” chegará a todos os dispositivos registrados. Não é possível desfazer.",
+            "confirm": "{count, plural, one {Enviar para # dispositivo} other {Enviar para # dispositivos}}",
+            "confirmNoCount": "Enviar para todos"
+          }
+        },
+        "categories": {
+          "colCategory": "Categoria",
+          "colMobile": "Chega ao app",
+          "colDefault": "Ativa ao criar a conta",
+          "colUserCanDisable": "A pessoa pode desativá-la",
+          "loadErrorTitle": "Não foi possível carregar as categorias",
+          "loadErrorDescription": "Não mostramos valores padrão para não sobrescrever a configuração real.",
+          "readOnly": "Somente quem administra a configuração do sistema pode alterar as categorias.",
+          "hint": "Desativar “Chega ao app” bloqueia o push e a caixa de entrada dessa categoria para todos. Os avisos administrativos sempre chegam.",
+          "names": {
+            "activities": "Atividades",
+            "achievements": "Conquistas",
+            "approvals": "Aprovações",
+            "invitations": "Convites",
+            "reminders": "Lembretes",
+            "investiture": "Investiduras",
+            "validation": "Validações",
+            "requests": "Solicitações",
+            "camporees": "Camporees"
+          }
+        }
+      }
+    }
+  },
   "ops": {
     "club": {
       "context": {

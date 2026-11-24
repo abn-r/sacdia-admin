@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
 import { FormModalForbidden } from "@/components/shared/form-modal-forbidden";
@@ -19,14 +20,14 @@ export default async function EditClubModal({ params }: { params: Params }) {
     return <FormModalForbidden title={t("title")} description={t("description")} />;
   }
 
-  // Missing club or out of the actor's scope: same forbidden frame (no existence leak).
+  // The actor can edit: a missing or out-of-scope club goes back to the list.
   const data = await loadEditClubFormData(user, id);
   if (!data) {
-    return <FormModalForbidden title={t("title")} description={t("description")} />;
+    redirect("/dashboard/clubs");
   }
 
   return (
-    <RouteFormModal title={t("title")} description={t("description")}>
+    <RouteFormModal title={t("title")} description={data.name}>
       <EditClubForm {...data} formAction={updateClubAction.bind(null, data.clubId)} />
     </RouteFormModal>
   );
