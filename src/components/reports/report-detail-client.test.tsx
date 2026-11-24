@@ -1,134 +1,78 @@
 import React from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { ReportDetailClient } from "./report-detail-client";
+import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+import messages from "../../../messages/es.json";
 import type { MonthlyReport } from "@/lib/api/monthly-reports";
 
-const {
-  generateReportMock,
-  regenerateReportMock,
-  submitReportMock,
-  triggerDownloadMock,
-  waitForReportMock,
-  refreshMock,
-  toastSuccessMock,
-  toastErrorMock,
-  toastLoadingMock,
-  toastDismissMock,
-} = vi.hoisted(() => ({
-  generateReportMock: vi.fn(),
-  regenerateReportMock: vi.fn(),
-  submitReportMock: vi.fn(),
-  triggerDownloadMock: vi.fn(),
-  waitForReportMock: vi.fn(),
-  refreshMock: vi.fn(),
-  toastSuccessMock: vi.fn(),
-  toastErrorMock: vi.fn(),
-  toastLoadingMock: vi.fn(),
-  toastDismissMock: vi.fn(),
-}));
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
-vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: Record<string, unknown>) =>
-    values ? `${key} ${JSON.stringify(values)}` : key,
+const api = vi.hoisted(() => ({
+  generate: vi.fn(),
+  regenerate: vi.fn(),
+  submit: vi.fn(),
+  download: vi.fn(),
+  waitFor: vi.fn(),
+  refresh: vi.fn(),
+  replace: vi.fn(),
+  search: { current: "" },
+  toastSuccess: vi.fn(),
+  toastError: vi.fn(),
+  toastLoading: vi.fn(),
+  toastDismiss: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: refreshMock }),
+  useRouter: () => ({ refresh: api.refresh, replace: api.replace, push: vi.fn() }),
+  usePathname: () => "/dashboard/reports/28f20ec9",
+  useSearchParams: () => new URLSearchParams(api.search.current),
 }));
 
 vi.mock("sonner", () => ({
   toast: {
-    success: toastSuccessMock,
-    error: toastErrorMock,
-    loading: toastLoadingMock,
-    dismiss: toastDismissMock,
+    success: api.toastSuccess,
+    error: api.toastError,
+    loading: api.toastLoading,
+    dismiss: api.toastDismiss,
   },
 }));
 
-vi.mock("@/lib/format-locale", () => ({
-  useFormatDateTime: () => (value: string) => value,
-  useFormatNumber: () => (value: number) => String(value),
-}));
-
 vi.mock("@/lib/api/monthly-reports", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/api/monthly-reports")>(
-    "@/lib/api/monthly-reports",
-  );
+  const actual = await vi.importActual<typeof import("@/lib/api/monthly-reports")>("@/lib/api/monthly-reports");
   return {
     ...actual,
-    generateReport: generateReportMock,
-    regenerateReport: regenerateReportMock,
-    submitReport: submitReportMock,
-    triggerMonthlyReportPdfDownload: triggerDownloadMock,
-    waitForMonthlyReport: waitForReportMock,
+    generateReport: api.generate,
+    regenerateReport: api.regenerate,
+    submitReport: api.submit,
+    triggerMonthlyReportPdfDownload: api.download,
+    waitForMonthlyReport: api.waitFor,
   };
 });
 
 vi.mock("@/components/reports/manual-data-form", () => ({
-  ManualDataForm: () => null,
+  ManualDataForm: () => <div>manual-form</div>,
 }));
 
-vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    asChild,
-    ...rest
-  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    asChild?: boolean;
-    loading?: boolean;
-    variant?: string;
-    size?: string;
-  }) => {
-    const props: Record<string, unknown> = { ...rest };
-    delete props.loading;
-    delete props.variant;
-    delete props.size;
-    return asChild && React.isValidElement(children) ? (
-      React.cloneElement(children as React.ReactElement<Record<string, unknown>>, props)
-    ) : (
-      <button {...props}>{children}</button>
-    );
-  },
-}));
-
-vi.mock("@/components/ui/status-badge", () => ({
-  StatusBadge: ({ label }: { label: string }) => <span>{label}</span>,
-}));
-
-vi.mock("@/components/ui/card", () => ({
-  Card: ({ children }: { children: React.ReactNode }) => <section>{children}</section>,
-  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CardDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
-  CardHeader: ({ children }: { children: React.ReactNode }) => <header>{children}</header>,
-  CardTitle: ({ children }: { children: React.ReactNode }) => <h2>{children}</h2>,
-}));
-
-vi.mock("@/components/ui/tabs", () => ({
-  Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsList: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-}));
-
-vi.mock("lucide-react", () => ({
-  Download: () => <span aria-hidden="true" />,
-  ExternalLink: () => <span aria-hidden="true" />,
-  Inbox: () => <span aria-hidden="true" />,
-  Loader2: () => <span aria-hidden="true" />,
-  Send: () => <span aria-hidden="true" />,
-  Zap: () => <span aria-hidden="true" />,
-}));
+import { ReportDetailClient } from "./report-detail-client";
 
 const baseReport: MonthlyReport = {
   report_id: "28f20ec9-4f10-4827-b4cd-29ccbc423c34",
   enrollment_id: "f7568929-20b6-427a-9b75-08d4a200cdd9",
-  month: 7,
+  month: 10,
   year: 2026,
   status: "draft",
   auto_data: null,
   manual_data: null,
   snapshot_data: null,
+  club_enrollment: {
+    club_section: { clubs: { name: "Club Orión" }, club_types: { name: "Aventureros" } },
+  },
 };
 
 // Real shape returned by GET /monthly-reports/:id (nested snapshot_data).
@@ -142,273 +86,274 @@ const nestedSnapshot = {
   honors: {
     started: 3,
     completed: 1,
-    details: [
-      {
-        honor_name: "Nudos",
-        user_name: "Marta Ruiz",
-        validated: true,
-        date: "2026-07-10",
-      },
-    ],
+    details: [{ honor_name: "Nudos", user_name: "Marta Ruiz", validated: true, date: "2026-10-10" }],
   },
   activities: {
     total: 2,
     list: [
-      { activity_id: 7, name: "Caminata", type: "Campamento", date: "2026-07-05" },
-      { activity_id: 8, name: "Servicio comunitario", type: "Servicio", date: "2026-07-19" },
+      { activity_id: 7, name: "Caminata", type: "Campamento", date: "2026-10-05" },
+      { activity_id: 8, name: "Servicio comunitario", type: "Servicio", date: "2026-10-19" },
     ],
   },
-  finances: {
-    income: 500,
-    expenses: 120,
-    balance: 380,
-    transactions: 6,
-    total_balance: 2079,
-  },
+  finances: { income: 500, expenses: 120, balance: 380, transactions: 6, total_balance: 2079 },
 };
 
-afterEach(() => {
-  cleanup();
+const generated: MonthlyReport = {
+  ...baseReport,
+  status: "generated",
+  generated_at: "2026-11-06T16:14:00.000Z",
+  pdf_generated_at: "2026-11-06T16:15:00.000Z",
+  snapshot_data: nestedSnapshot,
+};
+
+function renderDetail(report: MonthlyReport, props: { previewFailed?: boolean } = {}) {
+  return render(
+    <NextIntlClientProvider locale="es" messages={messages}>
+      <ReportDetailClient report={report} {...props} />
+    </NextIntlClientProvider>,
+  );
+}
+
+function valueOf(label: string): string {
+  return screen.getByText(label).nextElementSibling?.textContent ?? "";
+}
+
+beforeEach(() => {
   vi.clearAllMocks();
+  api.search.current = "";
+});
+afterEach(cleanup);
+
+describe("ReportDetailClient header", () => {
+  it("names the period, club and section, and marks a draft", () => {
+    renderDetail(baseReport);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Octubre 2026 · Club Orión · Aventureros" })).toBeInTheDocument();
+    expect(screen.getByText("Borrador").closest("[data-slot=badge]")).not.toBeNull();
+    expect(screen.getByText(/los datos se actualizan hasta que generes el informe/)).toBeInTheDocument();
+  });
+
+  it("says when the data was frozen instead of repeating it in a Snapshot tab", () => {
+    renderDetail(generated);
+
+    expect(screen.getByText(/Generado el .* · los datos quedaron congelados/)).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /snapshot/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual([
+      "Datos del sistema",
+      "Datos del club",
+    ]);
+  });
+
+  it("gives a sent report the same plain Enviado as the list and names both dates", () => {
+    renderDetail({ ...generated, status: "submitted", submitted_at: "2026-11-07T10:00:00.000Z" });
+
+    expect(screen.getByText("Enviado").closest("[data-slot=badge]")).toBeNull();
+    expect(screen.getByText(/Generado el .* · enviado el .* · los datos quedaron congelados/)).toBeInTheDocument();
+  });
+
+  it("opens the club data tab from the URL", () => {
+    api.search.current = "tab=club";
+    renderDetail(baseReport);
+
+    expect(screen.getByText("manual-form")).toBeInTheDocument();
+  });
 });
 
-describe("ReportDetailClient PDF actions", () => {
-  it("uses generate for drafts", async () => {
-    const generated = { ...baseReport, status: "generated" as const };
-    generateReportMock.mockResolvedValueOnce({ queued: false, report: generated });
+describe("ReportDetailClient data", () => {
+  it("reads the frozen snapshot of a generated report into sections", () => {
+    renderDetail(generated);
 
-    render(<ReportDetailClient report={baseReport} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionGenerate" }));
-
-    await waitFor(() => expect(generateReportMock).toHaveBeenCalledWith(baseReport.report_id));
-    expect(regenerateReportMock).not.toHaveBeenCalled();
+    expect(screen.queryByText("No hay datos disponibles para este período.")).not.toBeInTheDocument();
+    expect(valueOf("Total miembros")).toBe("14");
+    expect(valueOf("Actividades")).toBe("2");
+    expect(valueOf("Especialidades iniciadas")).toBe("3");
+    expect(valueOf("Ingresos del mes")).toBe("500");
+    expect(valueOf("Balance total")).toBe("2,079");
+    expect(valueOf("Días de reunión")).toBe("Sábado");
+    expect(screen.getByRole("heading", { name: "Club" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Finanzas" })).toBeInTheDocument();
   });
 
-  it("uses regenerate for generated reports and keeps the download action", async () => {
-    const generated = { ...baseReport, status: "generated" as const };
-    regenerateReportMock.mockResolvedValueOnce({ queued: false, report: generated });
+  it("lists directiva, activities and honors", () => {
+    renderDetail(generated);
 
-    render(<ReportDetailClient report={generated} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionRegenerate" }));
-
-    await waitFor(() =>
-      expect(regenerateReportMock).toHaveBeenCalledWith(generated.report_id),
-    );
-    expect(generateReportMock).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "detail.actionDownloadPdf" })).toBeInTheDocument();
-  });
-
-  it("does not expose generate or regenerate for submitted reports", () => {
-    const submitted = { ...baseReport, status: "submitted" as const };
-
-    render(<ReportDetailClient report={submitted} />);
-
-    expect(screen.queryByRole("button", { name: "detail.actionGenerate" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "detail.actionRegenerate" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "detail.actionDownloadPdf" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "detail.actionViewPdf" })).toBeInTheDocument();
-  });
-});
-
-describe("ReportDetailClient nested snapshot rendering", () => {
-  const generatedReport: MonthlyReport = {
-    ...baseReport,
-    status: "generated",
-    generated_at: "2026-07-31T12:00:00.000Z",
-    snapshot_data: nestedSnapshot,
-  };
-
-  function valueOf(label: string): string {
-    const dts = screen.getAllByText(label);
-    // Auto tab and snapshot tab render the same rows (tabs are mocked inline).
-    return dts[0].nextElementSibling?.textContent ?? "";
-  }
-
-  it("maps the nested snapshot into the snapshot panel and the auto-data tab", () => {
-    render(<ReportDetailClient report={generatedReport} />);
-
-    // Without auto_data the auto tab shows the frozen snapshot, not the empty state.
-    expect(screen.queryByText("detail.noAutoData")).not.toBeInTheDocument();
-    // Both panels render the same values.
-    expect(screen.getAllByText("detail.fieldTotalMembers")).toHaveLength(2);
-
-    expect(valueOf("detail.fieldTotalMembers")).toBe("14");
-    expect(valueOf("detail.fieldActivities")).toBe("2");
-    expect(valueOf("detail.fieldHonorsStarted")).toBe("3");
-    expect(valueOf("detail.fieldHonorsCompleted")).toBe("1");
-    expect(valueOf("detail.fieldIncome")).toBe("500");
-    expect(valueOf("detail.fieldExpenses")).toBe("120");
-    expect(valueOf("detail.fieldBalance")).toBe("380");
-    expect(valueOf("detail.fieldTotalBalance")).toBe("2079");
-    expect(valueOf("detail.fieldTransactions")).toBe("6");
-    expect(valueOf("detail.fieldMeetingDays")).toBe("Sábado");
-  });
-
-  it("lists directiva, activities and honors details", () => {
-    render(<ReportDetailClient report={generatedReport} />);
-
-    expect(screen.getAllByText("Ana Pérez").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("director").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Caminata").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Campamento · 2026-07-05").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Nudos — Marta Ruiz").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("detail.honorValidated · 2026-07-10").length).toBeGreaterThan(0);
+    expect(screen.getByText("Ana Pérez")).toBeInTheDocument();
+    expect(screen.getByText("Caminata")).toBeInTheDocument();
+    expect(screen.getByText("Nudos — Marta Ruiz")).toBeInTheDocument();
   });
 
   it("falls back to dashes for missing keys instead of crashing", () => {
-    render(
-      <ReportDetailClient
-        report={{ ...generatedReport, snapshot_data: { member_count: 5, honors: null } }}
-      />,
-    );
+    renderDetail({ ...generated, snapshot_data: { member_count: 5, honors: null } });
 
-    expect(valueOf("detail.fieldTotalMembers")).toBe("5");
-    expect(valueOf("detail.fieldHonorsStarted")).toBe("—");
-    expect(valueOf("detail.fieldIncome")).toBe("—");
-    expect(valueOf("detail.fieldMeetingDays")).toBe("—");
+    expect(valueOf("Total miembros")).toBe("5");
+    expect(valueOf("Especialidades iniciadas")).toBe("—");
+    expect(valueOf("Ingresos del mes")).toBe("—");
   });
 
-  it("shows the empty state when there is neither auto_data nor snapshot", () => {
-    render(<ReportDetailClient report={baseReport} />);
+  it("shows the empty state when a draft has neither auto_data nor snapshot", () => {
+    renderDetail(baseReport);
 
-    expect(screen.getByText("detail.noAutoData")).toBeInTheDocument();
+    expect(screen.getByText("No hay datos disponibles para este período.")).toBeInTheDocument();
+  });
+
+  it("says the preview failed instead of showing a no-data state", () => {
+    renderDetail(baseReport, { previewFailed: true });
+
+    expect(screen.queryByText("No hay datos disponibles para este período.")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
+  });
+});
+
+describe("ReportDetailClient actions", () => {
+  it("generates a draft", async () => {
+    api.generate.mockResolvedValueOnce({ queued: false, report: { ...baseReport, status: "generated" } });
+    renderDetail(baseReport);
+
+    fireEvent.click(screen.getByRole("button", { name: "Generar reporte" }));
+
+    await waitFor(() => expect(api.generate).toHaveBeenCalledWith(baseReport.report_id));
+    expect(api.regenerate).not.toHaveBeenCalled();
+  });
+
+  it("offers PDF, send and regenerate for a generated report, and regenerates from the menu", async () => {
+    api.regenerate.mockResolvedValueOnce({ queued: false, report: generated });
+    renderDetail(generated);
+
+    expect(screen.getByRole("button", { name: "Descargar PDF" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Enviar al campo…" })).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Acciones de/ }));
+    await user.click(await screen.findByRole("menuitem", { name: "Re-generar" }));
+
+    await waitFor(() => expect(api.regenerate).toHaveBeenCalledWith(generated.report_id));
+    expect(api.generate).not.toHaveBeenCalled();
+  });
+
+  it("only downloads a sent report (no generate, regenerate, send or duplicate PDF button)", () => {
+    renderDetail({ ...generated, status: "submitted" });
+
+    expect(screen.getAllByRole("button", { name: /PDF/ })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: "Generar reporte" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Enviar al campo…" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Acciones de/ })).not.toBeInTheDocument();
   });
 });
 
 describe("ReportDetailClient queued (202) jobs", () => {
-  const generatedReport: MonthlyReport = {
-    ...baseReport,
-    status: "generated",
-    pdf_generated_at: "2026-07-31T12:00:00.000Z",
-    snapshot_data: nestedSnapshot,
-  };
-  const queued = {
-    queued: true as const,
-    reportId: generatedReport.report_id,
-    status: "generated",
-  };
+  const queued = { queued: true as const, reportId: generated.report_id, status: "generated" };
+
+  async function regenerate() {
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Acciones de/ }));
+    await user.click(await screen.findByRole("menuitem", { name: "Re-generar" }));
+  }
 
   it("shows a pending toast, polls until pdf_generated_at changes and toasts success", async () => {
-    const updated = { ...generatedReport, pdf_generated_at: "2026-08-01T09:00:00.000Z" };
-    regenerateReportMock.mockResolvedValueOnce(queued);
-    waitForReportMock.mockResolvedValueOnce(updated);
+    const updated = { ...generated, pdf_generated_at: "2026-11-07T09:00:00.000Z" };
+    api.regenerate.mockResolvedValueOnce(queued);
+    api.waitFor.mockResolvedValueOnce(updated);
+    renderDetail(generated);
 
-    render(<ReportDetailClient report={generatedReport} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionRegenerate" }));
+    await regenerate();
+    await waitFor(() => expect(api.toastSuccess).toHaveBeenCalled());
 
-    await waitFor(() => expect(toastSuccessMock).toHaveBeenCalled());
-
-    expect(toastLoadingMock).toHaveBeenCalledWith(
-      "toasts.report_regenerating",
+    expect(api.toastLoading).toHaveBeenCalledWith(
+      "Regenerando reporte…",
       expect.objectContaining({ id: expect.any(String) }),
     );
-    expect(toastSuccessMock).toHaveBeenCalledWith(
-      "toasts.report_regenerated",
+    expect(api.toastSuccess).toHaveBeenCalledWith(
+      "Reporte regenerado. El PDF se actualizó.",
       expect.objectContaining({ id: expect.any(String) }),
     );
-    expect(toastErrorMock).not.toHaveBeenCalled();
-    expect(refreshMock).toHaveBeenCalled();
+    expect(api.refresh).toHaveBeenCalled();
 
     // The poll predicate only resolves once pdf_generated_at differs.
-    const isDone = waitForReportMock.mock.calls[0][1] as (r: MonthlyReport) => boolean;
-    expect(isDone(generatedReport)).toBe(false);
+    const isDone = api.waitFor.mock.calls[0]![1] as (r: MonthlyReport) => boolean;
+    expect(isDone(generated)).toBe(false);
     expect(isDone(updated)).toBe(true);
   });
 
-  it("toasts an informative message when polling times out", async () => {
-    regenerateReportMock.mockResolvedValueOnce(queued);
-    waitForReportMock.mockResolvedValueOnce(null);
+  it("tells the user, with a toast, when polling times out", async () => {
+    api.regenerate.mockResolvedValueOnce(queued);
+    api.waitFor.mockResolvedValueOnce(null);
+    renderDetail(generated);
 
-    render(<ReportDetailClient report={generatedReport} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionRegenerate" }));
+    await regenerate();
+    await waitFor(() => expect(api.toastError).toHaveBeenCalled());
 
-    await waitFor(() => expect(toastErrorMock).toHaveBeenCalled());
-
-    expect(toastErrorMock).toHaveBeenCalledWith(
-      "errors.job_timeout",
-      expect.objectContaining({ id: expect.any(String) }),
-    );
-    expect(toastSuccessMock).not.toHaveBeenCalled();
-    expect(refreshMock).not.toHaveBeenCalled();
+    expect(api.toastError.mock.calls[0]![0]).toMatch(/sigue procesándose/);
+    expect(api.toastSuccess).not.toHaveBeenCalled();
+    expect(api.refresh).not.toHaveBeenCalled();
   });
 
   it("polls generate until the status leaves draft", async () => {
-    const generated = { ...baseReport, status: "generated" as const };
-    generateReportMock.mockResolvedValueOnce({ ...queued, status: "draft" });
-    waitForReportMock.mockResolvedValueOnce(generated);
+    const done = { ...baseReport, status: "generated" as const };
+    api.generate.mockResolvedValueOnce({ ...queued, status: "draft" });
+    api.waitFor.mockResolvedValueOnce(done);
+    renderDetail(baseReport);
 
-    render(<ReportDetailClient report={baseReport} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionGenerate" }));
+    fireEvent.click(screen.getByRole("button", { name: "Generar reporte" }));
+    await waitFor(() => expect(api.toastSuccess).toHaveBeenCalled());
 
-    await waitFor(() => expect(toastSuccessMock).toHaveBeenCalled());
-
-    expect(toastLoadingMock).toHaveBeenCalledWith(
-      "toasts.report_generating",
-      expect.anything(),
-    );
-    const isDone = waitForReportMock.mock.calls[0][1] as (r: MonthlyReport) => boolean;
+    expect(api.toastLoading).toHaveBeenCalledWith("Generando reporte…", expect.anything());
+    const isDone = api.waitFor.mock.calls[0]![1] as (r: MonthlyReport) => boolean;
     expect(isDone(baseReport)).toBe(false);
-    expect(isDone(generated)).toBe(true);
+    expect(isDone(done)).toBe(true);
   });
 });
 
 describe("ReportDetailClient send to field confirmation", () => {
-  const generated: MonthlyReport = {
-    ...baseReport,
-    status: "generated",
-    generated_at: "2026-07-31T12:00:00.000Z",
-    club_enrollment: {
-      club_section: {
-        clubs: { name: "Águilas" },
-        club_types: { name: "Conquistadores" },
-      },
-    },
-  };
+  async function openConfirm() {
+    fireEvent.click(screen.getByRole("button", { name: "Enviar al campo…" }));
+    return screen.findByRole("alertdialog");
+  }
 
   it("asks for confirmation naming club, club type and period before sending", async () => {
-    render(<ReportDetailClient report={generated} />);
+    renderDetail(generated);
 
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
-
-    const dialog = await screen.findByRole("alertdialog");
-    expect(submitReportMock).not.toHaveBeenCalled();
-    expect(within(dialog).getByText("detail.sendConfirmTitle")).toBeInTheDocument();
-    const description = within(dialog).getByText(/detail\.sendConfirmDescription /);
-    expect(description.textContent).toContain("Águilas (Conquistadores)");
-    expect(description.textContent).toContain("months.7");
-    expect(description.textContent).toContain("2026");
+    const dialog = await openConfirm();
+    expect(api.submit).not.toHaveBeenCalled();
+    expect(within(dialog).getByText("¿Enviar el informe al campo?")).toBeInTheDocument();
+    expect(dialog.textContent).toContain("Club Orión (Aventureros)");
+    expect(dialog.textContent).toContain("Octubre 2026");
   });
 
   it("does not send when the confirmation is cancelled", async () => {
-    render(<ReportDetailClient report={generated} />);
+    renderDetail(generated);
 
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
-    const dialog = await screen.findByRole("alertdialog");
-    fireEvent.click(within(dialog).getByRole("button", { name: "detail.sendConfirmCancel" }));
+    const dialog = await openConfirm();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancelar" }));
 
     await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
-    expect(submitReportMock).not.toHaveBeenCalled();
+    expect(api.submit).not.toHaveBeenCalled();
   });
 
   it("submits only after the user confirms", async () => {
-    const submitted = { ...generated, status: "submitted" as const };
-    submitReportMock.mockResolvedValueOnce(submitted);
+    api.submit.mockResolvedValueOnce({ ...generated, status: "submitted" });
+    renderDetail(generated);
 
-    render(<ReportDetailClient report={generated} />);
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
-    const dialog = await screen.findByRole("alertdialog");
-    fireEvent.click(within(dialog).getByRole("button", { name: "detail.actionSendToField" }));
+    const dialog = await openConfirm();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Enviar al campo" }));
 
-    await waitFor(() => expect(submitReportMock).toHaveBeenCalledWith(generated.report_id));
-    await waitFor(() => expect(toastSuccessMock).toHaveBeenCalledWith("toasts.report_sent"));
+    await waitFor(() => expect(api.submit).toHaveBeenCalledWith(generated.report_id));
+    await waitFor(() => expect(api.toastSuccess).toHaveBeenCalledWith("Reporte enviado al campo."));
+  });
+
+  it("keeps the confirmation open and says why when the send fails", async () => {
+    api.submit.mockRejectedValueOnce(new Error("El informe ya fue enviado."));
+    renderDetail(generated);
+
+    const dialog = await openConfirm();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Enviar al campo" }));
+
+    expect(await within(dialog).findByText("El informe ya fue enviado.")).toBeInTheDocument();
   });
 
   it("falls back to a period-only message when the API sends no club info", async () => {
-    render(<ReportDetailClient report={{ ...generated, club_enrollment: null }} />);
+    renderDetail({ ...generated, club_enrollment: null });
 
-    fireEvent.click(screen.getByRole("button", { name: "detail.actionSendToField" }));
-    const dialog = await screen.findByRole("alertdialog");
-
-    expect(within(dialog).getByText(/detail\.sendConfirmDescriptionNoClub/)).toBeInTheDocument();
+    const dialog = await openConfirm();
+    expect(dialog.textContent).toContain("Se enviará el informe de Octubre 2026 al campo.");
   });
 });

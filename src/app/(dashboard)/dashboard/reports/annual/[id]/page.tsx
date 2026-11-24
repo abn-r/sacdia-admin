@@ -56,7 +56,7 @@ export default async function AnnualReportDetailPage({
         description={report.club?.name ?? undefined}
         breadcrumbs={[
           { label: t("common.breadcrumbReports"), href: "/dashboard/reports" },
-          { label: t("annual.page.title"), href: "/dashboard/reports/annual" },
+          { label: t("annual.page.title"), href: "/dashboard/reports?tab=annual" },
           { label: period },
         ]}
       />

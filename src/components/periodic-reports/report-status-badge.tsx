@@ -8,7 +8,10 @@ interface PeriodicReportStatusBadgeProps {
   size?: "xs" | "sm" | "default";
 }
 
-/** draft = En curso (data still updates), finalized = Cerrado (frozen). */
+/**
+ * draft = En curso (data still updates), finalized = Cerrado (frozen). Only the
+ * exception is marked: «En curso» is a badge, «Cerrado» is plain text.
+ */
 export function PeriodicReportStatusBadge({ status, size }: PeriodicReportStatusBadgeProps) {
   const t = useTranslations("periodicReports.common.status");
 
@@ -16,8 +19,8 @@ export function PeriodicReportStatusBadge({ status, size }: PeriodicReportStatus
     case "draft":
       return <StatusBadge intent="info" label={t("draft")} size={size} />;
     case "finalized":
-      return <StatusBadge intent="neutral" label={t("finalized")} size={size} />;
+      return <span className="text-sm text-muted-foreground">{t("finalized")}</span>;
     default:
-      return <StatusBadge intent="neutral" label={status || "—"} size={size} />;
+      return <span className="text-sm text-muted-foreground">{status || "—"}</span>;
   }
 }
