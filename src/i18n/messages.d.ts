@@ -28,6 +28,738 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  people: {
+    clubs: {
+      list: {
+        districtLine: string;
+        createButton: string;
+        importButton: string;
+        errorTitle: string;
+        errorDescription: string;
+      };
+      form: {
+        stepData: string;
+        stepSections: string;
+        stepLocation: string;
+      };
+      edit: {
+        lockedHint: string;
+        activeHint: string;
+      };
+      import: {
+        crumb: string;
+        heading: string;
+        stepFile: string;
+        stepReview: string;
+        stepResult: string;
+        fileHeading: string;
+        limits: string;
+        errors: {
+          fileTooLarge: string;
+          fileType: string;
+          tooManyRows: string;
+        };
+        reviewSummary: string;
+        reviewHint: string;
+        reviewAllReady: string;
+        reviewTabs: string;
+        tabErrors: string;
+        tabAll: string;
+        colReview: string;
+        rowReady: string;
+        chooseAnother: string;
+        backToReview: string;
+        importAnother: string;
+        goToClubs: string;
+        resultCreated: string;
+        resultFailed: string;
+        resultSkipped: string;
+        colResult: string;
+        colOpen: string;
+      };
+    };
+    clubDetail: {
+      tabsLabel: string;
+      tabs: {
+        general: string;
+        sections: string;
+        members: string;
+        reports: string;
+        history: string;
+      };
+      facts: {
+        members: string;
+        sections: string;
+        sectionsOf: string;
+        souls: string;
+      };
+      status: {
+        active: string;
+        inactive: string;
+      };
+      general: {
+        sectionsHeading: string;
+        sectionActive: string;
+        sectionInactive: string;
+        director: string;
+        noDirector: string;
+        viewSection: string;
+      };
+      members: {
+        plainMember: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        search: string;
+        searchPlaceholder: string;
+        section: string;
+        allSections: string;
+        role: string;
+        allRoles: string;
+        onlyMembers: string;
+        allClasses: string;
+        classYear: string;
+        classColumn: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        clearFilters: string;
+        person: string;
+        viewProfile: string;
+      };
+      reports: {
+        annualName: string;
+        quarterlyName: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        report: string;
+        status: string;
+        created: string;
+        open: string;
+        openReport: string;
+        loadError: string;
+      };
+      history: {
+        filteringLoaded: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        system: string;
+      };
+      assign: {
+        title: string;
+        context: string;
+        person: string;
+        searchPlaceholder: string;
+        noCandidates: string;
+        checking: string;
+        classPlaceholder: string;
+        failed: string;
+        cancel: string;
+        submit: string;
+      };
+      designate: {
+        title: string;
+        nextYearFallback: string;
+        person: string;
+        personPlaceholder: string;
+        infoChosen: string;
+        infoChosenNoCurrent: string;
+        infoGeneric: string;
+        reasonsIntro: string;
+        reasonActive: string;
+        reasonGuideMajor: string;
+        reasonConsent: string;
+        failed: string;
+        cancel: string;
+        replace: string;
+        submit: string;
+      };
+      succeed: {
+        title: string;
+        description: string;
+        descriptionNoYear: string;
+        person: string;
+        personPlaceholder: string;
+        historyNote: string;
+        failed: string;
+        cancel: string;
+        submit: string;
+      };
+      continuations: {
+        title: string;
+        titleNoYear: string;
+        description: string;
+        suggestedClass: string;
+        classPending: string;
+        close: string;
+        submit: string;
+        retry: string;
+      };
+      positions: {
+        counselorsLoadError: string;
+        revoke: string;
+        assign: string;
+        assignFor: string;
+        revokeTitle: string;
+        revokeDescription: string;
+        revokeDescriptionNoYear: string;
+        revokeConfirm: string;
+      };
+      sections: {
+        enableFailed: string;
+        empty: string;
+        pickerLabel: string;
+        missingHeading: string;
+        disable: string;
+        enable: string;
+        positionsHeading: string;
+        positionsHeadingNoYear: string;
+        designationHeading: string;
+        designationHeadingNoYear: string;
+        designationChange: string;
+        designationDesignate: string;
+        unknownPerson: string;
+        designationWillBe: string;
+        designationWillBeNoYear: string;
+        members: string;
+        toEnroll: string;
+        toEnrollNoYear: string;
+        annualEnrollment: string;
+        succeedNow: string;
+        disableTitle: string;
+        disableDescription: string;
+        disableConfirm: string;
+        yearFallback: string;
+      };
+    };
+    activities: {
+      page: {
+        pickClub: string;
+        errorLoad: string;
+        findingNone: string;
+        finding: string;
+        new: string;
+      };
+      view: {
+        label: string;
+        list: string;
+      };
+      modalities: {
+        inPerson: string;
+        virtual: string;
+        hybrid: string;
+      };
+      list: {
+        emptyTitle: string;
+        emptyDescription: string;
+        repeats: string;
+        edit: string;
+        delete: string;
+        colDate: string;
+        colActivity: string;
+        colSection: string;
+        colPlace: string;
+        label: string;
+      };
+      delete: {
+        title: string;
+        titleSession: string;
+        body: string;
+        bodySeries: string;
+        confirm: string;
+        confirmSession: string;
+      };
+      detail: {
+        data: string;
+        registered: string;
+        errorLoad: string;
+      };
+      series: {
+        ruleWeekly: string;
+        ruleInterval: string;
+        summary: string;
+        sessionsError: string;
+        sessions: string;
+        thisSession: string;
+        cancelFutureBody: string;
+      };
+      form: {
+        titleNew: string;
+        titleEdit: string;
+        steps: {
+          what: string;
+          when: string;
+        };
+        name: string;
+        description: string;
+        section: string;
+        type: string;
+        classesLoading: string;
+        image: string;
+        time: string;
+        seriesTooMany: string;
+        seriesNone: string;
+        seriesDates: string;
+        modality: string;
+        link: string;
+        linkOptional: string;
+        place: string;
+        placeHint: string;
+        placeHintPinned: string;
+        cancel: string;
+      };
+      validation: {
+        nameRequired: string;
+        nameTooShort: string;
+        typeRequired: string;
+        sectionRequired: string;
+        classesRequired: string;
+        imageInvalid: string;
+        dateRequired: string;
+        endBeforeStart: string;
+        untilRequired: string;
+        untilBeforeStart: string;
+        linkRequired: string;
+        linkInvalid: string;
+        placeRequired: string;
+        pinRequired: string;
+      };
+    };
+    users: {
+      list: {
+        searchLabel: string;
+        clearFilters: string;
+        registeredOn: string;
+        empty: {
+          title: string;
+          description: string;
+          action: string;
+        };
+        noResults: {
+          title: string;
+          description: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+        rowActions: {
+          view: string;
+          resend: string;
+          deactivate: string;
+          resendSuccess: string;
+          resendFailure: {
+            alreadyAccepted: string;
+            cooldown: string;
+            unavailable: string;
+            forbidden: string;
+            notFound: string;
+            generic: string;
+          };
+          deactivateTitle: string;
+          deactivateDescription: string;
+          deactivateConfirm: string;
+          deactivateSuccess: string;
+          deactivateFailed: string;
+        };
+      };
+      new: {
+        personSummary: string;
+        serverErrors: {
+          emailTaken: string;
+          emailInvalid: string;
+          roleForbidden: string;
+          localFieldRequired: string;
+          invalidField: string;
+        };
+      };
+      bulk: {
+        description: string;
+        stepLine: string;
+        steps: {
+          file: string;
+          review: string;
+          result: string;
+        };
+        file: {
+          dropTitle: string;
+          dropHint: string;
+          choose: string;
+          reading: string;
+          templateHint: string;
+        };
+        fileErrors: {
+          type: string;
+          size: string;
+          empty: string;
+          tooMany: string;
+          headers: string;
+          read: string;
+        };
+        template: {
+          roleSlug: string;
+          roleLabel: string;
+          needsLocalField: string;
+          yes: string;
+          country: string;
+          union: string;
+          localField: string;
+          sheetUsers: string;
+          sheetRoles: string;
+          sheetLocations: string;
+          failed: string;
+        };
+        review: {
+          tabsLabel: string;
+          tabErrors: string;
+          tabAll: string;
+          noErrorsTitle: string;
+          noErrorsDescription: string;
+          colRow: string;
+          colPerson: string;
+          colRole: string;
+          colReview: string;
+          ready: string;
+          summary: string;
+          note: string;
+          skipNote: string;
+          chooseAnother: string;
+          submit: string;
+          sending: string;
+        };
+        result: {
+          tabsLabel: string;
+          tabFailed: string;
+          noFailedTitle: string;
+          noFailedDescription: string;
+          summary: string;
+          skipped: string;
+          backToUsers: string;
+        };
+        sendErrors: {
+          forbidden: string;
+          generic: string;
+        };
+        issues: {
+          missingRequired: string;
+          emailInvalid: string;
+          duplicateEmail: string;
+          roleUnknown: string;
+          roleNotAllowed: string;
+          localFieldRequired: string;
+          countryUnknown: string;
+          unionUnknown: string;
+          localFieldUnknown: string;
+          unionOutsideCountry: string;
+          localFieldOutsideUnion: string;
+          ambiguous: string;
+          tooLong: string;
+        };
+        fields: {
+          email: string;
+          name: string;
+          paternal_last_name: string;
+          maternal_last_name: string;
+          role: string;
+        };
+        catalogsError: {
+          title: string;
+          description: string;
+        };
+      };
+    };
+    userDetail: {
+      tabsLabel: string;
+      aside: {
+        moreClubs: string;
+        withAccess: string;
+        noAccess: string;
+        postUnavailable: string;
+        postComplete: string;
+        postNotApplicable: string;
+        postPending: string;
+      };
+      actions: {
+        assignRole: string;
+        deactivate: string;
+        reactivate: string;
+      };
+      deactivate: {
+        title: string;
+        description: string;
+        confirm: string;
+      };
+      reactivate: {
+        title: string;
+        description: string;
+        confirm: string;
+      };
+      access: {
+        sectionTitle: string;
+        sectionDescription: string;
+        appLabel: string;
+        appDescription: string;
+        panelLabel: string;
+        panelDescription: string;
+        activeLabel: string;
+        activeDescription: string;
+        confirm: {
+          appOn: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          appOff: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          panelOn: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          panelOff: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          activeOn: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+          activeOff: {
+            title: string;
+            description: string;
+            confirm: string;
+          };
+        };
+      };
+      errors: {
+        rolesTitle: string;
+        rolesDescription: string;
+        postRegistrationTitle: string;
+        postRegistrationDescription: string;
+      };
+      post: {
+        stateComplete: string;
+        stateInProgress: string;
+        allDone: string;
+        missing: string;
+        stepProfilePicture: string;
+        stepPersonalInfo: string;
+        stepClubSelection: string;
+        stepDone: string;
+        onlyThePerson: string;
+        forceStep: string;
+        forceTitle: string;
+        forceDescription: string;
+        forceConfirm: string;
+        readonlyNotice: string;
+        invitationTitle: string;
+      };
+    };
+    community: {
+      coordination: {
+        page: {
+          description: string;
+        };
+        scope: {
+          fallback: string;
+        };
+        tabs: {
+          label: string;
+          zones: string;
+          assignments: string;
+        };
+        loadError: {
+          title: string;
+          fieldsTitle: string;
+        };
+        actions: {
+          newZone: string;
+          newAssignment: string;
+          migrate: string;
+          viewDetail: string;
+          activateZone: string;
+          deactivateZone: string;
+          activateAssignment: string;
+          deactivateAssignment: string;
+          activateConfirm: string;
+          deactivateConfirm: string;
+          remove: string;
+          add: string;
+          close: string;
+          cancel: string;
+        };
+        zones: {
+          colZone: string;
+          colCoordinators: string;
+          more: string;
+          districtCount: string;
+          coordinatorCount: string;
+          emptyTitle: string;
+          emptyDescription: string;
+        };
+        zoneSheet: {
+          summary: string;
+          addDistrict: string;
+          addHint: string;
+          noAvailableDistricts: string;
+          coordinators: string;
+          noCoordinators: string;
+          removeAria: string;
+        };
+        removeDistrict: {
+          title: string;
+          withCoordinators: string;
+          withoutCoordinators: string;
+          confirm: string;
+        };
+        zoneToggle: {
+          deactivateTitle: string;
+          activateTitle: string;
+          deactivateDescription: string;
+          activateDescription: string;
+        };
+        zoneDialog: {
+          title: string;
+          submit: string;
+        };
+        assignments: {
+          types: {
+            general: string;
+            zone: string;
+            section: string;
+          };
+          emptyDescription: string;
+          deactivate: {
+            title: string;
+            description: string;
+          };
+          activate: {
+            title: string;
+            description: string;
+          };
+        };
+        assignmentDialog: {
+          title: string;
+          scopeGeneral: string;
+          scopeZone: string;
+          scopeSection: string;
+          candidatesError: string;
+          sectionsError: string;
+        };
+        backfill: {
+          title: string;
+          willCreate: string;
+          skippedHeading: string;
+          loadError: string;
+        };
+      };
+      notifications: {
+        page: {
+          description: string;
+        };
+        tabs: {
+          label: string;
+          sent: string;
+          categories: string;
+        };
+        actions: {
+          new: string;
+        };
+        kpis: {
+          label: string;
+          activeDevices: string;
+          activeDevicesHint: string;
+          idleDevices: string;
+          windowHint: string;
+          sent: string;
+          delivered: string;
+          loadError: string;
+        };
+        history: {
+          colNotification: string;
+          colFor: string;
+          colDelivered: string;
+          deliveredOf: string;
+          noDevices: string;
+          loadError: string;
+          noResultsTitle: string;
+          noResultsDescription: string;
+          clearFilters: string;
+          filteredNote: string;
+          filters: {
+            searchLabel: string;
+            searchPlaceholder: string;
+            audienceLabel: string;
+            audienceAll: string;
+            audience: {
+              person: string;
+              club: string;
+              everyone: string;
+              role: string;
+            };
+            rangeLabel: string;
+            range: {
+              "7": string;
+              "30": string;
+              "90": string;
+              all: string;
+            };
+          };
+        };
+        compose: {
+          title: string;
+          description: string;
+          audienceLabel: string;
+          audience: {
+            person: string;
+            club: string;
+            everyone: string;
+          };
+          clubLabel: string;
+          everyoneWarning: string;
+          everyoneWarningNoCount: string;
+          previewHeading: string;
+          previewTitlePlaceholder: string;
+          previewBodyPlaceholder: string;
+          cancel: string;
+          submit: string;
+          submitEveryone: string;
+          validationFailed: string;
+          confirmEveryone: {
+            title: string;
+            description: string;
+            descriptionNoCount: string;
+            confirm: string;
+            confirmNoCount: string;
+          };
+        };
+        categories: {
+          colCategory: string;
+          colMobile: string;
+          colDefault: string;
+          colUserCanDisable: string;
+          loadErrorTitle: string;
+          loadErrorDescription: string;
+          readOnly: string;
+          hint: string;
+          names: {
+            activities: string;
+            achievements: string;
+            approvals: string;
+            invitations: string;
+            reminders: string;
+            investiture: string;
+            validation: string;
+            requests: string;
+            camporees: string;
+          };
+        };
+      };
+    };
+  };
   ops: {
     club: {
       context: {
