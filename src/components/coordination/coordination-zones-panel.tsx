@@ -1,330 +1,192 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { MapPin, Plus } from "lucide-react";
+import { Eye, MapPin, Power } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { StatusBadge } from "@/components/ui/status-badge";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getActionErrorMessage } from "@/lib/api/action-error";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import type { CoordinationZone, CoordinatorAssignment } from "@/lib/api/coordination";
 import {
-  assignDistrictToCoordinationZone,
-  createCoordinationZone,
-  extractCoordinationConflictReason,
-  removeDistrictFromCoordinationZone,
-  updateCoordinationZone,
-  type CoordinationZone,
-} from "@/lib/api/coordination";
-import type { AdminDistrict } from "@/lib/catalogs/districts/types";
-import { coordinationErrorMessage } from "@/components/coordination/coordination-labels";
+  activeZoneDistricts,
+  districtLabel,
+  zoneCoordinatorIds,
+} from "@/lib/coordination/zone-view";
+
+const VISIBLE_DISTRICTS = 3;
 
 type CoordinationZonesPanelProps = {
-  localFieldId: number;
   zones: CoordinationZone[];
-  districts: AdminDistrict[];
+  assignments: CoordinatorAssignment[];
   canManage: boolean;
-  onChanged: () => Promise<void>;
+  onOpen: (zone: CoordinationZone) => void;
+  onToggle: (zone: CoordinationZone) => void;
+  onCreate?: () => void;
 };
 
-function activeDistrictIds(zones: CoordinationZone[]): Set<number> {
-  const ids = new Set<number>();
-  for (const zone of zones) {
-    for (const membership of zone.districts ?? []) {
-      if (membership.active) ids.add(membership.districlub_type_id);
-    }
-  }
-  return ids;
-}
-
 export function CoordinationZonesPanel({
-  localFieldId,
   zones,
-  districts,
+  assignments,
   canManage,
-  onChanged,
+  onOpen,
+  onToggle,
+  onCreate,
 }: CoordinationZonesPanelProps) {
   const t = useTranslations("coordinationAdmin");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [pendingKey, setPendingKey] = useState<string | null>(null);
-  const [districtByZone, setDistrictByZone] = useState<Record<number, string>>(
-    {},
-  );
+  const tc = useTranslations("people.community.coordination");
 
-  const takenDistrictIds = useMemo(() => activeDistrictIds(zones), [zones]);
-  const availableDistricts = districts.filter(
-    (district) => district.active && !takenDistrictIds.has(district.district_id),
-  );
-
-  function toastFromError(error: unknown) {
-    toast.error(
-      coordinationErrorMessage(
-        extractCoordinationConflictReason(error),
-        getActionErrorMessage(error, t("errors.generic")),
-        t as unknown as (key: string) => string,
-      ),
+  if (zones.length === 0) {
+    return (
+      <EmptyState
+        icon={MapPin}
+        title={tc("zones.emptyTitle")}
+        description={canManage ? tc("zones.emptyDescription") : t("zones.empty")}
+      >
+        {canManage && onCreate ? (
+          <Button type="button" onClick={onCreate}>
+            {tc("actions.newZone")}
+          </Button>
+        ) : null}
+      </EmptyState>
     );
   }
 
-  async function handleCreateZone() {
-    const trimmed = name.trim();
-    if (trimmed.length < 2) {
-      toast.error(t("errors.zoneNameRequired"));
-      return;
-    }
+  const statusLabels = { active: t("status.active"), inactive: t("status.inactive") };
 
-    setCreating(true);
-    try {
-      await createCoordinationZone(localFieldId, {
-        name: trimmed,
-        description: description.trim() || undefined,
-      });
-      setName("");
-      setDescription("");
-      toast.success(t("success.zoneCreated"));
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setCreating(false);
+  function districtTags(zone: CoordinationZone) {
+    const memberships = activeZoneDistricts(zone);
+    if (memberships.length === 0) {
+      return <span className="text-muted-foreground text-sm">{t("zones.noDistricts")}</span>;
     }
+    const shown = memberships.slice(0, VISIBLE_DISTRICTS);
+    const rest = memberships.length - shown.length;
+    return (
+      <ul className="flex flex-wrap gap-1.5">
+        {shown.map((membership) => (
+          <li key={membership.zone_district_id}>
+            <Badge variant="secondary">{districtLabel(membership)}</Badge>
+          </li>
+        ))}
+        {rest > 0 ? (
+          <li>
+            <Badge variant="outline">{tc("zones.more", { count: rest })}</Badge>
+          </li>
+        ) : null}
+      </ul>
+    );
   }
 
-  async function handleToggleZone(zone: CoordinationZone) {
-    const key = `zone-${zone.zone_id}`;
-    setPendingKey(key);
-    try {
-      await updateCoordinationZone(zone.zone_id, { active: !zone.active });
-      toast.success(
-        zone.active ? t("success.zoneDeactivated") : t("success.zoneActivated"),
-      );
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setPendingKey(null);
-    }
-  }
-
-  async function handleAssignDistrict(zoneId: number) {
-    const districtId = Number(districtByZone[zoneId]);
-    if (!Number.isFinite(districtId) || districtId <= 0) {
-      toast.error(t("errors.zoneAndDistrictRequired"));
-      return;
-    }
-
-    const key = `assign-${zoneId}`;
-    setPendingKey(key);
-    try {
-      await assignDistrictToCoordinationZone(zoneId, districtId);
-      setDistrictByZone((current) => ({ ...current, [zoneId]: "" }));
-      toast.success(t("success.districtAssigned"));
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setPendingKey(null);
-    }
-  }
-
-  async function handleRemoveDistrict(zoneId: number, districtId: number) {
-    const key = `remove-${zoneId}-${districtId}`;
-    setPendingKey(key);
-    try {
-      await removeDistrictFromCoordinationZone(zoneId, districtId);
-      toast.success(t("success.districtRemoved"));
-      await onChanged();
-    } catch (error) {
-      toastFromError(error);
-    } finally {
-      setPendingKey(null);
-    }
+  function rowActions(zone: CoordinationZone) {
+    return (
+      <RowActions
+        label={zone.name}
+        actions={[
+          { label: tc("actions.viewDetail"), icon: Eye, onSelect: () => onOpen(zone) },
+          {
+            label: zone.active ? tc("actions.deactivateZone") : tc("actions.activateZone"),
+            icon: Power,
+            destructive: zone.active,
+            hidden: !canManage,
+            onSelect: () => onToggle(zone),
+          },
+        ]}
+      />
+    );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("zones.title")}</CardTitle>
-        <CardDescription>{t("zones.description")}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {canManage ? (
-          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-            <div className="space-y-2">
-              <Label htmlFor="zone-name">{t("fields.name")}</Label>
-              <Input
-                id="zone-name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder={t("zones.namePlaceholder")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="zone-description">{t("fields.description")}</Label>
-              <Textarea
-                id="zone-description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder={t("zones.descriptionPlaceholder")}
-                className="min-h-9 py-2"
-              />
-            </div>
-            <Button onClick={handleCreateZone} disabled={creating}>
-              <Plus className="size-4" />
-              {t("actions.createZone")}
-            </Button>
-          </div>
-        ) : null}
-
-        {zones.length === 0 ? (
-          <EmptyState
-            icon={MapPin}
-            title={t("zones.empty")}
-            description={t("zones.description")}
-          />
-        ) : (
-          <div className="space-y-4">
-            {zones.map((zone) => {
-              const memberships = (zone.districts ?? []).filter(
-                (membership) => membership.active,
-              );
-              return (
-                <div
-                  key={zone.zone_id}
-                  className="space-y-3 rounded-xl border border-border p-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-foreground">{zone.name}</p>
-                        <StatusBadge
-                          intent={zone.active ? "success" : "neutral"}
-                          label={
-                            zone.active ? t("status.active") : t("status.inactive")
-                          }
-                        />
-                      </div>
-                      {zone.description ? (
-                        <p className="text-muted-foreground text-sm">
-                          {zone.description}
-                        </p>
-                      ) : null}
-                    </div>
-                    {canManage ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={pendingKey === `zone-${zone.zone_id}`}
-                        onClick={() => handleToggleZone(zone)}
-                      >
-                        {zone.active
-                          ? t("actions.deactivate")
-                          : t("actions.activate")}
-                      </Button>
-                    ) : null}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {memberships.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">
-                        {t("zones.noDistricts")}
-                      </p>
-                    ) : (
-                      memberships.map((membership) =>
-                        !canManage ? (
-                          <Badge key={membership.zone_district_id} variant="secondary">
-                            {membership.districts?.name ??
-                              `#${membership.districlub_type_id}`}
-                          </Badge>
-                        ) : (
-                        <Button
-                          key={membership.zone_district_id}
-                          type="button"
-                          variant="secondary"
-                          size="xs"
-                          disabled={
-                            pendingKey ===
-                            `remove-${zone.zone_id}-${membership.districlub_type_id}`
-                          }
-                          onClick={() =>
-                            handleRemoveDistrict(
-                              zone.zone_id,
-                              membership.districlub_type_id,
-                            )
-                          }
-                        >
-                          {membership.districts?.name ??
-                            `#${membership.districlub_type_id}`}
-                          <span className="text-muted-foreground">×</span>
-                        </Button>
-                        ),
-                      )
-                    )}
-                  </div>
-
-                  {canManage && zone.active ? (
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <Label>{t("fields.district")}</Label>
-                        <Select
-                          value={districtByZone[zone.zone_id] || undefined}
-                          onValueChange={(value) =>
-                            setDistrictByZone((current) => ({
-                              ...current,
-                              [zone.zone_id]: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={t("fields.selectDistrict")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableDistricts.map((district) => (
-                              <SelectItem
-                                key={district.district_id}
-                                value={String(district.district_id)}
-                              >
-                                {district.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button
-                        variant="outline"
-                        disabled={pendingKey === `assign-${zone.zone_id}`}
-                        onClick={() => handleAssignDistrict(zone.zone_id)}
-                      >
-                        {t("actions.assignDistrict")}
-                      </Button>
-                    </div>
+    <>
+      <DataTableShell className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{tc("zones.colZone")}</TableHead>
+              <TableHead>{t("fields.districts")}</TableHead>
+              <TableHead className="text-right">{tc("zones.colCoordinators")}</TableHead>
+              <TableHead>{t("fields.status")}</TableHead>
+              <RowActionsHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {zones.map((zone) => (
+              <TableRow key={zone.zone_id}>
+                <TableCell className="max-w-[260px] whitespace-normal">
+                  <button
+                    type="button"
+                    className="block max-w-full truncate text-left font-medium text-foreground outline-none hover:underline focus-visible:underline"
+                    onClick={() => onOpen(zone)}
+                  >
+                    {zone.name}
+                  </button>
+                  {zone.description ? (
+                    <span className="block truncate text-[13px] text-muted-foreground">
+                      {zone.description}
+                    </span>
                   ) : null}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                </TableCell>
+                <TableCell className="whitespace-normal">{districtTags(zone)}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {zoneCoordinatorIds(zone, assignments).length}
+                </TableCell>
+                <TableCell>
+                  <ExceptionStatus
+                    value={zone.active ? "active" : "inactive"}
+                    normal={["active"]}
+                    labels={statusLabels}
+                    intents={{ inactive: "neutral" }}
+                  />
+                </TableCell>
+                <TableCell className="text-right">{rowActions(zone)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </DataTableShell>
+
+      <ul className="divide-y rounded-xl bg-card shadow-card md:hidden">
+        {zones.map((zone) => (
+          <li key={zone.zone_id} className="flex items-start gap-2 px-4 py-3">
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="min-w-0 truncate text-left font-medium outline-none hover:underline focus-visible:underline"
+                  onClick={() => onOpen(zone)}
+                >
+                  {zone.name}
+                </button>
+                <ExceptionStatus
+                  value={zone.active ? "active" : "inactive"}
+                  normal={["active"]}
+                  labels={statusLabels}
+                  intents={{ inactive: "neutral" }}
+                />
+              </div>
+              <p className="flex flex-wrap gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+                <span>
+                  {tc("zones.districtCount", { count: activeZoneDistricts(zone).length })}
+                </span>
+                <span>
+                  {tc("zones.coordinatorCount", {
+                    count: zoneCoordinatorIds(zone, assignments).length,
+                  })}
+                </span>
+              </p>
+            </div>
+            {rowActions(zone)}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

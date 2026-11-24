@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
+import { ErrorState } from "@/components/shared/error-state";
 import { CoordinationAdminClient } from "@/components/coordination/coordination-admin-client";
-import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { canCapability, canViewScreen } from "@/lib/auth/screen-catalog";
 import { requireAdminUser } from "@/lib/auth/session";
 import {
@@ -21,46 +21,41 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CoordinationAdminPage() {
   const user = await requireAdminUser();
   const t = await getTranslations("coordinationAdmin");
-  const territoryScope = resolveAdminTerritoryScope(user);
+  const tc = await getTranslations("people.community.coordination");
 
   if (!canViewScreen(user, "coordination")) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title={t("page.title")}
-          description={t("page.description")}
-        />
-        <Alert variant="destructive">
-          <AlertTitle>{t("gate.forbiddenTitle")}</AlertTitle>
-          <AlertDescription>{t("gate.forbiddenDescription")}</AlertDescription>
-        </Alert>
-      </div>
-    );
+    return <PageAccessForbidden title={t("page.title")} />;
   }
 
+  const territoryScope = resolveAdminTerritoryScope(user);
   let localFields: LocalField[] = [];
-  let loadError: string | null = null;
+  let failure: ReturnType<typeof errorStateFromError> | null = null;
 
   try {
     localFields = await listLocalFieldsForTerritory(user);
   } catch (error) {
-    loadError =
-      error instanceof ApiError ? error.message : t("errors.generic");
+    failure = errorStateFromError(error);
+  }
+
+  if (failure) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("page.title")} description={tc("page.description")} />
+        <ErrorState
+          kind={failure.kind}
+          detail={failure.detail}
+          title={tc("loadError.fieldsTitle")}
+          retry
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("page.title")} description={t("page.description")} />
-
-      {loadError ? (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      ) : (
-        <CoordinationAdminClient
-          localFields={localFields}
-          territoryScope={territoryScope}
-          canManage={canCapability(user, "coordination", "manage")}
-        />
-      )}
-    </div>
+    <CoordinationAdminClient
+      localFields={localFields}
+      territoryScope={territoryScope}
+      canManage={canCapability(user, "coordination", "manage")}
+    />
   );
 }
