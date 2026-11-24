@@ -1,42 +1,18 @@
 "use client";
 
-import { EmptyState } from "@/components/shared/empty-state";
-import { useState, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import {
-  Plus,
-  RefreshCw,
-  ChevronRight,
-  ArrowLeft,
-  Pencil,
-  Trash2,
-  GripVertical,
-  CheckCircle2,
-  Circle,
-  CalendarClock,
-  Search,
-  Building2,
-  MapPin,
-  Copy,
-} from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useLocale, useTranslations } from "next-intl";
+import { Copy, FileStack, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
-import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
-import { resolveTemplateYearLabel } from "@/lib/annual-folders/ecclesiastical-year-label";
 import { Button } from "@/components/ui/button";
-import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -45,20 +21,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AnnualFolderSetupNotice } from "@/components/annual-folders/annual-folder-setup-notice";
 import { TemplateFormDialog } from "@/components/annual-folders/template-form-dialog";
 import type { SectionFormDialogProps } from "@/components/annual-folders/section-form-dialog";
-import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { DetailHeader } from "@/components/shared/detail-header";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { PageHeader } from "@/components/shared/page-header";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import {
+  copyTemplate as copyTemplateApi,
+  deleteTemplate,
+  deleteTemplateSection,
+  getTemplate,
+  listTemplates,
+  updateTemplate,
+} from "@/lib/api/annual-folders";
+import type {
+  FolderTemplate,
+  FolderTemplateSection,
+} from "@/lib/api/annual-folders";
+import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
+import { ApiError } from "@/lib/api/client";
+import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
+import { errorStateFromError } from "@/lib/api/error-state";
+import type { LocalField, Union } from "@/lib/api/geography";
+import {
+  folderTemplateSectionPointsTotal,
+  resolveAnnualFolderMaxPointsForTemplateScope,
+} from "@/lib/annual-folders/ranking-budget";
+import { resolveTemplateYearLabel } from "@/lib/annual-folders/ecclesiastical-year-label";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
+import {
+  CLUBS_EVIDENCE_FOLDERS_BASE,
+  CLUBS_EVIDENCE_FOLDERS_TEMPLATES,
+} from "@/lib/clubs/evidence-folders-paths";
+import { formatCalendarDate, useFormatNumber } from "@/lib/format-locale";
+import { findAnnualFolderSetupGap } from "@/lib/prerequisites/annual-folder-gaps";
+import {
+  canPublish,
+  publishReadiness,
+} from "@/lib/evidence-folders/template-readiness";
 
 const SectionFormDialog = dynamic<SectionFormDialogProps>(
   () =>
@@ -67,28 +74,13 @@ const SectionFormDialog = dynamic<SectionFormDialogProps>(
     })),
   { ssr: false, loading: () => null },
 );
-import {
-  getTemplate,
-  listTemplates,
-  deleteTemplateSection,
-  updateTemplate,
-  copyTemplate as copyTemplateApi,
-  deleteTemplate,
-} from "@/lib/api/annual-folders";
-import type { AnnualRankingConfig } from "@/lib/api/annual-rankings";
-import { ApiError } from "@/lib/api/client";
-import type {
-  FolderTemplate,
-  FolderTemplateSection,
-} from "@/lib/api/annual-folders";
-import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
-import type { LocalField, Union } from "@/lib/api/geography";
-import {
-  folderTemplateSectionPointsTotal,
-  resolveAnnualFolderMaxPointsForTemplateScope,
-} from "@/lib/annual-folders/ranking-budget";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const HEAD = "h-9 px-3 text-xs font-medium text-muted-foreground";
+const ALL = "all";
+
+type TemplateStatus = NonNullable<FolderTemplate["status"]>;
+type StatusFilter = typeof ALL | TemplateStatus;
+type OwnerTierFilter = typeof ALL | "union" | "local_field";
 
 interface TemplatesClientPageProps {
   initialTemplates: FolderTemplate[];
@@ -100,78 +92,27 @@ interface TemplatesClientPageProps {
   territoryScope: AdminTerritoryScope;
 }
 
-type OwnerTierFilter = "all" | "union" | "local_field";
-type TemplateStatusFilter = "all" | "DRAFT" | "PUBLISHED" | "ARCHIVED";
+function statusOf(template: FolderTemplate): TemplateStatus {
+  return template.status ?? (template.active ? "PUBLISHED" : "DRAFT");
+}
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function resolveOwnerLabel(template: FolderTemplate): string {
-  if (
-    template.owner_union_id !== null &&
-    template.owner_union_id !== undefined
-  ) {
-    return template.owner_union?.name ?? `Unión ${template.owner_union_id}`;
+function ownerLabel(template: FolderTemplate): string {
+  if (template.owner_union_id != null) {
+    return template.owner_union?.name ?? `#${template.owner_union_id}`;
   }
-  if (
-    template.owner_local_field_id !== null &&
-    template.owner_local_field_id !== undefined
-  ) {
-    return (
-      template.owner_local_field?.name ??
-      `Campo ${template.owner_local_field_id}`
-    );
+  if (template.owner_local_field_id != null) {
+    return template.owner_local_field?.name ?? `#${template.owner_local_field_id}`;
   }
   return "—";
 }
 
-function resolveTemplateStatus(
-  template: FolderTemplate,
-): Exclude<FolderTemplate["status"], undefined> {
-  return template.status ?? (template.active ? "PUBLISHED" : "DRAFT");
-}
-
-function isDraftTemplate(template: FolderTemplate): boolean {
-  return resolveTemplateStatus(template) === "DRAFT";
-}
-
-function templateStatusLabel(template: FolderTemplate): string {
-  switch (resolveTemplateStatus(template)) {
-    case "PUBLISHED":
-      return "Publicada";
-    case "ARCHIVED":
-      return "Archivada";
-    case "DRAFT":
-    default:
-      return "Borrador";
-  }
-}
-
-function templateStatusVariant(template: FolderTemplate) {
-  switch (resolveTemplateStatus(template)) {
-    case "PUBLISHED":
-      return "success" as const;
-    case "ARCHIVED":
-      return "outline" as const;
-    case "DRAFT":
-    default:
-      return "secondary" as const;
-  }
-}
-
-function findNextEcclesiasticalYear(
-  template: FolderTemplate,
-  ecclesiasticalYears: EcclesiasticalYear[],
-) {
-  const sorted = [...ecclesiasticalYears].sort((a, b) =>
-    a.start_date.localeCompare(b.start_date),
-  );
-  const currentIndex = sorted.findIndex(
+function nextYearOf(template: FolderTemplate, years: EcclesiasticalYear[]) {
+  const sorted = [...years].sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const index = sorted.findIndex(
     (year) => year.ecclesiastical_year_id === template.ecclesiastical_year_id,
   );
-  return currentIndex >= 0 ? sorted[currentIndex + 1] : undefined;
+  return index >= 0 ? sorted[index + 1] : undefined;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function TemplatesClientPage({
   initialTemplates,
@@ -182,1251 +123,693 @@ export function TemplatesClientPage({
   localFields,
   territoryScope,
 }: TemplatesClientPageProps) {
-  const t = useTranslations("annual_folders");
-  const { canCapability } = useScreenAccess();
-  // DELETE draft/section need annual_folder_templates:delete (backend 403s otherwise).
-  const canDeleteDraft = canCapability(
-    "clubs-evidence-folders-templates",
-    "delete_draft",
-  );
-  const canDeleteSection = canCapability(
-    "clubs-evidence-folders-templates",
-    "delete_section",
-  );
+  const t = useTranslations("evaluation.evidence.templates");
+  const tList = useTranslations("annual_folders.templates");
+  const tPage = useTranslations("annual_folders.pageTemplates");
+  const tFolders = useTranslations("annual_folders");
+  const tPageFolders = useTranslations("annual_folders.pageFolders");
+  const locale = useLocale();
+  const formatNumber = useFormatNumber();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const latestParamsRef = useRef(searchParams.toString());
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { canCapability } = useScreenAccess();
+  const canDeleteDraft = canCapability("clubs-evidence-folders-templates", "delete_draft");
+  const canDeleteSection = canCapability("clubs-evidence-folders-templates", "delete_section");
 
-  const [templates, setTemplates] =
-    useState<FolderTemplate[]>(initialTemplates);
-  const folderSetupGap = findAnnualFolderSetupGap({
+  const [templates, setTemplates] = useState<FolderTemplate[]>(initialTemplates);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(ALL);
+  const [ownerTier, setOwnerTier] = useState<OwnerTierFilter>(ALL);
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<FolderTemplate | null>(null);
+  const [publishing, setPublishing] = useState<FolderTemplate | null>(null);
+  const [copying, setCopying] = useState<FolderTemplate | null>(null);
+  const [deleting, setDeleting] = useState<FolderTemplate | null>(null);
+  const [sectionFormOpen, setSectionFormOpen] = useState(false);
+  const [editingSection, setEditingSection] = useState<FolderTemplateSection | null>(null);
+  const [deletingSection, setDeletingSection] = useState<FolderTemplateSection | null>(null);
+
+  const activeId = searchParams?.get("template") ?? null;
+  const detailQuery = useQuery<FolderTemplate, Error>({
+    queryKey: ["evidence-folders", "template", activeId],
+    queryFn: () => getTemplate(activeId as string),
+    enabled: activeId !== null,
+    staleTime: 15_000,
+  });
+
+  const setupGap = findAnnualFolderSetupGap({
     ecclesiasticalYears,
     clubTypes,
     templates,
     rankingConfigs,
     includeTemplateGap: false,
   });
-  const cannotCreateTemplate =
-    folderSetupGap?.id === "years" || folderSetupGap?.id === "club-types";
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const cannotCreate = setupGap?.id === "years" || setupGap?.id === "club-types";
 
-  const templateYearLabel = (template: FolderTemplate) =>
+  const yearLabel = (template: FolderTemplate) =>
     resolveTemplateYearLabel(template, ecclesiasticalYears, (id) =>
-      t("templates.yearFallback", { id }),
+      tList("yearFallback", { id }),
     );
+  const clubTypeLabel = (template: FolderTemplate) =>
+    template.club_type?.name ??
+    clubTypes.find((type) => type.club_type_id === template.club_type_id)?.name ??
+    `#${template.club_type_id}`;
 
-  // Template CRUD state
-  const [templateFormOpen, setTemplateFormOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<FolderTemplate | null>(
-    null,
-  );
-  const [publishingTemplateId, setPublishingTemplateId] = useState<string | null>(
-    null,
-  );
-  const [copyingTemplate, setCopyingTemplate] = useState<FolderTemplate | null>(
-    null,
-  );
-  const [isCopyingTemplate, setIsCopyingTemplate] = useState(false);
-  const [deletingTemplate, setDeletingTemplate] =
-    useState<FolderTemplate | null>(null);
-  const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
+  const statusLabels = {
+    DRAFT: t("status.draft"),
+    PUBLISHED: t("status.published"),
+    ARCHIVED: t("status.archived"),
+  } satisfies Record<TemplateStatus, string>;
 
-  // Detail view state
-  const [activeTemplate, setActiveTemplate] = useState<FolderTemplate | null>(
-    null,
-  );
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
-  // Section CRUD state
-  const [sectionFormOpen, setSectionFormOpen] = useState(false);
-  const [editingSection, setEditingSection] =
-    useState<FolderTemplateSection | null>(null);
-  const [deleteSectionOpen, setDeleteSectionOpen] = useState(false);
-  const [deletingSection, setDeletingSection] =
-    useState<FolderTemplateSection | null>(null);
-  const [isDeletingSection, setIsDeletingSection] = useState(false);
-
-  // ─── Filter state (URL-driven) ─────────────────────────────────────────────
-
-  const currentOwnerTierFilter = (searchParams.get("owner_tier") ??
-    "all") as OwnerTierFilter;
-  const currentOwnerIdFilter = searchParams.get("owner_id") ?? "";
-  const currentStatusFilter = (searchParams.get("status") ??
-    "all") as TemplateStatusFilter;
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") ?? "",
-  );
-
-  const updateParam = useCallback(
-    (key: string, value: string) => {
-      const params = new URLSearchParams(latestParamsRef.current);
-      if (!value || value === "all") {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-      const qs = params.toString();
-      const next = qs ? `${pathname}?${qs}` : pathname;
-      latestParamsRef.current = params.toString();
-      router.replace(next);
-    },
-    [pathname, router],
-  );
-
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("search", value);
-      }, 400);
-    },
-    [updateParam],
-  );
-
-  // ─── Filtered templates ────────────────────────────────────────────────────
-
-  const filteredTemplates = templates.filter((tmpl) => {
-    const searchTerm = searchParams.get("search") ?? "";
-    if (
-      searchTerm &&
-      !tmpl.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ) {
-      return false;
-    }
-
-    if (currentOwnerTierFilter === "union") {
-      if (tmpl.owner_union_id === null || tmpl.owner_union_id === undefined)
-        return false;
-    } else if (currentOwnerTierFilter === "local_field") {
-      if (
-        tmpl.owner_local_field_id === null ||
-        tmpl.owner_local_field_id === undefined
-      )
-        return false;
-    }
-
-    if (currentOwnerIdFilter) {
-      const filterId = Number(currentOwnerIdFilter);
-      if (currentOwnerTierFilter === "union") {
-        if (tmpl.owner_union_id !== filterId) return false;
-      } else if (currentOwnerTierFilter === "local_field") {
-        if (tmpl.owner_local_field_id !== filterId) return false;
-      }
-    }
-
-    if (
-      currentStatusFilter !== "all" &&
-      resolveTemplateStatus(tmpl) !== currentStatusFilter
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const hasActiveFilters =
-    Boolean(searchParams.get("search")) ||
-    currentOwnerTierFilter !== "all" ||
-    currentStatusFilter !== "all" ||
-    Boolean(currentOwnerIdFilter);
-
-  // ─── Refresh list ──────────────────────────────────────────────────────────
-
-  const refreshTemplates = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const payload = await listTemplates();
-      setTemplates(payload);
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : t("templates.errorRefresh");
-      toast.error(message);
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [t]);
-
-  // ─── Open template detail ──────────────────────────────────────────────────
-
-  const handleOpenTemplate = useCallback(
-    async (template: FolderTemplate) => {
-      setIsLoadingDetail(true);
-      setActiveTemplate(template);
-      try {
-        const detail = await getTemplate(template.template_id);
-        setActiveTemplate(detail);
-      } catch (err) {
-        const message =
-          err instanceof ApiError
-            ? err.message
-            : t("templates.errorLoadSections");
-        toast.error(message);
-      } finally {
-        setIsLoadingDetail(false);
-      }
-    },
-    [t],
-  );
-
-  // ─── Refresh active template detail ───────────────────────────────────────
-
-  const refreshActiveTemplate = useCallback(async () => {
-    if (!activeTemplate) return;
-    try {
-      const detail = await getTemplate(activeTemplate.template_id);
-      setActiveTemplate(detail);
-    } catch {
-      // Non-fatal; user can go back and re-open
-    }
-  }, [activeTemplate]);
-
-  // ─── Template edit ─────────────────────────────────────────────────────────
-
-  function handleEditTemplate(template: FolderTemplate, e?: React.MouseEvent) {
-    e?.stopPropagation();
-    if (!isDraftTemplate(template)) {
-      toast.error("Esta plantilla ya está publicada. Cópiala para crear un nuevo borrador.");
-      return;
-    }
-    setEditingTemplate(template);
-    setTemplateFormOpen(true);
+  function statusMark(template: FolderTemplate) {
+    return (
+      <ExceptionStatus
+        value={statusOf(template)}
+        normal={["PUBLISHED"]}
+        labels={statusLabels}
+        intents={{ DRAFT: "neutral", ARCHIVED: "neutral" }}
+      />
+    );
   }
 
-  function handleTemplateFormClose(open: boolean) {
-    setTemplateFormOpen(open);
-    if (!open) setEditingTemplate(null);
+  const filtered = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return templates.filter((template) => {
+      if (needle && !template.name.toLowerCase().includes(needle)) return false;
+      if (statusFilter !== ALL && statusOf(template) !== statusFilter) return false;
+      if (ownerTier === "union" && template.owner_union_id == null) return false;
+      if (ownerTier === "local_field" && template.owner_local_field_id == null) return false;
+      return true;
+    });
+  }, [templates, search, statusFilter, ownerTier]);
+  const isFiltered = search.trim() !== "" || statusFilter !== ALL || ownerTier !== ALL;
+
+  function openTemplate(id: string | null) {
+    router.push(id ? `${pathname}?template=${id}` : pathname, { scroll: false });
   }
 
-  const handleTemplateSaved = useCallback(async () => {
-    await refreshTemplates();
-    await refreshActiveTemplate();
-  }, [refreshActiveTemplate, refreshTemplates]);
+  async function reloadList() {
+    try {
+      setTemplates(await listTemplates());
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.message : t("refreshFailed"));
+    }
+  }
 
-  async function handlePublishTemplate(template: FolderTemplate, e?: React.MouseEvent) {
-    e?.stopPropagation();
-    setPublishingTemplateId(template.template_id);
+  async function afterSave() {
+    await Promise.all([reloadList(), activeId ? detailQuery.refetch() : Promise.resolve()]);
+  }
+
+  function failure(error: unknown, fallback: string): Error {
+    return new Error(error instanceof ApiError && error.message ? error.message : fallback);
+  }
+
+  async function publish(template: FolderTemplate) {
     try {
       const updated = await updateTemplate(template.template_id, { active: true });
-      toast.success("Plantilla publicada. Ya puede generar carpetas.");
       setTemplates((current) =>
-        current.map((item) =>
-          item.template_id === updated.template_id ? updated : item,
-        ),
+        current.map((item) => (item.template_id === updated.template_id ? updated : item)),
       );
-      setActiveTemplate((current) =>
-        current?.template_id === updated.template_id ? updated : current,
-      );
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "No se pudo publicar la plantilla.";
-      toast.error(message);
-    } finally {
-      setPublishingTemplateId(null);
+    } catch (error) {
+      throw failure(error, t("publish.failed"));
     }
+    toast.success(t("publish.done"));
+    if (activeId) await detailQuery.refetch();
   }
 
-  function handleCopyTemplate(template: FolderTemplate, e?: React.MouseEvent) {
-    e?.stopPropagation();
-    setCopyingTemplate(template);
-  }
-
-  async function confirmCopyTemplate() {
-    if (!copyingTemplate) return;
-    const nextYear = findNextEcclesiasticalYear(
-      copyingTemplate,
-      ecclesiasticalYears,
-    );
-    if (!nextYear) {
-      toast.error("No hay un año eclesiástico posterior para copiar la plantilla.");
-      return;
-    }
-
-    setIsCopyingTemplate(true);
+  async function copy(template: FolderTemplate) {
+    const nextYear = nextYearOf(template, ecclesiasticalYears);
+    if (!nextYear) throw new Error(t("copy.noYear"));
     try {
-      const copied = await copyTemplateApi(copyingTemplate.template_id, {
-        name: `${copyingTemplate.name} · ${nextYear.name}`,
+      const copied = await copyTemplateApi(template.template_id, {
+        name: `${template.name} · ${nextYear.name}`,
         ecclesiastical_year_id: nextYear.ecclesiastical_year_id,
       });
-      toast.success("Plantilla copiada como borrador.");
-      setCopyingTemplate(null);
       setTemplates((current) => [copied, ...current]);
-      setActiveTemplate(copied);
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "No se pudo copiar la plantilla.";
-      toast.error(message);
-    } finally {
-      setIsCopyingTemplate(false);
+      toast.success(t("copy.done"));
+      openTemplate(copied.template_id);
+    } catch (error) {
+      throw failure(error, t("copy.failed"));
     }
   }
 
-  function handleDeleteTemplate(template: FolderTemplate, e?: React.MouseEvent) {
-    e?.stopPropagation();
-    if (!isDraftTemplate(template)) {
-      toast.error("Solo se pueden eliminar borradores.");
-      return;
-    }
-    setDeletingTemplate(template);
-  }
-
-  async function confirmDeleteTemplate() {
-    if (!deletingTemplate) return;
-    setIsDeletingTemplate(true);
+  async function remove(template: FolderTemplate) {
     try {
-      await deleteTemplate(deletingTemplate.template_id);
-      toast.success("Borrador eliminado.");
-      setTemplates((current) =>
-        current.filter((item) => item.template_id !== deletingTemplate.template_id),
-      );
-      setActiveTemplate((current) =>
-        current?.template_id === deletingTemplate.template_id ? null : current,
-      );
-      setDeletingTemplate(null);
-    } catch (err) {
-      const message =
-        err instanceof ApiError ? err.message : "No se pudo eliminar el borrador.";
-      toast.error(message);
-    } finally {
-      setIsDeletingTemplate(false);
+      await deleteTemplate(template.template_id);
+    } catch (error) {
+      throw failure(error, t("delete.failed"));
     }
+    setTemplates((current) => current.filter((item) => item.template_id !== template.template_id));
+    toast.success(t("delete.done"));
+    if (activeId === template.template_id) openTemplate(null);
   }
 
-  // ─── Section add ──────────────────────────────────────────────────────────
-
-  function handleAddSection() {
-    setEditingSection(null);
-    setSectionFormOpen(true);
-  }
-
-  // ─── Section edit ──────────────────────────────────────────────────────────
-
-  function handleEditSection(section: FolderTemplateSection) {
-    setEditingSection(section);
-    setSectionFormOpen(true);
-  }
-
-  // ─── Section delete ────────────────────────────────────────────────────────
-
-  function handleDeleteSection(section: FolderTemplateSection) {
-    setDeletingSection(section);
-    setDeleteSectionOpen(true);
-  }
-
-  async function confirmDeleteSection() {
-    if (!deletingSection) return;
-    setIsDeletingSection(true);
+  async function removeSection(section: FolderTemplateSection) {
     try {
-      await deleteTemplateSection(deletingSection.section_id);
-      toast.success(t("toasts.section_deleted"));
-      setDeleteSectionOpen(false);
-      setDeletingSection(null);
-      await refreshActiveTemplate();
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : t("templates.errorDeleteSection");
-      toast.error(message);
-    } finally {
-      setIsDeletingSection(false);
+      await deleteTemplateSection(section.section_id);
+    } catch (error) {
+      throw failure(error, tList("errorDeleteSection"));
     }
+    toast.success(tFolders("toasts.section_deleted"));
+    await afterSave();
   }
 
-  // ─── Sections sorted by order ──────────────────────────────────────────────
+  /** `headerMenu`: publish and copy are buttons there, so the menu keeps the rest. */
+  function templateActions(template: FolderTemplate, headerMenu = false) {
+    const draft = statusOf(template) === "DRAFT";
+    return [
+      {
+        label: t("actions.edit"),
+        icon: Pencil,
+        hidden: !draft,
+        onSelect: () => {
+          setEditing(template);
+          setFormOpen(true);
+        },
+      },
+      {
+        label: t("actions.publish"),
+        hidden: !draft || headerMenu,
+        onSelect: () => setPublishing(template),
+      },
+      {
+        label: t("actions.copy"),
+        icon: Copy,
+        hidden: draft || headerMenu || !nextYearOf(template, ecclesiasticalYears),
+        onSelect: () => setCopying(template),
+      },
+      {
+        label: t("actions.delete"),
+        icon: Trash2,
+        destructive: true,
+        hidden: !draft || !canDeleteDraft,
+        onSelect: () => setDeleting(template),
+      },
+    ];
+  }
 
-  const sortedSections = [...(activeTemplate?.sections ?? [])].sort(
-    (a, b) => a.order - b.order,
-  );
-  const sectionPointsTotal = folderTemplateSectionPointsTotal(sortedSections);
-  const requiredRankingPoints = activeTemplate
-    ? resolveAnnualFolderMaxPointsForTemplateScope(
-        activeTemplate,
-        rankingConfigs,
-        localFields,
-      )
-    : null;
-  const sectionPointsMatch =
-    requiredRankingPoints != null && sectionPointsTotal === requiredRankingPoints;
-  const activeTemplateIsDraft = activeTemplate
-    ? isDraftTemplate(activeTemplate)
-    : false;
-  const activeTemplateStatusLabel = activeTemplate
-    ? templateStatusLabel(activeTemplate)
-    : "";
-
-  const nextSectionOrder =
-    sortedSections.length > 0
-      ? Math.max(...sortedSections.map((s) => s.order)) + 1
-      : 1;
-
-  const copyTargetYear = copyingTemplate
-    ? findNextEcclesiasticalYear(copyingTemplate, ecclesiasticalYears)
-    : undefined;
-
-  const templateLifecycleDialogs = (
+  const dialogs = (
     <>
       <TemplateFormDialog
-        open={templateFormOpen}
-        onOpenChange={handleTemplateFormClose}
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditing(null);
+        }}
         clubTypes={clubTypes}
         ecclesiasticalYears={ecclesiasticalYears}
         unions={unions}
         localFields={localFields}
         rankingConfigs={rankingConfigs}
         territoryScope={territoryScope}
-        template={editingTemplate}
-        onSuccess={handleTemplateSaved}
+        template={editing}
+        onSuccess={afterSave}
       />
-
-      <AlertDialog
-        open={Boolean(copyingTemplate)}
-        onOpenChange={(open) => {
-          if (!open && !isCopyingTemplate) setCopyingTemplate(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Copiar plantilla como borrador</AlertDialogTitle>
-            <AlertDialogDescription>
-              {copyingTemplate && copyTargetYear
-                ? `Se creará un borrador para ${copyTargetYear.name} copiando secciones y puntajes de “${copyingTemplate.name}”.`
-                : "No hay un año eclesiástico posterior disponible para copiar esta plantilla."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCopyingTemplate}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmCopyTemplate}
-              disabled={isCopyingTemplate || !copyTargetYear}
-            >
-              {isCopyingTemplate ? t("templatesClientPage.copyDraftLoading") : t("templatesClientPage.copyDraftButton")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={Boolean(deletingTemplate)}
-        onOpenChange={(open) => {
-          if (!open && !isDeletingTemplate) setDeletingTemplate(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar borrador</AlertDialogTitle>
-            <AlertDialogDescription>
-              {`Se eliminará el borrador “${deletingTemplate?.name ?? ""}” y sus secciones. Esta acción no aplica a plantillas publicadas.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeletingTemplate}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteTemplate}
-              disabled={isDeletingTemplate}
-              variant="destructive-solid"
-            >
-              {isDeletingTemplate ? t("templatesClientPage.deleteDraftLoading") : t("templatesClientPage.deleteDraftButton")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={publishing !== null}
+        onOpenChange={(open) => !open && setPublishing(null)}
+        title={t("publish.title", { name: publishing?.name ?? "" })}
+        description={t("publish.description")}
+        confirmLabel={t("publish.confirm")}
+        onConfirm={() => (publishing ? publish(publishing) : undefined)}
+      />
+      <ConfirmDialog
+        open={copying !== null}
+        onOpenChange={(open) => !open && setCopying(null)}
+        title={t("copy.title")}
+        description={
+          copying
+            ? t("copy.description", {
+                name: copying.name,
+                year: nextYearOf(copying, ecclesiasticalYears)?.name ?? "",
+              })
+            : ""
+        }
+        confirmLabel={t("copy.confirm")}
+        onConfirm={() => (copying ? copy(copying) : undefined)}
+      />
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        tone="destructive"
+        title={t("delete.title")}
+        description={t("delete.description", { name: deleting?.name ?? "" })}
+        confirmLabel={t("delete.confirm")}
+        onConfirm={() => (deleting ? remove(deleting) : undefined)}
+      />
+      <ConfirmDialog
+        open={deletingSection !== null}
+        onOpenChange={(open) => !open && setDeletingSection(null)}
+        tone="destructive"
+        title={tList("deleteSectionTitle")}
+        description={tList("deleteSectionDescription", { name: deletingSection?.name ?? "" })}
+        confirmLabel={tList("deleteSectionConfirm")}
+        onConfirm={() => (deletingSection ? removeSection(deletingSection) : undefined)}
+      />
     </>
   );
 
-  // ─── Render: detail view ───────────────────────────────────────────────────
+  // ─── Detail ────────────────────────────────────────────────────────────────
 
-  if (activeTemplate) {
+  if (activeId !== null) {
+    const breadcrumbs = [
+      { label: tPageFolders("titleList"), href: CLUBS_EVIDENCE_FOLDERS_BASE },
+      { label: tPage("title"), href: CLUBS_EVIDENCE_FOLDERS_TEMPLATES },
+    ];
+
+    if (detailQuery.isPending) {
+      return (
+        <div className="space-y-4" role="status" aria-busy="true">
+          <Skeleton className="h-10 w-72" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
+      );
+    }
+
+    if (!detailQuery.data) {
+      const state = errorStateFromError(detailQuery.error);
+      return (
+        <div className="space-y-4">
+          <PageHeader breadcrumbs={[...breadcrumbs, { label: "…" }]} />
+          <ErrorState
+            kind={state.kind}
+            icon={FileStack}
+            title={t("error.title")}
+            description={t("error.description")}
+            {...(state.detail ? { detail: state.detail } : {})}
+            onRetry={() => void detailQuery.refetch()}
+          />
+        </div>
+      );
+    }
+
+    const template = detailQuery.data;
+    const draft = statusOf(template) === "DRAFT";
+    const sections = [...(template.sections ?? [])].sort((a, b) => a.order - b.order);
+    const total = folderTemplateSectionPointsTotal(sections);
+    const required = resolveAnnualFolderMaxPointsForTemplateScope(template, rankingConfigs, localFields);
+    const readiness = publishReadiness(total, required);
+    const nextOrder = sections.length > 0 ? Math.max(...sections.map((s) => s.order)) + 1 : 1;
+    const points = (value: number) => formatNumber(value);
+    const readinessText =
+      readiness.state === "noConfig"
+        ? t("readiness.noConfig")
+        : t(`readiness.${readiness.state}`, {
+            total: points(readiness.total),
+            required: points(readiness.required),
+            diff: readiness.state === "ready" ? "" : points(readiness.diff),
+          });
+    const nextYear = nextYearOf(template, ecclesiasticalYears);
+
     return (
       <div className="space-y-5">
-        {/* Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setActiveTemplate(null)}
-              title={t("templates.backTitle")}
-            >
-              <ArrowLeft className="size-4" />
-              <span className="sr-only">{t("templates.backSrOnly")}</span>
-            </Button>
-            <div>
-              <h2 className="text-lg font-semibold">{activeTemplate.name}</h2>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                <span>
-                  {activeTemplate.club_type?.name ??
-                    `Tipo ${activeTemplate.club_type_id}`}
-                </span>
-                <span aria-hidden>·</span>
-                <span>
-                  {templateYearLabel(activeTemplate)}
-                </span>
-                <span aria-hidden>·</span>
-                <span>
-                  {sortedSections.length}{" "}
-                  {sortedSections.length === 1
-                    ? t("templates.sectionSingular")
-                    : t("templates.sectionPlural")}
-                </span>
-                <span aria-hidden>·</span>
-                <Badge
-                  variant={templateStatusVariant(activeTemplate)}
-                  className="text-xs"
-                >
-                  {activeTemplateStatusLabel}
-                </Badge>
-                {activeTemplate.closing_date && (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span className="inline-flex items-center gap-1">
-                      <CalendarClock className="size-3" />
-                      {t("templates.closingDatePrefix")}:{" "}
-                      {new Date(activeTemplate.closing_date).toLocaleDateString(
-                        "es-AR",
-                        { day: "2-digit", month: "short", year: "numeric" },
-                      )}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {activeTemplateIsDraft ? (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEditTemplate(activeTemplate)}
-                  disabled={isLoadingDetail}
-                >
-                  <Pencil className="size-4" />
-                  Editar borrador
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleAddSection}
-                  disabled={isLoadingDetail}
-                >
-                  <Plus className="size-4" />
-                  {t("templates.addSection")}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => handlePublishTemplate(activeTemplate)}
-                  disabled={
-                    isLoadingDetail ||
-                    !sectionPointsMatch ||
-                    publishingTemplateId === activeTemplate.template_id
-                  }
-                  title={
-                    sectionPointsMatch
-                      ? "Publicar plantilla"
-                      : "Primero ajusta las secciones al total requerido"
-                  }
-                >
-                  <CheckCircle2 className="size-4" />
-                  {publishingTemplateId === activeTemplate.template_id
-                    ? t("templatesClientPage.publishLoading")
-                    : t("templatesClientPage.publishButton")}
-                </Button>
-                {canDeleteDraft && (
+        <DetailHeader
+          breadcrumbs={[...breadcrumbs, { label: template.name }]}
+          title={template.name}
+          subtitle={[clubTypeLabel(template), yearLabel(template), ownerLabel(template)].join(" · ")}
+          facts={[
+            { label: t("facts.sections"), value: sections.length },
+            ...(template.closing_date
+              ? [{ label: t("facts.closing"), value: formatCalendarDate(template.closing_date, locale) }]
+              : []),
+          ]}
+          actions={
+            <>
+              {statusMark(template)}
+              {draft ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditingSection(null);
+                      setSectionFormOpen(true);
+                    }}
+                  >
+                    <Plus className="size-4" />
+                    {t("actions.addSection")}
+                  </Button>
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteTemplate(activeTemplate)}
-                    disabled={isLoadingDetail}
+                    disabled={!canPublish(readiness)}
+                    title={canPublish(readiness) ? undefined : t("publish.blocked")}
+                    onClick={() => setPublishing(template)}
                   >
-                    <Trash2 className="size-4" />
-                    Eliminar borrador
+                    {t("actions.publish")}
                   </Button>
-                )}
-              </>
-            ) : (
+                </>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!nextYear}
+                  title={nextYear ? undefined : t("copy.noYear")}
+                  onClick={() => setCopying(template)}
+                >
+                  <Copy className="size-4" />
+                  {t("actions.copy")}
+                </Button>
+              )}
+              <RowActions
+                label={template.name}
+                actions={templateActions(template, true)}
+              />
+            </>
+          }
+        />
+
+        {draft ? (
+          <p
+            role="status"
+            className="rounded-lg bg-primary-soft px-3 py-2 text-sm text-primary-soft-foreground"
+          >
+            {readinessText}
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("sections.locked")}</p>
+        )}
+
+        {sections.length === 0 ? (
+          <EmptyState
+            icon={FileStack}
+            title={tList("noSectionsTitle")}
+            description={tList("noSectionsDescription")}
+          >
+            {draft ? (
               <Button
                 size="sm"
-                variant="outline"
-                onClick={() => handleCopyTemplate(activeTemplate)}
+                onClick={() => {
+                  setEditingSection(null);
+                  setSectionFormOpen(true);
+                }}
               >
-                <Copy className="size-4" />
-                Copiar como borrador
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg border px-4 py-3 text-sm ${
-            sectionPointsMatch
-              ? "border-success/30 bg-success/10 text-success-foreground"
-              : "border-warning/30 bg-warning/10 text-warning-foreground"
-          }`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-medium">Total requerido por ranking</span>
-            <Badge variant={sectionPointsMatch ? "secondary" : "destructive"}>
-              {sectionPointsTotal.toLocaleString()} /{" "}
-              {(requiredRankingPoints ?? 0).toLocaleString()} pts
-            </Badge>
-          </div>
-          <p className="mt-1 text-xs opacity-80">
-            {requiredRankingPoints == null
-              ? t("templates.noRankingConfig", {
-                  component: t("templates.rankingComponentAnnualFolder"),
-                })
-              : sectionPointsMatch
-                ? "La plantilla está alineada con el puntaje anual configurado."
-                : "No se podrá activar ni crear carpetas hasta que las secciones sumen exactamente el total requerido."}
-          </p>
-        </div>
-
-        {isLoadingDetail ? (
-          <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-            {t("templates.loadingSections")}
-          </div>
-        ) : sortedSections.length === 0 ? (
-          <EmptyState
-            icon={GripVertical}
-            title={t("templates.noSectionsTitle")}
-            description={t("templates.noSectionsDescription")}
-          >
-            {activeTemplateIsDraft ? (
-              <Button size="sm" onClick={handleAddSection}>
                 <Plus className="size-4" />
-                {t("templates.addSection")}
+                {t("actions.addSection")}
               </Button>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Las plantillas publicadas quedan bloqueadas. Cópiala si necesitas cambios.
-              </p>
-            )}
+            ) : null}
           </EmptyState>
         ) : (
           <>
-            {/* Desktop: sections table */}
-            <div className="hidden rounded-lg border border-border/60 md:block">
+            <DataTableShell className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12 text-center">
-                      {t("templates.tableColOrder")}
-                    </TableHead>
-                    <TableHead>{t("templates.tableColName")}</TableHead>
-                    <TableHead>{t("templates.tableColDescription")}</TableHead>
-                    <TableHead className="w-28 text-center">
-                      {t("templates.tableColRequired")}
-                    </TableHead>
-                    <TableHead className="w-24 text-center">
-                      {t("templates.tableColMaxPts")}
-                    </TableHead>
-                    <RowActionsHead />
+                    <TableHead className={`${HEAD} w-12`}>{t("sections.order")}</TableHead>
+                    <TableHead className={HEAD}>{t("sections.name")}</TableHead>
+                    <TableHead className={HEAD}>{t("sections.required")}</TableHead>
+                    <TableHead className={`${HEAD} text-right`}>{t("sections.points")}</TableHead>
+                    <TableHead className={`${HEAD} text-right`}>{t("sections.minimum")}</TableHead>
+                    {draft ? <RowActionsHead /> : null}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedSections.map((section) => (
+                  {sections.map((section, index) => (
                     <TableRow key={section.section_id}>
-                      <TableCell className="text-center">
-                        <span className="inline-flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                          {section.order}
-                        </span>
+                      <TableCell className="px-3 text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                      <TableCell className="px-3 font-medium">{section.name}</TableCell>
+                      <TableCell className="px-3">
+                        {section.required ? t("sections.yes") : <span className="text-muted-foreground">{t("sections.no")}</span>}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {section.name}
+                      <TableCell className="px-3 text-right tabular-nums">{points(section.max_points)}</TableCell>
+                      <TableCell className="px-3 text-right tabular-nums">
+                        {section.minimum_points ? points(section.minimum_points) : <span className="text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate text-muted-foreground">
-                        {section.description ?? (
-                          <span className="italic text-muted-foreground/60">
-                            {t("templates.noDescription")}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {section.required ? (
-                          <CheckCircle2 className="mx-auto size-4 text-success" />
-                        ) : (
-                          <Circle className="mx-auto size-4 text-muted-foreground/40" />
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center text-sm text-muted-foreground">
-                        {section.max_points}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {activeTemplateIsDraft ? (
+                      {draft ? (
+                        <TableCell className="px-3">
                           <RowActions
                             label={section.name}
                             actions={[
                               {
-                                label: t("templates.editSection"),
+                                label: t("actions.editSection"),
                                 icon: Pencil,
-                                onSelect: () => handleEditSection(section),
+                                onSelect: () => {
+                                  setEditingSection(section);
+                                  setSectionFormOpen(true);
+                                },
                               },
-                              ...(canDeleteSection
-                                ? [
-                                    {
-                                      label: `${t("templates.deleteSection")}…`,
-                                      icon: Trash2,
-                                      destructive: true,
-                                      onSelect: () => handleDeleteSection(section),
-                                    },
-                                  ]
-                                : []),
+                              {
+                                label: t("actions.deleteSection"),
+                                icon: Trash2,
+                                destructive: true,
+                                hidden: !canDeleteSection,
+                                onSelect: () => setDeletingSection(section),
+                              },
                             ]}
                           />
-                        ) : (
-                          <span className="text-xs text-muted-foreground">
-                            Bloqueada
-                          </span>
-                        )}
-                      </TableCell>
+                        </TableCell>
+                      ) : null}
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </DataTableShell>
 
-            {/* Mobile: section cards */}
-            <ul
-              className="space-y-3 md:hidden"
-              aria-label={t("templates.mobileListLabel")}
-            >
-              {sortedSections.map((section) => (
-                <li key={section.section_id}>
-                  <div className="rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                          {section.order}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium">{section.name}</p>
-                          {section.description && (
-                            <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                              {section.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      {activeTemplateIsDraft && (
-                        <div className="flex shrink-0 items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => handleEditSection(section)}
-                            title={t("templates.editSection")}
-                          >
-                            <Pencil className="size-3.5" />
-                            <span className="sr-only">
-                              {t("templates.editSection")}
-                            </span>
-                          </Button>
-                          {canDeleteSection && (
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={() => handleDeleteSection(section)}
-                              title={t("templates.deleteSection")}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="size-3.5" />
-                              <span className="sr-only">
-                                {t("templates.deleteSection")}
-                              </span>
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                      <div>
-                        <dt className="text-muted-foreground">
-                          {t("templates.tableColRequired")}
-                        </dt>
-                        <dd className="mt-0.5">
-                          {section.required ? (
-                            <CheckCircle2 className="size-4 text-success" />
-                          ) : (
-                            <Circle className="size-4 text-muted-foreground/40" />
-                          )}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">
-                          {t("templates.tableColMaxPts")}
-                        </dt>
-                        <dd>{section.max_points}</dd>
-                      </div>
-                    </dl>
+            <ul className="divide-y rounded-xl bg-card shadow-card md:hidden" aria-label={t("sections.listLabel")}>
+              {sections.map((section, index) => (
+                <li key={section.section_id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {index + 1}. {section.name}
+                    </p>
+                    <p className="flex gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+                      <span>{points(section.max_points)} pts</span>
+                      <span>{section.required ? t("sections.required") : t("sections.no")}</span>
+                    </p>
                   </div>
+                  {draft ? (
+                    <RowActions
+                      label={section.name}
+                      actions={[
+                        {
+                          label: t("actions.editSection"),
+                          icon: Pencil,
+                          onSelect: () => {
+                            setEditingSection(section);
+                            setSectionFormOpen(true);
+                          },
+                        },
+                        {
+                          label: t("actions.deleteSection"),
+                          icon: Trash2,
+                          destructive: true,
+                          hidden: !canDeleteSection,
+                          onSelect: () => setDeletingSection(section),
+                        },
+                      ]}
+                    />
+                  ) : null}
                 </li>
               ))}
             </ul>
           </>
         )}
 
-        {/* Section dialogs */}
         <SectionFormDialog
           open={sectionFormOpen}
           onOpenChange={setSectionFormOpen}
-          templateId={activeTemplate.template_id}
+          templateId={template.template_id}
           section={editingSection}
-          nextOrder={nextSectionOrder}
-          onSuccess={refreshActiveTemplate}
+          nextOrder={nextOrder}
+          onSuccess={afterSave}
         />
-
-        <AlertDialog
-          open={deleteSectionOpen}
-          onOpenChange={setDeleteSectionOpen}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("templates.deleteSectionTitle")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("templates.deleteSectionDescription", {
-                  name: deletingSection?.name ?? "",
-                })}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeletingSection}>
-                {t("templates.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDeleteSection}
-                disabled={isDeletingSection}
-                variant="destructive-solid"
-              >
-                {isDeletingSection
-                  ? t("templates.deletingSectionLoading")
-                  : t("templates.deleteSectionConfirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {templateLifecycleDialogs}
+        {dialogs}
       </div>
     );
   }
 
-  // ─── Render: templates list view ───────────────────────────────────────────
+  // ─── List ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-5">
-      <AnnualFolderSetupNotice gap={folderSetupGap} />
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {filteredTemplates.length}
-            </span>
-            {filteredTemplates.length !== templates.length && (
-              <span className="text-muted-foreground">
-                {" "}
-                {t("templates.countOf")} {templates.length}
-              </span>
-            )}{" "}
-            {templates.length === 1
-              ? t("templates.templateSingular")
-              : t("templates.templatePlural")}
-          </p>
+    <div className="space-y-4">
+      <PageHeader
+        title={tPage("title")}
+        description={t("count", { count: templates.length })}
+        breadcrumbs={[
+          { label: tPageFolders("titleList"), href: CLUBS_EVIDENCE_FOLDERS_BASE },
+          { label: tPage("title") },
+        ]}
+        actions={
           <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={refreshTemplates}
-            disabled={isRefreshing}
-            title={t("templates.refresh")}
+            size="sm"
+            disabled={cannotCreate}
+            onClick={() => {
+              setEditing(null);
+              setFormOpen(true);
+            }}
           >
-            <RefreshCw
-              className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            <span className="sr-only">{t("templates.refresh")}</span>
+            <Plus className="size-4" />
+            {tList("newTemplate")}
           </Button>
-        </div>
-        <Button
-          size="sm"
-          disabled={cannotCreateTemplate}
-          onClick={() => {
-            setEditingTemplate(null);
-            setTemplateFormOpen(true);
-          }}
-        >
-          <Plus className="size-4" />
-          {t("templates.newTemplate")}
-        </Button>
-      </div>
+        }
+      />
 
-      {/* Filters */}
-      <div className="rounded-xl border bg-muted/20 p-4">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold tracking-wide text-foreground">
-            {t("templates.filtersTitle")}
-          </h3>
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => {
-                setSearchInput("");
-                latestParamsRef.current = "";
-                router.replace(pathname);
-              }}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {t("templates.clearFilters")}
-            </Button>
-          )}
-        </div>
-        <div className="overflow-x-auto pb-1">
-          <div className="flex min-w-max items-end gap-4">
-            {/* Search */}
-            <div className="w-[260px] space-y-1">
-              <Label htmlFor="tmpl-filter-search">
-                {t("templates.filterByName")}
-              </Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="tmpl-filter-search"
-                  placeholder={t("templates.filterByNamePlaceholder")}
-                  value={searchInput}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="bg-background pl-9"
-                />
-              </div>
-            </div>
+      <AnnualFolderSetupNotice gap={setupGap} />
 
-            {/* Owner tier */}
-            <div className="w-[200px] space-y-1">
-              <Label htmlFor="tmpl-filter-owner-tier">
-                {t("templates.filterOwnerTierLabel")}
-              </Label>
-              <Select
-                value={currentOwnerTierFilter}
-                onValueChange={(val) => {
-                  updateParam("owner_tier", val);
-                  // Clear specific owner when switching tier
-                  updateParam("owner_id", "");
-                }}
-              >
-                <SelectTrigger
-                  id="tmpl-filter-owner-tier"
-                  className="bg-background"
-                >
-                  <SelectValue
-                    placeholder={t("templates.filterOwnerTierLabel")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("templates.filterOwnerTierAll")}
-                  </SelectItem>
-                  <SelectItem value="union">
-                    {t("templates.filterOwnerTierUnion")}
-                  </SelectItem>
-                  <SelectItem value="local_field">
-                    {t("templates.filterOwnerTierLocalField")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="w-[200px] space-y-1">
-              <Label htmlFor="tmpl-filter-status">Estado</Label>
-              <Select
-                value={currentStatusFilter}
-                onValueChange={(val) => updateParam("status", val)}
-              >
-                <SelectTrigger
-                  id="tmpl-filter-status"
-                  className="bg-background"
-                >
-                  <SelectValue placeholder="Estado" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="DRAFT">Borradores</SelectItem>
-                  <SelectItem value="PUBLISHED">Publicadas</SelectItem>
-                  <SelectItem value="ARCHIVED">Archivadas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex min-w-48 flex-1 flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="templates-search" className="text-xs text-muted-foreground">
+            {tList("filterByName")}
+          </Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="templates-search"
+              type="search"
+              value={search}
+              maxLength={100}
+              placeholder={tList("filterByNamePlaceholder")}
+              onChange={(event) => setSearch(event.target.value)}
+              className="pl-8"
+            />
           </div>
         </div>
+        <div className="flex w-full flex-col gap-1.5 sm:w-[200px]">
+          <Label htmlFor="templates-status" className="text-xs text-muted-foreground">
+            {t("filters.status")}
+          </Label>
+          <NativeSelect
+            id="templates-status"
+            className="w-full"
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+          >
+            <option value={ALL}>{t("filters.all")}</option>
+            <option value="DRAFT">{t("filters.draft")}</option>
+            <option value="PUBLISHED">{t("filters.published")}</option>
+            <option value="ARCHIVED">{t("filters.archived")}</option>
+          </NativeSelect>
+        </div>
+        <div className="flex w-full flex-col gap-1.5 sm:w-[200px]">
+          <Label htmlFor="templates-owner" className="text-xs text-muted-foreground">
+            {tList("filterOwnerTierLabel")}
+          </Label>
+          <NativeSelect
+            id="templates-owner"
+            className="w-full"
+            value={ownerTier}
+            onChange={(event) => setOwnerTier(event.target.value as OwnerTierFilter)}
+          >
+            <option value={ALL}>{tList("filterOwnerTierAll")}</option>
+            <option value="union">{tList("filterOwnerTierUnion")}</option>
+            <option value="local_field">{tList("filterOwnerTierLocalField")}</option>
+          </NativeSelect>
+        </div>
       </div>
 
-      {/* List */}
-      {filteredTemplates.length === 0 ? (
-        <EmptyState
-          icon={Plus}
-          variant={hasActiveFilters ? "no-results" : "default"}
-          title={
-            hasActiveFilters
-              ? t("templates.noResultsTitle")
-              : t("templates.noTemplatesTitle")
-          }
-          description={
-            hasActiveFilters
-              ? t("templates.noResultsDescription")
-              : t("templates.noTemplatesDescription")
-          }
-        >
-          {!hasActiveFilters && !cannotCreateTemplate && (
+      {filtered.length === 0 ? (
+        isFiltered ? (
+          <EmptyState
+            icon={Search}
+            variant="no-results"
+            title={tList("noResultsTitle")}
+            description={tList("noResultsDescription")}
+          >
             <Button
+              variant="outline"
               size="sm"
               onClick={() => {
-                setEditingTemplate(null);
-                setTemplateFormOpen(true);
+                setSearch("");
+                setStatusFilter(ALL);
+                setOwnerTier(ALL);
               }}
             >
-              <Plus className="size-4" />
-              {t("templates.newTemplate")}
+              {tList("clearFilters")}
             </Button>
-          )}
-        </EmptyState>
+          </EmptyState>
+        ) : (
+          <EmptyState
+            icon={FileStack}
+            title={tList("noTemplatesTitle")}
+            description={tList("noTemplatesDescription")}
+          >
+            {!cannotCreate ? (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setEditing(null);
+                  setFormOpen(true);
+                }}
+              >
+                <Plus className="size-4" />
+                {tList("newTemplate")}
+              </Button>
+            ) : null}
+          </EmptyState>
+        )
       ) : (
         <>
-          {/* Desktop: templates table */}
-          <div className="hidden rounded-lg border border-border/60 md:block">
+          <DataTableShell className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("templates.tableColName")}</TableHead>
-                  <TableHead className="hidden xl:table-cell">{t("templates.tableColClubType")}</TableHead>
-                  <TableHead>
-                    {t("templates.tableColEcclesiasticalYear")}
-                  </TableHead>
-                  <TableHead>{t("templates.tableColOwner")}</TableHead>
-                  <TableHead className="hidden w-24 text-center xl:table-cell">
-                    {t("templates.tableColSections")}
-                  </TableHead>
-                  <TableHead className="w-16 text-center">
-                    {t("templates.tableColStatus")}
-                  </TableHead>
-                  <TableHead className="w-16 text-right">
-                    {t("templates.tableColActions")}
-                  </TableHead>
+                  <TableHead className={HEAD}>{tList("tableColName")}</TableHead>
+                  <TableHead className={HEAD}>{tList("tableColClubType")}</TableHead>
+                  <TableHead className={HEAD}>{tList("tableColEcclesiasticalYear")}</TableHead>
+                  <TableHead className={HEAD}>{tList("tableColOwner")}</TableHead>
+                  <TableHead className={`${HEAD} text-right`}>{t("columns.sections")}</TableHead>
+                  <TableHead className={HEAD}>{tList("tableColStatus")}</TableHead>
+                  <RowActionsHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTemplates.map((template) => (
-                  <TableRow
-                    key={template.template_id}
-                    className="cursor-pointer"
-                    onClick={() => handleOpenTemplate(template)}
-                  >
-                    <TableCell className="max-w-[300px] whitespace-normal font-medium">
-                      {template.name}
-                    </TableCell>
-                    <TableCell className="hidden text-muted-foreground xl:table-cell">
-                      {template.club_type?.name ??
-                        `Tipo ${template.club_type_id}`}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {templateYearLabel(template)}
-                    </TableCell>
-                    <TableCell>
-                      {template.owner_union_id !== null &&
-                      template.owner_union_id !== undefined ? (
-                        <Badge variant="default" className="gap-1 text-xs">
-                          <Building2 className="size-3" />
-                          {resolveOwnerLabel(template)}
-                        </Badge>
-                      ) : template.owner_local_field_id !== null &&
-                        template.owner_local_field_id !== undefined ? (
-                        <Badge variant="secondary" className="gap-1 text-xs">
-                          <MapPin className="size-3" />
-                          {resolveOwnerLabel(template)}
-                        </Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden text-center xl:table-cell">
-                      <span className="text-sm text-muted-foreground">
-                        {template.sections?.length ?? "—"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge
-                        variant={templateStatusVariant(template)}
-                        className="text-xs"
+                {filtered.map((template) => (
+                  <TableRow key={template.template_id}>
+                    <TableCell className="px-3">
+                      <Link
+                        href={`${pathname}?template=${template.template_id}`}
+                        className="font-medium hover:underline"
                       >
-                        {templateStatusLabel(template)}
-                      </Badge>
+                        {template.name}
+                      </Link>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {isDraftTemplate(template) ? (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={(e) => handleEditTemplate(template, e)}
-                              title={t("templates.editTemplate")}
-                            >
-                              <Pencil className="size-3.5" />
-                              <span className="sr-only">
-                                {t("templates.editTemplate")}
-                              </span>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={(e) => handlePublishTemplate(template, e)}
-                              disabled={publishingTemplateId === template.template_id}
-                              title={t("templatesClientPage.publishTemplateTitle")}
-                            >
-                              <CheckCircle2 className="size-3.5" />
-                              <span className="sr-only">Publicar plantilla</span>
-                            </Button>
-                            {canDeleteDraft && (
-                              <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={(e) => handleDeleteTemplate(template, e)}
-                                title={t("templatesClientPage.deleteDraftTitle")}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="size-3.5" />
-                                <span className="sr-only">Eliminar borrador</span>
-                              </Button>
-                            )}
-                          </>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={(e) => handleCopyTemplate(template, e)}
-                            title="Copiar como borrador"
-                          >
-                            <Copy className="size-3.5" />
-                            <span className="sr-only">Copiar como borrador</span>
-                          </Button>
-                        )}
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                      </div>
+                    <TableCell className="px-3 text-muted-foreground">{clubTypeLabel(template)}</TableCell>
+                    <TableCell className="px-3 text-muted-foreground tabular-nums">{yearLabel(template)}</TableCell>
+                    <TableCell className="px-3 text-muted-foreground">{ownerLabel(template)}</TableCell>
+                    <TableCell className="px-3 text-right tabular-nums">
+                      {template.sections?.length ?? "—"}
+                    </TableCell>
+                    <TableCell className="px-3">{statusMark(template)}</TableCell>
+                    <TableCell className="px-3">
+                      <RowActions label={template.name} actions={templateActions(template)} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </DataTableShell>
 
-          {/* Mobile: template cards */}
-          <ul
-            className="space-y-3 md:hidden"
-            aria-label={t("templates.mobileTemplatesLabel")}
-          >
-            {filteredTemplates.map((template) => (
-              <li key={template.template_id}>
-                <div
-                  className="w-full rounded-xl border border-border/60 bg-card p-4 shadow-xs transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring text-left"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      onClick={() => handleOpenTemplate(template)}
-                      aria-label={t("templates.openTemplateAriaLabel", {
-                        name: template.name,
-                      })}
+          <ul className="divide-y rounded-xl bg-card shadow-card md:hidden" aria-label={tList("mobileTemplatesLabel")}>
+            {filtered.map((template) => (
+              <li key={template.template_id} className="flex items-center gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      href={`${pathname}?template=${template.template_id}`}
+                      className="truncate text-sm font-medium"
                     >
-                      <span className="block truncate font-medium">
-                        {template.name}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {template.club_type?.name ??
-                          `Tipo ${template.club_type_id}`}
-                        {" · "}
-                        {templateYearLabel(template)}
-                      </span>
-                    </button>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      <Badge
-                        variant={templateStatusVariant(template)}
-                        className="text-xs"
-                      >
-                        {templateStatusLabel(template)}
-                      </Badge>
-                      {isDraftTemplate(template) ? (
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={(e) => handleEditTemplate(template, e)}
-                          title={t("templates.editTemplate")}
-                        >
-                          <Pencil className="size-3.5" />
-                          <span className="sr-only">
-                            {t("templates.editTemplate")}
-                          </span>
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={(e) => handleCopyTemplate(template, e)}
-                          title="Copiar como borrador"
-                        >
-                          <Copy className="size-3.5" />
-                          <span className="sr-only">Copiar como borrador</span>
-                        </Button>
-                      )}
-                      <ChevronRight
-                        className="size-4 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                    </div>
+                      {template.name}
+                    </Link>
+                    {statusMark(template)}
                   </div>
-
-                  <button
-                    type="button"
-                    className="mt-3 flex w-full flex-wrap items-center gap-1.5 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    onClick={() => handleOpenTemplate(template)}
-                    aria-label={t("templates.openTemplateAriaLabel", {
-                      name: template.name,
-                    })}
-                  >
-                    {template.owner_union_id !== null &&
-                    template.owner_union_id !== undefined ? (
-                      <Badge variant="default" className="gap-1 text-xs">
-                        <Building2 className="size-3" />
-                        {resolveOwnerLabel(template)}
-                      </Badge>
-                    ) : template.owner_local_field_id !== null &&
-                      template.owner_local_field_id !== undefined ? (
-                      <Badge variant="secondary" className="gap-1 text-xs">
-                        <MapPin className="size-3" />
-                        {resolveOwnerLabel(template)}
-                      </Badge>
-                    ) : null}
-                    <span className="text-xs text-muted-foreground">
-                      {template.sections?.length ?? 0}{" "}
-                      {(template.sections?.length ?? 0) === 1
-                        ? t("templates.sectionSingular")
-                        : t("templates.sectionPlural")}
-                    </span>
-                  </button>
+                  <p className="flex flex-wrap gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+                    <span>{clubTypeLabel(template)}</span>
+                    <span>{yearLabel(template)}</span>
+                    <span>{ownerLabel(template)}</span>
+                  </p>
                 </div>
+                <RowActions label={template.name} actions={templateActions(template)} />
               </li>
             ))}
           </ul>
         </>
       )}
 
-      {templateLifecycleDialogs}
+      {dialogs}
     </div>
   );
 }

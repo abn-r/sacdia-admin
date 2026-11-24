@@ -6,7 +6,9 @@ import { pickMessages } from "@/lib/i18n/client-messages";
 const ANNUAL_FOLDERS_CLIENT_NAMESPACES = [
   "shared",
   "annual_folders",
+  "evaluation",
   "clubs",
+  "evaluation",
   "rankings",
   "scoring_categories",
 ] as const;
