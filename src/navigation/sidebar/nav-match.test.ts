@@ -176,7 +176,7 @@ describe("nav-match with the real sidebar", () => {
     ["/dashboard/annual-folders/rankings", "annual-folders-rankings"],
     ["/dashboard/annual-folders/ranking-config", "annual-folders-ranking-config"],
     ["/dashboard/campamentos", "campamentos-list-local"],
-    ["/dashboard/campamentos/union", "campamentos-list-union"],
+    ["/dashboard/campamentos/union", "campamentos-list-local"],
     ["/dashboard/club-enrollments", "club-enrollments-review"],
     ["/dashboard/certifications", "certifications-list"],
     ["/dashboard/certifications/reviews", "certifications-reviews"],

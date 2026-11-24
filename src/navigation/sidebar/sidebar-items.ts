@@ -31,7 +31,6 @@ import {
   Signpost,
   Tent,
   Trophy,
-  CalendarRange,
   User,
   UserPlus,
   Users,
@@ -260,15 +259,13 @@ export const sidebarItems: NavGroup[] = [
       },
       { id: "section-rankings", title: "Progreso por sección", url: "/dashboard/section-rankings", icon: BarChart3, activeMatch: "prefix" },
       {
-        id: "reports",
+        // Mensual, trimestral and anual are tabs of one page; territory roles see their scope there.
+        id: "reports-list",
         title: "Reportes",
+        labelKey: "items.reports",
+        url: "/dashboard/reports",
         icon: FileText,
-        subItems: [
-          { id: "reports-list", title: "Mis reportes", url: "/dashboard/reports", icon: FileText, activeMatch: "exact" },
-          { id: "reports-supervision", title: "Supervisión territorial", url: "/dashboard/reports/supervision", icon: ClipboardCheck, activeMatch: "prefix" },
-          { id: "reports-quarterly", title: "Informes trimestrales", url: "/dashboard/reports/quarterly", icon: CalendarDays, activeMatch: "prefix" },
-          { id: "reports-annual", title: "Informes anuales", url: "/dashboard/reports/annual", icon: CalendarRange, activeMatch: "prefix" },
-        ],
+        activeMatch: "prefix",
       },
       { id: "member-of-month", title: "Miembro del mes", url: "/dashboard/member-of-month", icon: Award, activeMatch: "prefix" },
       {
@@ -276,8 +273,16 @@ export const sidebarItems: NavGroup[] = [
         title: "Camporees",
         icon: Tent,
         subItems: [
-          { id: "campamentos-list-local", title: "Campo local", url: "/dashboard/campamentos", icon: Tent, activeMatch: "exact" },
-          { id: "campamentos-list-union", title: "Unión", url: "/dashboard/campamentos/union", icon: Landmark, activeMatch: "prefix" },
+          {
+            // Local and union camporees are tabs of one list.
+            id: "campamentos-list-local",
+            title: "Lista",
+            labelKey: "sidebar.campamentos_list",
+            url: "/dashboard/campamentos",
+            icon: Tent,
+            activeMatch: "exact",
+            matchPaths: ["/dashboard/campamentos/union"],
+          },
           { id: "campamentos-plantillas", title: "Plantillas", url: "/dashboard/campamentos/plantillas", icon: FileStack, activeMatch: "prefix" },
           { id: "campamentos-judges", title: "Jueces", url: "/dashboard/campamentos/jueces", icon: Scale, activeMatch: "prefix" },
           { id: "campamentos-pedidos-catalogo", title: "Catálogo pedidos", url: "/dashboard/campamentos/pedidos/catalogo", icon: ShoppingBag, activeMatch: "prefix" },

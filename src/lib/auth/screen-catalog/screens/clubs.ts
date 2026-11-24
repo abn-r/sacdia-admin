@@ -51,10 +51,11 @@ const ANNUAL_FOLDER_TEMPLATES_DELETE = "annual_folder_templates:delete";
  * or finalizes them. `reports.view_periodic` is the server capability that
  * hides them from coordinators (403 PERIODIC_REPORTS_FORBIDDEN).
  */
-function reportsPeriodicScreen(id: string): ScreenDefinition {
+function reportsPeriodicScreen(id: string, path: string): ScreenDefinition {
   return {
     id,
     surfaces: ["admin"],
+    path,
     viewAny: capabilityAccess("reports.view_periodic", [REPORTS_READ]),
     capabilities: [
       { id: "generate", kind: "button", gate: { permissions: [REPORTS_UPDATE] } },
@@ -312,13 +313,14 @@ export const clubsScreens: ScreenDefinition[] = [
   viewOnlyScreen("member-of-month", { permissions: [MOM_SUPERVISE] }),
 
   viewOnlyScreen("reports-list", { permissions: [REPORTS_READ] }, { surfaces: ["admin", "app"] }),
-  viewOnlyScreen("reports-supervision", { permissions: [REPORTS_READ] }),
+  // Tabs and views of /reports; the old routes redirect there.
+  viewOnlyScreen("reports-supervision", { permissions: [REPORTS_READ] }, { path: "/dashboard/reports/supervision" }),
   // Quarterly and annual club reports. quarterly-reports.controller.ts /
   // annual-reports.controller.ts: GET admin/* is reports:read, PATCH / regenerate /
   // finalize / generate are reports:update, GET :id/pdf is reports:download.
   // Admin-only: the app never shows these screens, so the Flutter fixture stays as is.
-  reportsPeriodicScreen("reports-quarterly"),
-  reportsPeriodicScreen("reports-annual"),
+  reportsPeriodicScreen("reports-quarterly", "/dashboard/reports/quarterly"),
+  reportsPeriodicScreen("reports-annual", "/dashboard/reports/annual"),
 
   viewOnlyScreen(
     "year-end",
