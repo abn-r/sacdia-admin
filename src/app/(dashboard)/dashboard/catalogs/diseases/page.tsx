@@ -30,6 +30,7 @@ import { ApiError } from "@/lib/api/client";
 import { listAdminDiseases } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import {
@@ -61,6 +62,7 @@ export default async function DiseasesPage({ searchParams }: { searchParams: Sea
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -72,7 +74,9 @@ export default async function DiseasesPage({ searchParams }: { searchParams: Sea
     items = extractItems(payload);
     ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
@@ -80,6 +84,10 @@ export default async function DiseasesPage({ searchParams }: { searchParams: Sea
   const canCreate = canCapability(user, "catalogs-diseases", "create");
   const canEdit = canCapability(user, "catalogs-diseases", "update");
   const canDelete = canCapability(user, "catalogs-diseases", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("title")} description={t("description")} />;
+  }
 
   return (
     <div className="space-y-6">

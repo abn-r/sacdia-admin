@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ApiError } from "@/lib/api/client";
 import { listAdminDivisions } from "@/lib/api/admin-divisions";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminDivision } from "@/lib/catalogs/divisions/types";
@@ -27,11 +28,14 @@ export default async function DivisionsPage() {
 
   let divisions: AdminDivision[] = [];
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     divisions = await listAdminDivisions();
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
@@ -39,6 +43,10 @@ export default async function DivisionsPage() {
   const canCreate = canCapability(user, "catalogs-divisions", "create");
   const canEdit = canCapability(user, "catalogs-divisions", "update");
   const canDelete = canCapability(user, "catalogs-divisions", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("entities.divisions.title")} description={t("entities.divisions.description")} breadcrumbs={[{ label: t("entities.divisions.title") }]} />;
+  }
 
   return (
     <>

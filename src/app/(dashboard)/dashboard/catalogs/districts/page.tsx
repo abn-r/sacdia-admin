@@ -7,6 +7,7 @@ import { listAdminDistricts } from "@/lib/api/admin-districts";
 import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
 import { ApiError } from "@/lib/api/client";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminDistrictRow } from "@/lib/catalogs/districts/types";
@@ -45,6 +46,7 @@ export default async function DistrictsPage() {
   let districts: AdminDistrictRow[] = [];
   let localFields: AdminLocalField[] = [];
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     const [districtRows, localFieldRows] = await Promise.all([
@@ -54,7 +56,9 @@ export default async function DistrictsPage() {
     localFields = localFieldRows;
     districts = enrichDistricts(districtRows, localFields);
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
@@ -62,6 +66,10 @@ export default async function DistrictsPage() {
   const canCreate = canCapability(user, "catalogs-districts", "create");
   const canEdit = canCapability(user, "catalogs-districts", "update");
   const canDelete = canCapability(user, "catalogs-districts", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("entities.districts.title")} description={t("entities.districts.description")} breadcrumbs={[{ label: t("entities.districts.title") }]} />;
+  }
 
   return (
     <>

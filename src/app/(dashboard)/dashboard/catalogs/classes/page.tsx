@@ -33,6 +33,7 @@ import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { sortClassesByClubTypeAndName, sortClubTypesForDisplay } from "@/lib/catalogs/club-ideals/sort";
 import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import {
@@ -65,6 +66,7 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let rateLimited = false;
   let ecclesiasticalYears: Array<{ ecclesiastical_year_id: number; name: string }> = [];
   let clubTypes: Array<{ club_type_id: number; name: string }> = [];
 
@@ -98,7 +100,9 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
       name: type.name,
     }));
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
@@ -106,6 +110,10 @@ export default async function AdminClassesPage({ searchParams }: { searchParams:
   const canCreate = canCapability(user, "catalogs-classes", "create");
   const canEdit = canCapability(user, "catalogs-classes", "update");
   const canDelete = canCapability(user, "catalogs-classes", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("title")} description={t("description")} />;
+  }
 
   return (
     <div className="space-y-6">

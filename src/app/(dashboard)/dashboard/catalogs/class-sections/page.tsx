@@ -40,6 +40,7 @@ import {
 } from "@/lib/catalogs/club-ideals/sort";
 import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import {
@@ -79,6 +80,7 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
   let loadError: string | null = null;
+  let rateLimited = false;
   let classSectionModuleOptions: Array<{
     module_id: number;
     name: string;
@@ -180,7 +182,9 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
       name: type.name,
     }));
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("loadError");
     }
   }
@@ -188,6 +192,10 @@ export default async function AdminClassSectionsPage({ searchParams }: { searchP
   const canCreate = canCapability(user, "catalogs-class-sections", "create");
   const canEdit = canCapability(user, "catalogs-class-sections", "update");
   const canDelete = canCapability(user, "catalogs-class-sections", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("title")} description={t("description")} />;
+  }
 
   return (
     <div className="space-y-6">

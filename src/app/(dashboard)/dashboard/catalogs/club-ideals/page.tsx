@@ -7,6 +7,7 @@ import { listAdminClubIdeals } from "@/lib/api/admin-club-ideals";
 import { listAdminClubTypes } from "@/lib/api/admin-club-types";
 import { ApiError } from "@/lib/api/client";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
+import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminClubIdealRow } from "@/lib/catalogs/club-ideals/types";
@@ -48,6 +49,7 @@ export default async function ClubIdealsPage() {
   let clubIdeals: AdminClubIdealRow[] = [];
   let clubTypes: AdminClubType[] = [];
   let loadError: string | null = null;
+  let rateLimited = false;
 
   try {
     const [ideals, types] = await Promise.all([
@@ -57,7 +59,9 @@ export default async function ClubIdealsPage() {
     clubTypes = types;
     clubIdeals = enrichClubIdeals(ideals, types);
   } catch (error) {
-    if (!(error instanceof ApiError && error.status === 429)) {
+    if (error instanceof ApiError && error.status === 429) {
+      rateLimited = true;
+    } else {
       loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
     }
   }
@@ -65,6 +69,10 @@ export default async function ClubIdealsPage() {
   const canCreate = canCapability(user, "catalogs-club-ideals", "create");
   const canEdit = canCapability(user, "catalogs-club-ideals", "update");
   const canDelete = canCapability(user, "catalogs-club-ideals", "delete");
+
+  if (rateLimited) {
+    return <CatalogRateLimited title={t("entities.club-ideals.title")} description={t("entities.club-ideals.description")} breadcrumbs={[{ label: t("entities.club-ideals.title") }]} />;
+  }
 
   return (
     <>
