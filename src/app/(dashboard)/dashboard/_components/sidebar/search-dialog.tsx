@@ -2,10 +2,10 @@
 
 import * as React from "react";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { Search } from "lucide-react";
+import { Bell, Building2, CalendarPlus, Clock, Search, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,10 +18,14 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { useAuth } from "@/lib/auth/auth-context";
+import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { canViewScreen } from "@/lib/auth/screen-catalog";
 import type { NavTranslator } from "@/lib/auth/screen-catalog/screen-title";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import { usePermissions } from "@/lib/auth/use-permissions";
+import { OPEN_SEARCH_EVENT } from "@/lib/search/open-search";
+import { pushRecentPage, readRecentPages, type RecentPage } from "@/lib/search/recent-pages";
 import {
   CATALOGS_INDEX_SECTIONS,
   CONFIGURATION_INDEX_SECTIONS,
@@ -33,6 +37,8 @@ import {
 import type { NavGroup, NavMainItem, NavSubItem } from "@/navigation/sidebar/sidebar-items";
 import { useSidebarItems } from "@/navigation/sidebar/use-sidebar-items";
 
+import { useSidebarInsights } from "./sidebar-insights-context";
+
 type SearchItem = {
   id: string;
   group: string;
@@ -41,10 +47,16 @@ type SearchItem = {
   icon?: NavMainItem["icon"];
   disabled?: boolean;
   newTab?: boolean;
+  count?: number;
 };
 
-function getSubItemGroup(groupLabel: string | undefined, itemTitle: string, groupLabels: Set<string>) {
-  return groupLabels.has(itemTitle) ? (groupLabel ?? "Other") : itemTitle;
+function getSubItemGroup(
+  groupLabel: string | undefined,
+  itemTitle: string,
+  groupLabels: Set<string>,
+  fallbackGroup: string,
+) {
+  return groupLabels.has(itemTitle) ? (groupLabel ?? fallbackGroup) : itemTitle;
 }
 
 function flattenSubItems(
@@ -79,7 +91,7 @@ function flattenSubItems(
   });
 }
 
-function buildSearchItems(groups: NavGroup[]): SearchItem[] {
+function buildSearchItems(groups: NavGroup[], fallbackGroup: string): SearchItem[] {
   const groupLabels = new Set(groups.flatMap((group) => (group.label ? [group.label] : [])));
 
   return groups.flatMap((group) =>
@@ -87,7 +99,7 @@ function buildSearchItems(groups: NavGroup[]): SearchItem[] {
       if (item.subItems) {
         return flattenSubItems(
           item.subItems,
-          getSubItemGroup(group.label, item.title, groupLabels),
+          getSubItemGroup(group.label, item.title, groupLabels, fallbackGroup),
           item.icon,
         );
       }
@@ -96,7 +108,7 @@ function buildSearchItems(groups: NavGroup[]): SearchItem[] {
       return [
         {
           id: item.id,
-          group: group.label ?? "Other",
+          group: group.label ?? fallbackGroup,
           label: item.title,
           url: item.url,
           icon: item.icon,
@@ -132,7 +144,7 @@ function buildIndexSearchItems(
 
 function getAvailableItems(items: SearchItem[]) {
   return items.filter(
-    (item) => item.url && !item.disabled && !item.url.includes("coming-soon"),
+    (item) => item.url && !item.disabled,
   );
 }
 
@@ -144,18 +156,46 @@ function groupBy(items: SearchItem[]) {
   }));
 }
 
+const QUICK_ACTIONS = [
+  { id: "action-new-club", labelKey: "newClub", url: "/dashboard/clubs/new", icon: Building2 },
+  { id: "action-new-user", labelKey: "newUser", url: "/dashboard/users/new", icon: UserPlus },
+  {
+    id: "action-new-notification",
+    labelKey: "newNotification",
+    url: "/dashboard/configuration/notifications/send",
+    icon: Bell,
+  },
+  {
+    id: "action-new-activity",
+    labelKey: "newActivity",
+    url: "/dashboard/clubs/activities",
+    icon: CalendarPlus,
+  },
+] as const;
+
 export function SearchDialog() {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const [recents, setRecents] = React.useState<RecentPage[]>([]);
   const router = useRouter();
+  const pathname = usePathname();
   const sidebarItems = useSidebarItems();
   const t = useTranslations("nav.commandPalette");
+  const tShell = useTranslations("shared.shell.search");
   const tNav = useTranslations("nav");
   const { subject } = useScreenAccess();
   const { isPastorOnly } = usePermissions();
+  const { user } = useAuth();
+  const { counts } = useSidebarInsights();
+  const general = tShell("general");
+
+  const sidebarSearchItems = React.useMemo(
+    () => getAvailableItems(buildSearchItems(sidebarItems, general)),
+    [sidebarItems, general],
+  );
 
   const searchItems = React.useMemo(() => {
-    const base = buildSearchItems(sidebarItems);
+    const base = buildSearchItems(sidebarItems, general);
     if (isPastorOnly) return base;
     const translator = tNav as unknown as NavTranslator;
     const canOpen = (link: { id: string }) => canViewScreen(subject, link.id);
@@ -173,12 +213,49 @@ export function SearchDialog() {
         seen,
       ),
     ];
-  }, [sidebarItems, subject, isPastorOnly, tNav]);
-  // Default list (empty query) stays the sidebar; index pages only add search hits.
-  const recommendations = React.useMemo(
-    () => getAvailableItems(buildSearchItems(sidebarItems)),
-    [sidebarItems],
+  }, [sidebarItems, subject, isPastorOnly, tNav, general]);
+
+  // Every page the user can open right now (sidebar + index pages).
+  const accessiblePages = React.useMemo(() => getAvailableItems(searchItems), [searchItems]);
+
+  const actionItems = React.useMemo<SearchItem[]>(
+    () =>
+      QUICK_ACTIONS.filter((action) => canAccessDashboardPath(user, action.url)).map((action) => ({
+        id: action.id,
+        group: tShell("actions"),
+        label: tShell(action.labelKey),
+        url: action.url,
+        icon: action.icon,
+      })),
+    [user, tShell],
   );
+
+  const recentItems = React.useMemo<SearchItem[]>(() => {
+    const byUrl = new Map(accessiblePages.map((item) => [item.url, item]));
+    return recents.flatMap((recent) => {
+      const current = byUrl.get(recent.href);
+      return current
+        ? [{ ...current, id: `recent-${current.id}`, group: tShell("recent"), icon: current.icon ?? Clock }]
+        : [];
+    });
+  }, [recents, accessiblePages, tShell]);
+
+  const pendingItems = React.useMemo<SearchItem[]>(
+    () =>
+      sidebarSearchItems.flatMap((item) => {
+        const count = counts[item.id] ?? 0;
+        return count > 0
+          ? [{ ...item, id: `pending-${item.id}`, group: tShell("pending"), count }]
+          : [];
+      }),
+    [sidebarSearchItems, counts, tShell],
+  );
+
+  // Record visits to known pages so "Recientes" also covers navigation outside the dialog.
+  React.useEffect(() => {
+    const page = accessiblePages.find((item) => item.url === pathname && !item.newTab);
+    if (page) pushRecentPage({ href: page.url, label: page.label });
+  }, [pathname, accessiblePages]);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -187,9 +264,18 @@ export function SearchDialog() {
         setOpen((prev) => !prev);
       }
     };
+    const openFromEvent = () => setOpen(true);
     document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    window.addEventListener(OPEN_SEARCH_EVENT, openFromEvent);
+    return () => {
+      document.removeEventListener("keydown", down);
+      window.removeEventListener(OPEN_SEARCH_EVENT, openFromEvent);
+    };
   }, []);
+
+  React.useEffect(() => {
+    if (open) setRecents(readRecentPages());
+  }, [open]);
 
   const handleOpenChange = (value: boolean) => {
     setOpen(value);
@@ -202,6 +288,7 @@ export function SearchDialog() {
     if (item.newTab) {
       window.open(item.url, "_blank", "noopener,noreferrer");
     } else {
+      if (!item.id.startsWith("action-")) pushRecentPage({ href: item.url, label: item.label });
       router.push(item.url);
     }
   };
@@ -218,15 +305,27 @@ export function SearchDialog() {
               value={`${item.group} ${item.label}`}
               onSelect={() => handleSelect(item)}
             >
-              <span className="flex min-w-0 items-center gap-2">
+              <span className="flex min-w-0 flex-1 items-center gap-2">
                 {item.icon && <item.icon />}
                 <span className="truncate">{item.label}</span>
               </span>
+              {item.count ? (
+                <span className="ml-auto shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                  {item.count}
+                </span>
+              ) : null}
             </CommandItem>
           ))}
         </CommandGroup>
       </React.Fragment>
     ));
+
+  // With no recents and nothing pending, the empty view falls back to the menu pages so it is never bare.
+  const visibleItems = query
+    ? [...searchItems, ...actionItems]
+    : recentItems.length + pendingItems.length > 0
+      ? [...recentItems, ...pendingItems, ...actionItems]
+      : [...actionItems, ...sidebarSearchItems];
 
   return (
     <>
@@ -237,7 +336,7 @@ export function SearchDialog() {
         className="px-0! font-normal text-muted-foreground hover:no-underline"
       >
         <Search data-icon="inline-start" />
-        {t("triggerLabel")}
+        {tShell("trigger")}
         <kbd className="hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium text-2xs [@media(pointer:fine)]:inline-flex">
           <span className="text-xs">⌘</span>J
         </kbd>
@@ -251,14 +350,19 @@ export function SearchDialog() {
         {open ? (
           <Command>
             <CommandInput
-              placeholder={t("placeholder")}
+              placeholder={tShell("placeholder")}
               value={query}
               onValueChange={setQuery}
             />
             <CommandList>
-              <CommandEmpty>{t("empty")}</CommandEmpty>
-              {query ? renderGroups(searchItems) : renderGroups(recommendations)}
+              <CommandEmpty>{tShell("empty")}</CommandEmpty>
+              {renderGroups(visibleItems)}
             </CommandList>
+            <div className="flex items-center gap-4 border-t px-3 py-2 text-xs text-muted-foreground">
+              <span>{tShell("hintMove")}</span>
+              <span>{tShell("hintOpen")}</span>
+              <span>{tShell("hintClose")}</span>
+            </div>
           </Command>
         ) : null}
       </CommandDialog>
