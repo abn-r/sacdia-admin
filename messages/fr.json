@@ -1964,6 +1964,10 @@
       "home": {
         "title": "Accueil",
         "description": "Ce qui demande votre attention dans votre périmètre.",
+        "finding": {
+          "queue": "{total, plural, one {# élément à examiner} other {# éléments à examiner}}. File la plus longue : {queue} ({count, number}).",
+          "gaps": "{count, plural, one {# {level, select, division {division a} union {union a} local_field {champ local a} other {club a}}} other {# {level, select, division {divisions ont} union {unions ont} local_field {champs locaux ont} other {clubs ont}}}} des rapports manquants ou des clubs inactifs."
+        },
         "kpis": {
           "label": "Indicateurs du périmètre",
           "reports": {
@@ -2011,7 +2015,14 @@
         "honorsReview": "Révisions de spécialités",
         "annualFolders": "Dossiers en attente de l'Union",
         "total": "{count, plural, one {# en attente} other {# en attente}}",
-        "empty": "Tout est à jour"
+        "empty": "Tout est à jour",
+        "actions": {
+          "roles": "Examiner les affectations",
+          "transfers": "Examiner les transferts",
+          "classes": "Valider les classes",
+          "honors": "Examiner les spécialités",
+          "folders": "Évaluer les dossiers"
+        }
       },
       "formation": {
         "title": "Formation par classe",

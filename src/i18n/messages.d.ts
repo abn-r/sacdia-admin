@@ -1993,6 +1993,10 @@ export interface IntlMessages {
       home: {
         title: string;
         description: string;
+        finding: {
+          queue: string;
+          gaps: string;
+        };
         kpis: {
           label: string;
           reports: {
@@ -2041,6 +2045,13 @@ export interface IntlMessages {
         annualFolders: string;
         total: string;
         empty: string;
+        actions: {
+          roles: string;
+          transfers: string;
+          classes: string;
+          honors: string;
+          folders: string;
+        };
       };
       formation: {
         title: string;

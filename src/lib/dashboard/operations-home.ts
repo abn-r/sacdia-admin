@@ -153,6 +153,28 @@ export function attentionTotal(items: OperationsWorkItem[]): number {
   return items.reduce((total, item) => total + item.count, 0);
 }
 
+export type HomeFinding =
+  | { kind: "queue"; total: number; top: OperationsWorkItem }
+  | { kind: "gaps"; count: number }
+  | { kind: "clear" };
+
+/**
+ * The one fact the title row leads with. Dispatch names the pending work first;
+ * supervision names the territories with gaps first. Each falls back to the other.
+ */
+export function homeFinding(
+  mode: HomeMode,
+  items: OperationsWorkItem[],
+  ranked: RankedChild[],
+): HomeFinding {
+  const queue: HomeFinding | null =
+    items.length > 0 ? { kind: "queue", total: attentionTotal(items), top: items[0] } : null;
+  const gapCount = ranked.filter((entry) => entry.gap.hasGap).length;
+  const gaps: HomeFinding | null = gapCount > 0 ? { kind: "gaps", count: gapCount } : null;
+  const [first, second] = mode === "dispatch" ? [queue, gaps] : [gaps, queue];
+  return first ?? second ?? { kind: "clear" };
+}
+
 export type HomeSection = "breakdown" | "attention";
 
 /** Dispatch leads with the work queue; supervision leads with the territorial breakdown. */

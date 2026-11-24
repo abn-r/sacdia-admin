@@ -1964,6 +1964,10 @@
       "home": {
         "title": "Início",
         "description": "O que precisa de atenção no seu escopo.",
+        "finding": {
+          "queue": "{total, plural, one {# pendente para revisar} other {# pendentes para revisar}}. Fila mais longa: {queue} ({count, number}).",
+          "gaps": "{count, plural, one {# {level, select, division {divisão tem} union {união tem} local_field {campo local tem} other {clube tem}}} other {# {level, select, division {divisões têm} union {uniões têm} local_field {campos locais têm} other {clubes têm}}}} relatórios faltando ou clubes sem atividade."
+        },
         "kpis": {
           "label": "Indicadores do escopo",
           "reports": {
@@ -2011,7 +2015,14 @@
         "honorsReview": "Revisões de especialidades",
         "annualFolders": "Pastas pendentes da União",
         "total": "{count, plural, one {# pendente} other {# pendentes}}",
-        "empty": "Tudo em dia"
+        "empty": "Tudo em dia",
+        "actions": {
+          "roles": "Revisar atribuições",
+          "transfers": "Revisar transferências",
+          "classes": "Validar classes",
+          "honors": "Revisar especialidades",
+          "folders": "Avaliar pastas"
+        }
       },
       "formation": {
         "title": "Formação por classe",
