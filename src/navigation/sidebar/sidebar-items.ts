@@ -35,7 +35,6 @@ import {
   Trophy,
   CalendarRange,
   User,
-  UserCog,
   UserPlus,
   Users,
   type LucideIcon,
@@ -131,13 +130,14 @@ export const sidebarItems: NavGroup[] = [
         ],
       },
       {
-        id: "classes-honors",
+        // One page with tabs (Por aprobar · Evidencias · Propuestas de instructor · Historial).
+        id: "validations-investitures",
         title: "Especialidades y clases",
+        labelKey: "sidebar.classes_honors",
+        url: "/dashboard/clubs/validations",
         icon: GraduationCap,
-        subItems: [
-          { id: "validations-investitures", title: "Validaciones de clase", url: "/dashboard/clubs/validations", icon: ClipboardCheck, activeMatch: "prefix" },
-          { id: "honor-instructor-proposals", title: "Propuestas de instructor", url: "/dashboard/honor-instructor-proposals", icon: UserCog, activeMatch: "prefix" },
-        ],
+        activeMatch: "prefix",
+        matchPaths: ["/dashboard/honor-instructor-proposals"],
       },
       {
         id: "investiture-requests",
