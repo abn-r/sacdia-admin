@@ -8,21 +8,10 @@ import {
   FileText,
   Loader2,
   RefreshCw,
-  ShieldCheck,
   Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ReviewSheet } from "@/components/requests/review-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,6 +27,7 @@ import {
   verifyConsent,
   VERIFY_BLOCK_CODE,
   type ConsentEvidence,
+  rejectMembershipRequest,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
 import { useFormatDateTime } from "@/lib/format-locale";
@@ -84,6 +74,8 @@ interface MembershipConsentVerifyDialogProps {
    * replaced (the backend rejects it).
    */
   canApprove?: boolean;
+  /** Called after the request was rejected from inside the sheet. */
+  onRejected?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -96,8 +88,11 @@ export function MembershipConsentVerifyDialog({
   onSuccess,
   onVerifyError,
   canApprove = true,
+  onRejected,
 }: MembershipConsentVerifyDialogProps) {
   const t = useTranslations("membership.consent");
+  const tq = useTranslations("queues.requests.membership.verify");
+  const tRoot = useTranslations("membership");
   const formatDateTime = useFormatDateTime();
   const errorMessage = useConsentErrorMessage();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -235,235 +230,230 @@ export function MembershipConsentVerifyDialog({
   const isImage = evidence?.content_type.startsWith("image/") ?? false;
 
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
-        <AlertDialogHeader>
-          <AlertDialogMedia className="bg-primary/10">
-            <ShieldCheck className="text-primary" />
-          </AlertDialogMedia>
-          <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("dialog.description", { userName })}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+    <ReviewSheet
+      open={open}
+      onOpenChange={handleOpenChange}
+      wide
+      title={tq("title", { userName })}
+      description={tq("description")}
+      busy={isBusy}
+      {...(canApprove
+        ? {
+            reject: {
+              label: tq("rejectAction"),
+              confirmLabel: tq("rejectConfirm"),
+              audience: tq("rejectAudience"),
+              onConfirm: async (reason: string) => {
+                await rejectMembershipRequest(clubSectionId, request.assignment_id, reason);
+                toast.success(tRoot("toasts.rejected", { name: userName }));
+                onRejected?.();
+              },
+            },
+          }
+        : {})}
+      errorMessage={(error) => errorMessage(error, "verify")}
+      primary={
+        <Button
+          type="button"
+          loading={verifyMutation.isPending}
+          disabled={!canConfirm}
+          onClick={() => {
+            if (canConfirm) verifyMutation.mutate();
+          }}
+        >
+          {verifyMutation.isPending ? t("dialog.confirming") : t("dialog.confirm")}
+        </Button>
+      }
+    >
+      {verifyBlock && (
+        <p role="alert" className="rounded-lg bg-warning/10 p-3 text-sm text-foreground">
+          {errorMessage(VERIFY_BLOCK_CODE[verifyBlock])}
+        </p>
+      )}
 
-        <div className="space-y-4">
-          {verifyBlock && (
-            <p
-              role="alert"
-              className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-foreground"
-            >
-              {errorMessage(VERIFY_BLOCK_CODE[verifyBlock])}
-            </p>
-          )}
-
-          {guardians.length > 0 && (
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("dialog.guardians_label")}
-              </p>
-              <ul className="space-y-1">
-                {guardians.map((guardian) => (
-                  <li
-                    key={`${guardian.display_name}-${guardian.relationship_type_name ?? ""}`}
-                    className="flex flex-wrap items-center gap-2 text-sm"
-                  >
-                    <span className="font-medium">{guardian.display_name}</span>
-                    {guardian.relationship_type_name && (
-                      <span className="text-muted-foreground">
-                        {guardian.relationship_type_name}
-                      </span>
-                    )}
-                    {guardian.is_primary && (
-                      <Badge variant="soft">{t("dialog.guardian_primary")}</Badge>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Evidence */}
-          <div className="space-y-2 rounded-lg border border-border/60 bg-muted/30 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-muted-foreground">
-                {t("dialog.evidence_title")}
-              </p>
-              {(evidenceLoadError || imageFailed) && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  onClick={handleEvidenceReload}
-                >
-                  <RefreshCw className="size-3" />
-                  {t("dialog.evidence_reload")}
-                </Button>
-              )}
-            </div>
-
-            {evidenceExpected && evidenceQuery.isFetching && !evidence && (
-              <div className="space-y-2" aria-busy="true">
-                <Skeleton className="h-40 w-full" />
-                <span className="sr-only">{t("dialog.evidence_loading")}</span>
-              </div>
-            )}
-
-            {evidenceLoadError && (
-              <p role="alert" className="text-sm text-destructive">
-                {errorMessage(evidenceQuery.error, "evidence_load")}
-              </p>
-            )}
-
-            {imageFailed && !evidenceLoadError && (
-              <p role="alert" className="text-sm text-destructive">
-                {errorMessage(null, "evidence_load")}
-              </p>
-            )}
-
-            {(!evidenceExpected || evidenceNotFound) && !evidence && (
-              <p className="text-sm text-muted-foreground">
-                {canApprove ? t("dialog.evidence_none") : t("dialog.evidence_none_verify_only")}
-              </p>
-            )}
-
-            {evidence && (
-              <div className="space-y-2">
-                {isImage ? (
-                  <a
-                    href={evidence.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block overflow-hidden rounded-md border bg-background"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL of private evidence; next/image would proxy and cache it */}
-                    <img
-                      src={evidence.url}
-                      alt={t("dialog.evidence_image_alt")}
-                      className="max-h-72 w-full object-contain"
-                      onLoad={handleImageLoad}
-                      onError={handleImageError}
-                    />
-                  </a>
-                ) : (
-                  <Button asChild variant="outline" size="sm">
-                    <a href={evidence.url} target="_blank" rel="noopener noreferrer">
-                      <FileText className="size-4" />
-                      {t("dialog.evidence_open_pdf")}
-                    </a>
-                  </Button>
+      {guardians.length > 0 && (
+        <section className="space-y-1.5">
+          <h3 className="text-sm font-semibold tracking-tight">{t("dialog.guardians_label")}</h3>
+          <ul className="space-y-1">
+            {guardians.map((guardian) => (
+              <li
+                key={`${guardian.display_name}-${guardian.relationship_type_name ?? ""}`}
+                className="flex flex-wrap items-center gap-2 text-sm"
+              >
+                <span className="font-medium">{guardian.display_name}</span>
+                {guardian.relationship_type_name && (
+                  <span className="text-muted-foreground">{guardian.relationship_type_name}</span>
                 )}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                  <span>
-                    {t("dialog.evidence_uploaded_at", {
-                      date: formatDateTime(evidence.uploaded_at),
-                    })}
-                    {evidence.uploaded_by_display_name
-                      ? ` ${t("dialog.evidence_uploaded_by", { name: evidence.uploaded_by_display_name })}`
-                      : ""}
-                  </span>
-                  {isImage && (
-                    <a
-                      href={evidence.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-primary hover:underline"
-                    >
-                      <ExternalLink className="size-3" />
-                      {t("dialog.evidence_open_new_tab")}
-                    </a>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">{t("dialog.evidence_expiry_note")}</p>
-              </div>
-            )}
+                {guardian.is_primary && <Badge variant="soft">{t("dialog.guardian_primary")}</Badge>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-            {/* Verify-only reviewers (coordinators) cannot upload: the backend rejects it. */}
-            {canApprove && (
-              <div className="space-y-1.5 pt-1">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
-                  className="hidden"
-                  data-testid="consent-file-input"
-                  onChange={handleFileChange}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isBusy}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {uploadMutation.isPending ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Upload className="size-4" />
-                  )}
-                  {uploadMutation.isPending
-                    ? t("dialog.uploading")
-                    : hasEvidence
-                      ? t("dialog.replace")
-                      : t("dialog.upload")}
-                </Button>
-                <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
-                {fileError && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {fileError}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Confirmation */}
-          <div className="space-y-3">
-            <div className="flex items-start gap-2">
-              <Checkbox
-                id="consent-reviewed"
-                checked={reviewed}
-                disabled={isBusy}
-                onCheckedChange={(checked) => setReviewed(checked === true)}
-              />
-              <Label htmlFor="consent-reviewed" className="text-sm leading-snug">
-                {t("dialog.confirm_checkbox")}
-              </Label>
-            </div>
-            {canApprove && (
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="consent-approve"
-                  checked={approveChecked}
-                  disabled={isBusy}
-                  onCheckedChange={(checked) => setApproveChecked(checked === true)}
-                />
-                <Label htmlFor="consent-approve" className="text-sm leading-snug">
-                  {t("dialog.approve_checkbox")}
-                </Label>
-              </div>
-            )}
-            {!canApprove && (
-              <p className="text-xs text-muted-foreground">{t("dialog.verify_only_note")}</p>
-            )}
-          </div>
+      {/* The signed form, visible in the sheet */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold tracking-tight">{t("dialog.evidence_title")}</h3>
+          {(evidenceLoadError || imageFailed) && (
+            <Button type="button" variant="ghost" size="xs" onClick={handleEvidenceReload}>
+              <RefreshCw className="size-3" />
+              {t("dialog.evidence_reload")}
+            </Button>
+          )}
         </div>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isBusy}>{t("dialog.cancel")}</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={!canConfirm}
-            onClick={(event) => {
-              // Keep the dialog open until the request settles (errors stay visible).
-              event.preventDefault();
-              if (canConfirm) verifyMutation.mutate();
-            }}
-          >
-            {verifyMutation.isPending && <Loader2 className="size-4 animate-spin" />}
-            {verifyMutation.isPending ? t("dialog.confirming") : t("dialog.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        {evidenceExpected && evidenceQuery.isFetching && !evidence && (
+          <div className="space-y-2" aria-busy="true">
+            <Skeleton className="h-64 w-full" />
+            <span className="sr-only">{t("dialog.evidence_loading")}</span>
+          </div>
+        )}
+
+        {evidenceLoadError && (
+          <p role="alert" className="text-sm text-destructive">
+            {errorMessage(evidenceQuery.error, "evidence_load")}
+          </p>
+        )}
+
+        {imageFailed && !evidenceLoadError && (
+          <p role="alert" className="text-sm text-destructive">
+            {errorMessage(null, "evidence_load")}
+          </p>
+        )}
+
+        {(!evidenceExpected || evidenceNotFound) && !evidence && (
+          <p className="text-sm text-muted-foreground">
+            {canApprove ? t("dialog.evidence_none") : t("dialog.evidence_none_verify_only")}
+          </p>
+        )}
+
+        {evidence && (
+          <div className="space-y-2">
+            {isImage ? (
+              <a
+                href={evidence.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block overflow-hidden rounded-md bg-muted/30"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL of private evidence; next/image would proxy and cache it */}
+                <img
+                  src={evidence.url}
+                  alt={t("dialog.evidence_image_alt")}
+                  className="max-h-[28rem] w-full object-contain"
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
+                />
+              </a>
+            ) : (
+              <Button asChild variant="outline" size="sm">
+                <a href={evidence.url} target="_blank" rel="noopener noreferrer">
+                  <FileText className="size-4" />
+                  {t("dialog.evidence_open_pdf")}
+                </a>
+              </Button>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>
+                {t("dialog.evidence_uploaded_at", {
+                  date: formatDateTime(evidence.uploaded_at),
+                })}
+                {evidence.uploaded_by_display_name
+                  ? ` ${t("dialog.evidence_uploaded_by", { name: evidence.uploaded_by_display_name })}`
+                  : ""}
+              </span>
+              {isImage && (
+                <a
+                  href={evidence.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                >
+                  <ExternalLink className="size-3" />
+                  {t("dialog.evidence_open_new_tab")}
+                </a>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("dialog.evidence_expiry_note")}</p>
+          </div>
+        )}
+
+        {/* Verify-only reviewers (coordinators) cannot upload: the backend rejects it. */}
+        {canApprove && (
+          <div className="space-y-1.5 pt-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={CONSENT_EVIDENCE_ACCEPTED_TYPES.join(",")}
+              className="hidden"
+              data-testid="consent-file-input"
+              onChange={handleFileChange}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isBusy}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploadMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              {uploadMutation.isPending
+                ? t("dialog.uploading")
+                : hasEvidence
+                  ? t("dialog.replace")
+                  : t("dialog.upload")}
+            </Button>
+            <p className="text-xs text-muted-foreground">{t("dialog.upload_hint")}</p>
+            {fileError && (
+              <p role="alert" className="text-sm text-destructive">
+                {fileError}
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* What confirming does, in words */}
+      <section className="space-y-3">
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="consent-reviewed"
+            checked={reviewed}
+            disabled={isBusy}
+            onCheckedChange={(checked) => setReviewed(checked === true)}
+            className="mt-0.5"
+          />
+          <div className="space-y-0.5">
+            <Label htmlFor="consent-reviewed" className="text-sm leading-snug">
+              {t("dialog.confirm_checkbox")}
+            </Label>
+            <p className="text-xs text-muted-foreground">{tq("reviewedHint")}</p>
+          </div>
+        </div>
+        {canApprove && (
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="consent-approve"
+              checked={approveChecked}
+              disabled={isBusy}
+              onCheckedChange={(checked) => setApproveChecked(checked === true)}
+              className="mt-0.5"
+            />
+            <div className="space-y-0.5">
+              <Label htmlFor="consent-approve" className="text-sm leading-snug">
+                {t("dialog.approve_checkbox")}
+              </Label>
+              <p className="text-xs text-muted-foreground">{tq("approveHint")}</p>
+            </div>
+          </div>
+        )}
+        {!canApprove && <p className="text-xs text-muted-foreground">{t("dialog.verify_only_note")}</p>}
+      </section>
+    </ReviewSheet>
   );
 }

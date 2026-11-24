@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ClipboardList, Search } from "lucide-react";
@@ -10,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -22,7 +22,10 @@ import {
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { UrlTabs, useUrlTab, type UrlTabItem } from "@/components/shared/url-tabs";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { ClubEnrollmentReviewSheet } from "@/components/club-enrollments/club-enrollment-review-sheet";
 import {
   CLUB_ENROLLMENTS_LIST_KEY,
@@ -75,10 +78,16 @@ function personName(person: { user_id: string; name: string | null } | null): st
 
 export function ClubEnrollmentReviewQueue() {
   const t = useTranslations("club_enrollments");
+  const tq = useTranslations("queues.requests.enrollments");
   const formatDate = useFormatDate();
   const roleLabel = useEnrollmentRoleLabel();
 
-  const [status, setStatus] = useState<ClubEnrollmentReviewStatus>("pending_validation");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = useUrlTab("tab", "pending");
+  const status: ClubEnrollmentReviewStatus =
+    TABS.find((tab) => tab.label === tabParam)?.status ?? "pending_validation";
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -170,9 +179,19 @@ export function ClubEnrollmentReviewQueue() {
     setPage(totalPages);
   }
 
-  function selectStatus(next: ClubEnrollmentReviewStatus) {
-    setStatus(next);
+  // Changing tab resets paging: the page lives in local state, the tab in the URL.
+  const [pageTab, setPageTab] = useState(status);
+  if (pageTab !== status) {
+    setPageTab(status);
     setPage(1);
+  }
+
+  function goToTab(label: "pending" | "approved" | "rejected") {
+    const next = new URLSearchParams(searchParams?.toString() ?? "");
+    if (label === "pending") next.delete("tab");
+    else next.set("tab", label);
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function changeFilter(setter: (value: string) => void, value: string) {
@@ -180,6 +199,14 @@ export function ClubEnrollmentReviewQueue() {
     setPage(1);
   }
 
+  // A viewer whose scope is one local field gets a constant column and filter: hide them.
+  const singleLocalField = (localFields.data?.length ?? 0) === 1;
+  const tabItems: UrlTabItem[] = TABS.map((tab) => ({
+    value: tab.label,
+    label: t(`tabs.${tab.label}`),
+    ...(counts ? { count: counts[tab.label] } : {}),
+  }));
+  const failure = query.isError && !data ? errorStateFromError(query.error) : null;
   const isFiltered =
     search.length > 0 || localFieldFilter !== null || clubTypeFilter !== null;
   const emptyKey =
@@ -197,185 +224,191 @@ export function ClubEnrollmentReviewQueue() {
 
   return (
     <div className="space-y-4">
-      <Tabs value={status} onValueChange={(value) => selectStatus(value as ClubEnrollmentReviewStatus)}>
-        <div className="flex flex-col gap-3">
-          <TabsList aria-label={t("tabs.label")}>
-            {TABS.map((tab) => (
-              <TabsTrigger key={tab.status} value={tab.status}>
-                {t(`tabs.${tab.label}`)}
-                {counts ? (
-                  <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
-                    {counts[tab.label]}
-                  </span>
-                ) : null}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      {query.isError && data ? <StaleDataNotice at={query.dataUpdatedAt} onRetry={() => void query.refetch()} /> : null}
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="club-enrollments-search" className="text-xs text-muted-foreground">
-                {t("search.label")}
-              </Label>
-              <div className="relative">
-                <Search
-                  className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  id="club-enrollments-search"
-                  type="search"
-                  value={searchInput}
-                  maxLength={100}
-                  placeholder={t("search.placeholder")}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-            <FilterSelect
-              id="club-enrollments-year"
-              label={t("filters.year")}
-              value={yearChoice ?? (yearId ? String(yearId) : ALL)}
-              onChange={(value) => changeFilter(setYearChoice, value)}
-              allLabel={t("filters.currentYear")}
-              options={yearOptions}
+      <UrlTabs tabs={tabItems} defaultValue="pending" ariaLabel={t("tabs.label")} />
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex min-w-48 flex-1 flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="club-enrollments-search" className="text-xs text-muted-foreground">
+            {t("search.label")}
+          </Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
             />
-            <FilterSelect
-              id="club-enrollments-local-field"
-              label={t("filters.localField")}
-              value={localFieldId}
-              onChange={(value) => changeFilter(setLocalFieldId, value)}
-              allLabel={t("filters.allLocalFields")}
-              options={(localFields.data ?? []).map((f) => ({
-                value: String(f.local_field_id),
-                label: f.name,
-              }))}
-            />
-            <FilterSelect
-              id="club-enrollments-club-type"
-              label={t("filters.clubType")}
-              value={clubTypeId}
-              onChange={(value) => changeFilter(setClubTypeId, value)}
-              allLabel={t("filters.allClubTypes")}
-              options={(clubTypes.data ?? []).map((c) => ({
-                value: String(c.club_type_id),
-                label: c.name,
-              }))}
+            <Input
+              id="club-enrollments-search"
+              type="search"
+              value={searchInput}
+              maxLength={100}
+              placeholder={t("search.placeholder")}
+              onChange={(event) => setSearchInput(event.target.value)}
+              className="pl-8"
             />
           </div>
         </div>
+        <FilterSelect
+          id="club-enrollments-year"
+          label={t("filters.year")}
+          value={yearChoice ?? (yearId ? String(yearId) : ALL)}
+          onChange={(value) => changeFilter(setYearChoice, value)}
+          allLabel={t("filters.currentYear")}
+          options={yearOptions}
+        />
+        {singleLocalField ? null : (
+          <FilterSelect
+            id="club-enrollments-local-field"
+            label={t("filters.localField")}
+            value={localFieldId}
+            onChange={(value) => changeFilter(setLocalFieldId, value)}
+            allLabel={t("filters.allLocalFields")}
+            options={(localFields.data ?? []).map((f) => ({
+              value: String(f.local_field_id),
+              label: f.name,
+            }))}
+          />
+        )}
+        <FilterSelect
+          id="club-enrollments-club-type"
+          label={t("filters.clubType")}
+          value={clubTypeId}
+          onChange={(value) => changeFilter(setClubTypeId, value)}
+          allLabel={t("filters.allClubTypes")}
+          options={(clubTypes.data ?? []).map((c) => ({
+            value: String(c.club_type_id),
+            label: c.name,
+          }))}
+        />
+      </div>
 
-        <TabsContent value={status} className="mt-4 space-y-4">
-          {loading ? (
-            <div className="space-y-3" aria-busy="true" data-testid="club-enrollments-loading">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="flex items-center gap-4 rounded-xl bg-card p-4 shadow-card">
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="ml-auto h-8 w-20" />
-                </div>
-              ))}
+      {loading ? (
+        <div className="space-y-3" aria-busy="true" data-testid="club-enrollments-loading">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex items-center gap-4 rounded-xl bg-card p-4 shadow-card">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="ml-auto h-8 w-20" />
             </div>
-          ) : query.isError && !data ? (
-            <EndpointErrorBanner
-              state="missing"
-              detail={t("toasts.listFailed")}
-              onRetry={() => void query.refetch()}
-              retrying={query.isFetching}
-            />
-          ) : data && data.items.length === 0 ? (
-            isFiltered ? (
-              <EmptyState
-                icon={Search}
-                variant="no-results"
-                title={t("empty.noResultsTitle")}
-                description={t("empty.noResultsDescription")}
-              >
-                <Button variant="outline" size="sm" onClick={clearFilters}>
-                  {t("empty.clearFilters")}
-                </Button>
-              </EmptyState>
-            ) : (
-              <EmptyState
+          ))}
+        </div>
+      ) : failure ? (
+        <DataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className={HEAD_CLASS}>{t("table.club")}</TableHead>
+                <TableHead className={HEAD_CLASS}>{t("table.director")}</TableHead>
+                <TableHead className={HEAD_CLASS}>{t("table.submitted")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <ErrorStateTableRow
+                colSpan={3}
+                kind={failure.kind}
                 icon={ClipboardList}
-                title={t(`empty.${emptyKey}.title`)}
-                description={t(`empty.${emptyKey}.description`)}
+                title={tq("error.title")}
+                description={tq("error.description")}
+                {...(failure.detail ? { detail: failure.detail } : {})}
+                onRetry={() => void query.refetch()}
               />
-            )
-          ) : data ? (
-            <>
-              {query.isError ? (
-                <EndpointErrorBanner
-                  state="missing"
-                  detail={t("toasts.listFailed")}
-                  onRetry={() => void query.refetch()}
-                  retrying={query.isFetching}
-                />
-              ) : null}
-              <DataTableShell aria-busy={query.isFetching}>
-                <Table className="max-md:block">
-                  <TableHeader className="max-md:sr-only">
-                    <TableRow>
-                      <TableHead className={HEAD_CLASS}>{t("table.club")}</TableHead>
-                      <TableHead className={`${HEAD_CLASS} ${HIDE_NARROW}`}>{t("table.localField")}</TableHead>
-                      <TableHead className={HEAD_CLASS}>{t("table.director")}</TableHead>
-                      <TableHead className={HEAD_CLASS}>{t("table.submitted")}</TableHead>
-                      {reviewed ? (
-                        <>
-                          <TableHead className={HEAD_CLASS}>{t("table.reviewer")}</TableHead>
-                          <TableHead className={HEAD_CLASS}>{t("table.reviewedAt")}</TableHead>
-                        </>
-                      ) : null}
-                      <TableHead className={`${HEAD_CLASS} ${ACTIONS_CLASS} text-right`}>{t("table.actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody className="max-md:block">
-                    {data.items.map((item) => (
-                      <EnrollmentRow
-                        key={item.enrollment_id}
-                        item={item}
-                        reviewed={reviewed}
-                        submitted={formatDate(item.submitted_at ?? item.created_at)}
-                        reviewer={
-                          item.reviewed_by
-                            ? `${personName(item.reviewed_by)}${
-                                item.reviewer_role ? ` · ${roleLabel(item.reviewer_role)}` : ""
-                              }`
-                            : "—"
-                        }
-                        reviewedAt={item.reviewed_at ? formatDate(item.reviewed_at) : "—"}
-                        actionLabel={reviewed ? t("table.view") : t("table.review")}
-                        onOpen={() => setSelected(item)}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
-              </DataTableShell>
-              <DataTablePagination
-                page={page}
-                totalPages={totalPages}
-                total={total}
-                limit={limit}
-                onPageChange={setPage}
-                onPageSizeChange={(next) => {
-                  setLimit(next);
-                  setPage(1);
-                }}
-              />
-            </>
-          ) : null}
-        </TabsContent>
-      </Tabs>
+            </TableBody>
+          </Table>
+        </DataTableShell>
+      ) : data && data.items.length === 0 ? (
+        isFiltered ? (
+          <EmptyState
+            icon={Search}
+            variant="no-results"
+            title={t("empty.noResultsTitle")}
+            description={t("empty.noResultsDescription")}
+          >
+            <Button variant="outline" size="sm" onClick={clearFilters}>
+              {t("empty.clearFilters")}
+            </Button>
+          </EmptyState>
+        ) : (
+          <EmptyState
+            icon={ClipboardList}
+            title={t(`empty.${emptyKey}.title`)}
+            description={t(`empty.${emptyKey}.description`)}
+          >
+            {status === "pending_validation" ? (
+              <Button variant="outline" size="sm" onClick={() => goToTab("approved")}>
+                {tq("viewApproved")}
+              </Button>
+            ) : null}
+          </EmptyState>
+        )
+      ) : data ? (
+        <>
+          <DataTableShell aria-busy={query.isFetching}>
+            <Table className="max-md:block">
+              <TableHeader className="max-md:sr-only">
+                <TableRow>
+                  <TableHead className={HEAD_CLASS}>{t("table.club")}</TableHead>
+                  {singleLocalField ? null : (
+                    <TableHead className={`${HEAD_CLASS} ${HIDE_NARROW}`}>{t("table.localField")}</TableHead>
+                  )}
+                  <TableHead className={HEAD_CLASS}>{t("table.director")}</TableHead>
+                  <TableHead className={HEAD_CLASS}>{t("table.submitted")}</TableHead>
+                  {reviewed ? (
+                    <>
+                      <TableHead className={HEAD_CLASS}>{t("table.reviewer")}</TableHead>
+                      <TableHead className={HEAD_CLASS}>{t("table.reviewedAt")}</TableHead>
+                    </>
+                  ) : null}
+                  <TableHead className={`${HEAD_CLASS} ${ACTIONS_CLASS} text-right`}>{t("table.actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="max-md:block">
+                {data.items.map((item) => (
+                  <EnrollmentRow
+                    key={item.enrollment_id}
+                    item={item}
+                    reviewed={reviewed}
+                    showLocalField={!singleLocalField}
+                    submitted={formatDate(item.submitted_at ?? item.created_at)}
+                    reviewer={
+                      item.reviewed_by
+                        ? `${personName(item.reviewed_by)}${
+                            item.reviewer_role ? ` · ${roleLabel(item.reviewer_role)}` : ""
+                          }`
+                        : "—"
+                    }
+                    reviewedAt={item.reviewed_at ? formatDate(item.reviewed_at) : "—"}
+                    actionLabel={reviewed ? t("table.view") : t("table.review")}
+                    onOpen={() => setSelected(item)}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+          <DataTablePagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={limit}
+            onPageChange={setPage}
+            onPageSizeChange={(next) => {
+              setLimit(next);
+              setPage(1);
+            }}
+          />
+        </>
+      ) : null}
 
-      <ClubEnrollmentReviewSheet
-        item={selected}
-        open={selected !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelected(null);
-        }}
-      />
+      {selected ? (
+        <ClubEnrollmentReviewSheet
+          item={selected}
+          open
+          onOpenChange={(open) => {
+            if (!open) setSelected(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
@@ -415,6 +448,7 @@ function FilterSelect({
 function EnrollmentRow({
   item,
   reviewed,
+  showLocalField,
   submitted,
   reviewer,
   reviewedAt,
@@ -423,6 +457,7 @@ function EnrollmentRow({
 }: {
   item: ClubEnrollmentItem;
   reviewed: boolean;
+  showLocalField: boolean;
   submitted: string;
   reviewer: string;
   reviewedAt: string;
@@ -442,7 +477,9 @@ function EnrollmentRow({
         </button>
         <span className="block truncate text-xs text-muted-foreground">{item.section.club_type_name}</span>
       </TableCell>
-      <TableCell className={`${muted} ${HIDE_NARROW} max-md:order-3`}>{item.local_field.name}</TableCell>
+      {showLocalField ? (
+        <TableCell className={`${muted} ${HIDE_NARROW} max-md:order-3`}>{item.local_field.name}</TableCell>
+      ) : null}
       <TableCell className={`${muted} max-md:order-4`}>{personName(item.board.director)}</TableCell>
       <TableCell className={`${muted} max-md:order-5`}>{submitted}</TableCell>
       {reviewed ? (
