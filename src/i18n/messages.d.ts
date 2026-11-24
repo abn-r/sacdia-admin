@@ -214,6 +214,9 @@ export interface IntlMessages {
     };
     sidebar: {
       home: string;
+      classes_honors: string;
+      certificates: string;
+      institutional_certificate_requests: string;
       certifications_reviews: string;
       clubs_evidence_folders_templates: string;
       requests_transfers: string;
@@ -7091,6 +7094,58 @@ export interface IntlMessages {
     };
   };
   shared: {
+    shell: {
+      sidebar: {
+        groupPending: string;
+        toggleGroup: string;
+      };
+      userMenu: {
+        trigger: string;
+        role: string;
+        profile: string;
+        theme: string;
+        themeLight: string;
+        themeDark: string;
+        themeSystem: string;
+        language: string;
+        compact: string;
+        logout: string;
+      };
+      languages: {
+        es: string;
+        en: string;
+        fr: string;
+        "pt-BR": string;
+      };
+      search: {
+        trigger: string;
+        placeholder: string;
+        recent: string;
+        pending: string;
+        actions: string;
+        general: string;
+        empty: string;
+        newClub: string;
+        newUser: string;
+        newNotification: string;
+        newActivity: string;
+        hintMove: string;
+        hintOpen: string;
+        hintClose: string;
+      };
+      errors: {
+        crashTitle: string;
+        crashDescription: string;
+        notFoundTitle: string;
+        notFoundDescription: string;
+        search: string;
+        goHome: string;
+        forbiddenDescription: string;
+        territoryTitle: string;
+        territoryDescription: string;
+        logout: string;
+      };
+    };
     kit: {
       errorState: {
         title: string;
