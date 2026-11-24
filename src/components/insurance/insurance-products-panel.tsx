@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { SettingsRow, SettingsSection } from "@/components/shared/settings-rows";
 import {
   createInsuranceProduct,
   listInsuranceProducts,
@@ -56,6 +58,8 @@ export function InsuranceProductsPanel({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<InsuranceProduct | null>(null);
   const [form, setForm] = useState<ProductForm>(EMPTY_PRODUCT);
+  const [deactivating, setDeactivating] = useState<InsuranceProduct | null>(null);
+  const tc = useTranslations("ops.club.insurance.config");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -118,120 +122,95 @@ export function InsuranceProductsPanel({
     }
   };
 
-  const toggleActive = async (product: InsuranceProduct) => {
+  const setActive = async (product: InsuranceProduct, active: boolean) => {
     try {
-      await updateInsuranceProduct(
-        product.insurance_product_id,
-        { active: !product.active },
-        localFieldId,
-      );
+      await updateInsuranceProduct(product.insurance_product_id, { active }, localFieldId);
       await load();
     } catch (error) {
       toast.error(getPaymentOrderErrorMessage(error, t));
+      // ConfirmDialog keeps itself open and shows the failure.
+      throw error instanceof Error ? error : new Error(t("toasts.loadFailed"));
     }
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
-          {t("products.description")}
-        </p>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void load()}
-            disabled={loading}
-          >
+    <>
+      <SettingsSection title={t("tabs.products")} description={t("products.description")}>
+        {loading ? (
+          <p className="px-5 py-4 text-muted-foreground text-sm">{t("loading")}</p>
+        ) : products.length === 0 ? (
+          <div className="p-5">
+            <EmptyState icon={Shield} title={t("products.empty")} />
+          </div>
+        ) : (
+          products.map((product) => (
+            <SettingsRow
+              key={product.insurance_product_id}
+              label={
+                <span className="flex flex-wrap items-center gap-2">
+                  {product.name}
+                  <ExceptionStatus<"active" | "inactive">
+                    value={product.active ? "active" : "inactive"}
+                    normal={["active"]}
+                    labels={{ active: t("products.active"), inactive: t("products.inactive") }}
+                    intents={{ inactive: "neutral" }}
+                  />
+                </span>
+              }
+              description={[
+                product.coverage_scope === "EVENT" ? t("products.scopeEvent") : t("products.scopeGeneral"),
+                `${
+                  product.validity_mode === "EVENT_DATES"
+                    ? t("products.validityEventDates")
+                    : t("products.validityFixedMonths")
+                }${product.default_duration_months ? ` (${product.default_duration_months}m)` : ""}`,
+              ].join(" · ")}
+              control={
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant="outline" onClick={() => openEdit(product)}>
+                    {t("products.edit")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      if (product.active) setDeactivating(product);
+                      else void setActive(product, true).catch(() => undefined);
+                    }}
+                  >
+                    {product.active ? t("products.deactivate") : t("products.activate")}
+                  </Button>
+                </div>
+              }
+            />
+          ))
+        )}
+        <div className="flex justify-end gap-2 px-5 py-3">
+          <Button type="button" variant="outline" size="sm" onClick={() => void load()} disabled={loading}>
             <RefreshCw className="size-4" />
+            <span className="sr-only">{tc("refresh")}</span>
           </Button>
           <Button type="button" size="sm" onClick={openCreate}>
             <Plus className="size-4" />
             {t("products.create")}
           </Button>
         </div>
-      </div>
+      </SettingsSection>
 
-      {loading ? (
-        <p className="text-muted-foreground text-sm">{t("loading")}</p>
-      ) : products.length === 0 ? (
-        <EmptyState icon={Shield} title={t("products.empty")} />
-      ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[640px] text-sm">
-            <thead className="bg-muted/40 text-left">
-              <tr>
-                <th className="px-3 py-2 font-medium">{t("products.colName")}</th>
-                <th className="px-3 py-2 font-medium">
-                  {t("products.colScope")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("products.colValidity")}
-                </th>
-                <th className="px-3 py-2 font-medium">
-                  {t("products.colActive")}
-                </th>
-                <th className="px-3 py-2 font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.insurance_product_id} className="border-t">
-                  <td className="px-3 py-2">{product.name}</td>
-                  <td className="px-3 py-2">
-                    {product.coverage_scope === "EVENT"
-                      ? t("products.scopeEvent")
-                      : t("products.scopeGeneral")}
-                  </td>
-                  <td className="px-3 py-2">
-                    {product.validity_mode === "EVENT_DATES"
-                      ? t("products.validityEventDates")
-                      : t("products.validityFixedMonths")}
-                    {product.default_duration_months
-                      ? ` (${product.default_duration_months}m)`
-                      : ""}
-                  </td>
-                  <td className="px-3 py-2">
-                    <StatusBadge
-                      intent={product.active ? "success" : "neutral"}
-                      label={
-                        product.active
-                          ? t("products.active")
-                          : t("products.inactive")
-                      }
-                      size="sm"
-                    />
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => openEdit(product)}
-                      >
-                        {t("products.edit")}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void toggleActive(product)}
-                      >
-                        {product.active
-                          ? t("products.deactivate")
-                          : t("products.activate")}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ConfirmDialog
+        open={deactivating !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeactivating(null);
+        }}
+        title={tc("products.deactivateTitle", { name: deactivating?.name ?? "" })}
+        description={tc("products.deactivateDescription")}
+        confirmLabel={t("products.deactivate")}
+        tone="destructive"
+        onConfirm={async () => {
+          if (deactivating) await setActive(deactivating, false);
+        }}
+      />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -335,6 +314,6 @@ export function InsuranceProductsPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

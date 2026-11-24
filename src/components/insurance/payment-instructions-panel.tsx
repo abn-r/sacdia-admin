@@ -28,6 +28,11 @@ interface PaymentInstructionsPanelProps {
   /** Global admins must target an explicit local field. */
   requiresLocalFieldId?: boolean;
   localFieldOptions?: LocalField[];
+  /**
+   * When the page owns the local field picker: the field to edit, or `null`
+   * while none is chosen. Leave undefined to render the panel's own picker.
+   */
+  controlledFieldId?: number | null;
 }
 
 type FormState = {
@@ -69,7 +74,9 @@ function toForm(config: PaymentOrderConfig): FormState {
 export function PaymentInstructionsPanel({
   requiresLocalFieldId = false,
   localFieldOptions = [],
+  controlledFieldId,
 }: PaymentInstructionsPanelProps) {
+  const controlled = controlledFieldId !== undefined;
   const t = useTranslations("payment_orders");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [loading, setLoading] = useState(!requiresLocalFieldId);
@@ -118,10 +125,17 @@ export function PaymentInstructionsPanel({
   const onlyFieldId =
     localFieldOptions.length === 1 ? localFieldOptions[0].local_field_id : null;
   useEffect(() => {
-    if (!requiresLocalFieldId || onlyFieldId === null) return;
+    if (!requiresLocalFieldId || controlled || onlyFieldId === null) return;
     setForm({ ...EMPTY_FORM, local_field_id: String(onlyFieldId) });
     void load(onlyFieldId);
-  }, [requiresLocalFieldId, onlyFieldId, load]);
+  }, [requiresLocalFieldId, controlled, onlyFieldId, load]);
+
+  // The page picked a field: load it, never keeping data from the previous one.
+  useEffect(() => {
+    if (!requiresLocalFieldId || controlledFieldId == null) return;
+    setForm({ ...EMPTY_FORM, local_field_id: String(controlledFieldId) });
+    void load(controlledFieldId);
+  }, [requiresLocalFieldId, controlledFieldId, load]);
 
   const set = (key: keyof FormState) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -166,7 +180,7 @@ export function PaymentInstructionsPanel({
         {t("config.description")}
       </p>
 
-      {requiresLocalFieldId && (
+      {requiresLocalFieldId && !controlled && (
         <div className="flex items-end gap-2">
           <div className="space-y-1.5">
             <Label htmlFor="config-local-field">
