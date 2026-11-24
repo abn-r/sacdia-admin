@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
 import { FormModalForbidden } from "@/components/shared/form-modal-forbidden";
@@ -16,9 +17,10 @@ export default async function NewClubModal() {
     return <FormModalForbidden title={t("title")} description={t("description")} />;
   }
 
+  // The actor can create: a null loader result is missing data, not a denial.
   const data = await loadCreateClubFormData(user);
   if (!data) {
-    return <FormModalForbidden title={t("title")} description={t("description")} />;
+    redirect("/dashboard/clubs");
   }
 
   return (

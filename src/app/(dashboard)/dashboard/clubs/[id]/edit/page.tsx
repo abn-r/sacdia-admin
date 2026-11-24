@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { RouteFormModal } from "@/components/shared/form-modal";
 import { EditClubForm } from "@/components/clubs/edit-club-form";
@@ -29,7 +29,7 @@ export default async function EditClubPage({ params }: { params: Params }) {
   }
   const data = await loadEditClubFormData(user, id);
   if (!data) {
-    notFound();
+    redirect("/dashboard/clubs");
   }
   const t = await getTranslations("clubs.pages.edit");
 
@@ -39,7 +39,7 @@ export default async function EditClubPage({ params }: { params: Params }) {
       <RouteFormModal
         dismissHref="/dashboard/clubs"
         title={t("title")}
-        description={t("description")}
+        description={data.name}
       >
         <EditClubForm {...data} formAction={updateClubAction.bind(null, data.clubId)} />
       </RouteFormModal>

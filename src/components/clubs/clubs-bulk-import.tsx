@@ -4,31 +4,9 @@ import { useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations as useTranslationsStrict } from "next-intl";
+import { Download, FileSpreadsheet, Upload } from "lucide-react";
 
-type LooseTranslator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
-
-const useTranslations = useTranslationsStrict as unknown as (
-  namespace?: string,
-) => LooseTranslator;
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  FileSpreadsheet,
-  Upload,
-  XCircle,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -37,8 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableShell } from "@/components/shared/data-table-shell";
+import { PageHeader } from "@/components/shared/page-header";
+import { UrlTabs, useUrlTab } from "@/components/shared/url-tabs";
 import type {
   BulkClubRow,
   BulkClubsImportResult,
@@ -50,6 +30,23 @@ import {
   matchCatalogName,
   normalizeName,
 } from "@/lib/clubs/bulk-import-parse";
+import {
+  checkClubsImportFile,
+  exceedsClubsImportRows,
+  pageSlice,
+  rowsForReviewTab,
+} from "@/lib/clubs/import-review";
+
+type LooseTranslator = (
+  key: string,
+  values?: Record<string, string | number>,
+) => string;
+
+// The `clubs.pages.import.validation.*` messages take dynamic values; the
+// strict typing cannot follow them, so this wizard reads them loosely.
+const useTranslations = useTranslationsStrict as unknown as (
+  namespace?: string,
+) => LooseTranslator;
 
 type ParsedRow = {
   rowNumber: number;
@@ -86,6 +83,8 @@ const EXPECTED_HEADERS = [
   "longitude",
 ] as const;
 
+const PAGE_SIZE_OPTIONS = [20, 50, 100];
+
 function parseCoord(value: string | undefined): number | undefined {
   if (!value) return undefined;
   const parsed = Number(value);
@@ -99,6 +98,9 @@ export function ClubsBulkImport({
   submitAction,
 }: Props) {
   const t = useTranslations("clubs.pages.import");
+  const tc = useTranslations("people.clubs");
+  const tList = useTranslations("clubs.pages.list");
+  const tSteps = useTranslations("shared.kit.steps");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,22 +108,32 @@ export function ClubsBulkImport({
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const [result, setResult] = useState<BulkClubsImportResult | null>(null);
+  // Rows left out of the import because the file had errors in them.
+  const [skipped, setSkipped] = useState(0);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [resultPage, setResultPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]!);
   const [isPending, startTransition] = useTransition();
+  const tabParam = useUrlTab("tab", "errors");
 
-  const validRows = useMemo(
-    () => rows.filter((row) => row.errors.length === 0),
-    [rows],
-  );
-  const invalidRows = useMemo(
-    () => rows.filter((row) => row.errors.length > 0),
-    [rows],
-  );
+  const validRows = useMemo(() => rows.filter((row) => row.errors.length === 0), [rows]);
+  const invalidRows = useMemo(() => rows.filter((row) => row.errors.length > 0), [rows]);
+
+  // Archivo -> Revisar -> Resultado, derived from what the wizard holds.
+  const step = result ? 3 : rows.length > 0 ? 2 : 1;
+  const stepTitle =
+    step === 1 ? tc("import.stepFile") : step === 2 ? tc("import.stepReview") : tc("import.stepResult");
+  const stepline = tSteps("stepline", { current: step, total: 3, title: stepTitle });
+  const description = step === 2 && fileName ? `${stepline} · ${fileName}` : stepline;
 
   function resetState() {
     setRows([]);
     setParseError(null);
     setResult(null);
     setFileName(null);
+    setSkipped(0);
+    setReviewPage(1);
+    setResultPage(1);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -186,7 +198,14 @@ export function ClubsBulkImport({
     setResult(null);
     setParseError(null);
     setRows([]);
+    setReviewPage(1);
     setFileName(file.name);
+
+    const check = checkClubsImportFile(file);
+    if (!check.ok) {
+      setParseError(check.reason === "size" ? tc("import.errors.fileTooLarge") : tc("import.errors.fileType"));
+      return;
+    }
 
     try {
       const XLSX = await import("xlsx");
@@ -210,6 +229,10 @@ export function ClubsBulkImport({
         setParseError(t("errors.noRows"));
         return;
       }
+      if (exceedsClubsImportRows(json.length)) {
+        setParseError(tc("import.errors.tooManyRows", { total: json.length }));
+        return;
+      }
 
       const headerCheck = Object.keys(json[0] ?? {}).map((h) => normalizeName(h));
       const required = ["name", "local_field", "district", "church"];
@@ -221,9 +244,7 @@ export function ClubsBulkImport({
 
       const parsed: ParsedRow[] = json.map((raw, idx) => {
         const getValue = (key: string) => {
-          const found = Object.entries(raw).find(
-            ([k]) => normalizeName(k) === key,
-          );
+          const found = Object.entries(raw).find(([k]) => normalizeName(k) === key);
           return found ? String(found[1] ?? "").trim() : "";
         };
 
@@ -245,9 +266,7 @@ export function ClubsBulkImport({
 
       setRows(parsed);
     } catch (error) {
-      setParseError(
-        error instanceof Error ? error.message : t("errors.parseFailed"),
-      );
+      setParseError(error instanceof Error ? error.message : t("errors.parseFailed"));
     }
   }
 
@@ -267,11 +286,12 @@ export function ClubsBulkImport({
 
     startTransition(async () => {
       const res = await submitAction(payload);
+      setSkipped(invalidRows.length);
+      setResultPage(1);
       setResult(res);
       if (res.created > 0) {
         // The rows are imported: drop the preview so they can't be sent twice.
         setRows([]);
-        setFileName(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
         router.refresh();
       }
@@ -296,18 +316,53 @@ export function ClubsBulkImport({
     XLSX.writeFile(wb, "clubs-template.xlsx");
   }
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("uploadCardTitle")}</CardTitle>
-          <CardDescription>{t("uploadCardDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+  const header = (
+    <PageHeader
+      breadcrumbs={[
+        { label: tList("title"), href: "/dashboard/clubs" },
+        { label: tc("import.crumb") },
+      ]}
+      title={tc("import.heading")}
+      description={description}
+    />
+  );
+
+  // Hidden in every step so «Elegir otro archivo» can reopen the picker.
+  const fileInput = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".xlsx,.xls,.csv"
+      className="hidden"
+      onChange={(event) => {
+        const file = event.target.files?.[0];
+        if (file) void handleFile(file);
+      }}
+    />
+  );
+
+  // ─── Step 1 · Archivo ────────────────────────────────────────────────────────
+  if (step === 1) {
+    return (
+      <div className="space-y-6">
+        {header}
+        <section className="max-w-2xl space-y-4 rounded-xl bg-card p-6 shadow-card">
+          <div className="space-y-1">
+            <h2 className="text-base font-semibold tracking-tight">{tc("import.fileHeading")}</h2>
+            <p className="text-sm text-muted-foreground">{tc("import.limits")}</p>
+          </div>
+
           <div className="flex flex-wrap items-center gap-3">
             <Button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isPending}
+            >
+              <Upload className="size-4" />
+              {t("chooseFile")}
+            </Button>
+            <Button
               variant="outline"
-              size="sm"
               type="button"
               onClick={() => {
                 void downloadTemplate();
@@ -316,211 +371,271 @@ export function ClubsBulkImport({
               <Download className="size-4" />
               {t("downloadTemplate")}
             </Button>
-            <Button
-              size="sm"
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isPending}
-            >
-              <Upload className="size-4" />
-              {t("chooseFile")}
-            </Button>
-            {fileName && (
+            {fileName && parseError ? (
               <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                 <FileSpreadsheet className="size-4" />
                 {fileName}
               </span>
-            )}
-            {rows.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                onClick={resetState}
-                disabled={isPending}
-              >
-                {t("reset")}
-              </Button>
-            )}
+            ) : null}
           </div>
+          {fileInput}
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void handleFile(file);
-            }}
-          />
+          {parseError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {parseError}
+            </p>
+          ) : null}
 
-          <div className="rounded-md border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">
+          <div className="space-y-1 text-sm text-muted-foreground">
             <p className="font-medium text-foreground">{t("expectedHeadersTitle")}</p>
-            <p className="mt-1">
-              <code className="rounded bg-background px-1.5 py-0.5">
+            <p>
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
                 name, local_field, district, church, description, address, latitude, longitude
               </code>
             </p>
-            <p className="mt-2">{t("matchHint")}</p>
+            <p>{t("matchHint")}</p>
           </div>
+        </section>
+      </div>
+    );
+  }
 
-          {parseError && (
-            <div
-              role="alert"
-              className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            >
-              {parseError}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+  // ─── Step 2 · Revisar ────────────────────────────────────────────────────────
+  if (step === 2) {
+    const view = rowsForReviewTab(rows, tabParam);
+    const totalPages = Math.max(1, Math.ceil(view.rows.length / pageSize));
+    const page = Math.min(reviewPage, totalPages);
+    const visible = pageSlice(view.rows, page, pageSize);
 
-      {rows.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("previewTitle", { total: rows.length })}
-            </CardTitle>
-            <CardDescription>
-              {t("previewSummary", {
-                valid: validRows.length,
-                invalid: invalidRows.length,
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <DataTableShell>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[60px]">#</TableHead>
-                    <TableHead>{t("colName")}</TableHead>
-                    <TableHead>{t("colLocalField")}</TableHead>
-                    <TableHead>{t("colDistrict")}</TableHead>
-                    <TableHead>{t("colChurch")}</TableHead>
-                    <TableHead>{t("colStatus")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((row) => {
-                    const isValid = row.errors.length === 0;
-                    return (
-                      <TableRow key={row.rowNumber}>
-                        <TableCell className="text-muted-foreground">
-                          {row.rowNumber}
-                        </TableCell>
-                        <TableCell className="font-medium whitespace-normal">{row.name || "—"}</TableCell>
-                        <TableCell className="text-sm whitespace-normal">{row.localFieldRaw || "—"}</TableCell>
-                        <TableCell className="text-sm whitespace-normal">{row.districtRaw || "—"}</TableCell>
-                        <TableCell className="text-sm whitespace-normal">{row.churchRaw || "—"}</TableCell>
-                        <TableCell className="min-w-48 whitespace-normal">
-                          {isValid ? (
-                            <Badge variant="default" className="text-xs">
-                              <CheckCircle2 className="size-3" />
-                              {t("rowValid")}
-                            </Badge>
-                          ) : (
-                            <div className="space-y-1">
-                              <Badge variant="destructive" className="text-xs">
-                                <AlertTriangle className="size-3" />
-                                {t("rowInvalid")}
-                              </Badge>
-                              <ul className="text-xs text-destructive">
-                                {row.errors.map((err, i) => (
-                                  <li key={i}>• {err}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </DataTableShell>
+    const reviewCell = (row: ParsedRow) =>
+      row.errors.length > 0 ? (
+        <ul className="space-y-0.5 text-[13px] text-destructive">
+          {row.errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      ) : (
+        <span className="text-[13px] text-muted-foreground">{tc("import.rowReady")}</span>
+      );
 
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                loading={isPending}
-                onClick={handleSubmit}
-                disabled={validRows.length === 0}
+    return (
+      <div className="space-y-6">
+        {header}
+        {fileInput}
+
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">
+            {tc("import.reviewSummary", {
+              total: rows.length,
+              ready: validRows.length,
+              invalid: invalidRows.length,
+            })}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {invalidRows.length > 0 ? tc("import.reviewHint") : tc("import.reviewAllReady")}
+          </p>
+        </div>
+
+        {invalidRows.length > 0 ? (
+          <UrlTabs
+            ariaLabel={tc("import.reviewTabs")}
+            defaultValue="errors"
+            tabs={[
+              { value: "errors", label: tc("import.tabErrors"), count: invalidRows.length },
+              { value: "all", label: tc("import.tabAll"), count: rows.length },
+            ]}
+          />
+        ) : null}
+
+        <DataTableShell className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[60px] pl-5">#</TableHead>
+                <TableHead>{t("colName")}</TableHead>
+                <TableHead>{t("colLocalField")}</TableHead>
+                <TableHead>{t("colDistrict")}</TableHead>
+                <TableHead>{t("colChurch")}</TableHead>
+                <TableHead>{tc("import.colReview")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visible.map((row) => (
+                <TableRow
+                  key={row.rowNumber}
+                  data-state={row.errors.length > 0 ? "selected" : undefined}
+                >
+                  <TableCell className="pl-5 text-muted-foreground tabular-nums">
+                    {row.rowNumber}
+                  </TableCell>
+                  <TableCell className="font-medium whitespace-normal">{row.name || "—"}</TableCell>
+                  <TableCell className="text-sm whitespace-normal">{row.localFieldRaw || "—"}</TableCell>
+                  <TableCell className="text-sm whitespace-normal">{row.districtRaw || "—"}</TableCell>
+                  <TableCell className="text-sm whitespace-normal">{row.churchRaw || "—"}</TableCell>
+                  <TableCell className="min-w-48 whitespace-normal">{reviewCell(row)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </DataTableShell>
+
+        <DataTableShell className="md:hidden">
+          <ul className="divide-y">
+            {visible.map((row) => (
+              <li
+                key={row.rowNumber}
+                data-state={row.errors.length > 0 ? "selected" : undefined}
+                className="space-y-1 px-4 py-3 data-[state=selected]:bg-muted"
               >
-                {t("submitButton", { count: validRows.length })}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <p className="flex items-baseline gap-2 text-sm font-medium">
+                  <span className="text-xs font-normal text-muted-foreground tabular-nums">
+                    {row.rowNumber}
+                  </span>
+                  <span className="min-w-0 truncate">{row.name || "—"}</span>
+                </p>
+                <p className="truncate text-[13px] text-muted-foreground">
+                  {[row.districtRaw, row.churchRaw].filter(Boolean).join(" · ") || "—"}
+                </p>
+                {reviewCell(row)}
+              </li>
+            ))}
+          </ul>
+        </DataTableShell>
 
-      {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("resultTitle")}</CardTitle>
-            <CardDescription>
-              {result.forbidden
-                ? t("resultForbidden")
-                : t("resultSummary", {
-                    created: result.created,
-                    failed: result.failed,
-                  })}
-            </CardDescription>
-          </CardHeader>
-          {result.results.length > 0 && (
-            <CardContent>
-              <DataTableShell>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[60px]">#</TableHead>
-                      <TableHead>{t("colName")}</TableHead>
-                      <TableHead>{t("colStatus")}</TableHead>
-                      <TableHead>{t("colMessage")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {result.results.map((res) => (
-                      <TableRow key={res.rowNumber}>
-                        <TableCell className="text-muted-foreground">
-                          {res.rowNumber}
-                        </TableCell>
-                        <TableCell className="font-medium">{res.name || "—"}</TableCell>
-                        <TableCell>
-                          {res.ok ? (
-                            <Badge variant="default" className="text-xs">
-                              <CheckCircle2 className="size-3" />
-                              {t("rowCreated")}
-                            </Badge>
-                          ) : (
-                            <Badge variant="destructive" className="text-xs">
-                              <XCircle className="size-3" />
-                              {t("rowFailed")}
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm whitespace-normal text-muted-foreground">
-                          {res.message ??
-                            (res.clubId ? (
-                              <Link
-                                href={`/dashboard/clubs/${res.clubId}`}
-                                className="text-primary underline-offset-4 hover:underline"
-                              >
-                                {t("openClub", { id: res.clubId })}
-                              </Link>
-                            ) : (
-                              "—"
-                            ))}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </DataTableShell>
-            </CardContent>
+        <DataTablePagination
+          page={page}
+          totalPages={totalPages}
+          total={view.rows.length}
+          limit={pageSize}
+          limitOptions={PAGE_SIZE_OPTIONS}
+          onPageChange={setReviewPage}
+          onPageSizeChange={(next) => {
+            setPageSize(next);
+            setReviewPage(1);
+          }}
+        />
+
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={resetState}
+            disabled={isPending}
+          >
+            {tc("import.chooseAnother")}
+          </Button>
+          <Button loading={isPending} onClick={handleSubmit} disabled={validRows.length === 0}>
+            {t("submitButton", { count: validRows.length })}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Step 3 · Resultado ──────────────────────────────────────────────────────
+  const outcome = result!;
+  const totalPages = Math.max(1, Math.ceil(outcome.results.length / pageSize));
+  const page = Math.min(resultPage, totalPages);
+  const visibleResults = pageSlice(outcome.results, page, pageSize);
+
+  return (
+    <div className="space-y-6">
+      {header}
+      {fileInput}
+
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          {outcome.forbidden ? (
+            <p className="text-sm font-semibold">{t("resultForbidden")}</p>
+          ) : (
+            <>
+              <p className="text-sm font-semibold">
+                {tc("import.resultCreated", { count: outcome.created })}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {[
+                  outcome.failed > 0 ? tc("import.resultFailed", { count: outcome.failed }) : null,
+                  skipped > 0 ? tc("import.resultSkipped", { count: skipped }) : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              </p>
+            </>
           )}
-        </Card>
-      )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {rows.length > 0 ? (
+            <Button type="button" variant="outline" onClick={() => setResult(null)}>
+              {tc("import.backToReview")}
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" onClick={resetState}>
+              {tc("import.importAnother")}
+            </Button>
+          )}
+          <Button asChild>
+            <Link href="/dashboard/clubs">{tc("import.goToClubs")}</Link>
+          </Button>
+        </div>
+      </div>
+
+      {outcome.results.length > 0 ? (
+        <>
+          <DataTableShell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[60px] pl-5">#</TableHead>
+                  <TableHead>{t("colName")}</TableHead>
+                  <TableHead>{tc("import.colResult")}</TableHead>
+                  <TableHead>
+                    <span className="sr-only">{tc("import.colOpen")}</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {visibleResults.map((res) => (
+                  <TableRow key={res.rowNumber} data-state={res.ok ? undefined : "selected"}>
+                    <TableCell className="pl-5 text-muted-foreground tabular-nums">
+                      {res.rowNumber}
+                    </TableCell>
+                    <TableCell className="font-medium whitespace-normal">{res.name || "—"}</TableCell>
+                    <TableCell className="text-sm whitespace-normal">
+                      {res.ok ? (
+                        t("rowCreated")
+                      ) : (
+                        <span className="text-destructive">{res.message ?? t("rowFailed")}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {res.ok && res.clubId ? (
+                        <Link
+                          href={`/dashboard/clubs/${res.clubId}`}
+                          className="text-sm text-primary underline-offset-4 hover:underline"
+                        >
+                          {t("openClub", { id: res.clubId })}
+                        </Link>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+          <DataTablePagination
+            page={page}
+            totalPages={totalPages}
+            total={outcome.results.length}
+            limit={pageSize}
+            limitOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={setResultPage}
+            onPageSizeChange={(next) => {
+              setPageSize(next);
+              setResultPage(1);
+            }}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

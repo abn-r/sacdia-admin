@@ -94,6 +94,8 @@ describe("EditClubForm", () => {
     );
     expect(screen.getByText("Campo Centro")).toBeTruthy();
     expect(screen.getByText("Iglesia Central")).toBeTruthy();
+    // What cannot be changed says why.
+    expect(screen.getByText(/no se cambian aquí/)).toBeTruthy();
     expect(container.querySelector('[name="local_field_id"]')).toBeNull();
     expect(container.querySelector('[name="church_id"]')).toBeNull();
     expect(container.querySelector('[name="district_id"]')).toBeNull();
