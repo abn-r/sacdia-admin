@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, RefreshCw, ShieldCheck, UserPlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShieldCheck, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -18,6 +17,9 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
 import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
 import {
@@ -47,11 +49,6 @@ function getMinorName(user?: CoordinatorConsentPendingItem["users"]): string {
   return user.email ?? "—";
 }
 
-/** Same actions-column pin as the per-section table: verify stays reachable on narrow widths. */
-const ACTIONS_HEAD_STICKY = "sticky right-0 z-10 border-l border-border/60 bg-card";
-const ACTIONS_CELL_STICKY =
-  "sticky right-0 z-10 border-l border-border/60 bg-card group-hover/row:bg-[color-mix(in_oklab,var(--card),var(--muted)_30%)]";
-
 const HEAD_CLASS = "h-9 px-3 text-xs font-medium text-muted-foreground";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,7 +74,7 @@ interface CoordinatorConsentQueueProps {
  */
 export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQueueProps) {
   const t = useTranslations("membership.queue");
-  const tTable = useTranslations("membership.table");
+  const tQ = useTranslations("queues.requests.membership.coordinator");
   const tConsent = useTranslations("membership.consent");
   const tPagination = useTranslations("shared.pagination");
   const formatDatetime = useFormatDateTime();
@@ -168,15 +165,61 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
   const from = page && page.items.length > 0 ? page.offset + 1 : 0;
   const to = page ? page.offset + page.items.length : 0;
 
+  const sectionLabel = (section: CoordinatorConsentPendingPage["by_section"][number]) =>
+    [section.club_name ?? t("club_fallback"), section.club_type_name ?? "—", section.district_name]
+      .filter(Boolean)
+      .join(" · ");
+
+  const failure = query.error && !page ? errorStateFromError(query.error) : null;
+  const permissionOrScope =
+    errorCode === "GUARD_PERMISSION_DENIED" || errorCode === "GUARD_CLUB_SCOPE_REQUIRED";
+
+  const verifyButton = (item: CoordinatorConsentPendingItem) => {
+    const consent = item.consent ?? null;
+    // Nothing to verify until a guardian (or club custody) exists.
+    const nothingToVerify = consent !== null && consent.guardianship_id === null;
+    // Server verdict (UI hint; verify-consent stays the authority).
+    const verifyBlock = consent?.viewer_verify_block ?? null;
+    const verifyDisabled = nothingToVerify || verifyBlock !== null;
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+          <span tabIndex={verifyDisabled ? 0 : undefined}>
+            <Button
+              size="sm"
+              variant="soft"
+              onClick={() => setDialogItem(item)}
+              disabled={verifyDisabled}
+              aria-label={t("verify_aria", { name: getMinorName(item.users) })}
+            >
+              {tQ("verifyAction")}
+            </Button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          {verifyBlock
+            ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
+            : nothingToVerify
+              ? tConsent("verify_no_guardian")
+              : tConsent("verify_action")}
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
+
   return (
     <div className="space-y-4">
+      {query.isError && page && !permissionOrScope ? (
+        <StaleDataNotice at={query.dataUpdatedAt} onRetry={() => void query.refetch()} />
+      ) : null}
+
       {query.isPending && (
         <div className="space-y-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-md border p-4">
+            <div key={i} className="flex items-center gap-4 rounded-xl bg-card p-4 shadow-card">
               <Skeleton className="h-4 w-40" />
               <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-20" />
               <Skeleton className="h-4 w-20" />
               <Skeleton className="ml-auto h-8 w-16" />
             </div>
@@ -184,43 +227,33 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
         </div>
       )}
 
-      {!query.isPending && loadError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <p className="text-sm text-destructive">{loadError}</p>
-          {isGenericError && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={() => void query.refetch()}
-              disabled={query.isFetching}
-            >
-              <RefreshCw className={`size-4 ${query.isFetching ? "animate-spin" : ""}`} />
-              {t("retry")}
-            </Button>
-          )}
-        </div>
+      {failure && loadError && (
+        <DataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className={HEAD_CLASS}>{t("col_minor")}</TableHead>
+                <TableHead className={HEAD_CLASS}>{t("col_club")}</TableHead>
+                <TableHead className={HEAD_CLASS}>{t("col_form_uploaded")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <ErrorStateTableRow
+                colSpan={3}
+                kind={failure.kind}
+                icon={ShieldCheck}
+                description={loadError}
+                {...(isGenericError ? { onRetry: () => void query.refetch() } : {})}
+                {...(failure.detail ? { detail: failure.detail } : {})}
+              />
+            </TableBody>
+          </Table>
+        </DataTableShell>
       )}
 
-      {page && !loadError && (
+      {page && (
         <>
-          {/* Toolbar */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {t(page.total === 1 ? "count_one" : "count_other", { count: page.total })}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void query.refetch()}
-              disabled={query.isFetching}
-            >
-              <RefreshCw className={`size-4 ${query.isFetching ? "animate-spin" : ""}`} />
-              {tTable("refresh")}
-            </Button>
-          </div>
-
-          {/* Section summary */}
+          {/* Per-section summary as a one-tap filter */}
           {page.by_section.length > 0 && (
             <div className="space-y-1.5">
               <div
@@ -228,22 +261,21 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
                 aria-label={t("summary_title")}
                 className="flex flex-wrap items-center gap-2"
               >
+                <Button type="button" size="sm" variant="soft" aria-pressed="true">
+                  {tQ("allChip")}
+                  <span className="tabular-nums">{page.total}</span>
+                </Button>
                 {page.by_section.map((section) => (
                   <Button
                     key={section.club_section_id}
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-pressed="false"
                     onClick={() => onSelectSection(section.club_section_id)}
                   >
-                    {[
-                      section.club_name ?? t("club_fallback"),
-                      section.club_type_name ?? "—",
-                      section.district_name,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                    <Badge variant="soft-warning">{section.pending_consent_count}</Badge>
+                    {sectionLabel(section)}
+                    <span className="tabular-nums text-muted-foreground">{section.pending_consent_count}</span>
                   </Button>
                 ))}
               </div>
@@ -258,80 +290,47 @@ export function CoordinatorConsentQueue({ onSelectSection }: CoordinatorConsentQ
               description={t("empty_description")}
             />
           ) : (
-            <DataTableShell>
+            <DataTableShell aria-busy={query.isFetching}>
               <Table className="max-md:block">
                 <TableHeader className="max-md:sr-only">
                   <TableRow>
+                    <TableHead className={HEAD_CLASS}>{t("col_minor")}</TableHead>
                     <TableHead className={HEAD_CLASS}>{t("col_club")}</TableHead>
                     <TableHead className={HEAD_CLASS}>{t("col_type")}</TableHead>
                     <TableHead className={HEAD_CLASS}>{t("col_district")}</TableHead>
-                    <TableHead className={HEAD_CLASS}>{t("col_minor")}</TableHead>
                     <TableHead className={HEAD_CLASS}>{t("col_form_uploaded")}</TableHead>
-                    <TableHead className={`${HEAD_CLASS} text-right ${ACTIONS_HEAD_STICKY}`}>
-                      {t("col_actions")}
+                    <TableHead className={`${HEAD_CLASS} text-right`}>
+                      <span className="sr-only">{t("col_actions")}</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="max-md:block">
-                  {page.items.map((item) => {
-                    const consent = item.consent ?? null;
-                    // Nothing to verify until a guardian (or club custody) exists.
-                    const nothingToVerify = consent !== null && consent.guardianship_id === null;
-                    // Server verdict (UI hint; verify-consent stays the authority).
-                    const verifyBlock = consent?.viewer_verify_block ?? null;
-                    const verifyDisabled = nothingToVerify || verifyBlock !== null;
-
-                    return (
-                      <TableRow key={item.assignment_id} className="group/row hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3">
-                        <td aria-hidden="true" className="hidden max-md:order-3 max-md:block max-md:h-0 max-md:basis-full" />
-                        <TableCell className="px-3 py-2.5 align-middle text-sm font-medium max-md:order-4 max-md:p-0 max-md:text-[13px] max-md:font-normal max-md:text-muted-foreground">
-                          {item.club_name ?? "—"}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-5 max-md:p-0 max-md:text-[13px]">
-                          {item.club_type_name ?? "—"}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-6 max-md:p-0 max-md:text-[13px]">
-                          {item.district_name ?? "—"}
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0 max-md:whitespace-normal">
-                          <p className="font-medium leading-none">{getMinorName(item.users)}</p>
-                        </TableCell>
-                        <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:order-7 max-md:p-0 max-md:text-[13px]">
-                          {item.consent_form_uploaded_at
-                            ? formatDatetime(item.consent_form_uploaded_at)
-                            : "—"}
-                        </TableCell>
-                        <TableCell className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY} max-md:static max-md:order-2 max-md:border-l-0 max-md:bg-transparent max-md:p-0`}>
-                          <div className="flex items-center justify-end gap-1">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                                <span tabIndex={verifyDisabled ? 0 : undefined}>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    className="text-primary hover:bg-primary/10 hover:text-primary"
-                                    onClick={() => setDialogItem(item)}
-                                    disabled={verifyDisabled}
-                                    aria-label={t("verify_aria", { name: getMinorName(item.users) })}
-                                  >
-                                    <ShieldCheck className="size-4" />
-                                  </Button>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {verifyBlock
-                                  ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
-                                  : nothingToVerify
-                                    ? tConsent("verify_no_guardian")
-                                    : tConsent("verify_action")}
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {page.items.map((item) => (
+                    <TableRow
+                      key={item.assignment_id}
+                      className="hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
+                    >
+                      <td aria-hidden="true" className="hidden max-md:order-3 max-md:block max-md:h-0 max-md:basis-full" />
+                      <TableCell className="px-3 py-2.5 align-middle text-sm font-medium max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0">
+                        {getMinorName(item.users)}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle text-sm max-md:order-4 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">
+                        {item.club_name ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-5 max-md:p-0 max-md:text-[13px]">
+                        {item.club_type_name ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:order-6 max-md:p-0 max-md:text-[13px]">
+                        {item.district_name ?? "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:order-7 max-md:p-0 max-md:text-[13px]">
+                        {item.consent_form_uploaded_at ? formatDatetime(item.consent_form_uploaded_at) : "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right align-middle max-md:order-2 max-md:p-0">
+                        <div className="flex justify-end">{verifyButton(item)}</div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </DataTableShell>

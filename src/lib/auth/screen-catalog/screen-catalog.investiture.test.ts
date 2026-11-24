@@ -4,7 +4,7 @@ import { buildUser } from "@/lib/auth/testing/auth-user-fixture";
 
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 
-import { canCapability, canViewScreen, SCREEN_CATALOG } from "./index";
+import { canCapability, canViewScreen, resolvePathEntry, SCREEN_CATALOG } from "./index";
 
 
 describe("certifications-reviews", () => {
@@ -237,21 +237,28 @@ describe("investiture-settings (field window and percentage)", () => {
   });
 });
 
-describe("investiture-pastors (district pastor assignment)", () => {
+describe("investiture-settings assign_pastors verb (district pastor assignment)", () => {
   it.each(["director-lf", "assistant-lf", "director-union", "assistant-union"])(
-    "%s can view the pastors screen",
+    "%s can assign pastors",
     (role) => {
-      expect(canViewScreen(buildUser([role], []), "investiture-pastors")).toBe(true);
+      expect(canCapability(buildUser([role], []), "investiture-settings", "assign_pastors")).toBe(true);
     },
   );
 
   // The service only resolves lf and union assigners; dia gets a 403.
   it.each(["pastor", "admin", "assistant-admin", "director-dia", "assistant-dia"])(
-    "%s cannot view the pastors screen",
+    "%s cannot assign pastors",
     (role) => {
-      expect(canViewScreen(buildUser([role], []), "investiture-pastors")).toBe(false);
+      expect(canCapability(buildUser([role], []), "investiture-settings", "assign_pastors")).toBe(false);
     },
   );
+
+  it("serves the unified screen at the configuration route and keeps the legacy URLs gated", () => {
+    expect(resolvePathEntry("/dashboard/configuration/investiture")?.screenId).toBe("investiture-settings");
+    expect(resolvePathEntry("/dashboard/investiture-settings")?.screenId).toBe("investiture-settings");
+    expect(resolvePathEntry("/dashboard/investiture-pastors")?.screenId).toBe("investiture-settings");
+    expect(SCREEN_CATALOG.some((screen) => screen.id === "investiture-pastors")).toBe(false);
+  });
 });
 
 describe("pastor in the rest of the catalog", () => {

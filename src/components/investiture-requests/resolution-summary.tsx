@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getInvestitureRequestErrorMessageByCode } from "./investiture-request-errors";
 import { PersonStatusBadge } from "./person-status-badge";
 import type {
@@ -18,96 +17,79 @@ export interface ResolutionSummaryProps {
   onDismiss?: () => void;
 }
 
+/**
+ * Outcome line shown after confirming. The per-person result lives in the
+ * table below; this only counts and lists what the system did not apply.
+ */
 export function ResolutionSummary({ resolution, people, onDismiss }: ResolutionSummaryProps) {
   const t = useTranslations("investiture_requests.summary");
-  const tDetail = useTranslations("investiture_requests.detail");
+  const tResult = useTranslations("queues.investitures.detail.result");
   const tErrors = useTranslations("investiture_requests");
 
   const namesById = new Map(people.map((p) => [p.person_id, p.user_name]));
-  const nameOf = (id: string, fallback?: string | null) =>
-    fallback ?? namesById.get(id) ?? t("unknownPerson");
+  const nameOf = (id: string) => namesById.get(id) ?? t("unknownPerson");
+
+  const parts = [
+    resolution.invested.length > 0
+      ? tResult("invested", { count: resolution.invested.length })
+      : null,
+    resolution.rejected_by_person.length > 0
+      ? tResult("rejectedByYou", { count: resolution.rejected_by_person.length })
+      : null,
+    resolution.rejected_by_system.length > 0
+      ? tResult("rejectedBySystem", { count: resolution.rejected_by_system.length })
+      : null,
+    resolution.retired.length > 0 ? tResult("retired", { count: resolution.retired.length }) : null,
+  ].filter((part): part is string => part !== null);
 
   const hasNotApplied = resolution.blocked.length > 0 || resolution.already_resolved.length > 0;
 
-  const groups: Array<{
-    key: string;
-    title: string;
-    people: InvestitureRequestPerson[];
-    showSystemReason?: boolean;
-  }> = [
-    { key: "invested", title: t("invested"), people: resolution.invested },
-    { key: "rejected_by_person", title: t("rejectedByPerson"), people: resolution.rejected_by_person },
-    {
-      key: "rejected_by_system",
-      title: t("rejectedBySystem"),
-      people: resolution.rejected_by_system,
-      showSystemReason: true,
-    },
-    { key: "retired", title: t("retired"), people: resolution.retired },
-  ];
-
   return (
-    <Card role="region" aria-labelledby="investiture-resolution-title">
-      <CardHeader className="flex flex-row items-center justify-between gap-2">
-        <CardTitle id="investiture-resolution-title" className="text-base font-semibold tracking-tight">
-          {t("title")}
-        </CardTitle>
-        {onDismiss && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("dismiss")}
-            onClick={onDismiss}
-          >
-            <X aria-hidden="true" />
-          </Button>
+    <div
+      role="status"
+      className="flex items-start justify-between gap-3 rounded-xl bg-muted px-4 py-3 text-sm"
+    >
+      <div className="space-y-1.5">
+        <p className="font-medium text-foreground">{tResult("title")}</p>
+        {parts.length > 0 && <p className="text-muted-foreground">{parts.join(" · ")}</p>}
+        {resolution.rejected_by_system.length > 0 && (
+          <p className="text-muted-foreground">{tResult("systemExplain")}</p>
         )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {groups
-          .filter((group) => group.people.length > 0)
-          .map((group) => (
-            <section key={group.key} className="space-y-1.5">
-              <h3 className="text-sm font-medium text-foreground">{group.title}</h3>
-              <ul className="space-y-1.5">
-                {group.people.map((p) => (
-                  <li key={p.person_id} className="text-sm">
-                    <span className="font-medium">{nameOf(p.person_id, p.user_name)}</span>
-                    {group.showSystemReason && (
-                      <p className="mt-0.5 text-muted-foreground">
-                        {p.system_reason ?? tDetail("systemReasonFallback")}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-
         {hasNotApplied && (
-          <section className="space-y-1.5">
-            <h3 className="text-sm font-medium text-foreground">{t("notApplied")}</h3>
-            <ul className="space-y-1.5">
+          <div className="space-y-1 pt-1">
+            <p className="font-medium text-foreground">{t("notApplied")}</p>
+            <ul className="space-y-1">
               {resolution.blocked.map((entry) => (
-                <li key={`blocked-${entry.person_id}`} className="text-sm">
+                <li key={`blocked-${entry.person_id}`}>
                   <span className="font-medium">{nameOf(entry.person_id)}</span>
-                  <p className="mt-0.5 text-muted-foreground">
+                  <span className="text-muted-foreground">
+                    {" · "}
                     {getInvestitureRequestErrorMessageByCode(entry.code, tErrors)}
-                  </p>
+                  </span>
                 </li>
               ))}
               {resolution.already_resolved.map((entry) => (
-                <li key={`resolved-${entry.person_id}`} className="flex flex-wrap items-center gap-2 text-sm">
+                <li key={`resolved-${entry.person_id}`} className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{nameOf(entry.person_id)}</span>
                   <PersonStatusBadge status={entry.status} />
                   <span className="text-muted-foreground">{t("alreadyResolved")}</span>
                 </li>
               ))}
             </ul>
-          </section>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+      {onDismiss && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t("dismiss")}
+          onClick={onDismiss}
+        >
+          <X aria-hidden="true" />
+        </Button>
+      )}
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import messages from "../../../messages/es.json";
+import esMessages from "../../../messages/es.json";
 import { ApiError } from "@/lib/api/client";
 import type {
   HonorInstructorProposal,
@@ -19,6 +19,12 @@ vi.mock("@/lib/api/honor-instructor-proposals", () => ({
   getHonorInstructorProposals: (...args: unknown[]) => mockList(...args),
   approveHonorInstructorProposal: (...args: unknown[]) => mockApprove(...args),
   rejectHonorInstructorProposal: (...args: unknown[]) => mockReject(...args),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn(), replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/dashboard/clubs/validations",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const mockToastSuccess = vi.fn();
@@ -41,6 +47,28 @@ if (!Element.prototype.scrollIntoView) {
 
 import { HonorInstructorProposalsQueue } from "./honor-instructor-proposals-queue";
 
+// Strings of `queues.classes.instructors` (same text as messages/es.json once merged).
+const messages = {
+  ...esMessages,
+  queues: {
+    ...esMessages.queues,
+    classes: {
+      ...esMessages.queues.classes,
+      instructors: {
+        columns: { result: "Resultado" },
+        loadErrorTitle: "No pudimos cargar las propuestas de instructor",
+        confirm: {
+          title: "¿Aprobar propuesta de instructor?",
+          replace:
+            "{proposed} reemplaza a {current} como instructor de {honor} de {member}. La especialidad sigue aprobada.",
+          assign: "{proposed} queda como instructor de {honor} de {member}. La especialidad sigue aprobada.",
+          confirm: "Aprobar propuesta",
+        },
+      },
+    },
+  },
+};
+
 function proposal(overrides: Partial<HonorInstructorProposal> = {}): HonorInstructorProposal {
   return {
     proposal_id: "p-1",
@@ -59,12 +87,12 @@ function page(items: HonorInstructorProposal[], total = items.length) {
   return { items, total, page: 1, limit: 20 };
 }
 
-function renderQueue() {
+function renderQueue(mode: "pending" | "history" = "pending") {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
       <NextIntlClientProvider locale="es" messages={messages}>
-        <HonorInstructorProposalsQueue />
+        <HonorInstructorProposalsQueue mode={mode} />
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
@@ -95,7 +123,7 @@ describe("HonorInstructorProposalsQueue", () => {
     expect(screen.getByText("Usuario del sistema")).toBeInTheDocument();
     expect(screen.getByText("Juan López")).toBeInTheDocument();
     expect(screen.getByText("Externo, no verificado")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Pendientes" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("group", { name: "Filtrar por estado" })).not.toBeInTheDocument();
   });
 
   it("shows 'Sin instructor declarado' when there is no current instructor", async () => {
@@ -113,35 +141,40 @@ describe("HonorInstructorProposalsQueue", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
-  it("renders the error state and retries", async () => {
+  it("renders the error inside the table frame (never as empty) and retries", async () => {
     mockList.mockRejectedValueOnce(apiError(500));
     renderQueue();
 
-    expect(await screen.findByText("No se pudo cargar la cola")).toBeInTheDocument();
+    expect(await screen.findByText("No pudimos cargar las propuestas de instructor")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Miembro" })).toBeInTheDocument();
+    expect(screen.queryByText("Sin propuestas pendientes")).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     expect(await screen.findByText("Luis Mora")).toBeInTheDocument();
   });
 
-  it("changes the status filter and resets to page 1", async () => {
-    renderQueue();
-    await screen.findByText("Luis Mora");
+  it("history mode lists resolved proposals without decision buttons and switches status", async () => {
+    mockList.mockResolvedValue(page([proposal({ status: "APPROVED" })]));
+    renderQueue("history");
+
+    expect(await screen.findByText("Luis Mora")).toBeInTheDocument();
+    expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ status: "APPROVED", page: 1 }));
+    expect(screen.queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Pendientes" })).not.toBeInTheDocument();
 
     mockList.mockResolvedValue(
       page([proposal({ status: "REJECTED", rejection_reason: "No es instructor del campo" })]),
     );
     await userEvent.click(screen.getByRole("button", { name: "Rechazadas" }));
-
     expect(await screen.findByText("No es instructor del campo")).toBeInTheDocument();
     expect(mockList).toHaveBeenLastCalledWith(expect.objectContaining({ status: "REJECTED", page: 1 }));
-    expect(screen.queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
   });
 
   it("paginates when the total exceeds the page size", async () => {
     mockList.mockResolvedValue(page([proposal()], 45));
     renderQueue();
 
-    expect(await screen.findByText("Página 1 de 3")).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
+    await screen.findByText("Luis Mora");
+    await userEvent.click(screen.getByRole("button", { name: /siguiente/i }));
     await waitFor(() =>
       expect(mockList).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })),
     );
@@ -153,10 +186,14 @@ describe("HonorInstructorProposalsQueue", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Aprobar" }));
     const dialog = await screen.findByRole("alertdialog");
-    expect(within(dialog).getByText(/Reemplazar a Ana Pérez por Juan López/)).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        "Juan López reemplaza a Ana Pérez como instructor de Primeros Auxilios de Luis Mora. La especialidad sigue aprobada.",
+      ),
+    ).toBeInTheDocument();
 
     const callsBefore = mockList.mock.calls.length;
-    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar propuesta" }));
 
     await waitFor(() => expect(mockApprove).toHaveBeenCalledWith("p-1"));
     await waitFor(() => expect(mockToastSuccess).toHaveBeenCalled());
@@ -171,9 +208,8 @@ describe("HonorInstructorProposalsQueue", () => {
     await userEvent.click(screen.getByRole("button", { name: "Rechazar" }));
     const dialog = await screen.findByRole("alertdialog");
     await userEvent.type(within(dialog).getByLabelText(/Motivo del rechazo/), "  ab ");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Rechazar propuesta" }));
 
-    expect(await within(dialog).findByText(/entre 3 y 500 caracteres/)).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Rechazar propuesta" })).toBeDisabled();
     expect(mockReject).not.toHaveBeenCalled();
   });
 
@@ -200,7 +236,7 @@ describe("HonorInstructorProposalsQueue", () => {
     const callsBefore = mockList.mock.calls.length;
     await userEvent.click(screen.getByRole("button", { name: "Aprobar" }));
     const dialog = await screen.findByRole("alertdialog");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar propuesta" }));
 
     await waitFor(() =>
       expect(mockToastError).toHaveBeenCalledWith(expect.stringContaining("ya no está pendiente")),
@@ -224,19 +260,18 @@ describe("HonorInstructorProposalsQueue", () => {
     );
   });
 
-  it("leaves only 'Rechazar' when approve answers HONOR_INSTRUCTOR_INVALID", async () => {
+  it("swaps to the reject dialog when approve answers HONOR_INSTRUCTOR_INVALID", async () => {
     mockApprove.mockRejectedValue(apiError(400, "HONOR_INSTRUCTOR_INVALID"));
     renderQueue();
     await screen.findByText("Luis Mora");
 
     await userEvent.click(screen.getByRole("button", { name: "Aprobar" }));
     const dialog = await screen.findByRole("alertdialog");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Aprobar propuesta" }));
 
-    expect(await within(dialog).findByText(/ya no es elegible/)).toBeInTheDocument();
-    expect(within(dialog).queryByRole("button", { name: "Aprobar" })).not.toBeInTheDocument();
-
-    await userEvent.click(within(dialog).getByRole("button", { name: "Rechazar propuesta" }));
-    expect(await within(dialog).findByLabelText(/Motivo del rechazo/)).toBeInTheDocument();
+    const reject = await screen.findByRole("alertdialog");
+    expect(await within(reject).findByText(/ya no es elegible/)).toBeInTheDocument();
+    expect(within(reject).queryByRole("button", { name: "Aprobar propuesta" })).not.toBeInTheDocument();
+    expect(within(reject).getByLabelText(/Motivo del rechazo/)).toBeInTheDocument();
   });
 });

@@ -157,7 +157,7 @@ describe("filterSidebarItems", () => {
     const pending = sidebarItems[1]!.items.map((item) => item.id);
     expect(pending).toEqual([
       "requests",
-      "classes-honors",
+      "validations-investitures",
       "investiture-requests",
       "certificates",
       "clubs-evidence-folders-list",
@@ -180,10 +180,6 @@ describe("filterSidebarItems", () => {
       "requests-assignments",
       "requests-membership",
       "club-enrollments-review",
-    ]);
-    expect(subs(1, "classes-honors")).toEqual([
-      "validations-investitures",
-      "honor-instructor-proposals",
     ]);
     expect(subs(1, "certificates")).toEqual([
       "certificate-bulk-imports",

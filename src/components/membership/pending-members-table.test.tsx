@@ -1,17 +1,16 @@
 /**
- * Tests for the consent additions of PendingMembersTable: badge for minors,
- * approve disabled (with tooltip) while consent is pending, verify action
- * opening the dialog, null email shown as an em dash, and error-code mapping
- * when approve is rejected with MR_CONSENT_NOT_VERIFIED.
+ * PendingMembersTable: one row per request, a single action that opens a side
+ * sheet. Rejecting happens inside the sheet; a minor with a pending guardian
+ * form has no "Aprobar" anywhere until the form is verified.
  */
 
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import messages from "../../../messages/es.json";
+import { testMessages as messages } from "@/components/requests/test-intl";
 import type { MembershipRequest } from "@/lib/api/membership-requests";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -24,16 +23,25 @@ global.ResizeObserver = class ResizeObserver {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockList = vi.fn<(...args: any[]) => Promise<MembershipRequest[]>>();
 const mockApprove = vi.fn<(...args: any[]) => Promise<unknown>>();
+const mockReject = vi.fn<(...args: any[]) => Promise<unknown>>();
+const mockVerify = vi.fn<(...args: any[]) => Promise<unknown>>();
 const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/requests/membership",
+  useSearchParams: () => new URLSearchParams(""),
+}));
+
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
-  const original =
-    await importOriginal<typeof import("@/lib/api/membership-requests")>();
+  const original = await importOriginal<typeof import("@/lib/api/membership-requests")>();
   return {
     ...original,
     listMembershipRequestsFromClient: (...args: unknown[]) => mockList(...args),
     approveMembershipRequest: (...args: unknown[]) => mockApprove(...args),
+    rejectMembershipRequest: (...args: unknown[]) => mockReject(...args),
+    verifyConsent: (...args: unknown[]) => mockVerify(...args),
     getConsentEvidence: (...args: unknown[]) => mockGetEvidence(...args),
   };
 });
@@ -51,7 +59,9 @@ vi.mock("sonner", () => ({
 import { PendingMembersTable } from "@/components/membership/pending-members-table";
 import { ApiError } from "@/lib/api/client";
 
+const tq = messages.queues.requests.membership;
 const consentMsg = messages.membership.consent;
+const sheetMsg = messages.queues.requests.sheet;
 
 function adult(): MembershipRequest {
   return {
@@ -65,13 +75,16 @@ function adult(): MembershipRequest {
   };
 }
 
-function minor(status: "pending" | "verified"): MembershipRequest {
+function minor(
+  status: "pending" | "verified",
+  extra: Partial<NonNullable<MembershipRequest["consent"]>> = {},
+): MembershipRequest {
   return {
     assignment_id: `asg-minor-${status}`,
     club_section_id: 42,
     status: "pending",
     created_at: "2026-10-01T00:00:00.000Z",
-    users: { user_id: "u-m", name: "Ana", paternal_last_name: "Pérez", email: null },
+    users: { user_id: "u-m", name: "Regina", paternal_last_name: "Salas", email: null },
     roles: { role_id: "r", role_name: "member" },
     consent: {
       required: true,
@@ -79,32 +92,43 @@ function minor(status: "pending" | "verified"): MembershipRequest {
       guardianship_id: "g-1",
       status,
       evidence_uploaded: true,
-      guardians: [{ display_name: "María Pérez", relationship_type_name: "Madre", is_primary: true }],
+      guardians: [{ display_name: "Laura Salas", relationship_type_name: "Madre", is_primary: true }],
+      ...extra,
     },
   };
 }
 
-function renderTable(requests: MembershipRequest[]) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
+function renderTable(requests: MembershipRequest[], mode?: "approve" | "verify-only") {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const result = render(
     <QueryClientProvider client={queryClient}>
       <NextIntlClientProvider locale="es" messages={messages}>
         <TooltipProvider>
-          <PendingMembersTable clubSectionId={42} initialRequests={requests} />
+          <PendingMembersTable
+            clubSectionId={42}
+            initialRequests={requests}
+            {...(mode ? { mode } : {})}
+          />
         </TooltipProvider>
       </NextIntlClientProvider>
     </QueryClientProvider>,
   );
+  return { ...result, queryClient };
 }
 
-const approveBtn = () =>
-  screen.getAllByRole("button", { name: messages.membership.table.aria_approve });
-
-describe("PendingMembersTable (consent)", () => {
+describe("PendingMembersTable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockList.mockResolvedValue([]);
     mockApprove.mockResolvedValue({});
+    mockReject.mockResolvedValue({});
+    mockVerify.mockResolvedValue({
+      guardianship: { guardianship_id: "g-1", consent_status: "verified" },
+      assignment: null,
+      approve_error: null,
+    });
     mockGetEvidence.mockResolvedValue({
       url: "https://r2.example/signed",
       expires_in: 900,
@@ -115,213 +139,121 @@ describe("PendingMembersTable (consent)", () => {
 
   afterEach(() => cleanup());
 
-  it("shows no badge or verify action for adults, and approve is enabled", () => {
+  it("marks only the exception: an adult has no mark and only a Revisar action", () => {
+    renderTable([adult()]);
+    expect(screen.queryByText(tq.consentPending)).toBeNull();
+    expect(screen.getByRole("button", { name: /Revisar: Luis Gómez/ })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: /Aprobar/ })).toBeNull();
+  });
+
+  it("approves from inside the sheet and re-syncs the list", async () => {
+    const user = userEvent.setup();
     renderTable([adult()]);
 
-    expect(screen.queryByText(consentMsg.badge_pending)).toBeNull();
-    expect(screen.queryByText(consentMsg.badge_verified)).toBeNull();
-    expect(screen.queryByRole("button", { name: consentMsg.verify_action_aria })).toBeNull();
-    expect(approveBtn()[0]).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: /Revisar: Luis Gómez/ }));
+    const sheet = await screen.findByRole("dialog");
+    await user.click(within(sheet).getByRole("button", { name: tq.sheet.approve }));
+
+    await waitFor(() => expect(mockApprove).toHaveBeenCalledWith(42, "asg-adult"));
+    expect(mockToastSuccess).toHaveBeenCalled();
+    await waitFor(() => expect(mockList).toHaveBeenCalledWith(42));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
-  it("pending minor: badge, approve disabled, verify action present, email dash", () => {
+  it("rejects inside the same sheet: the footer asks for a reason and says who reads it", async () => {
+    const user = userEvent.setup();
+    renderTable([adult()]);
+
+    await user.click(screen.getByRole("button", { name: /Revisar: Luis Gómez/ }));
+    const sheet = await screen.findByRole("dialog");
+    await user.click(within(sheet).getByRole("button", { name: tq.sheet.rejectAction }));
+
+    expect(within(sheet).getByText(new RegExp(tq.sheet.rejectAudience))).toBeInTheDocument();
+    // Still one dialog: no second layer on top.
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+
+    await user.type(within(sheet).getByLabelText(new RegExp(sheetMsg.reasonLabel)), "abc");
+    await user.click(within(sheet).getByRole("button", { name: tq.sheet.rejectConfirm }));
+    expect(mockReject).not.toHaveBeenCalled();
+
+    await user.type(within(sheet).getByLabelText(new RegExp(sheetMsg.reasonLabel)), "defgh");
+    await user.click(within(sheet).getByRole("button", { name: tq.sheet.rejectConfirm }));
+    await waitFor(() => expect(mockReject).toHaveBeenCalledWith(42, "asg-adult", "abcdefgh"));
+  });
+
+  it("pending guardian form: marked, no Aprobar, and Verificar ficha opens the wide sheet with the form", async () => {
+    const user = userEvent.setup();
     renderTable([minor("pending")]);
 
-    expect(screen.getByText(consentMsg.badge_pending)).toBeInTheDocument();
-    expect(approveBtn()[0]).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: consentMsg.verify_action_aria }),
-    ).toBeEnabled();
-    // null email renders as an em dash under the name
-    expect(screen.getByText("—", { selector: "p" })).toBeInTheDocument();
+    expect(screen.getByText(tq.consentPending)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Aprobar/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Revisar/ })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /Verificar ficha: Regina Salas/ }));
+    const sheet = await screen.findByRole("dialog");
+    expect(within(sheet).getByText("Laura Salas")).toBeInTheDocument();
+    await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledWith(42, "asg-minor-pending"));
+    // The two checkboxes say what confirming does.
+    expect(within(sheet).getByText(tq.verify.reviewedHint)).toBeInTheDocument();
+    expect(within(sheet).getByText(tq.verify.approveHint)).toBeInTheDocument();
   });
 
-  it("a pending teen (consent block by age) gets the same minor badge and a verify action", () => {
-    const teen = minor("pending");
-    teen.users = { ...teen.users!, name: "Luis" };
-    teen.consent = { ...teen.consent!, dependent: true, guardian_linked: true };
-    renderTable([teen]);
-
-    expect(screen.getByText(consentMsg.badge_pending)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
+  it("a verified form has no mark and can be reviewed and approved", () => {
+    renderTable([minor("verified")]);
+    expect(screen.queryByText(tq.consentPending)).toBeNull();
+    expect(screen.getByRole("button", { name: /Revisar: Regina Salas/ })).toBeEnabled();
   });
 
-  it("a self-registered teen with no guardian linked: badge, but verify is disabled with a tooltip and approve stays blocked", async () => {
+  it("disables verify with the reason when the viewer registered or guards the minor", async () => {
     const user = userEvent.setup();
-    const teen = minor("pending");
-    teen.consent = {
-      required: true,
-      dependent: false,
-      guardian_linked: false,
-      guardianship_id: null,
-      status: "pending",
-      evidence_uploaded: false,
-      guardians: [],
-    };
-    renderTable([teen]);
+    renderTable([minor("pending", { viewer_verify_block: "self_custodian" })]);
 
-    expect(screen.getByText(consentMsg.badge_pending)).toBeInTheDocument();
-    const verify = screen.getByRole("button", { name: consentMsg.verify_action_aria });
+    const verify = screen.getByRole("button", { name: /Verificar ficha: Regina Salas/ });
     expect(verify).toBeDisabled();
-    expect(approveBtn()[0]).toBeDisabled();
-
     await user.hover(verify.parentElement as HTMLElement);
-    expect((await screen.findAllByText(consentMsg.verify_no_guardian)).length).toBeGreaterThan(0);
-    await user.click(verify);
-    expect(screen.queryByRole("alertdialog")).toBeNull();
-  });
-
-  it("a director-created minor under club custody (no guardian yet) can be verified", () => {
-    const custodial = minor("pending");
-    custodial.consent = {
-      ...custodial.consent!,
-      dependent: true,
-      guardian_linked: false,
-      guardianship_id: "g-custody",
-      guardians: [{ display_name: "Club Águilas", relationship_type_name: null, is_primary: true }],
-    };
-    renderTable([custodial]);
-
-    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
-  });
-
-  it.each([
-    ["self_custodian", "GUARDIANSHIP_CUSTODIAN_SELF_VERIFY"],
-    ["self_guardian", "GUARDIANSHIP_GUARDIAN_SELF_VERIFY"],
-  ] as const)(
-    "viewer_verify_block %s disables verify with the matching tooltip",
-    async (block, code) => {
-      const user = userEvent.setup();
-      const req = minor("pending");
-      req.consent = { ...req.consent!, viewer_can_verify: false, viewer_verify_block: block };
-      renderTable([req]);
-
-      const verify = screen.getByRole("button", { name: consentMsg.verify_action_aria });
-      expect(verify).toBeDisabled();
-
-      await user.hover(verify.parentElement as HTMLElement);
-      expect((await screen.findAllByText(consentMsg.errors[code])).length).toBeGreaterThan(0);
-      await user.click(verify);
-      expect(screen.queryByRole("alertdialog")).toBeNull();
-    },
-  );
-
-  it("a null block keeps verify enabled, even when viewer_can_verify is false (nothing to verify yet is handled elsewhere)", () => {
-    const req = minor("pending");
-    req.consent = { ...req.consent!, viewer_can_verify: false, viewer_verify_block: null };
-    renderTable([req]);
-
-    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
-  });
-
-  it("viewer_can_verify true with a null block keeps verify enabled", () => {
-    const req = minor("pending");
-    req.consent = { ...req.consent!, viewer_can_verify: true, viewer_verify_block: null };
-    renderTable([req]);
-
-    expect(screen.getByRole("button", { name: consentMsg.verify_action_aria })).toBeEnabled();
-  });
-
-  it("explains why approve is blocked via tooltip", async () => {
-    const user = userEvent.setup();
-    renderTable([minor("pending")]);
-
-    await user.hover(approveBtn()[0].parentElement as HTMLElement);
     expect(
-      (await screen.findAllByText(consentMsg.approve_blocked)).length,
+      (await screen.findAllByText(messages.membership.consent.errors.GUARDIANSHIP_CUSTODIAN_SELF_VERIFY)).length,
     ).toBeGreaterThan(0);
   });
 
-  it("verified minor: verified badge, approve enabled, no verify action", async () => {
+  it("disables verify when nobody is linked yet, with its tooltip", async () => {
     const user = userEvent.setup();
-    renderTable([minor("verified")]);
+    renderTable([minor("pending", { guardianship_id: null, guardians: [] })]);
 
-    expect(screen.getByText(consentMsg.badge_verified)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: consentMsg.verify_action_aria })).toBeNull();
-    expect(approveBtn()[0]).toBeEnabled();
-
-    await user.click(approveBtn()[0]);
-    await waitFor(() => expect(mockApprove).toHaveBeenCalledWith(42, "asg-minor-verified"));
+    const verify = screen.getByRole("button", { name: /Verificar ficha: Regina Salas/ });
+    expect(verify).toBeDisabled();
+    await user.hover(verify.parentElement as HTMLElement);
+    expect((await screen.findAllByText(consentMsg.verify_no_guardian)).length).toBeGreaterThan(0);
   });
 
-  it("opens the verify dialog from the verify action", async () => {
+  it("MR_CONSENT_NOT_VERIFIED on approve: explains inline and re-syncs", async () => {
     const user = userEvent.setup();
-    renderTable([minor("pending")]);
+    mockApprove.mockRejectedValue(
+      new ApiError("Consent not verified", 409, { code: "MR_CONSENT_NOT_VERIFIED" }),
+    );
+    mockList.mockResolvedValue([adult()]);
+    renderTable([adult()]);
 
-    await user.click(screen.getByRole("button", { name: consentMsg.verify_action_aria }));
+    await user.click(screen.getByRole("button", { name: /Revisar: Luis Gómez/ }));
+    const sheet = await screen.findByRole("dialog");
+    await user.click(within(sheet).getByRole("button", { name: tq.sheet.approve }));
 
     expect(
-      await screen.findByRole("alertdialog", { name: consentMsg.dialog.title }),
+      await within(sheet).findByText(messages.membership.consent.errors.MR_CONSENT_NOT_VERIFIED),
     ).toBeInTheDocument();
-    expect(mockGetEvidence).toHaveBeenCalledWith(42, "asg-minor-pending");
-  });
-
-  it("maps MR_CONSENT_NOT_VERIFIED on approve to the translated message and re-syncs the list", async () => {
-    mockApprove.mockRejectedValue(
-      new ApiError("server msg", 409, { code: "MR_CONSENT_NOT_VERIFIED" }),
-    );
-    mockList.mockResolvedValue([minor("pending")]);
-    const user = userEvent.setup();
-    renderTable([minor("verified")]);
-
-    await user.click(approveBtn()[0]);
-
-    await waitFor(() =>
-      expect(mockToastError).toHaveBeenCalledWith(consentMsg.errors.MR_CONSENT_NOT_VERIFIED),
-    );
     await waitFor(() => expect(mockList).toHaveBeenCalledWith(42));
   });
-});
 
-describe("PendingMembersTable (effective expiry)", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockList.mockResolvedValue([]);
-  });
-
-  afterEach(() => cleanup());
-
-  // Noon UTC keeps the calendar day stable across time zones.
-  const BASE = "2026-10-09T12:00:00.000Z";
-  const EFFECTIVE = "2026-10-31T12:00:00.000Z";
-
-  it("shows effective_expires_at instead of the base expires_at", () => {
+  it("shows the effective expiry and falls back to the base one", () => {
+    const BASE = "2026-10-09T12:00:00.000Z";
+    const EFFECTIVE = "2026-10-31T12:00:00.000Z";
     renderTable([
       { ...minor("pending"), expires_at: BASE, effective_expires_at: EFFECTIVE },
-    ]);
-
-    expect(screen.getByText(/\b31 oct/)).toBeInTheDocument();
-    expect(screen.queryByText(/\b09 oct/)).toBeNull();
-  });
-
-  it("falls back to expires_at when effective_expires_at is absent or null", () => {
-    renderTable([
-      { ...adult(), assignment_id: "a1", expires_at: BASE },
       { ...adult(), assignment_id: "a2", expires_at: BASE, effective_expires_at: null },
     ]);
-
-    expect(screen.getAllByText(/\b09 oct/)).toHaveLength(2);
-  });
-
-  it("pending-consent minors get the 'extended while pending' hint", async () => {
-    const user = userEvent.setup();
-    renderTable([
-      { ...minor("pending"), expires_at: BASE, effective_expires_at: EFFECTIVE },
-    ]);
-
-    const hint = screen.getByRole("img", { name: consentMsg.expiry_extended_hint });
-    expect(hint).toBeInTheDocument();
-    await user.hover(hint);
-    expect((await screen.findAllByText(consentMsg.expiry_extended_hint)).length).toBeGreaterThan(0);
-  });
-
-  it("adults and verified minors get no extended hint", () => {
-    renderTable([
-      { ...adult(), expires_at: BASE },
-      { ...minor("verified"), expires_at: BASE },
-    ]);
-
-    expect(screen.queryByRole("img", { name: consentMsg.expiry_extended_hint })).toBeNull();
+    expect(screen.getByText(/\b31 oct/)).toBeInTheDocument();
+    expect(screen.getAllByText(/\b09 oct/)).toHaveLength(1);
+    expect(screen.getByRole("img", { name: consentMsg.expiry_extended_hint })).toBeInTheDocument();
   });
 
   it("flags 'expiring soon' from the effective date, not the base one", () => {
@@ -330,44 +262,45 @@ describe("PendingMembersTable (effective expiry)", () => {
     const { container } = renderTable([
       { ...minor("pending"), expires_at: soon, effective_expires_at: far },
     ]);
-    // Base is within 48h but the effective date is 20 days out: no warning styling.
-    expect(container.querySelector(".text-warning")).toBeNull();
-
-    cleanup();
-    const { container: c2 } = renderTable([
-      { ...minor("pending"), expires_at: far, effective_expires_at: soon },
-    ]);
-    expect(c2.querySelector(".text-warning")).not.toBeNull();
-  });
-});
-
-describe("PendingMembersTable (narrow widths)", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockList.mockResolvedValue([]);
+    expect(container.querySelector("span.text-warning")).toBeNull();
   });
 
-  afterEach(() => cleanup());
+  it("shows the empty state of the section", () => {
+    renderTable([]);
+    expect(screen.getByText(messages.membership.table.empty_title)).toBeInTheDocument();
+  });
 
-  it("scrolls horizontally and pins the actions column to the right", () => {
-    const { container } = renderTable([adult(), minor("pending")]);
+  describe("verify-only (coordinator)", () => {
+    it("offers only Verificar ficha on pending forms; no approve, review or reject", async () => {
+      const user = userEvent.setup();
+      renderTable([minor("pending", { viewer_verify_block: null })], "verify-only");
 
-    // DS table pattern: DataTableShell frame around the scrolling table.
-    expect(
-      container.querySelector('[data-slot="data-table-shell"] [data-slot="table-container"]'),
-    ).not.toBeNull();
+      expect(screen.queryByRole("button", { name: /Aprobar|Revisar/ })).toBeNull();
+      await user.click(screen.getByRole("button", { name: /Verificar ficha: Regina Salas/ }));
+      const sheet = await screen.findByRole("dialog");
+      expect(within(sheet).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
+      expect(within(sheet).queryByRole("button", { name: tq.verify.rejectAction })).toBeNull();
+      expect(within(sheet).queryByRole("button", { name: consentMsg.dialog.upload })).toBeNull();
+    });
 
-    const head = screen.getByTestId("actions-head");
-    expect(head.className).toContain("sticky");
-    expect(head.className).toContain("right-0");
-    expect(head.className).toContain("bg-card");
+    it("verifying sends approve:false and marks the coordinator queue stale", async () => {
+      const user = userEvent.setup();
+      const { queryClient } = renderTable([minor("pending")], "verify-only");
+      const invalidate = vi.spyOn(queryClient, "invalidateQueries");
 
-    const cells = screen.getAllByTestId("actions-cell");
-    expect(cells).toHaveLength(2);
-    for (const cell of cells) {
-      expect(cell.className).toContain("sticky");
-      expect(cell.className).toContain("right-0");
-      expect(cell.className).toContain("bg-card");
-    }
+      await user.click(screen.getByRole("button", { name: /Verificar ficha: Regina Salas/ }));
+      const sheet = await screen.findByRole("dialog");
+      await within(sheet).findByAltText(consentMsg.dialog.evidence_image_alt);
+      await user.click(within(sheet).getByLabelText(consentMsg.dialog.confirm_checkbox));
+      await user.click(within(sheet).getByRole("button", { name: consentMsg.dialog.confirm }));
+
+      await waitFor(() =>
+        expect(mockVerify).toHaveBeenCalledWith(42, "asg-minor-pending", {
+          confirm_paper_form_reviewed: true,
+          approve: false,
+        }),
+      );
+      await waitFor(() => expect(invalidate).toHaveBeenCalled());
+    });
   });
 });

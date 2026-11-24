@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipRequestsClientPage } from "@/components/membership/membership-requests-client-page";
 import {
@@ -37,9 +37,10 @@ export default async function MembershipRequestsPage() {
       />
 
       {!result.available && (
-        <EndpointErrorBanner
-          state="missing"
-          detail={result.error ?? t(`${header}.errorLoad`)}
+        <ErrorState
+          icon={UserPlus}
+          description={result.error ?? t(`${header}.errorLoad`)}
+          retry
         />
       )}
 

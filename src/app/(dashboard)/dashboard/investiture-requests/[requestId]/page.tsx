@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { getInvestitureRequestErrorMessage } from "@/components/investiture-requests/investiture-request-errors";
 import { RequestDetailClientPage } from "@/components/investiture-requests/request-detail-client-page";
@@ -25,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function InvestitureRequestDetailRoute({ params }: RouteProps) {
   await requireAdminUser();
   const t = await getTranslations("investiture_requests");
+  const tq = await getTranslations("queues.investitures.detail");
   const { requestId } = await params;
 
   let request: InvestitureRequest | null = null;
@@ -48,14 +49,14 @@ export default async function InvestitureRequestDetailRoute({ params }: RoutePro
         <PageHeader
           title={t("detail.titleFallback")}
           breadcrumbs={[
-            { label: t("detail.breadcrumbHome"), href: "/dashboard" },
-            { label: t("detail.breadcrumbList"), href: "/dashboard/investiture-requests" },
+            { label: tq("breadcrumbList"), href: "/dashboard/investiture-requests" },
             { label: t("detail.titleFallback") },
           ]}
         />
-        <EndpointErrorBanner
-          state={loadError?.status === 403 ? "forbidden" : "missing"}
-          detail={loadError?.message ?? t("errors.generic")}
+        <ErrorState
+          retry
+          kind={loadError?.status === 403 ? "forbidden" : "error"}
+          description={loadError?.status === 403 ? undefined : (loadError?.message ?? t("errors.generic"))}
         />
       </div>
     );

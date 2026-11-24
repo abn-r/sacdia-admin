@@ -146,7 +146,7 @@ describe("sidebar localisation", () => {
     };
 
     expect(titles("requests")).toEqual(["Solicitudes", "Traslados", "Asignaciones", "Membresía", "Registros anuales"]);
-    expect(titles("classes-honors")).toEqual(["Especialidades y clases", "Validaciones de clase", "Propuestas de instructor"]);
+    expect(titles("validations-investitures")).toEqual(["Especialidades y clases"]);
     expect(titles("investiture-requests")).toEqual(["Investiduras"]);
     expect(titles("certificates")).toEqual([
       "Certificados",

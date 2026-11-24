@@ -50,7 +50,7 @@ describe("index pages: data", () => {
       "admin-settings-scoring-categories", "admin-system-variables", "admin-system-jobs",
       "admin-system-jobs-history", "admin-system-achievements", "admin-system-audit",
       "admin-system-roles", "admin-system-permissions", "admin-system-matrix",
-      "investiture-settings", "investiture-pastors", "clubs-evidence-folders-templates",
+      "investiture-settings", "clubs-evidence-folders-templates",
     ]) {
       expect(ids.has(id), id).toBe(true);
     }
@@ -145,7 +145,7 @@ describe("configuration index links", () => {
 
   it("super-admin sees every link, including the setup screens moved out of the sidebar", () => {
     const ids = visibleLinkIds(CONFIG_SECTIONS, user(["super-admin"]));
-    for (const id of ["investiture-settings", "investiture-pastors", "clubs-evidence-folders-templates"]) {
+    for (const id of ["investiture-settings", "clubs-evidence-folders-templates"]) {
       expect(ids).toContain(id);
     }
     expect(ids).toHaveLength(CONFIGURATION_INDEX_SECTIONS.flatMap((s) => s.links).length);

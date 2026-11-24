@@ -106,6 +106,7 @@ import {
   RepeatIcon as __Huge_RepeatIcon,
   Rotate01Icon as __Huge_Rotate01Icon,
   Search01Icon as __Huge_Search01Icon,
+  SearchRemoveIcon as __Huge_SearchRemoveIcon,
   SentIcon as __Huge_SentIcon,
   Settings02Icon as __Huge_Settings02Icon,
   Shield01Icon as __Huge_Shield01Icon,
@@ -301,6 +302,7 @@ const ICONS = {
   RepeatIcon: __Huge_RepeatIcon,
   Rotate01Icon: __Huge_Rotate01Icon,
   Search01Icon: __Huge_Search01Icon,
+  SearchRemoveIcon: __Huge_SearchRemoveIcon,
   SentIcon: __Huge_SentIcon,
   Settings02Icon: __Huge_Settings02Icon,
   Shield01Icon: __Huge_Shield01Icon,
@@ -444,6 +446,7 @@ export const Save = createLucideIcon(ICONS.FloppyDiskIcon, "Save");
 export const Scale = createLucideIcon(ICONS.BalanceScaleIcon, "Scale");
 export const ScrollText = createLucideIcon(ICONS.File01Icon, "ScrollText");
 export const Search = createLucideIcon(ICONS.Search01Icon, "Search");
+export const SearchX = createLucideIcon(ICONS.SearchRemoveIcon, "SearchX");
 export const Send = createLucideIcon(ICONS.SentIcon, "Send");
 export const ServerOff = createLucideIcon(ICONS.Database01Icon, "ServerOff");
 export const Settings2 = createLucideIcon(ICONS.Settings02Icon, "Settings2");

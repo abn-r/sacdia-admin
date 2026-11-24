@@ -2,14 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  RefreshCw,
-  UserPlus,
-  Clock,
-  ShieldCheck,
-  Info,
-} from "lucide-react";
+import { Clock, Info, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Table,
@@ -20,43 +13,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { RowActions } from "@/components/shared/row-actions";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MembershipRejectDialog } from "@/components/membership/membership-reject-dialog";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
 import { MembershipConsentVerifyDialog } from "@/components/membership/membership-consent-verify-dialog";
+import {
+  MembershipRequestSheet,
+  membershipUserName,
+} from "@/components/membership/membership-request-sheet";
 import { useConsentErrorMessage } from "@/components/membership/use-consent-error-message";
 import { CONSENT_QUEUE_KEY } from "@/components/membership/consent-queue-keys";
 import {
   listMembershipRequestsFromClient,
-  approveMembershipRequest,
-  getConsentErrorCode,
   VERIFY_BLOCK_CODE,
   type MembershipRequest,
 } from "@/lib/api/membership-requests";
-import { ApiError } from "@/lib/api/client";
 import { useFormatDate, useFormatDateTime } from "@/lib/format-locale";
 import { useRoleLabel } from "@/lib/auth/role-labels";
 import type { MembershipReviewMode } from "@/lib/auth/membership-review-mode";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getUserName(user?: MembershipRequest["users"]): string {
-  if (!user) return "\u2014";
-  const parts = [user.name, user.paternal_last_name, user.maternal_last_name].filter(Boolean);
-  if (parts.length > 0) return parts.join(" ");
-  return user.email ?? "\u2014";
-}
-
-function getUserEmail(user?: MembershipRequest["users"]): string {
-  return user?.email ?? "\u2014";
-}
+const HEAD = "h-9 px-3 text-xs font-medium text-muted-foreground";
 
 /** The date the request really lapses: the computed one wins over the base timeout. */
 function getEffectiveExpiry(req: MembershipRequest): string | null {
@@ -70,29 +48,20 @@ function isExpiringSoon(expiresAt?: string | null): boolean {
   return diff > 0 && diff < 48 * 60 * 60 * 1000;
 }
 
-/**
- * Actions column pinned to the right edge: on narrow widths the table scrolls
- * horizontally (DS table wrapper) while approve / verify / reject stay reachable.
- * The cell needs an opaque background to cover the scrolled content.
- */
-const ACTIONS_HEAD_STICKY =
-  "sticky right-0 z-10 border-l border-border/60 bg-card";
-const ACTIONS_CELL_STICKY =
-  "sticky right-0 z-10 border-l border-border/60 bg-card group-hover/row:bg-[color-mix(in_oklab,var(--card),var(--muted)_30%)]";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface PendingMembersTableProps {
   clubSectionId: number;
   initialRequests: MembershipRequest[];
   /**
-   * `verify-only` (consent:verify without club_members:approve): the row keeps
-   * the consent badge and the verify action; approve / reject are not rendered.
+   * `verify-only` (consent:verify without club_members:approve): rows only offer
+   * the guardian-form sheet; approve and reject are not rendered.
    */
   mode?: MembershipReviewMode;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+type SheetState =
+  | { kind: "verify"; request: MembershipRequest }
+  | { kind: "review"; request: MembershipRequest }
+  | null;
 
 export function PendingMembersTable({
   clubSectionId,
@@ -101,311 +70,207 @@ export function PendingMembersTable({
 }: PendingMembersTableProps) {
   const verifyOnly = mode === "verify-only";
   const t = useTranslations("membership");
+  const tq = useTranslations("queues.requests.membership");
+  const tConsent = useTranslations("membership.consent");
   const formatDate = useFormatDate();
   const formatDatetime = useFormatDateTime();
   const translateRole = useRoleLabel();
-  const tConsent = useTranslations("membership.consent");
   const consentErrorMessage = useConsentErrorMessage();
   const queryClient = useQueryClient();
 
-  const getRoleName = (role?: MembershipRequest["roles"]): string => {
-    const raw = role?.role_name ?? "member";
-    return translateRole(raw);
-  };
   const [requests, setRequests] = useState<MembershipRequest[]>(initialRequests);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [processingId, setProcessingId] = useState<string | null>(null);
-  const [rejectDialog, setRejectDialog] = useState<MembershipRequest | null>(null);
-  const [consentDialog, setConsentDialog] = useState<MembershipRequest | null>(null);
+  const [staleSince, setStaleSince] = useState<number | null>(null);
+  const [updatedAt, setUpdatedAt] = useState(() => Date.now());
+  const [refreshing, setRefreshing] = useState(false);
+  const [sheet, setSheet] = useState<SheetState>(null);
 
   const refresh = useCallback(async () => {
-    setIsRefreshing(true);
+    setRefreshing(true);
     try {
       const fresh = await listMembershipRequestsFromClient(clubSectionId);
       setRequests(fresh);
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : t("table.refresh_error");
-      toast.error(message);
+      setUpdatedAt(Date.now());
+      setStaleSince(null);
+    } catch {
+      // Keep what is on screen and say so; never swap it for an empty list.
+      setStaleSince(updatedAt);
     } finally {
-      setIsRefreshing(false);
+      setRefreshing(false);
     }
-  }, [clubSectionId, t]);
+  }, [clubSectionId, updatedAt]);
 
-  const handleApprove = async (req: MembershipRequest) => {
-    setProcessingId(req.assignment_id);
-    try {
-      await approveMembershipRequest(clubSectionId, req.assignment_id);
-      toast.success(t("toasts.approved", { name: getUserName(req.users) }));
-      await refresh();
-    } catch (error) {
-      if (getConsentErrorCode(error)) {
-        // e.g. MR_CONSENT_NOT_VERIFIED: the list was stale. Explain and re-sync.
-        toast.error(consentErrorMessage(error, "approve"));
-        await refresh();
-      } else {
-        const message =
-          error instanceof ApiError
-            ? error.message
-            : t("errors.approve");
-        toast.error(message);
-      }
-    } finally {
-      setProcessingId(null);
+  const roleName = (role?: MembershipRequest["roles"]) => translateRole(role?.role_name ?? "member");
+
+  function verifyState(req: MembershipRequest) {
+    const consent = req.consent ?? null;
+    const consentPending = consent?.status === "pending";
+    // Nothing to verify until a guardian (or club custody) exists.
+    const nothingToVerify = consent !== null && consent.guardianship_id === null;
+    // Server verdict: the viewer registered/uploaded the minor or is their guardian.
+    const verifyBlock = consent?.viewer_verify_block ?? null;
+    return {
+      consentPending,
+      verifyDisabled: consentPending && (nothingToVerify || verifyBlock !== null),
+      tooltip: verifyBlock
+        ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
+        : nothingToVerify
+          ? tConsent("verify_no_guardian")
+          : tConsent("verify_action"),
+    };
+  }
+
+  function actionFor(req: MembershipRequest) {
+    const name = membershipUserName(req.users);
+    const { consentPending, verifyDisabled, tooltip } = verifyState(req);
+    if (consentPending) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
+            <span tabIndex={verifyDisabled ? 0 : undefined}>
+              <Button
+                size="sm"
+                variant="soft"
+                disabled={verifyDisabled}
+                aria-label={`${tq("verifyAction")}: ${name}`}
+                onClick={() => setSheet({ kind: "verify", request: req })}
+              >
+                {tq("verifyAction")}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>{tooltip}</TooltipContent>
+        </Tooltip>
+      );
     }
-  };
+    if (verifyOnly) return null;
+    return (
+      <Button
+        size="sm"
+        variant="soft"
+        aria-label={`${tq("reviewAction")}: ${name}`}
+        onClick={() => setSheet({ kind: "review", request: req })}
+      >
+        {tq("reviewAction")}
+      </Button>
+    );
+  }
 
-  return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {t(
-            verifyOnly
-              ? requests.length === 1
-                ? "table.count_verify_only_one"
-                : "table.count_verify_only_other"
-              : requests.length === 1
-                ? "table.count_one"
-                : "table.count_other",
-            { count: requests.length },
-          )}
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={refresh}
-          disabled={isRefreshing}
+  /** Only the exception is marked: a guardian form still to verify. */
+  function exceptionMark(req: MembershipRequest) {
+    if (req.consent?.status !== "pending") return null;
+    return <StatusBadge intent="warning" label={tq("consentPending")} />;
+  }
+
+  const hint = (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          tabIndex={0}
+          role="img"
+          aria-label={tConsent("expiry_extended_hint")}
+          className="inline-flex text-muted-foreground"
         >
-          <RefreshCw
-            className={`size-4 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-          {t("table.refresh")}
-        </Button>
-      </div>
+          <Info className="size-3.5" />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{tConsent("expiry_extended_hint")}</TooltipContent>
+    </Tooltip>
+  );
 
-      {/* Empty state */}
-      {requests.length === 0 ? (
+  if (requests.length === 0) {
+    return (
+      <div className="space-y-4">
+        {staleSince !== null ? <StaleDataNotice at={staleSince} onRetry={() => void refresh()} /> : null}
         <EmptyState
           icon={UserPlus}
           title={t(verifyOnly ? "table.empty_title_verify_only" : "table.empty_title")}
-          description={t(
-            verifyOnly
-              ? "table.empty_description_verify_only"
-              : "table.empty_description",
-          )}
+          description={t(verifyOnly ? "table.empty_description_verify_only" : "table.empty_description")}
         />
-      ) : (
-        /* Table */
-        <DataTableShell>
-          <Table className="max-md:block">
-            <TableHeader className="max-md:sr-only">
-              <TableRow>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                  {t("table.col_member")}
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                  {t("table.col_role")}
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                  {t("table.col_requested")}
-                </TableHead>
-                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                  {t("table.col_expires")}
-                </TableHead>
-                <TableHead
-                  data-testid="actions-head"
-                  className={`h-9 px-3 text-right text-xs font-medium text-muted-foreground ${ACTIONS_HEAD_STICKY}`}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {staleSince !== null ? <StaleDataNotice at={staleSince} onRetry={() => void refresh()} /> : null}
+
+      <DataTableShell aria-busy={refreshing}>
+        <Table className="max-md:block">
+          <TableHeader className="max-md:sr-only">
+            <TableRow>
+              <TableHead className={HEAD}>{t("table.col_member")}</TableHead>
+              <TableHead className={HEAD}>{t("table.col_role")}</TableHead>
+              <TableHead className={HEAD}>{t("table.col_requested")}</TableHead>
+              <TableHead className={HEAD}>{t("table.col_expires")}</TableHead>
+              <TableHead className={HEAD}>
+                <span className="sr-only">{tq("columns.mark")}</span>
+              </TableHead>
+              <TableHead data-testid="actions-head" className={`${HEAD} text-right`}>
+                <span className="sr-only">{t("table.col_actions")}</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="max-md:block">
+            {requests.map((req) => {
+              const expiry = getEffectiveExpiry(req);
+              const expiring = isExpiringSoon(expiry);
+              const consentPending = req.consent?.status === "pending";
+              return (
+                <TableRow
+                  key={req.assignment_id}
+                  className="hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
                 >
-                  {t("table.col_actions")}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="max-md:block">
-              {requests.map((req) => {
-                const isProcessing = processingId === req.assignment_id;
-                const consent = req.consent ?? null;
-                const consentPending = consent?.status === "pending";
-                // Nothing to verify until a guardian (or club custody) exists:
-                // a self-registered teen nobody has linked yet has no row.
-                const nothingToVerify = consent !== null && consent.guardianship_id === null;
-                // Server verdict: the viewer registered/uploaded the minor or is
-                // their guardian. verify-consent still enforces it (403 backstop).
-                const verifyBlock = consent?.viewer_verify_block ?? null;
-                const verifyDisabled = nothingToVerify || verifyBlock !== null;
-                const expiry = getEffectiveExpiry(req);
-                const expiring = isExpiringSoon(expiry);
+                  <TableCell className="px-3 py-2.5 align-middle max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:p-0 max-md:whitespace-normal">
+                    <p className="text-sm font-medium leading-none">{membershipUserName(req.users)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{req.users?.email ?? "—"}</p>
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm max-md:order-4 max-md:p-0 max-md:text-[13px] max-md:text-muted-foreground">
+                    {roleName(req.roles)}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:order-5 max-md:p-0 max-md:text-[13px]">
+                    {req.created_at ? formatDate(req.created_at) : "—"}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle max-md:order-6 max-md:p-0">
+                    <div className="flex items-center gap-1.5">
+                      {expiring && <Clock className="size-3.5 text-warning" />}
+                      <span
+                        className={`text-sm tabular-nums max-md:text-[13px] ${expiring ? "font-medium text-warning" : "text-muted-foreground"}`}
+                      >
+                        {expiry ? formatDatetime(expiry) : "—"}
+                      </span>
+                      {consentPending && hint}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 align-middle max-md:order-3 max-md:w-full max-md:p-0 max-md:empty:hidden">
+                    {exceptionMark(req)}
+                  </TableCell>
+                  <TableCell data-testid="actions-cell" className="px-3 py-2.5 text-right align-middle max-md:order-2 max-md:p-0">
+                    <div className="flex justify-end">{actionFor(req)}</div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </DataTableShell>
 
-                return (
-                  <TableRow
-                    key={req.assignment_id}
-                    className="group/row hover:bg-muted/30 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-3 max-md:gap-y-1 max-md:px-4 max-md:py-3"
-                  >
-                    {/* Member info */}
-                    <TableCell className="px-3 py-2.5 align-middle max-md:w-full max-md:p-0 max-md:whitespace-normal">
-                      <div className="space-y-0.5">
-                        <p className="font-medium leading-none">
-                          {getUserName(req.users)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {getUserEmail(req.users)}
-                        </p>
-                        {consent && (
-                          <Badge
-                            variant={consentPending ? "soft-warning" : "soft-success"}
-                            className="mt-1"
-                          >
-                            {consentPending
-                              ? tConsent("badge_pending")
-                              : tConsent("badge_verified")}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-
-                    {/* Role */}
-                    <TableCell className="px-3 py-2.5 align-middle text-sm text-muted-foreground max-md:p-0 max-md:text-[13px]">
-                      <Badge variant="outline" className="capitalize">
-                        {getRoleName(req.roles)}
-                      </Badge>
-                    </TableCell>
-
-                    {/* Requested date */}
-                    <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums text-muted-foreground max-md:p-0 max-md:text-[13px]">
-                      {req.created_at ? formatDate(req.created_at) : "—"}
-                    </TableCell>
-
-                    {/* Expires at */}
-                    <TableCell className="px-3 py-2.5 align-middle max-md:p-0">
-                      <div className="flex items-center gap-1.5">
-                        {expiring && (
-                          <Clock className="size-3.5 text-warning" />
-                        )}
-                        <span
-                          className={`text-sm tabular-nums ${
-                            expiring
-                              ? "font-medium text-warning"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {expiry ? formatDatetime(expiry) : "—"}
-                        </span>
-                        {consentPending && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span
-                                tabIndex={0}
-                                role="img"
-                                aria-label={tConsent("expiry_extended_hint")}
-                                className="inline-flex text-muted-foreground"
-                              >
-                                <Info className="size-3.5" />
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>{tConsent("expiry_extended_hint")}</TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </TableCell>
-
-                    {/* Actions */}
-                    <TableCell
-                      data-testid="actions-cell"
-                      className={`px-3 py-2.5 align-middle ${ACTIONS_CELL_STICKY} max-md:static max-md:w-full max-md:border-l-0 max-md:bg-transparent max-md:p-0 max-md:pt-1`}
-                    >
-                      <RowActions
-                        label={getUserName(req.users)}
-                        actions={[]}
-                        primary={
-                          <>
-                            {consentPending && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                                  <span tabIndex={verifyDisabled ? 0 : undefined}>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => setConsentDialog(req)}
-                                      disabled={isProcessing || isRefreshing || verifyDisabled}
-                                      aria-label={tConsent("verify_action_aria")}
-                                    >
-                                      <ShieldCheck className="size-4" />
-                                      {tConsent("verify_action")}
-                                    </Button>
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {verifyBlock
-                                    ? consentErrorMessage(VERIFY_BLOCK_CODE[verifyBlock])
-                                    : nothingToVerify
-                                      ? tConsent("verify_no_guardian")
-                                      : tConsent("verify_action")}
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-
-                            {!verifyOnly && (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setRejectDialog(req)}
-                                  disabled={isProcessing || isRefreshing}
-                                  aria-label={t("table.aria_reject")}
-                                >
-                                  {t("table.tooltip_reject")}
-                                </Button>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    {/* A disabled button does not emit pointer events: the span keeps the tooltip reachable. */}
-                                    <span tabIndex={consentPending ? 0 : undefined}>
-                                      <Button
-                                        size="sm"
-                                        loading={isProcessing}
-                                        onClick={() => handleApprove(req)}
-                                        disabled={isProcessing || isRefreshing || consentPending}
-                                        aria-label={t("table.aria_approve")}
-                                      >
-                                        {t("table.tooltip_approve")}
-                                      </Button>
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {consentPending
-                                      ? tConsent("approve_blocked")
-                                      : t("table.tooltip_approve")}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </>
-                            )}
-                          </>
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </DataTableShell>
-      )}
-
-      {/* Consent verification dialog (minors) */}
-      {consentDialog && (
+      {sheet?.kind === "verify" && (
         <MembershipConsentVerifyDialog
           open
           clubSectionId={clubSectionId}
-          request={consentDialog}
+          request={sheet.request}
           canApprove={!verifyOnly}
           onOpenChange={(open) => {
-            if (!open) setConsentDialog(null);
+            if (!open) setSheet(null);
+          }}
+          onRejected={() => {
+            setSheet(null);
+            void refresh();
           }}
           onSuccess={() => {
-            setConsentDialog(null);
-            refresh();
+            setSheet(null);
+            void refresh();
             // The coordinator's aggregate queue (not mounted here) now holds a
             // verified row: mark it stale so returning to it refetches.
             void queryClient.invalidateQueries({ queryKey: CONSENT_QUEUE_KEY });
@@ -413,19 +278,16 @@ export function PendingMembersTable({
         />
       )}
 
-      {/* Reject dialog */}
-      {!verifyOnly && rejectDialog && (
-        <MembershipRejectDialog
-          open
+      {sheet?.kind === "review" && (
+        <MembershipRequestSheet
+          key={sheet.request.assignment_id}
           clubSectionId={clubSectionId}
-          request={rejectDialog}
+          request={sheet.request}
+          canReview={!verifyOnly}
           onOpenChange={(open) => {
-            if (!open) setRejectDialog(null);
+            if (!open) setSheet(null);
           }}
-          onSuccess={() => {
-            setRejectDialog(null);
-            refresh();
-          }}
+          onDone={() => void refresh()}
         />
       )}
     </div>

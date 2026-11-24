@@ -28,7 +28,6 @@ import {
   Sparkles,
   Tags,
   Trophy,
-  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -136,8 +135,7 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
     id: "investiture_setup",
     title: "Investiduras y evidencias",
     links: [
-      { id: "investiture-settings", url: "/dashboard/investiture-settings", title: "Ventana de investidura", icon: CalendarRange },
-      { id: "investiture-pastors", url: "/dashboard/investiture-pastors", title: "Pastores por distrito", icon: UserCog },
+      { id: "investiture-settings", url: "/dashboard/configuration/investiture", title: "Investiduras", icon: CalendarRange },
       { id: "clubs-evidence-folders-templates", url: "/dashboard/clubs/evidence-folders/templates", title: "Plantillas de evidencias", icon: FileStack },
     ],
   },

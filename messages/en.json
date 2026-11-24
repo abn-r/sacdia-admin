@@ -1,4 +1,597 @@
 {
+  "queues": {
+    "requests": {
+      "common": {
+        "tabs": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "all": "All"
+        },
+        "tabsLabel": "Request status",
+        "waiting": "{count, plural, =0 {Today} one {# day} other {# days}}",
+        "longWaitHint": "Waiting {days} days or more",
+        "search": {
+          "label": "Search"
+        },
+        "columns": {
+          "wait": "Waiting",
+          "reviewed": "Reviewed",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "review": "Review",
+        "view": "View",
+        "rejectAction": "Reject…",
+        "unexpected": "An unexpected error occurred.",
+        "empty": {
+          "noResultsTitle": "No results",
+          "noResultsDescription": "No request matches the filters.",
+          "clearFilters": "Clear filters",
+          "viewApproved": "View approved"
+        }
+      },
+      "sheet": {
+        "close": "Close",
+        "back": "Back",
+        "reasonLabel": "Reason for rejection",
+        "reasonHint": "Between {min} and {max} characters. It is kept in the audit log.",
+        "reasonTooShort": "Write at least {min} characters.",
+        "reasonTooLong": "The reason cannot exceed {max} characters.",
+        "unexpected": "The action could not be completed. Try again."
+      },
+      "transfers": {
+        "title": "Transfers",
+        "finding": {
+          "unknown": "We could not load the transfers.",
+          "longWait": "{count, plural, one {# transfer has} other {# transfers have}} been waiting more than {days} days.",
+          "pending": "{count, plural, one {# transfer is} other {# transfers are}} waiting for your review.",
+          "none": "No transfers pending."
+        },
+        "search": {
+          "placeholder": "Person, club or reason"
+        },
+        "filters": {
+          "destination": "Destination club",
+          "allDestinations": "All"
+        },
+        "columns": {
+          "person": "Person",
+          "move": "From → to",
+          "reason": "Reason"
+        },
+        "selectPage": "Select the transfers on this page",
+        "selectRow": "Select the transfer of {name}",
+        "listLabel": "Transfers",
+        "bulk": {
+          "label": "Transfer selection",
+          "selected": "{count, plural, one {# selected} other {# selected}}",
+          "approve": "Approve {count}",
+          "clear": "Clear selection",
+          "done": "{count, plural, one {# transfer approved} other {# transfers approved}}",
+          "failed": "{count, plural, one {# transfer could not be approved} other {# transfers could not be approved}}",
+          "confirmTitle": "Approve {count, plural, one {# transfer} other {# transfers}}?",
+          "confirmDescription": "Each person moves to the destination section. They are approved one by one; if one fails the rest continue and we show which ones are still pending.",
+          "progress": "Approving {done} of {total}…"
+        },
+        "toasts": {
+          "approved": "Transfer approved",
+          "rejected": "Transfer rejected"
+        },
+        "error": {
+          "title": "We could not load the transfers",
+          "description": "There may be pending ones. Check your connection and try again."
+        },
+        "empty": {
+          "pending": {
+            "title": "No pending transfers",
+            "description": "When a club asks for a transfer it will show up here."
+          },
+          "approved": {
+            "title": "No approved transfers",
+            "description": "Transfers you approve will stay in this history."
+          },
+          "rejected": {
+            "title": "No rejected transfers",
+            "description": "Transfers you reject will stay in this history."
+          },
+          "all": {
+            "title": "No transfers",
+            "description": "There are no transfers yet."
+          }
+        },
+        "sheet": {
+          "title": "Transfer of {name}",
+          "sent": "Sent {date} · waiting {wait}",
+          "sentOnly": "Sent {date}",
+          "approve": "Approve transfer",
+          "commentLabel": "Comment",
+          "commentHint": "Optional. The person and their director will see it.",
+          "rejectConfirm": "Reject transfer",
+          "rejectAudience": "The person and their director will see this reason.",
+          "from": "Leaves",
+          "to": "Joins",
+          "changesTo": "Changes to",
+          "reason": "Reason",
+          "outcome": "Outcome",
+          "reviewedBy": "Reviewed by",
+          "comment": "Reviewer comment"
+        }
+      },
+      "assignments": {
+        "title": "Assignments",
+        "finding": {
+          "unknown": "We could not load the assignments.",
+          "longWait": "{count, plural, one {# role has} other {# roles have}} been waiting for approval more than {days} days.",
+          "pending": "{count, plural, one {# role is} other {# roles are}} waiting for approval to become active.",
+          "none": "No roles pending approval."
+        },
+        "search": {
+          "placeholder": "Person’s name"
+        },
+        "filters": {
+          "role": "Role",
+          "allRoles": "All",
+          "section": "Section",
+          "allSections": "All"
+        },
+        "columns": {
+          "person": "Person",
+          "role": "Role",
+          "section": "Section",
+          "requestedBy": "Requested by"
+        },
+        "listLabel": "Assignments",
+        "toasts": {
+          "approved": "Role approved",
+          "rejected": "Role rejected"
+        },
+        "error": {
+          "title": "We could not load the assignments",
+          "description": "There may be pending ones. Check your connection and try again."
+        },
+        "empty": {
+          "pending": {
+            "title": "No pending assignments",
+            "description": "When a role is proposed it will show up here."
+          },
+          "approved": {
+            "title": "No approved assignments",
+            "description": "Roles you approve will stay in this history."
+          },
+          "rejected": {
+            "title": "No rejected assignments",
+            "description": "Roles you reject will stay in this history."
+          },
+          "all": {
+            "title": "No assignments",
+            "description": "There are no assignments yet."
+          }
+        },
+        "sheet": {
+          "title": "Role for {name}",
+          "sent": "Sent {date} · waiting {wait}",
+          "sentOnly": "Sent {date}",
+          "approve": "Approve role",
+          "commentLabel": "Comment",
+          "commentHint": "Optional when approving.",
+          "rejectConfirm": "Reject role",
+          "rejectAudience": "The person and whoever proposed the role will see this reason.",
+          "summary": "Receives the role <strong>{role}</strong> in {section}.",
+          "person": "Person",
+          "requestedBy": "Requested by",
+          "comment": "Comment",
+          "outcome": "Outcome",
+          "reviewedBy": "Reviewed by"
+        }
+      },
+      "membership": {
+        "verifyAction": "Verify form",
+        "reviewAction": "Review",
+        "consentPending": "Guardian form to verify",
+        "columns": {
+          "mark": "Flag"
+        },
+        "sheet": {
+          "title": "Membership of {name}",
+          "description": "Requested {date}",
+          "approve": "Approve membership",
+          "rejectAction": "Reject…",
+          "rejectConfirm": "Reject request",
+          "rejectAudience": "The person and whoever sent the request will see this reason.",
+          "person": "Person",
+          "role": "Role",
+          "expires": "Expires",
+          "guardianForm": "Guardian form",
+          "guardianFormVerified": "Verified"
+        },
+        "verify": {
+          "title": "Guardian form of {userName}",
+          "description": "Review the signed form and confirm. While it is pending, the request does not expire.",
+          "rejectAction": "Reject…",
+          "rejectConfirm": "Reject request",
+          "rejectAudience": "The person and whoever sent the request will see this reason.",
+          "reviewedHint": "Required to confirm. It is recorded under your name.",
+          "approveHint": "If you leave it unchecked, the request is left ready for a director to approve."
+        },
+        "coordinator": {
+          "verifyAction": "Verify",
+          "allChip": "All"
+        }
+      },
+      "enrollments": {
+        "error": {
+          "title": "We could not load the annual registrations",
+          "description": "There may be pending ones. Check your connection and try again."
+        },
+        "viewApproved": "View approved",
+        "sheet": {
+          "rejectAudience": "The club director will see this reason."
+        }
+      }
+    },
+    "classes": {
+      "title": "Specialties and classes",
+      "description": "Approve specialties, review evidence and decide instructor proposals.",
+      "tabsLabel": "Specialty and class decisions",
+      "summary": {
+        "pending": "{count, plural, =0 {No specialties to approve} one {# specialty to approve} other {# specialties to approve}}",
+        "evidence": "{count, plural, =0 {no evidence} one {# piece of evidence} other {# pieces of evidence}}",
+        "instructors": "{count, plural, =0 {no instructor proposals} one {# instructor proposal} other {# instructor proposals}}"
+      },
+      "tabs": {
+        "pending": "To approve",
+        "evidence": "Evidence",
+        "instructors": "Instructor proposals",
+        "history": "History"
+      },
+      "age": "{days, plural, =0 {Today} one {# day} other {# days}}",
+      "overdue": "Overdue",
+      "history": {
+        "note": "Resolved instructor proposals are listed here. Decisions on specialties and evidence are viewed from each item (validation history)."
+      },
+      "pending": {
+        "columns": {
+          "member": "Member",
+          "honor": "Specialty",
+          "submitted": "Submitted",
+          "wait": "Waiting"
+        },
+        "review": "Review",
+        "searchLabel": "Search",
+        "searchPlaceholder": "Search member or specialty",
+        "noResultsTitle": "No results",
+        "noResultsDescription": "No specialty to approve matches the search.",
+        "clearSearch": "Clear search",
+        "emptyTitle": "No specialties to approve",
+        "emptyDescription": "No submitted specialties are waiting for your decision.",
+        "loadErrorTitle": "We could not load the specialties to approve",
+        "sheet": {
+          "title": "{honor} · {member}",
+          "submittedOn": "Submitted on {date}",
+          "submittedUnknown": "Submission date unknown",
+          "loading": "Loading specialty progress",
+          "detailError": "We could not load the specialty progress",
+          "progress": "Specialty progress · {done} of {total}",
+          "incomplete": "{missing, plural, one {# requirement missing.} other {# requirements missing.}}",
+          "noRequirements": "This specialty has no requirements on record.",
+          "met": "Met",
+          "notMet": "Not met",
+          "showHistory": "View validation history",
+          "hideHistory": "Hide history",
+          "commentLabel": "Comment",
+          "commentPlaceholder": "Write a comment",
+          "commentHint": "Optional when approving; required when rejecting.",
+          "reasonRequired": "Write the reason for rejecting (at least {min} characters).",
+          "approve": "Approve specialty",
+          "reject": "Reject",
+          "approvedToast": "{honor} approved for {member}",
+          "rejectedToast": "{honor} rejected",
+          "decideError": "The decision could not be saved"
+        }
+      },
+      "evidence": {
+        "typeFilterLabel": "Type",
+        "types": {
+          "all": "All"
+        },
+        "refresh": "Refresh",
+        "loadErrorTitle": "We could not load the evidence",
+        "emptyTitle": "No evidence to review",
+        "emptyDescription": "No specialty or class evidence is waiting for review.",
+        "emptyFilteredTitle": "No evidence of this type",
+        "emptyFilteredDescription": "There is no evidence to review with this filter.",
+        "clearFilter": "See all",
+        "pageDoneTitle": "You finished the loaded evidence",
+        "pageDoneDescription": "{total, plural, =0 {No evidence left.} one {# piece of evidence left to load.} other {# pieces of evidence left to load.}}",
+        "listLabel": "Evidence to review",
+        "selectItem": "Select the evidence from {name}",
+        "fileCount": "{count, plural, =0 {No files} one {# file} other {# files}}",
+        "loadMore": "Load more ({loaded} of {total})",
+        "next": "Next: {title}",
+        "reject": "Reject…",
+        "approve": "Approve",
+        "approveNext": "Approve and continue",
+        "approvedToast": "Evidence from {name} approved",
+        "rejectedToast": "Evidence from {name} rejected",
+        "bulkApprovedToast": "{count, plural, one {# piece of evidence approved} other {# pieces of evidence approved}}",
+        "bulkRejectedToast": "{count, plural, one {# piece of evidence rejected} other {# pieces of evidence rejected}}",
+        "bulkPartial": "{done} processed; {failed} could not be processed",
+        "actionError": "The action could not be completed",
+        "rejectDialog": {
+          "title": "Reject evidence",
+          "description": "You are rejecting the evidence from {name}. The reason is recorded and the member will see it.",
+          "confirm": "Reject evidence"
+        },
+        "bulk": {
+          "label": "Batch selection",
+          "selected": "{count, plural, one {# selected} other {# selected}}",
+          "approve": "Approve {count}",
+          "reject": "Reject {count}…",
+          "clear": "Clear selection",
+          "mixed": "To act in batch, select only evidence of the same type.",
+          "approveDialog": {
+            "title": "{count, plural, one {Approve # piece of evidence?} other {Approve # pieces of evidence?}}",
+            "description": "{count, plural, one {# piece of evidence} other {# pieces of evidence}} of type {type} will be approved. Each one is recorded in the audit log.",
+            "confirm": "Approve {count}"
+          },
+          "rejectDialog": {
+            "title": "{count, plural, one {Reject # piece of evidence} other {Reject # pieces of evidence}}",
+            "description": "The same reason applies to all selected evidence ({count}).",
+            "confirm": "Reject {count}"
+          }
+        },
+        "preview": {
+          "unsupported": "This file type has no preview.",
+          "download": "Download",
+          "submittedOn": "submitted on {date}",
+          "requirements": "{done} of {total} requirements",
+          "fileOf": "{current} of {total} files",
+          "loading": "Loading evidence",
+          "loadError": "We could not load the files",
+          "noFiles": "This evidence has no attached files.",
+          "files": "Evidence files",
+          "fileN": "File {n}"
+        }
+      },
+      "instructors": {
+        "columns": {
+          "result": "Result"
+        },
+        "loadErrorTitle": "We could not load the instructor proposals",
+        "confirm": {
+          "title": "Approve instructor proposal?",
+          "replace": "{proposed} replaces {current} as instructor of {honor} for {member}. The specialty stays approved.",
+          "assign": "{proposed} becomes the instructor of {honor} for {member}. The specialty stays approved.",
+          "confirm": "Approve proposal"
+        }
+      }
+    },
+    "investitures": {
+      "list": {
+        "title": "Investitures",
+        "description": "Investiture requests from your district or Field.",
+        "finding": "{count, plural, =0 {No section is waiting for your authorization} one {# section is waiting for your authorization} other {# sections are waiting for your authorization}}",
+        "tabs": {
+          "label": "Request status",
+          "pending": "To authorize",
+          "resolved": "Resolved"
+        },
+        "searchLabel": "Search club",
+        "searchPlaceholder": "Club, section or district",
+        "columns": {
+          "section": "Section",
+          "district": "District",
+          "toDecide": "To decide",
+          "investiture": "Investiture",
+          "submitted": "Submitted",
+          "result": "Result"
+        },
+        "undecided": "{pending} of {total}",
+        "result": "{invested} invested · {rejected} rejected",
+        "waiting": "{days, plural, =0 {Today} one {# day ago} other {# days ago}}",
+        "review": "Review",
+        "view": "View",
+        "empty": {
+          "pendingTitle": "No requests to authorize",
+          "pendingDescription": "When a board submits a section for investiture, it will show up here.",
+          "resolvedTitle": "No resolved requests yet",
+          "resolvedDescription": "Requests where you have already decided on everyone are kept here."
+        },
+        "noResults": {
+          "title": "No matches",
+          "description": "No request matches your search.",
+          "clear": "Clear search"
+        },
+        "whoAuthorizes": {
+          "title": "This inbox is for whoever authorizes",
+          "description": "Investitures are authorized by each district's pastor and by the Field. If that is you, ask the Field to assign you to your district."
+        }
+      },
+      "detail": {
+        "breadcrumbList": "Investitures",
+        "facts": {
+          "investiture": "Investiture",
+          "toDecide": "To decide"
+        },
+        "people": "{count, plural, one {# person} other {# people}}",
+        "investAll": "Invest all undecided",
+        "bar": {
+          "summary": "{invest} to invest · {reject} to reject · {none} undecided",
+          "needReason": "A rejection is missing its reason.",
+          "confirm": "{count, plural, =0 {Confirm decisions} one {Confirm # decision} other {Confirm # decisions}}"
+        },
+        "confirm": {
+          "title": "{count, plural, one {Confirm # decision?} other {Confirm # decisions?}}",
+          "invest": "{count, plural, one {# person will be invested.} other {# people will be invested.}}",
+          "reject": "{count, plural, one {# person will be rejected.} other {# people will be rejected.}}",
+          "undecided": "{count, plural, one {{names} stays undecided.} other {{names} stay undecided.}}",
+          "irreversible": "Confirmed decisions cannot be undone.",
+          "action": "Confirm"
+        },
+        "result": {
+          "title": "Decisions applied",
+          "invested": "{count} invested",
+          "rejectedByYou": "{count} rejected by you",
+          "rejectedBySystem": "{count} rejected by the system",
+          "retired": "{count} removed from the request",
+          "systemExplain": "The system rejects on its own anyone who no longer meets the requirements when progress is checked. The reason appears on each person.",
+          "bySystem": "Rejected automatically: {reason}",
+          "reason": "Reason: {reason}"
+        }
+      },
+      "settings": {
+        "title": "Investitures",
+        "description": "Who authorizes and when the Field receives requests.",
+        "breadcrumbGroup": "Settings",
+        "selectField": {
+          "title": "Choose a Field",
+          "description": "Choose a Field to see its window and the pastors of its districts."
+        },
+        "pastors": {
+          "description": "They authorize the district's investitures and receive the notices. A district without an active pastor has nobody to authorize.",
+          "nobodyAuthorizes": "Nobody authorizes",
+          "nobodyHelp": "Until a pastor is assigned, nobody can authorize investitures in this district.",
+          "onlyInactiveHelp": "The assigned pastors cannot authorize right now, so nobody authorizes in this district."
+        }
+      }
+    },
+    "certificates": {
+      "batches": {
+        "finding": "{batches, plural, one {# batch to review} other {# batches to review}} · {rows, plural, one {# row awaiting a decision} other {# rows awaiting a decision}}.",
+        "kpiLabel": "Upload summary",
+        "kpiBatches": "Batches to review",
+        "kpiBatchesOldest": "oldest from {date}",
+        "kpiRows": "Rows to decide",
+        "kpiRowsHint": "{count, plural, one {in # batch} other {in # batches}}",
+        "kpiPartial": "Partial",
+        "kpiPartialHint": "with rows already decided",
+        "kpiCorrection": "Returned for correction",
+        "kpiCorrectionHint": "waiting for the member",
+        "tabsLabel": "Batch state",
+        "tabs": {
+          "pending": "To review",
+          "partial": "Partial",
+          "correction": "In correction",
+          "all": "All"
+        },
+        "searchLabel": "Search member or batch",
+        "partialLoad": "Showing {loaded} of {total} batches; search and tabs only cover those.",
+        "clearSearch": "Clear search",
+        "empty": {
+          "pending": {
+            "title": "No batches to review",
+            "description": "When a member submits a certificate upload, it will appear here."
+          },
+          "partial": {
+            "title": "No partial batches",
+            "description": "Batches with some rows already decided stay here."
+          },
+          "correction": {
+            "title": "No batches in correction",
+            "description": "Batches returned to the member wait here for resubmission."
+          },
+          "all": {
+            "title": "No uploads",
+            "description": "There are no certificate uploads in the queue."
+          }
+        },
+        "progress": "{done} of {total}",
+        "progressLabel": "{done} of {total} rows decided"
+      },
+      "batch": {
+        "subtitle": "Batch {id} · submitted on {date}",
+        "factStatus": "Status",
+        "factProgress": "Rows decided",
+        "progress": "{done} of {total}",
+        "tabsLabel": "Batch content",
+        "tabRows": "Rows",
+        "tabAudit": "Audit",
+        "listLabel": "Batch rows",
+        "noRows": "There are no OCR results to review.",
+        "noName": "No name detected",
+        "rowTitle": "Row {n} · {name}",
+        "rowMeta": "OCR {ocr} · p. {page}",
+        "conflictShort": "Instructor conflict",
+        "investitureDate": "Investiture date: {date}",
+        "certificateDate": "Certificate date: {date}",
+        "ocr": "OCR {percent} · {level}",
+        "confidence": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        },
+        "pageChip": "p. {page}",
+        "gm01Notice": "Approving GM-01 replaces the current enrollment with a single INVESTIDO row dated from the certificate. Two enrollments are not kept.",
+        "blockersTitle": "System block",
+        "blockersNote": "This is not the member's fault: do not reject the row because of it.",
+        "rejectionReason": "Rejection reason",
+        "next": "Next: {title}",
+        "previous": "Previous",
+        "reject": "Reject row…",
+        "approveNext": "Approve and continue",
+        "proof": {
+          "uploaded": "Uploaded {date}",
+          "open": "Open",
+          "loading": "Loading voucher…",
+          "unavailable": "Voucher unavailable",
+          "unavailableHint": "We could not get the signed link for the file. Try again.",
+          "noPreview": "Preview not available for this file type."
+        },
+        "approveDialog": {
+          "title": "Approve row {n} · {name}",
+          "blocked": "{name} has a pending investiture request. The authorization must be resolved first; then you can credit this row.",
+          "commentLabel": "Comment",
+          "commentPlaceholder": "Optional. It is kept in the audit trail.",
+          "confirm": "Approve row"
+        },
+        "rejectDialog": {
+          "title": "Reject row {n} · {name}",
+          "description": "Only this row is marked for correction. {name} will see the reason.",
+          "label": "Rejection reason",
+          "placeholder": "Explain what the member must fix",
+          "confirm": "Reject row"
+        }
+      },
+      "gm": {
+        "description": "Validates Advanced Master Guide and Instructor certificates. Approving does not enroll the person in the class.",
+        "finding": "{count, plural, =0 {No requests to validate.} one {# request to validate.} other {# requests to validate.}} Approving does not enroll the person in the class.",
+        "tabsLabel": "Request state",
+        "tabs": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "all": "All"
+        },
+        "searchLabel": "Search applicant or class",
+        "partialLoad": "Showing {loaded} of {total} requests; search and tabs only cover those.",
+        "clearSearch": "Clear search",
+        "empty": {
+          "pending": {
+            "title": "No pending requests",
+            "description": "No institutional validations are waiting for review."
+          },
+          "approved": {
+            "title": "No approved requests",
+            "description": "Validations you approve will appear here."
+          },
+          "rejected": {
+            "title": "No rejected requests",
+            "description": "Requests you reject will appear here."
+          },
+          "all": {
+            "title": "No requests",
+            "description": "There are no institutional validation requests."
+          }
+        },
+        "approvalNote": "Approving here is institutional validation, not class enrollment.",
+        "detailSubtitle": "{code} · certificate dated {date} · revision {revision}",
+        "factStatus": "Status",
+        "rejectAction": "Reject…",
+        "enrollmentNone": "Not created: this is institutional validation"
+      }
+    }
+  },
   "access": {
     "page": {
       "forbiddenTitle": "You cannot open this section",
@@ -180,7 +773,7 @@
       "admin_campamentos_config_union": "Union",
       "admin_system_jobs_history": "Job history",
       "investiture_requests": "Investiture authorizations",
-      "investiture_settings": "Investiture window",
+      "investiture_settings": "Investitures",
       "investiture_pastors": "Pastors by district"
     },
     "sidebar": {
@@ -196,7 +789,7 @@
       "club_inventory": "Inventory",
       "investiture_authorization": "Investiture authorization",
       "investiture_requests": "Investitures",
-      "investiture_settings": "Investiture window",
+      "investiture_settings": "Investitures",
       "validations": "Validations",
       "validations_investitures": "Class validations",
       "certificate_bulk_imports": "Uploads by certificate",

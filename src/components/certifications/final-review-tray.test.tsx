@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
@@ -12,6 +12,11 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
   disconnect() {}
 };
+
+// Radix menus need these in jsdom.
+Element.prototype.hasPointerCapture ??= () => false;
+Element.prototype.setPointerCapture ??= () => {};
+Element.prototype.releasePointerCapture ??= () => {};
 
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
@@ -149,7 +154,7 @@ describe("FinalReviewTray", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders closeout rows and requests signed URL on Ver", async () => {
+  it("renders closeout rows and requests signed URL from the row menu", async () => {
     const user = userEvent.setup();
     renderTray();
 
@@ -157,8 +162,9 @@ describe("FinalReviewTray", () => {
     expect(mockGetCloseoutEvidenceDownload).not.toHaveBeenCalled();
 
     await user.click(
-      screen.getAllByRole("button", { name: /Ver junta/i })[0]!,
+      screen.getAllByRole("button", { name: "Acciones de Ana López · Capacitación básica" })[0]!,
     );
+    await user.click(await screen.findByRole("menuitem", { name: "Ver" }));
 
     await waitFor(() => {
       expect(mockGetCloseoutEvidenceDownload).toHaveBeenCalledWith(42);
@@ -190,13 +196,13 @@ describe("FinalReviewTray", () => {
     renderTray();
     await screen.findAllByText("Ana López");
 
-    await user.click(screen.getAllByRole("button", { name: "Devolver" })[0]!);
-    const dialog = await screen.findByRole("dialog");
-    const submit = screen.getByRole("button", { name: "Devolver" });
+    await user.click(screen.getByRole("button", { name: "Devolver" }));
+    const dialog = await screen.findByRole("alertdialog");
+    const submit = within(dialog).getByRole("button", { name: "Devolver" });
     expect(submit).toBeDisabled();
 
     await user.type(
-      screen.getByLabelText("Comentario"),
+      within(dialog).getByLabelText("Comentario"),
       "Falta firma del director",
     );
     expect(submit).toBeEnabled();
@@ -208,7 +214,7 @@ describe("FinalReviewTray", () => {
         "Falta firma del director",
       );
     });
-    expect(dialog).toBeTruthy();
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
   });
 
   it("shows Certificar only with certifications:certify on APPROVED rows and confirms", async () => {

@@ -4,20 +4,17 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
-  AlertCircle,
-  CheckCircle2,
   ExternalLink,
   FileText,
   ImageIcon,
-  XCircle,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DetailHeader } from "@/components/shared/detail-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 import { PdfInlineViewer } from "@/components/shared/pdf-inline-viewer";
-import { InstitutionalRequestStatusBadge } from "@/components/institutional-certificate-requests/institutional-certificate-request-badges";
 import { InstitutionalCertificateRequestActionDialog } from "@/components/institutional-certificate-requests/institutional-certificate-request-action-dialog";
 import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import {
@@ -59,56 +56,40 @@ function SignedProofViewer({
   fileName?: string | null;
 }) {
   const tLabels = useTranslations("institutional_certificate_requests.labels");
-  const [state, setState] = useState<
-    | { phase: "loading" }
-    | { phase: "error"; message: string }
-    | { phase: "ready"; data: FileDownloadUrl }
-  >({ phase: "loading" });
+  type Loaded = { phase: "error" } | { phase: "ready"; data: FileDownloadUrl };
+  // The result is keyed by what it was fetched for: anything else reads as "loading".
+  const [result, setResult] = useState<{ key: string; state: Loaded } | null>(null);
+  const [tick, setTick] = useState(0);
+  const key = `${batchId}|${fileId}|${tick}`;
+  const state: { phase: "loading" } | Loaded = result?.key === key ? result.state : { phase: "loading" };
 
   useEffect(() => {
     let cancelled = false;
-    setState({ phase: "loading" });
-
     getCertificateBulkImportFileDownloadUrl(batchId, fileId)
       .then((data) => {
-        if (!cancelled) setState({ phase: "ready", data });
+        if (!cancelled) setResult({ key, state: { phase: "ready", data } });
       })
-      .catch((err: unknown) => {
-        if (!cancelled) {
-          const msg =
-            err instanceof Error ? err.message : tLabels("proofError");
-          setState({ phase: "error", message: msg });
-        }
+      .catch(() => {
+        if (!cancelled) setResult({ key, state: { phase: "error" } });
       });
-
     return () => {
       cancelled = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batchId, fileId]);
+  }, [batchId, fileId, key]);
 
   if (state.phase === "loading") {
-    return (
-      <Card className="min-h-[320px]">
-        <CardContent className="flex min-h-[320px] items-center justify-center">
-          <p className="text-sm text-muted-foreground">{tLabels("proofLoading")}</p>
-        </CardContent>
-      </Card>
-    );
+    return <Skeleton className="h-[70vh] w-full rounded-lg" aria-label={tLabels("proofLoading")} />;
   }
 
   if (state.phase === "error") {
     return (
-      <Card className="min-h-[320px]">
-        <CardContent className="flex min-h-[320px] items-center justify-center">
-          <EmptyState
-            icon={AlertCircle}
-            title={tLabels("proofNotAvailable")}
-            description={state.message}
-            variant="no-results"
-          />
-        </CardContent>
-      </Card>
+      <ErrorState
+        variant="inline"
+        icon={FileText}
+        title={tLabels("proofNotAvailable")}
+        description={tLabels("proofError")}
+        onRetry={() => setTick((n) => n + 1)}
+      />
     );
   }
 
@@ -118,57 +99,59 @@ function SignedProofViewer({
   const isPdf = isPdfUrl(download_url);
 
   return (
-    <Card className="overflow-hidden py-0">
-      <CardHeader className="border-b px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle className="truncate text-base">{name}</CardTitle>
-          <Button variant="outline" size="sm" asChild>
-            <a href={download_url} target="_blank" rel="noreferrer">
-              {tLabels("openProof")}
-              <ExternalLink aria-hidden="true" />
-            </a>
-          </Button>
+    <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <p className="truncate font-medium text-sm">{name}</p>
+        <Button variant="outline" size="sm" asChild>
+          <a href={download_url} target="_blank" rel="noreferrer">
+            {tLabels("openProof")}
+            <ExternalLink aria-hidden="true" />
+          </a>
+        </Button>
+      </div>
+      {isImage ? (
+        // eslint-disable-next-line @next/next/no-img-element -- presigned download_url (expiring signature would defeat the optimizer cache)
+        <img
+          src={download_url}
+          alt={name}
+          className="max-h-[70vh] w-full rounded-lg border bg-background object-contain"
+        />
+      ) : isPdf ? (
+        <PdfInlineViewer
+          title={name}
+          src={download_url}
+          className="h-[70vh] w-full rounded-lg border bg-background"
+        />
+      ) : (
+        <div className="flex flex-col items-center gap-3 rounded-lg bg-muted/40 p-8 text-center text-muted-foreground">
+          <ImageIcon aria-hidden="true" />
+          <p className="text-sm">{tLabels("previewUnavailable")}</p>
         </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="flex min-h-[320px] items-center justify-center bg-muted/40 p-4">
-          {isImage ? (
-            // eslint-disable-next-line @next/next/no-img-element -- presigned download_url (expiring signature would defeat the optimizer cache)
-            <img
-              src={download_url}
-              alt={name}
-              className="max-h-[60vh] rounded-lg border bg-background object-contain shadow-xs"
-            />
-          ) : isPdf ? (
-            <PdfInlineViewer
-              title={name}
-              src={download_url}
-              className="h-[60vh] w-full rounded-lg border bg-background"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3 text-center text-muted-foreground">
-              <ImageIcon aria-hidden="true" />
-              <p className="text-sm">{tLabels("previewUnavailable")}</p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }
 
-// ─── Detail panel ─────────────────────────────────────────────────────────────
+// ─── Detail ───────────────────────────────────────────────────────────────────
 
 type DialogAction = "approve" | "reject" | null;
 
+/**
+ * Detail: voucher on the left; data, the explained system block and the history
+ * on the right. The decisions live in the header.
+ */
 export function InstitutionalCertificateRequestDetailPage({
   request,
+  breadcrumbs,
 }: {
   request: InstitutionalCertificateRequest;
+  breadcrumbs?: { label: string; href?: string }[];
 }) {
   const router = useRouter();
   const tLabels = useTranslations("institutional_certificate_requests.labels");
   const tDialog = useTranslations("institutional_certificate_requests.actionDialog");
+  const tStatus = useTranslations("institutional_certificate_requests.status");
+  const tGm = useTranslations("queues.certificates.gm");
   const formatDateValue = useFormatDate();
   const formatDateTimeValue = useFormatDateTime();
   const { canCapability } = useScreenAccess();
@@ -187,176 +170,124 @@ export function InstitutionalCertificateRequestDetailPage({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
-        {/* Proof viewer */}
+    <div className="flex flex-col gap-6">
+      <DetailHeader
+        {...(breadcrumbs ? { breadcrumbs } : {})}
+        title={`${request.applicant_name} · ${request.class_name}`}
+        subtitle={tGm("detailSubtitle", {
+          code: request.asset_code,
+          date: request.completed_at ? formatDateValue(request.completed_at) : "—",
+          revision: request.revision,
+        })}
+        facts={
+          isPending
+            ? undefined
+            : [{ label: tGm("factStatus"), value: tStatus(request.status) }]
+        }
+        actions={
+          isPending && (canApprove || canReject) ? (
+            <>
+              {canReject && (
+                <Button variant="outline" onClick={() => setDialogAction("reject")}>
+                  {tGm("rejectAction")}
+                </Button>
+              )}
+              {canApprove && <Button onClick={() => setDialogAction("approve")}>{tDialog("approve")}</Button>}
+            </>
+          ) : undefined
+        }
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
         {request.batch_id ? (
-          <SignedProofViewer
-            batchId={request.batch_id}
-            fileId={request.file_id}
-          />
+          <SignedProofViewer batchId={request.batch_id} fileId={request.file_id} />
         ) : (
-          <Card className="min-h-[320px]">
-            <CardContent className="flex min-h-[320px] items-center justify-center">
-              <EmptyState
-                icon={FileText}
-                title={tLabels("proofNotAvailable")}
-                description={tLabels("proofNoBatch")}
-                variant="no-results"
-              />
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={FileText}
+            title={tLabels("proofNotAvailable")}
+            description={tLabels("proofNoBatch")}
+            variant="no-results"
+          />
         )}
 
-        {/* Detail panel */}
-        <div className="flex min-w-0 flex-col gap-4">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-sm text-muted-foreground">
-                    {tLabels("requestMeta", {
-                      id: request.request_id.slice(0, 8).toUpperCase(),
-                      revision: request.revision,
-                    })}
-                  </p>
-                </div>
-                <InstitutionalRequestStatusBadge status={request.status} />
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              {/* Core data grid */}
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <DataItem label={tLabels("class")} value={request.class_name} />
-                <DataItem
-                  label={tLabels("assetCode")}
-                  value={<Badge variant="outline">{request.asset_code}</Badge>}
-                />
-                <DataItem
-                  label={tLabels("certificateDate")}
-                  value={request.completed_at ? formatDateValue(request.completed_at) : "—"}
-                />
-                {request.reviewed_at && (
-                  <DataItem
-                    label={tLabels("reviewedAt")}
-                    value={formatDateTimeValue(request.reviewed_at)}
-                  />
-                )}
-              </dl>
+        <div className="flex min-w-0 flex-col gap-6">
+          <dl className="grid grid-cols-[140px_minmax(0,1fr)] gap-x-4 gap-y-3 text-sm">
+            <dt className="text-muted-foreground">{tLabels("applicant")}</dt>
+            <dd>{request.applicant_name}</dd>
+            <dt className="text-muted-foreground">{tLabels("class")}</dt>
+            <dd>
+              {request.class_name} ({request.asset_code})
+            </dd>
+            <dt className="text-muted-foreground">{tLabels("certificateDate")}</dt>
+            <dd className="tabular-nums">{request.completed_at ? formatDateValue(request.completed_at) : "—"}</dd>
+            {request.reviewed_at && (
+              <>
+                <dt className="text-muted-foreground">{tLabels("reviewedAt")}</dt>
+                <dd className="tabular-nums">{formatDateTimeValue(request.reviewed_at)}</dd>
+              </>
+            )}
+            <dt className="text-muted-foreground">{tLabels("enrollmentCreated")}</dt>
+            <dd>{tGm("enrollmentNone")}</dd>
+            {request.decision_reason && (
+              <>
+                <dt className="text-muted-foreground">{tLabels("decisionReason")}</dt>
+                <dd className="whitespace-pre-wrap">{request.decision_reason}</dd>
+              </>
+            )}
+          </dl>
 
-              {/* enrollment_created note — always false for this queue */}
-              <div className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
-                <span className="font-medium">{tLabels("enrollmentCreated")}: </span>
-                {tLabels("enrollmentCreatedNo")}
-              </div>
-
-              {/* Approval blockers — system issue, not applicant's fault */}
-              {request.approval_blockers?.length > 0 && (
-                <div className="rounded-lg border border-amber-400/50 bg-amber-50 px-3 py-2 dark:bg-amber-950/20">
-                  <div className="mb-1 flex items-center gap-1.5 text-sm font-medium text-amber-700 dark:text-amber-400">
-                    <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
-                    {tLabels("approvalBlockers")}
-                  </div>
-                  <p className="mb-2 text-xs text-amber-700/80 dark:text-amber-400/80">
-                    {tLabels("approvalBlockersNote")}
-                  </p>
-                  <ul className="list-inside list-disc space-y-1">
-                    {request.approval_blockers.map((blocker) => (
-                      <li key={blocker} className="text-xs font-mono text-amber-800 dark:text-amber-300">
-                        {blocker}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Decision reason */}
-              {request.decision_reason && (
-                <div className="rounded-lg bg-muted/60 px-3 py-2 text-sm">
-                  <span className="font-medium">{tLabels("decisionReason")}: </span>
-                  {request.decision_reason}
-                </div>
-              )}
-
-              <Separator />
-
-              {/* Action buttons — only for pending + authorized users */}
-              {isPending && (canApprove || canReject) && (
-                <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  {canReject && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setDialogAction("reject")}
-                    >
-                      <XCircle aria-hidden="true" />
-                      {tDialog("reject")}
-                    </Button>
-                  )}
-                  {canApprove && (
-                    <Button onClick={() => setDialogAction("approve")}>
-                      <CheckCircle2 aria-hidden="true" />
-                      {tDialog("approve")}
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Events timeline */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{tLabels("events")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {events.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{tLabels("noEvents")}</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {events.map((event) => (
-                    <div
-                      key={event.event_id}
-                      className="rounded-xl border bg-card p-3"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Badge variant="outline">
-                          {tLabels.has(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
-                            ? tLabels(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
-                            : event.action}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {tLabels("eventMeta", {
-                            date: formatDateTimeValue(event.created_at),
-                            revision: event.revision,
-                          })}
-                        </span>
-                      </div>
-                      {event.comment && (
-                        <p className="mt-2 text-sm text-muted-foreground">
-                          {event.comment}
-                        </p>
-                      )}
-                    </div>
+          {/* System block: informative, never red — it is not the applicant's fault. */}
+          {request.approval_blockers?.length > 0 && (
+            <div role="note" className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2.5 text-sm">
+              <Info className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
+              <div className="min-w-0 space-y-1">
+                <p className="font-medium">{tLabels("approvalBlockers")}</p>
+                <p className="text-muted-foreground">{tLabels("approvalBlockersNote")}</p>
+                <ul className="list-inside list-disc font-mono text-xs">
+                  {request.approval_blockers.map((blocker) => (
+                    <li key={blocker}>{blocker}</li>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          <section className="space-y-3">
+            <h2 className="font-medium text-sm">{tLabels("events")}</h2>
+            {events.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{tLabels("noEvents")}</p>
+            ) : (
+              <ol className="ml-2 flex flex-col gap-3 border-l pl-5">
+                {events.map((event) => (
+                  <li key={event.event_id} className="relative">
+                    <span aria-hidden className="absolute top-1.5 -left-[25px] size-2 rounded-full bg-border" />
+                    <p className="font-medium text-sm">
+                      {tLabels.has(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
+                        ? tLabels(`eventActions.${event.action}` as "eventActions.REQUEST_SUBMITTED")
+                        : event.action}
+                    </p>
+                    <p className="text-muted-foreground text-xs tabular-nums">
+                      {tLabels("eventMeta", {
+                        date: formatDateTimeValue(event.created_at),
+                        revision: event.revision,
+                      })}
+                    </p>
+                    {event.comment && <p className="mt-1 text-muted-foreground text-sm">{event.comment}</p>}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
         </div>
       </div>
 
-      {/* Action dialog */}
       {dialogAction && (
         <InstitutionalCertificateRequestActionDialog
           open
           action={dialogAction}
           requestId={request.request_id}
           currentRevision={request.revision}
-          title={
-            dialogAction === "approve"
-              ? tDialog("approve")
-              : tDialog("reject")
-          }
+          title={dialogAction === "approve" ? tDialog("approve") : tDialog("reject")}
           description={
             dialogAction === "approve"
               ? tDialog("approveDescription", {
@@ -370,23 +301,6 @@ export function InstitutionalCertificateRequestDetailPage({
           onSuccess={handleSuccess}
         />
       )}
-    </div>
-  );
-}
-
-function DataItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div>
-      <dt className="text-xs font-medium text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="mt-0.5 text-sm">{value}</dd>
     </div>
   );
 }

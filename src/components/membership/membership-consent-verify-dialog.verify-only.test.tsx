@@ -8,7 +8,7 @@ import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import messages from "../../../messages/es.json";
+import { testMessages as messages } from "@/components/requests/test-intl";
 import type { MembershipRequest } from "@/lib/api/membership-requests";
 
 global.ResizeObserver = class ResizeObserver {
@@ -21,6 +21,14 @@ global.ResizeObserver = class ResizeObserver {
 const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
 const mockVerify = vi.fn<(...args: any[]) => Promise<unknown>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+const navReplace = vi.fn();
+const navSearch = "";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: navReplace, push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/test",
+  useSearchParams: () => new URLSearchParams(navSearch),
+}));
 
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
   const original =

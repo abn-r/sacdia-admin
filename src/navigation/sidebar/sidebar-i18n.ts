@@ -23,7 +23,6 @@ export const NAV_ITEM_KEY_BY_SIDEBAR_ID: Readonly<Record<string, string>> = {
   "insurance-by-section": "insurance_by_section",
   "insurance-config": "insurance_config",
   "payment-orders": "payment_orders",
-  "investiture-pastors": "investiture_pastors",
   "service-credentials-review": "service_credentials_review",
   "club-enrollments-review": "club_enrollments_review",
   "role-requirements": "role_requirements",

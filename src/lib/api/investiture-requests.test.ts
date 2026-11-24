@@ -58,6 +58,16 @@ describe("investiture-requests API", () => {
     expect(result).toHaveLength(1);
   });
 
+  it("asks the backend to include the fully resolved requests when told to", async () => {
+    serverMock.mockResolvedValue({ status: "success", data: [] });
+
+    await listInvestitureRequestsForAuthorizer(12, { includeResolved: true });
+
+    expect(serverMock).toHaveBeenCalledWith("/investiture-requests", {
+      params: { ecclesiastical_year_id: 12, include_resolved: true },
+    });
+  });
+
   it("reads one request by id", async () => {
     serverMock.mockResolvedValue({ status: "success", data: { request_id: "r 1", people: [] } });
 

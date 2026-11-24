@@ -9,7 +9,7 @@ import { render, screen, waitFor, cleanup, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import messages from "../../../messages/es.json";
+import { testMessages as messages } from "@/components/requests/test-intl";
 import type {
   CoordinatorConsentPendingItem,
   CoordinatorConsentPendingPage,
@@ -27,6 +27,14 @@ const mockQueue = vi.fn<(...args: any[]) => Promise<CoordinatorConsentPendingPag
 const mockVerify = vi.fn<(...args: any[]) => Promise<unknown>>();
 const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+const navReplace = vi.fn();
+const navSearch = "";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: navReplace, push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/test",
+  useSearchParams: () => new URLSearchParams(navSearch),
+}));
 
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/api/membership-requests")>();
@@ -439,7 +447,7 @@ describe("CoordinatorConsentQueue", () => {
     async function verifyRow(user: ReturnType<typeof userEvent.setup>, rowIndex: number) {
       const row = bodyRows()[rowIndex];
       await user.click(within(row).getByRole("button", { name: ANY_VERIFY }));
-      const dialog = await screen.findByRole("alertdialog");
+      const dialog = await screen.findByRole("dialog");
       await screen.findByRole("img", { name: dialogMsg.evidence_image_alt });
       await user.click(within(dialog).getByLabelText(dialogMsg.confirm_checkbox));
       await user.click(within(dialog).getByRole("button", { name: dialogMsg.confirm }));
@@ -455,7 +463,7 @@ describe("CoordinatorConsentQueue", () => {
         within(bodyRows()[1]).getByRole("button", { name: verifyLabel("Ana Pérez") }),
       );
 
-      const dialog = await screen.findByRole("alertdialog");
+      const dialog = await screen.findByRole("dialog");
       expect(within(dialog).queryByLabelText(dialogMsg.approve_checkbox)).toBeNull();
       expect(within(dialog).queryByRole("button", { name: dialogMsg.upload })).toBeNull();
       await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledWith(7, "asg-ana"));
@@ -479,9 +487,7 @@ describe("CoordinatorConsentQueue", () => {
       const user = userEvent.setup();
       renderQueue();
       await screen.findByText("Ana Pérez");
-      expect(
-        screen.getByText(queueMsg.count_other.replace("{count}", "3")),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Todas\s*3$/ })).toBeInTheDocument();
 
       await verifyRow(user, 1);
 
@@ -489,9 +495,7 @@ describe("CoordinatorConsentQueue", () => {
       expect(bodyRows()).toHaveLength(2);
       expect(screen.getByText("Zoe Pérez")).toBeInTheDocument();
       expect(screen.getByText("Beto Pérez")).toBeInTheDocument();
-      expect(
-        screen.getByText(queueMsg.count_other.replace("{count}", "2")),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Todas\s*2$/ })).toBeInTheDocument();
 
       // Ana was in section 7: 2 -> 1. Section 9 is untouched.
       const summary = screen.getByRole("group", { name: queueMsg.summary_title });
@@ -570,7 +574,7 @@ describe("CoordinatorConsentQueue", () => {
       await verifyRow(user, 1);
 
       await waitFor(() => expect(screen.queryByText("Ana Pérez")).toBeNull());
-      expect(screen.queryByRole("alertdialog")).toBeNull();
+      expect(screen.queryByRole("dialog")).toBeNull();
       expect(bodyRows()).toHaveLength(2);
       await waitFor(() => expect(mockQueue).toHaveBeenCalledTimes(2));
     });
@@ -586,8 +590,8 @@ describe("CoordinatorConsentQueue", () => {
       await verifyRow(user, 1);
 
       await waitFor(() => expect(mockVerify).toHaveBeenCalledOnce());
-      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-      expect(screen.getByText("Ana Pérez", { selector: "p" })).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByText("Ana Pérez")).toBeInTheDocument();
     });
 
     it("drops a section from the summary when its last form is verified", async () => {
@@ -661,7 +665,9 @@ describe("CoordinatorConsentQueue", () => {
       renderQueue();
 
       expect(await screen.findByText(queueMsg.error_permission)).toBeInTheDocument();
-      expect(screen.queryByRole("table")).toBeNull();
+      // The error sits inside the table frame; it never looks like an empty list.
+      expect(screen.queryByText(queueMsg.empty_title)).toBeNull();
+      expect(screen.queryByRole("button", { name: /Verificar/ })).toBeNull();
     });
 
     it("403 GUARD_CLUB_SCOPE_REQUIRED: no-covering-assignment message", async () => {

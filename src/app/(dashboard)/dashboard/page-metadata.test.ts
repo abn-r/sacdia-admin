@@ -23,7 +23,7 @@ vi.mock("@/lib/api/admin-users", async (orig) => ({
 import { generateMetadata as rolesMetadata } from "./configuration/roles/page";
 import { generateMetadata as matrixMetadata } from "./configuration/matrix/page";
 import { generateMetadata as auditMetadata } from "./configuration/audit/page";
-import { generateMetadata as pastorsMetadata } from "./investiture-pastors/page";
+import { generateMetadata as investitureSettingsMetadata } from "./configuration/investiture/page";
 import { generateMetadata as usersMetadata } from "./users/page";
 import { generateMetadata as userDetailMetadata } from "./users/[userId]/page";
 import { generateMetadata as financesMetadata } from "./finances/page";
@@ -36,7 +36,7 @@ describe("dashboard page titles", () => {
     ["roles", rolesMetadata, "Roles"],
     ["matrix", matrixMetadata, "Matriz de permisos"],
     ["audit", auditMetadata, "Auditoría"],
-    ["investiture pastors", pastorsMetadata, "Pastores por distrito"],
+    ["investiture settings", investitureSettingsMetadata, "Investiduras"],
     ["users list", usersMetadata, "Usuarios"],
     ["finances", financesMetadata, messages.finances.page.title],
     ["catalog allergies", allergiesMetadata, messages.catalogs.pages.allergies.title],

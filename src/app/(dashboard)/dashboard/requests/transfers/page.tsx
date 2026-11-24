@@ -1,59 +1,50 @@
 import type { Metadata } from "next";
-import { ArrowRightLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { EmptyState } from "@/components/shared/empty-state";
-import { TransfersClientPage } from "@/components/requests/transfers-client-page";
+import { TransfersQueue } from "@/components/requests/transfers-queue";
 import { getTransferRequests, type TransferRequest } from "@/lib/api/requests";
-import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
+import { LONG_WAIT_DAYS, isLongWait } from "@/lib/requests/waiting";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("requests");
-  return { title: t("pageTransfers.title") };
+  const t = await getTranslations("queues.requests.transfers");
+  return { title: t("title") };
 }
 
 export default async function TransferRequestsPage() {
   const user = await requireAdminUser();
-  const t = await getTranslations("requests");
+  const t = await getTranslations("queues.requests.transfers");
 
-  let requests: TransferRequest[] = [];
-  let loadError: string | null = null;
+  let requests: TransferRequest[] | null = null;
+  let failure: ReturnType<typeof errorStateFromError> | null = null;
 
   try {
     requests = await getTransferRequests();
   } catch (error) {
-    loadError =
-      error instanceof ApiError
-        ? error.message
-        : t("pageTransfers.errorLoad");
+    failure = errorStateFromError(error);
   }
+
+  // The finding, not an explanation: what waits and for how long.
+  const pending = (requests ?? []).filter((request) => request.status === "PENDING");
+  const longWait = pending.filter((request) => isLongWait(request.created_at)).length;
+  const description = failure
+    ? t("finding.unknown")
+    : longWait > 0
+      ? t("finding.longWait", { count: longWait, days: LONG_WAIT_DAYS })
+      : pending.length > 0
+        ? t("finding.pending", { count: pending.length })
+        : t("finding.none");
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("pageTransfers.title")}
-        description={t("pageTransfers.description")}
+      <PageHeader title={t("title")} description={description} />
+      <TransfersQueue
+        initialRequests={requests}
+        initialFailure={failure}
+        canReview={canCapability(user, "requests-transfers", "review")}
       />
-
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      {!loadError && requests.length === 0 && (
-        <EmptyState
-          icon={ArrowRightLeft}
-          title={t("pageTransfers.emptyTitle")}
-          description={t("pageTransfers.emptyDescription")}
-        />
-      )}
-
-      {!loadError && requests.length > 0 && (
-        <TransfersClientPage
-          initialRequests={requests}
-          canReview={canCapability(user, "requests-transfers", "review")}
-        />
-      )}
     </div>
   );
 }

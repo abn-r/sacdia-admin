@@ -41,6 +41,9 @@ export type InvestitureRequest = {
   pending_count?: number;
   earliest_investiture_date?: string | null;
   created_at?: string;
+  /** Only the authorizer list carries the resolved totals. */
+  invested_count?: number;
+  rejected_count?: number;
   people: InvestitureRequestPerson[];
 };
 
@@ -61,9 +64,13 @@ export type InvestitureResolution = {
 
 export async function listInvestitureRequestsForAuthorizer(
   ecclesiasticalYearId: number,
+  options: { includeResolved?: boolean } = {},
 ): Promise<InvestitureRequest[]> {
   const raw = await apiRequest<unknown>("/investiture-requests", {
-    params: { ecclesiastical_year_id: ecclesiasticalYearId },
+    params: {
+      ecclesiastical_year_id: ecclesiasticalYearId,
+      ...(options.includeResolved ? { include_resolved: true } : {}),
+    },
   });
   return unwrapApiData<InvestitureRequest[]>(raw);
 }

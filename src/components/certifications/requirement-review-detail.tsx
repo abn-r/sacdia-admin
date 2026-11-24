@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +16,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
+import { useFormatDateTime } from "@/lib/format-locale";
 import {
   approveRequirement,
   getRequirementDetail,
@@ -51,6 +56,7 @@ function renderResponse(
   component: ReviewComponentView,
   t: ReturnType<typeof useTranslations<"certification_reviews">>,
 ) {
+  if (component.component_type === "FILE_EVIDENCE" && component.evidences.length > 0) return null;
   if (!component.response) {
     return <p className="text-muted-foreground text-sm">{t("detail.noResponse")}</p>;
   }
@@ -58,6 +64,7 @@ function renderResponse(
   const { response } = component;
 
   switch (component.component_type) {
+    case "TEXT_RESPONSE":
     case "TEXT":
     case "LONG_TEXT":
       return (
@@ -71,6 +78,7 @@ function renderResponse(
             : t("detail.attestationNo")}
         </p>
       );
+    case "LINKED_HONOR":
     case "HONOR_LINK":
       return (
         <p className="text-sm">
@@ -79,6 +87,7 @@ function renderResponse(
             : t("detail.noResponse")}
         </p>
       );
+    case "LINKED_ACTIVITY":
     case "ACTIVITY_LINK":
       return (
         <p className="text-sm">
@@ -117,27 +126,28 @@ export function RequirementReviewDetail({
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [loadFailure, setLoadFailure] = useState<ErrorStateFromError | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
+  const formatDateTime = useFormatDateTime();
 
   useEffect(() => {
     if (!open || progressId == null) {
       setDetail(null);
       setComment("");
+      setLoadFailure(null);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
+    setLoadFailure(null);
     void getRequirementDetail(progressId)
       .then((data) => {
         if (!cancelled) setDetail(data);
       })
       .catch((error) => {
-        if (!cancelled) {
-          toast.error(
-            getCertificationReviewErrorMessage(error, t, "toasts.detailFailed"),
-          );
-          onOpenChange(false);
-        }
+        // The failure stays visible inside the sheet (with retry), never as an empty sheet.
+        if (!cancelled) setLoadFailure(errorStateFromError(error));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -146,7 +156,7 @@ export function RequirementReviewDetail({
     return () => {
       cancelled = true;
     };
-  }, [open, progressId, onOpenChange, t]);
+  }, [open, progressId, reloadTick]);
 
   const canAct = detail?.status === "SUBMITTED";
   const commentTrimmed = comment.trim();
@@ -211,35 +221,41 @@ export function RequirementReviewDetail({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>{t("detail.title")}</SheetTitle>
+          <SheetTitle>{detail ? detail.section_name : t("detail.title")}</SheetTitle>
           <SheetDescription>
             {detail
-              ? `${detail.certification_name} · ${detail.section_name}`
+              ? `${[detail.participant.name, detail.participant.paternal_last_name].filter(Boolean).join(" ")} · ${detail.certification_name} · ${detail.module_name}`
               : null}
           </SheetDescription>
         </SheetHeader>
 
-        {loading || !detail ? (
-          <div className="flex flex-1 items-center justify-center py-12 text-muted-foreground">
-            <Loader2 className="size-5 animate-spin" />
+        {loadFailure ? (
+          <ErrorState
+            {...loadFailure}
+            variant="inline"
+            title={t("toasts.detailFailed")}
+            onRetry={() => setReloadTick((n) => n + 1)}
+            className="mx-4 mt-4"
+          />
+        ) : loading || !detail ? (
+          <div className="space-y-3 px-4 py-4" aria-busy="true">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-10 w-2/3" />
           </div>
         ) : (
           <div className="flex flex-1 flex-col gap-6 px-1 py-4">
-            <div className="flex items-center gap-2">
-              <StatusBadge
-                intent={
-                  detail.status === "SUBMITTED"
-                    ? "info"
-                    : detail.status === "APPROVED"
-                      ? "success"
-                      : detail.status === "CHANGES_REQUESTED"
-                        ? "warning"
-                        : "neutral"
-                }
-                label={t(`status.${detail.status}`)}
-                size="sm"
-              />
-            </div>
+            <ExceptionStatus
+              value={detail.status}
+              normal={["SUBMITTED"]}
+              labels={{
+                DRAFT: t("status.DRAFT"),
+                SUBMITTED: t("status.SUBMITTED"),
+                CHANGES_REQUESTED: t("status.CHANGES_REQUESTED"),
+                APPROVED: t("status.APPROVED"),
+              }}
+              intents={{ APPROVED: "success", CHANGES_REQUESTED: "warning", DRAFT: "neutral" }}
+            />
 
             <section className="space-y-3">
               <h3 className="font-medium text-sm">{t("detail.components")}</h3>
@@ -250,10 +266,10 @@ export function RequirementReviewDetail({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium text-sm">{component.label}</p>
-                    <span className="text-muted-foreground text-xs">
+                    <Badge variant="outline" className="shrink-0">
                       {enumLabel(t, "componentType", component.component_type)}
                       {component.required ? " *" : ""}
-                    </span>
+                    </Badge>
                   </div>
                   {renderResponse(component, t)}
                   {component.evidences.length > 0 && (
@@ -300,7 +316,7 @@ export function RequirementReviewDetail({
                         <p className="text-muted-foreground">{entry.comment}</p>
                       ) : null}
                       <p className="text-muted-foreground text-xs">
-                        {new Date(entry.created_at).toLocaleString()}
+                        {formatDateTime(entry.created_at)}
                       </p>
                     </li>
                   ))}

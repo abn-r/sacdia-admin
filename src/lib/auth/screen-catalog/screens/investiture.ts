@@ -104,6 +104,8 @@ export const investitureScreens: ScreenDefinition[] = [
     // (`AdminHonorInstructorProposalsController`, doc §4.9). SkipPermissions.
     id: "honor-instructor-proposals",
     surfaces: ["admin"],
+    // Tab of /clubs/validations for users who can open it; standalone page otherwise.
+    path: "/dashboard/honor-instructor-proposals",
     viewAny: HONOR_PROPOSALS_GATE,
     capabilities: [
       // POST admin/honor-instructor-proposals/:proposalId/approve
@@ -151,9 +153,13 @@ export const investitureScreens: ScreenDefinition[] = [
     capabilities: [],
   },
   {
-    // Field window and percentage: union and division consult, the Campo
-    // (and platform admins) edit. The page also reads `can_edit` from the API.
+    // Unified settings (Configuración → Investiduras): the Field window and the
+    // pastors of each district. Union and division consult; the Campo (and
+    // platform admins) edit the window; only the Campo assigns pastors. The
+    // legacy `/dashboard/investiture-settings` and `/dashboard/investiture-pastors`
+    // URLs are redirects and keep this gate until they redirect.
     id: "investiture-settings",
+    path: "/dashboard/configuration/investiture",
     surfaces: ["admin"],
     viewAny: capabilityAccess("investiture.consult_field_window"),
     capabilities: [
@@ -162,13 +168,24 @@ export const investitureScreens: ScreenDefinition[] = [
         kind: "button",
         gate: capabilityAccess("investiture.configure_field_window"),
       },
+      {
+        id: "assign_pastors",
+        kind: "button",
+        gate: INVESTITURE_PASTORS_GATE,
+      },
+      {
+        id: "legacy_window",
+        kind: "route",
+        href: "/dashboard/investiture-settings",
+        gate: capabilityAccess("investiture.consult_field_window"),
+      },
+      {
+        id: "legacy_pastors",
+        kind: "route",
+        href: "/dashboard/investiture-pastors",
+        gate: capabilityAccess("investiture.consult_field_window"),
+      },
     ],
-  },
-  {
-    id: "investiture-pastors",
-    surfaces: ["admin"],
-    viewAny: INVESTITURE_PASTORS_GATE,
-    capabilities: [],
   },
   {
     id: "catalogs-certifications",

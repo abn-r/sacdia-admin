@@ -12,6 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { UserPlus } from "lucide-react";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { CoordinatorConsentQueue } from "@/components/membership/coordinator-consent-queue";
 import { PendingMembersTable } from "@/components/membership/pending-members-table";
 import {
@@ -84,6 +89,7 @@ export function MembershipRequestsClientPage({
     data: requests = [],
     isFetching: isLoading,
     error: queryError,
+    refetch,
   } = useQuery<MembershipRequest[], Error>({
     queryKey: ["membership", "requests", selectedSectionId],
     queryFn: () => listMembershipRequestsFromClient(selectedSectionId),
@@ -108,32 +114,38 @@ export function MembershipRequestsClientPage({
       : t("client.load_error_generic");
   })();
 
+  const failure = !showQueue && !isLoading && queryError ? errorStateFromError(queryError) : null;
+
   return (
     <div className="space-y-4">
-      {/* Section selector */}
-      <div className="max-w-md space-y-1.5">
-        <Label htmlFor="section-select">{t("client.section_label")}</Label>
-        <Select
-          value={String(view)}
-          onValueChange={(value) => setView(value === ALL_SECTIONS ? ALL_SECTIONS : Number(value))}
-        >
-          <SelectTrigger id="section-select" className="w-full">
-            <SelectValue placeholder={t("client.section_placeholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {coordinatorQueue && (
-              <SelectItem value={ALL_SECTIONS}>{tQueue("all_sections")}</SelectItem>
-            )}
-            {sections.map((section) => (
-              <SelectItem
-                key={section.club_section_id}
-                value={String(section.club_section_id)}
-              >
-                {section.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Filters in one row */}
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="w-full space-y-1.5 sm:max-w-md">
+          <Label htmlFor="section-select" className="text-xs text-muted-foreground">
+            {t("client.section_label")}
+          </Label>
+          <Select
+            value={String(view)}
+            onValueChange={(value) => setView(value === ALL_SECTIONS ? ALL_SECTIONS : Number(value))}
+          >
+            <SelectTrigger id="section-select" className="w-full">
+              <SelectValue placeholder={t("client.section_placeholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {coordinatorQueue && (
+                <SelectItem value={ALL_SECTIONS}>{tQueue("all_sections")}</SelectItem>
+              )}
+              {sections.map((section) => (
+                <SelectItem
+                  key={section.club_section_id}
+                  value={String(section.club_section_id)}
+                >
+                  {section.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Aggregate queue: all the coordinator's sections */}
@@ -141,9 +153,9 @@ export function MembershipRequestsClientPage({
 
       {/* Loading state */}
       {!showQueue && isLoading && (
-        <div className="space-y-3">
+        <div className="space-y-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-md border p-4">
+            <div key={i} className="flex items-center gap-4 rounded-xl bg-card p-4 shadow-card">
               <Skeleton className="h-4 w-40" />
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-4 w-20" />
@@ -154,11 +166,35 @@ export function MembershipRequestsClientPage({
         </div>
       )}
 
-      {/* Error state */}
-      {!showQueue && !isLoading && loadError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <p className="text-sm text-destructive">{loadError}</p>
-        </div>
+      {/* Error state: inside the table frame, never an empty list */}
+      {failure && loadError && (
+        <DataTableShell>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                  {t("table.col_member")}
+                </TableHead>
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                  {t("table.col_role")}
+                </TableHead>
+                <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
+                  {t("table.col_requested")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <ErrorStateTableRow
+                colSpan={3}
+                kind={failure.kind}
+                icon={UserPlus}
+                description={loadError}
+                {...(failure.detail ? { detail: failure.detail } : {})}
+                onRetry={() => void refetch()}
+              />
+            </TableBody>
+          </Table>
+        </DataTableShell>
       )}
 
       {/* Table */}

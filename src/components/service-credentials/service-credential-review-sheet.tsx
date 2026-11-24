@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sheet,
@@ -19,8 +20,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { RejectCredentialDialog } from "@/components/service-credentials/reject-credential-dialog";
+import { ErrorState } from "@/components/shared/error-state";
+import { errorStateFromError } from "@/lib/api/error-state";
 import {
   classifyServiceCredentialError,
   SERVICE_CREDENTIALS_KEY,
@@ -33,6 +34,8 @@ import {
 } from "@/components/service-credentials/service-credential-shared";
 import { SignedFilePreview } from "@/components/service-credentials/signed-file-preview";
 import {
+  SERVICE_CREDENTIAL_REASON_MAX,
+  SERVICE_CREDENTIAL_REASON_MIN,
   approveServiceCredential,
   getServiceCredentialReview,
   rejectServiceCredential,
@@ -70,7 +73,10 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
   const [expiresAt, setExpiresAt] = useState("");
   const [expiresError, setExpiresError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [rejectOpen, setRejectOpen] = useState(false);
+  // Reject happens inside the sheet: the reason is required and replaces the footer actions.
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState("");
+  const [reasonTouched, setReasonTouched] = useState(false);
   const [rejectError, setRejectError] = useState<string | null>(null);
 
   const query = useQuery({
@@ -88,7 +94,9 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
     setExpiresAt("");
     setExpiresError(null);
     setActionError(null);
-    setRejectOpen(false);
+    setRejecting(false);
+    setReason("");
+    setReasonTouched(false);
     setRejectError(null);
   }
 
@@ -110,7 +118,7 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
     if (kind === "notFound") {
       handleOpenChange(false);
     } else {
-      setRejectOpen(false);
+      setRejecting(false);
       void queryClient.invalidateQueries({ queryKey: SERVICE_CREDENTIALS_KEY });
     }
     return true;
@@ -154,6 +162,26 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
   }
 
   const pending = detail?.status === "PENDING_REVIEW";
+  const trimmedReason = reason.trim();
+  const reasonInvalid =
+    trimmedReason.length < SERVICE_CREDENTIAL_REASON_MIN || trimmedReason.length > SERVICE_CREDENTIAL_REASON_MAX;
+  const reasonError = rejectError
+    ? rejectError
+    : !reasonTouched
+      ? null
+      : trimmedReason.length < SERVICE_CREDENTIAL_REASON_MIN
+        ? t("detail.reject.reasonTooShort", { min: SERVICE_CREDENTIAL_REASON_MIN })
+        : trimmedReason.length > SERVICE_CREDENTIAL_REASON_MAX
+          ? t("detail.reject.reasonTooLong", { max: SERVICE_CREDENTIAL_REASON_MAX })
+          : null;
+
+  function handleReject() {
+    if (!detail) return;
+    setReasonTouched(true);
+    if (reasonInvalid) return;
+    setRejectError(null);
+    reject.mutate({ id: detail.credential_id, reason: trimmedReason });
+  }
   const busy = approve.isPending || reject.isPending;
 
   return (
@@ -181,11 +209,11 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
                 <Skeleton className="h-4 w-1/3" />
               </div>
             ) : query.isError || !detail ? (
-              <EndpointErrorBanner
-                state="missing"
-                detail={t("detail.loadFailed")}
+              <ErrorState
+                {...errorStateFromError(query.error)}
+                variant="inline"
+                title={t("detail.loadFailed")}
                 onRetry={() => void query.refetch()}
-                retrying={query.isFetching}
               />
             ) : (
               <>
@@ -201,9 +229,11 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
                   <Meta label={t("detail.fields.club")}>{detail.club_name ?? "—"}</Meta>
                   <Meta label={t("detail.fields.completed")}>{formatDate(detail.completed_at)}</Meta>
                   <Meta label={t("detail.fields.submitted")}>{formatDate(detail.created_at)}</Meta>
-                  <Meta label={t("detail.fields.status")}>
-                    <ServiceCredentialStatusBadge status={detail.status} />
-                  </Meta>
+                  {!pending ? (
+                    <Meta label={t("detail.fields.status")}>
+                      <ServiceCredentialStatusBadge status={detail.status} />
+                    </Meta>
+                  ) : null}
                   {detail.reviewed_at ? (
                     <Meta label={t("detail.fields.reviewedAt")}>{formatDate(detail.reviewed_at)}</Meta>
                   ) : null}
@@ -220,7 +250,7 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
                   ) : null}
                 </dl>
 
-                {pending && canApprove ? (
+                {pending && canApprove && !rejecting ? (
                   <Field data-invalid={expiresError ? true : undefined}>
                     <FieldLabel htmlFor="service-credential-expires-at">
                       {t("detail.approve.expiresLabel")}
@@ -246,6 +276,38 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
                   </Field>
                 ) : null}
 
+                {pending && rejecting ? (
+                  <Field data-invalid={reasonError ? true : undefined}>
+                    <FieldLabel htmlFor="service-credential-reject-reason">
+                      {t("detail.reject.reasonLabel")}
+                      <span className="ml-0.5 text-destructive" aria-hidden="true">
+                        *
+                      </span>
+                    </FieldLabel>
+                    <p className="text-sm text-muted-foreground">
+                      {t("detail.reject.description", { name: displayName(detail) })}
+                    </p>
+                    <Textarea
+                      id="service-credential-reject-reason"
+                      rows={4}
+                      value={reason}
+                      maxLength={SERVICE_CREDENTIAL_REASON_MAX + 100}
+                      aria-invalid={reasonError ? true : undefined}
+                      aria-describedby="service-credential-reject-reason-hint"
+                      onChange={(event) => setReason(event.target.value)}
+                      onBlur={() => setReasonTouched(true)}
+                      disabled={reject.isPending}
+                    />
+                    <FieldDescription id="service-credential-reject-reason-hint">
+                      {t("detail.reject.reasonHint", {
+                        min: SERVICE_CREDENTIAL_REASON_MIN,
+                        max: SERVICE_CREDENTIAL_REASON_MAX,
+                      })}
+                    </FieldDescription>
+                    {reasonError ? <FieldError>{reasonError}</FieldError> : null}
+                  </Field>
+                ) : null}
+
                 {!pending ? (
                   <Alert>
                     <CheckCircle2 className="size-4" />
@@ -267,44 +329,43 @@ export function ServiceCredentialReviewSheet({ credentialId, open, onOpenChange 
               {t("detail.close")}
             </Button>
             {detail && pending ? (
-              <div className="flex flex-col gap-2 sm:flex-row">
-                {canReject ? (
+              rejecting ? (
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     type="button"
-                    variant="destructive"
-                    disabled={busy}
+                    variant="outline"
+                    disabled={reject.isPending}
                     onClick={() => {
+                      setRejecting(false);
+                      setReasonTouched(false);
                       setRejectError(null);
-                      setRejectOpen(true);
                     }}
                   >
-                    {t("detail.reject.action")}
+                    {t("detail.reject.cancel")}
                   </Button>
-                ) : null}
-                {canApprove ? (
-                  <Button type="button" loading={approve.isPending} disabled={busy} onClick={handleApprove}>
-                    {t("detail.approve.action")}
+                  <Button type="button" variant="destructive-solid" loading={reject.isPending} onClick={handleReject}>
+                    {t("detail.reject.confirm")}
                   </Button>
-                ) : null}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {canReject ? (
+                    <Button type="button" variant="outline" disabled={busy} onClick={() => setRejecting(true)}>
+                      {t("detail.reject.action")}
+                    </Button>
+                  ) : null}
+                  {canApprove ? (
+                    <Button type="button" loading={approve.isPending} disabled={busy} onClick={handleApprove}>
+                      {t("detail.approve.action")}
+                    </Button>
+                  ) : null}
+                </div>
+              )
             ) : null}
           </SheetFooter>
         </SheetContent>
       </Sheet>
 
-      {detail ? (
-        <RejectCredentialDialog
-          open={rejectOpen}
-          onOpenChange={setRejectOpen}
-          personName={displayName(detail)}
-          submitting={reject.isPending}
-          serverError={rejectError}
-          onConfirm={(reason) => {
-            setRejectError(null);
-            reject.mutate({ id: detail.credential_id, reason });
-          }}
-        />
-      ) : null}
     </>
   );
 }

@@ -10,7 +10,7 @@ import { render, screen, waitFor, cleanup, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import messages from "../../../messages/es.json";
+import { testMessages as messages } from "@/components/requests/test-intl";
 import type {
   CoordinatorConsentPendingPage,
   MembershipRequest,
@@ -31,6 +31,14 @@ const mockList = vi.fn<(...args: any[]) => Promise<MembershipRequest[]>>();
 const mockGetEvidence = vi.fn<(...args: any[]) => Promise<unknown>>();
 const mockQueue = vi.fn<(...args: any[]) => Promise<CoordinatorConsentPendingPage>>();
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+const navReplace = vi.fn();
+const navSearch = "";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: navReplace, push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/test",
+  useSearchParams: () => new URLSearchParams(navSearch),
+}));
 
 vi.mock("@/lib/api/membership-requests", async (importOriginal) => {
   const original =
@@ -121,7 +129,7 @@ describe("MembershipRequestsClientPage", () => {
   it("loads only the first section on mount (lazy per section)", async () => {
     renderPage("verify-only");
 
-    await screen.findByText(consentMsg.badge_pending);
+    await screen.findByText(messages.queues.requests.membership.consentPending);
     expect(mockList).toHaveBeenCalledTimes(1);
     expect(mockList).toHaveBeenCalledWith(7);
   });
@@ -129,16 +137,20 @@ describe("MembershipRequestsClientPage", () => {
   it("verify-only: the loaded list has the verify action and no approve / reject", async () => {
     renderPage("verify-only");
 
-    await screen.findByRole("button", { name: consentMsg.verify_action_aria });
-    expect(screen.queryByRole("button", { name: tableMsg.aria_approve })).toBeNull();
-    expect(screen.queryByRole("button", { name: tableMsg.aria_reject })).toBeNull();
+    await screen.findByRole("button", { name: /Verificar ficha/ });
+    expect(screen.queryByRole("button", { name: /Revisar/ })).toBeNull();
   });
 
-  it("default mode keeps approve and reject (regression)", async () => {
+  it("default mode keeps approve and reject inside the guardian-form sheet (regression)", async () => {
+    const user = userEvent.setup();
     renderPage();
 
-    await screen.findByRole("button", { name: tableMsg.aria_approve });
-    expect(screen.getByRole("button", { name: tableMsg.aria_reject })).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: /Verificar ficha/ }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByLabelText(consentMsg.dialog.approve_checkbox)).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("button", { name: messages.queues.requests.membership.verify.rejectAction }),
+    ).toBeInTheDocument();
   });
 
   it("403 GUARD_CLUB_SCOPE_REQUIRED: shows the out-of-scope message, not the table", async () => {
@@ -148,7 +160,7 @@ describe("MembershipRequestsClientPage", () => {
     renderPage("verify-only");
 
     expect(await screen.findByText(clientMsg.load_error_scope)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: consentMsg.verify_action_aria })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Verificar ficha/ })).toBeNull();
   });
 
   it("any other 403 keeps the generic permission message", async () => {
@@ -165,7 +177,7 @@ describe("MembershipRequestsClientPage", () => {
   it("switching section loads that section's list lazily and keeps verify-only", async () => {
     const user = userEvent.setup();
     renderPage("verify-only");
-    await screen.findByText(consentMsg.badge_pending);
+    await screen.findByText(messages.queues.requests.membership.consentPending);
 
     mockList.mockResolvedValueOnce([]);
     await user.click(screen.getByRole("combobox"));
@@ -180,10 +192,10 @@ describe("MembershipRequestsClientPage", () => {
     const user = userEvent.setup();
     renderPage("verify-only");
 
-    await user.click(await screen.findByRole("button", { name: consentMsg.verify_action_aria }));
+    await user.click(await screen.findByRole("button", { name: /Verificar ficha/ }));
 
-    const dialog = await screen.findByRole("alertdialog");
-    expect(within(dialog).getByText(consentMsg.dialog.title)).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(/Ficha del tutor de Ana/)).toBeInTheDocument();
     expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
     await waitFor(() => expect(mockGetEvidence).toHaveBeenCalledWith(7, "asg-minor"));
   });
@@ -197,45 +209,40 @@ describe("MembershipRequestsClientPage", () => {
     it("a coordinator-only section shows verify-only UI even on an approve page", async () => {
       renderPage("approve", mixed);
 
-      const verify = await screen.findByRole("button", { name: consentMsg.verify_action_aria });
+      const verify = await screen.findByRole("button", { name: /Verificar ficha/ });
       expect(verify).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: tableMsg.aria_approve })).toBeNull();
-      expect(screen.queryByRole("button", { name: tableMsg.aria_reject })).toBeNull();
+      expect(screen.queryByRole("button", { name: /Revisar/ })).toBeNull();
 
       const user = userEvent.setup();
       await user.click(verify);
-      const dialog = await screen.findByRole("alertdialog");
+      const dialog = await screen.findByRole("dialog");
       expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
     });
 
     it("an own-club section shows the approve UI", async () => {
       const user = userEvent.setup();
       renderPage("approve", mixed);
-      await screen.findByRole("button", { name: consentMsg.verify_action_aria });
+      await screen.findByRole("button", { name: /Verificar ficha/ });
 
       await user.click(screen.getByRole("combobox"));
       await user.click(await screen.findByRole("option", { name: mixed[1].label }));
 
-      expect(
-        await screen.findByRole("button", { name: tableMsg.aria_approve }),
-      ).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: tableMsg.aria_reject })).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: /Verificar ficha/ }));
+      const dialog = await screen.findByRole("dialog");
+      expect(within(dialog).getByLabelText(consentMsg.dialog.approve_checkbox)).toBeInTheDocument();
     });
 
     it("switching back from an own-club section to a coordinator one drops approve again", async () => {
       const user = userEvent.setup();
       renderPage("approve", [mixed[1], mixed[0]]);
-      await screen.findByRole("button", { name: tableMsg.aria_approve });
+      await screen.findByRole("button", { name: /Verificar ficha/ });
 
       await user.click(screen.getByRole("combobox"));
       await user.click(await screen.findByRole("option", { name: mixed[0].label }));
 
-      await waitFor(() =>
-        expect(screen.queryByRole("button", { name: tableMsg.aria_approve })).toBeNull(),
-      );
-      expect(
-        await screen.findByRole("button", { name: consentMsg.verify_action_aria }),
-      ).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: /Verificar ficha/ }));
+      const dialog = await screen.findByRole("dialog");
+      expect(within(dialog).queryByLabelText(consentMsg.dialog.approve_checkbox)).toBeNull();
     });
   });
 });
@@ -298,7 +305,7 @@ describe("MembershipRequestsClientPage: coordinator queue (all my sections)", ()
   it("without the queue flag the first section stays the default (regression)", async () => {
     renderPage("verify-only", sections);
 
-    await screen.findByText(consentMsg.badge_pending);
+    await screen.findByText(messages.queues.requests.membership.consentPending);
     expect(mockQueue).not.toHaveBeenCalled();
     expect(mockList).toHaveBeenCalledWith(7);
 
@@ -316,7 +323,7 @@ describe("MembershipRequestsClientPage: coordinator queue (all my sections)", ()
     await user.click(await screen.findByRole("option", { name: sections[1].label }));
 
     await waitFor(() => expect(mockList).toHaveBeenCalledWith(9));
-    await screen.findByText(consentMsg.badge_pending);
+    await screen.findByText(messages.queues.requests.membership.consentPending);
     expect(screen.queryByText("Lucía Gómez")).toBeNull();
   });
 
@@ -340,7 +347,7 @@ describe("MembershipRequestsClientPage: coordinator queue (all my sections)", ()
 
     await user.click(screen.getByRole("combobox"));
     await user.click(await screen.findByRole("option", { name: sections[0].label }));
-    await screen.findByText(consentMsg.badge_pending);
+    await screen.findByText(messages.queues.requests.membership.consentPending);
 
     await user.click(screen.getByRole("combobox"));
     await user.click(await screen.findByRole("option", { name: queueMsg.all_sections }));

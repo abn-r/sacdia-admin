@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import messages from "../../../messages/es.json";
+import { testMessages as messages } from "@/components/requests/test-intl";
 import { ApiError } from "@/lib/api/client";
 import type { ClubEnrollmentItem, ClubEnrollmentPage } from "@/lib/api/club-enrollment-review";
 import type { AuthUser } from "@/lib/auth/types";
@@ -18,6 +18,14 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 const authState = vi.hoisted(() => ({ user: null as AuthUser | null }));
+const navReplace = vi.fn();
+let navSearch = "";
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: navReplace, push: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => "/dashboard/test",
+  useSearchParams: () => new URLSearchParams(navSearch),
+}));
+
 vi.mock("@/lib/auth/auth-context", () => ({ useAuth: () => ({ user: authState.user }) }));
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -51,8 +59,14 @@ vi.mock("@/lib/api/catalogs", () => ({
     ]),
   listClubTypes: () => Promise.resolve([{ club_type_id: 2, name: "Conquistadores" }]),
 }));
+const localFieldsMock = vi.hoisted(() => ({
+  data: [
+    { local_field_id: 3, name: "Campo Norte", union_id: 1 },
+    { local_field_id: 4, name: "Campo Sur", union_id: 1 },
+  ],
+}));
 vi.mock("@/lib/api/geography", () => ({
-  listLocalFields: () => Promise.resolve([{ local_field_id: 3, name: "Campo Norte", union_id: 1 }]),
+  listLocalFields: () => Promise.resolve(localFieldsMock.data),
 }));
 
 const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
@@ -123,6 +137,8 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 beforeEach(() => {
+  navSearch = "";
+  navReplace.mockReset();
   mockList.mockReset();
   mockApprove.mockReset();
   mockReject.mockReset();
@@ -161,6 +177,12 @@ describe("ClubEnrollmentReviewQueue", () => {
     renderWithProviders(<ClubEnrollmentReviewQueue />);
     await screen.findByText("Club Águilas");
 
+    // The tab lives in the URL: clicking writes ?tab=, reading it drives the query.
+    await user.click(screen.getByRole("tab", { name: new RegExp(m.tabs.approved) }));
+    expect(navReplace).toHaveBeenCalledWith("/dashboard/test?tab=approved", { scroll: false });
+    cleanup();
+
+    navSearch = "tab=approved";
     mockList.mockResolvedValue(
       page([
         item("e9", "Club Pumas", {
@@ -171,7 +193,7 @@ describe("ClubEnrollmentReviewQueue", () => {
         }),
       ]),
     );
-    await user.click(screen.getByRole("tab", { name: new RegExp(m.tabs.approved) }));
+    renderWithProviders(<ClubEnrollmentReviewQueue />);
 
     expect(await screen.findByText("Club Pumas")).toBeInTheDocument();
     expect(mockList).toHaveBeenLastCalledWith(expect.objectContaining({ status: "active", page: 1 }));
@@ -229,13 +251,30 @@ describe("ClubEnrollmentReviewQueue", () => {
     expect(await screen.findByText(m.empty.pending.title)).toBeInTheDocument();
   });
 
-  it("shows an error banner with retry instead of an empty list", async () => {
+  it("hides the local field column and filter when the scope is a single local field", async () => {
+    localFieldsMock.data = [{ local_field_id: 3, name: "Campo Norte", union_id: 1 }];
+    try {
+      renderWithProviders(<ClubEnrollmentReviewQueue />);
+      await screen.findByText("Club Águilas");
+      await waitFor(() => expect(screen.queryByLabelText(m.filters.localField)).toBeNull());
+      expect(screen.queryByText("Campo Norte")).toBeNull();
+    } finally {
+      localFieldsMock.data = [
+        { local_field_id: 3, name: "Campo Norte", union_id: 1 },
+        { local_field_id: 4, name: "Campo Sur", union_id: 1 },
+      ];
+    }
+  });
+
+  it("shows an error inside the table frame with retry, never as an empty list, and keeps the tabs", async () => {
     const user = userEvent.setup();
     mockList.mockRejectedValueOnce(new Error("boom"));
     renderWithProviders(<ClubEnrollmentReviewQueue />);
 
-    expect(await screen.findByText(m.toasts.listFailed)).toBeInTheDocument();
+    expect(await screen.findByText(messages.queues.requests.enrollments.error.title)).toBeInTheDocument();
     expect(screen.queryByText(m.empty.pending.title)).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: new RegExp(m.tabs.pending) })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: m.table.club })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /reintentar/i }));
     expect(await screen.findByText("Club Águilas")).toBeInTheDocument();
@@ -337,15 +376,17 @@ describe("ClubEnrollmentReviewSheet", () => {
     const { onOpenChange } = renderSheet();
 
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
-    expect(within(dialog).getByText(m.detail.reject.title)).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
+    // Same sheet, no second dialog: the footer asks for the reason and says who reads it.
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(within(dialog).getByText(new RegExp(messages.queues.requests.enrollments.sheet.rejectAudience))).toBeInTheDocument();
 
-    await user.type(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), "mal");
+    await user.type(within(dialog).getByLabelText(new RegExp(messages.queues.requests.sheet.reasonLabel)), "mal");
     await user.click(within(dialog).getByRole("button", { name: m.detail.reject.confirm }));
     expect(await within(dialog).findByText("Escribe al menos 5 caracteres.")).toBeInTheDocument();
     expect(mockReject).not.toHaveBeenCalled();
 
-    await user.type(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), " dirección");
+    await user.type(within(dialog).getByLabelText(new RegExp(messages.queues.requests.sheet.reasonLabel)), " dirección");
     await user.click(within(dialog).getByRole("button", { name: m.detail.reject.confirm }));
 
     await waitFor(() => expect(mockReject).toHaveBeenCalledWith("e1", "mal dirección"));
@@ -357,8 +398,8 @@ describe("ClubEnrollmentReviewSheet", () => {
     const user = userEvent.setup();
     renderSheet();
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
-    fireEvent.change(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), {
+    const dialog = await screen.findByRole("dialog");
+    fireEvent.change(within(dialog).getByLabelText(new RegExp(messages.queues.requests.sheet.reasonLabel)), {
       target: { value: "x".repeat(501) },
     });
     await user.click(within(dialog).getByRole("button", { name: m.detail.reject.confirm }));
@@ -401,17 +442,17 @@ describe("ClubEnrollmentReviewSheet", () => {
     expect(onOpenChange).not.toHaveBeenCalledWith(false);
   });
 
-  it("keeps the reject dialog open and shows a server error next to the reason", async () => {
+  it("keeps the sheet open and shows a server error when rejecting fails", async () => {
     const user = userEvent.setup();
     mockReject.mockRejectedValue(new ApiError("bad", 400, { code: "SOMETHING_ELSE" }));
     renderSheet();
     await user.click(await screen.findByRole("button", { name: m.detail.reject.action }));
-    const dialog = await screen.findByRole("alertdialog");
-    await user.type(within(dialog).getByLabelText(new RegExp(m.detail.reject.reasonLabel)), "Falta dirección");
+    const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(new RegExp(messages.queues.requests.sheet.reasonLabel)), "Falta dirección");
     await user.click(within(dialog).getByRole("button", { name: m.detail.reject.confirm }));
 
     expect(await within(dialog).findByText(m.errors.generic)).toBeInTheDocument();
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("shows the review block and hides the decision buttons for a reviewed enrollment", async () => {

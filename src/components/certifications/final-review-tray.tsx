@@ -1,23 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ClipboardCheck, ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { ClipboardCheck, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, type StatusIntent } from "@/components/ui/status-badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorStateTableRow } from "@/components/shared/error-state";
+import { ReasonDialog } from "@/components/shared/reason-dialog";
+import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
+import { StaleDataNotice } from "@/components/shared/stale-data-notice";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
+import { useFormatDateTime } from "@/lib/format-locale";
+import { useToastError } from "@/lib/feedback/toast-retry";
 import {
   approveCloseoutEvidence,
   certify,
@@ -30,22 +31,10 @@ import { useScreenAccess } from "@/lib/auth/screen-catalog/use-screen-access";
 import { getCertificationReviewErrorMessage } from "@/components/certifications/certification-review-errors";
 
 function participantName(item: FinalTrayItem) {
-  return [item.participant.name, item.participant.paternal_last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim() || item.participant.user_id;
-}
-
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
+  return (
+    [item.participant.name, item.participant.paternal_last_name].filter(Boolean).join(" ").trim() ||
+    item.participant.user_id
+  );
 }
 
 function statusIntent(status: string): StatusIntent {
@@ -63,73 +52,70 @@ function statusIntent(status: string): StatusIntent {
   }
 }
 
-function enrollmentStatusLabel(
-  status: string,
-  t: ReturnType<typeof useTranslations<"certification_reviews">>,
-) {
-  switch (status) {
-    case "SUBMITTED_FOR_FINAL_REVIEW":
-      return t("enrollmentStatus.SUBMITTED_FOR_FINAL_REVIEW");
-    case "APPROVED":
-      return t("enrollmentStatus.APPROVED");
-    case "CHANGES_REQUESTED":
-      return t("enrollmentStatus.CHANGES_REQUESTED");
-    case "CERTIFIED":
-      return t("enrollmentStatus.CERTIFIED");
-    default:
-      return status;
-  }
-}
+const KNOWN_STATUSES = ["SUBMITTED_FOR_FINAL_REVIEW", "APPROVED", "CHANGES_REQUESTED", "CERTIFIED"];
 
-export function FinalReviewTray() {
+/**
+ * Final closings use the same table as requirements: "Aprobar comprobante"
+ * while submitted, "Certificar" (ConfirmDialog) once the voucher is approved,
+ * and "Devolver" asks for a comment.
+ */
+export function FinalReviewTray({ onCount }: { onCount?: (count: number) => void }) {
   const t = useTranslations("certification_reviews");
+  const formatDateTime = useFormatDateTime();
+  const toastError = useToastError();
   const { canCapability } = useScreenAccess();
   const canApprove = canCapability("certifications-reviews", "approve");
   const canRequestChanges = canCapability("certifications-reviews", "request_changes");
   const canCertify = canCapability("certifications-reviews", "certify");
 
-  const [items, setItems] = useState<FinalTrayItem[]>([]);
+  const [items, setItems] = useState<FinalTrayItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failure, setFailure] = useState<ErrorStateFromError | null>(null);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [returnTarget, setReturnTarget] = useState<FinalTrayItem | null>(null);
-  const [returnComment, setReturnComment] = useState("");
   const [certifyTarget, setCertifyTarget] = useState<FinalTrayItem | null>(null);
+  const onCountRef = useRef(onCount);
+  onCountRef.current = onCount;
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getFinalTray();
       setItems(data);
+      setFailure(null);
+      setLoadedAt(new Date());
+      onCountRef.current?.(data.length);
     } catch (error) {
-      toast.error(getCertificationReviewErrorMessage(error, t, "toasts.loadFailed"));
-      setItems([]);
+      setFailure(errorStateFromError(error));
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  async function handleViewEvidence(enrollmentId: number, filename: string) {
-    setBusyId(enrollmentId);
+  async function handleViewEvidence(item: FinalTrayItem) {
+    setBusyId(item.enrollment_id);
     try {
-      const result = await getCloseoutEvidenceDownload(enrollmentId);
+      const result = await getCloseoutEvidenceDownload(item.enrollment_id);
       window.open(result.url, "_blank", "noopener,noreferrer");
     } catch (error) {
-      toast.error(
-        getCertificationReviewErrorMessage(error, t, "toasts.downloadFailed"),
-      );
+      toastError({
+        title: getCertificationReviewErrorMessage(error, t, "toasts.downloadFailed"),
+        onRetry: () => void handleViewEvidence(item),
+      });
     } finally {
       setBusyId(null);
     }
   }
 
-  async function handleApprove(enrollmentId: number) {
-    setBusyId(enrollmentId);
+  async function handleApprove(item: FinalTrayItem) {
+    setBusyId(item.enrollment_id);
     try {
-      await approveCloseoutEvidence(enrollmentId);
+      await approveCloseoutEvidence(item.enrollment_id);
       toast.success(t("toasts.closeoutApproved"));
       await load();
     } catch (error) {
@@ -139,19 +125,13 @@ export function FinalReviewTray() {
     }
   }
 
-  async function handleRequestChanges() {
+  async function handleRequestChanges(comment: string) {
     if (!returnTarget) return;
-    const comment = returnComment.trim();
-    if (!comment) {
-      toast.error(t("final.commentRequired"));
-      return;
-    }
     setBusyId(returnTarget.enrollment_id);
     try {
       await requestCloseoutChanges(returnTarget.enrollment_id, comment);
       toast.success(t("toasts.closeoutChangesRequested"));
       setReturnTarget(null);
-      setReturnComment("");
       await load();
     } catch (error) {
       toast.error(getCertificationReviewErrorMessage(error, t));
@@ -166,226 +146,160 @@ export function FinalReviewTray() {
     try {
       await certify(certifyTarget.enrollment_id);
       toast.success(t("toasts.certified"));
-      setCertifyTarget(null);
       await load();
     } catch (error) {
-      toast.error(getCertificationReviewErrorMessage(error, t));
+      // ConfirmDialog keeps itself open and shows this message inline.
+      throw new Error(getCertificationReviewErrorMessage(error, t));
     } finally {
       setBusyId(null);
     }
   }
 
+  const colSpan = 5;
+  const hasRows = items !== null && items.length > 0;
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          loading={loading}
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void load()}
-        >
-          <RefreshCw className="size-4" />
-          {t("tray.refresh")}
-        </Button>
-      </div>
+      {failure && hasRows && loadedAt && <StaleDataNotice at={loadedAt} onRetry={() => void load()} />}
 
-      {loading ? (
-        <p className="text-muted-foreground text-sm">{t("final.loading")}</p>
-      ) : items.length === 0 ? (
+      {items !== null && items.length === 0 && !failure ? (
         <EmptyState icon={ClipboardCheck} title={t("final.empty")} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[760px] text-sm">
-            <thead className="bg-muted/40 text-left">
-              <tr>
-                <th className="px-3 py-2 font-medium">{t("final.colParticipant")}</th>
-                <th className="px-3 py-2 font-medium">{t("final.colCertification")}</th>
-                <th className="px-3 py-2 font-medium">{t("final.colStatus")}</th>
-                <th className="px-3 py-2 font-medium">{t("final.colSubmitted")}</th>
-                <th className="px-3 py-2 font-medium">{t("final.colEvidence")}</th>
-                <th className="px-3 py-2 font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => {
-                const isSubmitted =
-                  item.status === "SUBMITTED_FOR_FINAL_REVIEW";
-                const isApproved = item.status === "APPROVED";
-                const evidenceName =
-                  item.closeout_evidence?.original_filename ?? "—";
-
-                return (
-                  <tr key={item.enrollment_id} className="border-t">
-                    <td className="px-3 py-2">{participantName(item)}</td>
-                    <td className="px-3 py-2">{item.certification_name}</td>
-                    <td className="px-3 py-2">
-                      <StatusBadge
-                        intent={statusIntent(item.status)}
-                        label={enrollmentStatusLabel(item.status, t)}
-                        size="sm"
-                      />
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {formatDate(item.submitted_at)}
-                    </td>
-                    <td className="px-3 py-2">
-                      {item.closeout_evidence ? (
-                        <Button
-                          loading={busyId === item.enrollment_id}
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          aria-label={`${t("final.viewEvidence")} ${evidenceName}`}
-                          onClick={() =>
-                            void handleViewEvidence(
-                              item.enrollment_id,
-                              evidenceName,
-                            )
-                          }
-                        >
-                          <ExternalLink className="size-3.5" />
-                          {t("final.viewEvidence")}
-                        </Button>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        {isSubmitted ? (
-                          <>
-                            {canRequestChanges ? (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="secondary"
-                              disabled={busyId === item.enrollment_id}
-                              onClick={() => {
-                                setReturnComment("");
-                                setReturnTarget(item);
-                              }}
-                            >
-                              {t("final.requestChanges")}
-                            </Button>
-                            ) : null}
-                            {canApprove ? (
-                            <Button
-                              type="button"
-                              size="sm"
-                              disabled={busyId === item.enrollment_id}
-                              onClick={() =>
-                                void handleApprove(item.enrollment_id)
-                              }
-                            >
-                              {t("final.approveEvidence")}
-                            </Button>
-                            ) : null}
-                          </>
-                        ) : null}
-                        {isApproved && canCertify ? (
+        <DataTableShell aria-busy={loading}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("final.colParticipant")}</TableHead>
+                <TableHead>{t("final.colCertification")}</TableHead>
+                <TableHead>{t("final.colStatus")}</TableHead>
+                <TableHead>{t("final.colSubmitted")}</TableHead>
+                <RowActionsHead className="w-64" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items === null && !failure
+                ? Array.from({ length: 3 }, (_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={colSpan}>
+                        <Skeleton className="h-6 w-full" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : null}
+              {failure && !hasRows ? (
+                <ErrorStateTableRow colSpan={colSpan} {...failure} onRetry={() => void load()} />
+              ) : null}
+              {hasRows
+                ? items.map((item) => {
+                    const isSubmitted = item.status === "SUBMITTED_FOR_FINAL_REVIEW";
+                    const isApproved = item.status === "APPROVED";
+                    const busy = busyId === item.enrollment_id;
+                    const name = participantName(item);
+                    const primary = (
+                      <>
+                        {isSubmitted && canRequestChanges && (
                           <Button
                             type="button"
                             size="sm"
-                            disabled={busyId === item.enrollment_id}
-                            onClick={() => setCertifyTarget(item)}
+                            variant="outline"
+                            disabled={busy}
+                            onClick={() => setReturnTarget(item)}
                           >
+                            {t("final.requestChanges")}
+                          </Button>
+                        )}
+                        {isSubmitted && canApprove && (
+                          <Button type="button" size="sm" disabled={busy} onClick={() => void handleApprove(item)}>
+                            {t("final.approveEvidence")}
+                          </Button>
+                        )}
+                        {isApproved && canCertify && (
+                          <Button type="button" size="sm" disabled={busy} onClick={() => setCertifyTarget(item)}>
                             {t("final.certify")}
                           </Button>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                        )}
+                      </>
+                    );
+                    return (
+                      <TableRow key={item.enrollment_id}>
+                        <TableCell className="font-medium">{name}</TableCell>
+                        <TableCell>
+                          <div>{item.certification_name}</div>
+                          {item.closeout_evidence ? (
+                            <div className="text-muted-foreground text-xs">
+                              {item.closeout_evidence.original_filename}
+                            </div>
+                          ) : null}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            intent={statusIntent(item.status)}
+                            label={
+                              KNOWN_STATUSES.includes(item.status)
+                                ? t(`enrollmentStatus.${item.status as "APPROVED"}`)
+                                : item.status
+                            }
+                            size="sm"
+                          />
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-muted-foreground text-sm tabular-nums">
+                          {item.submitted_at ? formatDateTime(item.submitted_at) : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <RowActions
+                            label={`${name} · ${item.certification_name}`}
+                            primary={primary}
+                            actions={[
+                              {
+                                label: t("final.viewEvidence"),
+                                icon: ExternalLink,
+                                hidden: !item.closeout_evidence,
+                                disabled: busy,
+                                onSelect: () => void handleViewEvidence(item),
+                              },
+                            ]}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                : null}
+            </TableBody>
+          </Table>
+        </DataTableShell>
       )}
 
-      <Dialog
+      <ReasonDialog
         open={returnTarget != null}
         onOpenChange={(open) => {
-          if (!open) {
-            setReturnTarget(null);
-            setReturnComment("");
-          }
+          if (!open) setReturnTarget(null);
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("final.requestChanges")}</DialogTitle>
-            <DialogDescription>
-              {returnTarget
-                ? `${participantName(returnTarget)} · ${returnTarget.certification_name}`
-                : null}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="closeout-return-comment">
-              {t("final.commentLabel")}
-            </Label>
-            <Textarea
-              id="closeout-return-comment"
-              value={returnComment}
-              onChange={(event) => setReturnComment(event.target.value)}
-              placeholder={t("final.commentPlaceholder")}
-              rows={3}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setReturnTarget(null);
-                setReturnComment("");
-              }}
-            >
-              {t("final.certifyCancel")}
-            </Button>
-            <Button
-              type="button"
-              disabled={!returnComment.trim() || busyId != null}
-              onClick={() => void handleRequestChanges()}
-            >
-              {t("final.requestChanges")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        title={t("final.requestChanges")}
+        description={returnTarget ? `${participantName(returnTarget)} · ${returnTarget.certification_name}` : undefined}
+        label={t("final.commentLabel")}
+        placeholder={t("final.commentPlaceholder")}
+        min={1}
+        confirmLabel={t("final.requestChanges")}
+        tone="default"
+        pending={busyId != null && returnTarget != null}
+        onConfirm={handleRequestChanges}
+      />
 
-      <Dialog
+      <ConfirmDialog
         open={certifyTarget != null}
         onOpenChange={(open) => {
           if (!open) setCertifyTarget(null);
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("final.certifyConfirmTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("final.certifyConfirmDescription")}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCertifyTarget(null)}
-            >
-              {t("final.certifyCancel")}
-            </Button>
-            <Button
-              type="button"
-              disabled={busyId != null}
-              onClick={() => void handleCertify()}
-            >
-              {t("final.certifyConfirm")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        title={t("final.certifyConfirmTitle")}
+        description={
+          certifyTarget
+            ? `${participantName(certifyTarget)} · ${certifyTarget.certification_name}. ${t("final.certifyConfirmDescription")}`
+            : t("final.certifyConfirmDescription")
+        }
+        confirmLabel={t("final.certifyConfirm")}
+        cancelLabel={t("final.certifyCancel")}
+        onConfirm={handleCertify}
+      />
     </div>
   );
 }
