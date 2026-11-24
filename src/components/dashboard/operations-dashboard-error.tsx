@@ -5,7 +5,7 @@ import { AlertCircle, Key, MapPin, ServerOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { isScopeMissingError, type ApiErrorInfo } from "@/lib/api/error-code";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
@@ -101,11 +101,11 @@ export function OperationsDashboardError({ error }: OperationsDashboardErrorProp
           <Icon className="mt-0.5 size-5 text-destructive" aria-hidden />
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <Badge variant="destructive" className="gap-1">
-                {kind === "auth" && <Key className="size-3" aria-hidden />}
-                {kind === "server" && <ServerOff className="size-3" aria-hidden />}
-                {t(titleKey)}
-              </Badge>
+              <StatusBadge
+                intent="destructive"
+                label={t(titleKey)}
+                icon={kind === "auth" ? Key : kind === "server" ? ServerOff : undefined}
+              />
             </div>
             <p className="text-sm text-muted-foreground">{error.message}</p>
             {kind === "auth" ? (
