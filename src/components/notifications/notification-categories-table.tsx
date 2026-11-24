@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Tags } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -14,7 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toneBadgeProps } from "@/components/materials/badge-tones";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { ErrorStateTableRow, type ErrorStateDetail, type ErrorStateKind } from "@/components/shared/error-state";
 import type {
   NotificationCategory,
   NotificationCategorySetting,
@@ -22,31 +23,54 @@ import type {
 import { updateNotificationCategorySettingAction } from "@/lib/notifications/category-settings-actions";
 
 interface NotificationCategoriesTableProps {
-  categories: NotificationCategorySetting[];
+  /** `null` when the load failed: the table then shows the error, never default switches. */
+  categories: NotificationCategorySetting[] | null;
+  failure?: { kind: ErrorStateKind; detail?: ErrorStateDetail } | null;
+  /** `notifications-categories` / `update`. Without it the switches are read-only. */
+  canEdit: boolean;
 }
+
+const COLUMN_COUNT = 4;
 
 export function NotificationCategoriesTable({
   categories: initialCategories,
+  failure,
+  canEdit,
 }: NotificationCategoriesTableProps) {
-  const t = useTranslations("configuration.notifications.categories");
-  const [categories, setCategories] =
-    useState<NotificationCategorySetting[]>(initialCategories);
+  const t = useTranslations("people.community.notifications.categories");
+  const tOld = useTranslations("configuration.notifications.categories");
+  const [categories, setCategories] = useState<NotificationCategorySetting[] | null>(
+    initialCategories,
+  );
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const categoryMap = useMemo(
-    () => new Map(categories.map((category) => [category.id, category])),
-    [categories],
-  );
+  // A reload from the server (router.refresh after a retry) replaces local state.
+  const [lastInitial, setLastInitial] = useState(initialCategories);
+  if (lastInitial !== initialCategories) {
+    setLastInitial(initialCategories);
+    setCategories(initialCategories);
+  }
+
+  // Category ids come from the API; unknown ones fall back to the raw id / no description.
+  function nameOf(id: string): string {
+    const key = `names.${id}` as Parameters<typeof t>[0];
+    return t.has(key) ? t(key) : id;
+  }
+
+  function descriptionOf(id: string): string | null {
+    const key = `items.${id}` as Parameters<typeof tOld>[0];
+    return tOld.has(key) ? tOld(key) : null;
+  }
 
   function updateLocal(
     id: NotificationCategory,
     patch: Partial<Pick<NotificationCategorySetting, "mobileEnabled" | "defaultEnabled">>,
   ) {
     setCategories((current) =>
-      current.map((category) =>
-        category.id === id ? { ...category, ...patch } : category,
-      ),
+      current
+        ? current.map((category) => (category.id === id ? { ...category, ...patch } : category))
+        : current,
     );
   }
 
@@ -55,8 +79,8 @@ export function NotificationCategoriesTable({
     field: "mobileEnabled" | "defaultEnabled",
     checked: boolean,
   ) {
-    const previous = categoryMap.get(categoryId);
-    if (!previous) return;
+    const previous = categories?.find((category) => category.id === categoryId);
+    if (!previous || !canEdit) return;
 
     const rollback = previous[field];
     updateLocal(categoryId, { [field]: checked });
@@ -65,10 +89,7 @@ export function NotificationCategoriesTable({
     startTransition(async () => {
       const result = await updateNotificationCategorySettingAction(
         {},
-        {
-          category: categoryId,
-          [field]: checked,
-        },
+        { category: categoryId, [field]: checked },
       );
 
       setPendingKey(null);
@@ -79,48 +100,77 @@ export function NotificationCategoriesTable({
         return;
       }
 
-      toast.success(result.success ?? t("saveSuccess"));
+      toast.success(result.success ?? tOld("saveSuccess"));
     });
   }
 
+  const headers = (
+    <TableHeader>
+      <TableRow>
+        <TableHead>{t("colCategory")}</TableHead>
+        <TableHead>{t("colMobile")}</TableHead>
+        <TableHead>{t("colDefault")}</TableHead>
+        <TableHead>{t("colUserCanDisable")}</TableHead>
+      </TableRow>
+    </TableHeader>
+  );
+
+  if (categories === null) {
+    return (
+      <DataTableShell>
+        <Table>
+          {headers}
+          <TableBody>
+            <ErrorStateTableRow
+              colSpan={COLUMN_COUNT}
+              kind={failure?.kind ?? "error"}
+              detail={failure?.detail}
+              icon={Tags}
+              title={t("loadErrorTitle")}
+              description={t("loadErrorDescription")}
+              retry
+            />
+          </TableBody>
+        </Table>
+      </DataTableShell>
+    );
+  }
+
   return (
-    <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
+    <DataTableShell>
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("colCategory")}</TableHead>
-            <TableHead>{t("colMobile")}</TableHead>
-            <TableHead>{t("colDefault")}</TableHead>
-            <TableHead>{t("colMobileApp")}</TableHead>
-            <TableHead>{t("colDescription")}</TableHead>
-          </TableRow>
-        </TableHeader>
+        {headers}
         <TableBody>
           {categories.map((category) => {
-            const mobilePending =
-              isPending && pendingKey === `${category.id}:mobileEnabled`;
-            const defaultPending =
-              isPending && pendingKey === `${category.id}:defaultEnabled`;
+            const name = nameOf(category.id);
+            const description = descriptionOf(category.id);
+            const mobilePending = isPending && pendingKey === `${category.id}:mobileEnabled`;
+            const defaultPending = isPending && pendingKey === `${category.id}:defaultEnabled`;
 
             return (
               <TableRow key={category.id}>
-                <TableCell className="font-mono text-sm">{category.id}</TableCell>
+                <TableCell className="whitespace-normal">
+                  <span className="block font-medium text-sm">{name}</span>
+                  {description ? (
+                    <span className="block text-[13px] text-muted-foreground">{description}</span>
+                  ) : null}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Switch
                       id={`${category.id}-mobile`}
                       checked={category.mobileEnabled}
-                      disabled={mobilePending}
+                      disabled={!canEdit || mobilePending}
                       onCheckedChange={(checked) =>
                         handleToggle(category.id, "mobileEnabled", checked)
                       }
-                      aria-label={t("mobileToggleAria", { category: category.id })}
+                      aria-label={tOld("mobileToggleAria", { category: name })}
                     />
                     <Label
                       htmlFor={`${category.id}-mobile`}
-                      className="text-sm font-normal text-muted-foreground"
+                      className="font-normal text-muted-foreground text-sm"
                     >
-                      {category.mobileEnabled ? t("enabled") : t("disabled")}
+                      {category.mobileEnabled ? tOld("enabled") : tOld("disabled")}
                     </Label>
                   </div>
                 </TableCell>
@@ -129,37 +179,32 @@ export function NotificationCategoriesTable({
                     <Switch
                       id={`${category.id}-default`}
                       checked={category.defaultEnabled}
-                      disabled={defaultPending}
+                      disabled={!canEdit || defaultPending}
                       onCheckedChange={(checked) =>
                         handleToggle(category.id, "defaultEnabled", checked)
                       }
-                      aria-label={t("defaultToggleAria", { category: category.id })}
+                      aria-label={tOld("defaultToggleAria", { category: name })}
                     />
                     <Label
                       htmlFor={`${category.id}-default`}
-                      className="text-sm font-normal text-muted-foreground"
+                      className="font-normal text-muted-foreground text-sm"
                     >
-                      {category.defaultEnabled ? t("enabled") : t("disabled")}
+                      {category.defaultEnabled ? tOld("enabled") : tOld("disabled")}
                     </Label>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Badge
-                    {...toneBadgeProps(
-                      category.mobileAppVisible ? "success" : "neutral",
-                    )}
-                  >
-                    {category.mobileAppVisible ? t("yes") : t("no")}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {t(`items.${category.id}`)}
+                <TableCell className="text-sm">
+                  {category.mobileAppVisible ? (
+                    tOld("yes")
+                  ) : (
+                    <span className="text-muted-foreground">{tOld("no")}</span>
+                  )}
                 </TableCell>
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
-    </div>
+    </DataTableShell>
   );
 }
