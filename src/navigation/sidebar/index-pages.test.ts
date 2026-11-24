@@ -74,7 +74,13 @@ describe("index pages: data", () => {
     }
     const dup = ALL_INDEX_LINKS.filter((link) => sidebarIds.has(link.id)).map((link) => link.id);
     expect(dup.sort()).toEqual(
-      ["admin-system-audit", "admin-system-jobs", "admin-system-roles", "notifications-hub"].sort(),
+      [
+        "admin-local-field-payment-methods",
+        "admin-system-audit",
+        "admin-system-jobs",
+        "admin-system-roles",
+        "notifications-hub",
+      ].sort(),
     );
   });
 });

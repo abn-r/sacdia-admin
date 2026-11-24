@@ -167,27 +167,9 @@ describe("insurance-config", () => {
 });
 
 describe("payment-orders tabs", () => {
-  it("opens pending from any obligation source key", () => {
+  it("no longer has a pending-obligations tab", () => {
     expect(
-      canCapability(
-        buildUser(["director-lf"], ["camporee-orders:read"]),
-        "payment-orders",
-        "pending",
-      ),
-    ).toBe(true);
-    expect(
-      canCapability(
-        buildUser(["director-lf"], ["materiales:read"]),
-        "payment-orders",
-        "pending",
-      ),
-    ).toBe(true);
-    expect(
-      canCapability(
-        buildUser(["director-lf"], ["insurance:read"]),
-        "payment-orders",
-        "pending",
-      ),
+      canViewScreen(buildUser(["director-lf"], ["materiales:read"]), "payment-orders"),
     ).toBe(false);
   });
 
