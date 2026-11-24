@@ -28,6 +28,903 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  evaluation: {
+    evidence: {
+      queue: {
+        finding: string;
+        templates: string;
+        tabsLabel: string;
+        tabs: {
+          evaluate: string;
+          union: string;
+          evaluated: string;
+        };
+        filters: {
+          search: string;
+          searchPlaceholder: string;
+          clubType: string;
+          allClubTypes: string;
+          year: string;
+          allYears: string;
+          union: string;
+          allUnions: string;
+          localField: string;
+          allLocalFields: string;
+        };
+        columns: {
+          folder: string;
+          evaluate: string;
+          union: string;
+          evaluated: string;
+          evidences: string;
+          lastSubmitted: string;
+        };
+        cell: {
+          sectionsOf: string;
+          rejected: string;
+          noDate: string;
+        };
+        actions: {
+          evaluate: string;
+          review: string;
+          view: string;
+          viewAsClub: string;
+        };
+        empty: {
+          evaluate: {
+            title: string;
+            description: string;
+          };
+          union: {
+            title: string;
+            description: string;
+          };
+          evaluated: {
+            title: string;
+            description: string;
+          };
+          noResultsTitle: string;
+          noResultsDescription: string;
+          clearFilters: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+      };
+      review: {
+        viewAsClub: string;
+        scoreFact: string;
+        scoreValue: string;
+        localFieldFact: string;
+        listLabel: string;
+        row: {
+          evidencesPoints: string;
+          pointsOf: string;
+          notSent: string;
+          toEvaluate: string;
+          inUnion: string;
+        };
+        panel: {
+          position: string;
+          required: string;
+          worth: string;
+          sentOn: string;
+          files: string;
+          noFiles: string;
+          view: string;
+          fileNoName: string;
+          uploaderUnknown: string;
+          reviewerNote: string;
+        };
+        form: {
+          points: string;
+          pointsHint: string;
+          notes: string;
+          notesPlaceholder: string;
+          errors: {
+            required: string;
+            integer: string;
+            negative: string;
+            max: string;
+          };
+        };
+        notSent: {
+          title: string;
+          description: string;
+        };
+        result: {
+          pointsOf: string;
+          localField: string;
+          union: string;
+          byAt: string;
+          unionRejected: string;
+          notes: string;
+        };
+        union: {
+          waiting: string;
+          decide: string;
+          approve: string;
+          reject: string;
+          approved: string;
+          rejected: string;
+          rejectTitle: string;
+          rejectDescription: string;
+          rejectLabel: string;
+          rejectPlaceholder: string;
+          rejectConfirm: string;
+          failed: string;
+        };
+        reopen: {
+          action: string;
+          title: string;
+          description: string;
+          confirm: string;
+          failed: string;
+        };
+        toasts: {
+          evaluated: string;
+          evaluatedLast: string;
+          saveFailed: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+        back: string;
+      };
+      templates: {
+        status: {
+          draft: string;
+          published: string;
+          archived: string;
+        };
+        filters: {
+          status: string;
+          all: string;
+          draft: string;
+          published: string;
+          archived: string;
+        };
+        count: string;
+        columns: {
+          sections: string;
+        };
+        actions: {
+          edit: string;
+          publish: string;
+          copy: string;
+          delete: string;
+          addSection: string;
+          editSection: string;
+          deleteSection: string;
+        };
+        facts: {
+          sections: string;
+          closing: string;
+        };
+        readiness: {
+          noConfig: string;
+          ready: string;
+          missing: string;
+          excess: string;
+        };
+        sections: {
+          order: string;
+          name: string;
+          required: string;
+          points: string;
+          minimum: string;
+          yes: string;
+          no: string;
+          listLabel: string;
+          locked: string;
+        };
+        publish: {
+          title: string;
+          description: string;
+          confirm: string;
+          done: string;
+          failed: string;
+          blocked: string;
+        };
+        copy: {
+          title: string;
+          description: string;
+          noYear: string;
+          confirm: string;
+          done: string;
+          failed: string;
+        };
+        delete: {
+          title: string;
+          description: string;
+          confirm: string;
+          done: string;
+          failed: string;
+        };
+        error: {
+          title: string;
+          description: string;
+        };
+        refreshFailed: string;
+      };
+    };
+    progress: {
+      annual: {
+        title: string;
+        description: string;
+        descriptionMax: string;
+        settings: string;
+        recalc: string;
+        filters: {
+          clubType: string;
+          year: string;
+          yearActive: string;
+        };
+        cols: {
+          club: string;
+          points: string;
+          progress: string;
+          recognition: string;
+        };
+        recognition: {
+          none: string;
+          missing: string;
+        };
+        viewDetail: string;
+        listLabel: string;
+        empty: {
+          title: string;
+          description: string;
+        };
+        noCatalogs: {
+          title: string;
+          description: string;
+        };
+        recalcDialog: {
+          title: string;
+          description: string;
+          confirm: string;
+          failed: string;
+        };
+        recalcResult: {
+          queued: string;
+          skipped: string;
+          updated: string;
+          done: string;
+        };
+        breakdown: {
+          title: string;
+          paramsRequired: string;
+          summary: string;
+          pointsOf: string;
+          dueDate: string;
+          pending: {
+            unsent: string;
+            validation: string;
+            union: string;
+            review: string;
+          };
+          componentsTitle: string;
+          componentsEmpty: string;
+          pendingTitle: string;
+          pendingEmpty: string;
+        };
+        config: {
+          title: string;
+          description: string;
+          breadcrumb: string;
+          newBudget: string;
+          tabsLabel: string;
+          tabs: {
+            budgets: string;
+            recognitions: string;
+          };
+          budgets: {
+            new: string;
+            emptyTitle: string;
+            emptyDescription: string;
+            colScope: string;
+            colYear: string;
+            colClubType: string;
+            colMax: string;
+            colStatus: string;
+            scopeUnion: string;
+            scopeLocalField: string;
+            points: string;
+            active: string;
+            inactive: string;
+            edit: string;
+            delete: string;
+          };
+          recognitions: {
+            title: string;
+            description: string;
+            bandLabel: string;
+            active: string;
+            inactive: string;
+            invalidPercent: string;
+            saved: string;
+            saveFailed: string;
+          };
+        };
+      };
+      section: {
+        title: string;
+        description: string;
+        descriptionYear: string;
+        noYearTitle: string;
+        noYearDescription: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        emptyFilteredDescription: string;
+        colSection: string;
+        colScore: string;
+        colMembers: string;
+        colCalculated: string;
+        noScore: string;
+        viewMembers: string;
+        listLabel: string;
+        membersCount: string;
+        filters: {
+          club: string;
+          allClubs: string;
+          year: string;
+        };
+        sheet: {
+          description: string;
+          loading: string;
+          emptyTitle: string;
+          emptyDescription: string;
+          invested: string;
+          inProgress: string;
+          detail: string;
+        };
+      };
+      memberOfMonth: {
+        title: string;
+        description: string;
+        filters: {
+          allFields: string;
+          clubType: string;
+          allClubTypes: string;
+          month: string;
+          allMonths: string;
+          year: string;
+          notice: string;
+          noticeAny: string;
+          noticePending: string;
+          noticeSent: string;
+        };
+        emptyTitle: string;
+        emptyDescription: string;
+        emptyFilteredDescription: string;
+        clearFilters: string;
+        cols: {
+          section: string;
+          winner: string;
+          points: string;
+          notice: string;
+        };
+        tie: string;
+        tieMany: string;
+        noticeSent: string;
+        noticePending: string;
+        redo: string;
+        redoDialog: {
+          title: string;
+          description: string;
+          confirm: string;
+          failed: string;
+          done: string;
+        };
+      };
+    };
+    reports: {
+      page: {
+        title: string;
+        description: {
+          monthly: string;
+          territory: string;
+          quarterly: string;
+          annual: string;
+        };
+        printPreview: string;
+        noEnrollmentTitle: string;
+        noEnrollmentDescription: string;
+        noScopeTitle: string;
+        noScopeDescription: string;
+      };
+      tabs: {
+        label: string;
+        monthly: string;
+        quarterly: string;
+        annual: string;
+      };
+      finding: {
+        clear: string;
+        toSend: string;
+        drafts: string;
+        both: string;
+      };
+      status: {
+        draft: string;
+        generated: string;
+        submitted: string;
+      };
+      territory: {
+        groupDivision: string;
+        groupUnion: string;
+        groupLocalField: string;
+        scopeAll: string;
+        searchLabel: string;
+        searchPlaceholder: string;
+        searchPageOnly: string;
+        clearFilters: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        listLabel: string;
+      };
+      club: {
+        columnPeriod: string;
+      };
+      list: {
+        actionSend: string;
+      };
+      create: {
+        title: string;
+        description: string;
+        month: string;
+        year: string;
+        confirm: string;
+      };
+      errors: {
+        download: string;
+      };
+      periodic: {
+        listLabel: string;
+      };
+      detail: {
+        metaTitle: string;
+        statusLabel: string;
+        subtitleDraft: string;
+        subtitleFrozen: string;
+        subtitleSent: string;
+        subtitleFrozenNoDate: string;
+        sectionClub: string;
+        sectionFinances: string;
+        tabsLabel: string;
+        tabSystem: string;
+        tabClub: string;
+        actionSend: string;
+      };
+    };
+    camporees: {
+      list: {
+        finding: string;
+        findingNoneOpen: string;
+        findingTotal: string;
+        templates: string;
+        newLocal: string;
+        newUnion: string;
+        tabsLabel: string;
+        tabLocal: string;
+        tabUnion: string;
+        searchLabel: string;
+        searchPlaceholder: string;
+        rangeLabel: string;
+        rangeUpcoming: string;
+        rangePast: string;
+        rangeAll: string;
+        onlyThisPage: string;
+        colName: string;
+        colDates: string;
+        colPlace: string;
+        colRegistration: string;
+        registration: {
+          open: string;
+          closed: string;
+        };
+        loadFailedTitle: string;
+        emptyLocalTitle: string;
+        emptyLocalDescription: string;
+        emptyUnionTitle: string;
+        emptyUnionDescription: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        clearFilters: string;
+      };
+      form: {
+        sections: {
+          data: string;
+          dates: string;
+          place: string;
+          scope: string;
+          orders: string;
+        };
+        noUnions: string;
+        footerNote: string;
+        perMember: string;
+        ordersDescription: string;
+        ordersSaveFailed: string;
+        loadFailedTitle: string;
+        ownersFailedTitle: string;
+      };
+      delete: {
+        title: string;
+        description: string;
+        confirm: string;
+      };
+      registration: {
+        closeConsequence: string;
+      };
+      pending: {
+        membersTitle: string;
+        clubsTitle: string;
+        approve: string;
+        reject: string;
+        approveTitle: string;
+        approveDescription: string;
+        rejectTitle: string;
+        rejectDescription: string;
+        rejected: string;
+        rejectFailed: string;
+        emptyTitle: string;
+        emptyDescription: string;
+      };
+      detail: {
+        groupsLabel: string;
+        viewsLabel: string;
+      };
+      views: {
+        groups: {
+          summary: string;
+          registrations: string;
+          money: string;
+          program: string;
+          scores: string;
+        };
+        withCount: string;
+        views: {
+          pending: string;
+          members: string;
+          clubs: string;
+          payments: string;
+          orders: string;
+          merchandise: string;
+          supplies: string;
+          events: string;
+          staff: string;
+          judges: string;
+          entry: string;
+          results: string;
+        };
+      };
+      errors: {
+        members: string;
+        clubs: string;
+        payments: string;
+        events: string;
+        scores: string;
+        pending: string;
+      };
+      summary: {
+        kpiLabel: string;
+        kpi: {
+          clubs: string;
+          enrolled: string;
+          members: string;
+          membersPending: string;
+          collected: string;
+          collectedOf: string;
+          noCost: string;
+          events: string;
+          eventsScoring: string;
+          unavailable: string;
+        };
+        pending: {
+          title: string;
+          members: string;
+          clubs: string;
+          payments: string;
+          eventsWithoutJudge: string;
+          none: string;
+          assign: string;
+          review: string;
+          loadFailed: string;
+        };
+        deadlines: {
+          title: string;
+          clubs: string;
+          members: string;
+          payment: string;
+          agenda: string;
+          none: string;
+          from: string;
+          until: string;
+        };
+        data: {
+          title: string;
+          registration: string;
+          closedAt: string;
+        };
+      };
+    };
+    camporeeEvents: {
+      program: {
+        filters: {
+          search: string;
+          searchPlaceholder: string;
+          category: string;
+          categoryAll: string;
+          section: string;
+          sectionAll: string;
+          venue: string;
+          venueAll: string;
+          status: string;
+          statusAll: string;
+          clear: string;
+        };
+        categories: {
+          espiritual: string;
+          competencia: string;
+          taller: string;
+          ceremonial: string;
+          social: string;
+          logistico: string;
+        };
+        sections: {
+          adventurers: string;
+          pathfinders: string;
+          master_guides: string;
+        };
+        statuses: {
+          programado: string;
+          publicado: string;
+          en_curso: string;
+          realizado: string;
+          cancelado: string;
+        };
+        statusUnpublished: string;
+        createEvent: string;
+        summary: string;
+        col: {
+          time: string;
+          event: string;
+          venue: string;
+          leader: string;
+          points: string;
+          status: string;
+        };
+        until: string;
+        points: string;
+        noLeader: string;
+        dayCount: string;
+        dayEmpty: string;
+        addToDay: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        noResultsTitle: string;
+        noResultsDescription: string;
+        actions: {
+          edit: string;
+          cancel: string;
+          delete: string;
+        };
+        cancelDialog: {
+          title: string;
+          description: string;
+          confirm: string;
+          back: string;
+        };
+        deleteDialog: {
+          title: string;
+          description: string;
+          confirm: string;
+        };
+        cancelledToast: string;
+        deletedToast: string;
+      };
+      form: {
+        sections: {
+          data: string;
+          schedule: string;
+          leader: string;
+          points: string;
+          attachments: string;
+        };
+        fields: {
+          title: string;
+          titlePlaceholder: string;
+          description: string;
+          category: string;
+          eventType: string;
+          eventTypePlaceholder: string;
+          eventTypeHint: string;
+          status: string;
+          participants: string;
+          participantsHint: string;
+          venue: string;
+          venueEmpty: string;
+          venueCreateFirst: string;
+          venueNone: string;
+          venueCapacity: string;
+          venueCreateNew: string;
+          venueOpenForm: string;
+          leaderHint: string;
+          leaderMode: string;
+          leaderUser: string;
+          leaderExternal: string;
+          leaderUserLabel: string;
+          leaderUserPlaceholder: string;
+          leaderNone: string;
+          leaderExternalName: string;
+          leaderExternalPlaceholder: string;
+          leaderRole: string;
+          leaderRolePlaceholder: string;
+          honors: string;
+          honorsHint: string;
+          maxPoints: string;
+          minPoints: string;
+          minPointsOnlyPenalty: string;
+          minPointsHint: string;
+          penaltiesToggle: string;
+          penaltiesToggleHint: string;
+          penalties: string;
+        };
+        optional: string;
+        errors: {
+          title: string;
+        };
+        timeFormat: string;
+        timeOrder: string;
+        saveEdit: string;
+        saveCreate: string;
+        createNote: string;
+        attachmentsCreateHint: string;
+        dayLabel: string;
+      };
+      rubrics: {
+        scoringTitle: string;
+        scoringHint: string;
+        scoringOn: string;
+        scoringOff: string;
+        sumMatch: string;
+        sumUnder: string;
+        sumOver: string;
+        sumNone: string;
+        colCriterion: string;
+        colPoints: string;
+        colActions: string;
+        criterionAria: string;
+        empty: string;
+        addCriterion: string;
+      };
+      entry: {
+        eventLabel: string;
+        eventOption: string;
+        fallbackHint: string;
+        fallbackHintWithJudge: string;
+        total: string;
+        totalOf: string;
+        overMax: string;
+        submit: string;
+      };
+      results: {
+        colSection: string;
+        colPoints: string;
+        colPercent: string;
+        colCoverage: string;
+        pointsOf: string;
+        missing: string;
+        orderHint: string;
+      };
+      judges: {
+        removeTitle: string;
+        removeDescription: string;
+        removeConfirm: string;
+      };
+    };
+    certYear: {
+      certifications: {
+        list: {
+          searchLabel: string;
+          searchPlaceholder: string;
+          pageOnlyNotice: string;
+          noResultsTitle: string;
+          noResultsDescription: string;
+          clearFilters: string;
+          summary: string;
+        };
+        detail: {
+          factDuration: string;
+          factModules: string;
+          factSections: string;
+          durationWeeks: string;
+          tabModules: string;
+          tabEnrolled: string;
+        };
+        enrolled: {
+          searchLabel: string;
+          searchPlaceholder: string;
+          statusLabel: string;
+          statusAll: string;
+          colPerson: string;
+          colEnrolled: string;
+          colProgress: string;
+          colStatus: string;
+          viewProgress: string;
+          noResultsTitle: string;
+          noResultsDescription: string;
+          clearFilters: string;
+          emptyTitle: string;
+          emptyDescription: string;
+          unavailableTitle: string;
+          unavailableDescription: string;
+          status: {
+            ENROLLED: string;
+            IN_PROGRESS: string;
+            READY_FOR_CLOSEOUT: string;
+            SUBMITTED_FOR_FINAL_REVIEW: string;
+            APPROVED: string;
+            CERTIFIED: string;
+            WITHDRAWN: string;
+            EXPIRED: string;
+            CHANGES_REQUESTED: string;
+          };
+        };
+        progress: {
+          title: string;
+          summary: string;
+          enrolledOn: string;
+          certifiedOn: string;
+          moduleHeading: string;
+          moduleHeadingUntitled: string;
+          noModules: string;
+          noSections: string;
+          readOnly: string;
+          sectionFallback: string;
+          completedOn: string;
+          unsaved: string;
+          saved: string;
+          saveFailed: string;
+        };
+      };
+      yearEnd: {
+        title: string;
+        description: string;
+        closeButton: string;
+        loadFailedTitle: string;
+        kpiLabel: string;
+        kpiEnrollments: string;
+        kpiEnrollmentsSub: string;
+        kpiFolders: string;
+        kpiFoldersSub: string;
+        kpiReports: string;
+        kpiReportsSub: string;
+        kpiInvestiture: string;
+        kpiInvestitureSub: string;
+        noClubsTitle: string;
+        noClubsDescription: string;
+        colClub: string;
+        colType: string;
+        colEnrollments: string;
+        confirmTitle: string;
+        confirmDescription: string;
+        confirmTyped: string;
+        confirmButton: string;
+        closeFailed: string;
+        doneTitle: string;
+        doneClosedAt: string;
+        doneLookingUp: string;
+        doneNewActive: string;
+        doneNoActive: string;
+        doneSummary: string;
+        goHome: string;
+      };
+    };
+  };
   people: {
     clubs: {
       list: {
@@ -2197,6 +3094,7 @@ export interface IntlMessages {
       reports_quarterly: string;
       reports_annual: string;
       campamentos: string;
+      campamentos_list: string;
       campamentos_list_local: string;
       campamentos_list_union: string;
       materials: string;
