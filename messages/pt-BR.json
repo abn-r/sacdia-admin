@@ -1,4 +1,632 @@
 {
+  "ops": {
+    "club": {
+      "context": {
+        "noClub": "Todos os clubes",
+        "allSections": "Todas as seções",
+        "hintPick": "Escolha um clube. A escolha é lembrada em Finanças, Inventário e Seguros.",
+        "current": "Clube atual: {club}",
+        "colClub": "Clube",
+        "colGroup": "Campo local",
+        "colSections": "Seções",
+        "colOpen": "Abrir",
+        "noSections": "Sem seções",
+        "listLabel": "Clubes do seu território"
+      },
+      "finances": {
+        "description": {
+          "month": "Em {period} o resultado é {net}; o saldo é {balance}.",
+          "year": "Em {period} o resultado é {net}; o saldo é {balance}.",
+          "loading": "Movimentos de {club}."
+        },
+        "periodLabel": "Período",
+        "periodWholeYear": "Todo {year}",
+        "closedNotice": "{period} está fechado. Editar ou excluir um movimento exige um motivo, que fica na auditoria.",
+        "table": {
+          "colMovement": "Movimento",
+          "listLabel": "Movimentos do período",
+          "receipts": "{count, plural, one {# comprovante} other {# comprovantes}}"
+        },
+        "form": {
+          "kindLabel": "Tipo de movimento",
+          "income": "Receita",
+          "expense": "Despesa",
+          "categoryHintIncome": "Somente categorias de receita.",
+          "categoryHintExpense": "Somente categorias de despesa.",
+          "countsIn": "Conta em {period}.",
+          "changeMonth": "Alterar mês"
+        },
+        "delete": {
+          "closedTitle": "Excluir um movimento de um mês fechado?",
+          "closedNotice": "Pertence a {month}, que está fechado. O motivo fica registrado."
+        },
+        "clubList": {
+          "description": "{total, plural, one {# clube} other {# clubes}} · {missing, plural, one {# está com meses sem movimentos registrados} other {# estão com meses sem movimentos registrados}}.",
+          "descriptionClean": "{total, plural, one {# clube} other {# clubes}} · todos em dia com seus movimentos.",
+          "loading": "Clubes do seu território e os meses que faltam registrar."
+        },
+        "consolidated": {
+          "description": "{year} · {clean, plural, one {# clube em dia} other {# clubes em dia}}, {missing, plural, one {# com meses sem registro} other {# com meses sem registro}}."
+        }
+      },
+      "inventory": {
+        "description": "{count, plural, =0 {Sem itens nesta seção} one {# item} other {# itens}} · {attention, plural, =0 {nenhum em estado regular ou ruim} one {# em estado regular ou ruim} other {# em estado regular ou ruim}}.",
+        "pickSection": {
+          "title": "Escolha uma seção de {club}",
+          "description": "Este clube tem várias seções. Escolha uma para ver o inventário."
+        },
+        "sheet": {
+          "tabsLabel": "Detalhe e histórico",
+          "detail": "Detalhe",
+          "history": "Histórico",
+          "historyTo": "para"
+        },
+        "status": {
+          "active": "Ativos",
+          "inactive": "Inativos",
+          "all": "Todos"
+        },
+        "noResults": {
+          "title": "Sem resultados",
+          "description": "Nenhum item corresponde aos filtros.",
+          "clear": "Limpar filtros"
+        },
+        "form": {
+          "titleNew": "Novo item de inventário",
+          "descriptionNew": "Adicione um item ao inventário da seção.",
+          "titleEdit": "Editar item",
+          "descriptionEdit": "Altere os dados do item de inventário."
+        }
+      },
+      "insurance": {
+        "description": "{uninsured, plural, =0 {Todos têm seguro} one {# pessoa sem seguro} other {# pessoas sem seguro}} de {total} · {covered} com seguro.",
+        "pickSection": {
+          "title": "Escolha uma seção de {club}",
+          "description": "Este clube tem várias seções. Escolha uma para ver os seguros."
+        },
+        "cycleLine": "{year} · {cost} por pessoa · compra até {deadline}",
+        "summaryLabel": "Resumo de seguros da seção",
+        "tabsLabel": "Pessoas por situação do seguro",
+        "colValidity": "Validade",
+        "empty": {
+          "uninsured": {
+            "title": "Ninguém sem seguro",
+            "description": "Todas as pessoas da seção têm seguro ou já estão em andamento."
+          },
+          "in_process": {
+            "title": "Nada em andamento",
+            "description": "Não há ordens de pagamento nem comprovantes para revisar nesta seção."
+          },
+          "covered": {
+            "title": "Ninguém com seguro ainda",
+            "description": "Quando uma ordem de pagamento for aprovada, a pessoa aparecerá aqui."
+          }
+        },
+        "config": {
+          "refresh": "Atualizar",
+          "products": {
+            "deactivateTitle": "Desativar “{name}”?",
+            "deactivateDescription": "O produto deixa de ser oferecido em novos ciclos e ordens. Seguros já pagos não mudam e você pode ativá-lo de novo."
+          }
+        }
+      }
+    },
+    "paymentOrders": {
+      "page": {
+        "summary": "{count, plural, =0 {Nenhum comprovante aguarda revisão.} one {1 comprovante aguarda revisão · o mais antigo espera há {days, plural, =0 {menos de um dia} one {1 dia} other {# dias}}.} other {# comprovantes aguardam revisão · o mais antigo espera há {days, plural, =0 {menos de um dia} one {1 dia} other {# dias}}.}}"
+      },
+      "tabs": {
+        "waiting": "Aguardam pagamento",
+        "rejected": "Rejeitadas",
+        "all": "Todas"
+      },
+      "queue": {
+        "search": "Folio",
+        "searchPlaceholder": "Buscar folio",
+        "colWait": "Espera",
+        "colActions": "Ações",
+        "view": "Ver",
+        "wait": "{days, plural, =0 {Hoje} one {1 dia} other {# dias}}",
+        "beneficiaries": "{count, plural, one {1 beneficiário} other {# beneficiários}}",
+        "noResultsTitle": "Sem resultados",
+        "noResultsDescription": "Nenhuma ordem corresponde à busca ou ao propósito escolhido.",
+        "clearFilters": "Limpar filtros",
+        "empty": {
+          "review": {
+            "title": "Nada para revisar",
+            "description": "Quando um clube enviar um comprovante, ele aparecerá aqui."
+          },
+          "waiting": {
+            "title": "Nenhuma ordem aguarda pagamento",
+            "description": "As ordens emitidas que ainda não têm comprovante aparecerão aqui."
+          },
+          "rejected": {
+            "title": "Sem comprovantes rejeitados",
+            "description": "Os comprovantes que você rejeitar aparecerão aqui até o clube enviar outro."
+          },
+          "all": {
+            "title": "Ainda não há ordens de pagamento",
+            "description": "As ordens de seguros e inscrições em camporee aparecerão aqui."
+          }
+        }
+      },
+      "sheet": {
+        "totalToConfirm": "Total a confirmar",
+        "total": "Total da ordem",
+        "perBeneficiary": "{count, plural, one {1 beneficiário} other {# beneficiários}} · {amount} cada",
+        "issuedExpires": "Emitida em {issued} · vence em {expires}",
+        "noVoucher": "O clube ainda não enviou o comprovante.",
+        "rejectedReason": "Motivo da rejeição:",
+        "sameUploader": "Você enviou este comprovante: outra pessoa do Campo deve aprová-lo. Você pode revisá-lo e rejeitá-lo, mas não aprová-lo.",
+        "rejectAction": "Rejeitar…",
+        "approveAction": "Aprovar pagamento",
+        "rejectExplain": "O clube poderá enviar outro comprovante com o mesmo folio. Diga o que ele deve corrigir.",
+        "rejectLabel": "Motivo da rejeição",
+        "rejectHint": "Entre {min} e {max} caracteres. O clube verá o motivo e ele fica na auditoria.",
+        "rejectTooShort": "Escreva pelo menos {min} caracteres.",
+        "approveTitle": "Aprovar o pagamento de {amount}?",
+        "approveDescription": "Você confirma que o comprovante de {folio} corresponde a {amount}. {consequence}",
+        "consequence": {
+          "INSURANCE": "{count, plural, one {O beneficiário fica com seguro.} other {Os # beneficiários ficam com seguro.}}",
+          "CAMPOREE": "{count, plural, one {A inscrição do beneficiário fica paga.} other {As # inscrições ficam pagas.}}"
+        }
+      }
+    },
+    "materials": {
+      "queue": {
+        "title": "Pedidos de materiais",
+        "tabsLabel": "Etapas da fila de pedidos",
+        "tabs": {
+          "review": "Para revisar",
+          "receipts": "Comprovante a confirmar",
+          "deliver": "Para entregar",
+          "closed": "Encerrados"
+        },
+        "findingReview": "{count, plural, =0 {Nada para revisar} one {# pedido para revisar} other {# pedidos para revisar}}",
+        "findingReceipts": "{count, plural, =0 {nenhum comprovante a confirmar} one {# comprovante a confirmar} other {# comprovantes a confirmar}}",
+        "colDirector": "Diretor",
+        "colWait": "Espera",
+        "wait": "{days, plural, =0 {Hoje} one {# dia} other {# dias}}",
+        "action": {
+          "review": "Revisar",
+          "receipts": "Confirmar comprovante",
+          "deliver": "Entregar",
+          "closed": "Ver"
+        },
+        "empty": {
+          "review": {
+            "title": "Nada para revisar",
+            "description": "Os novos pedidos dos diretores aparecem aqui."
+          },
+          "receipts": {
+            "title": "Nenhum comprovante a confirmar",
+            "description": "Os pedidos aprovados que aguardam pagamento aparecem aqui."
+          },
+          "deliver": {
+            "title": "Nada para entregar",
+            "description": "Os pedidos pagos prontos para entrega aparecem aqui."
+          },
+          "closed": {
+            "title": "Nenhum pedido encerrado",
+            "description": "Os pedidos entregues ou cancelados aparecem aqui."
+          }
+        }
+      },
+      "closedFilter": {
+        "label": "Mostrar",
+        "entregada": "Entregues",
+        "cancelada": "Cancelados"
+      },
+      "detail": {
+        "breadcrumbRoot": "Pedidos",
+        "untitled": "Pedido {id}",
+        "createdOn": "criado em {date}",
+        "director": "Diretor",
+        "directorFallback": "o diretor",
+        "directorUnknown": "Diretor (id: {id}…)",
+        "copyDirectorId": "Copiar ID do diretor",
+        "delivery": "Entrega",
+        "deliveryShip": "Envio a domicílio",
+        "deliveryPickup": "Retirar no escritório do Campo",
+        "noPickupAddress": "Sem endereço configurado",
+        "notes": "Notas do diretor"
+      },
+      "lines": {
+        "title": "Itens",
+        "progress": "{resolved} de {total} resolvidos",
+        "product": "Produto",
+        "qty": "Qtd.",
+        "qtyAt": "{qty} × ",
+        "availability": "Disponibilidade",
+        "price": "Preço",
+        "amount": "Valor",
+        "variant": "Variante: {label}",
+        "untitled": "Produto sem nome",
+        "empty": "Este pedido não tem itens.",
+        "subtotal": "Subtotal",
+        "shipping": "Envio",
+        "total": "Total"
+      },
+      "availability": {
+        "pendiente": "Pendente",
+        "disponible": "Disponível",
+        "parcial": "Parcial",
+        "agotado": "Esgotado",
+        "partial": "Parcial · {available} de {qty}",
+        "group": "Disponibilidade de {product}",
+        "qtyLabel": "Quantidade disponível (1–{max})",
+        "qtyInvalid": "A quantidade deve estar entre 1 e {max}.",
+        "save": "Salvar",
+        "saved": "Disponibilidade atualizada.",
+        "saveError": "Não foi possível salvar a disponibilidade."
+      },
+      "rail": {
+        "summary": "Resumo",
+        "counts": "{lines, plural, one {# item} other {# itens}} · {pieces, plural, one {# peça} other {# peças}}",
+        "state": "Estado atual",
+        "since": {
+          "en_revision": "Criado em {date}",
+          "aprobada": "Aprovado em {date}",
+          "pagada": "Pago em {date}",
+          "entregada": "Entregue em {date}",
+          "cancelada": "Cancelado em {date}"
+        },
+        "cancelReason": "Motivo: {reason}",
+        "refundPending": "Reembolso pendente: o Campo o processa manualmente.",
+        "noApprovePermission": "Você não tem permissão para aprovar pedidos.",
+        "noDeliverPermission": "Você não tem permissão para registrar entregas."
+      },
+      "next": {
+        "noLines": "O pedido não tem itens; não pode ser aprovado.",
+        "resolveLines": "Falta resolver {count, plural, one {# item} other {# itens}} para poder aprovar.",
+        "readyToApprove": "Todos os itens têm disponibilidade. Você pode aprovar o pedido.",
+        "awaitingReceipt": "O diretor ainda precisa enviar o comprovante de pagamento.",
+        "receiptToConfirm": "Falta confirmar {count, plural, one {# comprovante} other {# comprovantes}} de pagamento.",
+        "readyToDeliver": "Pago. Falta entregar o material ao diretor.",
+        "delivered": "Pedido encerrado: já foi entregue.",
+        "cancelled": "Pedido encerrado: foi cancelado."
+      },
+      "actions": {
+        "approve": "Aprovar pedido",
+        "approved": "Pedido aprovado.",
+        "approveError": "Não foi possível aprovar o pedido.",
+        "deliver": "Marcar como entregue",
+        "cancel": "Cancelar pedido…"
+      },
+      "deliver": {
+        "title": "Marcar {folio} como entregue?",
+        "description": "Você confirma que {director} recebeu {pieces, plural, one {# peça} other {# peças}}. O pedido é encerrado e não pode mais ser cancelado.",
+        "confirm": "Marcar como entregue",
+        "back": "Voltar",
+        "done": "Pedido entregue.",
+        "error": "Não foi possível registrar a entrega."
+      },
+      "cancel": {
+        "title": "Cancelar este pedido?",
+        "summary": "{folio} · {estado}",
+        "consequence": {
+          "close": "O pedido é encerrado e o diretor é avisado. Ainda não havia estoque reservado.",
+          "restoreStock": "O pedido já está aprovado: cancelar devolve o estoque reservado e avisa o diretor.",
+          "refund": "O pedido já está pago: cancelar gera um reembolso pendente que o Campo processa manualmente. O diretor é avisado."
+        },
+        "reasonLabel": "Motivo do cancelamento",
+        "reasonPlaceholder": "Por que está sendo cancelado. O diretor verá.",
+        "confirm": "Cancelar pedido",
+        "done": "Pedido cancelado.",
+        "error": "Não foi possível cancelar o pedido."
+      },
+      "bank": {
+        "title": "Dados de pagamento",
+        "notConfiguredTitle": "Dados bancários não configurados",
+        "notConfiguredBody": "Configure a conta bancária em <link>Configuração → Campo local → Métodos de pagamento</link> antes de compartilhar este pedido com o diretor.",
+        "folio": "Folio",
+        "total": "Total",
+        "bank": "Banco",
+        "clabe": "CLABE",
+        "holder": "Titular",
+        "copyAll": "Copiar tudo",
+        "copied": "Copiado",
+        "copyFolio": "Copiar folio",
+        "copyTotal": "Copiar total",
+        "copyBank": "Copiar banco",
+        "copyClabe": "Copiar CLABE",
+        "copyHolder": "Copiar titular"
+      },
+      "print": {
+        "sheet": "Imprimir ficha",
+        "receipt": "Imprimir comprovante",
+        "blocked": "Não foi possível abrir a visualização de impressão.",
+        "blockedHint": "Verifique se o navegador permite janelas pop-up."
+      },
+      "receipts": {
+        "title": "Comprovante de pagamento",
+        "empty": "O diretor ainda não enviou um comprovante.",
+        "status": {
+          "pendiente": "A confirmar",
+          "aprobado": "Aprovado",
+          "rechazado": "Rejeitado"
+        },
+        "uploadedOn": "Enviado em {date}",
+        "amount": "Valor",
+        "paidOn": "Data do pagamento",
+        "reference": "Referência",
+        "rejectReason": "Motivo da rejeição: {reason}",
+        "view": "Ver arquivo",
+        "approve": "Aprovar",
+        "reject": "Rejeitar…",
+        "approveTitle": "Aprovar o comprovante?",
+        "approveDescription": "O pedido passa a Pago e fica pronto para entrega. Não é possível desfazer.",
+        "approveConfirm": "Aprovar comprovante",
+        "approved": "Comprovante aprovado. O pedido ficou pago.",
+        "approveError": "Não foi possível aprovar o comprovante.",
+        "rejectTitle": "Rejeitar comprovante",
+        "rejectDescription": "O diretor poderá enviar outro e verá o motivo.",
+        "rejectReasonLabel": "Motivo da rejeição",
+        "rejectConfirm": "Rejeitar comprovante",
+        "rejected": "Comprovante rejeitado.",
+        "rejectError": "Não foi possível rejeitar o comprovante."
+      },
+      "catalog": {
+        "title": "Catálogo de materiais",
+        "tabsLabel": "Seções do catálogo",
+        "finding": "{products, plural, one {# produto} other {# produtos}} em {categories, plural, one {# categoria} other {# categorias}}",
+        "tabs": {
+          "products": "Produtos",
+          "categories": "Categorias"
+        },
+        "newProduct": "Novo produto",
+        "newCategory": "Nova categoria",
+        "noResultsTitle": "Sem resultados",
+        "clearFilters": "Limpar filtros",
+        "soldOut": "Esgotado",
+        "deactivate": "Desativar",
+        "colName": "Nome",
+        "colOrder": "Ordem",
+        "colProducts": "Produtos",
+        "colStatus": "Estado",
+        "productCount": "{count, plural, one {# produto} other {# produtos}}",
+        "deactivateProduct": {
+          "title": "Desativar “{name}”?",
+          "description": "Deixa de aparecer no catálogo dos diretores. Não é excluído. Não pode ser desativado se tiver pedidos abertos.",
+          "done": "Produto desativado.",
+          "openOrders": "Não é possível desativar: o produto tem pedidos abertos.",
+          "error": "Não foi possível desativar o produto."
+        },
+        "deactivateCategory": {
+          "title": "Desativar a categoria “{name}”?",
+          "description": "Os diretores deixam de vê-la. Não é excluída. Não pode ser desativada se tiver produtos: reatribua-os primeiro.",
+          "done": "Categoria desativada.",
+          "hasProducts": "Não é possível desativar: a categoria tem produtos associados.",
+          "error": "Não foi possível desativar a categoria."
+        }
+      },
+      "form": {
+        "product": {
+          "createTitle": "Novo produto",
+          "createDescription": "Adicione um produto ao catálogo de materiais.",
+          "editTitle": "Editar produto",
+          "editDescription": "Altere os dados do produto. O SKU não pode ser alterado.",
+          "stepBasics": "Produto",
+          "stepSale": "Venda",
+          "stepEdit": "Produto",
+          "sku": "SKU",
+          "skuPlaceholder": "ex.: PAN-CQ-01",
+          "skuLocked": "O SKU não pode ser alterado.",
+          "skuRequired": "O SKU é obrigatório.",
+          "skuTaken": "Este SKU já está em uso. Use outro.",
+          "name": "Nome do produto",
+          "namePlaceholder": "ex.: Lenço Desbravadores",
+          "nameRequired": "O nome é obrigatório.",
+          "description": "Descrição",
+          "optional": "opcional",
+          "localField": "Campo local",
+          "selectLocalField": "Selecione um campo local",
+          "localFieldRequired": "Selecione um campo local.",
+          "program": "Programa",
+          "selectProgram": "Selecione um programa",
+          "programRequired": "Selecione um programa.",
+          "programs": {
+            "1": "Aventureiros",
+            "2": "Desbravadores",
+            "3": "Líderes Mestres"
+          },
+          "category": "Categoria",
+          "selectCategory": "Selecione uma categoria",
+          "categoryRequired": "Selecione uma categoria.",
+          "price": "Preço",
+          "priceMin": "O preço deve ser maior que 0.",
+          "initialStock": "Estoque inicial",
+          "active": "Ativo",
+          "activeHint": "Produtos inativos não aparecem no catálogo dos diretores.",
+          "create": "Criar produto",
+          "save": "Salvar alterações",
+          "created": "Produto criado.",
+          "updated": "Produto atualizado.",
+          "createError": "Não foi possível criar o produto.",
+          "updateError": "Não foi possível atualizar o produto."
+        },
+        "category": {
+          "createTitle": "Nova categoria",
+          "createDescription": "Uma categoria de materiais usada por todos os campos locais.",
+          "editTitle": "Editar categoria",
+          "editDescription": "Altere o nome, o ícone, a ordem ou o estado.",
+          "slug": "Identificador (slug)",
+          "slugPlaceholder": "ex.: uniformes",
+          "slugHint": "Minúsculas, números e hifens. Não pode ser alterado depois.",
+          "slugLocked": "O identificador não pode ser alterado.",
+          "slugRequired": "O identificador é obrigatório.",
+          "slugFormat": "Somente minúsculas, números e hifens.",
+          "slugTaken": "Este identificador já existe.",
+          "name": "Nome",
+          "namePlaceholder": "ex.: Uniformes",
+          "nameRequired": "O nome é obrigatório.",
+          "icon": "Ícone",
+          "iconPlaceholder": "ex.: shirt, book, pin",
+          "iconHint": "Nome do ícone em kebab-case.",
+          "optional": "opcional",
+          "order": "Ordem",
+          "active": "Ativa",
+          "activeHint": "Categorias inativas não aparecem para os diretores.",
+          "create": "Criar categoria",
+          "save": "Salvar alterações",
+          "created": "Categoria criada.",
+          "updated": "Categoria atualizada.",
+          "createError": "Não foi possível criar a categoria.",
+          "updateError": "Não foi possível atualizar a categoria."
+        }
+      }
+    },
+    "resources": {
+      "title": "Recursos",
+      "description": "Documentos, áudios, imagens e vídeos que os clubes veem no app.",
+      "summary": "{resources, plural, one {# recurso} other {# recursos}} em {categories, plural, one {# categoria} other {# categorias}}.",
+      "tabs": {
+        "aria": "Seções de recursos",
+        "library": "Biblioteca",
+        "categories": "Categorias"
+      },
+      "actions": {
+        "upload": "Enviar recurso",
+        "download": "Baixar",
+        "openLink": "Abrir link",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "cancel": "Cancelar"
+      },
+      "filters": {
+        "search": "Buscar",
+        "type": "Tipo",
+        "typeAll": "Todos os tipos",
+        "scope": "Alcance",
+        "scopeAll": "Todos os alcances",
+        "category": "Categoria",
+        "categoryAll": "Todas as categorias",
+        "clubType": "Tipo de clube",
+        "clubTypeAll": "Todos os clubes",
+        "clear": "Limpar filtros"
+      },
+      "columns": {
+        "resource": "Recurso",
+        "type": "Tipo",
+        "category": "Categoria",
+        "scope": "Alcance",
+        "clubType": "Clube",
+        "uploader": "Enviado por",
+        "date": "Data"
+      },
+      "types": {
+        "document": "Documento",
+        "audio": "Áudio",
+        "image": "Imagem",
+        "video_link": "Vídeo",
+        "text": "Texto",
+        "unknown": "Desconhecido"
+      },
+      "levels": {
+        "system": "Sistema",
+        "division": "Divisão",
+        "union": "União",
+        "local_field": "Campo local"
+      },
+      "scope": {
+        "divisionId": "Divisão #{id}",
+        "unionId": "União #{id}",
+        "localFieldId": "Campo local #{id}"
+      },
+      "empty": {
+        "title": "Ainda não há recursos",
+        "description": "Envie o primeiro recurso para disponibilizá-lo aos clubes.",
+        "noResultsTitle": "Sem resultados",
+        "noResultsDescription": "Nenhum recurso corresponde aos filtros aplicados. Tente ajustá-los."
+      },
+      "delete": {
+        "title": "Excluir \"{name}\"?",
+        "description": "O recurso deixa de ser exibido aos clubes no app. O arquivo armazenado não é excluído.",
+        "success": "Recurso excluído."
+      },
+      "edit": {
+        "title": "Editar recurso",
+        "description": "Altere os dados do recurso. Se você escolher um novo arquivo, ele substitui o anterior.",
+        "typeFixed": "O tipo e o alcance não podem ser alterados. Envie um novo recurso se precisar de outro.",
+        "replaceFile": "Substituir arquivo",
+        "replaceFileHint": "Opcional. Se você não escolher um, o arquivo atual é mantido.",
+        "save": "Salvar alterações",
+        "success": "Recurso atualizado.",
+        "failedTitle": "Não foi possível salvar as alterações",
+        "titleRequired": "Digite um título."
+      },
+      "categories": {
+        "created": "Categoria criada.",
+        "updated": "Categoria atualizada.",
+        "deleted": "Categoria excluída.",
+        "saveFailed": "Não foi possível salvar a categoria",
+        "nameRequired": "Digite um nome."
+      },
+      "upload": {
+        "title": "Enviar recurso",
+        "description": "Escolha o arquivo, preencha seus dados e defina quem vai vê-lo.",
+        "steps": {
+          "file": "Arquivo",
+          "data": "Dados",
+          "scope": "Alcance"
+        },
+        "type": "Tipo",
+        "dropzone": {
+          "title": "Arraste o arquivo ou escolha um",
+          "change": "Trocar arquivo",
+          "hint": {
+            "document": "PDF, Word, PowerPoint ou Excel · até 50 MB",
+            "audio": "MP3, WAV, OGG, AAC ou M4A · até 50 MB",
+            "image": "JPG, PNG, WebP ou GIF · até 50 MB"
+          }
+        },
+        "fileTooLarge": "O arquivo tem {size} e o limite é 50 MB.",
+        "videoUrl": "URL do vídeo",
+        "videoUrlHint": "Link do YouTube, Vimeo ou outro serviço de vídeo.",
+        "content": "Conteúdo",
+        "fields": {
+          "title": "Título",
+          "titlePlaceholder": "Ex. Manual do Desbravador 2026",
+          "description": "Descrição",
+          "category": "Categoria",
+          "noCategory": "Sem categoria",
+          "clubType": "Tipo de clube",
+          "allClubs": "Todos os clubes"
+        },
+        "categoriesFailed": "Não foi possível carregar as categorias.",
+        "level": "Nível",
+        "levelHint": "Seu perfil pode publicar no nível {levels}.",
+        "levelHintAll": "Seu perfil pode publicar em qualquer nível.",
+        "levelHintNone": "Seu perfil não pode publicar recursos em nenhum nível.",
+        "territoryLocked": "Seu perfil está fixado a este território; não pode ser alterado.",
+        "selectUnion": "Escolha uma união",
+        "selectLocalField": "Escolha um campo local",
+        "territoryId": {
+          "division": "ID da divisão",
+          "union": "ID da união",
+          "local_field": "ID do campo local"
+        },
+        "summary": {
+          "label": "Quem vai ver",
+          "systemAll": "Todos os clubes do SACDIA",
+          "systemType": "Os clubes de {clubType} de todo o SACDIA",
+          "territoryAll": "Todos os clubes de {territory}",
+          "territoryType": "Os clubes de {clubType} de {territory}",
+          "pending": "Escolha o território para saber quem vai vê-lo.",
+          "noLevels": "Seu perfil não pode publicar recursos."
+        },
+        "publish": "Publicar recurso",
+        "success": "Recurso publicado.",
+        "failedTitle": "Não foi possível publicar o recurso",
+        "errors": {
+          "fileRequired": "Escolha um arquivo para continuar.",
+          "levelNotAllowed": "Seu perfil não pode publicar neste nível ou território.",
+          "territoryRequired": "Escolha o território do recurso.",
+          "unknown": "Ocorreu um erro inesperado."
+        }
+      }
+    }
+  },
   "queues": {
     "requests": {
       "common": {
@@ -812,6 +1440,7 @@
       "campamentos_list_union": "União",
       "materials": "Materiais",
       "materials_inbox": "Pedidos",
+      "materials_catalog": "Catálogo",
       "resources_list": "Biblioteca",
       "notifications_hub": "Resumo",
       "notifications_history": "Gerenciamento",
