@@ -1,80 +1,11 @@
-import type { Metadata } from "next";
-import { Grid3X3 } from "lucide-react";
-import { getTranslations as getTranslationsStrict } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { PermissionsMatrix } from "@/components/rbac/permissions-matrix";
-import { requireAdminUser } from "@/lib/auth/session";
-import { canCapability } from "@/lib/auth/screen-catalog";
-import { listRoles, listPermissions } from "@/lib/rbac/service";
-import {
-  setRolePermissionsAction,
-  toggleRolePermissionAction,
-} from "@/lib/rbac/actions";
-import type { Role, Permission } from "@/lib/rbac/types";
-import { ApiError } from "@/lib/api/client";
+import { redirect } from "next/navigation";
+import { legacyMatrixHref } from "@/lib/rbac/roles-view";
 
-type LooseTranslator = (key: string) => string;
-const getTranslations = getTranslationsStrict as unknown as (
-  namespace?: string,
-) => Promise<LooseTranslator>;
-
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("rbac.pages.matrix");
-  return { title: t("title") };
-}
-
-export default async function ConfigurationMatrixPage() {
-  const t = await getTranslations("rbac.pages.matrix");
-  const tNav = await getTranslations("nav.items");
-  const user = await requireAdminUser();
-  const canWrite = canCapability(user, "admin-system-matrix", "write");
-
-  let roles: Role[] = [];
-  let permissions: Permission[] = [];
-  let loadError: string | null = null;
-
-  try {
-    [roles, permissions] = await Promise.all([listRoles(), listPermissions()]);
-  } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("loadError");
-  }
-
-  const hasData = roles.length > 0 && permissions.length > 0;
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("title")}
-        description={t("description")}
-        breadcrumbs={[
-          { label: tNav("configuration"), href: "/dashboard/configuration" },
-          { label: t("title") },
-        ]}
-      />
-
-      {loadError ? <EndpointErrorBanner state="missing" detail={loadError} /> : null}
-
-      {!canWrite ? (
-        <p className="rounded-lg border border-info/30 bg-info/5 px-4 py-3 text-sm text-muted-foreground">
-          {t("readOnlyBanner")}
-        </p>
-      ) : null}
-
-      {!loadError && !hasData ? (
-        <EmptyState icon={Grid3X3} title={t("emptyTitle")} description={t("emptyDescription")} />
-      ) : null}
-
-      {!loadError && hasData ? (
-        <PermissionsMatrix
-          roles={roles}
-          permissions={permissions}
-          toggleAction={toggleRolePermissionAction}
-          setAction={setRolePermissionsAction}
-          canWrite={canWrite}
-        />
-      ) : null}
-    </div>
-  );
+/** Old matrix route (bookmarks): now the "Por rol" tab of Roles y permisos. */
+export default async function LegacyMatrixPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  redirect(legacyMatrixHref(await searchParams));
 }

@@ -6,7 +6,7 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { TranslationsTabsField } from "@/components/catalogs/translations-tabs-field";
+import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,7 +25,8 @@ import {
   type DivisionActionState,
 } from "@/lib/catalogs/divisions/actions";
 import type { AdminDivision } from "@/lib/catalogs/divisions/types";
-import { CATALOG_LOCALES } from "@/lib/types/catalog-translation";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
+import { toCatalogTranslations } from "@/lib/catalogs/translations";
 
 type DivisionFormDialogProps = {
   open: boolean;
@@ -45,15 +46,6 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-function buildTranslationMap(division?: AdminDivision | null) {
-  const map: Record<string, string> = {};
-  for (const locale of CATALOG_LOCALES) {
-    const match = division?.translations.find((row) => row.locale === locale);
-    map[locale] = match?.name ?? "";
-  }
-  return map;
-}
-
 export function DivisionFormDialog({ open, onOpenChange, mode, division }: DivisionFormDialogProps) {
   const t = useTranslations("catalogs");
   const tFields = useTranslations("catalogs.fields");
@@ -61,12 +53,12 @@ export function DivisionFormDialog({ open, onOpenChange, mode, division }: Divis
 
   const action = mode === "create" ? createDivisionAction : updateDivisionAction;
   const [state, formAction] = useActionState(action, initialState);
-  const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
+  const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
   const [active, setActive] = useState(true);
 
   useEffect(() => {
     if (open) {
-      setTranslationValues(buildTranslationMap(division));
+      setTranslations(toCatalogTranslations(division?.translations));
       setActive(division?.active ?? true);
     }
   }, [open, division]);
@@ -106,52 +98,53 @@ export function DivisionFormDialog({ open, onOpenChange, mode, division }: Divis
             <input type="hidden" name="division_id" value={division.division_id} />
           ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="division-code">{tFields("code")}</Label>
-              <Input
-                id="division-code"
-                name="code"
-                defaultValue={division?.code ?? ""}
-                required
-                maxLength={50}
-                autoComplete="off"
-              />
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="division-name">{tFields("name")}</Label>
-              <Input
-                id="division-name"
-                name="name"
-                defaultValue={division?.name ?? ""}
-                required
-                maxLength={100}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="division-abbreviation">{tFields("abbreviation")}</Label>
-              <Input
-                id="division-abbreviation"
-                name="abbreviation"
-                defaultValue={division?.abbreviation ?? ""}
-                required
-                maxLength={16}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="division-active">{tFields("active")}</Label>
-              <div className="flex h-9 items-center">
-                <Switch id="division-active" checked={active} onCheckedChange={setActive} />
-                <input type="hidden" name="active" value={active ? "true" : "false"} />
-              </div>
-            </div>
-          </div>
-
           <TranslationsTabsField
-            values={translationValues}
-            onChange={(locale, value) =>
-              setTranslationValues((current) => ({ ...current, [locale]: value }))
+            esContent={
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="division-code">{tFields("code")}</Label>
+                    <Input
+                      id="division-code"
+                      name="code"
+                      defaultValue={division?.code ?? ""}
+                      required
+                      maxLength={50}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="division-name">{tFields("name")}</Label>
+                    <Input
+                      id="division-name"
+                      name="name"
+                      defaultValue={division?.name ?? ""}
+                      required
+                      maxLength={100}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="division-abbreviation">{tFields("abbreviation")}</Label>
+                    <Input
+                      id="division-abbreviation"
+                      name="abbreviation"
+                      defaultValue={division?.abbreviation ?? ""}
+                      required
+                      maxLength={16}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="division-active">{tFields("active")}</Label>
+                    <div className="flex h-9 items-center">
+                      <Switch id="division-active" checked={active} onCheckedChange={setActive} />
+                      <input type="hidden" name="active" value={active ? "true" : "false"} />
+                    </div>
+                  </div>
+                </div>
             }
+            translations={translations}
+            onTranslationsChange={setTranslations}
+            legacyFieldNames
+            includeDescription={false}
           />
 
           <DialogFooter>

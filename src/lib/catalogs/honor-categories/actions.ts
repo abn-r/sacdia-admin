@@ -65,7 +65,10 @@ async function parseFormData(formData: FormData) {
     throw new Error(await catalogValidationText(firstIssue));
   }
 
-  return parsed.data;
+  // Existing translations are not loaded into the form: only send them when the
+  // admin edited a language tab, so saving the Spanish fields never wipes them.
+  const { translations, ...rest } = parsed.data;
+  return formData.get("translations_dirty") === "1" ? { ...rest, translations } : rest;
 }
 
 export async function createHonorCategoryAction(

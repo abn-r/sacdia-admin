@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { UnionFormDialog } from "@/components/catalogs/unions/union-form-dialog";
 import { getUnionColumns } from "@/components/catalogs/unions/unions-columns";
 import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import {
   AlertDialog,
   AlertDialogAction,

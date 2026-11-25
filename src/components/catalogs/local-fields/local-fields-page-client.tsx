@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { LocalFieldFormDialog } from "@/components/catalogs/local-fields/local-field-form-dialog";
 import { getLocalFieldColumns } from "@/components/catalogs/local-fields/local-fields-columns";
 import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import {
   AlertDialog,
   AlertDialogAction,

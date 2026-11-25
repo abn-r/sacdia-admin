@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { DistrictsPageClient } from "@/components/catalogs/districts/districts-page-client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { listAdminDistricts } from "@/lib/api/admin-districts";
 import { listAdminLocalFields } from "@/lib/api/admin-local-fields";
-import { ApiError } from "@/lib/api/client";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
-import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
+import { CatalogLoadError } from "@/components/catalogs/catalog-load-error";
+import { catalogLoadFailure, type CatalogLoadFailure } from "@/lib/catalogs/load-failure";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminDistrictRow } from "@/lib/catalogs/districts/types";
@@ -45,8 +44,7 @@ export default async function DistrictsPage() {
 
   let districts: AdminDistrictRow[] = [];
   let localFields: AdminLocalField[] = [];
-  let loadError: string | null = null;
-  let rateLimited = false;
+  let loadFailure: CatalogLoadFailure | null = null;
 
   try {
     const [districtRows, localFieldRows] = await Promise.all([
@@ -56,29 +54,19 @@ export default async function DistrictsPage() {
     localFields = localFieldRows;
     districts = enrichDistricts(districtRows, localFields);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 429) {
-      rateLimited = true;
-    } else {
-      loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
-    }
+    loadFailure = catalogLoadFailure(error);
   }
 
   const canCreate = canCapability(user, "catalogs-districts", "create");
   const canEdit = canCapability(user, "catalogs-districts", "update");
   const canDelete = canCapability(user, "catalogs-districts", "delete");
 
-  if (rateLimited) {
-    return <CatalogRateLimited title={t("entities.districts.title")} description={t("entities.districts.description")} breadcrumbs={[{ label: t("entities.districts.title") }]} />;
+  if (loadFailure) {
+    return <CatalogLoadError failure={loadFailure} title={t("entities.districts.title")} description={t("entities.districts.description")} />;
   }
 
   return (
     <>
-      {loadError ? (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>{t("errors.load_data_failed")}</AlertTitle>
-          <AlertDescription>{loadError}</AlertDescription>
-        </Alert>
-      ) : null}
       <DistrictsPageClient
         districts={districts}
         localFields={localFields}

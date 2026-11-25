@@ -51,6 +51,8 @@ type ClassPrerequisitesDialogProps = {
   classOptions: ClassPrerequisiteOption[];
   canCreate: boolean;
   canDelete: boolean;
+  /** Render the content in place (a tab panel) instead of behind a button + dialog. */
+  inline?: boolean;
 };
 
 export function ClassPrerequisitesDialog({
@@ -59,6 +61,7 @@ export function ClassPrerequisitesDialog({
   classOptions,
   canCreate,
   canDelete,
+  inline = false,
 }: ClassPrerequisitesDialogProps) {
   const tRel = useTranslations("classes.relations");
   const [open, setOpen] = useState(false);
@@ -124,29 +127,8 @@ export function ClassPrerequisitesDialog({
     }
   }
 
-  return (
-    <>
-      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <ListChecks className="size-4" />
-        Prerrequisitos
-        {prerequisites.length > 0 ? (
-          <Badge variant="secondary" className="ml-1">
-            {prerequisites.length}
-          </Badge>
-        ) : null}
-      </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Prerrequisitos de la clase</DialogTitle>
-            <DialogDescription>
-              El usuario debe estar investido en cada clase prerrequisito para poder
-              inscribirse en esta clase.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
+  const body = (
+    <div className="space-y-4">
             {canCreate ? (
               <form
                 onSubmit={handleCreate}
@@ -202,15 +184,9 @@ export function ClassPrerequisitesDialog({
               </ul>
             )}
           </div>
+  );
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+  const deleteDialog = (
       <AlertDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(next) => !next && setDeleteTarget(null)}
@@ -232,6 +208,50 @@ export function ClassPrerequisitesDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+  );
+
+  if (inline) {
+    return (
+      <>
+        {body}
+        {deleteDialog}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <ListChecks className="size-4" />
+        Prerrequisitos
+        {prerequisites.length > 0 ? (
+          <Badge variant="secondary" className="ml-1">
+            {prerequisites.length}
+          </Badge>
+        ) : null}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Prerrequisitos de la clase</DialogTitle>
+            <DialogDescription>
+              El usuario debe estar investido en cada clase prerrequisito para poder
+              inscribirse en esta clase.
+            </DialogDescription>
+          </DialogHeader>
+
+          {body}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {deleteDialog}
     </>
   );
 }

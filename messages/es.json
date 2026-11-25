@@ -1,4 +1,313 @@
 {
+  "admin": {
+    "catalogs": {
+      "rail": {
+        "ariaLabel": "Lista de catálogos",
+        "description": "Datos de referencia que usan el panel y la app.",
+        "emptyTitle": "No hay catálogos disponibles",
+        "emptyDescription": "Tu cuenta no tiene acceso a ningún catálogo.",
+        "groups": {
+          "territory": "Territorio",
+          "clubs": "Clubes y clases",
+          "honors": "Especialidades",
+          "health": "Salud",
+          "operation": "Operación"
+        }
+      },
+      "classDetail": {
+        "ariaLabel": "Secciones de la clase",
+        "modules": "Módulos",
+        "honors": "Especialidades",
+        "prerequisites": "Prerrequisitos",
+        "honorsNote": "La relación es informativa: no bloquea el avance ni la investidura, aunque diga «Requerida».",
+        "prerequisitesNote": "El usuario debe estar investido en cada clase prerrequisito para poder inscribirse en esta clase."
+      },
+      "masterHonor": {
+        "newTitle": "Nueva maestría",
+        "fieldName": "Nombre",
+        "fieldActive": "Activa",
+        "fieldActiveHint": "Una maestría inactiva deja de otorgarse.",
+        "sections": {
+          "data": "Datos",
+          "scope": "A quién aplica",
+          "requirements": "Requisitos"
+        },
+        "scopeDescription": "Define si la maestría aplica a todas las divisiones o solo a algunas.",
+        "groupsSummary": "{count, plural, one {Se otorga al completar el grupo.} other {Se otorga al completar los # grupos.}}",
+        "groupsSummaryNone": "Aún no hay grupos de requisitos.",
+        "recalculateWarning": "Guardar recalcula la maestría para todos: puede otorgarla o marcarla como no vigente a quien ya la tenía.",
+        "recalculateFailed": "Se guardó, pero no se pudo recalcular",
+        "savedRecalculated": "Maestría guardada y recalculada",
+        "saved": "Maestría guardada",
+        "saveAndRecalculate": "Guardar y recalcular",
+        "save": "Guardar",
+        "unsavedRequirements": "Cambios sin guardar",
+        "phrase": {
+          "anyCategory": "cualquier categoría",
+          "categoryCount": "{count, plural, one {# especialidad} other {# especialidades}} de {category}",
+          "kindCategory": "Cantidad por categoría",
+          "kindExplicit": "{count, plural, one {Especialidad específica} other {Especialidades específicas · # opciones}}",
+          "explicitEmpty": "Sin opciones definidas",
+          "explicitAll": "Todas: {list}",
+          "explicitEither": "{a} o {b}",
+          "explicitSome": "{count} de: {list}"
+        }
+      }
+    },
+    "configuration": {
+      "rail": {
+        "description": "Ajustes de tu campo y parámetros del sistema.",
+        "ariaLabel": "Secciones de configuración",
+        "emptyTitle": "Sin ajustes disponibles",
+        "emptyDescription": "Tu cuenta no tiene acceso a ninguna sección de configuración.",
+        "groups": {
+          "local_field": "Campo local",
+          "investiture": "Investiduras y evidencias",
+          "evaluation": "Evaluación",
+          "system": "Sistema"
+        },
+        "items": {
+          "paymentMethods": "Métodos de pago",
+          "delivery": "Entrega de materiales",
+          "investitureWindow": "Ventana de investidura",
+          "districtPastors": "Pastores por distrito",
+          "evidenceTemplates": "Plantillas de evidencias",
+          "scoringCategories": "Categorías de puntuación",
+          "roleRequirements": "Requisitos de cargos",
+          "achievements": "Logros",
+          "variables": "Variables"
+        }
+      },
+      "variables": {
+        "description": "Parámetros globales. Solo super administración.",
+        "invalid": "Corrige los valores marcados antes de guardar.",
+        "saved": "{count, plural, one {Se guardó # variable} other {Se guardaron # variables}}",
+        "saveFailed": "No se pudo guardar: {keys}. {detail}",
+        "unexpected": "Ocurrió un error inesperado.",
+        "errors": {
+          "required": "El valor no puede estar vacío.",
+          "number": "Escribe un número válido.",
+          "json": "El JSON no es válido."
+        }
+      }
+    },
+    "roles": {
+      "title": "Roles y permisos",
+      "description": "Quién puede hacer qué en el panel y en la app.",
+      "newRole": "Nuevo rol",
+      "emptyTitle": "Sin roles",
+      "emptyDescription": "No se encontraron roles registrados en el sistema.",
+      "emptySearchTitle": "Sin resultados para «{query}»",
+      "emptySearchDescription": "Prueba con otro término de búsqueda.",
+      "searchPlaceholder": "Buscar rol",
+      "scopeGlobal": "Global",
+      "scopeClub": "Club",
+      "inactive": "Inactivo",
+      "protected": "Protegido",
+      "protectedTooltip": "Rol protegido del sistema",
+      "tabs": {
+        "roles": "Roles",
+        "byRole": "Por rol",
+        "catalog": "Catálogo de permisos",
+        "direct": "Permisos directos"
+      },
+      "cols": {
+        "role": "Rol",
+        "scope": "Alcance",
+        "permissions": "Permisos",
+        "status": "Estado"
+      },
+      "actions": {
+        "edit": "Editar rol",
+        "deactivate": "Desactivar rol…"
+      },
+      "statusFilter": {
+        "label": "Estado del rol",
+        "all": "Activos e inactivos",
+        "active": "Solo activos",
+        "inactive": "Solo inactivos"
+      },
+      "deactivate": {
+        "title": "Desactivar «{name}»",
+        "subtitle": "{count, plural, one {# permiso} other {# permisos}} · rol {scope}",
+        "checking": "Comprobando quién tiene este rol…",
+        "blockedTitle": "{count, plural, one {# persona tiene este rol} other {# personas tienen este rol}}",
+        "blockedDescription": "Antes de desactivarlo, asígnales otro rol. Mientras lo tengan, no se puede desactivar.",
+        "viewPeople": "{count, plural, one {Ver a la persona} other {Ver las # personas}}",
+        "noneDescription": "Nadie tiene este rol. Dejará de estar disponible para asignar y podrás reactivarlo después.",
+        "unknownDescription": "El rol no se eliminará, pero dejará de estar disponible para asignar. Si alguien lo tiene, te lo diremos.",
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "confirm": "Desactivar",
+        "processing": "Procesando…"
+      },
+      "copy": {
+        "button": "Copiar permisos…",
+        "title": "Copiar permisos",
+        "description": "Reemplaza todos los permisos del rol destino.",
+        "from": "Desde",
+        "to": "Hacia",
+        "placeholder": "Elige un rol",
+        "inactiveSuffix": "inactivo",
+        "summaryTitle": "{target} pasa de {before} a {after} permisos",
+        "summaryDetail": "Gana {gained}{gainedDestructive, plural, =0 {} other {, incluidos # de borrar}}. Pierde {lost}{lostDestructive, plural, =0 {} other {, incluidos # de borrar}}.",
+        "noChange": "{target} ya tiene exactamente esos permisos. No cambia nada.",
+        "cancel": "Cancelar",
+        "confirm": "Reemplazar permisos…",
+        "replacing": "Reemplazando…"
+      },
+      "byRole": {
+        "roleLabel": "Rol",
+        "searchPlaceholder": "Buscar permiso",
+        "switchBlocked": "Guarda o descarta los cambios para cambiar de rol.",
+        "readOnly": "Vista de solo lectura. Solo un super administrador puede cambiar los permisos de un rol.",
+        "emptyTitle": "Sin permisos",
+        "emptyDescription": "No hay permisos registrados para asignar.",
+        "discard": "Descartar",
+        "unsaved": "{count, plural, one {# cambio sin guardar} other {# cambios sin guardar}} · {role}",
+        "saved": "Permisos de {role} actualizados."
+      }
+    },
+    "audit": {
+      "title": "Auditoría",
+      "description": "Cambios hechos en el sistema. Los filtros quedan en el enlace.",
+      "filters": {
+        "search": "Buscar entidad o persona",
+        "action": "Acción",
+        "allActions": "Todas las acciones",
+        "actionDenied": "Acceso denegado",
+        "from": "Desde",
+        "to": "Hasta",
+        "result": "Resultado",
+        "allResults": "Resultado: todos",
+        "clear": "Limpiar filtros"
+      },
+      "columns": {
+        "when": "Cuándo",
+        "what": "Qué pasó",
+        "about": "Sobre",
+        "who": "Quién"
+      },
+      "detail": {
+        "about": "Sobre",
+        "result": "Resultado",
+        "resultOk": "Correcto",
+        "origin": "Origen",
+        "originRequest": "Panel o app",
+        "originService": "Proceso interno",
+        "changes": "Cambios",
+        "added": "Agregado",
+        "removed": "Quitado",
+        "changed": "Cambiado",
+        "yes": "Sí",
+        "no": "No",
+        "technicalData": "Ver datos técnicos",
+        "close": "Cerrar"
+      }
+    },
+    "system": {
+      "title": "Sistema",
+      "description": "Colas de trabajo y tareas programadas.",
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando…",
+      "tabs": {
+        "queues": "Colas",
+        "cron": "Tareas programadas",
+        "history": "Historial"
+      },
+      "status": {
+        "never": "Sin ejecuciones",
+        "completed": "Completada",
+        "failed": "Falló",
+        "running": "Ejecutando",
+        "skipped": "Omitida"
+      },
+      "queues": {
+        "colQueue": "Cola",
+        "colWaiting": "En espera",
+        "colActive": "Activas",
+        "colCompleted": "Completadas",
+        "colFailed": "Fallidas",
+        "colWhen": "Cuándo",
+        "noFailures": "Sin fallos recientes."
+      },
+      "cron": {
+        "colTask": "Tarea",
+        "colFailures7d": "Fallos en 7 días",
+        "runAndNotify": "Ejecutar y avisar"
+      },
+      "history": {
+        "technicalData": "Ver datos técnicos"
+      },
+      "runDescriptions": {
+        "monthlyReports": "Genera los informes mensuales que falten y los deja disponibles en cada club.",
+        "annualProgress": "Vuelve a calcular el Progreso anual de los clubes con los datos de hoy.",
+        "dataExportCleanup": "Borra los archivos de exportación que ya vencieron.",
+        "memberOfMonth": "Vuelve a calcular los ganadores de {month} y avisa otra vez a cada ganador y a su director.",
+        "financePeriod": "Cierra el periodo financiero que corresponde a la fecha de hoy.",
+        "activitiesReminder": "Envía de nuevo los recordatorios de las actividades próximas a quienes deben asistir.",
+        "membershipExpiry": "Marca como vencidas las solicitudes de membresía que llevan demasiado tiempo sin respuesta.",
+        "cleanupExpired": "Borra las sesiones y los tokens que ya vencieron.",
+        "fcmCleanup": "Borra los tokens de notificaciones que ya no pertenecen a ningún dispositivo.",
+        "annualReports": "Congela los informes anuales del periodo que terminó.",
+        "quarterlyReports": "Congela los informes trimestrales del periodo que terminó.",
+        "monthlyReportsReminders": "Envía otra vez el aviso para entregar el informe mensual a quienes aún no lo entregan.",
+        "cronAlertCheck": "Revisa si alguna tarea programada falló o no corrió, y avisa a los administradores.",
+        "fcmStaleCleanup": "Borra los tokens de notificaciones de dispositivos que llevan tiempo sin conectarse.",
+        "dependentProfilesPurge": "Elimina de forma definitiva los perfiles de dependientes que ya cumplieron su plazo.",
+        "familyAgeTransitions": "Revisa las edades de los dependientes y avisa a las familias de quienes cambian de etapa.",
+        "familyMajorityRelease": "Libera a los dependientes que alcanzaron la mayoría de edad y avisa a su familia.",
+        "pendingTeenGuardian": "Avisa de nuevo a los adolescentes que aún no tienen tutor confirmado.",
+        "investitureAchievementIntent": "Registra la intención de logro de las investiduras pendientes.",
+        "investitureAuthReminders": "Envía otra vez los recordatorios de autorización de las investiduras próximas.",
+        "ecclesiasticalYearCut": "Hace el corte del año eclesiástico y avisa a las personas involucradas.",
+        "generic": "Corre la tarea ahora mismo, igual que cuando se ejecuta sola. Puede cambiar datos o enviar avisos."
+      }
+    },
+    "access": {
+      "login": {
+        "description": "Ingresa con tu cuenta de SACDIA.",
+        "brandDescription": "Plataforma para clubes de Aventureros, Conquistadores y Guías Mayores.",
+        "forgotLink": "¿Olvidaste tu contraseña?",
+        "rateLimitedTitle": "Demasiados intentos",
+        "rateLimitedBody": "Espera un minuto e inténtalo de nuevo.",
+        "passwordRequired": "Ingresa tu contraseña"
+      },
+      "forgot": {
+        "metaTitle": "Recuperar contraseña · SACDIA",
+        "title": "Recupera tu contraseña",
+        "description": "Te enviaremos un enlace a tu correo. Vence en 1 hora.",
+        "emailLabel": "Correo electrónico",
+        "submit": "Enviar enlace",
+        "submitLoading": "Enviando…",
+        "sentTitle": "Revisa tu correo",
+        "sentBody": "Si el correo tiene una cuenta en SACDIA, te enviamos un enlace para crear una contraseña nueva. Vence en 1 hora.",
+        "backToLogin": "Volver a iniciar sesión",
+        "errors": {
+          "emailInvalid": "Ingresa un correo válido.",
+          "tooManyAttempts": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+          "generic": "No pudimos enviar el enlace. Inténtalo de nuevo en unos minutos."
+        }
+      },
+      "reset": {
+        "requirementsLabel": "Requisitos de la contraseña",
+        "requirements": {
+          "length": "Al menos 12 caracteres",
+          "case": "Una mayúscula y una minúscula",
+          "number": "Un número",
+          "special": "Un símbolo: @ $ ! % * ? &"
+        },
+        "requirementMet": "(cumplido)",
+        "requirementPending": "(pendiente)",
+        "invitationDescription": "Te invitaron a SACDIA. Con esta contraseña entras al panel y a la app.",
+        "resetDescription": "Elige una contraseña nueva para tu cuenta SACDIA. Te sirve en el panel y en la app.",
+        "activatedBody": "Tu contraseña quedó guardada y tu correo verificado. Cerramos tus otras sesiones por seguridad.",
+        "resetDoneBody": "Tu contraseña quedó actualizada. Cerramos tus otras sesiones por seguridad.",
+        "goToPanel": "Ir al panel",
+        "openApp": "Abrir la app"
+      }
+    }
+  },
   "evaluation": {
     "evidence": {
       "queue": {
@@ -8429,17 +8738,17 @@
   },
   "scoring_categories": {
     "deleteDialog": {
-      "title": "Eliminar categoría",
-      "description": "¿Estás seguro que quieres eliminar la categoría <strong>\"{name}\"</strong>? Esta acción la desactivará y no podrá usarse en nuevos registros. Los registros históricos se conservarán.",
+      "title": "Desactivar categoría",
+      "description": "¿Quieres desactivar la categoría <strong>\"{name}\"</strong>? Dejará de usarse en nuevos registros. Los registros históricos se conservan.",
       "cancel": "Cancelar",
-      "delete": "Eliminar",
-      "deleting": "Eliminando..."
+      "delete": "Desactivar",
+      "deleting": "Desactivando..."
     },
     "dialog": {
       "namePlaceholder": "Ej. Uniforme"
     },
     "toasts": {
-      "deleted": "Categoría eliminada"
+      "deleted": "Categoría desactivada"
     },
     "validation": {
       "name_required": "El nombre es requerido",
@@ -8448,7 +8757,7 @@
     },
     "errors": {
       "status_change_failed": "No se pudo cambiar el estado",
-      "delete_failed": "No se pudo eliminar la categoría",
+      "delete_failed": "No se pudo desactivar la categoría",
       "save_failed": "No se pudo guardar la categoría"
     },
     "table": {
@@ -8476,7 +8785,7 @@
       "statusActive": "Activa",
       "statusInactive": "Inactiva",
       "edit": "Editar",
-      "delete": "Eliminar",
+      "delete": "Desactivar",
       "readOnly": "Solo lectura"
     },
     "divisionPage": {
@@ -9900,13 +10209,14 @@
       "reports": "Reportes",
       "scoring": "Puntuación",
       "membership": "Membresías",
-      "member_ranking": "Clasificaciones de miembros",
-      "ranking": "Clasificaciones",
+      "member_ranking": "Progreso de miembros",
+      "ranking": "Progreso anual",
       "activity_reminder_minutes_before": "Recordatorios de actividades",
       "validation": "Validación",
       "activities": "Actividades",
       "finances": "Finanzas",
       "notifications": "Notificaciones",
+      "field_payment_orders": "Órdenes de pago de campo",
       "general": "General"
     },
     "validation": {
@@ -10952,13 +11262,13 @@
       "retryErrorTitle": "Error al reintentar",
       "retryErrorFallback": "Error desconocido al reintentar la tarea.",
       "queueNotifications": "Notificaciones",
-      "queueNotificationsDesc": "Push notifications y realtime cache",
-      "queueEmail": "Emails",
-      "queueEmailDesc": "Transaccionales (rate-limited 90/día)",
+      "queueNotificationsDesc": "Push y caché en tiempo real",
+      "queueEmail": "Correos",
+      "queueEmailDesc": "Transaccionales · 90 por día",
       "queueAchievements": "Logros",
-      "queueAchievementsDesc": "Evaluación y matching de logros",
+      "queueAchievementsDesc": "Evaluación de logros",
       "queueBackgroundJobs": "Tareas en segundo plano",
-      "queueBackgroundJobsDesc": "Reportes, finanzas, clasificaciones, exports"
+      "queueBackgroundJobsDesc": "Reportes, finanzas, progreso, exportes"
     },
     "history": {
       "filterLabelJob": "Tarea",

@@ -1,15 +1,13 @@
-import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { buildRoleTranslator } from "@/lib/auth/role-labels";
 import { redirect, notFound } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
 import { EditRoleForm } from "@/components/rbac/role-form";
 import { requireAdminUser } from "@/lib/auth/session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import { getRoleWithPermissions, listPermissions } from "@/lib/rbac/service";
-import { ApiError } from "@/lib/api/client";
 import type { Permission, Role } from "@/lib/rbac/types";
 
 interface EditRolePageProps {
@@ -32,7 +30,7 @@ export default async function ConfigurationEditRolePage({ params }: EditRolePage
 
   let role: Role | null = null;
   let allPermissions: Permission[] = [];
-  let loadError: string | null = null;
+  let loadFailure: ErrorStateFromError | null = null;
 
   try {
     [role, allPermissions] = await Promise.all([
@@ -40,10 +38,10 @@ export default async function ConfigurationEditRolePage({ params }: EditRolePage
       listPermissions(),
     ]);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("loadError");
+    loadFailure = errorStateFromError(error);
   }
 
-  if (!loadError && !role) {
+  if (!loadFailure && !role) {
     notFound();
   }
 
@@ -70,14 +68,9 @@ export default async function ConfigurationEditRolePage({ params }: EditRolePage
         />
       </div>
 
-      {loadError ? (
-        <>
-          <EndpointErrorBanner state="missing" detail={loadError} />
-          <EmptyState icon={ShieldCheck} title={t("emptyLoadTitle")} description={loadError} />
-        </>
-      ) : null}
+      {loadFailure ? <ErrorState kind={loadFailure.kind} {...(loadFailure.detail ? { detail: loadFailure.detail } : {})} retry /> : null}
 
-      {!loadError && role ? <EditRoleForm role={role} allPermissions={allPermissions} /> : null}
+      {!loadFailure && role ? <EditRoleForm role={role} allPermissions={allPermissions} /> : null}
     </div>
   );
 }

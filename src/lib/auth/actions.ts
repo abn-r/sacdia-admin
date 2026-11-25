@@ -15,10 +15,14 @@ import type { AuthActionState, AuthUser, LoginResponse } from "@/lib/auth/types"
 
 type AuthTranslator = Awaited<ReturnType<typeof getTranslations<"auth">>>;
 
-function buildLoginSchema(t: AuthTranslator) {
+type AccessTranslator = Awaited<ReturnType<typeof getTranslations<"admin.access">>>;
+
+function buildLoginSchema(t: AuthTranslator, tAccess: AccessTranslator) {
   return z.object({
     email: z.string().email(t("validation.email_invalid")),
-    password: z.string().min(8, t("validation.password_min")),
+    // Login only checks the field is filled: the backend decides whether the password is right.
+    // Accounts created before the 12-character policy must still be able to sign in.
+    password: z.string().min(1, tAccess("login.passwordRequired")),
   });
 }
 
@@ -172,7 +176,8 @@ function logDeniedAccess(context: "missing_token" | "login_role", email: string,
 
 export async function loginAction(_: AuthActionState, formData: FormData): Promise<AuthActionState> {
   const t = await getTranslations("auth");
-  const loginSchema = buildLoginSchema(t);
+  const tAccess = await getTranslations("admin.access");
+  const loginSchema = buildLoginSchema(t, tAccess);
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -190,7 +195,10 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     });
   } catch (error) {
     if (error instanceof ApiError) {
-      return { error: getLoginErrorMessage(t, error, "login") };
+      return {
+        error: getLoginErrorMessage(t, error, "login"),
+        ...(error.status === 429 ? { rateLimited: true } : {}),
+      };
     }
 
     return { error: t("errors.login_failed") };
@@ -223,7 +231,10 @@ export async function loginAction(_: AuthActionState, formData: FormData): Promi
     });
   } catch (error) {
     if (error instanceof ApiError) {
-      return { error: getLoginErrorMessage(t, error, "profile") };
+      return {
+        error: getLoginErrorMessage(t, error, "profile"),
+        ...(error.status === 429 ? { rateLimited: true } : {}),
+      };
     }
 
     return { error: t("errors.profile_validation_failed") };

@@ -6,7 +6,7 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { TranslationsTabsField } from "@/components/catalogs/translations-tabs-field";
+import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createHonorCategoryAction,
@@ -59,14 +60,12 @@ export function HonorCategoryFormDialog({
   const action = mode === "create" ? createHonorCategoryAction : updateHonorCategoryAction;
   const [state, formAction] = useActionState(action, initialState);
   const [active, setActive] = useState(true);
-  const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
-  const [translationDescriptions, setTranslationDescriptions] = useState<Record<string, string>>({});
+  const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
 
   useEffect(() => {
     if (open) {
       setActive(category?.active ?? true);
-      setTranslationValues({});
-      setTranslationDescriptions({});
+      setTranslations([]);
     }
   }, [open, category]);
 
@@ -107,45 +106,40 @@ export function HonorCategoryFormDialog({
             <input type="hidden" name="honor_category_id" value={category.honor_category_id} />
           ) : null}
 
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="honor-category-name">{tFields("name")}</Label>
-              <Input
-                id="honor-category-name"
-                name="name"
-                defaultValue={category?.name ?? ""}
-                required
-                maxLength={100}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="honor-category-description">{tFields("description")}</Label>
-              <Textarea
-                id="honor-category-description"
-                name="description"
-                defaultValue={category?.description ?? ""}
-                className="min-h-[80px] resize-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="honor-category-active">{tFields("active")}</Label>
-              <div className="flex h-9 items-center">
-                <Switch id="honor-category-active" checked={active} onCheckedChange={setActive} />
-                <input type="hidden" name="active" value={active ? "true" : "false"} />
-              </div>
-            </div>
-          </div>
-
           <TranslationsTabsField
-            values={translationValues}
-            onChange={(locale, value) =>
-              setTranslationValues((current) => ({ ...current, [locale]: value }))
+            esContent={
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="honor-category-name">{tFields("name")}</Label>
+                    <Input
+                      id="honor-category-name"
+                      name="name"
+                      defaultValue={category?.name ?? ""}
+                      required
+                      maxLength={100}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="honor-category-description">{tFields("description")}</Label>
+                    <Textarea
+                      id="honor-category-description"
+                      name="description"
+                      defaultValue={category?.description ?? ""}
+                      className="min-h-[80px] resize-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="honor-category-active">{tFields("active")}</Label>
+                    <div className="flex h-9 items-center">
+                      <Switch id="honor-category-active" checked={active} onCheckedChange={setActive} />
+                      <input type="hidden" name="active" value={active ? "true" : "false"} />
+                    </div>
+                  </div>
+                </div>
             }
-            descriptionValues={translationDescriptions}
-            onDescriptionChange={(locale, value) =>
-              setTranslationDescriptions((current) => ({ ...current, [locale]: value }))
-            }
-            includeDescription
+            translations={translations}
+            onTranslationsChange={setTranslations}
+            legacyFieldNames
           />
 
           <DialogFooter>

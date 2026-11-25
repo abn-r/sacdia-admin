@@ -3,9 +3,11 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
-import { Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Eye, EyeOff, AlertCircle, ArrowRight, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { loginAction } from "@/lib/auth/actions";
+import { ACCESS_LOGO_SRC } from "@/components/auth/public-auth-parts";
 import type { AuthActionState } from "@/lib/auth/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +45,7 @@ type Props = {
 
 export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
   const t = useTranslations("auth.login");
+  const tAccess = useTranslations("admin.access.login");
   const [state, formAction] = useActionState(loginAction, initialState);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,11 +59,11 @@ export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
       {/* Mobile-only brand mark above form */}
       <div className="mb-8 flex items-center gap-3 lg:hidden">
         <Image
-          src="/app-icon.jpg"
+          src={ACCESS_LOGO_SRC}
           alt="SACDIA"
           width={40}
           height={40}
-          className="size-10 rounded-xl"
+          className="size-10 rounded-[10px]"
           priority
         />
         <div className="leading-tight">
@@ -73,21 +76,30 @@ export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
         </div>
       </div>
 
-      <div className="mb-2.5 font-mono text-2xs font-medium text-muted-foreground">
-        {t("eyebrow")}
-      </div>
-
       <h1 className="mb-2 font-heading text-3xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-3xl">
         {t("welcome_title")}
       </h1>
       <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
-        {t("welcome_description")}
+        {tAccess("description")}
       </p>
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="next" value={nextParam} />
 
-        {state.error && (
+        {state.rateLimited && (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3.5 py-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10"
+          >
+            <Clock className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <b className="block font-semibold">{tAccess("rateLimitedTitle")}</b>
+              <span>{tAccess("rateLimitedBody")}</span>
+            </div>
+          </div>
+        )}
+
+        {state.error && !state.rateLimited && (
           <div
             role="alert"
             className="flex items-start gap-2.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3.5 py-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10"
@@ -97,7 +109,7 @@ export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
           </div>
         )}
 
-        {!state.error && refreshUnavailable && (
+        {!state.error && !state.rateLimited && refreshUnavailable && (
           <div
             role="status"
             className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/50 px-3.5 py-3 text-sm text-muted-foreground"
@@ -141,7 +153,6 @@ export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
               placeholder="••••••••"
               required
               autoComplete="current-password"
-              minLength={8}
               className="h-11 pr-10"
             />
             <button
@@ -159,6 +170,15 @@ export function LoginForm({ nextParam, refreshUnavailable = false }: Props) {
               )}
             </button>
           </div>
+        </div>
+
+        <div className="-mt-2 flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            {tAccess("forgotLink")}
+          </Link>
         </div>
 
         <div className="pt-2">

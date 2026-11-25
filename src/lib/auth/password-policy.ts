@@ -29,3 +29,26 @@ export function checkNewPassword(value: string): PasswordPolicyIssue | null {
   if (!/^[A-Za-z0-9@$!%*?&]/.test(value)) return "first_char";
   return null;
 }
+
+export type PasswordRequirementId = "length" | "case" | "number" | "special";
+
+export interface PasswordRequirement {
+  id: PasswordRequirementId;
+  met: boolean;
+}
+
+/**
+ * Checklist shown while the person types. Same rules as `checkNewPassword`,
+ * grouped the way the form words them (upper and lower case are one line).
+ */
+export function passwordRequirements(value: string): PasswordRequirement[] {
+  return [
+    {
+      id: "length",
+      met: value.length >= NEW_PASSWORD_MIN_LENGTH && value.length <= NEW_PASSWORD_MAX_LENGTH,
+    },
+    { id: "case", met: /[A-Z]/.test(value) && /[a-z]/.test(value) },
+    { id: "number", met: /[0-9]/.test(value) },
+    { id: "special", met: /[@$!%*?&]/.test(value) },
+  ];
+}

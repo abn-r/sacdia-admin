@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { getActionErrorMessage } from "@/lib/api/action-error";
 import type { RbacActionState } from "@/lib/rbac/types";
+import type { RoleUsage } from "@/lib/rbac/role-usage";
 import { isRoleNameValidationError, validateRoleName } from "@/lib/rbac/role-name";
 import {
   createPermission,
@@ -16,6 +17,7 @@ import {
   updateRole,
   deactivateRole,
   getRoleWithPermissions,
+  getRoleUsage,
 } from "@/lib/rbac/service";
 import { requireCapability } from "@/lib/auth/require-capability";
 import type { AuthUser } from "@/lib/auth/types";
@@ -441,4 +443,21 @@ export async function copyRolePermissionsAction(
   revalidatePath(ROLES_PATH);
   revalidatePath(MATRIX_PATH);
   return { ok: true, success: t("copyPermissions.success") };
+}
+
+/**
+ * People holding a role, read before the deactivation dialog. Any failure other
+ * than a missing endpoint also answers "unavailable": the dialog then falls back
+ * to trying the deactivation and reading the API error.
+ */
+export async function getRoleUsageAction(roleId: string): Promise<RoleUsage> {
+  const gate = await requireRbacManager("admin-system-roles");
+  if (isForbidden(gate) || !roleId) {
+    return { available: false };
+  }
+  try {
+    return await getRoleUsage(roleId);
+  } catch {
+    return { available: false };
+  }
 }

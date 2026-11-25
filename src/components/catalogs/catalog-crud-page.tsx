@@ -25,7 +25,7 @@ import type { CatalogItem } from "@/lib/catalogs/service";
 import type { CatalogActionState } from "@/lib/catalogs/actions";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableShell } from "@/components/shared/data-table-shell";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import { usePanelPath } from "@/lib/v2/panel-path-context";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -307,11 +307,9 @@ export function CatalogCrudPage({
                         </TableCell>
 
                         <TableCell>
-                          <StatusBadge
-                            intent={flagStatusIntent(item.active !== false)}
-                            label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                            size="sm"
-                          />
+                          {item.active === false ? (
+                            <StatusBadge intent={flagStatusIntent(false)} label={tCrud("statusInactive")} size="sm" />
+                          ) : null}
                         </TableCell>
 
                         {lastColIsActions && (
@@ -339,11 +337,9 @@ export function CatalogCrudPage({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-3">
                       <p className="min-w-0 truncate text-sm font-medium">{primaryVal}</p>
-                      <StatusBadge
-                        intent={flagStatusIntent(item.active !== false)}
-                        label={item.active !== false ? tCrud("statusActive") : tCrud("statusInactive")}
-                        size="sm"
-                      />
+                      {item.active === false ? (
+                        <StatusBadge intent={flagStatusIntent(false)} label={tCrud("statusInactive")} size="sm" />
+                      ) : null}
                     </div>
                     <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[13px] text-muted-foreground">
                       <span className="tabular-nums">#{itemId ?? "—"}</span>

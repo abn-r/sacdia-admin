@@ -1,18 +1,20 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { ACCESS_LOGO_SRC } from "@/components/auth/public-auth-parts";
 
 export function LoginBrandPanel() {
   const t = useTranslations("auth.login");
+  const tAccess = useTranslations("admin.access.login");
 
   return (
     <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-sidebar-border bg-sidebar p-12 text-foreground lg:flex">
       <div className="relative flex items-center gap-3">
         <Image
-          src="/app-icon.jpg"
+          src={ACCESS_LOGO_SRC}
           alt="SACDIA"
           width={44}
           height={44}
-          className="size-11 rounded-[10px] outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
+          className="size-11 rounded-[10px]"
           priority
         />
         <div className="leading-tight">
@@ -31,7 +33,7 @@ export function LoginBrandPanel() {
           {t("verse_text")}
         </p>
         <p className="mt-7 max-w-[420px] border-t border-border pt-5 text-sm leading-relaxed text-muted-foreground">
-          {t("brand_description")}
+          {tAccess("brandDescription")}
         </p>
       </div>
 

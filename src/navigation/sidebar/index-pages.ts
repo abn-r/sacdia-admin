@@ -8,13 +8,11 @@ import {
   Calendar,
   CalendarRange,
   Church,
-  ClipboardList,
   DollarSign,
   FileStack,
   Globe,
   GraduationCap,
   Grid3X3,
-  Key,
   Landmark,
   Layers,
   ListChecks,
@@ -150,7 +148,7 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
     id: "evaluation",
     title: "Evaluación",
     links: [
-      { id: "admin-settings-scoring-categories", url: "/dashboard/settings/scoring-categories", title: "Categorías scoring", icon: Tags },
+      { id: "admin-settings-scoring-categories", url: "/dashboard/settings/scoring-categories", title: "Categorías de puntuación", icon: Tags },
       { id: "role-requirements", url: "/dashboard/role-requirements", title: "Requisitos de cargos", icon: ListChecks },
     ],
   },
@@ -160,7 +158,6 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
     links: [
       { id: "admin-system-variables", url: "/dashboard/configuration/variables", title: "Variables", icon: Settings2 },
       { id: "admin-system-jobs", url: "/dashboard/system/jobs", title: "Tareas y colas", icon: Activity },
-      { id: "admin-system-jobs-history", url: "/dashboard/system/jobs/history", title: "Historial de ejecuciones", icon: ClipboardList },
       { id: "admin-system-achievements", url: "/dashboard/configuration/achievements", title: "Logros", icon: Trophy },
       { id: "admin-system-audit", url: "/dashboard/configuration/audit", title: "Auditoría", icon: ScrollText },
     ],
@@ -169,9 +166,7 @@ export const CONFIGURATION_INDEX_SECTIONS: IndexPageSection[] = [
     id: "security",
     title: "Seguridad",
     links: [
-      { id: "admin-system-roles", url: "/dashboard/configuration/roles", title: "Roles", icon: Users },
-      { id: "admin-system-permissions", url: "/dashboard/configuration/permissions", title: "Permisos", icon: Key },
-      { id: "admin-system-matrix", url: "/dashboard/configuration/matrix", title: "Matriz de seguridad", icon: Grid3X3 },
+      { id: "admin-system-roles", url: "/dashboard/configuration/roles", title: "Roles y permisos", icon: Users },
     ],
   },
 ];

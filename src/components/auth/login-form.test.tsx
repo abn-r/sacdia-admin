@@ -151,9 +151,33 @@ describe("LoginForm", () => {
     expect(
       screen.getByRole("heading", { name: authMessages.login.welcome_title }),
     ).toBeInTheDocument();
+  });
+
+  it("links to the public forgot-password page", () => {
+    const { container } = renderLoginForm();
+
+    expect(container.querySelector('a[href="/forgot-password"]')).not.toBeNull();
+  });
+
+  it("shows the wait notice when the attempt was throttled", async () => {
+    mockLoginAction.mockResolvedValueOnce({ error: "x", rateLimited: true });
+    const { container } = renderLoginForm();
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector("form")!);
+    });
+
+    await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
+    // The throttle notice replaces the plain error text.
+    expect(screen.queryByText("x")).toBeNull();
+  });
+
+  it("does not impose the new-password minimum on sign-in", () => {
+    renderLoginForm();
+
     expect(
-      screen.getByText(authMessages.login.welcome_description),
-    ).toBeInTheDocument();
+      screen.getByLabelText(authMessages.login.password_label),
+    ).not.toHaveAttribute("minlength");
   });
 
   it("email input has type=email with correct autocomplete attribute", () => {

@@ -4,6 +4,8 @@ export const ROOT_CLIENT_MESSAGE_NAMESPACES = [
   "auth",
   "nav",
   "shared",
+  // Public access pages (login, forgot/reset password, verify email) render outside the dashboard.
+  "admin.access",
 ] as const;
 
 export function pickMessages(
@@ -14,9 +16,24 @@ export function pickMessages(
   const result: Messages = {};
 
   for (const namespace of namespaces) {
-    if (Object.prototype.hasOwnProperty.call(source, namespace)) {
-      result[namespace] = source[namespace];
+    // A dotted namespace ("admin.access") keeps only that branch, nested under its parents.
+    const path = namespace.split(".");
+    let from: unknown = source;
+    for (const key of path) {
+      from =
+        from && typeof from === "object" && Object.prototype.hasOwnProperty.call(from, key)
+          ? (from as Messages)[key]
+          : undefined;
     }
+    if (from === undefined) continue;
+
+    let into = result;
+    for (const key of path.slice(0, -1)) {
+      const next = into[key];
+      if (!next || typeof next !== "object") into[key] = {};
+      into = into[key] as Messages;
+    }
+    into[path[path.length - 1]] = from;
   }
 
   return result;

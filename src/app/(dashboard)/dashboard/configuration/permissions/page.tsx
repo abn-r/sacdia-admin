@@ -1,91 +1,11 @@
-import type { Metadata } from "next";
-import { Key } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { PermissionsTable } from "@/components/rbac/permissions-table";
-import { requireAdminUser } from "@/lib/auth/session";
-import { canCapability } from "@/lib/auth/screen-catalog";
-import { listPermissions } from "@/lib/rbac/service";
-import {
-  createPermissionAction,
-  updatePermissionAction,
-  deletePermissionAction,
-} from "@/lib/rbac/actions";
-import type { Permission } from "@/lib/rbac/types";
-import { ApiError } from "@/lib/api/client";
-import {
-  paginateInMemory,
-  readPositiveNumberParam,
-} from "@/lib/phase-e-catalogs/fetch-helpers";
+import { redirect } from "next/navigation";
+import { legacyPermissionsHref } from "@/lib/rbac/roles-view";
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("rbac.pages.permissions");
-  return { title: t("title") };
-}
-
-export default async function ConfigurationPermissionsPage({
+/** Old permissions route (bookmarks): now the catalog tab of Roles y permisos. */
+export default async function LegacyPermissionsPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const t = await getTranslations("rbac.pages.permissions");
-  const tNav = await getTranslations("nav.items");
-  const user = await requireAdminUser();
-  const canWrite = canCapability(user, "admin-system-permissions", "manage");
-
-  const raw = await searchParams;
-  const page = readPositiveNumberParam(raw, "page") ?? 1;
-  const limit = readPositiveNumberParam(raw, "limit") ?? 20;
-
-  let items: Permission[] = [];
-  let meta = { page, limit, total: 0, totalPages: 1 };
-  let loadError: string | null = null;
-
-  try {
-    // The permissions endpoint returns the whole catalog: page it here.
-    ({ items, meta } = paginateInMemory(await listPermissions(), page, limit));
-  } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("loadError");
-  }
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("title")}
-        description={t("description")}
-        breadcrumbs={[
-          { label: tNav("configuration"), href: "/dashboard/configuration" },
-          { label: t("title") },
-        ]}
-      />
-
-      {loadError ? (
-        <>
-          <EndpointErrorBanner state="missing" detail={loadError} />
-          <EmptyState icon={Key} title={t("emptyLoadTitle")} description={loadError} />
-        </>
-      ) : null}
-
-      {!canWrite ? (
-        <p className="rounded-lg border border-info/30 bg-info/5 px-4 py-3 text-sm text-muted-foreground">
-          {t("readOnlyBanner")}
-        </p>
-      ) : null}
-
-      {!loadError ? (
-        <PermissionsTable
-          items={items}
-          createAction={createPermissionAction}
-          updateAction={updatePermissionAction}
-          deleteAction={deletePermissionAction}
-          canWrite={canWrite}
-          pagination={meta}
-        />
-      ) : null}
-    </div>
-  );
+  redirect(legacyPermissionsHref(await searchParams));
 }

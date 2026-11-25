@@ -21,7 +21,6 @@ vi.mock("@/lib/api/admin-users", async (orig) => ({
 }));
 
 import { generateMetadata as rolesMetadata } from "./configuration/roles/page";
-import { generateMetadata as matrixMetadata } from "./configuration/matrix/page";
 import { generateMetadata as auditMetadata } from "./configuration/audit/page";
 import { generateMetadata as investitureSettingsMetadata } from "./configuration/investiture/page";
 import { generateMetadata as usersMetadata } from "./users/page";
@@ -33,14 +32,14 @@ import { generateMetadata as yearEndMetadata } from "./year-end/page";
 
 describe("dashboard page titles", () => {
   it.each([
-    ["roles", rolesMetadata, "Roles"],
-    ["matrix", matrixMetadata, "Matriz de permisos"],
+    // Needs the admin.roles fragment merged into messages/es.json.
+    ["roles", rolesMetadata, "Roles y permisos"],
     ["audit", auditMetadata, "Auditoría"],
     ["investiture settings", investitureSettingsMetadata, "Investiduras"],
     ["users list", usersMetadata, "Usuarios"],
     ["finances", financesMetadata, messages.finances.page.title],
     ["catalog allergies", allergiesMetadata, messages.catalogs.pages.allergies.title],
-    ["system jobs", jobsMetadata, messages.system_jobs.page.title],
+    ["system jobs", jobsMetadata, "Sistema"],
     ["year end", yearEndMetadata, messages.year_end.page.title],
   ])("%s has a localized tab title", async (_name, generate, expected) => {
     const metadata = await (generate as () => Promise<{ title: string }>)();

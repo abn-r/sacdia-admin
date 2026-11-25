@@ -152,12 +152,14 @@ export function InvestitureSettingsClientPage({
             yearStart={civilPart(year?.start_date)}
             yearEnd={civilPart(year?.end_date)}
           />
-          <PastorsSection
-            districts={districts}
-            districtsError={districtsError}
-            quota={quota}
-            quotaError={quotaError}
-          />
+          <div id="pastors" className="scroll-mt-4">
+            <PastorsSection
+              districts={districts}
+              districtsError={districtsError}
+              quota={quota}
+              quotaError={quotaError}
+            />
+          </div>
         </div>
       )}
     </div>

@@ -107,4 +107,6 @@ export type LoginResponse = {
 
 export type AuthActionState = {
   error?: string;
+  /** The backend throttled the attempt (429): the form shows a wait notice. */
+  rateLimited?: boolean;
 };

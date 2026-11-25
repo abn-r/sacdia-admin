@@ -74,6 +74,7 @@ import {
   Loading03Icon as __Huge_Loading03Icon,
   Logout01Icon as __Huge_Logout01Icon,
   Mail01Icon as __Huge_Mail01Icon,
+  MailValidationIcon as __Huge_MailValidationIcon,
   MapPinIcon as __Huge_MapPinIcon,
   MinusPlusCircle01Icon as __Huge_MinusPlusCircle01Icon,
   MinusSignCircleIcon as __Huge_MinusSignCircleIcon,
@@ -261,6 +262,7 @@ const ICONS = {
   Loading03Icon: __Huge_Loading03Icon,
   Logout01Icon: __Huge_Logout01Icon,
   Mail01Icon: __Huge_Mail01Icon,
+  MailValidationIcon: __Huge_MailValidationIcon,
   MapPinIcon: __Huge_MapPinIcon,
   MinusPlusCircle01Icon: __Huge_MinusPlusCircle01Icon,
   MinusSignCircleIcon: __Huge_MinusSignCircleIcon,
@@ -391,6 +393,7 @@ export const Lock = createLucideIcon(ICONS.SquareLock01Icon, "Lock");
 export const LockOpen = createLucideIcon(ICONS.SquareUnlock01Icon, "LockOpen");
 export const LogOut = createLucideIcon(ICONS.Logout01Icon, "LogOut");
 export const Mail = createLucideIcon(ICONS.Mail01Icon, "Mail");
+export const MailCheck = createLucideIcon(ICONS.MailValidationIcon, "MailCheck");
 export const MapPin = createLucideIcon(ICONS.MapPinIcon, "MapPin");
 export const Minus = createLucideIcon(ICONS.AlarmClockMinusIcon, "Minus");
 export const MinusCircle = createLucideIcon(ICONS.MinusSignCircleIcon, "MinusCircle");

@@ -1,4 +1,313 @@
 {
+  "admin": {
+    "catalogs": {
+      "rail": {
+        "ariaLabel": "Catalog list",
+        "description": "Reference data used by the panel and the app.",
+        "emptyTitle": "No catalogs available",
+        "emptyDescription": "Your account has no access to any catalog.",
+        "groups": {
+          "territory": "Territory",
+          "clubs": "Clubs and classes",
+          "honors": "Honors",
+          "health": "Health",
+          "operation": "Operations"
+        }
+      },
+      "classDetail": {
+        "ariaLabel": "Class sections",
+        "modules": "Modules",
+        "honors": "Honors",
+        "prerequisites": "Prerequisites",
+        "honorsNote": "The relation is informational: it does not block progress or investiture, even if it says “Required”.",
+        "prerequisitesNote": "The user must be invested in each prerequisite class to enroll in this class."
+      },
+      "masterHonor": {
+        "newTitle": "New master honor",
+        "fieldName": "Name",
+        "fieldActive": "Active",
+        "fieldActiveHint": "An inactive master honor is no longer awarded.",
+        "sections": {
+          "data": "Details",
+          "scope": "Who it applies to",
+          "requirements": "Requirements"
+        },
+        "scopeDescription": "Sets whether the master honor applies to every division or only some.",
+        "groupsSummary": "{count, plural, one {Awarded when the group is completed.} other {Awarded when all # groups are completed.}}",
+        "groupsSummaryNone": "There are no requirement groups yet.",
+        "recalculateWarning": "Saving recalculates the master honor for everyone: it may award it or mark it as no longer valid for people who already had it.",
+        "recalculateFailed": "Saved, but it could not be recalculated",
+        "savedRecalculated": "Master honor saved and recalculated",
+        "saved": "Master honor saved",
+        "saveAndRecalculate": "Save and recalculate",
+        "save": "Save",
+        "unsavedRequirements": "Unsaved changes",
+        "phrase": {
+          "anyCategory": "any category",
+          "categoryCount": "{count, plural, one {# honor} other {# honors}} from {category}",
+          "kindCategory": "Count by category",
+          "kindExplicit": "{count, plural, one {Specific honor} other {Specific honors · # options}}",
+          "explicitEmpty": "No options defined",
+          "explicitAll": "All of: {list}",
+          "explicitEither": "{a} or {b}",
+          "explicitSome": "{count} of: {list}"
+        }
+      }
+    },
+    "configuration": {
+      "rail": {
+        "description": "Settings for your field and system parameters.",
+        "ariaLabel": "Configuration sections",
+        "emptyTitle": "No settings available",
+        "emptyDescription": "Your account has no access to any configuration section.",
+        "groups": {
+          "local_field": "Local field",
+          "investiture": "Investitures and evidence",
+          "evaluation": "Evaluation",
+          "system": "System"
+        },
+        "items": {
+          "paymentMethods": "Payment methods",
+          "delivery": "Material delivery",
+          "investitureWindow": "Investiture window",
+          "districtPastors": "Pastors by district",
+          "evidenceTemplates": "Evidence templates",
+          "scoringCategories": "Scoring categories",
+          "roleRequirements": "Role requirements",
+          "achievements": "Achievements",
+          "variables": "Variables"
+        }
+      },
+      "variables": {
+        "description": "Global parameters. Super administration only.",
+        "invalid": "Fix the highlighted values before saving.",
+        "saved": "{count, plural, one {# variable saved} other {# variables saved}}",
+        "saveFailed": "Could not save: {keys}. {detail}",
+        "unexpected": "An unexpected error occurred.",
+        "errors": {
+          "required": "The value cannot be empty.",
+          "number": "Enter a valid number.",
+          "json": "The JSON is not valid."
+        }
+      }
+    },
+    "roles": {
+      "title": "Roles and permissions",
+      "description": "Who can do what in the panel and the app.",
+      "newRole": "New role",
+      "emptyTitle": "No roles",
+      "emptyDescription": "No roles are registered in the system.",
+      "emptySearchTitle": "No results for \"{query}\"",
+      "emptySearchDescription": "Try a different search term.",
+      "searchPlaceholder": "Search roles",
+      "scopeGlobal": "Global",
+      "scopeClub": "Club",
+      "inactive": "Inactive",
+      "protected": "Protected",
+      "protectedTooltip": "Protected system role",
+      "tabs": {
+        "roles": "Roles",
+        "byRole": "By role",
+        "catalog": "Permissions catalog",
+        "direct": "Direct permissions"
+      },
+      "cols": {
+        "role": "Role",
+        "scope": "Scope",
+        "permissions": "Permissions",
+        "status": "Status"
+      },
+      "actions": {
+        "edit": "Edit role",
+        "deactivate": "Deactivate role…"
+      },
+      "statusFilter": {
+        "label": "Role status",
+        "all": "Active and inactive",
+        "active": "Active only",
+        "inactive": "Inactive only"
+      },
+      "deactivate": {
+        "title": "Deactivate \"{name}\"",
+        "subtitle": "{count, plural, one {# permission} other {# permissions}} · {scope} role",
+        "checking": "Checking who has this role…",
+        "blockedTitle": "{count, plural, one {# person has this role} other {# people have this role}}",
+        "blockedDescription": "Before deactivating it, assign them another role. While they hold it, it cannot be deactivated.",
+        "viewPeople": "{count, plural, one {View the person} other {View the # people}}",
+        "noneDescription": "Nobody has this role. It will stop being available to assign, and you can reactivate it later.",
+        "unknownDescription": "The role is not deleted, but it stops being available to assign. If someone holds it, we will tell you.",
+        "close": "Close",
+        "cancel": "Cancel",
+        "confirm": "Deactivate",
+        "processing": "Processing…"
+      },
+      "copy": {
+        "button": "Copy permissions…",
+        "title": "Copy permissions",
+        "description": "Replaces all permissions of the target role.",
+        "from": "From",
+        "to": "To",
+        "placeholder": "Choose a role",
+        "inactiveSuffix": "inactive",
+        "summaryTitle": "{target} goes from {before} to {after} permissions",
+        "summaryDetail": "Gains {gained}{gainedDestructive, plural, =0 {} other {, including # delete permissions}}. Loses {lost}{lostDestructive, plural, =0 {} other {, including # delete permissions}}.",
+        "noChange": "{target} already has exactly those permissions. Nothing changes.",
+        "cancel": "Cancel",
+        "confirm": "Replace permissions…",
+        "replacing": "Replacing…"
+      },
+      "byRole": {
+        "roleLabel": "Role",
+        "searchPlaceholder": "Search permissions",
+        "switchBlocked": "Save or discard your changes to switch roles.",
+        "readOnly": "Read-only view. Only a super admin can change a role's permissions.",
+        "emptyTitle": "No permissions",
+        "emptyDescription": "There are no permissions registered to assign.",
+        "discard": "Discard",
+        "unsaved": "{count, plural, one {# unsaved change} other {# unsaved changes}} · {role}",
+        "saved": "Permissions of {role} updated."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "description": "Changes made in the system. Filters are kept in the link.",
+      "filters": {
+        "search": "Search entity or person",
+        "action": "Action",
+        "allActions": "All actions",
+        "actionDenied": "Access denied",
+        "from": "From",
+        "to": "To",
+        "result": "Result",
+        "allResults": "Result: all",
+        "clear": "Clear filters"
+      },
+      "columns": {
+        "when": "When",
+        "what": "What happened",
+        "about": "About",
+        "who": "Who"
+      },
+      "detail": {
+        "about": "About",
+        "result": "Result",
+        "resultOk": "Succeeded",
+        "origin": "Origin",
+        "originRequest": "Panel or app",
+        "originService": "Internal process",
+        "changes": "Changes",
+        "added": "Added",
+        "removed": "Removed",
+        "changed": "Changed",
+        "yes": "Yes",
+        "no": "No",
+        "technicalData": "View technical data",
+        "close": "Close"
+      }
+    },
+    "system": {
+      "title": "System",
+      "description": "Work queues and scheduled tasks.",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing…",
+      "tabs": {
+        "queues": "Queues",
+        "cron": "Scheduled tasks",
+        "history": "History"
+      },
+      "status": {
+        "never": "No runs yet",
+        "completed": "Completed",
+        "failed": "Failed",
+        "running": "Running",
+        "skipped": "Skipped"
+      },
+      "queues": {
+        "colQueue": "Queue",
+        "colWaiting": "Waiting",
+        "colActive": "Active",
+        "colCompleted": "Completed",
+        "colFailed": "Failed",
+        "colWhen": "When",
+        "noFailures": "No recent failures."
+      },
+      "cron": {
+        "colTask": "Task",
+        "colFailures7d": "Failures in 7 days",
+        "runAndNotify": "Run and notify"
+      },
+      "history": {
+        "technicalData": "View technical data"
+      },
+      "runDescriptions": {
+        "monthlyReports": "Generates the missing monthly reports and makes them available in each club.",
+        "annualProgress": "Recalculates the clubs' annual progress with today's data.",
+        "dataExportCleanup": "Deletes the export files that have already expired.",
+        "memberOfMonth": "Recalculates the winners for {month} and notifies each winner and their director again.",
+        "financePeriod": "Closes the financial period that corresponds to today's date.",
+        "activitiesReminder": "Sends the reminders for upcoming activities again to the people expected to attend.",
+        "membershipExpiry": "Marks as expired the membership requests that have gone too long without a reply.",
+        "cleanupExpired": "Deletes the sessions and tokens that have already expired.",
+        "fcmCleanup": "Deletes notification tokens that no longer belong to any device.",
+        "annualReports": "Freezes the annual reports for the period that ended.",
+        "quarterlyReports": "Freezes the quarterly reports for the period that ended.",
+        "monthlyReportsReminders": "Sends the monthly report reminder again to those who have not submitted it yet.",
+        "cronAlertCheck": "Checks whether any scheduled task failed or did not run, and notifies the administrators.",
+        "fcmStaleCleanup": "Deletes notification tokens from devices that have not connected for a while.",
+        "dependentProfilesPurge": "Permanently deletes the dependent profiles whose retention period has ended.",
+        "familyAgeTransitions": "Reviews the ages of dependents and notifies the families of those who move to a new stage.",
+        "familyMajorityRelease": "Releases dependents who reached the age of majority and notifies their family.",
+        "pendingTeenGuardian": "Notifies again the teenagers who still have no confirmed guardian.",
+        "investitureAchievementIntent": "Records the achievement intent for pending investitures.",
+        "investitureAuthReminders": "Sends the authorization reminders for upcoming investitures again.",
+        "ecclesiasticalYearCut": "Performs the ecclesiastical year cut-off and notifies the people involved.",
+        "generic": "Runs the task right now, just as when it runs on its own. It may change data or send notifications."
+      }
+    },
+    "access": {
+      "login": {
+        "description": "Sign in with your SACDIA account.",
+        "brandDescription": "Platform for Adventurer, Pathfinder and Master Guide clubs.",
+        "forgotLink": "Forgot your password?",
+        "rateLimitedTitle": "Too many attempts",
+        "rateLimitedBody": "Wait a minute and try again.",
+        "passwordRequired": "Enter your password"
+      },
+      "forgot": {
+        "metaTitle": "Recover password · SACDIA",
+        "title": "Recover your password",
+        "description": "We will send a link to your email. It expires in 1 hour.",
+        "emailLabel": "Email",
+        "submit": "Send link",
+        "submitLoading": "Sending…",
+        "sentTitle": "Check your email",
+        "sentBody": "If the email has a SACDIA account, we sent you a link to create a new password. It expires in 1 hour.",
+        "backToLogin": "Back to sign in",
+        "errors": {
+          "emailInvalid": "Enter a valid email.",
+          "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
+          "generic": "We could not send the link. Try again in a few minutes."
+        }
+      },
+      "reset": {
+        "requirementsLabel": "Password requirements",
+        "requirements": {
+          "length": "At least 12 characters",
+          "case": "One uppercase and one lowercase letter",
+          "number": "One number",
+          "special": "One symbol: @ $ ! % * ? &"
+        },
+        "requirementMet": "(met)",
+        "requirementPending": "(pending)",
+        "invitationDescription": "You were invited to SACDIA. With this password you sign in to the panel and the app.",
+        "resetDescription": "Choose a new password for your SACDIA account. It works in the panel and in the app.",
+        "activatedBody": "Your password is saved and your email is verified. We signed out your other sessions for security.",
+        "resetDoneBody": "Your password was updated. We signed out your other sessions for security.",
+        "goToPanel": "Go to the panel",
+        "openApp": "Open the app"
+      }
+    }
+  },
   "evaluation": {
     "evidence": {
       "queue": {
@@ -8429,17 +8738,17 @@
   },
   "scoring_categories": {
     "deleteDialog": {
-      "title": "Delete category",
-      "description": "Are you sure you want to delete the category <strong>\"{name}\"</strong>? This will deactivate it and it can no longer be used in new records. Historical records will be kept.",
+      "title": "Deactivate category",
+      "description": "Do you want to deactivate the category <strong>\"{name}\"</strong>? It will no longer be used in new records. Historical records are kept.",
       "cancel": "Cancel",
-      "delete": "Delete",
-      "deleting": "Deleting..."
+      "delete": "Deactivate",
+      "deleting": "Deactivating..."
     },
     "dialog": {
       "namePlaceholder": "E.g. Uniform"
     },
     "toasts": {
-      "deleted": "Category deleted"
+      "deleted": "Category deactivated"
     },
     "validation": {
       "name_required": "Name is required",
@@ -8448,7 +8757,7 @@
     },
     "errors": {
       "status_change_failed": "Could not change the status",
-      "delete_failed": "Could not delete the category",
+      "delete_failed": "Could not deactivate the category",
       "save_failed": "Could not save the category"
     },
     "table": {
@@ -8476,7 +8785,7 @@
       "statusActive": "Active",
       "statusInactive": "Inactive",
       "edit": "Edit",
-      "delete": "Delete",
+      "delete": "Deactivate",
       "readOnly": "Read only"
     },
     "divisionPage": {
@@ -9900,13 +10209,14 @@
       "reports": "Reports",
       "scoring": "Scoring",
       "membership": "Membership",
-      "member_ranking": "Member classifications",
-      "ranking": "Classifications",
+      "member_ranking": "Member progress",
+      "ranking": "Annual progress",
       "activity_reminder_minutes_before": "Activity reminders",
       "validation": "Validation",
       "activities": "Activities",
       "finances": "Finances",
       "notifications": "Notifications",
+      "field_payment_orders": "Field payment orders",
       "general": "General"
     },
     "validation": {
@@ -10952,13 +11262,13 @@
       "retryErrorTitle": "Retry error",
       "retryErrorFallback": "Unknown error when retrying the job.",
       "queueNotifications": "Notifications",
-      "queueNotificationsDesc": "Push notifications and realtime cache",
+      "queueNotificationsDesc": "Push and real-time cache",
       "queueEmail": "Emails",
-      "queueEmailDesc": "Transactional (rate-limited 90/day)",
+      "queueEmailDesc": "Transactional · 90 per day",
       "queueAchievements": "Achievements",
-      "queueAchievementsDesc": "Achievement evaluation and matching",
+      "queueAchievementsDesc": "Achievement evaluation",
       "queueBackgroundJobs": "Background Jobs",
-      "queueBackgroundJobsDesc": "Reports, finances, classifications, exports"
+      "queueBackgroundJobsDesc": "Reports, finances, progress, exports"
     },
     "history": {
       "filterLabelJob": "Job",

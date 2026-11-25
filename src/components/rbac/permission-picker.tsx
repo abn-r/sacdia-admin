@@ -69,6 +69,14 @@ export interface PermissionPickerProps {
   onChange: (next: Set<string>) => void;
   /** Screen ids to expand on first paint. Groups with selected perms also open. */
   defaultOpenGroups?: Set<string>;
+  /** Controlled search text. With `hideToolbar`, the host renders its own search. */
+  search?: string;
+  /** Controlled surface filter. */
+  surface?: PickerSurfaceFilter;
+  /** Hide the built-in search, surface filter and counter (the host provides them). */
+  hideToolbar?: boolean;
+  /** Read-only: checkboxes are disabled, groups still expand. */
+  disabled?: boolean;
 }
 
 function triState(selectedCount: number, total: number): boolean | "indeterminate" {
@@ -96,10 +104,12 @@ function PermissionRow({
   row,
   selected,
   onToggleOne,
+  disabled,
 }: {
   row: PickerPermissionRow;
   selected: Set<string>;
   onToggleOne: (id: string) => void;
+  disabled?: boolean;
 }) {
   const t = useTranslations("rbac");
   const tPicker = useTranslations("rbac.permissionPicker");
@@ -113,6 +123,7 @@ function PermissionRow({
         id={`perm-${row.permission.permission_id}`}
         checked={selected.has(row.permission.permission_id)}
         onCheckedChange={() => onToggleOne(row.permission.permission_id)}
+        disabled={disabled}
         className="mt-0.5 shrink-0"
       />
       <label
@@ -152,6 +163,7 @@ function PickerAccordion({
   onToggleOne,
   defaultOpen,
   searchQuery,
+  disabled,
 }: {
   group: PickerScreenGroup;
   title: string;
@@ -160,6 +172,7 @@ function PickerAccordion({
   onToggleOne: (id: string) => void;
   defaultOpen?: boolean;
   searchQuery: string;
+  disabled?: boolean;
 }) {
   const t = useTranslations("rbac");
   const tPicker = useTranslations("rbac.permissionPicker");
@@ -215,6 +228,7 @@ function PickerAccordion({
               )
             }
             aria-label={tPicker("selectAllInGroup", { resource: title })}
+            disabled={disabled}
             className="shrink-0"
           />
         ) : (
@@ -292,6 +306,7 @@ function PickerAccordion({
                       bucket: tPicker(BUCKET_LABEL[bucket.id]),
                       resource: title,
                     })}
+                    disabled={disabled}
                     className="shrink-0"
                   />
                   <label
@@ -308,6 +323,7 @@ function PickerAccordion({
                       row={row}
                       selected={selected}
                       onToggleOne={onToggleOne}
+                      disabled={disabled}
                     />
                   ))}
                 </div>
@@ -325,12 +341,18 @@ export function PermissionPicker({
   selected,
   onChange,
   defaultOpenGroups,
+  search: searchProp,
+  surface: surfaceProp,
+  hideToolbar = false,
+  disabled = false,
 }: PermissionPickerProps) {
   const t = useTranslations("rbac");
   const tPicker = useTranslations("rbac.permissionPicker");
   const tNav = useTranslations("nav.items") as unknown as NavTranslator;
-  const [search, setSearch] = useState("");
-  const [surface, setSurface] = useState<PickerSurfaceFilter>("all");
+  const [searchState, setSearch] = useState("");
+  const [surfaceState, setSurface] = useState<PickerSurfaceFilter>("all");
+  const search = searchProp ?? searchState;
+  const surface = surfaceProp ?? surfaceState;
 
   const activePermissions = useMemo(
     () => permissions.filter((permission) => permission.active !== false),
@@ -375,7 +397,7 @@ export function PermissionPicker({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col gap-3">
+      <div className={hideToolbar ? "hidden" : "flex flex-col gap-3"}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-sm flex-1">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -463,6 +485,7 @@ export function PermissionPicker({
                   defaultOpenGroups?.has(group.screenId) || hasSelected
                 }
                 searchQuery={search}
+                disabled={disabled}
               />
             );
           })}
