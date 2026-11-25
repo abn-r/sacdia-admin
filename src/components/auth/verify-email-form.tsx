@@ -8,10 +8,8 @@ import {
   verifyEmailAction,
   type VerifyEmailState,
 } from "@/lib/auth/verify-email-action";
-import { BrandMark, StatusMessage } from "@/components/auth/public-auth-parts";
+import { AuthCard, BrandMark, StatusMessage } from "@/components/auth/public-auth-parts";
 import { Button } from "@/components/ui/button";
-import { PAGE_ENTER_CLASSES } from "@/lib/animations";
-import { cn } from "@/lib/utils";
 
 const initialState: VerifyEmailState = {};
 
@@ -95,9 +93,9 @@ export function VerifyEmailForm({ token }: { token: string }) {
   }
 
   return (
-    <div className={cn("w-full max-w-[380px]", PAGE_ENTER_CLASSES)}>
+    <AuthCard>
       <BrandMark subtitle={tBrand("brand_subtitle")} />
       {content}
-    </div>
+    </AuthCard>
   );
 }

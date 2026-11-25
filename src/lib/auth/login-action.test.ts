@@ -37,7 +37,28 @@ describe("loginAction errors", () => {
 
     await expect(loginAction({}, credentials())).resolves.toEqual({
       error: "errors.too_many_attempts",
+      rateLimited: true,
     });
+  });
+
+  it("rejects an empty password without calling the API", async () => {
+    const formData = credentials();
+    formData.set("password", "");
+
+    const result = await loginAction({}, formData);
+
+    expect(result.error).toBe("login.passwordRequired");
+    expect(mockApiRequest).not.toHaveBeenCalled();
+  });
+
+  it("lets a password shorter than the new-password policy reach the backend", async () => {
+    mockApiRequest.mockRejectedValueOnce(new ApiError("Unauthorized", 401, null));
+    const formData = credentials();
+    formData.set("password", "short-pass1");
+
+    await loginAction({}, formData);
+
+    expect(mockApiRequest).toHaveBeenCalled();
   });
 
   it("keeps the invalid-credentials message for 401", async () => {

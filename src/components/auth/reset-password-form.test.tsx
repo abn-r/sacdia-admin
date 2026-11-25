@@ -47,6 +47,39 @@ async function submit() {
   await waitFor(() => expect(mockAction).toHaveBeenCalled());
 }
 
+describe("ResetPasswordForm password checklist", () => {
+  afterEach(cleanup);
+
+  const states = () =>
+    Array.from(document.querySelectorAll("#password-requirements li")).map((li) =>
+      li.getAttribute("data-met"),
+    );
+
+  it("ticks each requirement while the password is typed", () => {
+    renderForm("tok-1");
+    expect(states()).toEqual(["false", "false", "false", "false"]);
+
+    fireEvent.change(screen.getByLabelText(t.password_label), { target: { value: "Hola1" } });
+    expect(states()).toEqual(["false", "true", "true", "false"]);
+
+    fireEvent.change(screen.getByLabelText(t.password_label), { target: { value: "Sacdia2026!ok" } });
+    expect(states()).toEqual(["true", "true", "true", "true"]);
+  });
+
+  it("keeps the submit disabled until every rule is met and both fields match", () => {
+    renderForm("tok-1");
+    const submit = () => screen.getByRole("button", { name: t.submit_idle });
+    expect(submit()).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText(t.password_label), { target: { value: "Sacdia2026!ok" } });
+    fireEvent.change(screen.getByLabelText(t.confirm_label), { target: { value: "otra" } });
+    expect(submit()).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText(t.confirm_label), { target: { value: "Sacdia2026!ok" } });
+    expect(submit()).not.toBeDisabled();
+  });
+});
+
 describe("ResetPasswordForm", () => {
   afterEach(() => {
     cleanup();
@@ -112,7 +145,6 @@ describe("ResetPasswordForm", () => {
       renderForm("tok-inv", "invitation");
 
       expect(screen.getByText(t.invitation.title)).toBeTruthy();
-      expect(screen.getByText(t.invitation.description)).toBeTruthy();
       expect(screen.queryByText(t.title)).toBeNull();
       expect(
         screen.getByRole("button", { name: t.invitation.submit_idle }),

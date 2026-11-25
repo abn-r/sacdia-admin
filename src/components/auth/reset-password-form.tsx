@@ -2,31 +2,38 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, MinusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   resetPasswordAction,
   type ResetPasswordState,
 } from "@/lib/auth/reset-password-action";
-import { BrandMark, StatusMessage } from "@/components/auth/public-auth-parts";
+import { AuthCard, BrandMark, StatusMessage } from "@/components/auth/public-auth-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PAGE_ENTER_CLASSES } from "@/lib/animations";
+import { passwordRequirements } from "@/lib/auth/password-policy";
 import { cn } from "@/lib/utils";
 
 const initialState: ResetPasswordState = {};
 
 export type ResetPasswordVariant = "reset" | "invitation";
 
-function SubmitButton({ variant }: { variant: ResetPasswordVariant }) {
+function SubmitButton({
+  variant,
+  disabled = false,
+}: {
+  variant: ResetPasswordVariant;
+  disabled?: boolean;
+}) {
   const t = useTranslations("auth.reset_password");
   const { pending } = useFormStatus();
   const invitation = variant === "invitation";
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       size="lg"
       className="w-full gap-2 text-sm font-semibold"
     >
@@ -47,11 +54,17 @@ function SubmitButton({ variant }: { variant: ResetPasswordVariant }) {
 function PasswordField({
   id,
   label,
+  value,
+  onChange,
   autoFocus,
+  describedBy,
 }: {
   id: "password" | "confirm";
   label: string;
+  value: string;
+  onChange: (value: string) => void;
   autoFocus?: boolean;
+  describedBy?: string;
 }) {
   const t = useTranslations("auth.reset_password");
   const [visible, setVisible] = useState(false);
@@ -64,6 +77,9 @@ function PasswordField({
         <Input
           id={id}
           name={id}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-describedby={describedBy}
           type={visible ? "text" : "password"}
           required
           autoComplete="new-password"
@@ -84,6 +100,54 @@ function PasswordField({
   );
 }
 
+function RequirementList({ value, id }: { value: string; id: string }) {
+  const t = useTranslations("admin.access.reset");
+  const items = passwordRequirements(value);
+  return (
+    <ul id={id} className="-mt-1 space-y-1.5" aria-label={t("requirementsLabel")}>
+      {items.map((item) => {
+        const Icon = item.met ? CheckCircle2 : MinusCircle;
+        return (
+          <li
+            key={item.id}
+            data-met={item.met}
+            className={cn(
+              "flex items-center gap-2 text-sm",
+              item.met ? "text-foreground" : "text-muted-foreground",
+            )}
+          >
+            <Icon
+              aria-hidden="true"
+              className={cn("size-4 shrink-0", item.met ? "text-primary" : "text-muted-foreground/60")}
+            />
+            <span>{t(`requirements.${item.id}`)}</span>
+            <span className="sr-only">{item.met ? t("requirementMet") : t("requirementPending")}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Where "Abrir la app" points; the button is hidden until the link is configured. */
+const MOBILE_APP_URL = process.env.NEXT_PUBLIC_MOBILE_APP_URL?.trim() ?? "";
+
+function ActivatedActions() {
+  const t = useTranslations("admin.access.reset");
+  return (
+    <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+      <Button asChild size="lg" className="flex-1">
+        <Link href="/login">{t("goToPanel")}</Link>
+      </Button>
+      {MOBILE_APP_URL ? (
+        <Button asChild size="lg" variant="outline" className="flex-1">
+          <a href={MOBILE_APP_URL}>{t("openApp")}</a>
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Form behind the link in the password reset email
  * (`{ADMIN_PANEL_URL}/reset-password?token=...`) and behind the admin
@@ -100,15 +164,23 @@ export function ResetPasswordForm({
   const t = useTranslations("auth.reset_password");
   const invitation = variant === "invitation";
   const [state, formAction] = useActionState(resetPasswordAction, initialState);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const tReset = useTranslations("admin.access.reset");
+  const requirementsMet = passwordRequirements(password).every((item) => item.met);
+  const mismatch = confirm.length > 0 && confirm !== password;
 
   let content: React.ReactNode;
   if (state.success) {
     content = (
-      <StatusMessage
-        tone="success"
-        title={invitation ? t("invitation.success_title") : t("success_title")}
-        body={invitation ? t("invitation.success_body") : t("success_body")}
-      />
+      <>
+        <StatusMessage
+          tone="success"
+          title={invitation ? t("invitation.success_title") : t("success_title")}
+          body={invitation ? tReset("activatedBody") : tReset("resetDoneBody")}
+        />
+        <ActivatedActions />
+      </>
     );
   } else if (!token || state.linkInvalid) {
     content = (
@@ -125,7 +197,7 @@ export function ResetPasswordForm({
           {invitation ? t("invitation.title") : t("title")}
         </h1>
         <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
-          {invitation ? t("invitation.description") : t("description")}
+          {invitation ? tReset("invitationDescription") : tReset("resetDescription")}
         </p>
 
         <form action={formAction} className="flex flex-col gap-4">
@@ -142,12 +214,30 @@ export function ResetPasswordForm({
             </div>
           )}
 
-          <PasswordField id="password" label={t("password_label")} autoFocus />
-          <p className="-mt-2 text-xs text-muted-foreground">{t("policy_hint")}</p>
-          <PasswordField id="confirm" label={t("confirm_label")} />
+          <PasswordField
+            id="password"
+            label={t("password_label")}
+            value={password}
+            onChange={setPassword}
+            autoFocus
+            describedBy="password-requirements"
+          />
+          <RequirementList value={password} id="password-requirements" />
+          <PasswordField
+            id="confirm"
+            label={t("confirm_label")}
+            value={confirm}
+            onChange={setConfirm}
+            describedBy={mismatch ? "confirm-mismatch" : undefined}
+          />
+          {mismatch && (
+            <p id="confirm-mismatch" role="alert" className="-mt-2 text-xs text-destructive">
+              {t("errors.mismatch")}
+            </p>
+          )}
 
           <div className="pt-2">
-            <SubmitButton variant={variant} />
+            <SubmitButton variant={variant} disabled={!requirementsMet || mismatch || confirm.length === 0} />
           </div>
         </form>
       </>
@@ -155,9 +245,9 @@ export function ResetPasswordForm({
   }
 
   return (
-    <div className={cn("w-full max-w-[380px]", PAGE_ENTER_CLASSES)}>
+    <AuthCard>
       <BrandMark subtitle={t("brand_subtitle")} />
       {content}
-    </div>
+    </AuthCard>
   );
 }
