@@ -97,4 +97,89 @@ export const appScreens: ScreenDefinition[] = [
     viewAny: capabilityAccess("investiture.authorize_requests"),
     capabilities: [],
   },
+  // Territorial supervision (Unión / División) in the app. Each function has its
+  // own capability; the persona key only opens the hub. Services stay the
+  // authority on scope. Routes nest under `/supervision`.
+  {
+    id: "supervision-hub",
+    path: "/supervision",
+    surfaces: ["app"],
+    // Persona: Unión and División roles, even with an unconfigured territory
+    // (the hub then shows only «Territorio sin configurar»).
+    viewAny: capabilityAccess("supervision.app_view"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-enrollments",
+    path: "/supervision/enrollments",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("club_enrollments.validate"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-folders",
+    // Also serves `/supervision/folders/:folderId`.
+    path: "/supervision/folders",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("folders.evaluate"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-requests",
+    path: "/supervision/requests",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("requests.review_territory"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-operations",
+    path: "/supervision/operations",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("analytics.operations_dashboard"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-clubs",
+    // Also serves `/supervision/clubs/:clubId`.
+    path: "/supervision/clubs",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("clubs.view_territory"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-reports",
+    path: "/supervision/reports",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("reports.view_territory"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-annual-progress",
+    path: "/supervision/annual-progress",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("annual_progress.view_territory"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-union-camporees",
+    path: "/supervision/union-camporees",
+    surfaces: ["app"],
+    // Unión only (and super-admin): División never sees the camporee entry.
+    viewAny: capabilityAccess("union_camporees.approve_registrations"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-union-camporee-approvals",
+    path: "/supervision/union-camporees/:camporeeId/approvals",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("union_camporees.approve_registrations"),
+    capabilities: [],
+  },
+  {
+    id: "supervision-union-camporee-orders",
+    path: "/supervision/union-camporees/:camporeeId/orders",
+    surfaces: ["app"],
+    viewAny: capabilityAccess("camporee_orders.configure_offering"),
+    capabilities: [],
+  },
 ];
