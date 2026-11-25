@@ -104,9 +104,23 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   const fieldOrPlatform = platform || anyOf(g, FIELD);
   const fieldWithScope = anyOf(g, FIELD) && t === "local_field";
   const tIn = (...levels: AuthorizationTerritoryLevel[]) => levels.includes(t);
+  // Backend `territorialSupervisor`: super-admin/admin + Campo/Unión/División
+  // roles with a configured tier (false for `open` and `unconfigured`).
+  const territorialSupervisor =
+    anyOf(g, ["super-admin", "admin", ...FIELD, ...UNION, ...DIVISION]) &&
+    tIn("all", "division", "union", "local_field");
+  // Persona: Unión or División role, whatever the territory.
+  const supervisionAppView = anyOf(g, [...UNION, ...DIVISION]);
 
   grant("admin_panel.access", [...g].some((role) => role !== "user"));
   grant("admin_panel.pastor_only", g.size > 0 && [...g].every((role) => role === "pastor"));
+  grant(
+    "app.clubless_surface",
+    (g.size > 0 && [...g].every((role) => role === "pastor")) ||
+      platform ||
+      anyOf(g, [...COORDINATORS, ...FIELD]) ||
+      supervisionAppView,
+  );
   grant("audit.read_system", superAdmin);
   grant("camporee_orders.configure_offering", tIn("all", "local_field", "union"));
   grant("camporee_orders.issue", a !== null && STAFF.includes(a));
@@ -156,7 +170,22 @@ export function deriveCapabilities(input: DeriveCapabilitiesInput): CapabilityKe
   grant("rbac.mutate_global_roles", superAdmin);
   grant("rbac.view_user_roles", anyOf(g, ["super-admin", "admin"]));
   grant("reports.regenerate_periodic", anyOf(g, ["super-admin", "admin"]));
-  grant("reports.view_all", anyOf(g, ["super-admin", "admin", ...DIVISION]));
+  // Platform admins only: División roles read their own division through
+  // `reports.view_territory`.
+  grant("reports.view_all", anyOf(g, ["super-admin", "admin"]));
+  grant(
+    "reports.view_territory",
+    // The fixture only carries the tier, not the anchor ids: a Union/División
+    // role has its anchor exactly when `deriveTerritory` did not leave it
+    // `unconfigured`.
+    anyOf(g, [...UNION, ...DIVISION]) && t !== "unconfigured",
+  );
+  grant("requests.review_territory", territorialSupervisor);
+  grant("annual_progress.view_territory", territorialSupervisor);
+  grant("clubs.view_territory", territorialSupervisor);
+  grant("analytics.operations_dashboard", territorialSupervisor || anyOf(g, COORDINATORS));
+  grant("supervision.app_view", supervisionAppView);
+  grant("union_camporees.approve_registrations", superAdmin || (anyOf(g, UNION) && t === "union"));
   grant("reports.view_local_field", g.has("assistant-admin") || fieldWithScope);
   // Quarterly / annual reports: everyone who reaches a territory or a club
   // section; coordinators with no other role are out.

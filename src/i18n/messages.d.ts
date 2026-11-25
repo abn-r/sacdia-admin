@@ -3348,6 +3348,17 @@ export interface IntlMessages {
       app_investiture_authorizer: string;
       app_materials: string;
       app_classes: string;
+      supervision_hub: string;
+      supervision_enrollments: string;
+      supervision_folders: string;
+      supervision_requests: string;
+      supervision_operations: string;
+      supervision_clubs: string;
+      supervision_reports: string;
+      supervision_annual_progress: string;
+      supervision_union_camporees: string;
+      supervision_union_camporee_approvals: string;
+      supervision_union_camporee_orders: string;
       geography_divisions: string;
       audit_logs: string;
       insurance_config: string;
