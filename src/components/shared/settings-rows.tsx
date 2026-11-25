@@ -50,15 +50,17 @@ export interface SettingsSaveBarProps {
   onCancel?: () => void;
   /** Label for the cancel button; required when onCancel is passed. */
   cancelLabel?: string;
+  /** Replaces the generic "unsaved changes" text (e.g. "2 cambios sin guardar · Coordinador"). */
+  message?: string;
 }
 
-export function SettingsSaveBar({ dirty, pending = false, onSave, onCancel, cancelLabel }: SettingsSaveBarProps) {
+export function SettingsSaveBar({ dirty, pending = false, onSave, onCancel, cancelLabel, message }: SettingsSaveBarProps) {
   const t = useTranslations("shared.kit.settings");
   return (
     <div className="sticky bottom-0 z-10 -mx-4 flex items-center justify-end gap-3 border-t bg-background px-4 py-3 md:-mx-6 md:px-6">
       {dirty && (
         <p role="status" className="mr-auto text-muted-foreground text-sm">
-          {t("unsaved")}
+          {message ?? t("unsaved")}
         </p>
       )}
       {onCancel && dirty && (

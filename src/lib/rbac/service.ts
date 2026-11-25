@@ -1,4 +1,5 @@
 import { apiRequest, ApiError } from "@/lib/api/client";
+import { isUsageEndpointMissing, parseRoleUsage, type RoleUsage } from "@/lib/rbac/role-usage";
 import type { Permission, Role, UserPermission, UserRole, CreateRoleInput, UpdateRoleInput } from "@/lib/rbac/types";
 
 type ApiResponse<T> = { status: string; data: T };
@@ -201,4 +202,23 @@ export async function removeRoleFromUser(userId: string, roleId: string) {
     `/admin/rbac/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleId)}`,
     { method: "DELETE" },
   );
+}
+
+// ─── Uso de un rol ──────────────────────────────────────────
+
+/**
+ * How many people hold the role (`GET /admin/rbac/roles/:id/usage`, backend B3).
+ * While the endpoint is missing this answers `{ available: false }` so callers
+ * fall back to trying the deactivation and reading the API error.
+ */
+export async function getRoleUsage(id: string): Promise<RoleUsage> {
+  try {
+    const response = await apiRequest<unknown>(`/admin/rbac/roles/${id}/usage`);
+    return parseRoleUsage(response);
+  } catch (error) {
+    if (error instanceof ApiError && isUsageEndpointMissing(error.status)) {
+      return { available: false };
+    }
+    throw error;
+  }
 }
