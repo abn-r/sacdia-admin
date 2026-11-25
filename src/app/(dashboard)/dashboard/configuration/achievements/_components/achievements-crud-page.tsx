@@ -11,7 +11,6 @@ import {
   Pencil,
   Plus,
   RefreshCw,
-  Search,
   Trash2,
   Trophy,
 } from "lucide-react";
@@ -20,7 +19,6 @@ import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -138,7 +136,6 @@ export function AchievementsCrudPage({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestParamsRef = useRef(searchParamsString);
 
   const [deleteItem, setDeleteItem] = useState<AchievementRecord | null>(null);
@@ -157,22 +154,10 @@ export function AchievementsCrudPage({
 
   useEffect(() => {
     latestParamsRef.current = searchParamsString;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
   }, [searchParamsString]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
 
   const updateParam = useCallback(
     (key: string, value: string, mode: NavigationMode = "push") => {
-      if (key !== "search" && debounceRef.current) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-
       const params = new URLSearchParams(latestParamsRef.current);
       const normalized = value.trim();
 
@@ -182,7 +167,6 @@ export function AchievementsCrudPage({
         params.set(key, normalized);
       }
 
-      if (key === "search") params.delete("q");
       params.set("page", "1");
 
       const queryString = params.toString();
@@ -197,31 +181,10 @@ export function AchievementsCrudPage({
     [pathname, router],
   );
 
-  const currentSearch = searchParams.get("search") ?? "";
   const currentTypeFilter = searchParams.get("type") ?? "all";
-  const currentTierFilter = searchParams.get("tier") ?? "all";
   const currentStatusFilter = searchParams.get("active") ?? "all";
-  const [searchInput, setSearchInput] = useState(currentSearch);
-
-  useEffect(() => {
-    setSearchInput(currentSearch);
-  }, [currentSearch]);
-
-  const handleSearchInputChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("search", value, "replace");
-      }, 400);
-    },
-    [updateParam],
-  );
-
   const hasActiveFilters = Boolean(
-    currentSearch ||
     currentTypeFilter !== "all" ||
-    currentTierFilter !== "all" ||
     currentStatusFilter !== "all",
   );
 
@@ -256,20 +219,6 @@ export function AchievementsCrudPage({
           </div>
           <div className="overflow-x-auto pb-1">
             <div className="flex min-w-max flex-wrap items-end gap-4">
-              <div className="w-[260px] space-y-1">
-                <Label htmlFor="ach-filter-name">{t("filterName")}</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="ach-filter-name"
-                    placeholder={t("filterNamePlaceholder")}
-                    value={searchInput}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    className="bg-background pl-9"
-                  />
-                </div>
-              </div>
-
               <div className="w-[160px] space-y-1">
                 <Label htmlFor="ach-filter-type">{t("filterType")}</Label>
                 <Select
@@ -286,26 +235,6 @@ export function AchievementsCrudPage({
                     <SelectItem value="COMPOUND">{tPreview("typeLabels.COMPOUND")}</SelectItem>
                     <SelectItem value="MILESTONE">{tPreview("typeLabels.MILESTONE")}</SelectItem>
                     <SelectItem value="COLLECTION">{tPreview("typeLabels.COLLECTION")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="w-[160px] space-y-1">
-                <Label htmlFor="ach-filter-tier">{t("filterTier")}</Label>
-                <Select
-                  value={currentTierFilter}
-                  onValueChange={(v) => updateParam("tier", v)}
-                >
-                  <SelectTrigger id="ach-filter-tier" className="bg-background">
-                    <SelectValue placeholder={t("filterTierPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("filterTierAll")}</SelectItem>
-                    <SelectItem value="BRONZE">{tPreview("tierLabels.BRONZE")}</SelectItem>
-                    <SelectItem value="SILVER">{tPreview("tierLabels.SILVER")}</SelectItem>
-                    <SelectItem value="GOLD">{tPreview("tierLabels.GOLD")}</SelectItem>
-                    <SelectItem value="PLATINUM">{tPreview("tierLabels.PLATINUM")}</SelectItem>
-                    <SelectItem value="DIAMOND">{tPreview("tierLabels.DIAMOND")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

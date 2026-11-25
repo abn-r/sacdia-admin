@@ -3,7 +3,7 @@
  *
  * Architecture notes:
  * ------------------------------------------------------------------
- * AlertDialog (no React Hook Form). Two buttons: Cancelar / Eliminar.
+ * AlertDialog (no React Hook Form). Two buttons: Cancelar / Desactivar.
  * Action: onDelete(category.scoring_category_id) — async function prop.
  * Guards: exits early if category is null.
  *
@@ -128,11 +128,11 @@ describe("ScoringCategoryDeleteDialog", () => {
     renderDialog();
 
     expect(
-      screen.getByRole("heading", { name: /eliminar categoría/i }),
+      screen.getByRole("heading", { name: /(eliminar|desactivar) categoría/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Puntualidad/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancelar/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /eliminar/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^(eliminar|desactivar)/i })).toBeInTheDocument();
   });
 
   // ── 2. Not rendered when closed ───────────────────────────────────────────
@@ -141,7 +141,7 @@ describe("ScoringCategoryDeleteDialog", () => {
     renderDialog({ open: false });
 
     expect(
-      screen.queryByRole("heading", { name: /eliminar categoría/i }),
+      screen.queryByRole("heading", { name: /(eliminar|desactivar) categoría/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -158,7 +158,7 @@ describe("ScoringCategoryDeleteDialog", () => {
   it("does not call onDelete when category is null", async () => {
     const { onDelete } = renderDialog({ category: null });
 
-    const confirmBtn = screen.getByRole("button", { name: /eliminar/i });
+    const confirmBtn = screen.getByRole("button", { name: /^(eliminar|desactivar)/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -171,7 +171,7 @@ describe("ScoringCategoryDeleteDialog", () => {
   it("calls onDelete with scoring_category_id, shows success toast, calls onSuccess and closes", async () => {
     const { onOpenChange, onDelete, onSuccess } = renderDialog();
 
-    const confirmBtn = screen.getByRole("button", { name: /eliminar/i });
+    const confirmBtn = screen.getByRole("button", { name: /^(eliminar|desactivar)/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -205,7 +205,7 @@ describe("ScoringCategoryDeleteDialog", () => {
     );
     const { onSuccess } = renderDialog({ onDelete: failingDelete });
 
-    const confirmBtn = screen.getByRole("button", { name: /eliminar/i });
+    const confirmBtn = screen.getByRole("button", { name: /^(eliminar|desactivar)/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -226,7 +226,7 @@ describe("ScoringCategoryDeleteDialog", () => {
     const failingDelete = vi.fn<(id: number) => Promise<void>>().mockRejectedValue({ code: 500 });
     renderDialog({ onDelete: failingDelete });
 
-    const confirmBtn = screen.getByRole("button", { name: /eliminar/i });
+    const confirmBtn = screen.getByRole("button", { name: /^(eliminar|desactivar)/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
@@ -248,13 +248,13 @@ describe("ScoringCategoryDeleteDialog", () => {
 
     renderDialog({ onDelete: slowDelete });
 
-    const confirmBtn = screen.getByRole("button", { name: /eliminar/i });
+    const confirmBtn = screen.getByRole("button", { name: /^(eliminar|desactivar)/i });
     await act(async () => {
       fireEvent.click(confirmBtn);
     });
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /eliminando/i })).toBeDisabled();
+      expect(screen.getByRole("button", { name: /desactivando/i })).toBeDisabled();
       expect(screen.getByRole("button", { name: /cancelar/i })).toBeDisabled();
     });
 
@@ -269,7 +269,7 @@ describe("ScoringCategoryDeleteDialog", () => {
     renderDialog();
 
     expect(
-      screen.getByText(/registros históricos se conservarán/i),
+      screen.getByText(/registros históricos se conservan/i),
     ).toBeInTheDocument();
   });
 });

@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Pencil,
   Plus,
-  Search,
   Trash2,
   Trophy,
   ChevronRight,
@@ -17,15 +15,6 @@ import { Button } from "@/components/ui/button";
 import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -51,7 +40,6 @@ import { CategoryFormDialog } from "@/app/(dashboard)/dashboard/configuration/ac
 import type { AchievementActionState } from "@/lib/achievements/actions";
 
 type CategoryRecord = Record<string, unknown>;
-type NavigationMode = "push" | "replace";
 
 type FormAction = (
   prevState: AchievementActionState,
@@ -99,13 +87,6 @@ export function AchievementCategoriesCrudPage({
 }: Props) {
   const t = useTranslations("achievements.crud.categories");
   const tToast = useTranslations("achievements.toasts");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latestParamsRef = useRef(searchParamsString);
-
   const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<CategoryRecord | null>(null);
   const [deleteItem, setDeleteItem] = useState<CategoryRecord | null>(null);
@@ -145,71 +126,6 @@ export function AchievementCategoriesCrudPage({
     {},
   );
 
-  useEffect(() => {
-    latestParamsRef.current = searchParamsString;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-  }, [searchParamsString]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
-
-  const updateParam = useCallback(
-    (key: string, value: string, mode: NavigationMode = "push") => {
-      if (key !== "search" && debounceRef.current) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-
-      const params = new URLSearchParams(latestParamsRef.current);
-      const normalized = value.trim();
-
-      if (!normalized || normalized === "all") {
-        params.delete(key);
-      } else {
-        params.set(key, normalized);
-      }
-
-      if (key === "search") {
-        params.delete("name");
-        params.delete("q");
-      }
-
-      params.set("page", "1");
-      const queryString = params.toString();
-      const nextUrl = queryString ? `${pathname}?${queryString}` : pathname;
-
-      if (mode === "replace") {
-        router.replace(nextUrl);
-        return;
-      }
-      router.push(nextUrl);
-    },
-    [pathname, router],
-  );
-
-  const currentSearch = searchParams.get("search") ?? searchParams.get("q") ?? "";
-  const currentStatusFilter = searchParams.get("active") ?? "all";
-  const [searchInput, setSearchInput] = useState(currentSearch);
-
-  useEffect(() => {
-    setSearchInput(currentSearch);
-  }, [currentSearch]);
-
-  const handleSearchInputChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        updateParam("search", value, "replace");
-      }, 400);
-    },
-    [updateParam],
-  );
-
-  const hasActiveFilters = Boolean(currentSearch || currentStatusFilter !== "all");
   const safePage = Math.max(1, meta.page || 1);
   const safeLimit = Math.max(1, meta.limit || 20);
   const safeTotalPages = Math.max(1, meta.totalPages || 1);
@@ -227,64 +143,17 @@ export function AchievementCategoriesCrudPage({
       </PageHeader>
 
       <div className="space-y-4">
-        {/* Filters */}
-        <div className="rounded-xl border bg-muted/20 p-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold tracking-wide text-foreground">{t("filtersTitle")}</h3>
-            <span className="text-xs text-muted-foreground">{t("filtersSubtitle")}</span>
-          </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="flex min-w-max items-end gap-4">
-              <div className="w-[300px] space-y-1">
-                <Label htmlFor="cat-filter-name">{t("filterName")}</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="cat-filter-name"
-                    placeholder={t("filterNamePlaceholder")}
-                    value={searchInput}
-                    onChange={(e) => handleSearchInputChange(e.target.value)}
-                    className="bg-background pl-9"
-                  />
-                </div>
-              </div>
-              <div className="w-[200px] space-y-1">
-                <Label htmlFor="cat-filter-status">{t("filterStatus")}</Label>
-                <Select
-                  value={currentStatusFilter}
-                  onValueChange={(value) => updateParam("active", value)}
-                >
-                  <SelectTrigger id="cat-filter-status" className="bg-background">
-                    <SelectValue placeholder={t("filterStatusPlaceholder")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("filterStatusAll")}</SelectItem>
-                    <SelectItem value="true">{t("filterStatusActive")}</SelectItem>
-                    <SelectItem value="false">{t("filterStatusInactive")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Table / Empty */}
         {items.length === 0 ? (
           <EmptyState
             icon={Trophy}
-            title={hasActiveFilters ? t("emptyFiltersTitle") : t("emptyNoFiltersTitle")}
-            description={
-              hasActiveFilters
-                ? t("emptyFiltersDescription")
-                : t("emptyNoFiltersDescription")
-            }
+            title={t("emptyNoFiltersTitle")}
+            description={t("emptyNoFiltersDescription")}
           >
-            {!hasActiveFilters && (
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="size-4" />
-                {t("newButton")}
-              </Button>
-            )}
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="size-4" />
+              {t("newButton")}
+            </Button>
           </EmptyState>
         ) : (
           <>
