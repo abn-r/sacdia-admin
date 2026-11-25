@@ -3697,7 +3697,23 @@
       "honors": {
         "title": "Especialidades",
         "singular": "especialidad",
-        "description": "Catálogo maestro de especialidades con soporte multilingüe."
+        "description": "Catálogo maestro de especialidades con soporte multilingüe.",
+        "assets": {
+          "imageLabel": "Imagen",
+          "materialLabel": "Material (PDF)",
+          "upload": "Subir archivo",
+          "replace": "Reemplazar",
+          "uploading": "Subiendo…",
+          "imageHint": "PNG, JPEG o WebP · hasta 5 MB",
+          "materialHint": "PDF · hasta 10 MB",
+          "urlPlaceholder": "O pega la URL del archivo",
+          "viewFile": "Ver archivo",
+          "previewAlt": "Imagen de la especialidad",
+          "typeError": "Tipo de archivo no permitido",
+          "sizeError": "El archivo supera el máximo de {max} MB",
+          "uploaded": "Archivo subido. Guarda la especialidad para aplicarlo.",
+          "uploadError": "No se pudo subir el archivo"
+        }
       },
       "relationship-types": {
         "title": "Tipos de relación",

@@ -3727,6 +3727,22 @@ export interface IntlMessages {
         title: string;
         singular: string;
         description: string;
+        assets: {
+          imageLabel: string;
+          materialLabel: string;
+          upload: string;
+          replace: string;
+          uploading: string;
+          imageHint: string;
+          materialHint: string;
+          urlPlaceholder: string;
+          viewFile: string;
+          previewAlt: string;
+          typeError: string;
+          sizeError: string;
+          uploaded: string;
+          uploadError: string;
+        };
       };
       "relationship-types": {
         title: string;

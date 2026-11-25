@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { HonorAssetField } from "@/components/catalogs/honors/honor-asset-field";
 import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -154,24 +155,24 @@ export function HonorFormDialog({
                       className="min-h-[80px] resize-none"
                     />
                   </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="honor-image">{tFields("honor_image")}</Label>
-                    <Input
+                  <div className="sm:col-span-2">
+                    <HonorAssetField
+                      key={`image-${honor?.honor_id ?? "new"}-${open}`}
+                      kind="image"
                       id="honor-image"
                       name="honor_image"
-                      defaultValue={honor?.honor_image ?? ""}
+                      defaultValue={honor?.honor_image}
                       required
-                      placeholder="https://..."
                     />
                   </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="honor-material">{tFields("material_url")}</Label>
-                    <Input
+                  <div className="sm:col-span-2">
+                    <HonorAssetField
+                      key={`material-${honor?.honor_id ?? "new"}-${open}`}
+                      kind="material"
                       id="honor-material"
                       name="material_url"
-                      defaultValue={honor?.material_url ?? ""}
+                      defaultValue={honor?.material_url}
                       required
-                      placeholder="https://..."
                     />
                   </div>
                   <div className="space-y-2">

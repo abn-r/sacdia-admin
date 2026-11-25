@@ -3697,7 +3697,23 @@
       "honors": {
         "title": "Honors",
         "singular": "honor",
-        "description": "Master honors catalog with multilingual support."
+        "description": "Master honors catalog with multilingual support.",
+        "assets": {
+          "imageLabel": "Image",
+          "materialLabel": "Material (PDF)",
+          "upload": "Upload file",
+          "replace": "Replace",
+          "uploading": "Uploading…",
+          "imageHint": "PNG, JPEG or WebP · up to 5 MB",
+          "materialHint": "PDF · up to 10 MB",
+          "urlPlaceholder": "Or paste the file URL",
+          "viewFile": "View file",
+          "previewAlt": "Honor image",
+          "typeError": "File type not allowed",
+          "sizeError": "The file exceeds the {max} MB limit",
+          "uploaded": "File uploaded. Save the honor to apply it.",
+          "uploadError": "The file could not be uploaded"
+        }
       },
       "relationship-types": {
         "title": "Relationship types",
