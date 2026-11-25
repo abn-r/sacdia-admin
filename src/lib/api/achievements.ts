@@ -1,4 +1,5 @@
 import { apiRequest, apiRequestFromClient } from "@/lib/api/client";
+import { unwrapApiData } from "@/lib/api/unwrap";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -221,17 +222,34 @@ export async function getAchievementStats() {
   return apiRequest<AchievementStats>("/admin/achievements/stats");
 }
 
-export async function uploadAchievementImage(achievementId: number, file: File) {
+export type UploadedBadgeImage = { badge_image_key: string; badge_image_url: string };
+
+/**
+ * Uploads the badge image. The backend answers `{ status, data }` and the
+ * browser client does not unwrap it, so the URL is read from `data`.
+ */
+export async function uploadAchievementImage(
+  achievementId: number,
+  file: File,
+): Promise<UploadedBadgeImage> {
   const formData = new FormData();
   formData.append("file", file);
 
-  return apiRequestFromClient<{ badge_image_key: string; badge_image_url: string }>(
+  const payload = await apiRequestFromClient<unknown>(
     `/admin/achievements/${achievementId}/image`,
     {
       method: "POST",
       body: formData,
     },
   );
+  const result = unwrapApiData<Partial<UploadedBadgeImage> | null>(payload);
+  if (!result || typeof result.badge_image_url !== "string" || !result.badge_image_url) {
+    throw new Error("Badge upload response without an image URL");
+  }
+  return {
+    badge_image_key: result.badge_image_key ?? "",
+    badge_image_url: result.badge_image_url,
+  };
 }
 
 export async function triggerRetroactiveEvaluation(achievementId: number) {
