@@ -1,5 +1,32 @@
 import { describe, expect, it } from "vitest";
-import { getClientMessageNamespacesForDashboardPath } from "./client-messages";
+import {
+  getClientMessageNamespacesForDashboardPath,
+  pickMessages,
+  ROOT_CLIENT_MESSAGE_NAMESPACES,
+} from "./client-messages";
+
+describe("pickMessages", () => {
+  const messages = {
+    auth: { login: { title: "Entrar" } },
+    admin: { access: { login: { forgotLink: "¿Olvidaste tu contraseña?" } }, roles: { title: "Roles" } },
+    clubs: { title: "Clubes" },
+  };
+
+  it("keeps only the branch of a dotted namespace", () => {
+    expect(pickMessages(messages, ["auth", "admin.access"])).toEqual({
+      auth: messages.auth,
+      admin: { access: messages.admin.access },
+    });
+  });
+
+  it("skips namespaces that do not exist", () => {
+    expect(pickMessages(messages, ["missing", "admin.missing"])).toEqual({});
+  });
+
+  it("sends the public access texts to the root layout", () => {
+    expect(ROOT_CLIENT_MESSAGE_NAMESPACES).toContain("admin.access");
+  });
+});
 
 describe("getClientMessageNamespacesForDashboardPath", () => {
   const dashboardMessages = {

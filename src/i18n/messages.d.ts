@@ -28,6 +28,315 @@ declare module "next-intl" {
 }
 
 export interface IntlMessages {
+  admin: {
+    catalogs: {
+      rail: {
+        ariaLabel: string;
+        description: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        groups: {
+          territory: string;
+          clubs: string;
+          honors: string;
+          health: string;
+          operation: string;
+        };
+      };
+      classDetail: {
+        ariaLabel: string;
+        modules: string;
+        honors: string;
+        prerequisites: string;
+        honorsNote: string;
+        prerequisitesNote: string;
+      };
+      masterHonor: {
+        newTitle: string;
+        fieldName: string;
+        fieldActive: string;
+        fieldActiveHint: string;
+        sections: {
+          data: string;
+          scope: string;
+          requirements: string;
+        };
+        scopeDescription: string;
+        groupsSummary: string;
+        groupsSummaryNone: string;
+        recalculateWarning: string;
+        recalculateFailed: string;
+        savedRecalculated: string;
+        saved: string;
+        saveAndRecalculate: string;
+        save: string;
+        unsavedRequirements: string;
+        phrase: {
+          anyCategory: string;
+          categoryCount: string;
+          kindCategory: string;
+          kindExplicit: string;
+          explicitEmpty: string;
+          explicitAll: string;
+          explicitEither: string;
+          explicitSome: string;
+        };
+      };
+    };
+    configuration: {
+      rail: {
+        description: string;
+        ariaLabel: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        groups: {
+          local_field: string;
+          investiture: string;
+          evaluation: string;
+          system: string;
+        };
+        items: {
+          paymentMethods: string;
+          delivery: string;
+          investitureWindow: string;
+          districtPastors: string;
+          evidenceTemplates: string;
+          scoringCategories: string;
+          roleRequirements: string;
+          achievements: string;
+          variables: string;
+        };
+      };
+      variables: {
+        description: string;
+        invalid: string;
+        saved: string;
+        saveFailed: string;
+        unexpected: string;
+        errors: {
+          required: string;
+          number: string;
+          json: string;
+        };
+      };
+    };
+    roles: {
+      title: string;
+      description: string;
+      newRole: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      emptySearchTitle: string;
+      emptySearchDescription: string;
+      searchPlaceholder: string;
+      scopeGlobal: string;
+      scopeClub: string;
+      inactive: string;
+      protected: string;
+      protectedTooltip: string;
+      tabs: {
+        roles: string;
+        byRole: string;
+        catalog: string;
+        direct: string;
+      };
+      cols: {
+        role: string;
+        scope: string;
+        permissions: string;
+        status: string;
+      };
+      actions: {
+        edit: string;
+        deactivate: string;
+      };
+      statusFilter: {
+        label: string;
+        all: string;
+        active: string;
+        inactive: string;
+      };
+      deactivate: {
+        title: string;
+        subtitle: string;
+        checking: string;
+        blockedTitle: string;
+        blockedDescription: string;
+        viewPeople: string;
+        noneDescription: string;
+        unknownDescription: string;
+        close: string;
+        cancel: string;
+        confirm: string;
+        processing: string;
+      };
+      copy: {
+        button: string;
+        title: string;
+        description: string;
+        from: string;
+        to: string;
+        placeholder: string;
+        inactiveSuffix: string;
+        summaryTitle: string;
+        summaryDetail: string;
+        noChange: string;
+        cancel: string;
+        confirm: string;
+        replacing: string;
+      };
+      byRole: {
+        roleLabel: string;
+        searchPlaceholder: string;
+        switchBlocked: string;
+        readOnly: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        discard: string;
+        unsaved: string;
+        saved: string;
+      };
+    };
+    audit: {
+      title: string;
+      description: string;
+      filters: {
+        search: string;
+        action: string;
+        allActions: string;
+        actionDenied: string;
+        from: string;
+        to: string;
+        result: string;
+        allResults: string;
+        clear: string;
+      };
+      columns: {
+        when: string;
+        what: string;
+        about: string;
+        who: string;
+      };
+      detail: {
+        about: string;
+        result: string;
+        resultOk: string;
+        origin: string;
+        originRequest: string;
+        originService: string;
+        changes: string;
+        added: string;
+        removed: string;
+        changed: string;
+        yes: string;
+        no: string;
+        technicalData: string;
+        close: string;
+      };
+    };
+    system: {
+      title: string;
+      description: string;
+      refresh: string;
+      refreshing: string;
+      tabs: {
+        queues: string;
+        cron: string;
+        history: string;
+      };
+      status: {
+        never: string;
+        completed: string;
+        failed: string;
+        running: string;
+        skipped: string;
+      };
+      queues: {
+        colQueue: string;
+        colWaiting: string;
+        colActive: string;
+        colCompleted: string;
+        colFailed: string;
+        colWhen: string;
+        noFailures: string;
+      };
+      cron: {
+        colTask: string;
+        colFailures7d: string;
+        runAndNotify: string;
+      };
+      history: {
+        technicalData: string;
+      };
+      runDescriptions: {
+        monthlyReports: string;
+        annualProgress: string;
+        dataExportCleanup: string;
+        memberOfMonth: string;
+        financePeriod: string;
+        activitiesReminder: string;
+        membershipExpiry: string;
+        cleanupExpired: string;
+        fcmCleanup: string;
+        annualReports: string;
+        quarterlyReports: string;
+        monthlyReportsReminders: string;
+        cronAlertCheck: string;
+        fcmStaleCleanup: string;
+        dependentProfilesPurge: string;
+        familyAgeTransitions: string;
+        familyMajorityRelease: string;
+        pendingTeenGuardian: string;
+        investitureAchievementIntent: string;
+        investitureAuthReminders: string;
+        ecclesiasticalYearCut: string;
+        generic: string;
+      };
+    };
+    access: {
+      login: {
+        description: string;
+        brandDescription: string;
+        forgotLink: string;
+        rateLimitedTitle: string;
+        rateLimitedBody: string;
+        passwordRequired: string;
+      };
+      forgot: {
+        metaTitle: string;
+        title: string;
+        description: string;
+        emailLabel: string;
+        submit: string;
+        submitLoading: string;
+        sentTitle: string;
+        sentBody: string;
+        backToLogin: string;
+        errors: {
+          emailInvalid: string;
+          tooManyAttempts: string;
+          generic: string;
+        };
+      };
+      reset: {
+        requirementsLabel: string;
+        requirements: {
+          length: string;
+          case: string;
+          number: string;
+          special: string;
+        };
+        requirementMet: string;
+        requirementPending: string;
+        invitationDescription: string;
+        resetDescription: string;
+        activatedBody: string;
+        resetDoneBody: string;
+        goToPanel: string;
+        openApp: string;
+      };
+    };
+  };
   evaluation: {
     evidence: {
       queue: {
@@ -9939,6 +10248,7 @@ export interface IntlMessages {
       activities: string;
       finances: string;
       notifications: string;
+      field_payment_orders: string;
       general: string;
     };
     validation: {
