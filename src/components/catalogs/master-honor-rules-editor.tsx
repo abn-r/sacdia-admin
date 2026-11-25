@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import { Minus, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,13 @@ export interface MasterHonorRulesEditorProps {
   honors: MasterHonorAuxHonor[];
   honorCategories: MasterHonorAuxCategory[];
   divisions: MasterHonorAuxDivision[];
+  /**
+   * Which blocks to render. Omitted = everything in one bordered panel (dialog use);
+   * the master honor page renders each part under its own section heading.
+   */
+  parts?: ReadonlyArray<"info" | "scope" | "groups">;
+  /** Reads a requirement group as a sentence; shown at the top of each group card. */
+  renderGroupSummary?: (group: MasterHonorRuleGroupPayload, index: number) => ReactNode;
 }
 
 const DEFAULT_SCOPE = "ALL" as const;
@@ -201,6 +208,8 @@ export function MasterHonorRulesEditor({
   honors,
   honorCategories,
   divisions,
+  parts,
+  renderGroupSummary,
 }: MasterHonorRulesEditorProps) {
   const t = useTranslations("catalogs.masterHonors");
 
@@ -353,11 +362,15 @@ export function MasterHonorRulesEditor({
     [normalized, updateRoot],
   );
 
-  return (
-    <div className="space-y-6 rounded-lg border bg-muted/20 p-4">
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold">{t("rulesTitle")}</h3>
+  const show = (part: "info" | "scope" | "groups") => !parts || parts.includes(part);
 
+  return (
+    <div className={parts ? "space-y-6" : "space-y-6 rounded-lg border bg-muted/20 p-4"}>
+      <div className="space-y-4">
+        {parts ? null : <h3 className="text-sm font-semibold">{t("rulesTitle")}</h3>}
+
+        {show("info") ? (
+        <>
         <div className="space-y-2">
           <Label htmlFor="master-honor-philosophy">{t("fieldPhilosophy")}</Label>
           <Textarea
@@ -381,7 +394,11 @@ export function MasterHonorRulesEditor({
             placeholder={t("fieldNotesPlaceholder")}
           />
         </div>
+        </>
+        ) : null}
 
+        {show("scope") ? (
+        <>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="master-honor-scope">{t("fieldApplicabilityScope")}</Label>
@@ -439,12 +456,15 @@ export function MasterHonorRulesEditor({
             </div>
           </div>
         ) : null}
+        </>
+        ) : null}
       </div>
 
+      {show("groups") ? (
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h4 className="text-sm font-semibold">{t("rulesGroupsTitle")}</h4>
+            {parts ? null : <h4 className="text-sm font-semibold">{t("rulesGroupsTitle")}</h4>}
             <p className="text-xs text-muted-foreground">{t("rulesGroupsDescription")}</p>
           </div>
           <Button
@@ -476,6 +496,7 @@ export function MasterHonorRulesEditor({
                 key={`${groupIndex}-${group.group_type}-${group.display_order}-${group.title ?? ""}`}
                 className="space-y-4 rounded-md border bg-background p-3"
               >
+                {renderGroupSummary ? renderGroupSummary(group, groupIndex) : null}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h5 className="text-sm font-semibold">
                     {t("groupLabel", { index: groupIndex + 1 })}
@@ -781,12 +802,15 @@ export function MasterHonorRulesEditor({
           <p className="text-sm text-muted-foreground">{t("noGroups")}</p>
         ) : null}
       </div>
+      ) : null}
 
-      <input
-        type="hidden"
-        name="master_honor_payload"
-        value={JSON.stringify(normalized)}
-      />
+      {parts ? null : (
+        <input
+          type="hidden"
+          name="master_honor_payload"
+          value={JSON.stringify(normalized)}
+        />
+      )}
     </div>
   );
 }

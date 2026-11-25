@@ -20,6 +20,9 @@ const LOCALE_LABELS: Record<CatalogLocale, string> = {
   fr: "Français",
 };
 
+/** Tab order shown to the admin: Español, English, Português, Français. */
+const TAB_ORDER: readonly CatalogLocale[] = ["en", "pt-BR", "fr"];
+
 // ─── Second-field configuration ───────────────────────────────────────────────
 
 /** Describes the optional second translatable field shown in non-es tabs. */
@@ -59,6 +62,12 @@ interface TranslationsTabsFieldProps {
    * actions can detect whether the admin actually touched a non-es tab.
    */
   fieldNamePrefix?: string;
+  /**
+   * Emits hidden `translation_<locale>_name` / `translation_<locale>_description`
+   * inputs (one pair per locale) for the catalog server actions that read that
+   * flat shape (divisions, churches, honors, honor categories).
+   */
+  legacyFieldNames?: boolean;
   /** Disable all inputs (loading state). */
   disabled?: boolean;
   /**
@@ -185,6 +194,7 @@ export function TranslationsTabsField({
   onTranslationsChange,
   includeDescription = true,
   fieldNamePrefix,
+  legacyFieldNames = false,
   disabled = false,
   onDirtyChange,
 }: TranslationsTabsFieldProps) {
@@ -213,20 +223,21 @@ export function TranslationsTabsField({
     <Tabs defaultValue="es">
       <TabsList>
         <TabsTrigger value="es">Español</TabsTrigger>
-        {CATALOG_LOCALES.map((locale) => (
+        {TAB_ORDER.map((locale) => (
           <TabsTrigger key={locale} value={locale}>
             {LOCALE_LABELS[locale]}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      {/* Spanish tab — renders caller-provided fields unchanged */}
-      <TabsContent value="es" className="mt-4">
+      {/* Spanish tab: caller-provided fields. Kept mounted (just hidden) so
+          uncontrolled inputs still submit while another language tab is open. */}
+      <TabsContent value="es" forceMount className="mt-4 data-[state=inactive]:hidden">
         {esContent}
       </TabsContent>
 
       {/* Non-es tabs */}
-      {CATALOG_LOCALES.map((locale) => {
+      {TAB_ORDER.map((locale) => {
         const entry = getEntry(translations, locale);
         return (
           <TabsContent key={locale} value={locale} className="mt-4">
@@ -288,14 +299,28 @@ export function TranslationsTabsField({
         );
       })}
 
+      {legacyFieldNames
+        ? CATALOG_LOCALES.map((locale) => {
+            const entry = getEntry(translations, locale);
+            return (
+              <span key={locale} hidden>
+                <input type="hidden" name={`translation_${locale}_name`} value={entry?.name ?? ""} />
+                <input
+                  type="hidden"
+                  name={`translation_${locale}_description`}
+                  value={entry?.description ?? ""}
+                />
+              </span>
+            );
+          })
+        : null}
+
       {/* Hidden inputs for FormData serialization */}
+      {(fieldNamePrefix || legacyFieldNames) && (
+        <input type="hidden" name="translations_dirty" value={dirty ? "1" : "0"} />
+      )}
       {fieldNamePrefix && (
         <>
-          <input
-            type="hidden"
-            name="translations_dirty"
-            value={dirty ? "1" : "0"}
-          />
           <FormDataHiddenInputs
             prefix={fieldNamePrefix}
             translations={translations}

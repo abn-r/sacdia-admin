@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { CatalogPageHeader } from "@/components/catalogs/catalog-page-header";
+import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CertificationsList } from "@/components/certifications/certifications-list";
 import { CertificationsAdminPanel } from "@/components/certifications/certifications-admin-panel";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ApiError } from "@/lib/api/client";
+import { catalogLoadFailure, type CatalogLoadFailure } from "@/lib/catalogs/load-failure";
 import { listCertifications } from "@/lib/api/certifications";
 import {
   extractCertificationItems,
@@ -28,21 +28,21 @@ export default async function CatalogCertificationsPage() {
   const canPublish = canCapability(user, "catalogs-certifications", "publish");
 
   let items: ReturnType<typeof normalizeCertificationListItem>[] = [];
-  let loadError: string | null = null;
+  let loadFailure: CatalogLoadFailure | null = null;
 
   try {
     const payload = await listCertifications({ page: 1, limit: 100 });
     items = extractCertificationItems(payload).map(normalizeCertificationListItem);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("loadError");
+    loadFailure = catalogLoadFailure(error);
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t("title")} description={t("description")} />
+      <CatalogPageHeader title={t("title")} description={t("description")} />
 
       {canConfigure ? (
-        <CertificationsAdminPanel
+        loadFailure ? null : <CertificationsAdminPanel
           certifications={items.map((item) => ({
             certification_id: item.certification_id,
             name: item.name,
@@ -58,8 +58,12 @@ export default async function CatalogCertificationsPage() {
         </Alert>
       )}
 
-      {loadError ? (
-        <EndpointErrorBanner state="missing" detail={loadError} />
+      {loadFailure ? (
+        <ErrorState
+          kind={loadFailure.kind}
+          retry
+          {...(loadFailure.detail ? { detail: loadFailure.detail } : {})}
+        />
       ) : items.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}

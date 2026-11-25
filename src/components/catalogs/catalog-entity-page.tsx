@@ -9,8 +9,8 @@ import {
   updateCatalogItemAction,
 } from "@/lib/catalogs/actions";
 import { CatalogCrudPage } from "@/components/catalogs/catalog-crud-page";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { ApiError } from "@/lib/api/client";
+import { CatalogLoadError } from "@/components/catalogs/catalog-load-error";
+import { catalogLoadFailure, type CatalogLoadFailure } from "@/lib/catalogs/load-failure";
 
 interface CatalogEntityPageProps {
   entityKey: EntityKey;
@@ -25,7 +25,7 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
   if (!allowed) {
     return <CatalogEditorForbidden />;
   }
-  const t = await getTranslations("catalogs");
+  const tEntities = await getTranslations("catalogs.entities");
 
   const config = entityConfigs[entityKey];
   const screenId = ENTITY_SCREEN_ID[entityKey];
@@ -40,12 +40,12 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
     : undefined;
 
   let items: Record<string, unknown>[] = [];
-  let loadError: string | null = null;
+  let loadFailure: CatalogLoadFailure | null = null;
 
   try {
     items = await listEntityItems(entityKey);
   } catch (error) {
-    loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
+    loadFailure = catalogLoadFailure(error);
   }
 
   const selectOptionsMap: Record<string, { label: string; value: number }[]> = {};
@@ -72,24 +72,13 @@ export async function CatalogEntityPage({ entityKey }: CatalogEntityPageProps) {
 
   const boundCreateAction = createCatalogItemAction.bind(null, entityKey, config.routeBase);
 
-  if (loadError) {
+  if (loadFailure) {
     return (
-      <div className="space-y-6">
-        <EndpointErrorBanner state="missing" detail={loadError} />
-        <CatalogCrudPage
-          config={config}
-          items={[]}
-          selectOptions={selectOptionsMap}
-          displaySelectOptions={displaySelectOptionsMap}
-          createAction={boundCreateAction}
-          updateActionBase={updateCatalogItemAction}
-          entityKey={entityKey}
-          routeBase={config.routeBase}
-          canCreate={canCreate}
-          canEdit={canEdit}
-          canDelete={canDelete}
-        />
-      </div>
+      <CatalogLoadError
+        failure={loadFailure}
+        title={tEntities(`${config.key}.title`)}
+        description={tEntities(`${config.key}.description`)}
+      />
     );
   }
 

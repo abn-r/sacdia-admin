@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { CountryFormDialog } from "@/components/catalogs/countries/country-form-dialog";
 import { getCountryColumns } from "@/components/catalogs/countries/countries-columns";
 import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import {
   AlertDialog,
   AlertDialogAction,

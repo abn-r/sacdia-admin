@@ -266,9 +266,9 @@ describe("PhaseECatalogCrudPage - dialogs", () => {
 });
 
 describe("PhaseECatalogCrudPage - embedded", () => {
-  it("renders its own page header (H1) by default", () => {
+  it("renders its own pane heading (h2, the page h1 lives in the catalogs layout) by default", () => {
     renderPage();
-    expect(screen.getByRole("heading", { level: 1, name: "Categorías de finanzas" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Categorías de finanzas" })).toBeInTheDocument();
   });
 
   it("renders no heading and keeps the create button when embedded in another page", () => {

@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { TranslationsTabsField } from "@/components/catalogs/translations-tabs-field";
+import { TranslationsTabsField } from "@/components/forms/translations-tabs-field";
 import { retainedValue, useRetainedActionState } from "@/hooks/use-retained-action-state";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +33,8 @@ import {
 } from "@/lib/catalogs/churches/actions";
 import type { AdminChurchRow } from "@/lib/catalogs/churches/types";
 import type { AdminDistrict } from "@/lib/catalogs/districts/types";
-import { CATALOG_LOCALES } from "@/lib/types/catalog-translation";
+import type { CatalogTranslation } from "@/lib/types/catalog-translation";
+import { toCatalogTranslations } from "@/lib/catalogs/translations";
 
 type ChurchFormDialogProps = {
   open: boolean;
@@ -54,15 +55,6 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-function buildTranslationMap(church?: AdminChurchRow | null) {
-  const map: Record<string, string> = {};
-  for (const locale of CATALOG_LOCALES) {
-    const match = church?.translations.find((row) => row.locale === locale);
-    map[locale] = match?.name ?? "";
-  }
-  return map;
-}
-
 export function ChurchFormDialog({
   open,
   onOpenChange,
@@ -77,14 +69,14 @@ export function ChurchFormDialog({
 
   const action = mode === "create" ? createChurchAction : updateChurchAction;
   const { state, formAction, values, discard } = useRetainedActionState(action, initialState);
-  const [translationValues, setTranslationValues] = useState<Record<string, string>>({});
+  const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
   const [active, setActive] = useState(true);
   const [districtId, setDistrictId] = useState("");
 
   useEffect(() => {
     if (open) {
       discard();
-      setTranslationValues(buildTranslationMap(church));
+      setTranslations(toCatalogTranslations(church?.translations));
       setActive(church?.active ?? true);
       setDistrictId(church?.district_id ? String(church.district_id) : "");
     }
@@ -128,46 +120,47 @@ export function ChurchFormDialog({
           ) : null}
           <input type="hidden" name="district_id" value={districtId} />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="church-name">{tFields("name")}</Label>
-              <Input
-                id="church-name"
-                name="name"
-                defaultValue={retainedValue(values, "name", church?.name ?? "")}
-                required
-                maxLength={50}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="church-active">{tFields("active")}</Label>
-              <div className="flex h-9 items-center">
-                <Switch id="church-active" checked={active} onCheckedChange={setActive} />
-                <input type="hidden" name="active" value={active ? "true" : "false"} />
-              </div>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="church-district">{tFields("district")}</Label>
-              <Select value={districtId} onValueChange={setDistrictId} required>
-                <SelectTrigger id="church-district" className="w-full">
-                  <SelectValue placeholder={tFields("district")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {districts.map((district) => (
-                    <SelectItem key={district.district_id} value={String(district.district_id)}>
-                      {district.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           <TranslationsTabsField
-            values={translationValues}
-            onChange={(locale, value) =>
-              setTranslationValues((current) => ({ ...current, [locale]: value }))
+            esContent={
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="church-name">{tFields("name")}</Label>
+                    <Input
+                      id="church-name"
+                      name="name"
+                      defaultValue={retainedValue(values, "name", church?.name ?? "")}
+                      required
+                      maxLength={50}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="church-active">{tFields("active")}</Label>
+                    <div className="flex h-9 items-center">
+                      <Switch id="church-active" checked={active} onCheckedChange={setActive} />
+                      <input type="hidden" name="active" value={active ? "true" : "false"} />
+                    </div>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="church-district">{tFields("district")}</Label>
+                    <Select value={districtId} onValueChange={setDistrictId} required>
+                      <SelectTrigger id="church-district" className="w-full">
+                        <SelectValue placeholder={tFields("district")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {districts.map((district) => (
+                          <SelectItem key={district.district_id} value={String(district.district_id)}>
+                            {district.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
             }
+            translations={translations}
+            onTranslationsChange={setTranslations}
+            legacyFieldNames
+            includeDescription={false}
           />
 
           <DialogFooter>

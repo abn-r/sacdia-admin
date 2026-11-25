@@ -69,9 +69,10 @@ export function getHonorCategoryColumns({
     {
       accessorKey: "active",
       header: () => labels.status,
-      cell: ({ row }) => (
-        <StatusBadge intent={flagStatusIntent(row.original.active)} label={row.original.active ? labels.active : labels.inactive} />
-      ),
+      cell: ({ row }) =>
+        row.original.active ? null : (
+          <StatusBadge intent={flagStatusIntent(false)} label={labels.inactive} />
+        ),
       filterFn: (row, _columnId, filterValue) => {
         if (!filterValue || filterValue === "all") return true;
         if (filterValue === "active") return row.original.active;

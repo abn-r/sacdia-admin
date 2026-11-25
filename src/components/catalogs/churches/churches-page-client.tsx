@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { ChurchFormDialog } from "@/components/catalogs/churches/church-form-dialog";
 import { getChurchColumns } from "@/components/catalogs/churches/churches-columns";
 import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import {
   AlertDialog,
   AlertDialogAction,

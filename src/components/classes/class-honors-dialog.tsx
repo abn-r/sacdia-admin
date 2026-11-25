@@ -83,6 +83,8 @@ type ClassHonorsDialogProps = {
   canCreate: boolean;
   canUpdate?: boolean;
   canDelete: boolean;
+  /** Render the content in place (a tab panel) instead of behind a button + dialog. */
+  inline?: boolean;
 };
 
 function moduleLabel(
@@ -106,6 +108,7 @@ export function ClassHonorsDialog({
   canCreate,
   canUpdate = false,
   canDelete,
+  inline = false,
 }: ClassHonorsDialogProps) {
   const tRel = useTranslations("classes.relations");
   const [open, setOpen] = useState(false);
@@ -202,30 +205,8 @@ export function ClassHonorsDialog({
     items: relations.filter((relation) => relation.relation_type === type),
   })).filter((group) => group.items.length > 0);
 
-  return (
-    <>
-      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <Award className="size-4" />
-        Especialidades
-        {relations.length > 0 ? (
-          <Badge variant="secondary" className="ml-1">
-            {relations.length}
-          </Badge>
-        ) : null}
-      </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Especialidades relacionadas</DialogTitle>
-            <DialogDescription>
-              Asocia especialidades a esta clase o a un módulo. La relación es
-              informativa: no bloquea el progreso ni la investidura, incluso si es
-              «Requerida».
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
+  const body = (
+    <div className="space-y-4">
             {canCreate ? (
               <form
                 onSubmit={handleCreate}
@@ -367,15 +348,9 @@ export function ClassHonorsDialog({
               </div>
             )}
           </div>
+  );
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+  const deleteDialog = (
       <AlertDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(next) => !next && setDeleteTarget(null)}
@@ -395,6 +370,51 @@ export function ClassHonorsDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+  );
+
+  if (inline) {
+    return (
+      <>
+        {body}
+        {deleteDialog}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <Award className="size-4" />
+        Especialidades
+        {relations.length > 0 ? (
+          <Badge variant="secondary" className="ml-1">
+            {relations.length}
+          </Badge>
+        ) : null}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Especialidades relacionadas</DialogTitle>
+            <DialogDescription>
+              Asocia especialidades a esta clase o a un módulo. La relación es
+              informativa: no bloquea el progreso ni la investidura, incluso si es
+              «Requerida».
+            </DialogDescription>
+          </DialogHeader>
+
+          {body}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {deleteDialog}
     </>
   );
 }

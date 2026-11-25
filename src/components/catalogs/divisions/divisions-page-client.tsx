@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { DivisionFormDialog } from "@/components/catalogs/divisions/division-form-dialog";
 import { getDivisionColumns } from "@/components/catalogs/divisions/divisions-columns";
 import { CatalogTableView } from "@/components/catalogs/catalog-table-view";
-import { PageHeader } from "@/components/shared/page-header";
+import { CatalogPageHeader as PageHeader } from "@/components/catalogs/catalog-page-header";
 import {
   AlertDialog,
   AlertDialogAction,

@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { CountriesPageClient } from "@/components/catalogs/countries/countries-page-client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ApiError } from "@/lib/api/client";
 import { listAdminCountries } from "@/lib/api/admin-countries";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
-import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
+import { CatalogLoadError } from "@/components/catalogs/catalog-load-error";
+import { catalogLoadFailure, type CatalogLoadFailure } from "@/lib/catalogs/load-failure";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import type { AdminCountry } from "@/lib/catalogs/countries/types";
@@ -27,35 +26,24 @@ export default async function CountriesPage() {
   const t = await getTranslations("catalogs");
 
   let countries: AdminCountry[] = [];
-  let loadError: string | null = null;
-  let rateLimited = false;
+  let loadFailure: CatalogLoadFailure | null = null;
 
   try {
     countries = await listAdminCountries();
   } catch (error) {
-    if (error instanceof ApiError && error.status === 429) {
-      rateLimited = true;
-    } else {
-      loadError = error instanceof ApiError ? error.message : t("errors.load_data_failed");
-    }
+    loadFailure = catalogLoadFailure(error);
   }
 
   const canCreate = canCapability(user, "catalogs-countries", "create");
   const canEdit = canCapability(user, "catalogs-countries", "update");
   const canDelete = canCapability(user, "catalogs-countries", "delete");
 
-  if (rateLimited) {
-    return <CatalogRateLimited title={t("entities.countries.title")} description={t("entities.countries.description")} breadcrumbs={[{ label: t("entities.countries.title") }]} />;
+  if (loadFailure) {
+    return <CatalogLoadError failure={loadFailure} title={t("entities.countries.title")} description={t("entities.countries.description")} />;
   }
 
   return (
     <>
-      {loadError ? (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>{t("errors.load_data_failed")}</AlertTitle>
-          <AlertDescription>{loadError}</AlertDescription>
-        </Alert>
-      ) : null}
       <CountriesPageClient
         countries={countries}
         canCreate={canCreate}

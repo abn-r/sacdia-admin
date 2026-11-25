@@ -3,7 +3,6 @@ import { Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
 
 const PhaseECatalogCrudPage = dynamic(
   () =>
@@ -26,11 +25,11 @@ const PhaseECatalogCrudPage = dynamic(
     ),
   }
 );
-import { ApiError } from "@/lib/api/client";
 import { listAdminRelationshipTypes } from "@/lib/api/generic-catalogs-i18n";
 import { extractItems, readParam, readPositiveNumberParam, paginateLoadedItems } from "@/lib/phase-e-catalogs/fetch-helpers";
 import { CatalogEditorForbidden } from "@/components/catalogs/catalog-editor-forbidden";
-import { CatalogRateLimited } from "@/components/catalogs/catalog-rate-limited";
+import { CatalogLoadError } from "@/components/catalogs/catalog-load-error";
+import { catalogLoadFailure, type CatalogLoadFailure } from "@/lib/catalogs/load-failure";
 import { loadCatalogEditorSession } from "@/lib/auth/catalog-editor-session";
 import { canCapability } from "@/lib/auth/screen-catalog";
 import {
@@ -61,8 +60,7 @@ export default async function RelationshipTypesPage({ searchParams }: { searchPa
 
   let items: Record<string, unknown>[] = [];
   let meta = { page, limit, total: 0, totalPages: 1 };
-  let loadError: string | null = null;
-  let rateLimited = false;
+  let loadFailure: CatalogLoadFailure | null = null;
 
   try {
     const params: Record<string, string | number | boolean> = { page, limit };
@@ -74,24 +72,19 @@ export default async function RelationshipTypesPage({ searchParams }: { searchPa
     items = extractItems(payload);
     ({ items, meta } = paginateLoadedItems(items, payload, page, limit));
   } catch (error) {
-    if (error instanceof ApiError && error.status === 429) {
-      rateLimited = true;
-    } else {
-      loadError = error instanceof ApiError ? error.message : t("loadError");
-    }
+    loadFailure = catalogLoadFailure(error);
   }
 
   const canCreate = canCapability(user, "catalogs-relationship-types", "create");
   const canEdit = canCapability(user, "catalogs-relationship-types", "update");
   const canDelete = canCapability(user, "catalogs-relationship-types", "delete");
 
-  if (rateLimited) {
-    return <CatalogRateLimited title={t("title")} description={t("description")} />;
+  if (loadFailure) {
+    return <CatalogLoadError failure={loadFailure} title={t("title")} description={t("description")} />;
   }
 
   return (
     <div className="space-y-6">
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
       <PhaseECatalogCrudPage
         title={t("title")}
         description={t("description")}
