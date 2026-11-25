@@ -3697,7 +3697,23 @@
       "honors": {
         "title": "Spécialités",
         "singular": "spécialité",
-        "description": "Catalogue maître des spécialités avec support multilingue."
+        "description": "Catalogue maître des spécialités avec support multilingue.",
+        "assets": {
+          "imageLabel": "Image",
+          "materialLabel": "Support (PDF)",
+          "upload": "Téléverser un fichier",
+          "replace": "Remplacer",
+          "uploading": "Téléversement…",
+          "imageHint": "PNG, JPEG ou WebP · jusqu'à 5 Mo",
+          "materialHint": "PDF · jusqu'à 10 Mo",
+          "urlPlaceholder": "Ou colle l'URL du fichier",
+          "viewFile": "Voir le fichier",
+          "previewAlt": "Image de la spécialité",
+          "typeError": "Type de fichier non autorisé",
+          "sizeError": "Le fichier dépasse la limite de {max} Mo",
+          "uploaded": "Fichier téléversé. Enregistre la spécialité pour l'appliquer.",
+          "uploadError": "Impossible de téléverser le fichier"
+        }
       },
       "relationship-types": {
         "title": "Types de relation",
