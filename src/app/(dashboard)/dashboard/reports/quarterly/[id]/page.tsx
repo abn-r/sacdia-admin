@@ -51,7 +51,7 @@ export default async function QuarterlyReportDetailPage({
         description={report.club?.name ?? undefined}
         breadcrumbs={[
           { label: t("common.breadcrumbReports"), href: "/dashboard/reports" },
-          { label: t("quarterly.page.title"), href: "/dashboard/reports/quarterly" },
+          { label: t("quarterly.page.title"), href: "/dashboard/reports?tab=quarterly" },
           { label: period },
         ]}
       />

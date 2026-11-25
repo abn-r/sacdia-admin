@@ -1,5 +1,5 @@
 import { ListPageSkeleton } from "@/components/shared/list-page-skeleton";
 
 export default function Loading() {
-  return <ListPageSkeleton />;
+  return <ListPageSkeleton rows={5} filters={0} />;
 }

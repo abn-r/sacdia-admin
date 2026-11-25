@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Users, BarChart3 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { BarChart3, Search, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -11,276 +16,290 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableShell } from "@/components/shared/data-table-shell";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { ListFilterField } from "@/components/shared/list-filters-shell";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import { UserProgressDialog } from "@/components/certifications/user-progress-dialog";
-import { apiRequestFromClient } from "@/lib/api/client";
-import { toast } from "sonner";
-import { useTranslations } from "next-intl";
-
-type EnrolledUser = {
-  user_id: string;
-  enrollment_id?: number;
-  certification_id: number;
-  enrolled_at?: string | null;
-  completed_at?: string | null;
-  progress_percent?: number | null;
-  user?: {
-    user_id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-};
-
-type ModuleProgress = {
-  module_id: number;
-  title?: string;
-  sections: {
-    section_id: number;
-    title?: string;
-    completed: boolean;
-    completed_at?: string | null;
-    notes?: string | null;
-  }[];
-};
-
-type UserProgressData = {
-  user_id: string;
-  certification_id: number;
-  enrolled_at?: string | null;
-  completed_at?: string | null;
-  progress_percent?: number | null;
-  modules: ModuleProgress[];
-  user_name?: string;
-  user_email?: string;
-};
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return "—";
-  try {
-    return new Date(dateStr).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return "—";
-  }
-}
-
-function getUserDisplayName(user?: EnrolledUser["user"], fallbackId?: string): string {
-  if (!user) return fallbackId ?? "—";
-  const first = user.first_name?.trim() ?? "";
-  const last = user.last_name?.trim() ?? "";
-  const full = [first, last].filter(Boolean).join(" ");
-  return full || user.email || user.user_id || fallbackId || "—";
-}
+import {
+  UserProgressSheet,
+  type ProgressTarget,
+} from "@/components/certifications/user-progress-sheet";
+import type {
+  CertificationEnrollmentRow,
+  CertificationEnrollmentsPage,
+} from "@/lib/api/certifications";
+import {
+  ENROLLMENT_STATUSES,
+  ENROLLMENT_STATUS_INTENTS,
+  NORMAL_ENROLLMENT_STATUSES,
+  enrollmentFullName,
+  isEnrollmentStatus,
+} from "@/lib/certifications/enrollment-status";
+import { useFormatDate } from "@/lib/format-locale";
 
 interface EnrolledUsersPanelProps {
-  enrollments: EnrolledUser[];
+  data: CertificationEnrollmentsPage;
   certificationId: number;
+  /** Current `?search=` (applied on the server). */
+  search: string;
+  /** Current `?status=` (applied on the server). */
+  status: string;
 }
 
-export function EnrolledUsersPanel({ enrollments, certificationId }: EnrolledUsersPanelProps) {
-  const t = useTranslations("certifications");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [progressData, setProgressData] = useState<UserProgressData | null>(null);
-  const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
+const HEAD = "h-9 px-3 text-xs font-medium text-muted-foreground";
+const SEARCH_DEBOUNCE_MS = 350;
 
-  async function handleViewProgress(enrollment: EnrolledUser) {
-    const userId = enrollment.user?.user_id ?? enrollment.user_id;
-    setLoadingUserId(userId);
-    setProgressData(null);
-    setDialogOpen(true);
+function ProgressMeter({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(value)}
+        className="h-1 w-24 overflow-hidden rounded-full bg-muted"
+      >
+        <div
+          className="h-full rounded-full bg-foreground/70 transition-[width] duration-200 motion-reduce:transition-none"
+          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+        />
+      </div>
+      <span className="text-[13px] text-muted-foreground tabular-nums">{Math.round(value)}%</span>
+    </div>
+  );
+}
 
-    try {
-      const raw = await apiRequestFromClient<unknown>(
-        `/certifications/users/${encodeURIComponent(userId)}/certifications/${certificationId}/progress`,
-      );
+export function EnrolledUsersPanel({
+  data,
+  certificationId,
+  search,
+  status,
+}: EnrolledUsersPanelProps) {
+  const t = useTranslations("evaluation.certYear.certifications.enrolled");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const formatDate = useFormatDate();
 
-      const data = normalizeProgressPayload(raw, userId, certificationId, enrollment);
-      setProgressData(data);
-    } catch {
-      toast.error(t("toasts.progress_load_failed"));
-      setDialogOpen(false);
-    } finally {
-      setLoadingUserId(null);
+  const [query, setQuery] = useState(search);
+  const [target, setTarget] = useState<ProgressTarget | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
+
+  function updateParams(changes: Record<string, string | null>) {
+    const next = new URLSearchParams(searchParams?.toString() ?? "");
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
     }
+    next.delete("page");
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
-  if (enrollments.length === 0) {
+  function handleSearch(value: string) {
+    setQuery(value);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      updateParams({ search: value.trim() || null });
+    }, SEARCH_DEBOUNCE_MS);
+  }
+
+  function clearFilters() {
+    setQuery("");
+    updateParams({ search: null, status: null });
+  }
+
+  function openProgress(row: CertificationEnrollmentRow) {
+    setTarget({ userId: row.user_id, name: enrollmentFullName(row) || row.user_id });
+    setSheetOpen(true);
+  }
+
+  const isFiltered = search.length > 0 || status.length > 0;
+  const totalPages = Math.max(1, Math.ceil(data.total / data.limit));
+
+  const statusLabels = Object.fromEntries(
+    ENROLLMENT_STATUSES.map((value) => [value, t(`status.${value}`)]),
+  ) as Record<(typeof ENROLLMENT_STATUSES)[number], string>;
+
+  function renderStatus(row: CertificationEnrollmentRow) {
+    if (!isEnrollmentStatus(row.status)) {
+      return <StatusBadge intent="neutral" label={row.status} />;
+    }
     return (
-      <EmptyState
-        icon={Users}
-        title={t("enrolledUsers.emptyTitle")}
-        description={t("enrolledUsers.emptyDescription")}
+      <ExceptionStatus
+        value={row.status}
+        normal={NORMAL_ENROLLMENT_STATUSES}
+        labels={statusLabels}
+        intents={ENROLLMENT_STATUS_INTENTS}
       />
     );
   }
 
-  return (
-    <>
-      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card shadow-xs">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                Usuario
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                Inscripción
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                Progreso
-              </TableHead>
-              <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">
-                Completado
-              </TableHead>
-              <RowActionsHead className="h-9 px-3" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {enrollments.map((enrollment) => {
-              const userId = enrollment.user?.user_id ?? enrollment.user_id;
-              const displayName = getUserDisplayName(enrollment.user, userId);
-              const email = enrollment.user?.email;
-              const progress = enrollment.progress_percent;
-              const isLoading = loadingUserId === userId;
+  function clubLine(row: CertificationEnrollmentRow) {
+    return [row.club_name, row.section_name].filter(Boolean).join(" · ");
+  }
 
-              return (
-                <TableRow key={`${userId}-${enrollment.certification_id}`} className="hover:bg-muted/30">
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{displayName}</span>
-                      {email && (
-                        <span className="text-xs text-muted-foreground">{email}</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle text-sm">
-                    {formatDate(enrollment.enrolled_at)}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    {progress != null ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary-solid transition-[width] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transition-none"
-                            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                          />
-                        </div>
-                        <span className="text-sm tabular-nums text-muted-foreground">
-                          {Math.round(progress)}%
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    {enrollment.completed_at ? (
-                      <Badge variant="default">{formatDate(enrollment.completed_at)}</Badge>
-                    ) : (
-                      <Badge variant="secondary">Pendiente</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-3 py-2.5 align-middle">
-                    <RowActions
-                      label={displayName}
-                      actions={[
-                        {
-                          label: "Ver progreso",
-                          icon: BarChart3,
-                          disabled: isLoading,
-                          onSelect: () => handleViewProgress(enrollment),
-                        },
-                      ]}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <ListFilterField id="enrolled-search" label={t("searchLabel")} className="w-[280px]">
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="enrolled-search"
+              className="pl-9"
+              value={query}
+              onChange={(event) => handleSearch(event.target.value)}
+              placeholder={t("searchPlaceholder")}
+            />
+          </div>
+        </ListFilterField>
+        <ListFilterField id="enrolled-status" label={t("statusLabel")}>
+          <NativeSelect
+            id="enrolled-status"
+            className="w-full"
+            value={status}
+            onChange={(event) => updateParams({ status: event.target.value || null })}
+          >
+            <NativeSelectOption value="">{t("statusAll")}</NativeSelectOption>
+            {ENROLLMENT_STATUSES.map((value) => (
+              <NativeSelectOption key={value} value={value}>
+                {statusLabels[value]}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </ListFilterField>
       </div>
 
-      <UserProgressDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        progressData={progressData}
-        onProgressUpdated={() => {
-          // Refresh happens inside the dialog (optimistic local update).
-          // A full page refresh is not triggered to avoid losing scroll position.
-        }}
+      {data.items.length === 0 ? (
+        isFiltered ? (
+          <EmptyState
+            icon={Search}
+            variant="no-results"
+            title={t("noResultsTitle")}
+            description={t("noResultsDescription")}
+          >
+            <Button type="button" variant="outline" onClick={clearFilters}>
+              {t("clearFilters")}
+            </Button>
+          </EmptyState>
+        ) : (
+          <EmptyState icon={Users} title={t("emptyTitle")} description={t("emptyDescription")} />
+        )
+      ) : (
+        <>
+          <DataTableShell className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className={HEAD}>{t("colPerson")}</TableHead>
+                  <TableHead className={HEAD}>{t("colEnrolled")}</TableHead>
+                  <TableHead className={HEAD}>{t("colProgress")}</TableHead>
+                  <TableHead className={HEAD}>{t("colStatus")}</TableHead>
+                  <RowActionsHead className="h-9 px-3" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.items.map((row) => {
+                  const name = enrollmentFullName(row) || row.user_id;
+                  return (
+                    <TableRow key={row.enrollment_id || row.user_id} className="hover:bg-muted/30">
+                      <TableCell className="px-3 py-2.5 align-middle">
+                        <button
+                          type="button"
+                          className="text-left font-medium hover:underline"
+                          onClick={() => openProgress(row)}
+                        >
+                          {name}
+                        </button>
+                        {clubLine(row) ? (
+                          <p className="text-[13px] text-muted-foreground">{clubLine(row)}</p>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle text-sm tabular-nums">
+                        {row.enrollment_date ? formatDate(row.enrollment_date) : "—"}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle">
+                        <ProgressMeter value={row.progress_percent} label={t("colProgress")} />
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle">{renderStatus(row)}</TableCell>
+                      <TableCell className="px-3 py-2.5 align-middle">
+                        <RowActions
+                          label={name}
+                          actions={[
+                            { label: t("viewProgress"), icon: BarChart3, onSelect: () => openProgress(row) },
+                          ]}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+
+          <ul className="divide-y rounded-xl bg-card shadow-card md:hidden">
+            {data.items.map((row) => {
+              const name = enrollmentFullName(row) || row.user_id;
+              return (
+                <li key={row.enrollment_id || row.user_id} className="flex items-start gap-2 px-4 py-3">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        className="min-w-0 truncate text-left font-medium hover:underline"
+                        onClick={() => openProgress(row)}
+                      >
+                        {name}
+                      </button>
+                      {renderStatus(row)}
+                    </div>
+                    <p className="flex flex-wrap gap-x-3 text-[13px] text-muted-foreground tabular-nums">
+                      {clubLine(row) ? <span>{clubLine(row)}</span> : null}
+                      <span>{Math.round(row.progress_percent)}%</span>
+                      {row.enrollment_date ? <span>{formatDate(row.enrollment_date)}</span> : null}
+                    </p>
+                  </div>
+                  <RowActions
+                    label={name}
+                    actions={[
+                      { label: t("viewProgress"), icon: BarChart3, onSelect: () => openProgress(row) },
+                    ]}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+
+          <DataTablePagination
+            page={data.page}
+            totalPages={totalPages}
+            total={data.total}
+            limit={data.limit}
+          />
+        </>
+      )}
+
+      <UserProgressSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        target={target}
+        certificationId={certificationId}
       />
-    </>
+    </div>
   );
-}
-
-// ─── Normalizers ─────────────────────────────────────────────────────────────
-
-function normalizeProgressPayload(
-  raw: unknown,
-  userId: string,
-  certificationId: number,
-  enrollment: EnrolledUser,
-): UserProgressData {
-  type AnyRecord = Record<string, unknown>;
-
-  const root = (raw && typeof raw === "object" ? raw : {}) as AnyRecord;
-  const data = (root.data && typeof root.data === "object" ? root.data : root) as AnyRecord;
-
-  const modules = normalizeModules(data.modules ?? data.progress ?? []);
-  const userName = getUserDisplayName(enrollment.user, userId);
-  const userEmail = enrollment.user?.email;
-
-  return {
-    user_id: userId,
-    certification_id: certificationId,
-    enrolled_at: enrollment.enrolled_at,
-    completed_at: enrollment.completed_at ?? (typeof data.completed_at === "string" ? data.completed_at : null),
-    progress_percent:
-      typeof data.progress_percent === "number"
-        ? data.progress_percent
-        : typeof data.progress === "number"
-          ? data.progress
-          : enrollment.progress_percent,
-    modules,
-    user_name: userName,
-    user_email: userEmail,
-  };
-}
-
-function normalizeModules(raw: unknown): ModuleProgress[] {
-  if (!Array.isArray(raw)) return [];
-
-  return raw.map((mod: unknown) => {
-    type AnyRecord = Record<string, unknown>;
-    const m = (mod && typeof mod === "object" ? mod : {}) as AnyRecord;
-    const sections = normalizeSections(m.sections ?? []);
-
-    return {
-      module_id: typeof m.module_id === "number" ? m.module_id : 0,
-      title: typeof m.title === "string" ? m.title : typeof m.name === "string" ? m.name : undefined,
-      sections,
-    };
-  });
-}
-
-function normalizeSections(raw: unknown): ModuleProgress["sections"] {
-  if (!Array.isArray(raw)) return [];
-
-  return raw.map((sec: unknown) => {
-    type AnyRecord = Record<string, unknown>;
-    const s = (sec && typeof sec === "object" ? sec : {}) as AnyRecord;
-
-    return {
-      section_id: typeof s.section_id === "number" ? s.section_id : 0,
-      title: typeof s.title === "string" ? s.title : typeof s.name === "string" ? s.name : undefined,
-      completed: s.completed === true,
-      completed_at: typeof s.completed_at === "string" ? s.completed_at : null,
-      notes: typeof s.notes === "string" ? s.notes : null,
-    };
-  });
 }

@@ -527,7 +527,7 @@ describe("TemplateFormDialog", () => {
     expect(minPointsInput).not.toBeInTheDocument();
 
     expect(
-      screen.getByText("Presupuesto tomado de la clasificación"),
+      screen.getByText("Presupuesto del progreso anual"),
     ).toBeInTheDocument();
     expect(screen.getByText(/3,000 pts/)).toBeInTheDocument();
   });

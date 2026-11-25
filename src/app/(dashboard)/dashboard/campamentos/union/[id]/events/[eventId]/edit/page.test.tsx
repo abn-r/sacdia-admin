@@ -27,7 +27,6 @@ vi.mock("@/lib/auth/session", () => ({ requireAdminUser: vi.fn(async () => ({ id
 
 vi.mock("@/lib/camporee-events/event-form-data", () => ({
   loadEditCamporeeEventFormData: mocks.loadEdit,
-  camporeeEventsListHref: (_scope: string, id: string) => `/dashboard/campamentos/union/${id}?tab=events`,
   resolveEventFormData: (result: { props: unknown }) => result.props,
 }));
 
@@ -47,7 +46,10 @@ import UnionCamporeeEventEditPage from "./page";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.loadEdit.mockResolvedValue({ status: "ok", props: { mode: "edit" } });
+  mocks.loadEdit.mockResolvedValue({
+    status: "ok",
+    props: { mode: "edit", camporeeId: 138, camporee: { name: "Camporee Valle Alto" } },
+  });
 });
 
 afterEach(() => cleanup());
@@ -70,6 +72,11 @@ describe("union camporee event edit route (direct load)", () => {
     expect(screen.queryByTestId("detail-page")).not.toBeInTheDocument();
     expect(mocks.detailPage).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: /Volver a eventos/ })).toHaveAttribute(
+      "href",
+      "/dashboard/campamentos/union/138?tab=events",
+    );
+    // Breadcrumb: Camporees > camporee name > page title.
+    expect(screen.getByRole("link", { name: "Camporee Valle Alto" })).toHaveAttribute(
       "href",
       "/dashboard/campamentos/union/138?tab=events",
     );

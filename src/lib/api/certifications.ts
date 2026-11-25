@@ -141,6 +141,112 @@ export async function unenrollUserFromCertification(
   );
 }
 
+// ─── Enrollments by certification (backend contract B2) ──────────────────────
+//
+// GET /certifications/certifications/:id/enrollments?page=&limit=&search=&status= (B2)
+// Pending deploy: until the endpoint exists the call fails with a 404 and the
+// "Inscritos" tab renders an ErrorState (never an empty list).
+
+export type CertificationEnrollmentRow = {
+  enrollment_id: number;
+  user_id: string;
+  name: string;
+  paternal_last_name: string | null;
+  maternal_last_name: string | null;
+  club_name: string | null;
+  section_name: string | null;
+  /** certification_enrollment_status_enum */
+  status: string;
+  progress_percent: number;
+  enrollment_date: string;
+};
+
+export type CertificationEnrollmentsPage = {
+  items: CertificationEnrollmentRow[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type CertificationEnrollmentsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+};
+
+type EnrollmentRecord = Record<string, unknown>;
+
+function enrollmentText(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function enrollmentNumber(value: unknown, fallback: number): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+/** Reads the B2 envelope (`{ data: { items, total, page, limit } }`, or the bare data). */
+export function normalizeCertificationEnrollmentsPage(
+  payload: unknown,
+  fallback: { page: number; limit: number } = { page: 1, limit: 20 },
+): CertificationEnrollmentsPage {
+  const root = (payload && typeof payload === "object" ? payload : {}) as EnrollmentRecord;
+  const data = (
+    root.data && typeof root.data === "object" && !Array.isArray(root.data) ? root.data : root
+  ) as EnrollmentRecord;
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+
+  const items = rawItems.flatMap((entry): CertificationEnrollmentRow[] => {
+    if (!entry || typeof entry !== "object") return [];
+    const row = entry as EnrollmentRecord;
+    const userId = enrollmentText(row.user_id);
+    if (!userId) return [];
+    return [
+      {
+        enrollment_id: enrollmentNumber(row.enrollment_id, 0),
+        user_id: userId,
+        name: enrollmentText(row.name) ?? "",
+        paternal_last_name: enrollmentText(row.paternal_last_name),
+        maternal_last_name: enrollmentText(row.maternal_last_name),
+        club_name: enrollmentText(row.club_name),
+        section_name: enrollmentText(row.section_name),
+        status: enrollmentText(row.status) ?? "ENROLLED",
+        progress_percent: Math.min(100, Math.max(0, enrollmentNumber(row.progress_percent, 0))),
+        enrollment_date: enrollmentText(row.enrollment_date) ?? "",
+      },
+    ];
+  });
+
+  return {
+    items,
+    total: Math.max(0, enrollmentNumber(data.total, items.length)),
+    page: Math.max(1, enrollmentNumber(data.page, fallback.page)),
+    limit: Math.max(1, enrollmentNumber(data.limit, fallback.limit)),
+  };
+}
+
+export async function listCertificationEnrollments(
+  certificationId: number,
+  params: CertificationEnrollmentsParams = {},
+): Promise<CertificationEnrollmentsPage> {
+  const query: Record<string, string | number | boolean | undefined> = {};
+  const page = typeof params.page === "number" && params.page > 0 ? params.page : 1;
+  const limit = typeof params.limit === "number" && params.limit > 0 ? params.limit : 20;
+  query.page = page;
+  query.limit = limit;
+  const search = params.search?.trim();
+  if (search) query.search = search;
+  if (params.status) query.status = params.status;
+
+  const payload = await apiRequest<unknown>(`/certifications/certifications/${certificationId}/enrollments`, {
+    params: query,
+  });
+  return normalizeCertificationEnrollmentsPage(payload, { page, limit });
+}
+
 // ─── Admin engine types ──────────────────────────────────────────────────────
 //
 // Aligned to sacdia-backend `feat/configurable-certifications`,

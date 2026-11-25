@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
+import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { Skeleton } from "@/components/ui/skeleton";
-import { hasCapability } from "@/lib/auth/permission-utils";
+import { EvidenceFolderQueue } from "@/components/annual-folders/evidence-folder-queue";
 import { requireAdminUser } from "@/lib/auth/session";
 import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
 import { listTemplates, type FolderTemplate } from "@/lib/api/annual-folders";
 import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
 import {
   listAnnualRankingConfigs,
   type AnnualRankingConfig,
@@ -19,36 +18,6 @@ import {
 } from "@/lib/auth/territory-scope";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField, Union } from "@/lib/api/geography";
-
-const EvaluationClientPage = dynamic(
-  () =>
-    import("@/components/annual-folders/evaluation-client-page").then((m) => ({
-      default: m.EvaluationClientPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <Skeleton className="h-9 w-[220px]" />
-          <Skeleton className="h-9 w-[140px]" />
-        </div>
-        <div className="rounded-md border">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 border-b p-4 last:border-b-0"
-            >
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-5 w-20 rounded-full" />
-              <Skeleton className="ml-auto h-8 w-28 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-);
 
 function isForbidden(reason: unknown): boolean {
   return reason instanceof ApiError && reason.status === 403;
@@ -69,7 +38,7 @@ export default async function ClubsEvidenceFoldersPage() {
   let localFields: LocalField[] = [];
   let templates: FolderTemplate[] = [];
   let rankingConfigs: AnnualRankingConfig[] = [];
-  let loadError: string | null = null;
+  let loadFailure: unknown = null;
 
   const [
     clubTypesResult,
@@ -87,46 +56,54 @@ export default async function ClubsEvidenceFoldersPage() {
     listAnnualRankingConfigs(),
   ]);
 
+  // Club types and years feed the filters and the setup check: without them
+  // the screen cannot tell "nothing to review" from "not loaded".
   if (clubTypesResult.status === "fulfilled") clubTypes = clubTypesResult.value;
-  else loadError = t("loadError");
+  else loadFailure = clubTypesResult.reason;
 
   if (yearsResult.status === "fulfilled") ecclesiasticalYears = yearsResult.value;
-  else loadError = loadError ?? t("loadError");
+  else loadFailure = loadFailure ?? yearsResult.reason;
 
+  // Territory filters are optional: without them the queue still works.
   if (unionsResult.status === "fulfilled") unions = unionsResult.value;
   if (localFieldsResult.status === "fulfilled") localFields = localFieldsResult.value;
-  // Templates and ranking configs only feed filters. A reader without
+
+  // Templates and ranking configs only feed the setup notice. A reader without
   // annual_folder_templates:read (coordinators) gets 403 and still sees the
   // folders; any other failure stays a load error.
   if (templatesResult.status === "fulfilled") templates = templatesResult.value;
   else if (!isForbidden(templatesResult.reason)) {
-    loadError = loadError ?? t("loadError");
+    loadFailure = loadFailure ?? templatesResult.reason;
   }
 
   if (rankingConfigsResult.status === "fulfilled") {
     rankingConfigs = rankingConfigsResult.value;
   } else if (!isForbidden(rankingConfigsResult.reason)) {
-    loadError = loadError ?? t("loadError");
+    loadFailure = loadFailure ?? rankingConfigsResult.reason;
+  }
+
+  if (loadFailure) {
+    const failure = errorStateFromError(loadFailure);
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("titleList")} />
+        <ErrorState
+          kind={failure.kind}
+          retry
+          {...(failure.detail ? { detail: failure.detail } : {})}
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t("titleList")} description={t("descriptionList")} />
-
-      {loadError && <EndpointErrorBanner state="missing" detail={loadError} />}
-
-      {!loadError && (
-        <EvaluationClientPage
-          mode="list"
-          canConfirmUnion={hasCapability(currentUser, "folders.confirm_union")}
-          clubTypes={clubTypes}
-          ecclesiasticalYears={ecclesiasticalYears}
-          unions={unions}
-          localFields={localFields}
-          templates={templates}
-          rankingConfigs={rankingConfigs}
-        />
-      )}
-    </div>
+    <EvidenceFolderQueue
+      clubTypes={clubTypes}
+      ecclesiasticalYears={ecclesiasticalYears}
+      unions={unions}
+      localFields={localFields}
+      templates={templates}
+      rankingConfigs={rankingConfigs}
+    />
   );
 }

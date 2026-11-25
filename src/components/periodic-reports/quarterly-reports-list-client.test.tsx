@@ -1,9 +1,11 @@
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../../../messages/es.json";
 import type { AdminQuarterlyReport, PeriodicReportsPage } from "@/lib/api/reports";
+
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -102,5 +104,34 @@ describe("QuarterlyReportsListClient", () => {
 
     expect(screen.getByText("Sin resultados")).toBeInTheDocument();
     expect(screen.queryByText("Aún no hay informes trimestrales")).not.toBeInTheDocument();
+  });
+
+  it("shows a failed load inside the table with its headers, never as an empty list", () => {
+    render(
+      <NextIntlClientProvider locale="es" messages={messages}>
+        <QuarterlyReportsListClient data={null} error={{ kind: "rateLimited" }} searchParams={{}} canDownload />
+      </NextIntlClientProvider>,
+    );
+
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Club" })).toBeInTheDocument();
+    expect(screen.queryByText("Aún no hay informes trimestrales")).not.toBeInTheDocument();
+  });
+
+  it("writes its filters under the quarterly tab of the single reports entry", () => {
+    renderList(page([]));
+
+    fireEvent.click(screen.getByLabelText("Estado"));
+    fireEvent.click(screen.getByRole("option", { name: "Cerrado" }));
+
+    expect(pushMock).toHaveBeenCalledWith("/dashboard/reports?tab=quarterly&status=finalized");
+  });
+
+  it("lists the reports as two-line rows on small screens", () => {
+    renderList(page([report()]));
+
+    const list = screen.getByRole("list", { name: "Informes" });
+    expect(within(list).getByRole("link", { name: "Club Águilas" })).toBeInTheDocument();
+    expect(within(list).getByText("En curso")).toBeInTheDocument();
   });
 });

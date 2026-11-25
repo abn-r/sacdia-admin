@@ -25,6 +25,7 @@ const MANUAL = {
   Loader2: "Loading03Icon",
   WifiOff: "WifiOff01Icon",
   SearchX: "SearchRemoveIcon",
+  CalendarX2: "CalendarRemove01Icon",
   Loader2Icon: "Loading03Icon",
   Loader: "Loading03Icon",
   UploadCloud: "CloudUploadIcon",

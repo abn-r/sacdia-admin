@@ -1,60 +1,34 @@
 "use client";
 
-import { EmptyState } from "@/components/shared/empty-state";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, RefreshCw, Trophy } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { useFormatter, useTranslations } from "next-intl";
+import { RefreshCw, Trophy } from "lucide-react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableShell } from "@/components/shared/data-table-shell";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
 import { RowActions, RowActionsHead } from "@/components/shared/row-actions";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { EvaluateMemberOfMonthDialog } from "@/components/member-of-month/evaluate-dialog";
-import { MONTH_NAMES } from "@/lib/constants";
-import { capitalizeFirst } from "@/lib/utils";
-import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
-import type { AdminMomPage, AdminMomItem } from "@/lib/api/member-of-month";
+import { ScopePicker } from "@/components/shared/scope-picker";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { evaluateMemberOfMonth, type AdminMomPage } from "@/lib/api/member-of-month";
 import type { ClubType } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 import { useAuth } from "@/lib/auth/auth-context";
-import { canEvaluateMemberOfMonth } from "@/lib/member-of-month/evaluate-access";
+import type { AdminTerritoryScope } from "@/lib/auth/territory-scope";
 import { useFormatDate, useFormatNumber } from "@/lib/format-locale";
+import { canEvaluateMemberOfMonth } from "@/lib/member-of-month/evaluate-access";
+import { groupMemberOfMonth, memberInitials, momSectionLabel, type MomGroup } from "@/lib/progress/member-of-month";
+import { capitalizeFirst } from "@/lib/utils";
 
-function getInitials(name: string | null): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
-}
-
-function NotifiedBadge({ notified }: { notified: boolean }) {
-  const t = useTranslations("member_of_month.supervision");
-  if (notified) {
-    return <Badge variant="success">{t("badgeNotified")}</Badge>;
-  }
-  return <Badge variant="secondary">{t("badgePending")}</Badge>;
-}
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+/** A tie can list many winners: show a few faces and names, then the count. */
+const MAX_TIE_AVATARS = 3;
+const MAX_TIE_NAMES = 3;
 
 interface MemberOfMonthSupervisionClientProps {
   initialData: AdminMomPage;
@@ -70,20 +44,9 @@ interface MemberOfMonthSupervisionClientProps {
     month?: string;
     notified?: string;
     page?: string;
+    limit?: string;
   };
 }
-
-// ─── Evaluate action state ────────────────────────────────────────────────────
-
-type DialogTarget = {
-  clubId: number;
-  sectionId: number;
-  sectionName: string;
-  month: number;
-  year: number;
-};
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function MemberOfMonthSupervisionClient({
   initialData,
@@ -92,307 +55,244 @@ export function MemberOfMonthSupervisionClient({
   territoryScope,
   searchParams,
 }: MemberOfMonthSupervisionClientProps) {
-  const t = useTranslations("member_of_month.supervision");
+  const t = useTranslations("evaluation.progress.memberOfMonth");
   const router = useRouter();
+  const format = useFormatter();
   const { user } = useAuth();
   const formatDate = useFormatDate();
   const formatNumber = useFormatNumber();
+  const [redo, setRedo] = useState<MomGroup | null>(null);
 
-  const currentPage = Number(searchParams.page ?? "1");
   const { total, limit, items } = initialData;
-  const totalPages = Math.ceil(total / limit);
-
-  const [dialogTarget, setDialogTarget] = useState<DialogTarget | null>(null);
+  const groups = groupMemberOfMonth(items);
+  const currentPage = Number(searchParams.page ?? "1");
+  const totalPages = Math.max(1, Math.ceil(total / Math.max(limit, 1)));
   const isLocalFieldLocked = territoryScope.level === "local_field";
-  const effectiveSearchParams = isLocalFieldLocked
-    ? {
-        ...searchParams,
-        local_field_id: String(territoryScope.localFieldId),
-      }
-    : searchParams;
+  const currentYear = new Date().getFullYear();
+  const effective: Record<string, string | undefined> = isLocalFieldLocked
+    ? { ...searchParams, local_field_id: String(territoryScope.localFieldId) }
+    : { ...searchParams };
+  const isFiltered = Boolean(
+    searchParams.club_type_id || searchParams.month || searchParams.notified || (!isLocalFieldLocked && searchParams.local_field_id),
+  );
 
-  // ─── URL builder ──────────────────────────────────────────────────────────
-
-  function buildUrl(overrides: Record<string, string | undefined>) {
-    const next = { ...effectiveSearchParams, ...overrides };
+  function go(overrides: Record<string, string | undefined>) {
+    const next = { ...effective, ...overrides, page: undefined };
     const qs = new URLSearchParams();
-    for (const [key, val] of Object.entries(next)) {
-      if (val !== undefined && val !== "" && val !== "all") {
-        qs.set(key, val);
-      }
+    for (const [key, value] of Object.entries(next)) {
+      if (value !== undefined && value !== "" && value !== "all") qs.set(key, value);
     }
-    const queryString = qs.toString();
-    return `/dashboard/member-of-month${queryString ? `?${queryString}` : ""}`;
+    const query = qs.toString();
+    router.push(`/dashboard/member-of-month${query ? `?${query}` : ""}`);
   }
 
-  function handleFilter(key: string, value: string) {
-    router.push(buildUrl({ [key]: value === "all" ? undefined : value, page: "1" }));
-  }
+  const monthLabel = (month: number, year: number, long = true) =>
+    capitalizeFirst(formatDate(new Date(year, month - 1, 1), long ? { month: "long", year: "numeric" } : { month: "long" }));
 
-  function handlePage(newPage: number) {
-    router.push(buildUrl({ page: String(newPage) }));
-  }
-
-  const monthOptions = Object.entries(MONTH_NAMES).map(([value, label]) => ({
-    value,
-    label,
-  }));
-  const selectedLocalFieldId =
-    searchParams.local_field_id ??
-    (isLocalFieldLocked ? String(territoryScope.localFieldId) : "all");
-
-  // ─── Render ───────────────────────────────────────────────────────────────
+  const selectedField = localFields.find((f) => String(f.local_field_id) === effective.local_field_id);
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        {/* Tipo de club */}
-        <div className="min-w-40 flex-1 basis-40 space-y-1.5">
-          <Label htmlFor="mom-filter-club-type">{t("filterClubTypePlaceholder")}</Label>
-          <Select
-            value={effectiveSearchParams.club_type_id ?? "all"}
-            onValueChange={(v) => handleFilter("club_type_id", v)}
-          >
-            <SelectTrigger id="mom-filter-club-type" className="w-full">
-              <SelectValue placeholder={t("filterClubTypePlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("filterClubTypeAll")}</SelectItem>
-              {clubTypes.map((ct) => (
-                <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
-                  {ct.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+        {!isLocalFieldLocked && (
+          <ScopePicker
+            allLabel={t("filters.allFields")}
+            value={selectedField ? { id: String(selectedField.local_field_id), name: selectedField.name } : undefined}
+            options={localFields.map((f) => ({ id: String(f.local_field_id), name: f.name }))}
+            onChange={(id) => go({ local_field_id: id ?? undefined })}
+          />
+        )}
 
-        {/* Campo local */}
-        <div className="min-w-48 flex-[1.5] basis-56 space-y-1.5">
-          <Label htmlFor="mom-filter-local-field">{t("filterLocalFieldPlaceholder")}</Label>
-          <Select
-            value={selectedLocalFieldId}
-            onValueChange={(v) => handleFilter("local_field_id", v)}
-            disabled={isLocalFieldLocked}
-          >
-            <SelectTrigger id="mom-filter-local-field" className="w-full">
-              <SelectValue placeholder={t("filterLocalFieldPlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {!isLocalFieldLocked && (
-                <SelectItem value="all">{t("filterLocalFieldAll")}</SelectItem>
-              )}
-              {localFields.map((lf) => (
-                <SelectItem key={lf.local_field_id} value={String(lf.local_field_id)}>
-                  {lf.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={effective.club_type_id ?? "all"} onValueChange={(v) => go({ club_type_id: v })}>
+          <SelectTrigger className="h-9 w-auto min-w-40" aria-label={t("filters.clubType")}>
+            <SelectValue placeholder={t("filters.clubType")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filters.allClubTypes")}</SelectItem>
+            {clubTypes.map((ct) => (
+              <SelectItem key={ct.club_type_id} value={String(ct.club_type_id)}>
+                {ct.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Año */}
-        <div className="min-w-28 flex-none basis-32 space-y-1.5">
-          <Label htmlFor="mom-filter-year">{t("filterYearPlaceholder")}</Label>
-          <Select
-            value={effectiveSearchParams.year ?? String(new Date().getFullYear())}
-            onValueChange={(v) => handleFilter("year", v)}
-          >
-            <SelectTrigger id="mom-filter-year" className="w-full">
-              <SelectValue placeholder={t("filterYearPlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(
-                (y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ),
-              )}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={effective.month ?? "all"} onValueChange={(v) => go({ month: v })}>
+          <SelectTrigger className="h-9 w-auto min-w-36" aria-label={t("filters.month")}>
+            <SelectValue placeholder={t("filters.month")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filters.allMonths")}</SelectItem>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <SelectItem key={m} value={String(m)}>
+                {monthLabel(m, currentYear, false)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Mes */}
-        <div className="min-w-40 flex-1 basis-44 space-y-1.5">
-          <Label htmlFor="mom-filter-month">{t("filterMonthPlaceholder")}</Label>
-          <Select
-            value={effectiveSearchParams.month ?? "all"}
-            onValueChange={(v) => handleFilter("month", v)}
-          >
-            <SelectTrigger id="mom-filter-month" className="w-full">
-              <SelectValue placeholder={t("filterMonthPlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("filterMonthAll")}</SelectItem>
-              {monthOptions.map((m) => (
-                <SelectItem key={m.value} value={m.value}>
-                  {m.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={effective.year ?? String(currentYear)} onValueChange={(v) => go({ year: v })}>
+          <SelectTrigger className="h-9 w-auto min-w-28" aria-label={t("filters.year")}>
+            <SelectValue placeholder={t("filters.year")} />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 5 }, (_, i) => currentYear - i).map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Notificado */}
-        <div className="min-w-40 flex-1 basis-44 space-y-1.5">
-          <Label htmlFor="mom-filter-notified">{t("filterNotifiedPlaceholder")}</Label>
-          <Select
-            value={effectiveSearchParams.notified ?? "all"}
-            onValueChange={(v) => handleFilter("notified", v)}
-          >
-            <SelectTrigger id="mom-filter-notified" className="w-full">
-              <SelectValue placeholder={t("filterNotifiedPlaceholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("filterNotifiedAll")}</SelectItem>
-              <SelectItem value="true">{t("filterNotifiedTrue")}</SelectItem>
-              <SelectItem value="false">{t("filterNotifiedFalse")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={effective.notified ?? "all"} onValueChange={(v) => go({ notified: v })}>
+          <SelectTrigger className="h-9 w-auto min-w-40" aria-label={t("filters.notice")}>
+            <SelectValue placeholder={t("filters.notice")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("filters.noticeAny")}</SelectItem>
+            <SelectItem value="false">{t("filters.noticePending")}</SelectItem>
+            <SelectItem value="true">{t("filters.noticeSent")}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Table */}
-      {items.length === 0 ? (
-        <EmptyState icon={Trophy} title={t("emptyTitle")} description={t("emptyHint")} />
+      {groups.length === 0 ? (
+        <EmptyState
+          icon={Trophy}
+          variant={isFiltered ? "no-results" : "default"}
+          title={t("emptyTitle")}
+          description={isFiltered ? t("emptyFilteredDescription") : t("emptyDescription")}
+        >
+          {isFiltered && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => go({ club_type_id: undefined, month: undefined, notified: undefined, local_field_id: undefined })}
+            >
+              {t("clearFilters")}
+            </Button>
+          )}
+        </EmptyState>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-transparent bg-card shadow-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("tableColMember")}</TableHead>
-                <TableHead>{t("tableColSection")}</TableHead>
-                <TableHead className="hidden xl:table-cell">{t("tableColClubType")}</TableHead>
-                <TableHead className="hidden xl:table-cell">{t("tableColClub")}</TableHead>
-                <TableHead className="hidden xl:table-cell">{t("tableColLocalField")}</TableHead>
-                <TableHead>{t("tableColPeriod")}</TableHead>
-                <TableHead className="text-right">{t("tableColPoints")}</TableHead>
-                <TableHead>{t("tableColNotified")}</TableHead>
-                <RowActionsHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item: AdminMomItem) => (
-                <TableRow key={item.member_of_month_id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2.5">
-                      <Avatar size="sm">
-                        {item.user_image && (
-                          <AvatarImage
-                            src={item.user_image}
-                            alt={item.user_name ?? ""}
-                          />
-                        )}
-                        <AvatarFallback className="text-xs">
-                          {getInitials(item.user_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">
-                        {item.user_name ?? "—"}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.section_name ?? "—"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.club_type ?? "—"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.club_name ?? "—"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">{item.local_field ?? "—"}</TableCell>
-                  <TableCell>
-                    {capitalizeFirst(
-                      formatDate(new Date(item.year, item.month - 1, 1), {
-                        month: "long",
-                        year: "numeric",
-                      }),
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatNumber(item.total_points)}
-                  </TableCell>
-                  <TableCell>
-                    <NotifiedBadge notified={item.notified} />
-                  </TableCell>
-                  <TableCell>
-                    <RowActions
-                      label={item.user_name ?? "—"}
-                      actions={[
-                        {
-                          label: t("reevaluateButton"),
-                          icon: RefreshCw,
-                          disabled: item.club_id === null,
-                          // Backend: mom:evaluate + active director role in THIS section.
-                          hidden: !canEvaluateMemberOfMonth(user, item.club_section_id),
-                          onSelect: () => {
-                            if (item.club_id === null) return;
-                            setDialogTarget({
-                              clubId: item.club_id,
-                              sectionId: item.club_section_id,
-                              sectionName: item.section_name ?? "sección",
-                              month: item.month,
-                              year: item.year,
-                            });
-                          },
-                        },
-                      ]}
-                    />
-                  </TableCell>
+        <>
+          <DataTableShell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">{t("cols.section")}</TableHead>
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">{t("cols.winner")}</TableHead>
+                  <TableHead className="h-9 px-3 text-right text-xs font-medium text-muted-foreground">{t("cols.points")}</TableHead>
+                  <TableHead className="h-9 px-3 text-xs font-medium text-muted-foreground">{t("cols.notice")}</TableHead>
+                  <RowActionsHead className="h-9 px-3" />
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {groups.map((group) => {
+                  const label = momSectionLabel(group) || "—";
+                  return (
+                    <TableRow key={group.key}>
+                      <TableCell className="px-3 py-2.5">
+                        <span className="block font-medium">{label}</span>
+                        <span className="block text-[13px] text-muted-foreground">
+                          {monthLabel(group.month, group.year)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 whitespace-normal">
+                        <div className="flex items-center gap-2">
+                          <div className="flex shrink-0 -space-x-2">
+                            {group.winners.slice(0, MAX_TIE_AVATARS).map((w) => (
+                              <Avatar key={w.member_of_month_id} size="sm" className="ring-2 ring-card">
+                                {w.user_image && <AvatarImage src={w.user_image} alt="" />}
+                                <AvatarFallback className="text-xs">{memberInitials(w.user_name)}</AvatarFallback>
+                              </Avatar>
+                            ))}
+                          </div>
+                          <span>
+                            {group.winners.length > MAX_TIE_NAMES
+                              ? t("tieMany", {
+                                  names: group.winners
+                                    .slice(0, MAX_TIE_NAMES)
+                                    .map((w) => w.user_name ?? "—")
+                                    .join(", "),
+                                  count: group.winners.length - MAX_TIE_NAMES,
+                                })
+                              : format.list(
+                                  group.winners.map((w) => w.user_name ?? "—"),
+                                  { type: "conjunction" },
+                                )}
+                            {group.winners.length > 1 && (
+                              <span className="text-muted-foreground"> · {t("tie")}</span>
+                            )}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-right tabular-nums">
+                        {formatNumber(group.totalPoints)}
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
+                        <ExceptionStatus
+                          value={group.unnotified ? "pending" : "notified"}
+                          normal={["notified"]}
+                          labels={{ notified: t("noticeSent"), pending: t("noticePending") }}
+                          intents={{ pending: "warning" }}
+                        />
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5">
+                        <RowActions
+                          label={label}
+                          actions={[
+                            {
+                              label: t("redo"),
+                              icon: RefreshCw,
+                              // Backend: mom:evaluate + active director role in THIS section.
+                              hidden: group.clubId === null || !canEvaluateMemberOfMonth(user, group.clubSectionId),
+                              onSelect: () => setRedo(group),
+                            },
+                          ]}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </DataTableShell>
+          <DataTablePagination page={currentPage} totalPages={totalPages} total={total} limit={limit} />
+        </>
       )}
 
-      {/* Pagination */}
-      {items.length > 0 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            {t("paginationTotal", { total })}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1}
-              onClick={() => handlePage(currentPage - 1)}
-            >
-              <ChevronLeft className="size-4" />
-              {t("paginationPrev")}
-            </Button>
-            <span className="tabular-nums">
-              {t("paginationPage", { page: currentPage, totalPages })}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage * limit >= total}
-              onClick={() => handlePage(currentPage + 1)}
-            >
-              {t("paginationNext")}
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Re-evaluate dialog */}
-      {dialogTarget !== null && (
-        <EvaluateMemberOfMonthDialog
-          open={dialogTarget !== null}
-          onOpenChange={(open) => {
-            if (!open) setDialogTarget(null);
-          }}
-          clubId={dialogTarget.clubId}
-          sectionId={dialogTarget.sectionId}
-          sectionName={dialogTarget.sectionName}
-          defaultMonth={dialogTarget.month}
-          defaultYear={dialogTarget.year}
-          onSuccess={() => {
-            setDialogTarget(null);
-            router.refresh();
-          }}
-        />
-      )}
+      <ConfirmDialog
+        open={redo !== null}
+        onOpenChange={(open) => {
+          if (!open) setRedo(null);
+        }}
+        title={
+          redo
+            ? t("redoDialog.title", { month: monthLabel(redo.month, redo.year), section: momSectionLabel(redo) })
+            : ""
+        }
+        description={
+          redo
+            ? t("redoDialog.description", {
+                names: format.list(
+                  redo.winners.map((w) => w.user_name ?? "—"),
+                  { type: "conjunction" },
+                ),
+              })
+            : ""
+        }
+        confirmLabel={t("redoDialog.confirm")}
+        onConfirm={async () => {
+          if (!redo || redo.clubId === null) return;
+          try {
+            await evaluateMemberOfMonth(redo.clubId, redo.clubSectionId, { month: redo.month, year: redo.year });
+          } catch (err) {
+            throw new Error(err instanceof Error && err.message ? err.message : t("redoDialog.failed"));
+          }
+          toast.success(t("redoDialog.done"));
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

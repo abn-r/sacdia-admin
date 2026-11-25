@@ -1,25 +1,6 @@
-import dynamic from "next/dynamic";
-import { getTranslations } from "next-intl/server";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EvidenceFolderReview } from "@/components/annual-folders/evidence-folder-review";
 import { hasCapability } from "@/lib/auth/permission-utils";
 import { requireAdminUser } from "@/lib/auth/session";
-
-const EvaluationClientPage = dynamic(
-  () =>
-    import("@/components/annual-folders/evaluation-client-page").then((m) => ({
-      default: m.EvaluationClientPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-32 w-full rounded-lg" />
-        <Skeleton className="h-64 w-full rounded-lg" />
-      </div>
-    ),
-  },
-);
 
 type PageParams = Promise<{ folderId: string }>;
 
@@ -29,21 +10,12 @@ export default async function ClubsEvidenceFolderDetailPage({
   params: PageParams;
 }) {
   const { folderId } = await params;
-  const t = await getTranslations("annual_folders.pageFolders");
-
-  let currentUser;
-  try {
-    currentUser = await requireAdminUser();
-  } catch {
-    return (
-      <EndpointErrorBanner state="missing" detail={t("loadError")} />
-    );
-  }
+  // Redirects to login/logout by itself when there is no admin session.
+  const currentUser = await requireAdminUser();
 
   return (
-    <EvaluationClientPage
-      mode="detail"
-      initialFolderId={folderId}
+    <EvidenceFolderReview
+      folderId={folderId}
       canConfirmUnion={hasCapability(currentUser, "folders.confirm_union")}
     />
   );

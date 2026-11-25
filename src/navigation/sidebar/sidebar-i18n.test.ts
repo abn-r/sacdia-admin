@@ -160,7 +160,7 @@ describe("sidebar localisation", () => {
     expect(titles("club-inventory")).toEqual(["Inventario"]);
     expect(titles("annual-folders")).toEqual(["Progreso anual", "Clubes", "Configuración"]);
     expect(titles("section-rankings")).toEqual(["Progreso por sección"]);
-    expect(titles("campamentos")?.slice(0, 3)).toEqual(["Camporees", "Campo local", "Unión"]);
+    expect(titles("campamentos")?.slice(0, 3)).toEqual(["Camporees", "Lista", "Plantillas"]);
     expect(titles("certifications-list")).toEqual(["Certificaciones"]);
     expect(titles("admin-system-roles")).toEqual(["Roles y permisos"]);
     expect(titles("admin-system-audit")).toEqual(["Auditoría"]);

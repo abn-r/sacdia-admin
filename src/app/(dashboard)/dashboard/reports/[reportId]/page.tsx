@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/page-header";
 import { ReportDetailClient } from "@/components/reports/report-detail-client";
 import { ApiError } from "@/lib/api/client";
 import { requireAdminUser } from "@/lib/auth/session";
@@ -14,17 +14,15 @@ import {
 
 type Params = Promise<{ reportId: string }>;
 
-// ─── Data fetching ────────────────────────────────────────────────────────────
-
-async function fetchReport(reportId: string): Promise<MonthlyReport> {
-  return getMonthlyReport(reportId);
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("evaluation.reports");
+  return { title: t("detail.metaTitle") };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ReportDetailPage({ params }: { params: Params }) {
   await requireAdminUser();
-  const t = await getTranslations("reports");
   const { reportId: reportIdStr } = await params;
 
   const reportId = reportIdStr.trim();
@@ -34,7 +32,7 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
 
   let report: MonthlyReport;
   try {
-    report = await fetchReport(reportId);
+    report = await getMonthlyReport(reportId);
   } catch (error) {
     if (
       error instanceof ApiError &&
@@ -46,7 +44,9 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
   }
 
   // The GET :id payload carries no `auto_data`. Generated/submitted reports show
-  // their frozen snapshot; drafts show the live preview (best effort).
+  // their frozen snapshot; drafts show the live preview. If the preview fails the
+  // detail says so instead of showing "no data".
+  let previewFailed = false;
   if (report.status === "draft" && !report.auto_data) {
     try {
       const preview = await previewMonthlyReport(
@@ -55,26 +55,11 @@ export default async function ReportDetailPage({ params }: { params: Params }) {
         report.year,
       );
       report = { ...report, auto_data: preview.auto_data };
-    } catch {
-      // Preview is optional: the auto tab falls back to its empty state.
+    } catch (error) {
+      console.error("[ReportDetailPage] Failed to load the draft preview:", error);
+      previewFailed = true;
     }
   }
 
-  const monthName = t(`months.${report.month}` as Parameters<typeof t>[0]) ?? String(report.month);
-  const pageTitle = `Reporte ${monthName} ${report.year}`;
-
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={pageTitle}
-        description={t("pageDetail.description")}
-        breadcrumbs={[
-          { label: t("page.title"), href: "/dashboard/reports" },
-          { label: pageTitle },
-        ]}
-      />
-
-      <ReportDetailClient report={report} />
-    </div>
-  );
+  return <ReportDetailClient report={report} previewFailed={previewFailed} />;
 }

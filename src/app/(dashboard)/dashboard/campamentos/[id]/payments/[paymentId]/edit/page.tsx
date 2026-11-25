@@ -33,7 +33,7 @@ export default async function CamporeePaymentEditPage({ params }: { params: Para
     <>
       <CamporeeDetailPage
         params={Promise.resolve({ id })}
-        searchParams={Promise.resolve({ tab: "payments" })}
+        searchParams={Promise.resolve({ tab: "money", view: "payments" })}
       />
       <RouteFormModal
         title={t("titleEdit")}

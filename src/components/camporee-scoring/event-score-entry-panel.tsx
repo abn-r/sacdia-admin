@@ -4,7 +4,6 @@ import { useMemo, useRef, useState, useActionState, useEffect } from "react";
 import { Calculator } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,10 +20,10 @@ import {
   submitCamporeeEventScoreAction,
   type CamporeeScoringActionState,
 } from "@/lib/camporee-scoring/actions";
-import { cn } from "@/lib/utils";
 import { formatTabularNumber } from "@/lib/format-locale";
 import type { BackendCamporeeEvent } from "@/lib/api/camporee-events";
 import { getCamporeeEventSectionScore } from "@/lib/api/camporee-scoring";
+import { scoreEntryTotals } from "@/lib/camporee-events/score-entry";
 import type {
   CamporeeEventJudgeAssignment,
   CamporeeEventRubric,
@@ -85,6 +84,7 @@ export function EventScoreEntryPanel({
   canEdit = false,
 }: EventScoreEntryPanelProps) {
   const t = useTranslations("camporees.scoreEntry");
+  const tEntry = useTranslations("evaluation.camporeeEvents.entry");
   const scoringEvents = useMemo(
     () => events.filter((event) => event.scoring_enabled),
     [events],
@@ -126,9 +126,6 @@ export function EventScoreEntryPanel({
     return allTargets.filter((target) => judgeSectionIds.has(target.club_section_id));
   }, [allTargets, judgeSectionIds]);
 
-  const selectedEvent = scoringEvents.find(
-    (event) => event.camporee_event_id === selectedEventId,
-  );
   const totalMax = rubrics.reduce((total, rubric) => total + Number(rubric.max_points || 0), 0);
 
   const selectedTarget = useMemo(
@@ -161,6 +158,7 @@ export function EventScoreEntryPanel({
     currentPoints[id] = awardedPoints[id] ?? loadedForSelection?.points[id] ?? 0;
   }
   const totalAwarded = calculateAwardedTotal(currentPoints);
+  const { overMax } = scoreEntryTotals(rubrics, currentPoints);
   const scoreItems = rubrics.map((rubric) => ({
     camporee_event_rubric_id: rubric.camporee_event_rubric_id,
     awarded_points: currentPoints[rubric.camporee_event_rubric_id] ?? 0,
@@ -262,85 +260,39 @@ export function EventScoreEntryPanel({
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-xs font-medium text-muted-foreground">
-          {t("eyebrow")}
-        </p>
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t("title")}</h2>
-          <p className="max-w-2xl text-sm text-muted-foreground">{t("description")}</p>
-        </div>
-      </header>
+  const canEnter = canEdit && selectedEventId && rubrics.length > 0 && allTargets.length > 0;
 
-      <div className="space-y-3">
-        <Label className="text-xs text-muted-foreground">
-          {t("eventLabel")}
-        </Label>
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          {scoringEvents.map((event) => {
-            const isSelected = event.camporee_event_id === selectedEventId;
-            const criteriaCount = (rubricsByEvent[event.camporee_event_id] ?? []).length;
+  const eventSelect = (
+    <div className="space-y-2">
+      <Label htmlFor="score-entry-event">{tEntry("eventLabel")}</Label>
+      <Select
+        value={selectedEventId ? String(selectedEventId) : ""}
+        onValueChange={(value) => handleEventChange(Number(value))}
+      >
+        <SelectTrigger id="score-entry-event" className="w-full">
+          <SelectValue placeholder={t("selectPlaceholder")} />
+        </SelectTrigger>
+        <SelectContent>
+          {scoringEvents.map((event) => (
+            <SelectItem key={event.camporee_event_id} value={String(event.camporee_event_id)}>
+              {tEntry("eventOption", {
+                title: event.title,
+                points: formatPoints(event.max_points),
+              })}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
-            return (
-              <Button
-                key={event.camporee_event_id}
-                type="button"
-                variant={isSelected ? "default" : "outline"}
-                size="sm"
-                className={cn(
-                  "h-auto shrink-0 rounded-full px-4 py-2 text-left",
-                  !isSelected && "bg-background/80",
-                )}
-                onClick={() => handleEventChange(event.camporee_event_id)}
-              >
-                <span className="flex flex-col items-start gap-0.5">
-                  <span className="font-medium">{event.title}</span>
-                  <span
-                    className={cn(
-                      "text-2xs",
-                      isSelected ? "text-primary-foreground/80" : "text-muted-foreground",
-                    )}
-                  >
-                    {t("eventMeta", {
-                      criteria: criteriaCount,
-                      sections: (targetsByEvent[event.camporee_event_id] ?? []).length,
-                    })}
-                  </span>
-                </span>
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          { label: t("statCriteria"), value: rubrics.length },
-          { label: t("statSections"), value: allTargets.length },
-          {
-            label: t("statTotal"),
-            value: `${formatPoints(totalAwarded)} / ${formatPoints(totalMax)}`,
-          },
-        ].map((stat, index) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl bg-muted/30 p-4 ring-1 ring-foreground/10"
-          >
-            <p className="text-2xs font-medium text-muted-foreground">
-              {stat.label}
-            </p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{stat.value}</p>
-            {index === 2 && selectedEvent?.title && (
-              <p className="mt-1 truncate text-xs text-muted-foreground">{selectedEvent.title}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
+  const content = (
+    <div className="space-y-6">
       {selectedEventId && rubrics.length === 0 && (
-        <p className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+        >
           {t("noRubrics")}
         </p>
       )}
@@ -354,45 +306,12 @@ export function EventScoreEntryPanel({
         />
       )}
 
-      {canEdit && selectedEventId && rubrics.length > 0 && allTargets.length > 0 && (
-        <form
-          action={formAction}
-          className="space-y-6 rounded-2xl bg-muted/20 p-1 ring-1 ring-foreground/10"
-        >
-          <div className="space-y-5 rounded-[calc(1rem-0.25rem)] bg-card p-5">
-            <input type="hidden" name="camporee_id" value={camporeeId} />
-            <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />
-            <input type="hidden" name="event_id" value={selectedEventId} />
-            <input type="hidden" name="club_section_id" value={selectedSectionId ?? ""} />
-            <input type="hidden" name="source" value="manual_lf" />
-            <input
-              type="hidden"
-              name="expected_active_result_id"
-              value={selectedTarget?.active_result_id ?? ""}
-            />
-            <input type="hidden" name="items" value={JSON.stringify(scoreItems)} />
+      <div className="grid gap-6 md:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="space-y-4">
+          {eventSelect}
 
-            <div className="grid gap-4 md:grid-cols-2">
-              {judges.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="score-entry-judge">{t("judgeFilterLabel")}</Label>
-                  <Select value={selectedJudgeId} onValueChange={handleJudgeChange}>
-                    <SelectTrigger id="score-entry-judge" className="w-full">
-                      <SelectValue placeholder={t("judgeFilterPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL_JUDGES}>{t("judgeFilterAll")}</SelectItem>
-                      {judges.map((judge) => (
-                        <SelectItem key={judge.camporee_judge_id} value={judge.camporee_judge_id}>
-                          {judge.name || judge.user_id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">{t("judgeFilterHint")}</p>
-                </div>
-              )}
-
+          {canEnter && (
+            <>
               <div className="space-y-2">
                 <Label htmlFor="score-entry-section">{t("sectionLabel")}</Label>
                 <Select
@@ -418,30 +337,44 @@ export function EventScoreEntryPanel({
                     ))}
                   </SelectContent>
                 </Select>
-                {assignedJudgeForSection && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("assignedJudgeHint", {
-                      name: assignedJudgeForSection.name || assignedJudgeForSection.user_id,
-                    })}
-                  </p>
-                )}
               </div>
-            </div>
 
-            {visibleTargets.length === 0 && selectedJudgeId !== ALL_JUDGES && (
-              <p className="text-sm text-muted-foreground">{t("noSectionsForJudge")}</p>
-            )}
+              {judges.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="score-entry-judge">{t("judgeFilterLabel")}</Label>
+                  <Select value={selectedJudgeId} onValueChange={handleJudgeChange}>
+                    <SelectTrigger id="score-entry-judge" className="w-full">
+                      <SelectValue placeholder={t("judgeFilterPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ALL_JUDGES}>{t("judgeFilterAll")}</SelectItem>
+                      {judges.map((judge) => (
+                        <SelectItem key={judge.camporee_judge_id} value={judge.camporee_judge_id}>
+                          {judge.name || judge.user_id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-            <div
-              className="rounded-xl border border-success/25 bg-success/10 px-4 py-3 text-sm text-success-foreground dark:text-success"
-              role="status"
-            >
-              {t("totalLive", {
-                awarded: formatPoints(totalAwarded),
-                max: formatPoints(totalMax),
-              })}
-            </div>
+              {visibleTargets.length === 0 && selectedJudgeId !== ALL_JUDGES && (
+                <p className="text-sm text-muted-foreground">{t("noSectionsForJudge")}</p>
+              )}
 
+              <p className="text-[13px] text-muted-foreground">
+                {assignedJudgeForSection
+                  ? tEntry("fallbackHintWithJudge", {
+                      name: assignedJudgeForSection.name || assignedJudgeForSection.user_id,
+                    })
+                  : tEntry("fallbackHint")}
+              </p>
+            </>
+          )}
+        </div>
+
+        {canEnter && (
+          <div className="space-y-4">
             {scoreLoadState === "loading" && (
               <p className="text-sm text-muted-foreground" role="status">
                 {t("scoreLoading")}
@@ -453,45 +386,67 @@ export function EventScoreEntryPanel({
               </p>
             )}
 
-            <div className="space-y-3">
-              {rubrics.map((rubric) => (
-                <div
-                  key={rubric.camporee_event_rubric_id}
-                  className="grid gap-4 rounded-xl bg-muted/20 p-4 ring-1 ring-foreground/10 md:grid-cols-[1fr_9rem] md:items-end"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium">{rubric.title}</p>
-                    {rubric.description && (
-                      <p className="text-sm text-muted-foreground">{rubric.description}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      {t("maxPoints", { points: formatPoints(rubric.max_points) })}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor={`score-rubric-${rubric.camporee_event_rubric_id}`}>
-                      {t("awardedLabel", { title: rubric.title })}
-                    </Label>
-                    <Input
-                      id={`score-rubric-${rubric.camporee_event_rubric_id}`}
-                      aria-label={t("awardedAria", { title: rubric.title })}
-                      type="number"
-                      min={0}
-                      max={rubric.max_points}
-                      step="0.01"
-                      value={currentPoints[rubric.camporee_event_rubric_id] ?? 0}
-                      disabled={scoreBlocked}
-                      onChange={(event) =>
-                        updateAwardedPoints(
-                          rubric.camporee_event_rubric_id,
-                          event.target.value,
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-xl bg-card px-4 py-1 shadow-card">
+              <ul className="divide-y">
+                {rubrics.map((rubric) => {
+                  const rubricId = rubric.camporee_event_rubric_id;
+                  const exceeded = overMax.includes(rubricId);
+                  return (
+                    <li key={rubricId} className="flex items-center gap-4 py-3">
+                      <div className="min-w-0 flex-1">
+                        <Label htmlFor={`score-rubric-${rubricId}`} className="text-sm">
+                          {rubric.title}
+                        </Label>
+                        {rubric.description && (
+                          <p className="text-[13px] text-muted-foreground">{rubric.description}</p>
+                        )}
+                        <p
+                          className={
+                            exceeded
+                              ? "text-xs text-destructive"
+                              : "text-xs text-muted-foreground"
+                          }
+                        >
+                          {t("maxPoints", { points: formatPoints(rubric.max_points) })}
+                        </p>
+                      </div>
+                      <Input
+                        id={`score-rubric-${rubricId}`}
+                        aria-label={t("awardedAria", { title: rubric.title })}
+                        aria-invalid={exceeded || undefined}
+                        className="w-24 text-right tabular-nums"
+                        type="number"
+                        min={0}
+                        max={rubric.max_points}
+                        step="0.01"
+                        value={currentPoints[rubricId] ?? 0}
+                        disabled={scoreBlocked}
+                        onChange={(event) => updateAwardedPoints(rubricId, event.target.value)}
+                      />
+                    </li>
+                  );
+                })}
+                <li className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-sm font-medium">{tEntry("total")}</span>
+                  <output
+                    aria-live="polite"
+                    className="text-sm font-semibold tabular-nums"
+                    data-testid="score-entry-total"
+                  >
+                    {tEntry("totalOf", {
+                      awarded: formatPoints(totalAwarded),
+                      max: formatPoints(totalMax),
+                    })}
+                  </output>
+                </li>
+              </ul>
             </div>
+
+            {overMax.length > 0 && (
+              <p role="alert" className="text-sm text-destructive">
+                {tEntry("overMax")}
+              </p>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="score-entry-notes">{t("notesLabel")}</Label>
@@ -500,35 +455,54 @@ export function EventScoreEntryPanel({
                 name="notes"
                 rows={2}
                 required={isOverride}
-                placeholder={
-                  isOverride ? t("notesOverridePlaceholder") : t("notesPlaceholder")
-                }
+                placeholder={isOverride ? t("notesOverridePlaceholder") : t("notesPlaceholder")}
               />
-              {isOverride && (
-                <p className="text-xs text-muted-foreground">{t("notesOverrideHint")}</p>
-              )}
+              {isOverride && <p className="text-xs text-muted-foreground">{t("notesOverrideHint")}</p>}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <FormSubmitButton
-                disabled={!selectedSectionId || visibleTargets.length === 0 || scoreBlocked}
-                className="rounded-full px-6"
-              >
-                {isOverride ? t("submitCorrectionButton") : t("submitButton")}
-              </FormSubmitButton>
+            <div className="flex flex-wrap items-center justify-end gap-3">
               {state.error && (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="mr-auto text-sm text-destructive" role="alert">
                   {state.error}
                 </p>
               )}
+              <FormSubmitButton
+                disabled={
+                  !selectedSectionId ||
+                  visibleTargets.length === 0 ||
+                  scoreBlocked ||
+                  overMax.length > 0
+                }
+              >
+                {isOverride ? t("submitCorrectionButton") : tEntry("submit")}
+              </FormSubmitButton>
             </div>
           </div>
-        </form>
-      )}
+        )}
+      </div>
 
       {!canEdit && selectedEventId && rubrics.length > 0 && (
         <p className="text-sm text-muted-foreground">{t("readOnlyHint")}</p>
       )}
     </div>
+  );
+
+  if (!canEnter) return content;
+
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="camporee_id" value={camporeeId} />
+      <input type="hidden" name="is_union" value={isUnionCamporee ? "true" : "false"} />
+      <input type="hidden" name="event_id" value={selectedEventId ?? ""} />
+      <input type="hidden" name="club_section_id" value={selectedSectionId ?? ""} />
+      <input type="hidden" name="source" value="manual_lf" />
+      <input
+        type="hidden"
+        name="expected_active_result_id"
+        value={selectedTarget?.active_result_id ?? ""}
+      />
+      <input type="hidden" name="items" value={JSON.stringify(scoreItems)} />
+      {content}
+    </form>
   );
 }

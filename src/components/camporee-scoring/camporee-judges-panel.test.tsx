@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import { toast } from "sonner";
@@ -518,6 +518,14 @@ describe("EventJudgeAssignmentsPanel", () => {
     fireEvent.click(await screen.findByRole("option", { name: "Ana Juez" }));
   }
 
+  /** Removing a judge asks first: nothing is sent until the dialog is confirmed. */
+  async function confirmRemoval(user: ReturnType<typeof userEvent.setup>) {
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText(/¿Quitar a Ana Juez\?/)).toBeInTheDocument();
+    expect(deleteCamporeeEventJudgeAssignmentAction).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole("button", { name: "Quitar" }));
+  }
+
   function statValue(label: string) {
     return screen.getByText(label, { selector: "p" }).nextElementSibling?.textContent;
   }
@@ -612,6 +620,7 @@ describe("EventJudgeAssignmentsPanel", () => {
     expect(statValue("Con juez principal")).toBe("1");
     await user.click(screen.getByLabelText("Editar asignación"));
     await user.click(screen.getByRole("menuitem", { name: "Quitar" }));
+    await confirmRemoval(user);
 
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Asignación quitada"));
     expect(statValue("Con juez principal")).toBe("0");
@@ -687,6 +696,7 @@ describe("EventJudgeAssignmentsPanel", () => {
     await openEventFromMenu();
     await user.click(screen.getByLabelText("Editar asignación"));
     await user.click(screen.getByRole("menuitem", { name: "Quitar" }));
+    await confirmRemoval(user);
 
     await waitFor(() => {
       expect(deleteCamporeeEventJudgeAssignmentAction).toHaveBeenCalled();
@@ -699,5 +709,36 @@ describe("EventJudgeAssignmentsPanel", () => {
     expect(formData.get("assignment_id")).toBe("assignment-1");
     expect(formData.get("camporee_id")).toBe("1");
     expect(formData.get("is_union")).toBe("false");
+  });
+});
+
+describe("EventJudgeAssignmentsPanel removal confirmation", () => {
+  it("does not remove the assignment when the dialog is cancelled", async () => {
+    const user = userEvent.setup();
+    vi.mocked(deleteCamporeeEventJudgeAssignmentAction).mockClear();
+
+    render(
+      <NextIntlClientProvider locale="es" messages={es}>
+        <EventJudgeAssignmentsPanel
+          camporeeId={1}
+          events={[event]}
+          judges={judges}
+          assignmentsByEvent={{ 10: assignments }}
+          targetsByEvent={{ 10: targets }}
+          canEdit
+        />
+      </NextIntlClientProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Acciones de/ }));
+    await user.click(await screen.findByRole("menuitem", { name: "Abrir" }));
+    await user.click(screen.getByLabelText("Editar asignación"));
+    await user.click(screen.getByRole("menuitem", { name: "Quitar" }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
+
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    expect(deleteCamporeeEventJudgeAssignmentAction).not.toHaveBeenCalled();
   });
 });

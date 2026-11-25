@@ -1,4 +1,901 @@
 {
+  "evaluation": {
+    "evidence": {
+      "queue": {
+        "finding": "{count, plural, =0 {Aucun dossier à évaluer} one {# dossier à évaluer} other {# dossiers à évaluer}}",
+        "templates": "Modèles",
+        "tabsLabel": "État des dossiers",
+        "tabs": {
+          "evaluate": "À évaluer",
+          "union": "À confirmer à l'union",
+          "evaluated": "Évalués"
+        },
+        "filters": {
+          "search": "Rechercher un club ou une section",
+          "searchPlaceholder": "Ex. Club Orión",
+          "clubType": "Type de club",
+          "allClubTypes": "Tous les types de club",
+          "year": "Année",
+          "allYears": "Toutes les années",
+          "union": "Union",
+          "allUnions": "Toutes les unions",
+          "localField": "Champ local",
+          "allLocalFields": "Tous les champs"
+        },
+        "columns": {
+          "folder": "Dossier",
+          "evaluate": "Rubriques à évaluer",
+          "union": "À confirmer",
+          "evaluated": "Rubriques évaluées",
+          "evidences": "Preuves",
+          "lastSubmitted": "Dernier envoi"
+        },
+        "cell": {
+          "sectionsOf": "{count} sur {total}",
+          "rejected": "{count, plural, one {# rejetée} other {# rejetées}}",
+          "noDate": "—"
+        },
+        "actions": {
+          "evaluate": "Évaluer",
+          "review": "Examiner",
+          "view": "Voir",
+          "viewAsClub": "Voir comme le club"
+        },
+        "empty": {
+          "evaluate": {
+            "title": "Rien à évaluer",
+            "description": "Quand un club envoie des rubriques, elles apparaissent ici."
+          },
+          "union": {
+            "title": "Rien à confirmer",
+            "description": "Les rubriques préapprouvées par le champ local attendent ici la décision de l'union."
+          },
+          "evaluated": {
+            "title": "Aucun dossier évalué pour le moment",
+            "description": "Les dossiers contenant des rubriques évaluées apparaissent ici."
+          },
+          "noResultsTitle": "Aucun résultat",
+          "noResultsDescription": "Aucun dossier ne correspond aux filtres.",
+          "clearFilters": "Effacer les filtres"
+        },
+        "error": {
+          "title": "Impossible de charger les dossiers",
+          "description": "La liste ne s'est pas chargée. Réessaie dans un instant."
+        }
+      },
+      "review": {
+        "viewAsClub": "Voir comme le club",
+        "scoreFact": "Évalué",
+        "scoreValue": "{earned} sur {max} pts",
+        "localFieldFact": "Champ local",
+        "listLabel": "Rubriques du dossier",
+        "row": {
+          "evidencesPoints": "{count, plural, one {# fichier} other {# fichiers}} · {points} pts",
+          "pointsOf": "{earned} sur {max} pts",
+          "notSent": "Non envoyée",
+          "toEvaluate": "À évaluer",
+          "inUnion": "À l'union"
+        },
+        "panel": {
+          "position": "Rubrique {current} sur {total}",
+          "required": "obligatoire",
+          "worth": "vaut {points} pts",
+          "sentOn": "envoyée le {date}",
+          "files": "Fichiers",
+          "noFiles": "Cette rubrique n'a aucun fichier.",
+          "view": "Voir",
+          "fileNoName": "Fichier sans nom",
+          "uploaderUnknown": "Utilisateur indisponible",
+          "reviewerNote": "Note de révision : {note}"
+        },
+        "form": {
+          "points": "Points",
+          "pointsHint": "Maximum {max}",
+          "notes": "Observations",
+          "notesPlaceholder": "Facultatif. Le club les verra.",
+          "errors": {
+            "required": "Saisis les points.",
+            "integer": "Doit être un nombre entier.",
+            "negative": "Ne peut pas être inférieur à 0.",
+            "max": "Ne peut pas dépasser {max} pts."
+          }
+        },
+        "notSent": {
+          "title": "Le club n'a pas encore envoyé cette rubrique",
+          "description": "Une fois envoyée, tu pourras l'évaluer ici."
+        },
+        "result": {
+          "pointsOf": "{earned} sur {max} pts",
+          "localField": "Champ local",
+          "union": "Union",
+          "byAt": "{name} · {date}",
+          "unionRejected": "L'union a rejeté cette rubrique et elle ne rapporte aucun point.",
+          "notes": "Observations"
+        },
+        "union": {
+          "waiting": "En attente de la confirmation de l'union. Le champ local a donné {earned} sur {max} pts.",
+          "decide": "Le champ local a donné {earned} sur {max} pts. Approuve la rubrique ou rejette-la en indiquant un motif.",
+          "approve": "Approuver la rubrique",
+          "reject": "Rejeter…",
+          "approved": "Rubrique confirmée par l'union",
+          "rejected": "Rubrique rejetée par l'union",
+          "rejectTitle": "Rejeter {name}",
+          "rejectDescription": "La rubrique ne rapporte aucun point. Le club et le champ local verront le motif.",
+          "rejectLabel": "Motif",
+          "rejectPlaceholder": "Ex. Les preuves datent de 2025",
+          "rejectConfirm": "Rejeter la rubrique",
+          "failed": "Impossible d'enregistrer la décision de l'union"
+        },
+        "reopen": {
+          "action": "Rouvrir…",
+          "title": "Rouvrir {name}",
+          "description": "L'évaluation actuelle est supprimée et la rubrique redevient à évaluer. Ses points ne comptent plus tant que tu ne l'as pas évaluée de nouveau.",
+          "confirm": "Rouvrir la rubrique",
+          "failed": "Impossible de rouvrir la rubrique"
+        },
+        "toasts": {
+          "evaluated": "Rubrique évaluée",
+          "evaluatedLast": "Rubrique évaluée. Il ne reste aucune rubrique à évaluer.",
+          "saveFailed": "Impossible d'enregistrer l'évaluation"
+        },
+        "error": {
+          "title": "Impossible de charger le dossier",
+          "description": "Le dossier ne s'est pas chargé. Réessaie dans un instant."
+        },
+        "back": "Retour aux dossiers"
+      },
+      "templates": {
+        "status": {
+          "draft": "Brouillon",
+          "published": "Publié",
+          "archived": "Archivé"
+        },
+        "filters": {
+          "status": "État",
+          "all": "Tous",
+          "draft": "Brouillons",
+          "published": "Publiés",
+          "archived": "Archivés"
+        },
+        "count": "{count, plural, one {# modèle} other {# modèles}}",
+        "columns": {
+          "sections": "Rubriques"
+        },
+        "actions": {
+          "edit": "Modifier le brouillon",
+          "publish": "Publier…",
+          "copy": "Copier comme brouillon…",
+          "delete": "Supprimer le brouillon…",
+          "addSection": "Ajouter une rubrique",
+          "editSection": "Modifier la rubrique",
+          "deleteSection": "Supprimer la rubrique…"
+        },
+        "facts": {
+          "sections": "Rubriques",
+          "closing": "Clôture"
+        },
+        "readiness": {
+          "noConfig": "Aucune Progression annuelle n'est configurée pour ce type de club, cette année et ce propriétaire. Configure-la avant de publier.",
+          "ready": "Les rubriques totalisent {total} pts, exactement ce que la Progression annuelle accorde au dossier. Prêt à publier.",
+          "missing": "Les rubriques totalisent {total} sur {required} pts : il manque {diff}. Pour publier, elles doivent totaliser exactement ce que la Progression annuelle accorde au dossier.",
+          "excess": "Les rubriques totalisent {total} sur {required} pts : {diff} en trop. Pour publier, elles doivent totaliser exactement ce que la Progression annuelle accorde au dossier."
+        },
+        "sections": {
+          "order": "#",
+          "name": "Rubrique",
+          "required": "Obligatoire",
+          "points": "Points",
+          "minimum": "Minimum",
+          "yes": "Oui",
+          "no": "Non",
+          "listLabel": "Rubriques du modèle",
+          "locked": "Les modèles publiés sont verrouillés. Copie-le comme brouillon si tu as besoin de changements."
+        },
+        "publish": {
+          "title": "Publier {name}",
+          "description": "Une fois publié, le modèle est verrouillé et les clubs peuvent créer des dossiers avec lui. Pour le modifier ensuite, tu devras le copier comme brouillon.",
+          "confirm": "Publier le modèle",
+          "done": "Modèle publié. Il peut désormais générer des dossiers.",
+          "failed": "Impossible de publier le modèle.",
+          "blocked": "Ajuste d'abord les rubriques au total de la Progression annuelle"
+        },
+        "copy": {
+          "title": "Copier comme brouillon",
+          "description": "Un brouillon pour {year} sera créé avec les rubriques et les points de « {name} ».",
+          "noYear": "Aucune année ecclésiastique ultérieure n'est disponible pour copier ce modèle.",
+          "confirm": "Copier le brouillon",
+          "done": "Modèle copié comme brouillon.",
+          "failed": "Impossible de copier le modèle."
+        },
+        "delete": {
+          "title": "Supprimer le brouillon",
+          "description": "Le brouillon « {name} » et ses rubriques seront supprimés. Cette action est irréversible.",
+          "confirm": "Supprimer le brouillon",
+          "done": "Brouillon supprimé.",
+          "failed": "Impossible de supprimer le brouillon."
+        },
+        "error": {
+          "title": "Impossible de charger le modèle",
+          "description": "Le modèle ne s'est pas chargé. Réessaie dans un instant."
+        },
+        "refreshFailed": "Impossible d'actualiser les modèles"
+      }
+    },
+    "progress": {
+      "annual": {
+        "title": "Progression annuelle",
+        "description": "Points de chaque club en {year}.",
+        "descriptionMax": "Points de chaque club en {year} sur {max} pts.",
+        "settings": "Configuration",
+        "recalc": "Recalculer…",
+        "filters": {
+          "clubType": "Type de club",
+          "year": "Année ecclésiastique",
+          "yearActive": "(actif)"
+        },
+        "cols": {
+          "club": "Club",
+          "points": "Points",
+          "progress": "Avancement",
+          "recognition": "Reconnaissance"
+        },
+        "recognition": {
+          "none": "Aucune reconnaissance",
+          "missing": "Il manque {points} pts pour {tier}"
+        },
+        "viewDetail": "Voir le détail",
+        "listLabel": "Progression annuelle des clubs",
+        "empty": {
+          "title": "Aucune progression calculée",
+          "description": "Aucun club n'a de progression pour ces filtres. Vérifiez qu'un budget annuel est configuré ou recalculez l'année."
+        },
+        "noCatalogs": {
+          "title": "Informations manquantes pour afficher la progression",
+          "description": "Il faut au moins un champ local, un type de club et une année ecclésiastique."
+        },
+        "recalcDialog": {
+          "title": "Recalculer la progression de {year} ?",
+          "description": "Le recalcul concerne tous les champs, types de club et clubs de {year}, pas seulement ce que vous voyez filtré. Cela prend quelques minutes ; en attendant, vous verrez les données précédentes.",
+          "confirm": "Recalculer {year}",
+          "failed": "La progression n'a pas pu être recalculée."
+        },
+        "recalcResult": {
+          "queued": "Le recalcul de {year} est en cours. Les résultats seront mis à jour dans quelques minutes.",
+          "skipped": "Le recalcul est désactivé et a été ignoré.",
+          "updated": "Progression recalculée : {count, plural, one {# club mis à jour} other {# clubs mis à jour}}",
+          "done": "Progression recalculée"
+        },
+        "breakdown": {
+          "title": "Détail de la progression",
+          "paramsRequired": "L'année ecclésiastique manque pour afficher le détail.",
+          "summary": "{year} · {earned} sur {max} pts",
+          "pointsOf": "{earned} sur {max}",
+          "dueDate": "Échéance le {date}",
+          "pending": {
+            "unsent": "Non envoyé",
+            "validation": "À valider",
+            "union": "À confirmer à l'union",
+            "review": "En révision"
+          },
+          "componentsTitle": "Par composante",
+          "componentsEmpty": "Aucune composante configurée.",
+          "pendingTitle": "En attente dans le dossier",
+          "pendingEmpty": "Rien n'est en attente dans le dossier."
+        },
+        "config": {
+          "title": "Configuration de la progression annuelle",
+          "description": "Budgets de points par champ, année et type de club, et pourcentage de chaque reconnaissance.",
+          "breadcrumb": "Configuration",
+          "newBudget": "Nouveau budget",
+          "tabsLabel": "Sections de la configuration",
+          "tabs": {
+            "budgets": "Budgets",
+            "recognitions": "Reconnaissances"
+          },
+          "budgets": {
+            "new": "Nouveau budget",
+            "emptyTitle": "Aucun budget configuré",
+            "emptyDescription": "Créez le premier budget pour définir la répartition des points annuels.",
+            "colScope": "Portée",
+            "colYear": "Année",
+            "colClubType": "Type de club",
+            "colMax": "Points maximum",
+            "colStatus": "Statut",
+            "scopeUnion": "Union",
+            "scopeLocalField": "Champ local",
+            "points": "{points} pts",
+            "active": "Actif",
+            "inactive": "Inactif",
+            "edit": "Modifier",
+            "delete": "Supprimer…"
+          },
+          "recognitions": {
+            "title": "Reconnaissances",
+            "description": "Pourcentage minimum du total annuel pour chaque reconnaissance. S'applique à tous les champs.",
+            "bandLabel": "Pourcentage pour {tier}",
+            "active": "Actif",
+            "inactive": "Inactif",
+            "invalidPercent": "Pourcentage invalide",
+            "saved": "Reconnaissances mises à jour",
+            "saveFailed": "Impossible d'enregistrer {tier}"
+          }
+        }
+      },
+      "section": {
+        "title": "Progression par section",
+        "description": "Score de chaque section de l'année avec classes, investiture et camporees.",
+        "descriptionYear": "Score de {year} avec classes, investiture et camporees.",
+        "noYearTitle": "Aucune année ecclésiastique active",
+        "noYearDescription": "Configurez une année ecclésiastique active dans le catalogue pour voir la progression.",
+        "emptyTitle": "Aucune progression par section",
+        "emptyDescription": "Aucune section n'a encore de score calculé pour cette année.",
+        "emptyFilteredDescription": "Aucune section n'a de score pour ce club et cette année.",
+        "colSection": "Section",
+        "colScore": "Score",
+        "colMembers": "Membres actifs",
+        "colCalculated": "Calculé",
+        "noScore": "Sans données",
+        "viewMembers": "Voir les membres",
+        "listLabel": "Progression des sections",
+        "membersCount": "{count, plural, one {# membre actif} other {# membres actifs}}",
+        "filters": {
+          "club": "Club",
+          "allClubs": "Tous les clubs",
+          "year": "Année ecclésiastique"
+        },
+        "sheet": {
+          "description": "Progression des membres de la section",
+          "loading": "Chargement des membres…",
+          "emptyTitle": "Aucun membre avec un score",
+          "emptyDescription": "Cette section n'a aucun membre avec un score calculé.",
+          "invested": "Investi",
+          "inProgress": "En cours",
+          "detail": "Classe {class} · Investiture {investiture} · Camporees {camporee}"
+        }
+      },
+      "memberOfMonth": {
+        "title": "Membre du mois",
+        "description": "Qui a gagné dans chaque section et s'il a été prévenu.",
+        "filters": {
+          "allFields": "Tous les champs",
+          "clubType": "Type de club",
+          "allClubTypes": "Tous les types de club",
+          "month": "Mois",
+          "allMonths": "Tous les mois",
+          "year": "Année",
+          "notice": "Avis",
+          "noticeAny": "Avis : tous",
+          "noticePending": "Pas encore prévenu",
+          "noticeSent": "Prévenus"
+        },
+        "emptyTitle": "Aucun gagnant",
+        "emptyDescription": "Aucun membre du mois n'a encore été évalué pour cette période.",
+        "emptyFilteredDescription": "Aucun gagnant ne correspond aux filtres.",
+        "clearFilters": "Effacer les filtres",
+        "cols": {
+          "section": "Section",
+          "winner": "Gagnant",
+          "points": "Points",
+          "notice": "Avis"
+        },
+        "tie": "égalité",
+        "tieMany": "{names} et {count, plural, one {# autre} other {# autres}}",
+        "noticeSent": "Prévenu",
+        "noticePending": "Pas encore prévenu",
+        "redo": "Réévaluer…",
+        "redoDialog": {
+          "title": "Réévaluer {month} dans {section} ?",
+          "description": "Le calcul utilise les points actuels et remplace {names} si le résultat change. Le gagnant est prévenu dans l'application.",
+          "confirm": "Réévaluer",
+          "failed": "L'évaluation n'a pas pu être terminée.",
+          "done": "Évaluation terminée"
+        }
+      }
+    },
+    "reports": {
+      "page": {
+        "title": "Rapports",
+        "description": {
+          "monthly": "Rapports mensuels de votre club.",
+          "territory": "Rapports mensuels des clubs de votre périmètre.",
+          "quarterly": "Rapports trimestriels, calculés à partir des rapports mensuels envoyés.",
+          "annual": "Rapports annuels par année ecclésiastique."
+        },
+        "printPreview": "Version imprimable",
+        "noEnrollmentTitle": "Aucune inscription active",
+        "noEnrollmentDescription": "Votre club n'a pas d'inscription active cette année : il n'y a donc encore aucun rapport à afficher.",
+        "noScopeTitle": "Aucun rapport à afficher",
+        "noScopeDescription": "Votre compte n'est lié ni à un club ni à un territoire avec des rapports."
+      },
+      "tabs": {
+        "label": "Type de rapport",
+        "monthly": "Mensuels",
+        "quarterly": "Trimestriels",
+        "annual": "Annuels"
+      },
+      "finding": {
+        "clear": "Tous les rapports ont été envoyés.",
+        "toSend": "{count, plural, one {# rapport à envoyer} other {# rapports à envoyer}}",
+        "drafts": "{count, plural, one {# brouillon non généré} other {# brouillons non générés}}",
+        "both": "{toSend, plural, one {# rapport à envoyer} other {# rapports à envoyer}} · {drafts, plural, one {# brouillon non généré} other {# brouillons non générés}}"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "generated": "À envoyer",
+        "submitted": "Envoyé"
+      },
+      "territory": {
+        "groupDivision": "Division",
+        "groupUnion": "Union",
+        "groupLocalField": "Champ local",
+        "scopeAll": "Tout mon périmètre",
+        "searchLabel": "Rechercher un club",
+        "searchPlaceholder": "Nom du club",
+        "searchPageOnly": "Filtrage de cette page uniquement.",
+        "clearFilters": "Effacer les filtres",
+        "emptyTitle": "Aucun rapport en {year}",
+        "emptyDescription": "Les clubs de votre périmètre n'ont pas encore de rapports mensuels cette année.",
+        "listLabel": "Rapports mensuels"
+      },
+      "club": {
+        "columnPeriod": "Période"
+      },
+      "list": {
+        "actionSend": "Envoyer au champ…"
+      },
+      "create": {
+        "title": "Nouveau rapport mensuel",
+        "description": "Choisissez le mois. Un brouillon est créé et ouvert pour que vous le remplissiez.",
+        "month": "Mois",
+        "year": "Année",
+        "confirm": "Créer le brouillon"
+      },
+      "errors": {
+        "download": "Impossible de télécharger le PDF."
+      },
+      "periodic": {
+        "listLabel": "Rapports"
+      },
+      "detail": {
+        "metaTitle": "Rapport mensuel",
+        "statusLabel": "Statut",
+        "subtitleDraft": "Brouillon · les données se mettent à jour tant que vous ne générez pas le rapport",
+        "subtitleFrozen": "Généré le {date} · les données ont été figées",
+        "subtitleSent": "Généré le {generated} · envoyé le {sent} · les données ont été figées",
+        "subtitleFrozenNoDate": "Les données ont été figées à la génération du rapport",
+        "sectionClub": "Club",
+        "sectionFinances": "Finances",
+        "tabsLabel": "Données du rapport",
+        "tabSystem": "Données du système",
+        "tabClub": "Données du club",
+        "actionSend": "Envoyer au champ…"
+      }
+    },
+    "camporees": {
+      "list": {
+        "finding": "{open, plural, one {# camporee avec inscription ouverte} other {# camporees avec inscription ouverte}}",
+        "findingNoneOpen": "Aucun camporee avec inscription ouverte",
+        "findingTotal": "{total, plural, one {# camporee} other {# camporees}}",
+        "templates": "Modèles d'événements",
+        "newLocal": "Nouveau camporee",
+        "newUnion": "Nouveau camporee d'union",
+        "tabsLabel": "Type de camporee",
+        "tabLocal": "Champ local",
+        "tabUnion": "Union",
+        "searchLabel": "Rechercher un camporee",
+        "searchPlaceholder": "Nom, lieu ou champ",
+        "rangeLabel": "Afficher",
+        "rangeUpcoming": "À venir et en cours",
+        "rangePast": "Passés",
+        "rangeAll": "Tous",
+        "onlyThisPage": "Filtre appliqué à cette page seulement",
+        "colName": "Camporee",
+        "colDates": "Dates",
+        "colPlace": "Lieu",
+        "colRegistration": "Inscription",
+        "registration": {
+          "open": "Ouverte",
+          "closed": "Fermée"
+        },
+        "loadFailedTitle": "Impossible de charger les camporees",
+        "emptyLocalTitle": "Aucun camporee local pour le moment",
+        "emptyLocalDescription": "Créez le premier pour ouvrir l'inscription des clubs.",
+        "emptyUnionTitle": "Aucun camporee d'union pour le moment",
+        "emptyUnionDescription": "Créez le premier pour ouvrir l'inscription des clubs.",
+        "noResultsTitle": "Aucun résultat",
+        "noResultsDescription": "Aucun camporee de cette page ne correspond à la recherche ou au filtre.",
+        "clearFilters": "Effacer les filtres"
+      },
+      "form": {
+        "sections": {
+          "data": "Informations",
+          "dates": "Dates et échéances",
+          "place": "Lieu",
+          "scope": "Sections et coût",
+          "orders": "Commandes"
+        },
+        "noUnions": "Aucune union",
+        "footerNote": "Les commandes sont enregistrées avec le reste.",
+        "perMember": "Par membre",
+        "ordersDescription": "Fenêtre de commandes de marchandises et ce que propose ce camporee.",
+        "ordersSaveFailed": "Le camporee a été enregistré, mais pas les commandes. Vérifiez-les ici et enregistrez à nouveau.",
+        "loadFailedTitle": "Impossible de charger le camporee",
+        "ownersFailedTitle": "Impossible de charger la liste des champs et des unions"
+      },
+      "delete": {
+        "title": "Supprimer « {name} » ?",
+        "description": "Le camporee est désactivé et n'apparaît plus pour les clubs. Ses inscriptions et ses scores sont conservés.",
+        "confirm": "Supprimer"
+      },
+      "registration": {
+        "closeConsequence": "{count, plural, one {La section inscrite est figée} other {Les # sections inscrites sont figées}} pour l'attribution des juges et la notation, et les clubs ne pourront plus s'inscrire. L'inscription des membres suit sa propre échéance. Il est possible de rouvrir tant qu'il n'y a ni scores ni juges attribués."
+      },
+      "pending": {
+        "membersTitle": "{count, plural, one {# membre à approuver} other {# membres à approuver}}",
+        "clubsTitle": "{count, plural, one {# club à approuver} other {# clubs à approuver}}",
+        "approve": "Approuver",
+        "reject": "Refuser",
+        "approveTitle": "Approuver l'inscription de {name} ?",
+        "approveDescription": "L'inscription est confirmée dans le camporee et compte pour les paiements et le programme.",
+        "rejectTitle": "Refuser l'inscription de {name} ?",
+        "rejectDescription": "La personne est informée du refus et le motif reste dans l'historique d'audit.",
+        "rejected": "Inscription de {name} refusée",
+        "rejectFailed": "Impossible de refuser l'inscription",
+        "emptyTitle": "Rien n'attend d'approbation",
+        "emptyDescription": "Les inscriptions tardives de membres et de clubs apparaissent ici pour que vous les examiniez."
+      },
+      "detail": {
+        "groupsLabel": "Rubriques du camporee",
+        "viewsLabel": "Vues de {group}"
+      },
+      "views": {
+        "groups": {
+          "summary": "Résumé",
+          "registrations": "Inscriptions",
+          "money": "Argent",
+          "program": "Programme",
+          "scores": "Scores"
+        },
+        "withCount": "{label} {count}",
+        "views": {
+          "pending": "À approuver",
+          "members": "Membres",
+          "clubs": "Clubs",
+          "payments": "Paiements",
+          "orders": "Ordres de paiement",
+          "merchandise": "Commandes",
+          "supplies": "Fournitures",
+          "events": "Événements",
+          "staff": "Personnel",
+          "judges": "Juges",
+          "entry": "Saisir les scores",
+          "results": "Résultats"
+        }
+      },
+      "errors": {
+        "members": "Impossible de charger les membres",
+        "clubs": "Impossible de charger les clubs",
+        "payments": "Impossible de charger les paiements",
+        "events": "Impossible de charger les événements",
+        "scores": "Impossible de charger les scores",
+        "pending": "Impossible de charger ce qui attend d'approbation"
+      },
+      "summary": {
+        "kpiLabel": "Résumé du camporee",
+        "kpi": {
+          "clubs": "Clubs",
+          "enrolled": "inscrits",
+          "members": "Membres",
+          "membersPending": "{count, plural, one {# à approuver} other {# à approuver}}",
+          "collected": "Encaissé",
+          "collectedOf": "sur {total}",
+          "noCost": "coût non défini",
+          "events": "Événements",
+          "eventsScoring": "{count, plural, one {# avec score} other {# avec score}}",
+          "unavailable": "indisponible"
+        },
+        "pending": {
+          "title": "En attente",
+          "members": "{count, plural, one {# membre attend l'approbation} other {# membres attendent l'approbation}}",
+          "clubs": "{count, plural, one {# club attend l'approbation} other {# clubs attendent l'approbation}}",
+          "payments": "{count, plural, one {# paiement en vérification pour {amount}} other {# paiements en vérification pour {amount}}}",
+          "eventsWithoutJudge": "{count, plural, one {# événement noté sans juge attribué} other {# événements notés sans juge attribué}}",
+          "none": "Rien en attente.",
+          "assign": "Attribuer",
+          "review": "Examiner",
+          "loadFailed": "Impossible de charger ce qui est en attente"
+        },
+        "deadlines": {
+          "title": "Échéances",
+          "clubs": "Inscription des clubs",
+          "members": "Inscription des membres",
+          "payment": "Paiement",
+          "agenda": "Programme visible",
+          "none": "Aucune échéance définie.",
+          "from": "à partir du {date}",
+          "until": "jusqu'au {date}"
+        },
+        "data": {
+          "title": "Informations",
+          "registration": "Inscription des clubs",
+          "closedAt": "Fermée le {date}"
+        }
+      }
+    },
+    "camporeeEvents": {
+      "program": {
+        "filters": {
+          "search": "Rechercher un événement",
+          "searchPlaceholder": "Rechercher un événement, un responsable ou un lieu",
+          "category": "Catégorie",
+          "categoryAll": "Toutes les catégories",
+          "section": "Section",
+          "sectionAll": "Toutes les sections",
+          "venue": "Lieu",
+          "venueAll": "Tous les lieux",
+          "status": "Statut",
+          "statusAll": "Tous les statuts",
+          "clear": "Effacer les filtres"
+        },
+        "categories": {
+          "espiritual": "Spirituel",
+          "competencia": "Compétition",
+          "taller": "Atelier",
+          "ceremonial": "Cérémonie",
+          "social": "Social",
+          "logistico": "Logistique"
+        },
+        "sections": {
+          "adventurers": "Aventuriers",
+          "pathfinders": "Explorateurs",
+          "master_guides": "Guides Majeurs"
+        },
+        "statuses": {
+          "programado": "Planifié",
+          "publicado": "Publié",
+          "en_curso": "En cours",
+          "realizado": "Terminé",
+          "cancelado": "Annulé"
+        },
+        "statusUnpublished": "Non publié",
+        "createEvent": "Nouvel événement",
+        "summary": "{events, plural, one {# événement} other {# événements}} sur {days, plural, one {# jour} other {# jours}}",
+        "col": {
+          "time": "Heure",
+          "event": "Événement",
+          "venue": "Lieu",
+          "leader": "Responsable",
+          "points": "Points",
+          "status": "Statut"
+        },
+        "until": "à {time}",
+        "points": "{points} pts",
+        "noLeader": "Sans responsable",
+        "dayCount": "{count, plural, =0 {Aucun événement} one {# événement} other {# événements}}",
+        "dayEmpty": "Aucun événement ce jour-là.",
+        "addToDay": "Ajouter un événement",
+        "emptyTitle": "Aucun événement pour le moment",
+        "emptyDescription": "Créez le premier événement pour construire le programme du camporee.",
+        "noResultsTitle": "Aucun événement ne correspond",
+        "noResultsDescription": "Essayez une autre recherche ou effacez les filtres.",
+        "actions": {
+          "edit": "Modifier",
+          "cancel": "Annuler l’événement…",
+          "delete": "Supprimer…"
+        },
+        "cancelDialog": {
+          "title": "Annuler « {title} » ?",
+          "description": "L’événement reste visible dans le programme avec le statut Annulé. Vous pouvez revenir en arrière en modifiant son statut.",
+          "confirm": "Annuler l’événement",
+          "back": "Retour"
+        },
+        "deleteDialog": {
+          "title": "Supprimer « {title} » ?",
+          "description": "L’événement quitte le programme et personne ne pourra le voir. L’enregistrement est conservé en interne.",
+          "confirm": "Supprimer"
+        },
+        "cancelledToast": "Événement « {title} » annulé",
+        "deletedToast": "Événement « {title} » supprimé"
+      },
+      "form": {
+        "sections": {
+          "data": "Informations",
+          "schedule": "Horaire et lieu",
+          "leader": "Responsable",
+          "points": "Points et grilles",
+          "attachments": "Pièces jointes"
+        },
+        "fields": {
+          "title": "Titre",
+          "titlePlaceholder": "Ex. Concours de nœuds",
+          "description": "Description",
+          "category": "Catégorie",
+          "eventType": "Type d’événement",
+          "eventTypePlaceholder": "Sélectionnez le type",
+          "eventTypeHint": "Le type classe le programme ; les points officiels dépendent des grilles actives.",
+          "status": "Statut de l’événement",
+          "participants": "Sections participantes",
+          "participantsHint": "Laissez vide pour s’appliquer à toutes les sections du camporee. Cela définit les clubs affichés dans Horaire.",
+          "venue": "Lieu",
+          "venueEmpty": "Aucun lieu n’est configuré pour ce camporee.",
+          "venueCreateFirst": "Créer le premier lieu",
+          "venueNone": "Sans lieu",
+          "venueCapacity": "cap. {capacity}",
+          "venueCreateNew": "Créer un nouveau lieu",
+          "venueOpenForm": "Ouvrir le formulaire de lieu",
+          "leaderHint": "Nom affiché dans le programme. Il ne suffit pas pour publier : cela se définit dans Personnel assigné.",
+          "leaderMode": "Type de responsable",
+          "leaderUser": "Utilisateur du système",
+          "leaderExternal": "Responsable externe",
+          "leaderUserLabel": "Utilisateur responsable",
+          "leaderUserPlaceholder": "Sélectionnez un utilisateur",
+          "leaderNone": "Sans responsable",
+          "leaderExternalName": "Nom du responsable externe",
+          "leaderExternalPlaceholder": "Ex. Dr Marta Quiroga",
+          "leaderRole": "Rôle ou fonction",
+          "leaderRolePlaceholder": "Ex. Directrice des jeux",
+          "honors": "Spécialités de préparation",
+          "honorsHint": "Associez des spécialités du catalogue pour que les participants consultent le PDF avant l’événement.",
+          "maxPoints": "Points maximum",
+          "minPoints": "Points minimum",
+          "minPointsOnlyPenalty": "uniquement avec pénalité",
+          "minPointsHint": "Plancher en cas de pénalités : le score ne descend pas sous cette valeur (0 autorisé ; ne peut pas dépasser le maximum).",
+          "penaltiesToggle": "Applique une pénalité",
+          "penaltiesToggleHint": "Active les déductions et permet de définir un minimum de points.",
+          "penalties": "Pénalités"
+        },
+        "optional": "facultatif",
+        "errors": {
+          "title": "Saisissez le titre de l’événement."
+        },
+        "timeFormat": "Format d’heure invalide (HH:MM)",
+        "timeOrder": "L’heure de fin doit être postérieure à l’heure de début",
+        "saveEdit": "Enregistrer les modifications",
+        "saveCreate": "Créer l’événement",
+        "createNote": "Il est enregistré comme « Non publié ». Publier exige un responsable.",
+        "attachmentsCreateHint": "Vous pourrez ajouter règlements, plans ou formulaires après avoir créé l’événement.",
+        "dayLabel": "Jour {number} · {date}"
+      },
+      "rubrics": {
+        "scoringTitle": "Notation par grilles",
+        "scoringHint": "Activez-la lorsque l’événement apporte de vrais points au camporee.",
+        "scoringOn": "Avec points",
+        "scoringOff": "Sans points",
+        "sumMatch": "Les grilles totalisent {total} sur {max} pts.",
+        "sumUnder": "Les grilles totalisent {total} sur {max} pts. Il manque {diff} pts : elles doivent totaliser le maximum de l’événement.",
+        "sumOver": "Les grilles totalisent {total} sur {max} pts. Il y a {diff} pts en trop : elles doivent totaliser le maximum de l’événement.",
+        "sumNone": "Ajoutez au moins un critère. Les grilles doivent totaliser {max} pts.",
+        "colCriterion": "Critère",
+        "colPoints": "Points",
+        "colActions": "Actions",
+        "criterionAria": "Nom du critère {index}",
+        "empty": "Aucun critère pour le moment.",
+        "addCriterion": "Ajouter un critère"
+      },
+      "entry": {
+        "eventLabel": "Événement",
+        "eventOption": "{title} · {points} pts",
+        "fallbackHint": "À utiliser lorsque le juge ne peut pas noter depuis l’application.",
+        "fallbackHintWithJudge": "Juge principal : {name}. À utiliser lorsqu’il ne peut pas noter depuis l’application.",
+        "total": "Total",
+        "totalOf": "{awarded} sur {max}",
+        "overMax": "Un critère dépasse son maximum. Corrigez-le pour enregistrer.",
+        "submit": "Enregistrer le score"
+      },
+      "results": {
+        "colSection": "Section",
+        "colPoints": "Points",
+        "colPercent": "Pourcentage",
+        "colCoverage": "Événements notés",
+        "pointsOf": "{awarded} sur {max}",
+        "missing": "{count, plural, one {# événement manquant} other {# événements manquants}}",
+        "orderHint": "Classé selon le pourcentage de points sur les événements déjà notés. Sélectionnez une cellule du détail pour ouvrir le commentaire du juge."
+      },
+      "judges": {
+        "removeTitle": "Retirer {name} ?",
+        "removeDescription": "Cette personne n’est plus juge {role} de {section} dans « {event} ». Vous pourrez affecter un autre juge ensuite.",
+        "removeConfirm": "Retirer"
+      }
+    },
+    "certYear": {
+      "certifications": {
+        "list": {
+          "searchLabel": "Rechercher une certification",
+          "searchPlaceholder": "Nom ou description",
+          "pageOnlyNotice": "Filtrage de cette page uniquement",
+          "noResultsTitle": "Aucun résultat",
+          "noResultsDescription": "Rien ne correspond à la recherche ou au filtre.",
+          "clearFilters": "Effacer les filtres",
+          "summary": "{count, plural, one {# certification} other {# certifications}}"
+        },
+        "detail": {
+          "factDuration": "Durée",
+          "factModules": "Modules",
+          "factSections": "Éléments",
+          "durationWeeks": "{count, plural, one {# semaine} other {# semaines}}",
+          "tabModules": "Modules",
+          "tabEnrolled": "Inscrits"
+        },
+        "enrolled": {
+          "searchLabel": "Rechercher une personne",
+          "searchPlaceholder": "Nom",
+          "statusLabel": "Statut",
+          "statusAll": "Tous",
+          "colPerson": "Personne",
+          "colEnrolled": "Inscrit",
+          "colProgress": "Progression",
+          "colStatus": "Statut",
+          "viewProgress": "Voir la progression",
+          "noResultsTitle": "Aucun résultat",
+          "noResultsDescription": "Rien ne correspond à la recherche ou au filtre.",
+          "clearFilters": "Effacer les filtres",
+          "emptyTitle": "Aucun inscrit",
+          "emptyDescription": "Personne n'est inscrit à cette certification.",
+          "unavailableTitle": "Impossible de charger les inscrits",
+          "unavailableDescription": "La liste des inscrits n'est pas encore disponible sur le serveur. Réessayez plus tard.",
+          "status": {
+            "ENROLLED": "Inscrit",
+            "IN_PROGRESS": "En cours",
+            "READY_FOR_CLOSEOUT": "Prêt pour la clôture",
+            "SUBMITTED_FOR_FINAL_REVIEW": "En revue finale",
+            "APPROVED": "Approuvé",
+            "CERTIFIED": "Certifié",
+            "WITHDRAWN": "Retiré",
+            "EXPIRED": "Expiré",
+            "CHANGES_REQUESTED": "Modifications demandées"
+          }
+        },
+        "progress": {
+          "title": "Progression dans la certification",
+          "summary": "{certification} · {done} sur {total} éléments",
+          "enrolledOn": "Inscrit le {date}",
+          "certifiedOn": "Terminé le {date}",
+          "moduleHeading": "Module {index} · {title}",
+          "moduleHeadingUntitled": "Module {index}",
+          "noModules": "Cette certification n'a aucun élément à cocher.",
+          "noSections": "Aucun élément.",
+          "readOnly": "Lecture seule : vous n'avez pas la permission de cocher des éléments.",
+          "sectionFallback": "Élément {id}",
+          "completedOn": "Terminé le {date}",
+          "unsaved": "{count, plural, one {# modification non enregistrée} other {# modifications non enregistrées}}",
+          "saved": "Progression enregistrée",
+          "saveFailed": "{count, plural, one {Impossible d'enregistrer # élément} other {Impossible d'enregistrer # éléments}}"
+        }
+      },
+      "yearEnd": {
+        "title": "Clôture de l'année {year}",
+        "description": "Ce qui se passe à la clôture de l'année. Tout reste consultable ensuite, mais plus modifiable.",
+        "closeButton": "Clôturer {year}…",
+        "loadFailedTitle": "Impossible de calculer l'impact de la clôture",
+        "kpiLabel": "Impact de la clôture",
+        "kpiEnrollments": "Inscriptions",
+        "kpiEnrollmentsSub": "sont clôturées",
+        "kpiFolders": "Dossiers",
+        "kpiFoldersSub": "sont archivés",
+        "kpiReports": "Rapports mensuels",
+        "kpiReportsSub": "sont générés et figés",
+        "kpiInvestiture": "Demandes d'investiture",
+        "kpiInvestitureSub": "les demandes ouvertes sont clôturées ; le chiffre est communiqué à la clôture",
+        "noClubsTitle": "Aucune inscription ouverte",
+        "noClubsDescription": "Aucune inscription de club à clôturer cette année.",
+        "colClub": "Club",
+        "colType": "Type",
+        "colEnrollments": "Inscriptions",
+        "confirmTitle": "Clôturer l'année {year}",
+        "confirmDescription": "Cette action est irréversible. {enrollments, plural, one {# inscription est clôturée} other {# inscriptions sont clôturées}}, {folders, plural, one {# dossier est archivé} other {# dossiers sont archivés}}, {reports, plural, one {# rapport est généré} other {# rapports sont générés}} et les demandes d'investiture ouvertes sont clôturées.",
+        "confirmTyped": "Saisissez {year} pour confirmer",
+        "confirmButton": "Clôturer {year}",
+        "closeFailed": "Impossible de clôturer l'année. Réessayez.",
+        "doneTitle": "Année {year} clôturée",
+        "doneClosedAt": "Clôturée le {date}.",
+        "doneLookingUp": "Recherche de l'année active…",
+        "doneNewActive": "L'année active est désormais {year}",
+        "doneNoActive": "Il n'y a plus d'année active. Activez la suivante dans le catalogue des années ecclésiastiques.",
+        "doneSummary": "{enrollments, plural, one {# inscription clôturée} other {# inscriptions clôturées}} · {folders, plural, one {# dossier archivé} other {# dossiers archivés}} · {reports, plural, one {# rapport généré} other {# rapports générés}} · {investiture, plural, one {# demande clôturée} other {# demandes clôturées}}",
+        "goHome": "Aller à l'accueil"
+      }
+    }
+  },
   "people": {
     "clubs": {
       "list": {
@@ -2061,12 +2958,12 @@
       "annual_folders": "Dossier annuel de preuves",
       "annual_folders_templates": "Modèles",
       "annual_folders_evaluate": "Dossiers",
-      "annual_folders_rankings": "Classements",
-      "annual_folders_ranking_config": "Configuration des classements",
+      "annual_folders_rankings": "Progression annuelle",
+      "annual_folders_ranking_config": "Configuration de la progression annuelle",
       "annual_folders_categories": "Catégories de prix",
       "member_rankings": "Classements des membres",
       "member_ranking_weights": "Pondérations des classements de membres",
-      "section_rankings": "Classements des sections",
+      "section_rankings": "Progression par section",
       "requests": "Demandes",
       "requests_transfers": "Transferts",
       "requests_assignments": "Affectations",
@@ -2168,6 +3065,7 @@
       "reports_quarterly": "Rapports trimestriels",
       "reports_annual": "Rapports annuels",
       "campamentos": "Camporées",
+      "campamentos_list": "Liste",
       "campamentos_list_local": "Champ local",
       "campamentos_list_union": "Union",
       "materials": "Matériaux",
@@ -5514,7 +6412,7 @@
     },
     "leaderboard": {
       "eyebrow": "Résultats",
-      "title": "Classement du camporee",
+      "title": "Résultats du camporee",
       "description": "Positions selon le pourcentage de points obtenus sur les épreuves notées.",
       "emptyTitle": "Pas encore de résultats",
       "emptyDescription": "Ils apparaîtront une fois les scores officiels enregistrés.",
@@ -7000,9 +7898,9 @@
       "submittingEdit": "Sauvegarde...",
       "descriptionDraft": "Enregistrez le modèle comme brouillon. Ajoutez ensuite les sections et publiez-le depuis le détail lorsqu’il est complet.",
       "descriptionEdit": "Modifiez les données du brouillon de dossier annuel de preuves.",
-      "budgetTitle": "Budget provenant du classement",
-      "budgetMissing": "Aucune configuration annuelle de classement ne s'applique à cette combinaison. Configurez-la avant de publier.",
-      "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration du classement. Les sections doivent répartir exactement ce total.",
+      "budgetTitle": "Budget de la progression annuelle",
+      "budgetMissing": "Aucune configuration de progression annuelle ne s'applique à cette combinaison. Configurez-la avant de publier.",
+      "budgetResolved": "Le dossier annuel vaut {points} pts selon la configuration de la progression annuelle. Les sections doivent répartir exactement ce total.",
       "budgetPending": "Sélectionnez le type de club, l’année et le propriétaire pour résoudre le budget annuel.",
       "submitDraft": "Enregistrer le brouillon",
       "submittingDraft": "Enregistrement du brouillon..."
@@ -7301,16 +8199,16 @@
       "subsectionsAllocationLabel": "Sous-sections de cette section"
     },
     "pageRankingConfig": {
-      "title": "Configuration annuelle des classements",
+      "title": "Configuration de la progression annuelle",
       "description": "Gérez les budgets annuels par section et les paliers globaux de reconnaissance pour le Dossier Annuel de Preuves.",
-      "breadcrumbRankingConfig": "Configuration des classements",
+      "breadcrumbRankingConfig": "Configuration de la progression annuelle",
       "breadcrumbNew": "Nouveau",
       "breadcrumbEdit": "Modifier",
       "newTitle": "Nouvelle configuration budgétaire",
       "newDescription": "Définissez le score annuel maximum et sa répartition par sections et sous-sections.",
       "editTitle": "Modifier la configuration budgétaire",
       "editDescription": "Mettez à jour le score maximum et sa répartition par sections et sous-sections.",
-      "missingCatalogsTitle": "Catalogues manquants pour configurer les classements",
+      "missingCatalogsTitle": "Catalogues manquants pour configurer la progression annuelle",
       "missingCatalogsDescription": "Vous avez besoin d'au moins une union ou un champ local, d'un type de club et d'une année ecclésiastique active.",
       "unavailableTitle": "Configuration indisponible",
       "unavailableDescription": "La configuration demandée est introuvable ou les catalogues nécessaires à l'édition sont manquants."
@@ -7375,14 +8273,14 @@
       "years": "Il manque une année ecclésiastique qui couvre aujourd'hui.",
       "club-types": "Il manque au moins un type de club.",
       "templates": "Il manque un modèle actif de dossier annuel.",
-      "ranking": "Il manque la classification annuelle avec le composant dossier.",
+      "ranking": "Il manque la configuration de la progression annuelle avec le composant dossier.",
       "unions": "Il manque au moins une union ou un champ local.",
       "emptyHint": "Les dossiers apparaîtront ici une fois la configuration prête.",
       "go": {
         "years": "Aller aux années ecclésiastiques",
         "club-types": "Aller aux types de club",
         "templates": "Aller aux modèles",
-        "ranking": "Aller à la classification annuelle",
+        "ranking": "Aller à la progression annuelle",
         "unions": "Aller aux unions"
       }
     }

@@ -1,553 +1,422 @@
 "use client";
 
-import { useState, useCallback, useEffect, type ReactNode } from "react";
-import { useEdgeFade } from "@/hooks/use-edge-fade";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { ErrorState } from "@/components/shared/error-state";
+import { Segmented, type SegmentedOption } from "@/components/shared/segmented";
+import { UrlTabs } from "@/components/shared/url-tabs";
 import {
   getCamporeePendingApprovals,
   getUnionCamporeePendingApprovals,
+  type PendingApprovals,
 } from "@/lib/api/camporees";
 import type { CamporeeMembersTabProps } from "@/components/camporees/camporee-members-tab";
 import type { CamporeeClubsTabProps } from "@/components/camporees/camporee-clubs-tab";
 import type { CamporeePaymentsTabProps } from "@/components/camporees/camporee-payments-tab";
-import { mergeCamporeePaymentLedger } from "@/components/camporees/camporee-payment-balance";
 import type { CamporeePaymentOrdersTabProps } from "@/components/payment-orders/camporee-payment-orders-tab";
-import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
+import { CamporeePendingQueue } from "@/components/camporees/camporee-pending-queue";
+import { CamporeeSummary } from "@/components/camporees/camporee-summary";
 import { CamporeeStaffTab } from "@/components/camporees/camporee-staff-tab";
+import { CamporeeEventsTab } from "@/components/camporee-events/camporee-events-tab";
 import { EventJudgeAssignmentsPanel } from "@/components/camporee-scoring/event-judge-assignments-panel";
 import { EventScoreEntryPanel } from "@/components/camporee-scoring/event-score-entry-panel";
 import { CamporeeLeaderboard } from "@/components/camporee-scoring/camporee-leaderboard";
 import { CamporeeScoreBreakdown } from "@/components/camporee-scoring/camporee-score-breakdown";
-import type { BackendCamporeeEvent, CamporeeEventTemplate } from "@/lib/api/camporee-events";
-import type { CamporeeVenue } from "@/lib/api/camporee-venues";
-import type {
-  CamporeeEventJudgeAssignment,
-  CamporeeEventRubric,
-  CamporeeJudge,
-  CamporeeLeaderboard as CamporeeLeaderboardData,
-  CamporeeScoreBreakdown as CamporeeScoreBreakdownData,
-  CamporeeScoringTarget,
-} from "@/lib/api/camporee-scoring";
+import type { CamporeeDetailData, LoadFailure } from "@/lib/camporees/detail-data";
+import {
+  CAMPOREE_GROUP_VIEWS,
+  camporeeGroupHref,
+  type CamporeeGroup,
+} from "@/lib/camporees/groups";
+import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
+import { buildPendingItems, countEventsWithoutJudge } from "@/lib/camporees/summary";
+
+const loadingBlock = () => <Skeleton className="h-48 w-full" />;
 
 const CamporeeMembersTab = dynamic<CamporeeMembersTabProps>(
-  () =>
-    import("@/components/camporees/camporee-members-tab").then(
-      (m) => m.CamporeeMembersTab,
-    ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  () => import("@/components/camporees/camporee-members-tab").then((m) => m.CamporeeMembersTab),
+  { ssr: false, loading: loadingBlock },
 );
-
 const CamporeeClubsTab = dynamic<CamporeeClubsTabProps>(
-  () =>
-    import("@/components/camporees/camporee-clubs-tab").then(
-      (m) => m.CamporeeClubsTab,
-    ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  () => import("@/components/camporees/camporee-clubs-tab").then((m) => m.CamporeeClubsTab),
+  { ssr: false, loading: loadingBlock },
 );
-
 const CamporeePaymentsTab = dynamic<CamporeePaymentsTabProps>(
-  () =>
-    import("@/components/camporees/camporee-payments-tab").then(
-      (m) => m.CamporeePaymentsTab,
-    ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  () => import("@/components/camporees/camporee-payments-tab").then((m) => m.CamporeePaymentsTab),
+  { ssr: false, loading: loadingBlock },
 );
-
 const CamporeePaymentOrdersTab = dynamic<CamporeePaymentOrdersTabProps>(
   () =>
     import("@/components/payment-orders/camporee-payment-orders-tab").then(
       (m) => m.CamporeePaymentOrdersTab,
     ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  { ssr: false, loading: loadingBlock },
 );
-
 const CamporeeOrdersTab = dynamic(
-  () =>
-    import("@/components/camporee-orders/camporee-orders-tab").then(
-      (m) => m.CamporeeOrdersTab,
-    ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  () => import("@/components/camporee-orders/camporee-orders-tab").then((m) => m.CamporeeOrdersTab),
+  { ssr: false, loading: loadingBlock },
 );
-
 const CamporeeSuppliesTab = dynamic(
   () =>
     import("@/components/camporee-supplies/camporee-supplies-tab").then(
       (m) => m.CamporeeSuppliesTab,
     ),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> },
+  { ssr: false, loading: loadingBlock },
 );
-import type {
-  Camporee,
-  CamporeeMember,
-  CamporeeClub,
-  CamporeePayment,
-  PendingApprovals,
-  PaginationMeta,
-} from "@/lib/api/camporees";
-import type { PaymentOrder } from "@/lib/api/field-payment-orders";
-import { isClubRegistrationClosed } from "@/lib/camporees/club-registration";
 
-// ─── Props ─────────────────────────────────────────────────────────────────────
-
-interface CamporeeDetailTabsProps {
-  camporeeId: number;
-  /**
-   * Full camporee record — needed to forward local field + section flags to
-   * the enroll-club dialog (club + section selects must scope by these).
-   */
-  camporee?: Camporee;
-  initialMembers: CamporeeMember[];
-  initialMembersMeta?: PaginationMeta;
-  initialClubs: CamporeeClub[];
-  initialPayments: CamporeePayment[];
-  initialPaymentOrders?: PaymentOrder[];
-  initialPending: PendingApprovals;
-  membersError: string | null;
-  clubsError: string | null;
-  paymentsError: string | null;
-  isUnionCamporee?: boolean;
-  /** Server-rendered info tab content passed as a slot */
-  infoContent: ReactNode;
-  // ── Events tab ───────────────────────────────────────────────────────────────
-  initialEvents?: BackendCamporeeEvent[];
-  availableTemplates?: CamporeeEventTemplate[];
-  /** Venues accessible to this camporee for timeline display */
-  initialVenues?: CamporeeVenue[];
-  initialJudges?: CamporeeJudge[];
-  initialAssignmentsByEvent?: Record<number, CamporeeEventJudgeAssignment[]>;
-  initialScoringTargetsByEvent?: Record<number, CamporeeScoringTarget[]>;
-  initialRubricsByEvent?: Record<number, CamporeeEventRubric[]>;
-  initialLeaderboard?: CamporeeLeaderboardData | null;
-  initialScoreBreakdown?: CamporeeScoreBreakdownData | null;
-  canCreateEvents?: boolean;
-  canEditEvents?: boolean;
-  canDeleteEvents?: boolean;
-  /** Assign / replace / remove event judge assignments. */
-  canEditJudgeAssignments?: boolean;
-  /** Active tab from ?tab= URL (e.g. after create/update event redirect). */
-  initialTab?: string;
+export interface CamporeeDetailTabsProps {
+  data: CamporeeDetailData;
+  canCreateEvents: boolean;
+  canEditEvents: boolean;
+  canEditJudgeAssignments: boolean;
 }
 
-const CAMPOREE_DETAIL_TABS = new Set([
-  "info",
-  "members",
-  "clubs",
-  "payments",
-  "payment-orders",
-  "merchandise-orders",
-  "supplies",
-  "events",
-  "staff",
-  "judges",
-  "scores",
-  "ranking",
-]);
-
-function resolveInitialTab(tab: string | undefined): string {
-  if (tab && CAMPOREE_DETAIL_TABS.has(tab)) return tab;
-  return "info";
+function FailureBlock({ failure, title }: { failure: LoadFailure; title: string }) {
+  return <ErrorState kind={failure.kind} detail={failure.detail} title={title} retry />;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CamporeeDetailTabs({
-  camporeeId,
-  camporee,
-  initialMembers,
-  initialMembersMeta,
-  initialClubs,
-  initialPayments,
-  initialPaymentOrders = [],
-  initialPending,
-  membersError,
-  clubsError,
-  paymentsError,
-  isUnionCamporee = false,
-  infoContent,
-  initialEvents = [],
-  availableTemplates = [],
-  initialVenues = [],
-  initialJudges = [],
-  initialAssignmentsByEvent = {},
-  initialScoringTargetsByEvent = {},
-  initialRubricsByEvent = {},
-  initialLeaderboard = null,
-  initialScoreBreakdown = null,
-  canCreateEvents = false,
-  canEditEvents = false,
-  canDeleteEvents = false,
-  canEditJudgeAssignments = false,
-  initialTab,
+  data,
+  canCreateEvents,
+  canEditEvents,
+  canEditJudgeAssignments,
 }: CamporeeDetailTabsProps) {
+  const t = useTranslations("evaluation.camporees.detail");
+  const tv = useTranslations("evaluation.camporees.views");
+  const te = useTranslations("evaluation.camporees.errors");
   const tClubRegistration = useTranslations("camporees.clubRegistration");
-  const [pending, setPending] = useState<PendingApprovals>(initialPending);
-  const [paymentsLedgerCount, setPaymentsLedgerCount] = useState(() =>
-    mergeCamporeePaymentLedger(
-      initialPayments,
-      initialPaymentOrders,
-      initialMembers,
-    ).length,
-  );
-  const handlePaymentsLedgerCountChange = useCallback((count: number) => {
-    setPaymentsLedgerCount(count);
-  }, []);
-  const clubRegistrationClosed = isClubRegistrationClosed(
-    camporee?.club_registration_closed_at,
-  );
-  const [staffCount, setStaffCount] = useState(0);
-  const handleStaffCountChange = useCallback((count: number) => setStaffCount(count), []);
-  const totalJudgeAssignments = Object.values(initialAssignmentsByEvent)
-    .flat()
-    .filter((assignment) => assignment.active).length;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const { kind, id: camporeeId, camporee, location } = data;
+  const isUnion = kind === "union";
+  const group = location.group;
+
+  const [pending, setPending] = useState<PendingApprovals>(data.pending);
+  const [pendingStaleAt, setPendingStaleAt] = useState<Date | null>(null);
+  // Bumped after an approval so the member and club lists reload their rows.
+  const [listsVersion, setListsVersion] = useState(0);
 
   const refreshPending = useCallback(async () => {
     try {
-      const payload = isUnionCamporee
+      const payload = isUnion
         ? await getUnionCamporeePendingApprovals(camporeeId)
         : await getCamporeePendingApprovals(camporeeId);
       if (payload && typeof payload === "object") {
-        setPending(payload as PendingApprovals);
+        setPending({
+          clubs: payload.clubs ?? [],
+          members: payload.members ?? [],
+          payments: payload.payments ?? [],
+        });
+        setPendingStaleAt(null);
       }
     } catch {
-      // Informational — silently ignore
+      // Keep the numbers on screen but say they may be old.
+      setPendingStaleAt((previous) => previous ?? new Date());
     }
-  }, [camporeeId, isUnionCamporee, setPending]);
+  }, [camporeeId, isUnion]);
 
-  const activeTab = resolveInitialTab(initialTab);
-  const { attach: attachTabsScroller, element: tabsScroller, style: tabsFadeStyle } = useEdgeFade();
+  const pendingRegistrations = pending.members.length + pending.clubs.length;
 
-  // Keep the selected tab visible inside the single scrolling row.
-  const revealActiveTab = useCallback(() => {
-    requestAnimationFrame(() => {
-      tabsScroller
-        ?.querySelector<HTMLElement>('[role="tab"][data-state="active"]')
-        ?.scrollIntoView({ block: "nearest", inline: "nearest" });
-    });
-  }, [tabsScroller]);
+  // The view inside the group lives in the URL but changes without a server trip.
+  const explicitView = searchParams?.get("view");
+  const initialView =
+    group === "registrations" && !explicitView && pendingRegistrations === 0
+      ? "members"
+      : location.view;
+  const [viewState, setViewState] = useState<{ group: CamporeeGroup; view: string | null }>({
+    group,
+    view: initialView,
+  });
+  const view = viewState.group === group ? viewState.view : initialView;
 
-  useEffect(revealActiveTab, [activeTab, revealActiveTab]);
+  const selectView = useCallback(
+    (next: string) => {
+      setViewState({ group, view: next });
+      const params = new URLSearchParams(window.location.search);
+      params.set("tab", group);
+      params.set("view", next);
+      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    },
+    [group],
+  );
+
+  const membersTotal = data.membersMeta?.total ?? data.members.length;
+  const clubRegistrationClosed = isClubRegistrationClosed(camporee.club_registration_closed_at);
+  const eventsWithoutJudge = countEventsWithoutJudge(data.events, data.assignmentsByEvent);
+  const pendingItems = useMemo(
+    () => buildPendingItems({ pending, eventsWithoutJudge }),
+    [pending, eventsWithoutJudge],
+  );
+
+  const groupLabels: Record<CamporeeGroup, string> = {
+    summary: tv("groups.summary"),
+    registrations: tv("groups.registrations"),
+    money: tv("groups.money"),
+    program: tv("groups.program"),
+    scores: tv("groups.scores"),
+  };
+  const countOf = (value: number) => (value > 0 ? value : undefined);
+  const tabs = (Object.keys(groupLabels) as CamporeeGroup[]).map((key) => ({
+    value: key,
+    label: groupLabels[key],
+    href: camporeeGroupHref(kind, camporeeId, key),
+    count:
+      key === "registrations"
+        ? countOf(pendingRegistrations)
+        : key === "money"
+          ? countOf(pending.payments.length)
+          : key === "program"
+            ? countOf(data.events.length)
+            : undefined,
+  }));
+
+  const withCount = (label: string, count: number | undefined) =>
+    count && count > 0 ? tv("withCount", { label, count }) : label;
+
+  const viewLabels: Record<string, string> = {
+    pending: tv("views.pending"),
+    members: tv("views.members"),
+    clubs: tv("views.clubs"),
+    payments: tv("views.payments"),
+    orders: tv("views.orders"),
+    merchandise: tv("views.merchandise"),
+    supplies: tv("views.supplies"),
+    events: tv("views.events"),
+    staff: tv("views.staff"),
+    judges: tv("views.judges"),
+    entry: tv("views.entry"),
+    results: tv("views.results"),
+  };
+  const viewOptions: SegmentedOption<string>[] = CAMPOREE_GROUP_VIEWS[group].map((key) => {
+    const counts: Record<string, number | undefined> = {
+      pending: pendingRegistrations,
+      members: membersTotal,
+      clubs: data.clubs.length,
+      events: data.events.length,
+    };
+    return { value: key, label: withCount(viewLabels[key] ?? key, counts[key]) };
+  });
+
+  const scoringGate = !clubRegistrationClosed && (
+    <Alert>
+      <Lock />
+      <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
+      <AlertDescription>{tClubRegistration("scoringGateBody")}</AlertDescription>
+    </Alert>
+  );
+
+  let content: ReactNode = null;
+  switch (group) {
+    case "summary": {
+      content = (
+        <CamporeeSummary
+          camporee={camporee}
+          camporeeId={camporeeId}
+          ownerName={isUnion ? data.unionName : (camporee.local_field?.name ?? null)}
+          clubs={data.clubs}
+          clubsFailed={data.clubsFailure !== null}
+          members={data.members}
+          membersMeta={data.membersMeta}
+          membersFailed={data.membersFailure !== null}
+          payments={data.payments}
+          paymentOrders={data.paymentOrders}
+          paymentsFailed={data.paymentsFailure !== null}
+          eventsCount={data.events.length}
+          eventsFailed={data.eventsFailure !== null}
+          scoringEventsCount={data.events.filter((event) => event.scoring_enabled).length}
+          pendingMembers={pending.members.length}
+          pendingItems={pendingItems}
+          pendingFailure={data.pendingFailure}
+          pendingStaleAt={pendingStaleAt}
+          onRetryPending={() => {
+            if (data.pendingFailure) router.refresh();
+            else void refreshPending();
+          }}
+        />
+      );
+      break;
+    }
+    case "registrations": {
+      if (view === "members") {
+        content = data.membersFailure ? (
+          <FailureBlock failure={data.membersFailure} title={te("members")} />
+        ) : (
+          <CamporeeMembersTab
+            key={listsVersion}
+            camporeeId={camporeeId}
+            initialMembers={data.members}
+            initialMeta={data.membersMeta}
+            isUnionCamporee={isUnion}
+            onAfterChange={refreshPending}
+          />
+        );
+      } else if (view === "clubs") {
+        content = data.clubsFailure ? (
+          <FailureBlock failure={data.clubsFailure} title={te("clubs")} />
+        ) : (
+          <CamporeeClubsTab
+            key={listsVersion}
+            camporeeId={camporeeId}
+            initialClubs={data.clubs}
+            isUnionCamporee={isUnion}
+            localFieldId={camporee.local_field?.local_field_id ?? camporee.local_field_id ?? null}
+            includesAdventurers={camporee.includes_adventurers ?? false}
+            includesPathfinders={camporee.includes_pathfinders ?? false}
+            includesMasterGuides={camporee.includes_master_guides ?? false}
+            onAfterChange={refreshPending}
+          />
+        );
+      } else {
+        content = data.pendingFailure ? (
+          <FailureBlock failure={data.pendingFailure} title={te("pending")} />
+        ) : (
+          <CamporeePendingQueue
+            camporeeId={camporeeId}
+            isUnionCamporee={isUnion}
+            pending={pending}
+            onChanged={() => {
+              void refreshPending();
+              setListsVersion((v) => v + 1);
+              router.refresh();
+            }}
+          />
+        );
+      }
+      break;
+    }
+    case "money": {
+      if (view === "orders") {
+        content = (
+          <CamporeePaymentOrdersTab
+            camporeeId={camporeeId}
+            camporeeType={isUnion ? "union" : "local"}
+          />
+        );
+      } else if (view === "merchandise") {
+        content = (
+          <CamporeeOrdersTab camporeeId={camporeeId} camporeeType={isUnion ? "union" : "local"} />
+        );
+      } else if (view === "supplies") {
+        content = (
+          <CamporeeSuppliesTab
+            camporeeId={camporeeId}
+            camporeeType={isUnion ? "union" : "local"}
+          />
+        );
+      } else {
+        content = data.paymentsFailure ? (
+          <FailureBlock failure={data.paymentsFailure} title={te("payments")} />
+        ) : (
+          <CamporeePaymentsTab
+            camporeeId={camporeeId}
+            initialPayments={data.payments}
+            initialMembers={data.members}
+            initialOrders={data.paymentOrders}
+            membersTotal={membersTotal}
+            registrationCost={camporee.registration_cost}
+            isUnionCamporee={isUnion}
+            onAfterChange={refreshPending}
+          />
+        );
+      }
+      break;
+    }
+    case "program": {
+      if (view === "staff") {
+        content = (
+          <CamporeeStaffTab
+            camporeeId={camporeeId}
+            camporeeType={isUnion ? "union" : "local"}
+            canManage={canEditEvents}
+          />
+        );
+      } else {
+        content = data.eventsFailure ? (
+          <FailureBlock failure={data.eventsFailure} title={te("events")} />
+        ) : (
+          <CamporeeEventsTab
+            camporeeId={camporeeId}
+            initialEvents={data.events}
+            availableTemplates={data.availableTemplates}
+            venues={data.venues}
+            camporee={camporee}
+            isUnionCamporee={isUnion}
+            canCreate={canCreateEvents}
+          />
+        );
+      }
+      break;
+    }
+    case "scores": {
+      if (data.scoresFailure) {
+        content = <FailureBlock failure={data.scoresFailure} title={te("scores")} />;
+      } else if (view === "entry") {
+        content = (
+          <div className="space-y-4">
+            {scoringGate}
+            <EventScoreEntryPanel
+              camporeeId={camporeeId}
+              isUnionCamporee={isUnion}
+              events={data.events}
+              rubricsByEvent={data.rubricsByEvent}
+              targetsByEvent={data.scoringTargetsByEvent}
+              judges={data.judges}
+              assignmentsByEvent={data.assignmentsByEvent}
+              canEdit={canEditEvents}
+            />
+          </div>
+        );
+      } else if (view === "results") {
+        content = (
+          <div className="space-y-8">
+            <CamporeeLeaderboard
+              leaderboard={data.leaderboard}
+              events={data.events}
+              targetsByEvent={data.scoringTargetsByEvent}
+            />
+            <CamporeeScoreBreakdown breakdown={data.scoreBreakdown} />
+          </div>
+        );
+      } else {
+        content = (
+          <div className="space-y-4">
+            {scoringGate}
+            <EventJudgeAssignmentsPanel
+              camporeeId={camporeeId}
+              isUnionCamporee={isUnion}
+              events={data.events}
+              judges={data.judges}
+              assignmentsByEvent={data.assignmentsByEvent}
+              targetsByEvent={data.scoringTargetsByEvent}
+              canEdit={canEditJudgeAssignments}
+            />
+          </div>
+        );
+      }
+      break;
+    }
+  }
 
   return (
-    <Tabs
-      key={activeTab}
-      defaultValue={activeTab}
-      onValueChange={revealActiveTab}
-      className="w-full min-w-0"
-    >
-      {/* 12 tabs: one scrolling row with an edge fade instead of wrapping to two rows. */}
-      <div
-        ref={attachTabsScroller}
-        style={tabsFadeStyle}
-        className="-mx-1 overflow-x-auto overscroll-x-contain border-b px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-      <TabsList variant="line" className="w-max flex-nowrap gap-4">
-        <TabsTrigger value="info">Información</TabsTrigger>
-
-        <TabsTrigger value="members">
-          Miembros
-          {(initialMembersMeta?.total ?? initialMembers.length) > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {initialMembersMeta?.total ?? initialMembers.length}
-            </Badge>
-          )}
-          {pending.members.length > 0 && (
-            <Badge variant="warning" className="ml-1">
-              {pending.members.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="clubs">
-          Clubes
-          {initialClubs.length > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {initialClubs.length}
-            </Badge>
-          )}
-          {pending.clubs.length > 0 && (
-            <Badge variant="warning" className="ml-1">
-              {pending.clubs.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="payments">
-          Pagos
-          {paymentsLedgerCount > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {paymentsLedgerCount}
-            </Badge>
-          )}
-          {pending.payments.length > 0 && (
-            <Badge variant="warning" className="ml-1">
-              {pending.payments.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="payment-orders">Órdenes de pago</TabsTrigger>
-
-        <TabsTrigger value="merchandise-orders">Pedidos</TabsTrigger>
-
-        <TabsTrigger value="supplies">Insumos</TabsTrigger>
-
-        <TabsTrigger value="events">
-          Eventos
-          {initialEvents.length > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {initialEvents.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="staff">
-          Personal
-          {staffCount > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {staffCount}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="judges">
-          Jueces
-          {totalJudgeAssignments > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {totalJudgeAssignments}
-            </Badge>
-          )}
-        </TabsTrigger>
-
-        <TabsTrigger value="scores">Puntajes</TabsTrigger>
-
-        <TabsTrigger value="ranking">
-          Clasificación
-          {(initialLeaderboard?.rows.length ?? 0) > 0 && (
-            <Badge variant="secondary" className="ml-1.5">
-              {initialLeaderboard?.rows.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-      </TabsList>
+    <div className="w-full min-w-0 space-y-5">
+      <UrlTabs tabs={tabs} defaultValue="summary" ariaLabel={t("groupsLabel")} />
+      {viewOptions.length > 0 && (
+        <Segmented
+          options={viewOptions}
+          value={view ?? viewOptions[0]?.value ?? ""}
+          onChange={selectView}
+          label={t("viewsLabel", { group: groupLabels[group] })}
+        />
+      )}
+      <div role="tabpanel" className="min-w-0">
+        {content}
       </div>
-
-      {/* ── Informacion ── */}
-      <TabsContent value="info" className="mt-4">
-        {infoContent}
-      </TabsContent>
-
-      {/* ── Miembros ── */}
-      <TabsContent value="members" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Miembros inscritos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {membersError ? (
-              <EndpointErrorBanner state="missing" detail={membersError} />
-            ) : (
-              <CamporeeMembersTab
-                camporeeId={camporeeId}
-                initialMembers={initialMembers}
-                initialMeta={initialMembersMeta}
-                isUnionCamporee={isUnionCamporee}
-                onAfterChange={refreshPending}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Clubes ── */}
-      <TabsContent value="clubs" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Clubes inscritos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {clubsError ? (
-              <EndpointErrorBanner state="missing" detail={clubsError} />
-            ) : (
-              <CamporeeClubsTab
-                camporeeId={camporeeId}
-                initialClubs={initialClubs}
-                isUnionCamporee={isUnionCamporee}
-                localFieldId={
-                  camporee?.local_field?.local_field_id ??
-                  camporee?.local_field_id ??
-                  null
-                }
-                includesAdventurers={camporee?.includes_adventurers ?? false}
-                includesPathfinders={camporee?.includes_pathfinders ?? false}
-                includesMasterGuides={camporee?.includes_master_guides ?? false}
-                onAfterChange={refreshPending}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Pagos ── */}
-      <TabsContent value="payments" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Pagos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {paymentsError ? (
-              <EndpointErrorBanner state="missing" detail={paymentsError} />
-            ) : (
-              <CamporeePaymentsTab
-                camporeeId={camporeeId}
-                initialPayments={initialPayments}
-                initialMembers={initialMembers}
-                initialOrders={initialPaymentOrders}
-                membersTotal={initialMembersMeta?.total ?? initialMembers.length}
-                registrationCost={camporee?.registration_cost}
-                isUnionCamporee={isUnionCamporee}
-                onAfterChange={refreshPending}
-                onLedgerCountChange={handlePaymentsLedgerCountChange}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Órdenes de pago (locales y de unión; v1.1: cobra el Campo Local) ── */}
-      <TabsContent value="payment-orders" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Órdenes de pago</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CamporeePaymentOrdersTab
-              camporeeId={camporeeId}
-              camporeeType={isUnionCamporee ? "union" : "local"}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Pedidos de mercancía (folios PED; distinto de inscripción) ── */}
-      <TabsContent value="merchandise-orders" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Pedidos de mercancía</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CamporeeOrdersTab
-              camporeeId={camporeeId}
-              camporeeType={isUnionCamporee ? "union" : "local"}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Insumos de sección (folios INS; distinto de mercancía) ── */}
-      <TabsContent value="supplies" className="mt-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Insumos de camporee</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CamporeeSuppliesTab
-              camporeeId={camporeeId}
-              camporeeType={isUnionCamporee ? "union" : "local"}
-            />
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* ── Eventos ── */}
-      {/*
-        Timeline (Variant K) is intentionally rendered without a wrapping
-        <Card>. The timeline owns its own per-day Card surfaces — wrapping it
-        in another Card+CardContent (px-6) shrinks the inner width and
-        squishes the 8-column event-row grid
-        (md:grid-cols-[88px_1fr_220px_180px_180px_140px_110px_auto]).
-        See docs/features/camporees.md (sacdia workspace).
-      */}
-      <TabsContent value="events" className="mt-4">
-        <CamporeeEventsTab
-          camporeeId={camporeeId}
-          initialEvents={initialEvents}
-          availableTemplates={availableTemplates}
-          venues={initialVenues}
-          camporee={camporee}
-          isUnionCamporee={isUnionCamporee}
-          canCreate={canCreateEvents}
-        />
-      </TabsContent>
-
-      {/* ── Personal (roster del camporee; los eventos asignan desde aquí) ── */}
-      <TabsContent value="staff" className="mt-4">
-        <CamporeeStaffTab
-          camporeeId={camporeeId}
-          camporeeType={isUnionCamporee ? "union" : "local"}
-          canManage={canEditEvents}
-          onCountChange={handleStaffCountChange}
-        />
-      </TabsContent>
-
-      <TabsContent value="judges" className="mt-4 space-y-4">
-        {!clubRegistrationClosed && (
-          <Alert>
-            <Lock />
-            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
-            <AlertDescription>
-              {tClubRegistration("scoringGateBody")}
-            </AlertDescription>
-          </Alert>
-        )}
-        <EventJudgeAssignmentsPanel
-          camporeeId={camporeeId}
-          isUnionCamporee={isUnionCamporee}
-          events={initialEvents}
-          judges={initialJudges}
-          assignmentsByEvent={initialAssignmentsByEvent}
-          targetsByEvent={initialScoringTargetsByEvent}
-          canEdit={canEditJudgeAssignments}
-        />
-      </TabsContent>
-
-      <TabsContent value="scores" className="mt-4 space-y-4">
-        {!clubRegistrationClosed && (
-          <Alert>
-            <Lock />
-            <AlertTitle>{tClubRegistration("scoringGateTitle")}</AlertTitle>
-            <AlertDescription>
-              {tClubRegistration("scoringGateBody")}
-            </AlertDescription>
-          </Alert>
-        )}
-        <EventScoreEntryPanel
-          camporeeId={camporeeId}
-          isUnionCamporee={isUnionCamporee}
-          events={initialEvents}
-          rubricsByEvent={initialRubricsByEvent}
-          targetsByEvent={initialScoringTargetsByEvent}
-          judges={initialJudges}
-          assignmentsByEvent={initialAssignmentsByEvent}
-          canEdit={canEditEvents}
-        />
-      </TabsContent>
-
-      <TabsContent value="ranking" className="mt-4 space-y-8">
-        <CamporeeLeaderboard
-          leaderboard={initialLeaderboard}
-          events={initialEvents}
-          targetsByEvent={initialScoringTargetsByEvent}
-        />
-        <CamporeeScoreBreakdown breakdown={initialScoreBreakdown} />
-      </TabsContent>
-    </Tabs>
+    </div>
   );
 }

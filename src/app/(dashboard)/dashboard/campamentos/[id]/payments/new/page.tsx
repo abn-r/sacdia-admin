@@ -31,7 +31,7 @@ export default async function CamporeePaymentNewPage({ params }: { params: Param
 
   return (
     <>
-      <CamporeeDetailPage params={params} searchParams={Promise.resolve({ tab: "payments" })} />
+      <CamporeeDetailPage params={params} searchParams={Promise.resolve({ tab: "money", view: "payments" })} />
       <RouteFormModal
         title={t("titleCreate")}
         description={t("descriptionCreate")}

@@ -140,6 +140,8 @@ export const campamentosScreens: ScreenDefinition[] = [
   {
     id: "campamentos-list-union",
     surfaces: ["admin"],
+    // Union tab of /campamentos; the old route redirects there.
+    path: "/dashboard/campamentos/union",
     viewAny: { permissions: [CAMPOREES_READ] },
     capabilities: CAMPOREE_DETAIL_CAPABILITIES,
   },

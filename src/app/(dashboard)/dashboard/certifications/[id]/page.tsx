@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { flagStatusIntent } from "@/lib/status/flag-status";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/shared/page-header";
+import { DetailHeader, type DetailHeaderFact } from "@/components/shared/detail-header";
+import { ErrorState } from "@/components/shared/error-state";
+import { ExceptionStatus } from "@/components/shared/exception-status";
+import { UrlTabs } from "@/components/shared/url-tabs";
 import { CertificationModulesTree } from "@/components/certifications/certification-modules-tree";
 import { EnrolledUsersPanel } from "@/components/certifications/enrolled-users-panel";
 import { ApiError } from "@/lib/api/client";
-import { getCertificationById } from "@/lib/api/certifications";
+import { errorStateFromError } from "@/lib/api/error-state";
+import {
+  getCertificationById,
+  listCertificationEnrollments,
+  type CertificationEnrollmentsPage,
+} from "@/lib/api/certifications";
 import { requireAdminUser } from "@/lib/auth/session";
 
 type Params = Promise<{ id: string }>;
@@ -87,93 +89,43 @@ function normalizeModules(raw: unknown): NormalizedModule[] {
   });
 }
 
-type NormalizedEnrollment = {
-  user_id: string;
-  enrollment_id?: number;
-  certification_id: number;
-  enrolled_at: string | null;
-  completed_at: string | null;
-  progress_percent: number | null;
-  user?: {
-    user_id?: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-};
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function normalizeEnrollments(raw: unknown, certificationId: number): NormalizedEnrollment[] {
-  const arr = Array.isArray(raw) ? raw : [];
-  return arr.map((enr: unknown) => {
-    const e = (enr && typeof enr === "object" ? enr : {}) as AnyRecord;
-    const userId =
-      toText(e.user_id) ??
-      toText((e.user as AnyRecord | undefined)?.user_id) ??
-      "";
+const ENROLLED_LIMIT = 20;
 
-    const userObj = e.user && typeof e.user === "object" ? (e.user as AnyRecord) : null;
-
-    return {
-      user_id: userId,
-      enrollment_id: toPositiveNumber(e.enrollment_id) ?? undefined,
-      certification_id: certificationId,
-      enrolled_at: toText(e.enrolled_at) ?? toText(e.created_at),
-      completed_at: toText(e.completed_at),
-      progress_percent:
-        typeof e.progress_percent === "number"
-          ? e.progress_percent
-          : typeof e.progress === "number"
-            ? e.progress
-            : null,
-      user: userObj
-        ? {
-            user_id: toText(userObj.user_id) ?? userId,
-            first_name: toText(userObj.first_name) ?? undefined,
-            last_name: toText(userObj.last_name) ?? undefined,
-            email: toText(userObj.email) ?? undefined,
-          }
-        : undefined,
-    };
-  });
+function firstParam(value: string | string[] | undefined): string {
+  return (Array.isArray(value) ? value[0] : value) ?? "";
 }
 
-function extractEnrollments(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) return payload;
-  if (payload && typeof payload === "object") {
-    const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data;
-    const nested = root.data;
-    if (nested && typeof nested === "object" && Array.isArray((nested as AnyRecord).data)) {
-      return (nested as AnyRecord).data as unknown[];
-    }
-  }
-  return [];
+function positiveInt(value: string, fallback: number, max: number): number {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) return fallback;
+  return Math.min(parsed, max);
 }
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-      <span className="min-w-[170px] text-sm font-medium text-muted-foreground">{label}</span>
-      <span className="text-sm">{value ?? "—"}</span>
-    </div>
-  );
-}
-
-export default async function CertificationDetailPage({ params }: { params: Params }) {
+export default async function CertificationDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   await requireAdminUser();
   const t = await getTranslations("certifications.pages.detail");
   const tList = await getTranslations("certifications.pages.list");
+  const tCert = await getTranslations("evaluation.certYear.certifications.detail");
+  const tEnrolled = await getTranslations("evaluation.certYear.certifications.enrolled");
 
   const { id } = await params;
+  const query = await searchParams;
   const certificationId = toPositiveNumber(id);
   if (!certificationId) notFound();
 
+  const tab = firstParam(query.tab) === "enrolled" ? "enrolled" : "modules";
+
   let cert: AnyRecord;
   let modules: NormalizedModule[] = [];
-  let enrollments: NormalizedEnrollment[] = [];
-  let hasEnrollmentsList = false;
 
-  // Fetch certification detail
   try {
     const payload = await getCertificationById(certificationId);
     const normalized = normalizeCertification(payload);
@@ -187,113 +139,99 @@ export default async function CertificationDetailPage({ params }: { params: Para
     throw error;
   }
 
-  // Fetch enrollments — best effort, don't fail the page
-  // NOTE: The backend doesn't have a direct "list enrollments by certification" endpoint.
-  // The available endpoint is per-user. For an admin overview we rely on data embedded
-  // in the certification detail response. When the backend does not include it, the
-  // "enrolled users" tab is not rendered at all.
-  const enrollmentsRaw =
-    cert.enrollments ?? cert.users ?? cert.enrolled_users ?? cert.enrolledUsers ?? null;
+  // Enrollments (backend contract B2). Only requested on the tab that shows them.
+  // A failure (404 until the endpoint is deployed) is shown as an error, never as an empty list.
+  const search = firstParam(query.search).trim();
+  const status = firstParam(query.status);
+  let enrollments: CertificationEnrollmentsPage | null = null;
+  let enrollmentsFailure: ReturnType<typeof errorStateFromError> | null = null;
 
-  if (Array.isArray(enrollmentsRaw)) {
-    enrollments = normalizeEnrollments(enrollmentsRaw, certificationId);
-    hasEnrollmentsList = true;
+  if (tab === "enrolled") {
+    try {
+      enrollments = await listCertificationEnrollments(certificationId, {
+        page: positiveInt(firstParam(query.page), 1, 10_000),
+        limit: positiveInt(firstParam(query.limit), ENROLLED_LIMIT, 100),
+        search,
+        status,
+      });
+    } catch (error) {
+      enrollmentsFailure = errorStateFromError(error);
+    }
   }
 
-  const name = toText(cert.name) ?? `Certificación #${certificationId}`;
+  const name = toText(cert.name) ?? `#${certificationId}`;
   const description = toText(cert.description);
   const durationWeeks = toPositiveNumber(cert.duration_weeks ?? cert.durationWeeks);
   const isActive = cert.active !== false;
   const modulesCount = modules.length > 0 ? modules.length : toPositiveNumber(cert.modules_count);
   const totalSections = modules.reduce((acc, m) => acc + m.sections.length, 0);
 
+  const facts: (DetailHeaderFact | null)[] = [
+    durationWeeks != null
+      ? { label: tCert("factDuration"), value: tCert("durationWeeks", { count: durationWeeks }) }
+      : null,
+    modulesCount != null ? { label: tCert("factModules"), value: modulesCount } : null,
+    totalSections > 0 ? { label: tCert("factSections"), value: totalSections } : null,
+  ];
+  const shownFacts = facts.filter((fact): fact is DetailHeaderFact => fact !== null);
+
   return (
     <div className="space-y-6">
-      <PageHeader
+      <DetailHeader
         title={name}
-        description={t("description")}
+        subtitle={description}
+        facts={shownFacts}
         breadcrumbs={[
           { label: tList("title"), href: "/dashboard/certifications" },
           { label: name },
         ]}
+        actions={
+          <ExceptionStatus
+            value={isActive ? "active" : "inactive"}
+            normal={["active"]}
+            labels={{ active: t("statusActive"), inactive: t("statusInactive") }}
+            intents={{ inactive: "neutral" }}
+          />
+        }
       />
 
-      {/* Summary card */}
-      <Card>
-        <CardContent className="flex flex-wrap items-center gap-6 pt-6">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
-            <ShieldCheck className="size-6 text-foreground" />
-          </div>
-          <div className="min-w-0 flex-1">
-            {description && (
-              <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-            )}
-          </div>
-          <StatusBadge intent={flagStatusIntent(isActive)} label={isActive ? t("statusActive") : t("statusInactive")} />
-        </CardContent>
-      </Card>
+      <UrlTabs
+        ariaLabel={name}
+        defaultValue="modules"
+        tabs={[
+          { value: "modules", label: tCert("tabModules"), count: modulesCount ?? undefined },
+          {
+            value: "enrolled",
+            label: tCert("tabEnrolled"),
+            count: enrollments && !search && !status ? enrollments.total : undefined,
+          },
+        ]}
+      />
 
-      {/* Info card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("infoCardTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <InfoRow label={t("labelId")} value={certificationId} />
-          <InfoRow
-            label={t("labelDuration")}
-            value={durationWeeks != null ? t("durationWeeks", { count: durationWeeks }) : "—"}
-          />
-          <InfoRow label={t("labelModules")} value={modulesCount ?? "—"} />
-          <InfoRow label={t("labelSections")} value={totalSections > 0 ? totalSections : "—"} />
-        </CardContent>
-      </Card>
-
-      {/* Tabs: Modules + Enrolled users */}
-      <Tabs defaultValue="modules">
-        <TabsList>
-          <TabsTrigger value="modules">
-            {t("tabModules")}
-          </TabsTrigger>
-          {hasEnrollmentsList && (
-            <TabsTrigger value="users">
-              {t("tabUsers")}
-              {enrollments.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {enrollments.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-          )}
-        </TabsList>
-
-        <TabsContent value="modules" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t("programCardTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CertificationModulesTree modules={modules} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {hasEnrollmentsList && (
-          <TabsContent value="users" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">{t("enrolledCardTitle")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EnrolledUsersPanel
-                  enrollments={enrollments}
-                  certificationId={certificationId}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-      </Tabs>
+      {tab === "modules" ? (
+        <CertificationModulesTree modules={modules} />
+      ) : enrollmentsFailure ? (
+        <ErrorState
+          kind={enrollmentsFailure.kind}
+          detail={enrollmentsFailure.detail}
+          title={
+            enrollmentsFailure.kind === "notFound" ? tEnrolled("unavailableTitle") : undefined
+          }
+          description={
+            enrollmentsFailure.kind === "notFound"
+              ? tEnrolled("unavailableDescription")
+              : undefined
+          }
+          retry
+        />
+      ) : enrollments ? (
+        <EnrolledUsersPanel
+          data={enrollments}
+          certificationId={certificationId}
+          search={search}
+          status={status}
+        />
+      ) : null}
     </div>
   );
 }

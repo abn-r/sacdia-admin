@@ -193,7 +193,7 @@ describe("filterSidebarItems", () => {
     ]);
     expect(subs(4, "campamentos")?.slice(0, 2)).toEqual([
       "campamentos-list-local",
-      "campamentos-list-union",
+      "campamentos-plantillas",
     ]);
     expect(sidebarItems[3]!.items.map((item) => item.id).slice(0, 3)).toEqual([
       "finances",

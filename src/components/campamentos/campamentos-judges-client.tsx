@@ -6,6 +6,8 @@ import { ExternalLink, Scale } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
+import type { ErrorStateFromError } from "@/lib/api/error-state";
 import { CamporeeJudgesPanel } from "@/components/camporee-scoring/camporee-judges-panel";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,9 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented } from "@/components/shared/segmented";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import type { Camporee } from "@/lib/api/camporees";
 import type {
   CamporeeJudge,
@@ -35,6 +36,8 @@ export interface CampamentosJudgesClientProps {
   judgeCandidates: CamporeeJudgeCandidate[];
   judgeCandidatesError: string | null;
   canEdit: boolean;
+  /** The lists could not be loaded: show the error, never an empty roster. */
+  loadFailure?: ErrorStateFromError | null;
 }
 
 function resolveCamporeeId(camporee: Camporee): number | null {
@@ -57,12 +60,13 @@ export function CampamentosJudgesClient({
   judgeCandidates,
   judgeCandidatesError,
   canEdit,
+  loadFailure = null,
 }: CampamentosJudgesClientProps) {
   const t = useTranslations("campamentos.pages.judges");
   const router = useRouter();
   const camporees = scope === "union" ? unionCamporees : localCamporees;
 
-  const handleScopeChange = (nextScope: string) => {
+  const handleScopeChange = (nextScope: CamporeeJudgeScope) => {
     if (nextScope === scope) return;
 
     const params = new URLSearchParams();
@@ -103,65 +107,53 @@ export function CampamentosJudgesClient({
         ]}
       />
 
-      {/* Floating control chrome — material layer, not a nested card stack */}
-      <section
-        className={cn(
-          "sticky top-2 z-10 rounded-2xl p-1",
-          "bg-background/70 shadow-sm ring-1 ring-foreground/10",
-          "backdrop-blur-xl backdrop-saturate-150",
-          "supports-backdrop-filter:bg-background/55",
-          "motion-reduce:backdrop-blur-none motion-reduce:bg-card",
-        )}
-      >
-        <div className="grid gap-4 rounded-[calc(1rem-0.125rem)] bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end sm:gap-6">
-          <div className="space-y-2">
-            <Label className="text-2xs font-medium text-muted-foreground">
-              {t("scopeLabel")}
-            </Label>
-            <Tabs value={scope} onValueChange={handleScopeChange}>
-              <TabsList className="h-9">
-                <TabsTrigger value="local" className="px-4">
-                  {t("scopeLocal")}
-                </TabsTrigger>
-                <TabsTrigger value="union" className="px-4">
-                  {t("scopeUnion")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+      {/* Plain filter row: no floating, blurred or glass layer. */}
+      <section className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end sm:gap-6">
+        <div className="space-y-2">
+          <Label id="judges-scope-label" className="text-xs font-medium text-muted-foreground">
+            {t("scopeLabel")}
+          </Label>
+          <Segmented
+            labelledBy="judges-scope-label"
+            value={scope}
+            onChange={handleScopeChange}
+            options={[
+              { value: "local", label: t("scopeLocal") },
+              { value: "union", label: t("scopeUnion") },
+            ]}
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="camporee-select"
-              className="text-2xs font-medium text-muted-foreground"
-            >
-              {t("camporeeLabel")}
-            </Label>
-            <Select
-              value={camporeeId != null ? String(camporeeId) : "none"}
-              onValueChange={handleCamporeeChange}
-            >
-              <SelectTrigger id="camporee-select" className="h-10 w-full">
-                <SelectValue placeholder={t("camporeePlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("camporeePlaceholder")}</SelectItem>
-                {camporees.map((camporee) => {
-                  const id = resolveCamporeeId(camporee);
-                  if (!id) return null;
-                  return (
-                    <SelectItem key={id} value={String(id)}>
-                      {formatCamporeeLabel(camporee)}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="camporee-select" className="text-xs font-medium text-muted-foreground">
+            {t("camporeeLabel")}
+          </Label>
+          <Select
+            value={camporeeId != null ? String(camporeeId) : "none"}
+            onValueChange={handleCamporeeChange}
+          >
+            <SelectTrigger id="camporee-select" className="w-full">
+              <SelectValue placeholder={t("camporeePlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{t("camporeePlaceholder")}</SelectItem>
+              {camporees.map((camporee) => {
+                const id = resolveCamporeeId(camporee);
+                if (!id) return null;
+                return (
+                  <SelectItem key={id} value={String(id)}>
+                    {formatCamporeeLabel(camporee)}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
         </div>
       </section>
 
-      {!camporeeId ? (
+      {loadFailure ? (
+        <ErrorState kind={loadFailure.kind} detail={loadFailure.detail} retry />
+      ) : !camporeeId ? (
         <EmptyState
           icon={Scale}
           title={t("emptyTitle")}
@@ -172,10 +164,10 @@ export function CampamentosJudgesClient({
           {selectedCamporee ? (
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="min-w-0 space-y-1">
-                <p className="text-2xs font-medium text-muted-foreground">
+                <p className="text-xs font-medium text-muted-foreground">
                   {scope === "union" ? t("scopeUnion") : t("scopeLocal")}
                 </p>
-                <h2 className="truncate text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem] sm:leading-tight sm:tracking-[-0.02em]">
+                <h2 className="truncate text-xl font-semibold tracking-tight text-foreground">
                   {selectedCamporee.name}
                 </h2>
               </div>

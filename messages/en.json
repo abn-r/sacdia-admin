@@ -1,4 +1,901 @@
 {
+  "evaluation": {
+    "evidence": {
+      "queue": {
+        "finding": "{count, plural, =0 {No folders to evaluate} one {# folder to evaluate} other {# folders to evaluate}}",
+        "templates": "Templates",
+        "tabsLabel": "Folder status",
+        "tabs": {
+          "evaluate": "To evaluate",
+          "union": "To confirm at union",
+          "evaluated": "Evaluated"
+        },
+        "filters": {
+          "search": "Search club or section",
+          "searchPlaceholder": "E.g. Club Orión",
+          "clubType": "Club type",
+          "allClubTypes": "All club types",
+          "year": "Year",
+          "allYears": "All years",
+          "union": "Union",
+          "allUnions": "All unions",
+          "localField": "Local field",
+          "allLocalFields": "All fields"
+        },
+        "columns": {
+          "folder": "Folder",
+          "evaluate": "Sections to evaluate",
+          "union": "To confirm",
+          "evaluated": "Evaluated sections",
+          "evidences": "Evidence",
+          "lastSubmitted": "Last submitted"
+        },
+        "cell": {
+          "sectionsOf": "{count} of {total}",
+          "rejected": "{count, plural, one {# rejected} other {# rejected}}",
+          "noDate": "—"
+        },
+        "actions": {
+          "evaluate": "Evaluate",
+          "review": "Review",
+          "view": "View",
+          "viewAsClub": "View as club"
+        },
+        "empty": {
+          "evaluate": {
+            "title": "Nothing to evaluate",
+            "description": "When a club submits sections, they show up here."
+          },
+          "union": {
+            "title": "Nothing to confirm",
+            "description": "Sections the local field pre-approves wait here for the union's decision."
+          },
+          "evaluated": {
+            "title": "No evaluated folders yet",
+            "description": "Folders with evaluated sections show up here."
+          },
+          "noResultsTitle": "No results",
+          "noResultsDescription": "No folder matches the filters.",
+          "clearFilters": "Clear filters"
+        },
+        "error": {
+          "title": "We couldn't load the folders",
+          "description": "The list didn't load. Try again in a moment."
+        }
+      },
+      "review": {
+        "viewAsClub": "View as club",
+        "scoreFact": "Evaluated",
+        "scoreValue": "{earned} of {max} pts",
+        "localFieldFact": "Local field",
+        "listLabel": "Folder sections",
+        "row": {
+          "evidencesPoints": "{count, plural, one {# file} other {# files}} · {points} pts",
+          "pointsOf": "{earned} of {max} pts",
+          "notSent": "Not submitted",
+          "toEvaluate": "To evaluate",
+          "inUnion": "At union"
+        },
+        "panel": {
+          "position": "Section {current} of {total}",
+          "required": "required",
+          "worth": "worth {points} pts",
+          "sentOn": "submitted on {date}",
+          "files": "Files",
+          "noFiles": "This section has no files.",
+          "view": "View",
+          "fileNoName": "Unnamed file",
+          "uploaderUnknown": "User unavailable",
+          "reviewerNote": "Review note: {note}"
+        },
+        "form": {
+          "points": "Points",
+          "pointsHint": "Maximum {max}",
+          "notes": "Notes",
+          "notesPlaceholder": "Optional. The club will see it.",
+          "errors": {
+            "required": "Enter the points.",
+            "integer": "Must be a whole number.",
+            "negative": "Can't be less than 0.",
+            "max": "Can't exceed {max} pts."
+          }
+        },
+        "notSent": {
+          "title": "The club hasn't submitted this section yet",
+          "description": "Once they submit it, you can evaluate it here."
+        },
+        "result": {
+          "pointsOf": "{earned} of {max} pts",
+          "localField": "Local field",
+          "union": "Union",
+          "byAt": "{name} · {date}",
+          "unionRejected": "The union rejected this section and it earns no points.",
+          "notes": "Notes"
+        },
+        "union": {
+          "waiting": "Waiting for the union's confirmation. The local field gave {earned} of {max} pts.",
+          "decide": "The local field gave {earned} of {max} pts. Approve the section or reject it with a reason.",
+          "approve": "Approve section",
+          "reject": "Reject…",
+          "approved": "Section confirmed by the union",
+          "rejected": "Section rejected by the union",
+          "rejectTitle": "Reject {name}",
+          "rejectDescription": "The section earns no points. The club and the local field will see the reason.",
+          "rejectLabel": "Reason",
+          "rejectPlaceholder": "E.g. The evidence is from 2025",
+          "rejectConfirm": "Reject section",
+          "failed": "Couldn't record the union's decision"
+        },
+        "reopen": {
+          "action": "Reopen…",
+          "title": "Reopen {name}",
+          "description": "The current evaluation is deleted and the section goes back to being evaluated. Its points stop counting until you evaluate it again.",
+          "confirm": "Reopen section",
+          "failed": "Couldn't reopen the section"
+        },
+        "toasts": {
+          "evaluated": "Section evaluated",
+          "evaluatedLast": "Section evaluated. No sections left to evaluate.",
+          "saveFailed": "Couldn't save the evaluation"
+        },
+        "error": {
+          "title": "We couldn't load the folder",
+          "description": "The folder didn't load. Try again in a moment."
+        },
+        "back": "Back to folders"
+      },
+      "templates": {
+        "status": {
+          "draft": "Draft",
+          "published": "Published",
+          "archived": "Archived"
+        },
+        "filters": {
+          "status": "Status",
+          "all": "All",
+          "draft": "Drafts",
+          "published": "Published",
+          "archived": "Archived"
+        },
+        "count": "{count, plural, one {# template} other {# templates}}",
+        "columns": {
+          "sections": "Sections"
+        },
+        "actions": {
+          "edit": "Edit draft",
+          "publish": "Publish…",
+          "copy": "Copy as draft…",
+          "delete": "Delete draft…",
+          "addSection": "Add section",
+          "editSection": "Edit section",
+          "deleteSection": "Delete section…"
+        },
+        "facts": {
+          "sections": "Sections",
+          "closing": "Closes"
+        },
+        "readiness": {
+          "noConfig": "There is no Annual progress set up for this club type, year and owner. Set it up before publishing.",
+          "ready": "The sections add up to {total} pts, exactly what Annual progress gives the folder. Ready to publish.",
+          "missing": "The sections add up to {total} of {required} pts: {diff} short. To publish they must add up to exactly what Annual progress gives the folder.",
+          "excess": "The sections add up to {total} of {required} pts: {diff} over. To publish they must add up to exactly what Annual progress gives the folder."
+        },
+        "sections": {
+          "order": "#",
+          "name": "Section",
+          "required": "Required",
+          "points": "Points",
+          "minimum": "Minimum",
+          "yes": "Yes",
+          "no": "No",
+          "listLabel": "Template sections",
+          "locked": "Published templates are locked. Copy it as a draft if you need changes."
+        },
+        "publish": {
+          "title": "Publish {name}",
+          "description": "Once published, the template is locked and clubs can create folders from it. To change it later you'll have to copy it as a draft.",
+          "confirm": "Publish template",
+          "done": "Template published. It can now generate folders.",
+          "failed": "Couldn't publish the template.",
+          "blocked": "First adjust the sections to the Annual progress total"
+        },
+        "copy": {
+          "title": "Copy as draft",
+          "description": "A draft for {year} will be created with the sections and points of “{name}”.",
+          "noYear": "There is no later ecclesiastical year available to copy this template.",
+          "confirm": "Copy draft",
+          "done": "Template copied as a draft.",
+          "failed": "Couldn't copy the template."
+        },
+        "delete": {
+          "title": "Delete draft",
+          "description": "The draft “{name}” and its sections will be deleted. This can't be undone.",
+          "confirm": "Delete draft",
+          "done": "Draft deleted.",
+          "failed": "Couldn't delete the draft."
+        },
+        "error": {
+          "title": "We couldn't load the template",
+          "description": "The template didn't load. Try again in a moment."
+        },
+        "refreshFailed": "Couldn't refresh the templates"
+      }
+    },
+    "progress": {
+      "annual": {
+        "title": "Annual progress",
+        "description": "Points of each club in {year}.",
+        "descriptionMax": "Points of each club in {year} out of {max} pts.",
+        "settings": "Settings",
+        "recalc": "Recalculate…",
+        "filters": {
+          "clubType": "Club type",
+          "year": "Ecclesiastical year",
+          "yearActive": "(active)"
+        },
+        "cols": {
+          "club": "Club",
+          "points": "Points",
+          "progress": "Progress",
+          "recognition": "Recognition"
+        },
+        "recognition": {
+          "none": "No recognition yet",
+          "missing": "{points} pts to reach {tier}"
+        },
+        "viewDetail": "View breakdown",
+        "listLabel": "Annual progress of the clubs",
+        "empty": {
+          "title": "No progress calculated",
+          "description": "No clubs have progress for these filters. Check that an annual budget is configured or recalculate the year."
+        },
+        "noCatalogs": {
+          "title": "Missing information to show progress",
+          "description": "You need at least one local field, one club type and one ecclesiastical year."
+        },
+        "recalcDialog": {
+          "title": "Recalculate the progress of {year}?",
+          "description": "It is recalculated for all fields, club types and clubs of {year}, not only for what you see filtered. It takes a few minutes; meanwhile you will see the previous data.",
+          "confirm": "Recalculate {year}",
+          "failed": "The progress could not be recalculated."
+        },
+        "recalcResult": {
+          "queued": "The recalculation of {year} is in progress. Results will update in a few minutes.",
+          "skipped": "The recalculation is turned off and was skipped.",
+          "updated": "Progress recalculated: {count, plural, one {# club updated} other {# clubs updated}}",
+          "done": "Progress recalculated"
+        },
+        "breakdown": {
+          "title": "Progress breakdown",
+          "paramsRequired": "The ecclesiastical year is missing to show the breakdown.",
+          "summary": "{year} · {earned} of {max} pts",
+          "pointsOf": "{earned} of {max}",
+          "dueDate": "Due {date}",
+          "pending": {
+            "unsent": "Not sent",
+            "validation": "To validate",
+            "union": "To confirm at the union",
+            "review": "In review"
+          },
+          "componentsTitle": "By component",
+          "componentsEmpty": "No components configured.",
+          "pendingTitle": "Pending in the folder",
+          "pendingEmpty": "Nothing is pending in the folder."
+        },
+        "config": {
+          "title": "Annual progress settings",
+          "description": "Point budgets by field, year and club type, and the percentage of each recognition.",
+          "breadcrumb": "Settings",
+          "newBudget": "New budget",
+          "tabsLabel": "Settings sections",
+          "tabs": {
+            "budgets": "Budgets",
+            "recognitions": "Recognitions"
+          },
+          "budgets": {
+            "new": "New budget",
+            "emptyTitle": "No budgets configured",
+            "emptyDescription": "Create the first budget to define how the annual points are distributed.",
+            "colScope": "Scope",
+            "colYear": "Year",
+            "colClubType": "Club type",
+            "colMax": "Maximum points",
+            "colStatus": "Status",
+            "scopeUnion": "Union",
+            "scopeLocalField": "Local field",
+            "points": "{points} pts",
+            "active": "Active",
+            "inactive": "Inactive",
+            "edit": "Edit",
+            "delete": "Delete…"
+          },
+          "recognitions": {
+            "title": "Recognitions",
+            "description": "Minimum percentage of the annual total for each recognition. It applies to all fields.",
+            "bandLabel": "Percentage for {tier}",
+            "active": "Active",
+            "inactive": "Inactive",
+            "invalidPercent": "Invalid percentage",
+            "saved": "Recognitions updated",
+            "saveFailed": "Could not save {tier}"
+          }
+        }
+      },
+      "section": {
+        "title": "Progress by section",
+        "description": "Score of each section for the year, with classes, investiture and camporees.",
+        "descriptionYear": "Score for {year} with classes, investiture and camporees.",
+        "noYearTitle": "There is no active ecclesiastical year",
+        "noYearDescription": "Set an active ecclesiastical year in the catalog to see progress.",
+        "emptyTitle": "No section progress",
+        "emptyDescription": "There are no sections with a calculated score for this year yet.",
+        "emptyFilteredDescription": "There are no sections with a score for this club and year.",
+        "colSection": "Section",
+        "colScore": "Score",
+        "colMembers": "Active members",
+        "colCalculated": "Calculated",
+        "noScore": "No data",
+        "viewMembers": "View members",
+        "listLabel": "Progress of the sections",
+        "membersCount": "{count, plural, one {# active member} other {# active members}}",
+        "filters": {
+          "club": "Club",
+          "allClubs": "All clubs",
+          "year": "Ecclesiastical year"
+        },
+        "sheet": {
+          "description": "Progress of the section members",
+          "loading": "Loading members…",
+          "emptyTitle": "No members with a score",
+          "emptyDescription": "This section has no members with a calculated score.",
+          "invested": "Invested",
+          "inProgress": "In progress",
+          "detail": "Class {class} · Investiture {investiture} · Camporees {camporee}"
+        }
+      },
+      "memberOfMonth": {
+        "title": "Member of the month",
+        "description": "Who won in each section and whether they were told.",
+        "filters": {
+          "allFields": "All fields",
+          "clubType": "Club type",
+          "allClubTypes": "All club types",
+          "month": "Month",
+          "allMonths": "All months",
+          "year": "Year",
+          "notice": "Notice",
+          "noticeAny": "Notice: any",
+          "noticePending": "Not told yet",
+          "noticeSent": "Told"
+        },
+        "emptyTitle": "No winners",
+        "emptyDescription": "There is no evaluated member of the month for this period yet.",
+        "emptyFilteredDescription": "No winner matches the filters.",
+        "clearFilters": "Clear filters",
+        "cols": {
+          "section": "Section",
+          "winner": "Winner",
+          "points": "Points",
+          "notice": "Notice"
+        },
+        "tie": "tie",
+        "tieMany": "{names} and {count, plural, one {# more} other {# more}}",
+        "noticeSent": "Told",
+        "noticePending": "Not told yet",
+        "redo": "Evaluate again…",
+        "redoDialog": {
+          "title": "Evaluate {month} again in {section}?",
+          "description": "It is recalculated with the current points and replaces {names} if the result changes. Whoever wins is told in the app.",
+          "confirm": "Evaluate again",
+          "failed": "The evaluation could not be completed.",
+          "done": "Evaluation completed"
+        }
+      }
+    },
+    "reports": {
+      "page": {
+        "title": "Reports",
+        "description": {
+          "monthly": "Monthly reports for your club.",
+          "territory": "Monthly reports for the clubs in your scope.",
+          "quarterly": "Quarterly reports, calculated from the monthly ones that were sent.",
+          "annual": "Annual reports by ecclesiastical year."
+        },
+        "printPreview": "Print view",
+        "noEnrollmentTitle": "No active enrollment",
+        "noEnrollmentDescription": "Your club has no active enrollment this year, so there are no reports to show yet.",
+        "noScopeTitle": "No reports to show",
+        "noScopeDescription": "Your account is not tied to a club or to a territory with reports."
+      },
+      "tabs": {
+        "label": "Report type",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "annual": "Annual"
+      },
+      "finding": {
+        "clear": "Every report has been sent.",
+        "toSend": "{count, plural, one {# report to send} other {# reports to send}}",
+        "drafts": "{count, plural, one {# draft not generated} other {# drafts not generated}}",
+        "both": "{toSend, plural, one {# report to send} other {# reports to send}} · {drafts, plural, one {# draft not generated} other {# drafts not generated}}"
+      },
+      "status": {
+        "draft": "Draft",
+        "generated": "To send",
+        "submitted": "Sent"
+      },
+      "territory": {
+        "groupDivision": "Division",
+        "groupUnion": "Union",
+        "groupLocalField": "Local field",
+        "scopeAll": "My whole scope",
+        "searchLabel": "Search club",
+        "searchPlaceholder": "Club name",
+        "searchPageOnly": "Filtering this page only.",
+        "clearFilters": "Clear filters",
+        "emptyTitle": "No reports in {year}",
+        "emptyDescription": "The clubs in your scope have no monthly reports yet this year.",
+        "listLabel": "Monthly reports"
+      },
+      "club": {
+        "columnPeriod": "Period"
+      },
+      "list": {
+        "actionSend": "Send to the field…"
+      },
+      "create": {
+        "title": "New monthly report",
+        "description": "Pick the month. A draft is created and opened so you can fill it in.",
+        "month": "Month",
+        "year": "Year",
+        "confirm": "Create draft"
+      },
+      "errors": {
+        "download": "The PDF could not be downloaded."
+      },
+      "periodic": {
+        "listLabel": "Reports"
+      },
+      "detail": {
+        "metaTitle": "Monthly report",
+        "statusLabel": "Status",
+        "subtitleDraft": "Draft · the data keeps updating until you generate the report",
+        "subtitleFrozen": "Generated on {date} · the data was frozen",
+        "subtitleSent": "Generated on {generated} · sent on {sent} · the data was frozen",
+        "subtitleFrozenNoDate": "The data was frozen when the report was generated",
+        "sectionClub": "Club",
+        "sectionFinances": "Finances",
+        "tabsLabel": "Report data",
+        "tabSystem": "System data",
+        "tabClub": "Club data",
+        "actionSend": "Send to the field…"
+      }
+    },
+    "camporees": {
+      "list": {
+        "finding": "{open, plural, one {# camporee with registration open} other {# camporees with registration open}}",
+        "findingNoneOpen": "No camporee with registration open",
+        "findingTotal": "{total, plural, one {# camporee} other {# camporees}}",
+        "templates": "Event templates",
+        "newLocal": "New camporee",
+        "newUnion": "New union camporee",
+        "tabsLabel": "Camporee type",
+        "tabLocal": "Local field",
+        "tabUnion": "Union",
+        "searchLabel": "Search camporees",
+        "searchPlaceholder": "Name, place or field",
+        "rangeLabel": "Show",
+        "rangeUpcoming": "Upcoming and in progress",
+        "rangePast": "Past",
+        "rangeAll": "All",
+        "onlyThisPage": "Filtering this page only",
+        "colName": "Camporee",
+        "colDates": "Dates",
+        "colPlace": "Place",
+        "colRegistration": "Registration",
+        "registration": {
+          "open": "Open",
+          "closed": "Closed"
+        },
+        "loadFailedTitle": "We couldn't load the camporees",
+        "emptyLocalTitle": "No local camporees yet",
+        "emptyLocalDescription": "Create the first one to open club registration.",
+        "emptyUnionTitle": "No union camporees yet",
+        "emptyUnionDescription": "Create the first one to open club registration.",
+        "noResultsTitle": "No results",
+        "noResultsDescription": "No camporee on this page matches the search or the filter.",
+        "clearFilters": "Clear filters"
+      },
+      "form": {
+        "sections": {
+          "data": "Details",
+          "dates": "Dates and deadlines",
+          "place": "Place",
+          "scope": "Sections and cost",
+          "orders": "Orders"
+        },
+        "noUnions": "No unions",
+        "footerNote": "Orders are saved together with the rest.",
+        "perMember": "Per member",
+        "ordersDescription": "Merchandise order window and what this camporee offers.",
+        "ordersSaveFailed": "The camporee was saved, but the orders could not be. Review them here and save again.",
+        "loadFailedTitle": "We couldn't load the camporee",
+        "ownersFailedTitle": "We couldn't load the list of fields and unions"
+      },
+      "delete": {
+        "title": "Delete “{name}”?",
+        "description": "The camporee is deactivated and stops showing for clubs. Its registrations and scores are kept.",
+        "confirm": "Delete"
+      },
+      "registration": {
+        "closeConsequence": "{count, plural, one {The enrolled section is locked} other {The # enrolled sections are locked}} for judge assignment and scoring, and clubs can no longer register. Member registration follows its own deadline. It can be reopened as long as there are no scores or assigned judges."
+      },
+      "pending": {
+        "membersTitle": "{count, plural, one {# member to approve} other {# members to approve}}",
+        "clubsTitle": "{count, plural, one {# club to approve} other {# clubs to approve}}",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approveTitle": "Approve the registration of {name}?",
+        "approveDescription": "They are registered in the camporee and count for payments and the agenda.",
+        "rejectTitle": "Reject the registration of {name}?",
+        "rejectDescription": "They are told about the rejection and the reason stays in the audit trail.",
+        "rejected": "Registration of {name} rejected",
+        "rejectFailed": "The registration could not be rejected",
+        "emptyTitle": "Nothing is waiting for approval",
+        "emptyDescription": "Late member and club registrations show up here for you to review."
+      },
+      "detail": {
+        "groupsLabel": "Camporee sections",
+        "viewsLabel": "{group} views"
+      },
+      "views": {
+        "groups": {
+          "summary": "Summary",
+          "registrations": "Registrations",
+          "money": "Money",
+          "program": "Program",
+          "scores": "Scores"
+        },
+        "withCount": "{label} {count}",
+        "views": {
+          "pending": "To approve",
+          "members": "Members",
+          "clubs": "Clubs",
+          "payments": "Payments",
+          "orders": "Payment orders",
+          "merchandise": "Orders",
+          "supplies": "Supplies",
+          "events": "Events",
+          "staff": "Staff",
+          "judges": "Judges",
+          "entry": "Enter scores",
+          "results": "Results"
+        }
+      },
+      "errors": {
+        "members": "We couldn't load the members",
+        "clubs": "We couldn't load the clubs",
+        "payments": "We couldn't load the payments",
+        "events": "We couldn't load the events",
+        "scores": "We couldn't load the scores",
+        "pending": "We couldn't load what is waiting for approval"
+      },
+      "summary": {
+        "kpiLabel": "Camporee summary",
+        "kpi": {
+          "clubs": "Clubs",
+          "enrolled": "registered",
+          "members": "Members",
+          "membersPending": "{count, plural, one {# to approve} other {# to approve}}",
+          "collected": "Collected",
+          "collectedOf": "of {total}",
+          "noCost": "no cost set",
+          "events": "Events",
+          "eventsScoring": "{count, plural, one {# with scoring} other {# with scoring}}",
+          "unavailable": "unavailable"
+        },
+        "pending": {
+          "title": "Pending",
+          "members": "{count, plural, one {# member is waiting for approval} other {# members are waiting for approval}}",
+          "clubs": "{count, plural, one {# club is waiting for approval} other {# clubs are waiting for approval}}",
+          "payments": "{count, plural, one {# payment under review for {amount}} other {# payments under review for {amount}}}",
+          "eventsWithoutJudge": "{count, plural, one {# scored event has no judge assigned} other {# scored events have no judge assigned}}",
+          "none": "Nothing pending.",
+          "assign": "Assign",
+          "review": "Review",
+          "loadFailed": "We couldn't load what is pending"
+        },
+        "deadlines": {
+          "title": "Deadlines",
+          "clubs": "Club registration",
+          "members": "Member registration",
+          "payment": "Payment",
+          "agenda": "Agenda visible",
+          "none": "No deadlines set.",
+          "from": "from {date}",
+          "until": "until {date}"
+        },
+        "data": {
+          "title": "Details",
+          "registration": "Club registration",
+          "closedAt": "Closed on {date}"
+        }
+      }
+    },
+    "camporeeEvents": {
+      "program": {
+        "filters": {
+          "search": "Search events",
+          "searchPlaceholder": "Search event, leader or venue",
+          "category": "Category",
+          "categoryAll": "All categories",
+          "section": "Section",
+          "sectionAll": "All sections",
+          "venue": "Venue",
+          "venueAll": "All venues",
+          "status": "Status",
+          "statusAll": "All statuses",
+          "clear": "Clear filters"
+        },
+        "categories": {
+          "espiritual": "Spiritual",
+          "competencia": "Competition",
+          "taller": "Workshop",
+          "ceremonial": "Ceremonial",
+          "social": "Social",
+          "logistico": "Logistics"
+        },
+        "sections": {
+          "adventurers": "Adventurers",
+          "pathfinders": "Pathfinders",
+          "master_guides": "Master Guides"
+        },
+        "statuses": {
+          "programado": "Scheduled",
+          "publicado": "Published",
+          "en_curso": "In progress",
+          "realizado": "Completed",
+          "cancelado": "Cancelled"
+        },
+        "statusUnpublished": "Unpublished",
+        "createEvent": "New event",
+        "summary": "{events, plural, one {# event} other {# events}} over {days, plural, one {# day} other {# days}}",
+        "col": {
+          "time": "Time",
+          "event": "Event",
+          "venue": "Venue",
+          "leader": "Leader",
+          "points": "Points",
+          "status": "Status"
+        },
+        "until": "to {time}",
+        "points": "{points} pts",
+        "noLeader": "No leader",
+        "dayCount": "{count, plural, =0 {No events} one {# event} other {# events}}",
+        "dayEmpty": "No events on this day.",
+        "addToDay": "Add event",
+        "emptyTitle": "No events yet",
+        "emptyDescription": "Create the first event to build the camporee program.",
+        "noResultsTitle": "No events match",
+        "noResultsDescription": "Try another search or clear the filters.",
+        "actions": {
+          "edit": "Edit",
+          "cancel": "Cancel event…",
+          "delete": "Delete…"
+        },
+        "cancelDialog": {
+          "title": "Cancel “{title}”?",
+          "description": "The event stays visible in the program with the Cancelled status. You can undo this by editing its status.",
+          "confirm": "Cancel event",
+          "back": "Go back"
+        },
+        "deleteDialog": {
+          "title": "Delete “{title}”?",
+          "description": "The event leaves the program and nobody will be able to see it. The record is kept internally.",
+          "confirm": "Delete"
+        },
+        "cancelledToast": "Event “{title}” cancelled",
+        "deletedToast": "Event “{title}” deleted"
+      },
+      "form": {
+        "sections": {
+          "data": "Details",
+          "schedule": "Schedule and venue",
+          "leader": "Leader",
+          "points": "Points and rubrics",
+          "attachments": "Attachments"
+        },
+        "fields": {
+          "title": "Title",
+          "titlePlaceholder": "E.g. Knot-tying competition",
+          "description": "Description",
+          "category": "Category",
+          "eventType": "Event type",
+          "eventTypePlaceholder": "Select the type",
+          "eventTypeHint": "The type classifies the program; official points depend on the active rubrics.",
+          "status": "Event status",
+          "participants": "Participating sections",
+          "participantsHint": "Leave empty to apply to every section of the camporee. It defines which clubs appear under Schedule.",
+          "venue": "Venue",
+          "venueEmpty": "No venues are set up for this camporee.",
+          "venueCreateFirst": "Create the first venue",
+          "venueNone": "No venue",
+          "venueCapacity": "cap. {capacity}",
+          "venueCreateNew": "Create new venue",
+          "venueOpenForm": "Open venue form",
+          "leaderHint": "Name shown in the program. It is not enough to publish: that is set under Assigned staff.",
+          "leaderMode": "Leader type",
+          "leaderUser": "System user",
+          "leaderExternal": "External leader",
+          "leaderUserLabel": "Responsible user",
+          "leaderUserPlaceholder": "Select a user",
+          "leaderNone": "No leader",
+          "leaderExternalName": "External leader name",
+          "leaderExternalPlaceholder": "E.g. Dr. Marta Quiroga",
+          "leaderRole": "Role or title",
+          "leaderRolePlaceholder": "E.g. Games Director",
+          "honors": "Preparation honors",
+          "honorsHint": "Link honors from the catalog so participants can read the PDF material before the event.",
+          "maxPoints": "Maximum points",
+          "minPoints": "Minimum points",
+          "minPointsOnlyPenalty": "only with a penalty",
+          "minPointsHint": "Floor when penalties apply: the score never goes below this value (0 allowed; it cannot exceed the maximum).",
+          "penaltiesToggle": "Applies a penalty",
+          "penaltiesToggleHint": "Turns on deductions and lets you set a minimum score.",
+          "penalties": "Penalties"
+        },
+        "optional": "optional",
+        "errors": {
+          "title": "Enter the event title."
+        },
+        "timeFormat": "Invalid time format (HH:MM)",
+        "timeOrder": "The end time must be later than the start time",
+        "saveEdit": "Save changes",
+        "saveCreate": "Create event",
+        "createNote": "It is saved as “Unpublished”. Publishing needs a leader.",
+        "attachmentsCreateHint": "You can upload rules, maps or forms after creating the event.",
+        "dayLabel": "Day {number} · {date}"
+      },
+      "rubrics": {
+        "scoringTitle": "Scoring by rubrics",
+        "scoringHint": "Turn it on when the event adds real points to the camporee.",
+        "scoringOn": "Scored",
+        "scoringOff": "Not scored",
+        "sumMatch": "The rubrics add up to {total} of {max} pts.",
+        "sumUnder": "The rubrics add up to {total} of {max} pts. {diff} pts missing: they must add up to the event maximum.",
+        "sumOver": "The rubrics add up to {total} of {max} pts. {diff} pts too many: they must add up to the event maximum.",
+        "sumNone": "Add at least one criterion. The rubrics must add up to {max} pts.",
+        "colCriterion": "Criterion",
+        "colPoints": "Points",
+        "colActions": "Actions",
+        "criterionAria": "Name of criterion {index}",
+        "empty": "No criteria yet.",
+        "addCriterion": "Add criterion"
+      },
+      "entry": {
+        "eventLabel": "Event",
+        "eventOption": "{title} · {points} pts",
+        "fallbackHint": "Use it when the judge cannot score from the app.",
+        "fallbackHintWithJudge": "Lead judge: {name}. Use it when they cannot score from the app.",
+        "total": "Total",
+        "totalOf": "{awarded} of {max}",
+        "overMax": "A criterion is over its maximum. Fix it to save.",
+        "submit": "Save score"
+      },
+      "results": {
+        "colSection": "Section",
+        "colPoints": "Points",
+        "colPercent": "Percentage",
+        "colCoverage": "Scored events",
+        "pointsOf": "{awarded} of {max}",
+        "missing": "{count, plural, one {# event missing} other {# events missing}}",
+        "orderHint": "Ordered by the percentage of points over the events already scored. Select a cell in the breakdown to open the detail with the judge comment."
+      },
+      "judges": {
+        "removeTitle": "Remove {name}?",
+        "removeDescription": "They stop being the {role} judge of {section} in “{event}”. You can assign another judge afterwards.",
+        "removeConfirm": "Remove"
+      }
+    },
+    "certYear": {
+      "certifications": {
+        "list": {
+          "searchLabel": "Search certification",
+          "searchPlaceholder": "Name or description",
+          "pageOnlyNotice": "Filtering this page only",
+          "noResultsTitle": "No results",
+          "noResultsDescription": "Nothing matches the search or filter.",
+          "clearFilters": "Clear filters",
+          "summary": "{count, plural, one {# certification} other {# certifications}}"
+        },
+        "detail": {
+          "factDuration": "Duration",
+          "factModules": "Modules",
+          "factSections": "Items",
+          "durationWeeks": "{count, plural, one {# week} other {# weeks}}",
+          "tabModules": "Modules",
+          "tabEnrolled": "Enrolled"
+        },
+        "enrolled": {
+          "searchLabel": "Search person",
+          "searchPlaceholder": "Name",
+          "statusLabel": "Status",
+          "statusAll": "All",
+          "colPerson": "Person",
+          "colEnrolled": "Enrolled",
+          "colProgress": "Progress",
+          "colStatus": "Status",
+          "viewProgress": "View progress",
+          "noResultsTitle": "No results",
+          "noResultsDescription": "Nothing matches the search or filter.",
+          "clearFilters": "Clear filters",
+          "emptyTitle": "No one enrolled",
+          "emptyDescription": "No one is enrolled in this certification.",
+          "unavailableTitle": "We couldn't load the enrolled people",
+          "unavailableDescription": "The enrolled list isn't available on the server yet. Try again later.",
+          "status": {
+            "ENROLLED": "Enrolled",
+            "IN_PROGRESS": "In progress",
+            "READY_FOR_CLOSEOUT": "Ready for closeout",
+            "SUBMITTED_FOR_FINAL_REVIEW": "In final review",
+            "APPROVED": "Approved",
+            "CERTIFIED": "Certified",
+            "WITHDRAWN": "Withdrawn",
+            "EXPIRED": "Expired",
+            "CHANGES_REQUESTED": "Changes requested"
+          }
+        },
+        "progress": {
+          "title": "Certification progress",
+          "summary": "{certification} · {done} of {total} items",
+          "enrolledOn": "Enrolled on {date}",
+          "certifiedOn": "Completed on {date}",
+          "moduleHeading": "Module {index} · {title}",
+          "moduleHeadingUntitled": "Module {index}",
+          "noModules": "This certification has no items to mark.",
+          "noSections": "No items.",
+          "readOnly": "Read only: you don't have permission to mark items.",
+          "sectionFallback": "Item {id}",
+          "completedOn": "Completed on {date}",
+          "unsaved": "{count, plural, one {# unsaved change} other {# unsaved changes}}",
+          "saved": "Progress saved",
+          "saveFailed": "{count, plural, one {Couldn't save # item} other {Couldn't save # items}}"
+        }
+      },
+      "yearEnd": {
+        "title": "{year} year-end closing",
+        "description": "What happens when the year closes. Everything can be viewed afterwards, but not edited.",
+        "closeButton": "Close {year}…",
+        "loadFailedTitle": "We couldn't calculate the closing impact",
+        "kpiLabel": "Closing impact",
+        "kpiEnrollments": "Enrollments",
+        "kpiEnrollmentsSub": "are closed",
+        "kpiFolders": "Folders",
+        "kpiFoldersSub": "are archived",
+        "kpiReports": "Monthly reports",
+        "kpiReportsSub": "are generated and frozen",
+        "kpiInvestiture": "Investiture requests",
+        "kpiInvestitureSub": "open ones are closed; the figure is reported on closing",
+        "noClubsTitle": "No open enrollments",
+        "noClubsDescription": "There are no club enrollments to close this year.",
+        "colClub": "Club",
+        "colType": "Type",
+        "colEnrollments": "Enrollments",
+        "confirmTitle": "Close year {year}",
+        "confirmDescription": "This can't be undone. {enrollments, plural, one {# enrollment is closed} other {# enrollments are closed}}, {folders, plural, one {# folder is archived} other {# folders are archived}}, {reports, plural, one {# report is generated} other {# reports are generated}} and open investiture requests are closed.",
+        "confirmTyped": "Type {year} to confirm",
+        "confirmButton": "Close {year}",
+        "closeFailed": "Couldn't close the year. Try again.",
+        "doneTitle": "Year {year} closed",
+        "doneClosedAt": "Closed on {date}.",
+        "doneLookingUp": "Looking up the active year…",
+        "doneNewActive": "The active year is now {year}",
+        "doneNoActive": "There is no active year anymore. Activate the next one in the ecclesiastical years catalog.",
+        "doneSummary": "{enrollments, plural, one {# enrollment closed} other {# enrollments closed}} · {folders, plural, one {# folder archived} other {# folders archived}} · {reports, plural, one {# report generated} other {# reports generated}} · {investiture, plural, one {# request closed} other {# requests closed}}",
+        "goHome": "Go to home"
+      }
+    }
+  },
   "people": {
     "clubs": {
       "list": {
@@ -2061,12 +2958,12 @@
       "annual_folders": "Annual Evidence Folder",
       "annual_folders_templates": "Templates",
       "annual_folders_evaluate": "Folders",
-      "annual_folders_rankings": "Classifications",
-      "annual_folders_ranking_config": "Classification configuration",
+      "annual_folders_rankings": "Annual progress",
+      "annual_folders_ranking_config": "Annual progress settings",
       "annual_folders_categories": "Award categories",
       "member_rankings": "Member classifications",
       "member_ranking_weights": "Member classification weights",
-      "section_rankings": "Section classifications",
+      "section_rankings": "Section progress",
       "requests": "Requests",
       "requests_transfers": "Transfers",
       "requests_assignments": "Assignments",
@@ -2168,6 +3065,7 @@
       "reports_quarterly": "Quarterly reports",
       "reports_annual": "Annual reports",
       "campamentos": "Camporees",
+      "campamentos_list": "List",
       "campamentos_list_local": "Local field",
       "campamentos_list_union": "Union",
       "materials": "Materials",
@@ -5514,7 +6412,7 @@
     },
     "leaderboard": {
       "eyebrow": "Results",
-      "title": "Camporee ranking",
+      "title": "Camporee results",
       "description": "Standings based on the percentage of points earned over the scored events.",
       "emptyTitle": "No results yet",
       "emptyDescription": "They will appear once official scores are recorded.",
@@ -7000,9 +7898,9 @@
       "submittingEdit": "Saving...",
       "descriptionDraft": "Save the template as a draft. Then add sections and publish it from the detail page when it is complete.",
       "descriptionEdit": "Edit the Annual Evidence Folder draft details.",
-      "budgetTitle": "Budget from classification",
-      "budgetMissing": "There is no annual classification configuration for this combination. Configure it before publishing.",
-      "budgetResolved": "Annual Folder is worth {points} pts according to the classification configuration. Sections must distribute exactly that total.",
+      "budgetTitle": "Budget from annual progress",
+      "budgetMissing": "There is no annual progress configuration for this combination. Configure it before publishing.",
+      "budgetResolved": "The Annual Folder is worth {points} pts according to the annual progress configuration. Sections must distribute exactly that total.",
       "budgetPending": "Select club type, year, and owner to resolve the annual budget.",
       "submitDraft": "Save draft",
       "submittingDraft": "Saving draft..."
@@ -7301,16 +8199,16 @@
       "subsectionsAllocationLabel": "Subsections in this section"
     },
     "pageRankingConfig": {
-      "title": "Annual classification configuration",
+      "title": "Annual progress settings",
       "description": "Manage annual budgets by section and global recognition tiers for the Annual Evidence Folder.",
-      "breadcrumbRankingConfig": "Classification configuration",
+      "breadcrumbRankingConfig": "Annual progress settings",
       "breadcrumbNew": "New",
       "breadcrumbEdit": "Edit",
       "newTitle": "New budget configuration",
       "newDescription": "Set the annual maximum score and its distribution across sections and subsections.",
       "editTitle": "Edit budget configuration",
       "editDescription": "Update the maximum score and its distribution across sections and subsections.",
-      "missingCatalogsTitle": "Missing catalogs to configure classifications",
+      "missingCatalogsTitle": "Missing catalogs to configure annual progress",
       "missingCatalogsDescription": "You need at least one union or local field, a club type, and an active ecclesiastical year.",
       "unavailableTitle": "Configuration unavailable",
       "unavailableDescription": "The requested configuration was not found or catalogs are missing to edit it."
@@ -7375,14 +8273,14 @@
       "years": "There is no ecclesiastical year covering today.",
       "club-types": "At least one club type is missing.",
       "templates": "An active annual folder template is missing.",
-      "ranking": "Annual ranking with the folder component is missing.",
+      "ranking": "The annual progress configuration with the folder component is missing.",
       "unions": "At least one union or local field is missing.",
       "emptyHint": "Folders appear here once setup is complete.",
       "go": {
         "years": "Go to ecclesiastical years",
         "club-types": "Go to club types",
         "templates": "Go to templates",
-        "ranking": "Go to annual ranking",
+        "ranking": "Go to annual progress",
         "unions": "Go to unions"
       }
     }

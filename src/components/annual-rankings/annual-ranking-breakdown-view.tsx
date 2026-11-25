@@ -1,169 +1,92 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { useFormatNumber } from "@/lib/format-locale";
+import { ProgressBar } from "@/components/annual-rankings/progress-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { useFormatDate, useFormatNumber } from "@/lib/format-locale";
 import type {
-  AnnualRankingAxisProgress,
   AnnualRankingComponentProgress,
   AnnualRankingPendingItem,
   AnnualRankingSectionProgress,
 } from "@/lib/api/annual-rankings";
-
-const PENDING_STATUS_KEYS = {
-  pending_delivery: "pendingStatus.pending_delivery",
-  pending_validation: "pendingStatus.pending_validation",
-  pending_union_validation: "pendingStatus.pending_union_validation",
-  pending_review: "pendingStatus.pending_review",
-} as const;
-
-function pendingStatusKey(status: string) {
-  return status in PENDING_STATUS_KEYS
-    ? PENDING_STATUS_KEYS[status as keyof typeof PENDING_STATUS_KEYS]
-    : PENDING_STATUS_KEYS.pending_review;
-}
+import { breakdownComponents, pendingKind } from "@/lib/progress/annual";
 
 function ComponentRow({ component }: { component: AnnualRankingComponentProgress }) {
+  const t = useTranslations("evaluation.progress.annual.breakdown");
   const formatNumber = useFormatNumber();
   return (
-    <li className="space-y-1.5">
-      <div className="flex items-baseline justify-between gap-3 text-sm">
-        <span className="min-w-0">{component.label}</span>
-        <span className="shrink-0 tabular-nums text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {formatNumber(component.earned_points)}
-          </span>
-          /{formatNumber(component.max_points)}
-        </span>
-      </div>
-      <Progress value={component.progress_percentage} aria-label={component.label} />
+    <li className="flex flex-col gap-1.5 py-3 sm:flex-row sm:items-center sm:gap-4">
+      <span className="min-w-0 text-sm sm:w-56 sm:shrink-0">{component.label}</span>
+      <ProgressBar value={component.progress_percentage} label={component.label} className="sm:flex-1" />
+      <span className="text-[13px] tabular-nums text-muted-foreground sm:w-32 sm:shrink-0 sm:text-right">
+        {t("pointsOf", {
+          earned: formatNumber(component.earned_points),
+          max: formatNumber(component.max_points),
+        })}
+      </span>
     </li>
   );
 }
 
-function AxisCard({ axis }: { axis: AnnualRankingAxisProgress }) {
-  const t = useTranslations("annual_folders.pageRankingsBreakdown");
-  const formatNumber = useFormatNumber();
+function PendingRow({ item }: { item: AnnualRankingPendingItem }) {
+  const t = useTranslations("evaluation.progress.annual.breakdown");
+  const formatDate = useFormatDate();
+  const kind = pendingKind(item.status);
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-baseline justify-between gap-3 text-base">
-          <span>{axis.label}</span>
-          <span className="shrink-0 text-sm font-normal tabular-nums text-muted-foreground">
-            {t("pointsOf", {
-              earned: formatNumber(axis.earned_points),
-              max: formatNumber(axis.max_points),
-            })}
+    <li className="flex items-center justify-between gap-3 py-3 text-sm">
+      <span className="min-w-0">
+        {item.title}
+        {item.due_date ? (
+          <span className="block text-xs text-muted-foreground">
+            {t("dueDate", { date: formatDate(item.due_date, { day: "numeric", month: "short" }) })}
           </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ul className="space-y-4">
-          {axis.components.map((component) => (
-            <ComponentRow key={component.key} component={component} />
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+        ) : null}
+      </span>
+      {kind === "unsent" ? (
+        <span className="shrink-0 text-muted-foreground">{t(`pending.${kind}`)}</span>
+      ) : (
+        <StatusBadge intent="warning" label={t(`pending.${kind}`)} />
+      )}
+    </li>
   );
 }
 
-function PendingItems({ items }: { items: AnnualRankingPendingItem[] }) {
-  const t = useTranslations("annual_folders.pageRankingsBreakdown");
+/** Breakdown of one club: a row per component and what is still pending in the folder. */
+export function AnnualRankingBreakdownView({ data }: { data: AnnualRankingSectionProgress }) {
+  const t = useTranslations("evaluation.progress.annual.breakdown");
+  const components = breakdownComponents(data);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">{t("pendingTitle")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("pendingEmpty")}</p>
+    <div className="space-y-8">
+      <section aria-labelledby="progress-components" className="space-y-3">
+        <h2 id="progress-components" className="text-base font-semibold tracking-tight">
+          {t("componentsTitle")}
+        </h2>
+        {components.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("componentsEmpty")}</p>
         ) : (
-          <ul className="divide-y divide-border/60">
-            {items.map((item, index) => (
-              <li
-                key={`${item.type}-${item.title}-${index}`}
-                className="flex items-center justify-between gap-3 py-2 text-sm first:pt-0 last:pb-0"
-              >
-                <span className="min-w-0">{item.title}</span>
-                <Badge variant="outline" className="shrink-0">
-                  {t(pendingStatusKey(item.status))}
-                </Badge>
-              </li>
+          <ul className="divide-y rounded-xl bg-card px-4 shadow-card">
+            {components.map((component) => (
+              <ComponentRow key={component.key} component={component} />
             ))}
           </ul>
         )}
-      </CardContent>
-    </Card>
-  );
-}
+      </section>
 
-export function AnnualRankingBreakdownView({ data }: { data: AnnualRankingSectionProgress }) {
-  const t = useTranslations("annual_folders.pageRankingsBreakdown");
-  const formatNumber = useFormatNumber();
-
-  // Configs without axes list their components flat; show them as one group.
-  const axes: AnnualRankingAxisProgress[] =
-    data.axes.length > 0
-      ? data.axes
-      : [
-          {
-            key: "components",
-            label: t("componentsTitle"),
-            earned_points: data.current_points,
-            max_points: data.max_points,
-            progress_percentage: data.progress_percentage,
-            components: data.components,
-          },
-        ];
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="flex flex-wrap items-end justify-between gap-6 pt-6">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">{t("totalLabel")}</p>
-            <p className="text-3xl font-semibold tracking-tight tabular-nums">
-              {formatNumber(data.current_points)}
-              <span className="text-lg font-normal text-muted-foreground">
-                /{formatNumber(data.max_points)}
-              </span>
-            </p>
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {t("progress", { percent: formatNumber(data.progress_percentage) })}
-            </p>
-          </div>
-          <div className="space-y-1 text-right">
-            <p className="text-sm text-muted-foreground">{t("tierLabel")}</p>
-            <Badge variant={data.current_tier ? "secondary" : "outline"} className="text-sm">
-              {data.current_tier?.name ?? t("noTier")}
-            </Badge>
-            {data.next_tier?.points_to_reach ? (
-              <p className="text-sm text-muted-foreground">
-                {t("nextTier", {
-                  points: formatNumber(data.next_tier.points_to_reach),
-                  tier: data.next_tier.name,
-                })}
-              </p>
-            ) : null}
-          </div>
-          <Progress
-            value={data.progress_percentage}
-            aria-label={t("totalLabel")}
-            className="basis-full"
-          />
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {axes.map((axis) => (
-          <AxisCard key={axis.key} axis={axis} />
-        ))}
-      </div>
-
-      <PendingItems items={data.pending_items} />
+      <section aria-labelledby="progress-pending" className="space-y-3">
+        <h2 id="progress-pending" className="text-base font-semibold tracking-tight">
+          {t("pendingTitle")}
+        </h2>
+        {data.pending_items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("pendingEmpty")}</p>
+        ) : (
+          <ul className="divide-y rounded-xl bg-card px-4 shadow-card">
+            {data.pending_items.map((item, index) => (
+              <PendingRow key={`${item.type}-${item.title}-${index}`} item={item} />
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

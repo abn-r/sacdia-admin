@@ -6,41 +6,41 @@ import { AnnualRankingBreakdownView } from "@/components/annual-rankings/annual-
 import type { AnnualRankingSectionProgress } from "@/lib/api/annual-rankings";
 import messages from "../../../messages/es.json";
 
-afterEach(() => {
-  cleanup();
+afterEach(cleanup);
+
+const component = (key: string, label: string, earned: number, max: number) => ({
+  key,
+  label,
+  earned_points: earned,
+  max_points: max,
+  progress_percentage: (earned / max) * 100,
 });
 
 const progress: AnnualRankingSectionProgress = {
   section_id: 7,
   club_id: 1,
-  club_name: "ACV",
+  club_name: "Club Orión",
   club_type: { club_type_id: 2, name: "Conquistadores" },
   year: { ecclesiastical_year_id: 1 },
-  current_points: 7522,
-  max_points: 10000,
-  progress_percentage: 75.22,
-  current_tier: { name: "Plata", slug: "plata", from_points: 7000, to_points: 8499, points_to_reach: null },
-  next_tier: { name: "Oro", slug: "oro", from_points: 8500, to_points: 9499, points_to_reach: 978 },
+  current_points: 2640,
+  max_points: 3000,
+  progress_percentage: 88,
+  current_tier: null,
+  next_tier: null,
   axes: [
     {
-      key: "administrative",
-      label: "Cumplimiento administrativo",
-      earned_points: 5422,
-      max_points: 7000,
-      progress_percentage: 77.46,
-      components: [
-        { key: "annual_evidence_folder", label: "Carpeta anual", earned_points: 3700, max_points: 4000, progress_percentage: 92.5 },
-        { key: "finance_compliance", label: "Finanzas", earned_points: 1500, max_points: 2000, progress_percentage: 75 },
-      ],
+      ...component("administrative", "Administrativo", 1840, 2000),
+      components: [component("folder", "Carpeta de evidencias", 1840, 2000), component("classes", "Clases e investidura", 520, 600)],
     },
   ],
   components: [],
   pending_items: [
-    { type: "annual_folder_section", title: "Sección 4", status: "pending_validation", due_date: null, action_label: "Ver evidencia" },
+    { type: "folder", title: "Evangelismo", status: "pending_union_validation", due_date: null, action_label: "" },
+    { type: "folder", title: "Investidura", status: "pending_delivery", due_date: null, action_label: "" },
   ],
 };
 
-function renderView(data: AnnualRankingSectionProgress = progress) {
+function renderView(data = progress) {
   return render(
     <NextIntlClientProvider locale="es" messages={messages}>
       <AnnualRankingBreakdownView data={data} />
@@ -49,39 +49,26 @@ function renderView(data: AnnualRankingSectionProgress = progress) {
 }
 
 describe("AnnualRankingBreakdownView", () => {
-  it("shows the total, the tier and the points to the next tier", () => {
+  it("lists one row per component with its points and no axis cards", () => {
     renderView();
 
-    expect(screen.getByText("Plata")).toBeInTheDocument();
-    expect(screen.getByText("Faltan 978 pts para Oro")).toBeInTheDocument();
-    expect(screen.getByText("75.22% del total")).toBeInTheDocument();
+    expect(screen.getByText("Carpeta de evidencias")).toBeInTheDocument();
+    expect(screen.getByText("1,840 de 2,000")).toBeInTheDocument();
+    expect(screen.getByText("520 de 600")).toBeInTheDocument();
+    expect(screen.queryByText("Administrativo")).toBeNull();
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2);
   });
 
-  it("lists each axis with its components and points", () => {
+  it("says what is pending in the folder, marking only what waits on someone", () => {
     renderView();
 
-    expect(screen.getByText("Cumplimiento administrativo")).toBeInTheDocument();
-    expect(screen.getByText("Carpeta anual")).toBeInTheDocument();
-    expect(screen.getByText("5,422 / 7,000 pts")).toBeInTheDocument();
+    expect(screen.getByText("Por confirmar en unión")).toBeInTheDocument();
+    expect(screen.getByText("Sin enviar")).toBeInTheDocument();
   });
 
-  it("translates the pending folder sections", () => {
-    renderView();
+  it("says nothing is pending when the folder is complete", () => {
+    renderView({ ...progress, pending_items: [] });
 
-    expect(screen.getByText("Sección 4")).toBeInTheDocument();
-    expect(screen.getByText("Por validar")).toBeInTheDocument();
-  });
-
-  it("groups flat components when the config has no axes", () => {
-    renderView({
-      ...progress,
-      axes: [],
-      components: progress.axes[0]!.components,
-      pending_items: [],
-    });
-
-    expect(screen.getByText("Componentes")).toBeInTheDocument();
-    expect(screen.getByText("Finanzas")).toBeInTheDocument();
-    expect(screen.getByText("No hay secciones pendientes.")).toBeInTheDocument();
+    expect(screen.getByText("No hay nada pendiente en la carpeta.")).toBeInTheDocument();
   });
 });

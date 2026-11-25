@@ -1,63 +1,34 @@
 import type { Metadata } from "next";
 import { TrendingUp } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader } from "@/components/shared/page-header";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
+import { AnnualProgressClientPage } from "@/components/annual-rankings/annual-progress-client-page";
 import { EmptyState } from "@/components/shared/empty-state";
-import { requireAdminUser } from "@/lib/auth/session";
-import { ApiError } from "@/lib/api/client";
-import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
-import { listLocalFields, listUnions } from "@/lib/api/geography";
-import { listAnnualRankings } from "@/lib/api/annual-rankings";
+import { ErrorState } from "@/components/shared/error-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { resolveInitialLocalFieldId } from "@/lib/annual-folders/ranking-defaults";
+import { listClubTypes, listEcclesiasticalYears } from "@/lib/api/catalogs";
+import { errorStateFromError, type ErrorStateFromError } from "@/lib/api/error-state";
+import { listLocalFields, listUnions } from "@/lib/api/geography";
+import { listAnnualRankings, type AnnualRankingLeaderboardRow } from "@/lib/api/annual-rankings";
 import {
   filterLocalFieldsByTerritory,
   localFieldOptionFromTerritory,
   resolveAdminTerritoryScope,
 } from "@/lib/auth/territory-scope";
-import type { AnnualRankingLeaderboardRow } from "@/lib/api/annual-rankings";
+import { requireAdminUser } from "@/lib/auth/session";
 import type { ClubType, EcclesiasticalYear } from "@/lib/api/catalogs";
 import type { LocalField } from "@/lib/api/geography";
 
-const RankingsClientPage = dynamic(
-  () =>
-    import("@/components/annual-folders/rankings-client-page").then((m) => ({
-      default: m.RankingsClientPage,
-    })),
-  {
-    loading: () => (
-      <div className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Skeleton className="h-9 w-36 rounded-md" />
-          <Skeleton className="h-9 w-36 rounded-md" />
-        </div>
-        <Skeleton className="h-10 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-        <Skeleton className="h-12 w-full rounded-md" />
-      </div>
-    ),
-  }
-);
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 type AnyRecord = Record<string, unknown>;
 
-function extractArray(payload: unknown): AnyRecord[] {
-  if (Array.isArray(payload)) return payload as AnyRecord[];
+function extractArray<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
   if (payload && typeof payload === "object") {
     const root = payload as AnyRecord;
-    if (Array.isArray(root.data)) return root.data as AnyRecord[];
+    if (Array.isArray(root.data)) return root.data as T[];
   }
   return [];
 }
-
-// ─── Page ──────────────────────────────────────────────────────────────────────
 
 async function listRankingLocalFieldsForScope(user: Awaited<ReturnType<typeof requireAdminUser>>) {
   const territoryScope = resolveAdminTerritoryScope(user);
@@ -68,127 +39,93 @@ async function listRankingLocalFieldsForScope(user: Awaited<ReturnType<typeof re
   }
 
   if (territoryScope.level === "union") {
-    return filterLocalFieldsByTerritory(
-      await listLocalFields(territoryScope.unionId),
-      territoryScope,
-    );
+    return filterLocalFieldsByTerritory(await listLocalFields(territoryScope.unionId), territoryScope);
   }
 
   if (territoryScope.level === "division") {
     const unions = await listUnions({ divisionId: territoryScope.divisionId });
-    const fields = (await Promise.all(unions.map((union) => listLocalFields(union.union_id)))).flat();
-    return fields;
+    return (await Promise.all(unions.map((union) => listLocalFields(union.union_id)))).flat();
   }
 
   return listLocalFields();
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("annual_folders");
-  return { title: t("pageRankings.title") };
+  const t = await getTranslations("evaluation.progress.annual");
+  return { title: t("title") };
 }
 
-export default async function RankingsPage() {
+export default async function AnnualProgressPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ local_field?: string }>;
+}) {
   const user = await requireAdminUser();
-  const t = await getTranslations("annual_folders");
+  const t = await getTranslations("evaluation.progress.annual");
+  const { local_field: localFieldParam } = await searchParams;
 
-  let clubTypes: ClubType[] = [];
-  let ecclesiasticalYears: EcclesiasticalYear[] = [];
-  let localFields: LocalField[] = [];
-  let initialRankings: AnnualRankingLeaderboardRow[] = [];
-  let loadError: string | null = null;
+  const [clubTypesResult, yearsResult, localFieldsResult] = await Promise.allSettled([
+    listClubTypes(),
+    listEcclesiasticalYears(),
+    listRankingLocalFieldsForScope(user),
+  ]);
 
-  // Load catalogs
-  const [clubTypesResult, yearsResult, localFieldsResult] =
-    await Promise.allSettled([
-      listClubTypes(),
-      listEcclesiasticalYears(),
-      listRankingLocalFieldsForScope(user),
-    ]);
-
-  if (clubTypesResult.status === "fulfilled") {
-    clubTypes = Array.isArray(clubTypesResult.value)
-      ? clubTypesResult.value
-      : (extractArray(clubTypesResult.value) as ClubType[]);
+  const rejected = [clubTypesResult, yearsResult, localFieldsResult].find((r) => r.status === "rejected");
+  if (rejected?.status === "rejected") {
+    const failure = errorStateFromError(rejected.reason);
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("title")} />
+        <ErrorState kind={failure.kind} detail={failure.detail} retry />
+      </div>
+    );
   }
 
-  if (yearsResult.status === "fulfilled") {
-    ecclesiasticalYears = Array.isArray(yearsResult.value)
-      ? yearsResult.value
-      : (extractArray(yearsResult.value) as EcclesiasticalYear[]);
+  const clubTypes = clubTypesResult.status === "fulfilled" ? extractArray<ClubType>(clubTypesResult.value) : [];
+  const years =
+    yearsResult.status === "fulfilled" ? extractArray<EcclesiasticalYear>(yearsResult.value) : [];
+  const localFields =
+    localFieldsResult.status === "fulfilled" ? extractArray<LocalField>(localFieldsResult.value) : [];
+
+  if (clubTypes.length === 0 || years.length === 0 || localFields.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title={t("title")} />
+        <EmptyState icon={TrendingUp} title={t("noCatalogs.title")} description={t("noCatalogs.description")} />
+      </div>
+    );
   }
 
-  if (localFieldsResult.status === "fulfilled") {
-    localFields = Array.isArray(localFieldsResult.value)
-      ? localFieldsResult.value
-      : (extractArray(localFieldsResult.value) as LocalField[]);
-  }
+  const clubTypeId = clubTypes[0]?.club_type_id ?? 1;
+  const yearId =
+    years.find((y) => y.active)?.ecclesiastical_year_id ?? years[0]?.ecclesiastical_year_id ?? 1;
+  const requestedField = Number(localFieldParam);
+  const localFieldId = localFields.some((f) => f.local_field_id === requestedField)
+    ? requestedField
+    : resolveInitialLocalFieldId(user, localFields);
 
-  if (
-    clubTypes.length === 0 ||
-    ecclesiasticalYears.length === 0 ||
-    localFields.length === 0
-  ) {
-    loadError = t("pageRankings.errorFallback");
-  }
-
-  // Pick sensible defaults: first club type, active year (or first)
-  const defaultClubTypeId = clubTypes[0]?.club_type_id ?? 1;
-  const defaultYearId =
-    ecclesiasticalYears.find((y) => y.active)?.ecclesiastical_year_id ??
-    ecclesiasticalYears[0]?.ecclesiastical_year_id ??
-    1;
-  const defaultLocalFieldId = resolveInitialLocalFieldId(user, localFields);
-
-  if (!loadError && defaultLocalFieldId !== undefined) {
+  let rows: AnnualRankingLeaderboardRow[] = [];
+  let initialError: ErrorStateFromError | null = null;
+  if (localFieldId !== undefined) {
     try {
-      const rankingsResult = await listAnnualRankings({
-        clubTypeId: defaultClubTypeId,
-        ecclesiasticalYearId: defaultYearId,
-        localFieldId: defaultLocalFieldId,
-      });
-
-      initialRankings = Array.isArray(rankingsResult)
-        ? rankingsResult
-        : (extractArray(rankingsResult) as AnnualRankingLeaderboardRow[]);
+      rows = extractArray<AnnualRankingLeaderboardRow>(
+        await listAnnualRankings({ clubTypeId, ecclesiasticalYearId: yearId, localFieldId }),
+      );
     } catch (error) {
-      loadError =
-        error instanceof ApiError
-          ? error.message
-          : t("pageRankings.errorFallback");
+      initialError = errorStateFromError(error);
     }
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={t("pageRankings.title")}
-        description={t("pageRankings.description")}
-      />
-
-      {loadError && (
-        <EndpointErrorBanner state="missing" detail={loadError} />
-      )}
-
-      {!loadError && clubTypes.length === 0 && (
-        <EmptyState
-          icon={TrendingUp}
-          title={t("pageRankings.emptyTitle")}
-          description={t("pageRankings.emptyDescription")}
-        />
-      )}
-
-      {!loadError && clubTypes.length > 0 && localFields.length > 0 && (
-        <RankingsClientPage
-          initialRankings={initialRankings}
-          clubTypes={clubTypes}
-          ecclesiasticalYears={ecclesiasticalYears}
-          localFields={localFields}
-          initialClubTypeId={defaultClubTypeId}
-          initialYearId={defaultYearId}
-          initialLocalFieldId={defaultLocalFieldId}
-        />
-      )}
-    </div>
+    <AnnualProgressClientPage
+      initialRows={rows}
+      initialError={initialError}
+      clubTypes={clubTypes}
+      ecclesiasticalYears={years}
+      localFields={localFields}
+      initialClubTypeId={clubTypeId}
+      initialYearId={yearId}
+      initialLocalFieldId={localFieldId}
+    />
   );
 }
