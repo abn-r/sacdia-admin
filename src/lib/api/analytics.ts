@@ -2,7 +2,7 @@ import { apiRequest } from "@/lib/api/client";
 
 // ─── Jobs & Queues ────────────────────────────────────────────────────────────
 
-export type KnownQueueName = 'notifications' | 'email' | 'achievements' | 'background-jobs';
+export type KnownQueueName = 'notifications' | 'email' | 'emails' | 'achievements' | 'background-jobs';
 
 export type JobCounts = {
   name: string;

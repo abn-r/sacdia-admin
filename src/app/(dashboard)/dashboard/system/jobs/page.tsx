@@ -1,175 +1,138 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Suspense } from "react";
-import { History } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { ApiError } from "@/lib/api/client";
+import { errorStateFromError } from "@/lib/api/error-state";
 import { canAccessDashboardPath } from "@/lib/auth/require-page-access";
 import { requireAdminUser } from "@/lib/auth/session";
 import { PageAccessForbidden } from "@/components/shared/page-access-forbidden";
-import { getJobsOverview, getCronRuns, listCronJobs } from "@/lib/api/analytics";
-import { JobsOverviewClient } from "./_components/jobs-overview-client";
-import { CronRunsSection } from "./_components/cron-runs-section";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { EndpointErrorBanner } from "@/components/shared/endpoint-error-banner";
-import { RefreshButton } from "@/components/shared/refresh-button";
 import { PageHeader } from "@/components/shared/page-header";
+import { ErrorState } from "@/components/shared/error-state";
+import { UrlTabs } from "@/components/shared/url-tabs";
+import {
+  getCronRuns,
+  getCronRunsHistory,
+  getJobsOverview,
+  listCronJobs,
+} from "@/lib/api/analytics";
+import {
+  buildSystemHref,
+  parseCronHistoryFilters,
+  parseSystemTab,
+  SYSTEM_JOBS_PATH,
+} from "@/lib/system/system-view";
+import { CronHistoryTab } from "./_components/cron-history-tab";
+import { CronRunsSection } from "./_components/cron-runs-section";
+import { QueuesTab } from "./_components/queues-tab";
+import { SystemRefreshButton } from "./_components/system-refresh-button";
 
-export const revalidate = 30;
+export const revalidate = 0;
 
-// ─── Skeleton Fallback ────────────────────────────────────────────────────────
-
-function JobsOverviewSkeleton() {
-  return (
-    <div className="space-y-6">
-      {/* Queue cards skeleton */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="pb-2">
-              <Skeleton className="h-5 w-36" />
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {Array.from({ length: 5 }).map((_, j) => (
-                <div key={j} className="flex items-center justify-between">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-5 w-10" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Failed jobs table skeleton */}
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-32" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full rounded" />
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// ─── Error Banners ────────────────────────────────────────────────────────────
-
-function BullMQError({ message }: { message: string }) {
-  return <EndpointErrorBanner state="missing" detail={message} action={<RefreshButton />} />;
-}
-
-function CronError({ message }: { message: string }) {
-  return <EndpointErrorBanner state="missing" detail={message} action={<RefreshButton />} />;
-}
-
-// ─── Data Loader (parallel, graceful degradation) ─────────────────────────────
-
-type JobsMessages = {
-  bullmqError: string;
-  cronError: string;
-  cronHeading: string;
-  cronDescription: string;
-  viewHistory: string;
-};
-
-async function JobsContent({ messages }: { messages: JobsMessages }) {
-  const [bullmqResult, cronResult, cronJobsResult] = await Promise.allSettled([
-    getJobsOverview(),
-    getCronRuns(),
-    listCronJobs(),
-  ]);
-
-  // The catalog lists every scheduled job and enables run-now. If it can't be
-  // loaded (403 for non super-admin, or error) the table falls back to known jobs.
-  const catalog = cronJobsResult.status === "fulfilled" ? cronJobsResult.value : undefined;
-  // 403 is expected for non super-admins: not worth an error log on every load.
-  if (
-    cronJobsResult.status === "rejected" &&
-    !(cronJobsResult.reason instanceof ApiError && cronJobsResult.reason.status === 403)
-  ) {
-    console.error("[JobsPage] Failed to load cron jobs catalog:", cronJobsResult.reason);
-  }
-
-  const bullmqSection =
-    bullmqResult.status === "fulfilled" ? (
-      <JobsOverviewClient data={bullmqResult.value} />
-    ) : (
-      (() => {
-        console.error("[JobsPage] Failed to load BullMQ data:", bullmqResult.reason);
-        return <BullMQError message={messages.bullmqError} />;
-      })()
-    );
-
-  const cronSection =
-    cronResult.status === "fulfilled" ? (
-      <CronRunsSection data={cronResult.value} catalog={catalog} />
-    ) : (
-      (() => {
-        console.error("[JobsPage] Failed to load cron-runs data:", cronResult.reason);
-        return <CronError message={messages.cronError} />;
-      })()
-    );
-
-  return (
-    <div className="space-y-8">
-      {bullmqSection}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-semibold">{messages.cronHeading}</h2>
-            <p className="text-xs text-muted-foreground">
-              {messages.cronDescription}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/system/jobs/history">
-              <History className="size-4 mr-2" />
-              {messages.viewHistory}
-            </Link>
-          </Button>
-        </div>
-        {cronSection}
-      </div>
-    </div>
-  );
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+type SearchParams = Record<string, string | string[] | undefined>;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("system_jobs");
-  return { title: t("page.title") };
+  const t = await getTranslations("admin.system");
+  return { title: t("title") };
 }
 
-export default async function JobsPage() {
+function LoadError({ error }: { error: unknown }) {
+  const { kind, detail } = errorStateFromError(error);
+  return <ErrorState kind={kind} {...(detail ? { detail } : {})} retry />;
+}
+
+export default async function SystemJobsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const user = await requireAdminUser();
   // The layout hides a forbidden page, but it renders in parallel with it:
   // stop here so the page does not call the API for nothing.
-  if (!canAccessDashboardPath(user, "/dashboard/system/jobs")) {
+  if (!canAccessDashboardPath(user, SYSTEM_JOBS_PATH)) {
     return <PageAccessForbidden />;
   }
-  const t = await getTranslations("system_jobs");
 
-  const messages: JobsMessages = {
-    bullmqError: t("page.errors.bullmqLoad"),
-    cronError: t("page.errors.cronLoad"),
-    cronHeading: t("page.cronSection.heading"),
-    cronDescription: t("page.cronSection.description"),
-    viewHistory: t("page.cronSection.viewHistory"),
-  };
+  const t = await getTranslations("admin.system");
+  const params = await searchParams;
+  const tab = parseSystemTab(params.tab);
+  const filters = parseCronHistoryFilters(params);
+
+  // The failed count is the number on the first tab, so the overview loads on every tab.
+  const overviewResult = await Promise.allSettled([getJobsOverview()]).then(([r]) => r);
+  const failedCount =
+    overviewResult.status === "fulfilled"
+      ? overviewResult.value.queues.reduce((sum, q) => sum + q.failed, 0)
+      : 0;
+
+  let content: React.ReactNode;
+
+  if (tab === "queues") {
+    if (overviewResult.status === "fulfilled") {
+      content = <QueuesTab data={overviewResult.value} />;
+    } else {
+      console.error("[SystemPage] Failed to load queues:", overviewResult.reason);
+      content = <LoadError error={overviewResult.reason} />;
+    }
+  } else if (tab === "cron") {
+    const [runsResult, catalogResult] = await Promise.allSettled([getCronRuns(), listCronJobs()]);
+    // The catalog is 403 for non super-admins: expected, not worth an error log.
+    if (
+      catalogResult.status === "rejected" &&
+      !(catalogResult.reason instanceof ApiError && catalogResult.reason.status === 403)
+    ) {
+      console.error("[SystemPage] Failed to load cron catalog:", catalogResult.reason);
+    }
+    if (runsResult.status === "fulfilled") {
+      content = (
+        <CronRunsSection
+          data={runsResult.value}
+          catalog={catalogResult.status === "fulfilled" ? catalogResult.value : undefined}
+        />
+      );
+    } else {
+      console.error("[SystemPage] Failed to load cron runs:", runsResult.reason);
+      content = <LoadError error={runsResult.reason} />;
+    }
+  } else {
+    const [historyResult] = await Promise.allSettled([
+      getCronRunsHistory({
+        job_name: filters.job_name,
+        status: filters.status,
+        since: filters.since,
+        until: filters.until,
+        page: filters.page,
+        limit: 20,
+      }),
+    ]);
+    if (historyResult.status === "fulfilled") {
+      content = <CronHistoryTab data={historyResult.value} filters={filters} />;
+    } else {
+      console.error("[SystemPage] Failed to load cron history:", historyResult.reason);
+      content = <LoadError error={historyResult.reason} />;
+    }
+  }
 
   return (
     <div className="space-y-4">
-      <PageHeader title={t("page.title")} description={t("page.description")} />
-      <Suspense fallback={<JobsOverviewSkeleton />}>
-        <JobsContent messages={messages} />
-      </Suspense>
+      <PageHeader
+        title={t("title")}
+        description={t("description")}
+        actions={<SystemRefreshButton />}
+      />
+      <UrlTabs
+        ariaLabel={t("title")}
+        defaultValue="queues"
+        tabs={[
+          {
+            value: "queues",
+            label: t("tabs.queues"),
+            href: buildSystemHref("queues"),
+            ...(failedCount > 0 ? { count: failedCount } : {}),
+          },
+          { value: "cron", label: t("tabs.cron"), href: buildSystemHref("cron") },
+          { value: "history", label: t("tabs.history"), href: buildSystemHref("history") },
+        ]}
+      />
+      {content}
     </div>
   );
 }
