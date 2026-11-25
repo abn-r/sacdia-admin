@@ -48,8 +48,8 @@ describe("index pages: data", () => {
       "admin-local-field-payment-methods", "admin-local-field-delivery",
       "admin-campamentos-config-local", "admin-campamentos-config-union",
       "admin-settings-scoring-categories", "admin-system-variables", "admin-system-jobs",
-      "admin-system-jobs-history", "admin-system-achievements", "admin-system-audit",
-      "admin-system-roles", "admin-system-permissions", "admin-system-matrix",
+      "admin-system-achievements", "admin-system-audit",
+      "admin-system-roles",
       "investiture-settings", "clubs-evidence-folders-templates",
     ]) {
       expect(ids.has(id), id).toBe(true);

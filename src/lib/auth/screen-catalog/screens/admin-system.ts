@@ -59,7 +59,10 @@ export const adminSystemScreens: ScreenDefinition[] = [
     // POST /admin/system/jobs/:name/run — super-admin only (`system.jobs.run`).
     capabilities: [{ id: "run", kind: "button", gate: capabilityAccess("system.jobs.run") }],
   },
-  viewOnlyScreen("admin-system-jobs-history", capabilityAccess("system.config.read")),
+  viewOnlyScreen("admin-system-jobs-history", capabilityAccess("system.config.read"), {
+    // History is a tab of Sistema now; the old route keeps its own gate and redirects.
+    path: "/dashboard/system/jobs/history",
+  }),
   // `/admin/achievements` is `@GlobalRoles('admin', 'super-admin')` +
   // `achievements:manage`. Field roles also hold the permission, but the API
   // answers them 403, so the page needs `catalogs.edit` too.
@@ -80,7 +83,9 @@ export const adminSystemScreens: ScreenDefinition[] = [
   {
     id: "admin-system-roles",
     surfaces: ["admin"],
-    viewAny: { permissions: [ROLES_READ] },
+    // One entry with tabs (Roles, Por rol, Catálogo, Permisos directos): the page
+    // opens with either read permission and each tab checks its own.
+    viewAny: { permissions: [ROLES_READ, PERMISSIONS_READ] },
     capabilities: [
       // POST/PATCH/DELETE roles, POST/PUT/DELETE roles/:id/permissions
       { id: "manage", kind: "button", gate: RBAC_WRITE },
@@ -89,6 +94,8 @@ export const adminSystemScreens: ScreenDefinition[] = [
   {
     id: "admin-system-permissions",
     surfaces: ["admin"],
+    // Tab of Roles y permisos now; the old route keeps its own gate and redirects.
+    path: "/dashboard/configuration/permissions",
     viewAny: { permissions: [PERMISSIONS_READ] },
     capabilities: [
       // POST/PATCH/DELETE permissions
@@ -105,6 +112,8 @@ export const adminSystemScreens: ScreenDefinition[] = [
   {
     id: "admin-system-matrix",
     surfaces: ["admin"],
+    // "Por rol" tab of Roles y permisos now; the old route keeps its own gate and redirects.
+    path: "/dashboard/configuration/matrix",
     viewAny: {
       permissions: [ROLES_READ, PERMISSIONS_READ],
       requireAll: true,
