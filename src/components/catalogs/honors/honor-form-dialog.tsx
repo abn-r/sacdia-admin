@@ -69,28 +69,10 @@ export function HonorFormDialog({
 }: HonorFormDialogProps) {
   const t = useTranslations("catalogs.entities.honors");
   const tCatalogs = useTranslations("catalogs");
-  const tFields = useTranslations("catalogs.fields");
   const entity = t("singular");
 
   const action = mode === "create" ? createHonorAction : updateHonorAction;
   const [state, formAction] = useActionState(action, initialState);
-  const [active, setActive] = useState(true);
-  const [honorsCategoryId, setHonorsCategoryId] = useState("");
-  const [clubTypeId, setClubTypeId] = useState("");
-  const [approval, setApproval] = useState("1");
-  const [skillLevel, setSkillLevel] = useState("1");
-  const [translations, setTranslations] = useState<CatalogTranslation[]>([]);
-
-  useEffect(() => {
-    if (open) {
-      setTranslations(toCatalogTranslations(honor?.translations));
-      setActive(honor?.active ?? true);
-      setHonorsCategoryId(honor?.honors_category_id ? String(honor.honors_category_id) : "");
-      setClubTypeId(honor?.club_type_id ? String(honor.club_type_id) : "");
-      setApproval(honor?.approval ? String(honor.approval) : "1");
-      setSkillLevel(honor?.skill_level ? String(honor.skill_level) : "1");
-    }
-  }, [open, honor]);
 
   useEffect(() => {
     if (state.ok) {
@@ -124,148 +106,195 @@ export function HonorFormDialog({
           <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="space-y-4">
-          {mode === "edit" && honor ? (
-            <input type="hidden" name="honor_id" value={honor.honor_id} />
-          ) : null}
-          <input type="hidden" name="honors_category_id" value={honorsCategoryId} />
-          <input type="hidden" name="club_type_id" value={clubTypeId} />
-          <input type="hidden" name="approval" value={approval} />
-          <input type="hidden" name="skill_level" value={skillLevel} />
-
-          <TranslationsTabsField
-            esContent={
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="honor-name">{tFields("name")}</Label>
-                    <Input
-                      id="honor-name"
-                      name="name"
-                      defaultValue={honor?.name ?? ""}
-                      required
-                      maxLength={100}
-                    />
-                  </div>
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="honor-description">{tFields("description")}</Label>
-                    <Textarea
-                      id="honor-description"
-                      name="description"
-                      defaultValue={honor?.description ?? ""}
-                      className="min-h-[80px] resize-none"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <HonorAssetField
-                      key={`image-${honor?.honor_id ?? "new"}-${open}`}
-                      kind="image"
-                      id="honor-image"
-                      name="honor_image"
-                      defaultValue={honor?.honor_image}
-                      required
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <HonorAssetField
-                      key={`material-${honor?.honor_id ?? "new"}-${open}`}
-                      kind="material"
-                      id="honor-material"
-                      name="material_url"
-                      defaultValue={honor?.material_url}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-honor-category">{tFields("honor_category")}</Label>
-                    <Select value={honorsCategoryId} onValueChange={setHonorsCategoryId} required>
-                      <SelectTrigger id="honor-honor-category" className="w-full">
-                        <SelectValue placeholder={tFields("honor_category")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category.honor_category_id}
-                            value={String(category.honor_category_id)}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-club-type">{tFields("club_type")}</Label>
-                    <Select value={clubTypeId} onValueChange={setClubTypeId} required>
-                      <SelectTrigger id="honor-club-type" className="w-full">
-                        <SelectValue placeholder={tFields("club_type")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clubTypes.map((clubType) => (
-                          <SelectItem key={clubType.club_type_id} value={String(clubType.club_type_id)}>
-                            {clubType.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-approval">{tFields("approval")}</Label>
-                    <Select value={approval} onValueChange={setApproval}>
-                      <SelectTrigger id="honor-approval" className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-skill-level">{tFields("skill_level")}</Label>
-                    <Select value={skillLevel} onValueChange={setSkillLevel}>
-                      <SelectTrigger id="honor-skill-level" className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-year">{tFields("year")}</Label>
-                    <Input id="honor-year" name="year" defaultValue={honor?.year ?? ""} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="honor-active">{tFields("active")}</Label>
-                    <div className="flex h-9 items-center">
-                      <Switch id="honor-active" checked={active} onCheckedChange={setActive} />
-                      <input type="hidden" name="active" value={active ? "true" : "false"} />
-                    </div>
-                  </div>
-                </div>
-            }
-            translations={translations}
-            onTranslationsChange={setTranslations}
-            legacyFieldNames
-          />
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {tCatalogs("deleteDialog.cancel")}
-            </Button>
-            <SubmitButton
-              label={
-                mode === "create"
-                  ? tCatalogs("actions.create", { entity })
-                  : tCatalogs("crudPage.edit")
-              }
-            />
-          </DialogFooter>
-        </form>
+        <HonorForm
+          key={`${mode}-${honor?.honor_id ?? "new"}`}
+          formAction={formAction}
+          mode={mode}
+          honor={honor}
+          categories={categories}
+          clubTypes={clubTypes}
+          onCancel={() => onOpenChange(false)}
+          submitLabel={
+            mode === "create"
+              ? tCatalogs("actions.create", { entity })
+              : tCatalogs("crudPage.edit")
+          }
+        />
       </DialogContent>
     </Dialog>
+  );
+}
+
+type HonorFormProps = {
+  formAction: (payload: FormData) => void;
+  mode: "create" | "edit";
+  honor?: AdminHonorRow | null;
+  categories: AdminHonorCategoryRow[];
+  clubTypes: AdminClubType[];
+  onCancel: () => void;
+  submitLabel: string;
+};
+
+/**
+ * The form body. It mounts each time the dialog opens (Radix unmounts closed
+ * content) and is keyed by honor, so its state starts from the honor's values
+ * without syncing them in an effect.
+ */
+function HonorForm({
+  formAction,
+  mode,
+  honor,
+  categories,
+  clubTypes,
+  onCancel,
+  submitLabel,
+}: HonorFormProps) {
+  const tCatalogs = useTranslations("catalogs");
+  const tFields = useTranslations("catalogs.fields");
+  const [active, setActive] = useState(honor?.active ?? true);
+  const [honorsCategoryId, setHonorsCategoryId] = useState(
+    honor?.honors_category_id ? String(honor.honors_category_id) : "",
+  );
+  const [clubTypeId, setClubTypeId] = useState(honor?.club_type_id ? String(honor.club_type_id) : "");
+  const [approval, setApproval] = useState(honor?.approval ? String(honor.approval) : "1");
+  const [skillLevel, setSkillLevel] = useState(honor?.skill_level ? String(honor.skill_level) : "1");
+  const [translations, setTranslations] = useState<CatalogTranslation[]>(() =>
+    toCatalogTranslations(honor?.translations),
+  );
+
+  return (
+      <form action={formAction} className="space-y-4">
+        {mode === "edit" && honor ? (
+          <input type="hidden" name="honor_id" value={honor.honor_id} />
+        ) : null}
+        <input type="hidden" name="honors_category_id" value={honorsCategoryId} />
+        <input type="hidden" name="club_type_id" value={clubTypeId} />
+        <input type="hidden" name="approval" value={approval} />
+        <input type="hidden" name="skill_level" value={skillLevel} />
+
+        <TranslationsTabsField
+          esContent={
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="honor-name">{tFields("name")}</Label>
+                  <Input
+                    id="honor-name"
+                    name="name"
+                    defaultValue={honor?.name ?? ""}
+                    required
+                    maxLength={100}
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="honor-description">{tFields("description")}</Label>
+                  <Textarea
+                    id="honor-description"
+                    name="description"
+                    defaultValue={honor?.description ?? ""}
+                    className="min-h-[80px] resize-none"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <HonorAssetField
+                                      kind="image"
+                    id="honor-image"
+                    name="honor_image"
+                    defaultValue={honor?.honor_image}
+                    required
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <HonorAssetField
+                                      kind="material"
+                    id="honor-material"
+                    name="material_url"
+                    defaultValue={honor?.material_url}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-honor-category">{tFields("honor_category")}</Label>
+                  <Select value={honorsCategoryId} onValueChange={setHonorsCategoryId} required>
+                    <SelectTrigger id="honor-honor-category" className="w-full">
+                      <SelectValue placeholder={tFields("honor_category")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem
+                          key={category.honor_category_id}
+                          value={String(category.honor_category_id)}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-club-type">{tFields("club_type")}</Label>
+                  <Select value={clubTypeId} onValueChange={setClubTypeId} required>
+                    <SelectTrigger id="honor-club-type" className="w-full">
+                      <SelectValue placeholder={tFields("club_type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clubTypes.map((clubType) => (
+                        <SelectItem key={clubType.club_type_id} value={String(clubType.club_type_id)}>
+                          {clubType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-approval">{tFields("approval")}</Label>
+                  <Select value={approval} onValueChange={setApproval}>
+                    <SelectTrigger id="honor-approval" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-skill-level">{tFields("skill_level")}</Label>
+                  <Select value={skillLevel} onValueChange={setSkillLevel}>
+                    <SelectTrigger id="honor-skill-level" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-year">{tFields("year")}</Label>
+                  <Input id="honor-year" name="year" defaultValue={honor?.year ?? ""} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="honor-active">{tFields("active")}</Label>
+                  <div className="flex h-9 items-center">
+                    <Switch id="honor-active" checked={active} onCheckedChange={setActive} />
+                    <input type="hidden" name="active" value={active ? "true" : "false"} />
+                  </div>
+                </div>
+              </div>
+          }
+          translations={translations}
+          onTranslationsChange={setTranslations}
+          legacyFieldNames
+        />
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            {tCatalogs("deleteDialog.cancel")}
+          </Button>
+          <SubmitButton label={submitLabel} />
+        </DialogFooter>
+      </form>
   );
 }
