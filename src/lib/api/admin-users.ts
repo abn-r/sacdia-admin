@@ -62,6 +62,8 @@ export type AdminUser = {
   club_assignments?: Array<{
     assignment_id?: string | null;
     role_name?: string | null;
+    /** `active`, or `pending` while the assignment awaits approval. */
+    status?: string | null;
     section_name?: string | null;
     club_name?: string | null;
   }>;
@@ -411,6 +413,7 @@ function normalizeClubAssignments(
     rows.push({
       assignment_id: pickString(record.assignment_id),
       role_name: roleName,
+      status: pickString(record.status),
       section_name: pickString(record.section_name),
       club_name: pickString(record.club_name),
     });

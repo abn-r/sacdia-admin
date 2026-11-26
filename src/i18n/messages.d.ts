@@ -7610,6 +7610,7 @@ export interface IntlMessages {
         completeDesktop: string;
       };
       noRole: string;
+      pendingRole: string;
       deletedAccount: string;
       anonymizedAccount: string;
     };

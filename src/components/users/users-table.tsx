@@ -18,7 +18,7 @@ import { ExceptionStatus } from "@/components/shared/exception-status";
 import { RowActionsHead } from "@/components/shared/row-actions";
 import { buildRoleTranslator, type RoleTranslator } from "@/lib/auth/role-labels";
 import { getAdminUserDisplayName, getAdminUserSecondaryLabel } from "@/lib/admin-users/display";
-import { toUserListRoleBadges } from "@/lib/admin-users/list-role-badges";
+import { toUserListRoleBadges, type UserListRoleBadge } from "@/lib/admin-users/list-role-badges";
 import { getFormatDate } from "@/lib/format-locale";
 
 type UsersTranslations = Awaited<ReturnType<typeof getTranslations<"users">>>;
@@ -151,9 +151,7 @@ export async function UsersTable({
                     </TableCell>
                     <TableCell className="max-w-[280px] whitespace-normal">
                       <span className="text-sm text-muted-foreground">
-                        {roleBadges.length > 0
-                          ? roleBadges.map((badge) => badge.label).join(", ")
-                          : t("list.noRole")}
+                        {roleBadgesText(roleBadges, t)}
                       </span>
                     </TableCell>
                     <TableCell className="hidden max-w-[200px] xl:table-cell">
@@ -242,7 +240,7 @@ function MobileRow({
 }) {
   const roleBadges = toUserListRoleBadges(user, translateRole);
   const fullName = getAdminUserDisplayName(user, { deletedAccount: t("list.deletedAccount") });
-  const role = roleBadges.length > 0 ? roleBadges.map((badge) => badge.label).join(", ") : t("list.noRole");
+  const role = roleBadgesText(roleBadges, t);
   const location = [user.union?.name, user.local_field?.name].filter(Boolean).join(" · ");
 
   return (
@@ -268,4 +266,14 @@ function MobileRow({
       <RowMenu user={user} name={fullName} />
     </div>
   );
+}
+
+/** "Director, Miembro (pendiente)"; a pending role awaits approval in its club. */
+function roleBadgesText(badges: UserListRoleBadge[], t: UsersTranslations): string {
+  if (badges.length === 0) {
+    return t("list.noRole");
+  }
+  return badges
+    .map((badge) => (badge.pending ? t("list.pendingRole", { role: badge.label }) : badge.label))
+    .join(", ");
 }
