@@ -115,4 +115,37 @@ describe("toUserListRoleBadges", () => {
 
     expect(badges.map((badge) => badge.label)).toEqual(["Director", "Miembro"]);
   });
+
+  it("marks a role as pending only when every club assignment with it is pending", () => {
+    const badges = toUserListRoleBadges(
+      {
+        roles: ["director", "member", "counselor"],
+        club_assignments: [
+          { assignment_id: "d1", role_name: "director", status: "active" },
+          { assignment_id: "m1", role_name: "member", status: "pending" },
+          { assignment_id: "c1", role_name: "counselor", status: "pending" },
+          { assignment_id: "c2", role_name: "counselor", status: "active" },
+        ],
+      },
+      translate,
+    );
+
+    expect(badges.map(({ label, pending }) => ({ label, pending }))).toEqual([
+      { label: "Director", pending: false },
+      { label: "Consejero", pending: false },
+      { label: "Miembro", pending: true },
+    ]);
+  });
+
+  it("never marks global roles or assignments without a status as pending", () => {
+    const badges = toUserListRoleBadges(
+      {
+        roles: ["director-lf", "member"],
+        club_assignments: [{ assignment_id: "m", role_name: "member" }],
+      },
+      translate,
+    );
+
+    expect(badges.every((badge) => !badge.pending)).toBe(true);
+  });
 });

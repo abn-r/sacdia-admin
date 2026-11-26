@@ -15,6 +15,8 @@ const CLUB_ROLE_RANK: Record<string, number> = {
 export type UserListRoleBadge = {
   key: string;
   label: string;
+  /** Every club assignment with this role still awaits approval. */
+  pending: boolean;
 };
 
 function rankRole(roleName: string): number {
@@ -73,8 +75,31 @@ export function toUserListRoleBadges(
   user: Pick<AdminUser, "roles" | "users_roles" | "club_assignments">,
   translateRole: RoleTranslator,
 ): UserListRoleBadge[] {
+  const pendingRoles = pendingOnlyRoles(user.club_assignments);
   return uniqueRoleNames(user).map((role) => ({
     key: role.toLowerCase(),
     label: translateRole(role) || role,
+    pending: pendingRoles.has(role.toLowerCase()),
   }));
+}
+
+/**
+ * Roles whose club assignments are all pending. Club and global role names
+ * never overlap, so a role held by a global grant is never in this set.
+ */
+function pendingOnlyRoles(assignments: AdminUser["club_assignments"]): Set<string> {
+  const pending = new Set<string>();
+  const held = new Set<string>();
+  for (const assignment of assignments ?? []) {
+    const role = assignment?.role_name?.trim().toLowerCase();
+    if (!role) {
+      continue;
+    }
+    if (assignment?.status === "pending") {
+      pending.add(role);
+    } else {
+      held.add(role);
+    }
+  }
+  return new Set([...pending].filter((role) => !held.has(role)));
 }

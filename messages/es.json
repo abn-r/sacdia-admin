@@ -7581,6 +7581,7 @@
         "completeDesktop": "Completo"
       },
       "noRole": "Sin rol",
+      "pendingRole": "{role} (pendiente)",
       "deletedAccount": "Cuenta eliminada",
       "anonymizedAccount": "Datos personales anonimizados"
     },
