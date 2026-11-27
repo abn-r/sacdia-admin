@@ -492,6 +492,8 @@ export type AdminReportItem = {
   status: ReportStatus;
   generated_at: string | null;
   submitted_at: string | null;
+  /** Club of the report's section; null when the section has no club. Club names are not unique: group by this id. */
+  club_id: number | null;
   club_name: string | null;
   club_type: string | null;
   club_type_id: number | null;
