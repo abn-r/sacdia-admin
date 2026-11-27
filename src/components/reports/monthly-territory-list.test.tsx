@@ -32,6 +32,7 @@ function item(overrides: Partial<AdminReportItem>): AdminReportItem {
     status: "submitted",
     generated_at: "2026-11-02T15:00:00.000Z",
     submitted_at: "2026-11-02T18:00:00.000Z",
+    club_id: 10,
     club_name: "Club Orión",
     club_type: "Conquistadores",
     club_type_id: 1,
